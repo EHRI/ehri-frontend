@@ -8,6 +8,7 @@ import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import eu.ehri.extension.EhriNeo4jFramedResource
+import com.typesafe.config.ConfigFactory
 
 /**
  * Add your spec here.
@@ -18,14 +19,19 @@ import eu.ehri.extension.EhriNeo4jFramedResource
 class ApplicationSpec extends Specification {
   sequential
 
+  // Load the test server using a different config...
+  val config = ConfigFactory.load("test.conf")
+  val port = config.getInt("neo4j.server.port")
+  val endpoint = config.getString("neo4j.server.endpoint")
+
   "Application" should {
 
     var runner: ServerRunner = null
     step {
-      runner = new ServerRunner(classOf[ApplicationSpec].getName, 7575)
+      runner = new ServerRunner(classOf[ApplicationSpec].getName, port)
       runner.getConfigurator
         .getThirdpartyJaxRsClasses()
-        .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/ehri"));
+        .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, endpoint));
       println("Starting server...")
       runner.start();
     }
