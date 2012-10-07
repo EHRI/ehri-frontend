@@ -24,18 +24,14 @@ class ApplicationSpec extends Specification {
   val port = config.getInt("neo4j.server.port")
   val endpoint = config.getString("neo4j.server.endpoint")
 
+  val runner: ServerRunner = new ServerRunner(classOf[ApplicationSpec].getName, port)
+  runner.getConfigurator
+    .getThirdpartyJaxRsClasses()
+    .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, endpoint));
+  println("Starting server...")
+  runner.start();
+
   "Application" should {
-
-    var runner: ServerRunner = null
-    step {
-      runner = new ServerRunner(classOf[ApplicationSpec].getName, port)
-      runner.getConfigurator
-        .getThirdpartyJaxRsClasses()
-        .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, endpoint));
-      println("Starting server...")
-      runner.start();
-    }
-
     "send 404 on a bad request" in {
       running(FakeApplication()) {
         route(FakeRequest(GET, "/boum")) must beNone
@@ -67,11 +63,10 @@ class ApplicationSpec extends Specification {
         contentAsString(home) must contain("Your new application is ready.")
       }
     }
+  }
 
-    step {
-      println("Stopping server...")
-      runner.stop
-    }
-
+  step {
+    println("Stopping server...")
+    runner.stop
   }
 }
