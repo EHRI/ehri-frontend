@@ -12,8 +12,8 @@ import play.api.libs.json.Json
 
 object Entities extends Controller {
 
-  val BASEURL = "http://localhost:7474/ehri"
-  val HEADERS = Map("Authorization" -> "2")
+  val BASEURL = "http://localhost:7575/ehri"
+  val HEADERS = Map("Authorization" -> "21")
   val CONTENT = Map(CONTENT_TYPE -> "application/json")
 
   def list(entityType: String) = Action {
