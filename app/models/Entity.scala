@@ -20,12 +20,6 @@ object EntityReader {
   import play.api.libs.json.Reads._
   import play.api.data.validation.ValidationError
 
-  // defines a custom reads to be reused
-  // a reads that verifies your value is not equal to a give value
-  def notEqualReads[T](v: T)(implicit r: Reads[T]): Reads[T] = Reads.filterNot(ValidationError("validate.error.unexpected.value", v))(_ == v)
-
-  def skipReads(implicit r: Reads[String]): Reads[String] = r.map(_.substring(2))
-
   implicit val entityReads: Reads[Entity] = (
     (__ \ "id").read[Long] and
     (__ \ "data").lazyRead(map[JsValue]) and

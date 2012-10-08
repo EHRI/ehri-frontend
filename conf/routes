@@ -2,6 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+GET     /login           controllers.Application.login
+POST     /login           controllers.Application.loginPost
+GET     /logout           controllers.Application.logout
+
 # Home page
 GET     /                           controllers.Application.index
 GET     /:entityType/list           controllers.Entities.list(entityType: String)

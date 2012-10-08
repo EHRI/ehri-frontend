@@ -10,6 +10,7 @@ import org.specs2.runner.JUnitRunner
 import eu.ehri.extension.EhriNeo4jFramedResource
 import com.typesafe.config.ConfigFactory
 
+
 /**
  * Add your spec here.
  * You can mock out a whole application including requests, plugins etc.
@@ -27,7 +28,7 @@ class ApplicationSpec extends Specification {
   val runner: ServerRunner = new ServerRunner(classOf[ApplicationSpec].getName, port)
   runner.getConfigurator
     .getThirdpartyJaxRsClasses()
-    .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, endpoint));
+    .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/" + endpoint));
   println("Starting server...")
   runner.start();
 
