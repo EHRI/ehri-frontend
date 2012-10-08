@@ -10,7 +10,7 @@ import org.specs2.runner.JUnitRunner
 import eu.ehri.extension.EhriNeo4jFramedResource
 import com.typesafe.config.ConfigFactory
 
-import models.EntityDAO
+import models.{EntityDAO,ValidationError}
 
 import play.api.libs.concurrent.execution.defaultContext
 
@@ -58,7 +58,16 @@ class EntityDAOSpec extends Specification {
         await(EntityDAO("userProfile").update(entity.id, data)) must beRight
       }
     }
-    
+
+    "error when creating without an isA" in {
+      running(FakeApplication()) {
+        val data = Map("identifier" -> "foobar", "name" -> "Foobar")
+        val err = await(EntityDAO("userProfile").create(data))
+        err must beLeft
+        err.left.get mustEqual ValidationError
+      }
+    }
+
     "delete an item by id" in {
       running(FakeApplication()) {
         val data = Map("isA" -> "userProfile", "identifier" -> "foobar", "name" -> "Foobar")
@@ -66,11 +75,11 @@ class EntityDAOSpec extends Specification {
         await(EntityDAO("userProfile").delete(entity.id)) must beRight
       }
     }
-    
+
     "list items" in {
       running(FakeApplication()) {
         await(EntityDAO("userProfile").list) must beRight
-      }      
+      }
     }
   }
 
