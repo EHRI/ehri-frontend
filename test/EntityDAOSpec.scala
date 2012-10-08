@@ -34,7 +34,7 @@ class EntityDAOSpec extends Specification {
   runner.getConfigurator
     .getThirdpartyJaxRsClasses()
     .add(new ThirdPartyJaxRsPackage(
-        classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/" + endpoint));
+      classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/" + endpoint));
   runner.start();
 
   "EntityDAO" should {
@@ -42,6 +42,35 @@ class EntityDAOSpec extends Specification {
       running(FakeApplication()) {
         await(EntityDAO("userProfile").get(21)) must beRight
       }
+    }
+
+    "create an item" in {
+      running(FakeApplication()) {
+        val data = Map("isA" -> "userProfile", "identifier" -> "foobar", "name" -> "Foobar")
+        await(EntityDAO("userProfile").create(data)) must beRight
+      }
+    }
+
+    "update an item by id" in {
+      running(FakeApplication()) {
+        val data = Map("isA" -> "userProfile", "identifier" -> "foobar", "name" -> "Foobar")
+        val entity = await(EntityDAO("userProfile").create(data)).right.get
+        await(EntityDAO("userProfile").update(entity.id, data)) must beRight
+      }
+    }
+    
+    "delete an item by id" in {
+      running(FakeApplication()) {
+        val data = Map("isA" -> "userProfile", "identifier" -> "foobar", "name" -> "Foobar")
+        val entity = await(EntityDAO("userProfile").create(data)).right.get
+        await(EntityDAO("userProfile").delete(entity.id)) must beRight
+      }
+    }
+    
+    "list items" in {
+      running(FakeApplication()) {
+        await(EntityDAO("userProfile").list) must beRight
+      }      
     }
   }
 
