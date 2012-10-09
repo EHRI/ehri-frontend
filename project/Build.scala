@@ -7,12 +7,15 @@ object ApplicationBuild extends Build {
   val appName = "docview"
   val appVersion = "1.0-SNAPSHOT"
 
+  javaOptions in (Test,run) += "-XX:MaxPermSize=1024m"
+
   val appDependencies = Seq(
     // Add your project dependencies here
     "jp.t2v" %% "play20.auth" % "0.4-SNAPSHOT",
     "com.codahale" % "jerkson_2.9.1" % "0.5.0",
     "com.sun.jersey" % "jersey-core" % "1.9",
     "org.neo4j.app" % "neo4j-server" % "1.8" classifier "static-web" classifier "",
+    "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
     "ehri-project" % "ehri-plugin" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "")

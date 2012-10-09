@@ -4,7 +4,12 @@
 
 GET     /login           controllers.Application.login
 POST     /login           controllers.Application.loginPost
+
+POST	/authenticate	  controllers.Application.authenticate
 GET     /logout           controllers.Application.logout
+POST     /logout           controllers.Application.logout
+
+GET		/test			  controllers.Application.test
 
 # Home page
 GET     /                           controllers.Application.index
