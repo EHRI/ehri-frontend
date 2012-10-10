@@ -44,14 +44,14 @@ class EntityDAOSpec extends Specification {
 
     "create an item" in {
       running(FakeApplication(additionalConfiguration=config)) {
-        val data = Map("isA" -> entityType, "identifier" -> "foobar", "name" -> "Foobar")
+        val data = Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar")
         await(EntityDAO(entityType, userProfile).create(data)) must beRight
       }
     }
 
     "update an item by id" in {
       running(FakeApplication(additionalConfiguration=config)) {
-        val data = Map("isA" -> entityType, "identifier" -> "foobar", "name" -> "Foobar")
+        val data = Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar")
         val entity = await(EntityDAO(entityType, userProfile).create(data)).right.get
         await(EntityDAO(entityType, userProfile).update(entity.id, data)) must beRight
       }
@@ -68,7 +68,7 @@ class EntityDAOSpec extends Specification {
 
     "delete an item by id" in {
       running(FakeApplication(additionalConfiguration=config)) {
-        val data = Map("isA" -> entityType, "identifier" -> "foobar", "name" -> "Foobar")
+        val data = Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar")
         val entity = await(EntityDAO(entityType, userProfile).create(data)).right.get
         await(EntityDAO(entityType, userProfile).delete(entity.id)) must beRight
       }

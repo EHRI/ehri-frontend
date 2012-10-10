@@ -7,7 +7,7 @@ import play.api.mvc.SimpleResult
 import play.api.mvc.ResponseHeader
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.execution.defaultContext
-import models.EntityDAO
+import models.{EntityDAO,EntityTypes}
 import play.api.libs.json.Json
 
 import com.codahale.jerkson.Json.generate
@@ -17,7 +17,7 @@ object Entities extends Controller with AuthController {
   def list(entityType: String) = optionalUserAction { implicit maybeUser =>
     implicit request =>
       Async {
-        EntityDAO(entityType, maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
           itemOrErr match {
             case Right(lst) => Ok(lst.toString)
             case Left(err) => BadRequest("WRONG!" + err)
@@ -29,7 +29,7 @@ object Entities extends Controller with AuthController {
   def getJson(entityType: String, id: Long) = optionalUserAction { implicit maybeUser =>
     implicit request =>
       Async {
-        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr match {
             case Right(item) => Ok(generate(item.data))
             case Left(err) => BadRequest("WRONG!" + err)
@@ -41,7 +41,7 @@ object Entities extends Controller with AuthController {
   def get(entityType: String, id: Long) = optionalUserAction { implicit maybeUser =>
     implicit request =>
       Async {
-        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr match {
             case Right(item) => Ok(item.toString)
             case Left(err) => BadRequest("WRONG!" + err)
