@@ -10,7 +10,6 @@ import org.specs2.runner.JUnitRunner
 import eu.ehri.extension.EhriNeo4jFramedResource
 import com.typesafe.config.ConfigFactory
 
-
 /**
  * Add your spec here.
  * You can mock out a whole application including requests, plugins etc.
@@ -29,7 +28,6 @@ class ApplicationSpec extends Specification {
   runner.getConfigurator
     .getThirdpartyJaxRsClasses()
     .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/" + endpoint));
-  println("Starting server...")
   runner.start();
 
   "Application" should {
@@ -43,15 +41,16 @@ class ApplicationSpec extends Specification {
       running(FakeApplication()) {
         val list = route(FakeRequest(GET, "/documentaryUnit/list")).get
         status(list) must equalTo(OK)
-        contentType(list) must beSome.which(_ == "application/json")
       }
     }
 
     "show should get a wierd string" in {
       running(FakeApplication()) {
-        val show = route(FakeRequest(GET, "/documentaryUnit/show/1")).get
+        // FIXME: Set the the unit that is world-accessible because we
+        // can't yet log in from tests...
+        val show = route(FakeRequest(GET, "/documentaryUnit/show/7")).get
         status(show) must equalTo(OK)
-        contentAsString(show) must equalTo("<Some(\"c1\") (1)>")
+        contentAsString(show) must equalTo("<Some(\"c4\") (7)>")
       }
     }
 
@@ -67,7 +66,6 @@ class ApplicationSpec extends Specification {
   }
 
   step {
-    println("Stopping server...")
     runner.stop
   }
 }

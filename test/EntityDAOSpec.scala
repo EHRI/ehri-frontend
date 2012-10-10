@@ -9,12 +9,10 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import eu.ehri.extension.EhriNeo4jFramedResource
 import com.typesafe.config.ConfigFactory
-
 import models.{EntityDAO,ValidationError}
-
 import play.api.libs.concurrent.execution.defaultContext
-
-import models.Entity
+import models.{Entity,EntityTypes}
+import models.UserProfile
 
 /**
  * Add your spec here.
@@ -24,61 +22,61 @@ import models.Entity
 @RunWith(classOf[JUnitRunner])
 class EntityDAOSpec extends Specification {
   sequential
+  
+  val testPort = 7575
+  val config = Map("neo4j.server.port" -> testPort)
+  val userProfile = Some(UserProfile(Entity(21)))
+  val entityType = EntityTypes.UserProfile
 
-  // Load the test server using a different config...
-  val config = ConfigFactory.load("test.conf")
-  val port = config.getInt("neo4j.server.port")
-  val endpoint = config.getString("neo4j.server.endpoint")
-
-  val runner: ServerRunner = new ServerRunner(classOf[EntityDAOSpec].getName, port)
+  val runner: ServerRunner = new ServerRunner(classOf[EntityDAOSpec].getName, testPort)
   runner.getConfigurator
     .getThirdpartyJaxRsClasses()
     .add(new ThirdPartyJaxRsPackage(
-      classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/" + endpoint));
+      classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/ehri"));
   runner.start();
 
   "EntityDAO" should {
     "get an item by id" in {
-      running(FakeApplication()) {
-        await(EntityDAO("userProfile").get(21)) must beRight
+      running(FakeApplication(additionalConfiguration=config)) {
+        await(EntityDAO(entityType, userProfile).get(21)) must beRight
       }
     }
 
     "create an item" in {
-      running(FakeApplication()) {
-        val data = Map("isA" -> "userProfile", "identifier" -> "foobar", "name" -> "Foobar")
-        await(EntityDAO("userProfile").create(data)) must beRight
+      running(FakeApplication(additionalConfiguration=config)) {
+        val data = Map("isA" -> entityType, "identifier" -> "foobar", "name" -> "Foobar")
+        await(EntityDAO(entityType, userProfile).create(data)) must beRight
       }
     }
 
     "update an item by id" in {
-      running(FakeApplication()) {
-        val data = Map("isA" -> "userProfile", "identifier" -> "foobar", "name" -> "Foobar")
-        val entity = await(EntityDAO("userProfile").create(data)).right.get
-        await(EntityDAO("userProfile").update(entity.id, data)) must beRight
+      running(FakeApplication(additionalConfiguration=config)) {
+        val data = Map("isA" -> entityType, "identifier" -> "foobar", "name" -> "Foobar")
+        val entity = await(EntityDAO(entityType, userProfile).create(data)).right.get
+        await(EntityDAO(entityType, userProfile).update(entity.id, data)) must beRight
       }
     }
 
     "error when creating without an isA" in {
-      running(FakeApplication()) {
+      running(FakeApplication(additionalConfiguration=config)) {
         val data = Map("identifier" -> "foobar", "name" -> "Foobar")
-        val err = await(EntityDAO("userProfile").create(data))
+        val err = await(EntityDAO(entityType, userProfile).create(data))
         err must beLeft
         err.left.get mustEqual ValidationError
       }
     }
 
     "delete an item by id" in {
-      running(FakeApplication()) {
-        val data = Map("isA" -> "userProfile", "identifier" -> "foobar", "name" -> "Foobar")
-        val entity = await(EntityDAO("userProfile").create(data)).right.get
-        await(EntityDAO("userProfile").delete(entity.id)) must beRight
+      running(FakeApplication(additionalConfiguration=config)) {
+        val data = Map("isA" -> entityType, "identifier" -> "foobar", "name" -> "Foobar")
+        val entity = await(EntityDAO(entityType, userProfile).create(data)).right.get
+        await(EntityDAO(entityType, userProfile).delete(entity.id)) must beRight
       }
     }
 
     "list items" in {
-      running(FakeApplication()) {
-        await(EntityDAO("userProfile").list) must beRight
+      running(FakeApplication(additionalConfiguration=config)) {
+        await(EntityDAO(entityType, userProfile).list) must beRight
       }
     }
   }

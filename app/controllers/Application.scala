@@ -21,7 +21,6 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
 
   def test = optionalUserAction { implicit maybeUser =>
     implicit request =>
-      println("rendering test...")
       Ok(views.html.test("Testing login here..."))
   }
 
@@ -34,40 +33,33 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   def loginPost = TODO
 
   def logout = Action { implicit request =>
-    println("log out...")
     gotoLogoutSucceeded
   }
 
-  val userData = Map("isA" -> "userProfile", "identifier" -> "user0193948", "name" -> "user0193948")
-
   def authenticate = Action { implicit request =>
-
     val assertion: String = request.body.asFormUrlEncoded.map(
-    		_.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("");
-    //val validate = "assertion=%s&audience=%s".format(assertion, EHRI_URL)
+      _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("");
+
     val validate = Map("assertion" -> Seq(assertion), "audience" -> Seq(EHRI_URL))
-    println("Validating with: " + validate)
+
     Async {
       WS.url(PERSONA_URL).post(validate).map { response =>
-        println("persona response: " + response.body)
         response.json \ "status" match {
           case js @ JsString("okay") => {
-            println("OKAY!")
             val email: String = (response.json \ "email").as[String]
 
             models.sql.User.authenticate(email) match {
               case Some(user) => gotoLoginSucceeded(email)
               case None => {
                 Async {
-                  models.EntityDAO("userProfile").create(userData).map { e =>
-                    e match {
-                      case Right(entity) => {
-                        models.sql.User.create(entity.id, email).map { user =>
-                          println("LOGGED IN OKAY!!!")
-                          gotoLoginSucceeded(user.email)
-                        }.getOrElse(BadRequest("Creation of user db failed!"))
-                      }
-                      case Left(err) => BadRequest("Unexpected REST error: " + err)
+                  models.AdminDAO().createNewUserProfile.map {
+                    case Right(entity) => {
+                      models.sql.User.create(entity.id, email).map { user =>
+                        gotoLoginSucceeded(user.email)
+                      }.getOrElse(BadRequest("Creation of user db failed!"))
+                    }
+                    case Left(err) => {
+                      BadRequest("Unexpected REST error: " + err)
                     }
                   }
                 }

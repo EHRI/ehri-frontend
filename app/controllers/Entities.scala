@@ -7,68 +7,58 @@ import play.api.mvc.SimpleResult
 import play.api.mvc.ResponseHeader
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.execution.defaultContext
-import models.EntityReader
+import models.EntityDAO
 import play.api.libs.json.Json
 
-object Entities extends Controller {
+import com.codahale.jerkson.Json.generate
 
-  val BASEURL = "http://localhost:7575/ehri"
-  val HEADERS = Map("Authorization" -> "21")
-  val CONTENT = Map(CONTENT_TYPE -> "application/json")
+object Entities extends Controller with AuthController {
 
-  def list(entityType: String) = Action {
-    Async {
-      WS.url(List(BASEURL, entityType, "list").mkString("/"))
-        .withHeaders(HEADERS.toSeq: _*).get.map { response =>
-          SimpleResult(
-            header = ResponseHeader(response.status, CONTENT),
-            body = Enumerator(response.json)
-          )
+  def list(entityType: String) = optionalUserAction { implicit maybeUser =>
+    implicit request =>
+      Async {
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
+          itemOrErr match {
+            case Right(lst) => Ok(lst.toString)
+            case Left(err) => BadRequest("WRONG!" + err)
+          }
         }
-    }
+      }
   }
 
-    def getJson(entityType: String, id: Long) = Action {
-    Async {
-      WS.url(List(BASEURL, entityType, id.toString).mkString("/"))
-        .withHeaders(HEADERS.toSeq: _*).get.map { response =>
-          SimpleResult(
-            header = ResponseHeader(response.status, CONTENT),
-            body = Enumerator(response.json)
-          )
+  def getJson(entityType: String, id: Long) = optionalUserAction { implicit maybeUser =>
+    implicit request =>
+      Async {
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr match {
+            case Right(item) => Ok(generate(item.data))
+            case Left(err) => BadRequest("WRONG!" + err)
+          }
         }
-    }
+      }
   }
-  
-  def get(entityType: String, id: Long) = Action {
-    Async {
-      WS.url(List(BASEURL, entityType, id.toString).mkString("/"))
-        .withHeaders(HEADERS.toSeq: _*).get.map { response =>
-          
-          import models.EntityReader._
-          import models.Entity
-          
-          entityReads.reads(response.json).fold(
-            valid = { item =>
-              Ok(item.toString)
-            },
-            invalid = { errors =>
-              BadRequest("WRONG!" + errors)
-            }
-          )
+
+  def get(entityType: String, id: Long) = optionalUserAction { implicit maybeUser =>
+    implicit request =>
+      Async {
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr match {
+            case Right(item) => Ok(item.toString)
+            case Left(err) => BadRequest("WRONG!" + err)
+          }
         }
-    }
+      }
   }
-  
+
   def create(entityType: String) = TODO
-  
+
   def createPost(entityType: String) = TODO
-  
+
   def update(entityType: String, id: Long) = TODO
-  
+
   def updatePost(entityType: String, id: Long) = TODO
-  
+
   def delete(entityType: String, id: Long) = TODO
-  
+
   def deletePost(entityType: String, id: Long) = TODO
 }
