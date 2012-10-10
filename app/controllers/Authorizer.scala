@@ -53,15 +53,17 @@ trait Authorizer extends Results with AuthConfig {
    * A redirect target after a successful user login.
    */
   def loginSucceeded(request: RequestHeader): PlainResult = {
-    val uri = request.session.get("access_uri").getOrElse("/") // FIXME: Redirect somewhere useful...
-    request.session - "access_uri"
-    Redirect(uri)
+    println("login succeeded...")
+    Redirect("/")
+    //val uri = request.session.get("access_uri").getOrElse("/") // FIXME: Redirect somewhere useful...
+    //request.session - "access_uri"
+    //Redirect(uri)
   }
 
   /**
    * A redirect target after a successful user logout.
    */
-  def logoutSucceeded(request: RequestHeader): PlainResult = Redirect(routes.Application.login)
+  def logoutSucceeded(request: RequestHeader): PlainResult = Redirect("/")
 
   /**
    * A redirect target after a failed authentication.

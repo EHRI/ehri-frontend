@@ -1,23 +1,26 @@
-@(message: String)
+@(message: String)(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @main("Testing login!") {
 
   		<script type="application/javascript">
-			var signinLink = document.getElementById('signin');
-			if (signinLink) {
-				signinLink.onclick = function() { navigator.id.request(); };
-			};
- 
-			var signoutLink = document.getElementById('signout');
-			if (signoutLink) {
-				signoutLink.onclick = function() { navigator.id.logout(); };
-			};
 
-var currentUser = 'mikesname@@gmail.com';
+jQuery(function($) {
+			$("#signin").click(function(event) {			  
+			  navigator.id.request();
+			  return false;
+			});
+			$("#signout").click(function(event) {			  
+			  navigator.id.logout();
+			  return false;
+			});
+});
+
+var currentUser = @maybeUser.map("'" + _.email + "'").getOrElse("null");
  
 navigator.id.watch({
   loggedInUser: currentUser,
   onlogin: function(assertion) {
+    console.log("onlogin!");
     // A user has logged in! Here you need to:
     // 1. Send the assertion to your backend for verification and to create a session.
     // 2. Update your UI.
@@ -34,6 +37,7 @@ navigator.id.watch({
     // Tear down the user's session by redirecting the user or making a call to your backend.
     // Also, make sure loggedInUser will get set to null on the next page load.
     // (That's a literal JavaScript null. Not false, 0, or undefined. null.)
+	console.log("logout!");
     $.ajax({
       type: 'POST',
       url: '/logout', // This is a URL on your website.
@@ -45,7 +49,7 @@ navigator.id.watch({
 
 		</script>
 
-  
+  <h3>User: @maybeUser.map(_.email)</h3>
     <a href="/authenticate" id="signin">Sign in</a>
   <a href="/logout" id="signout">Sign out</a>
     
