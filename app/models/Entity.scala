@@ -26,6 +26,14 @@ case class Entity(
   override def toString() = "<%s (%d)>".format(property("identifier"), id)
 }
 
+object EntityWriter {
+  implicit val entityWrites: Writes[Entity] = (
+     (__ \ "id").write[Long] and
+     (__ \ "data").lazyWrite(mapWrites[JsValue]) and
+     (__ \ "relationships").lazyWrite(
+         mapWrites[List[Entity]])
+  )(unlift(Entity.unapply))
+}
 
 object EntityReader {
   implicit val entityReads: Reads[Entity] = (
