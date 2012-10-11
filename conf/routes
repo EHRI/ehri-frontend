@@ -14,14 +14,14 @@ GET		/test			  controllers.Application.test
 # Home page
 GET     /                           controllers.Application.index
 GET     /:entityType/list           controllers.Entities.list(entityType: String)
-GET     /:entityType/show/:id       controllers.Entities.get(entityType: String, id: Long)
-GET     /:entityType/json/:id       controllers.Entities.getJson(entityType: String, id: Long)
+GET     /:entityType/show/:id       controllers.Entities.get(entityType: String, id: String)
+GET     /:entityType/json/:id       controllers.Entities.getJson(entityType: String, id: String)
 GET     /:entityType/create         controllers.Entities.create(entityType: String)
 POST    /:entityType/create         controllers.Entities.createPost(entityType: String)
-GET     /:entityType/delete/:id     controllers.Entities.delete(entityType: String, id: Long)
-POST    /:entityType/delete/:id     controllers.Entities.deletePost(entityType: String, id: Long)
-GET     /:entityType/update/:id     controllers.Entities.update(entityType: String, id: Long)
-POST    /:entityType/update/:id     controllers.Entities.updatePost(entityType: String, id: Long)
+GET     /:entityType/delete/:id     controllers.Entities.delete(entityType: String, id: String)
+POST    /:entityType/delete/:id     controllers.Entities.deletePost(entityType: String, id: String)
+GET     /:entityType/update/:id     controllers.Entities.update(entityType: String, id: String)
+POST    /:entityType/update/:id     controllers.Entities.updatePost(entityType: String, id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
