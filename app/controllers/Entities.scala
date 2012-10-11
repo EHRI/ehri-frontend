@@ -9,8 +9,8 @@ import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.execution.defaultContext
 import models.{EntityDAO,EntityTypes}
 import play.api.libs.json.Json
-
 import com.codahale.jerkson.Json.generate
+import models.EntityWriter
 
 object Entities extends Controller with AuthController {
 
@@ -26,19 +26,19 @@ object Entities extends Controller with AuthController {
       }
   }
 
-  def getJson(entityType: String, id: Long) = optionalUserAction { implicit maybeUser =>
+  def getJson(entityType: String, id: String) = optionalUserAction { implicit maybeUser =>
     implicit request =>
       Async {
         EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr match {
-            case Right(item) => Ok(generate(item.data))
+            case Right(item) => Ok(EntityWriter.entityWrites.writes(item))
             case Left(err) => BadRequest("WRONG!" + err)
           }
         }
       }
   }
 
-  def get(entityType: String, id: Long) = optionalUserAction { implicit maybeUser =>
+  def get(entityType: String, id: String) = optionalUserAction { implicit maybeUser =>
     implicit request =>
       Async {
         EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
@@ -54,11 +54,11 @@ object Entities extends Controller with AuthController {
 
   def createPost(entityType: String) = TODO
 
-  def update(entityType: String, id: Long) = TODO
+  def update(entityType: String, id: String) = TODO
 
-  def updatePost(entityType: String, id: Long) = TODO
+  def updatePost(entityType: String, id: String) = TODO
 
-  def delete(entityType: String, id: Long) = TODO
+  def delete(entityType: String, id: String) = TODO
 
-  def deletePost(entityType: String, id: Long) = TODO
+  def deletePost(entityType: String, id: String) = TODO
 }
