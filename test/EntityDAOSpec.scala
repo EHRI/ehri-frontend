@@ -17,6 +17,7 @@ import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample
 import models.IntegrityError
 import models.DeserializationError
+import models.ItemNotFound
 
 /**
  * Add your spec here.
@@ -82,6 +83,15 @@ class EntityDAOSpec extends Specification with BeforeExample {
         val err = await(EntityDAO(entityType, userProfile).create(data))
         err must beLeft
         err.left.get mustEqual IntegrityError
+      }
+    }
+
+    "error when fetching a non-existing item" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        val err = await(EntityDAO(entityType, userProfile).get("blibidyblob"))
+        err must beLeft
+        err.left.get mustEqual ItemNotFound
+      
       }
     }
 
