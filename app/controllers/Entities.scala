@@ -7,10 +7,13 @@ import play.api.mvc.SimpleResult
 import play.api.mvc.ResponseHeader
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.execution.defaultContext
-import models.{EntityDAO,EntityTypes}
+import models.{ EntityDAO, EntityTypes }
 import play.api.libs.json.Json
-
 import com.codahale.jerkson.Json.generate
+import models.PermissionDenied
+import views.html.defaultpages.unauthorized
+import models.ItemNotFound
+import models.ValidationError
 
 object Entities extends Controller with AuthController {
 
@@ -32,7 +35,12 @@ object Entities extends Controller with AuthController {
         EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr match {
             case Right(item) => Ok(generate(item.data))
-            case Left(err) => BadRequest("WRONG!" + err)
+            case Left(err) => err match {
+              case PermissionDenied => Unauthorized(err.toString())
+              case ItemNotFound => NotFound(err.toString())
+              case ValidationError => BadRequest(err.toString())
+              case _ => BadRequest(err.toString())
+            }
           }
         }
       }
@@ -44,7 +52,12 @@ object Entities extends Controller with AuthController {
         EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr match {
             case Right(item) => Ok(item.toString)
-            case Left(err) => BadRequest("WRONG!" + err)
+            case Left(err) => err match {
+              case PermissionDenied => Unauthorized(err.toString())
+              case ItemNotFound => NotFound(err.toString())
+              case ValidationError => BadRequest(err.toString())
+              case _ => BadRequest(err.toString())
+            }
           }
         }
       }
