@@ -14,8 +14,8 @@ GET		/test			  controllers.Application.test
 # Home page
 GET     /                           controllers.Application.index
 GET     /:entityType/list           controllers.Entities.list(entityType: String)
-GET     /:entityType/show/:id       controllers.Entities.get(entityType: String, id: Long)
-GET     /:entityType/json/:id       controllers.Entities.getJson(entityType: String, id: Long)
+GET     /:entityType/show/:id       controllers.Entities.get(entityType: String, id: String)
+GET     /:entityType/json/:id       controllers.Entities.getJson(entityType: String, id: String)
 GET     /:entityType/create         controllers.Entities.create(entityType: String)
 POST    /:entityType/create         controllers.Entities.createPost(entityType: String)
 GET     /:entityType/delete/:id     controllers.Entities.delete(entityType: String, id: Long)

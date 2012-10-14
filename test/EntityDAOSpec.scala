@@ -13,6 +13,8 @@ import models.{EntityDAO,ValidationError}
 import play.api.libs.concurrent.execution.defaultContext
 import models.{Entity,EntityTypes}
 import models.UserProfile
+import play.api.libs.json.JsString
+import org.specs2.specification.BeforeExample
 
 /**
  * Add your spec here.
@@ -20,12 +22,12 @@ import models.UserProfile
  * For more information, consult the wiki.
  */
 @RunWith(classOf[JUnitRunner])
-class EntityDAOSpec extends Specification {
+class EntityDAOSpec extends Specification with BeforeExample {
   sequential
   
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
-  val userProfile = Some(UserProfile(Entity(21)))
+  val userProfile = Some(UserProfile(Entity(21, Map("identifier" -> JsString("mike")))))
   val entityType = EntityTypes.UserProfile
 
   val runner: ServerRunner = new ServerRunner(classOf[EntityDAOSpec].getName, testPort)
@@ -33,7 +35,12 @@ class EntityDAOSpec extends Specification {
     .getThirdpartyJaxRsClasses()
     .add(new ThirdPartyJaxRsPackage(
       classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/ehri"));
-  runner.start();
+  runner.start
+  
+  def before = {
+    runner.tearDown
+    runner.setUp
+  }
 
   "EntityDAO" should {
     "get an item by id" in {

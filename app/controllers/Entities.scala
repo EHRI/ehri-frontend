@@ -14,7 +14,7 @@ import com.codahale.jerkson.Json.generate
 
 object Entities extends Controller with AuthController {
 
-  def list(entityType: String) = optionalUserAction { implicit maybeUser =>
+  def list(entityType: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       Async {
         EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
@@ -26,7 +26,7 @@ object Entities extends Controller with AuthController {
       }
   }
 
-  def getJson(entityType: String, id: Long) = optionalUserAction { implicit maybeUser =>
+  def getJson(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       Async {
         EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
@@ -38,7 +38,7 @@ object Entities extends Controller with AuthController {
       }
   }
 
-  def get(entityType: String, id: Long) = optionalUserAction { implicit maybeUser =>
+  def get(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       Async {
         EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
