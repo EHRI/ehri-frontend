@@ -1,19 +1,54 @@
 @(item: AccessibleEntity)(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
 
-@main("View item")(maybeUser, req) {
-
-	<h3>@item.identifier</h3>
-  
+@accView(item: AccessibleEntity) = {
 	<table>
 		<tr>
-			<th>Property name</th>
-			<th>Property value</th>
+			<th>Item:</th>
+			<th>@item.identifier</th>
 		</tr>
-		@item.valueData.map { case (k, v) =>
+		<tr>
+			<td></td>
+			<td>@itemView(item)</td>
+		</tr>
+	</table>    
+}
+
+@itemView(item: Entity) = {
+	<table>
+		@item.data.map { case (k, v) =>
 			<tr>
 				<td>@k</td>
 				<td>@v</td>
 			</tr>
 		}
-	</table>    
+	</table>  
+}
+
+@main("View item")(maybeUser, req) {
+	
+  
+	<h4>Properties</h4>
+	@itemView(item)
+	
+	@if(!item.relationships.isEmpty) {
+		<h4>Relationships</h4>
+		<table>
+		@item.relationships.map { case (k, lst) =>
+				<tr>
+					<td>@k</td>
+					<td></td>
+				</tr>
+		  		<tr>
+					<td></td>
+					<td>
+						@lst.map { relItem =>
+							@itemView(new AccessibleEntity(relItem))
+							<hr />
+						}
+					</td>
+				</tr>
+			}
+		</table>	  
+	}
+
 }
