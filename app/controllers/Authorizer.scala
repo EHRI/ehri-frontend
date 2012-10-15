@@ -20,7 +20,7 @@ trait Authorizer extends Results with AuthConfig {
    * A type that represents a user in your application.
    * `User`, `Account` and so on.
    */
-  type User = models.sql.User
+  type User = models.sql.OpenIDUser
 
   /** 
    * A type that is defined by every action for authorization.
@@ -47,17 +47,15 @@ trait Authorizer extends Results with AuthConfig {
    * A function that returns a `User` object from an `Id`.
    * Describe the procedure according to your application.
    */
-  def resolveUser(id: Id): Option[User] = models.sql.User.authenticate(id)
+  def resolveUser(id: Id): Option[User] = models.sql.OpenIDUser.findByProfileId(id)
 
   /**
    * A redirect target after a successful user login.
    */
   def loginSucceeded(request: RequestHeader): PlainResult = {
-    println("login succeeded...")
-    Redirect("/")
-    //val uri = request.session.get("access_uri").getOrElse("/") // FIXME: Redirect somewhere useful...
-    //request.session - "access_uri"
-    //Redirect(uri)
+    val uri = request.session.get("access_uri").getOrElse("/") // FIXME: Redirect somewhere useful...
+    request.session - "access_uri"
+    Redirect(uri)
   }
 
   /**

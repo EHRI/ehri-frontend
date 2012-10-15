@@ -9,9 +9,10 @@ import play.api.libs.json.Writes._
 
 object EntityTypes extends Enumeration() {
   type Type = Value
-  val UserProfile = Value("userProfile")
   val DocumentaryUnit = Value("documentaryUnit")
   val Agent = Value("agent")
+  val Action = Value("action")
+  val UserProfile = Value("userProfile")
   val Group = Value("group")
 }
 

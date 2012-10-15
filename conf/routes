@@ -2,8 +2,14 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET     /login           controllers.Application.login
-POST     /login           controllers.Application.loginPost
+#GET     /login           controllers.Application.login
+#POST     /login           controllers.Application.loginPost
+
+# OpenID
+GET     /login                          controllers.Application.login
+POST    /login                          controllers.Application.loginPost
+GET     /logout                         controllers.Application.logout
+GET     /openid                         controllers.Application.openIDCallback
 
 POST	/authenticate	  controllers.Application.authenticate
 GET     /logout           controllers.Application.logout

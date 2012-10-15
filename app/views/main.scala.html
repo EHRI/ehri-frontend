@@ -7,10 +7,9 @@
         <title>@title</title>
      <!--   <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">-->
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-
-		<script src="https://login.persona.org/include.js"></script>
+		<link href="@routes.Assets.at("jquery-openid/openid.css")" rel="stylesheet">
         <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
-
+		<script src="@routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
 		<style>
 			body {
 				font-family: monospace;
@@ -34,57 +33,11 @@
     </head>
     <body>
 
-  		<script type="application/javascript">
-
-			jQuery(function($) {
-				$("#signin").click(function(event) {			  
-				  navigator.id.request();
-				  return false;
-				});
-				$("#signout").click(function(event) {			  
-				  navigator.id.logout();
-				  return false;
-				});
-			});
-
-			var currentUser = @maybeUser.map("'" + _.email + "'").getOrElse("null");
- 
-			navigator.id.watch({
-			  loggedInUser: currentUser,
-			  onlogin: function(assertion) {
-			    console.log("onlogin!");
-			    // A user has logged in! Here you need to:
-			    // 1. Send the assertion to your backend for verification and to create a session.
-			    // 2. Update your UI.
-			    $.ajax({ /* <-- This example uses jQuery, but you can use whatever you'd like */
-			      type: 'POST',
-			      url: '/authenticate', // This is a URL on your website.
-			      data: {assertion: assertion},
-			      success: function(res, status, xhr) { window.location.reload(); },
-			      error: function(res, status, xhr) { alert("login failure" + res); }
-			    });
-			  },
-			  onlogout: function() {
-			    // A user has logged out! Here you need to:
-			    // Tear down the user's session by redirecting the user or making a call to your backend.
-			    // Also, make sure loggedInUser will get set to null on the next page load.
-			    // (That's a literal JavaScript null. Not false, 0, or undefined. null.)
-				console.log("logout!");
-			    $.ajax({
-			      type: 'POST',
-			      url: '/logout', // This is a URL on your website.
-			      success: function(res, status, xhr) { window.location.reload(); },
-			      error: function(res, status, xhr) { alert("logout failure" + res); }
-			    });
-			  }
-			});
-		</script>
-
 	    <div id="head-section">
 			@maybeUser.map { user =>
 			  <span>@user.email (<a href="/logout" id="signout">Sign out</a>)</span>			  
 			}.getOrElse {
-			  <a href="/authenticate" id="signin">Sign in</a>
+			  <a href="/login" id="signin">Sign in</a>
 			}
 		</div>
 

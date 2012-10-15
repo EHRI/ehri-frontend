@@ -23,7 +23,6 @@ trait AuthController extends Controller with Auth with Authorizer {
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
-              println("Fetching profile id: " + user.profile_id)
               val fakeProfile = Some(UserProfile(Entity(-1, Map("identifier" -> JsString(user.profile_id)))))
               EntityDAO(EntityTypes.UserProfile, fakeProfile).get(user.profile_id).map { profileOrError =>
                 profileOrError match {
