@@ -16,14 +16,14 @@ case object Administrator extends Permission
 case object NormalUser extends Permission
 
 
-case class User(profile_id: Long, email: String, profile: Option[models.UserProfile] = None) {  
+case class User(profile_id: String, email: String, profile: Option[models.UserProfile] = None) {  
   def withProfile(prof: Option[models.UserProfile]) = copy(profile=prof)
 }
 
 object User {
 
   val simple = {
-     get[Long]("users.profile_id") ~ 
+     get[String]("users.profile_id") ~ 
      get[String]("users.email") map {
        case profile_id ~ email => User(profile_id, email)
      }
@@ -35,7 +35,7 @@ object User {
     ).as(User.simple *)
   }
 
-  def authenticate(profile_id: Long, email: String): User = DB.withConnection { implicit connection =>
+  def authenticate(profile_id: String, email: String): User = DB.withConnection { implicit connection =>
     SQL(
       """
         INSERT INTO users (profile_id,email) VALUES ({profile_id},{email})
@@ -53,7 +53,7 @@ object User {
     ).on('email -> email).as(User.simple.singleOpt)
   }
 
-  def create(profile_id: Long, email: String): Option[User] = DB.withConnection { implicit connection =>
+  def create(profile_id: String, email: String): Option[User] = DB.withConnection { implicit connection =>
     SQL(
       """INSERT INTO users (profile_id, email) VALUES ({profile_id},{email})"""
     ).on('profile_id -> profile_id, 'email -> email).executeUpdate

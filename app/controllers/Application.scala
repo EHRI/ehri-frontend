@@ -15,7 +15,7 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
 
-  def index = Action {
+  def index = Action { implicit request =>
     Ok(views.html.index("Your new application is ready."))
   }
 
@@ -54,7 +54,7 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
                 Async {
                   models.AdminDAO().createNewUserProfile.map {
                     case Right(entity) => {
-                      models.sql.User.create(entity.id, email).map { user =>
+                      models.sql.User.create(entity.property("identifier").map(_.as[String]).get, email).map { user =>
                         gotoLoginSucceeded(user.email)
                       }.getOrElse(BadRequest("Creation of user db failed!"))
                     }

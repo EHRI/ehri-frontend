@@ -25,10 +25,10 @@ trait RestDAO {
   lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get
   lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
 
-  def jsonToEntity(js: JsValue): Entity = {
+  def jsonToEntity(js: JsValue): AccessibleEntity = {
     EntityReader.entityReads.reads(js).fold(
       valid = { item =>
-        item
+        new AccessibleEntity(item.id, item.data, item.relationships)
       },
       invalid = { errors =>
         throw new RuntimeException("Error getting item: " + errors)

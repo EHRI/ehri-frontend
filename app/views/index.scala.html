@@ -1,6 +1,6 @@
-@(message: String)
+@(message: String)(implicit maybeUser: Option[models.sql.User] = None, req: RequestHeader)
 
-@main("Welcome to Play 2.0") {
+@main("Welcome to Play 2.0")(maybeUser, req) {
     
     @play20.welcome(message)
     

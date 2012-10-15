@@ -1,7 +1,7 @@
 # --- !Ups
 
 CREATE TABLE users (
-    profile_id  INTEGER NOT NULL,
+    profile_id  VARCHAR(255) NOT NULL,
     email       VARCHAR(255) NOT NULL,
     UNIQUE(profile_id, email)
 );

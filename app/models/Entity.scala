@@ -13,7 +13,6 @@ object EntityTypes extends Enumeration() {
   val DocumentaryUnit = Value("documentaryUnit")
   val Agent = Value("agent")
   val Group = Value("group")
-  val Annotation = Value("annotation")
 }
 
 case class Entity(

@@ -54,7 +54,7 @@ class ApplicationSpec extends Specification with BeforeExample {
         // can't yet log in from tests...
         val show = route(FakeRequest(GET, "/documentaryUnit/show/c4")).get
         status(show) must equalTo(OK)
-        contentAsString(show) must startWith("<Some(\"c4\")")
+        contentAsString(show) must contain("c4")
       }
     }
 

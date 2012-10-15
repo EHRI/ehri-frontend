@@ -25,19 +25,19 @@ case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[U
     case None => headers.toSeq
   }
   
-  def get(id: Long): Future[Either[RestError, Entity]] = {
+  def get(id: Long): Future[Either[RestError, AccessibleEntity]] = {
     WS.url(requestUrl + "/" + id.toString).withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def get(id: String): Future[Either[RestError, Entity]] = {
+  def get(id: String): Future[Either[RestError, AccessibleEntity]] = {
     WS.url(requestUrl + "/" + id).withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def get(key: String, value: String): Future[Either[RestError, Entity]] = {
+  def get(key: String, value: String): Future[Either[RestError, AccessibleEntity]] = {
     WS.url(requestUrl).withHeaders(authHeaders: _*)
     	.withQueryString("key" -> key, "value" -> value)
     	.get.map { response =>
@@ -45,7 +45,7 @@ case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[U
     }
   }
 
-  def create(data: Map[String, Object]): Future[Either[RestError, Entity]] = {
+  def create(data: Map[String, Object]): Future[Either[RestError, AccessibleEntity]] = {
     WS.url(requestUrl).withHeaders(authHeaders: _*)
       .post(generate(Map("id" -> None, "data" -> data))).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
@@ -66,7 +66,7 @@ case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[U
     }
   }
 
-  def list: Future[Either[RestError, Seq[Entity]]] = {
+  def list: Future[Either[RestError, Seq[AccessibleEntity]]] = {
     WS.url(requestUrl + "/list").withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json match {
