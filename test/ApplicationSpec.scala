@@ -9,6 +9,7 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import eu.ehri.extension.EhriNeo4jFramedResource
 import com.typesafe.config.ConfigFactory
+import org.specs2.specification.BeforeExample
 
 /**
  * Add your spec here.
@@ -16,7 +17,7 @@ import com.typesafe.config.ConfigFactory
  * For more information, consult the wiki.
  */
 @RunWith(classOf[JUnitRunner])
-class ApplicationSpec extends Specification {
+class ApplicationSpec extends Specification with BeforeExample {
   sequential
 
   val testPort = 7575
@@ -26,7 +27,12 @@ class ApplicationSpec extends Specification {
   runner.getConfigurator
     .getThirdpartyJaxRsClasses()
     .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/ehri"));
-  runner.start();
+  runner.start
+  
+  def before = {
+    runner.tearDown
+    runner.setUp
+  }
 
   "Application" should {
     "send 404 on a bad request" in {
@@ -46,9 +52,18 @@ class ApplicationSpec extends Specification {
       running(FakeApplication(additionalConfiguration=config)) {
         // FIXME: Set the the unit that is world-accessible because we
         // can't yet log in from tests...
-        val show = route(FakeRequest(GET, "/documentaryUnit/show/7")).get
+        val show = route(FakeRequest(GET, "/documentaryUnit/show/c4")).get
         status(show) must equalTo(OK)
-        contentAsString(show) must equalTo("<Some(\"c4\") (7)>")
+        contentAsString(show) must startWith("<Some(\"c4\")")
+      }
+    }
+
+    "show should permission denied" in {
+      running(FakeApplication(additionalConfiguration=config)) {
+        val show = route(FakeRequest(GET, "/documentaryUnit/show/c1")).get
+        println("Expecting show to be: " + UNAUTHORIZED)
+        println("It is: " + status(show))
+        status(show) must equalTo(UNAUTHORIZED)
       }
     }
 

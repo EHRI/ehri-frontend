@@ -21,7 +21,7 @@ case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[U
   )
   
   def authHeaders: Seq[(String, String)] = userProfile match {
-    case Some(up) => (headers + ("Authorization" -> up.id.toString)).toSeq
+    case Some(up) => (headers + ("Authorization" -> up.identifier.getOrElse(""))).toSeq
     case None => headers.toSeq
   }
   
