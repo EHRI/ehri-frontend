@@ -45,6 +45,7 @@ class ApplicationSpec extends Specification with BeforeExample {
       running(FakeApplication(additionalConfiguration=config)) {
         val list = route(FakeRequest(GET, "/documentaryUnit/list")).get
         status(list) must equalTo(OK)
+        contentAsString(list) must contain("Items")
       }
     }
 
@@ -61,8 +62,6 @@ class ApplicationSpec extends Specification with BeforeExample {
     "show should permission denied" in {
       running(FakeApplication(additionalConfiguration=config)) {
         val show = route(FakeRequest(GET, "/documentaryUnit/show/c1")).get
-        println("Expecting show to be: " + UNAUTHORIZED)
-        println("It is: " + status(show))
         status(show) must equalTo(UNAUTHORIZED)
       }
     }
