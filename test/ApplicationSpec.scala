@@ -72,7 +72,7 @@ class ApplicationSpec extends Specification with BeforeExample {
 
         status(home) must equalTo(OK)
         contentType(home) must beSome.which(_ == "text/html")
-        contentAsString(home) must contain("Your new application is ready.")
+        contentAsString(home) must contain("This is the landing page.")
       }
     }
   }

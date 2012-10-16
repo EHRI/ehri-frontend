@@ -23,8 +23,9 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
 
-  def index = Action { implicit request =>
-    Ok(views.html.index("Your new application is ready."))
+  def index = optionalUserAction { implicit maybeUser =>
+    implicit request =>
+      Ok(views.html.index("Your new application is ready."))
   }
 
   def test = optionalUserAction { implicit maybeUser =>
@@ -49,12 +50,9 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
             OpenID.redirectURL(
               openid,
               routes.Application.openIDCallback.absoluteURL(),
-              Seq("email" -> "http://schema.openid.net/contact/email")
-            )
-              .map(url => Redirect(url))
-          )
-        }
-      )
+              Seq("email" -> "http://schema.openid.net/contact/email"))
+              .map(url => Redirect(url)))
+        })
   }
 
   def openIDCallback = Action { implicit request =>
@@ -79,10 +77,9 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
                 }
               }
             }
-            // TODO: Check error condition?
+          // TODO: Check error condition?
         }
-      }
-    )
+      })
   }
 
   def logout = Action { implicit request =>
