@@ -6,16 +6,6 @@ import play.api.libs.json.util._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 
-
-object EntityTypes extends Enumeration() {
-  type Type = Value
-  val DocumentaryUnit = Value("documentaryUnit")
-  val Agent = Value("agent")
-  val Action = Value("action")
-  val UserProfile = Value("userProfile")
-  val Group = Value("group")
-}
-
 case class Entity(
   id: Long,
   data: Map[String, JsValue] = Map(),
