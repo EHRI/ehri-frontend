@@ -33,7 +33,7 @@ case class OpenIDUser(id: Long, email: String, profile_id: String, profile: Opti
     this
   }
 
-  def withProfile(prof: Option[models.UserProfile]) = copy(profile = prof)
+  def withProfile(prof: models.UserProfile) = copy(profile = Some(prof))
 
   def isStaff = false // STUB
 }

@@ -12,7 +12,7 @@ import java.util.Date
 // -- Users
 
 case class PersonaUser(profile_id: String, email: String, profile: Option[models.UserProfile] = None) extends User {  
-  def withProfile(prof: Option[models.UserProfile]) = copy(profile=prof)
+  def withProfile(prof: models.UserProfile) = copy(profile=Some(prof))
 }
 
 object PersonaUser {

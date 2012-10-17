@@ -26,7 +26,7 @@ trait AuthController extends Controller with Auth with Authorizer {
               val fakeProfile = Some(UserProfile(Entity(-1, Map("identifier" -> JsString(user.profile_id)))))
               EntityDAO(EntityTypes.UserProfile, fakeProfile).get(user.profile_id).map { profileOrError =>
                 profileOrError match {
-                  case Right(profile) => f(Some(user.withProfile(Some(UserProfile(profile)))))(request)
+                  case Right(profile) => f(Some(user.withProfile(UserProfile(profile))))(request)
                   case Left(err) => sys.error("Unable to fetch user profile: " + err)
                 }
               }
