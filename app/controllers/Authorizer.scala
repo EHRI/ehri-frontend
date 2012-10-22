@@ -13,14 +13,24 @@ sealed trait Permission
 case object Administrator extends Permission
 case object NormalUser extends Permission
 
+
+import play.api.Play.current
+
+import models.sql.UserDAO
+
+
 trait Authorizer extends Results with AuthConfig {
+  
+  // Specific type of user-finder loaded via a plugin
+  lazy val userFinder: UserDAO = current.plugin(classOf[UserDAO]).get
+  
   type Id = String
 
   /** 
    * A type that represents a user in your application.
    * `User`, `Account` and so on.
    */
-  type User = models.sql.OpenIDUser
+  type User = models.sql.User
 
   /** 
    * A type that is defined by every action for authorization.
@@ -47,7 +57,7 @@ trait Authorizer extends Results with AuthConfig {
    * A function that returns a `User` object from an `Id`.
    * Describe the procedure according to your application.
    */
-  def resolveUser(id: Id): Option[User] = models.sql.OpenIDUser.findByProfileId(id)
+  def resolveUser(id: Id): Option[User] = userFinder.findByProfileId(id)
 
   /**
    * A redirect target after a successful user login.

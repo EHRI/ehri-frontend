@@ -38,7 +38,7 @@ case class OpenIDUser(id: Long, email: String, profile_id: String, profile: Opti
   def isStaff = false // STUB
 }
 
-object OpenIDUser {
+object OpenIDUser extends UserDAO {
 
   val simple = {
     get[Long]("openid_user.id") ~
@@ -74,7 +74,7 @@ object OpenIDUser {
     ).on('url -> url).as(OpenIDUser.simple.singleOpt)
   }
 
-  def findById(id: Long): Option[OpenIDUser] = DB.withConnection { implicit connection =>
+  def findById(id: Long): Option[User] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from openid_user where id = {id}
@@ -82,7 +82,7 @@ object OpenIDUser {
     ).on('id -> id).as(OpenIDUser.simple.singleOpt)
   }
 
-  def findByEmail(email: String): Option[OpenIDUser] = DB.withConnection { implicit connection =>
+  def findByEmail(email: String): Option[User] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from openid_user where email = {email}
@@ -90,7 +90,7 @@ object OpenIDUser {
     ).on('email -> email).as(OpenIDUser.simple.singleOpt)
   }
 
-  def findByProfileId(id: String): Option[OpenIDUser] = DB.withConnection { implicit connection =>
+  def findByProfileId(id: String): Option[User] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from openid_user where profile_id = {id}
@@ -112,7 +112,7 @@ object OpenIDUser {
 
 case class OpenIDAssociation(id: Long, userid: Long, url: String, user: Option[OpenIDUser] = None) {
 
-  lazy val users: Seq[OpenIDUser] = DB.withConnection { implicit connection =>
+  lazy val users: Seq[User] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from openid_user 
@@ -156,5 +156,9 @@ object OpenIDAssociation {
       """
     ).on('url -> url).as(OpenIDAssociation.withUser.singleOpt)
   }
+}
+
+class OpenIDUserDAOPlugin(app: play.api.Application) extends UserDAO {
+  def findByProfileId(profile_id: String) = OpenIDUser.findByProfileId(profile_id)
 }
 
