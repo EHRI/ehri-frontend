@@ -9,7 +9,7 @@
 GET     /login                          controllers.Application.login
 POST    /login                          controllers.Application.loginPost
 GET     /logout                         controllers.Application.logout
-GET     /openid                         controllers.Application.openIDCallback
+GET     /openid                         controllers.OpenIDLoginHandler.openIDCallback
 
 POST	/authenticate	  controllers.Application.authenticate
 GET     /logout           controllers.Application.logout

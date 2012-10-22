@@ -1,1 +1,2 @@
 5000:models.sql.OpenIDUserDAOPlugin
+5001:controllers.OpenIDLoginHandler
