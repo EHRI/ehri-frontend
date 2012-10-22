@@ -36,19 +36,27 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
   }
 
   "Entity views" should {
-    "list should get json" in {
+    "list should get some (world-readable) items" in {
       running(FakeApplication(additionalConfiguration = config)) {
         val list = route(FakeRequest(GET, "/documentaryUnit/list")).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain("Items")
+
+        contentAsString(list) must not contain ("c1")
+        contentAsString(list) must contain("c4")
+
       }
     }
 
-    "allow access to world-readable items by default" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        val show = route(FakeRequest(GET, "/documentaryUnit/show/c4")).get
-        status(show) must equalTo(OK)
-        contentAsString(show) must contain("c4")
+    "list when logged in should get more items" in {
+      running(fakeLoginApplication(additionalConfiguration = config)) {
+        val list = route(fakeLoggedInRequest(GET, "/documentaryUnit/list")).get
+        status(list) must equalTo(OK)
+        contentAsString(list) must contain("Items")
+        contentAsString(list) must contain("c1")
+        contentAsString(list) must contain("c2")
+        contentAsString(list) must contain("c3")
+        contentAsString(list) must contain("c4")
       }
     }
 
@@ -57,6 +65,14 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val show = route(fakeLoggedInRequest(GET, "/documentaryUnit/show/c1")).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("c1")
+      }
+    }
+
+    "allow access to c4 by default" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        val show = route(FakeRequest(GET, "/documentaryUnit/show/c4")).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain("c4")
       }
     }
 
