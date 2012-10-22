@@ -19,7 +19,8 @@ class IntegrationSpec extends Specification {
         browser.goTo("http://localhost:3333/")
 
         browser.pageSource must contain("This is the landing page.")
-       
+        
+        
       }
     }
     

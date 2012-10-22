@@ -6,9 +6,13 @@ import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.Auth
 
-trait LoginHandler extends Plugin {
+trait LoginHandler extends Plugin with Controller with Auth with LoginLogout with Authorizer {
+
+  def login: Action[play.api.mvc.AnyContent]
+  def loginPost: Action[play.api.mvc.AnyContent]
   
-	def login: Action[play.api.mvc.AnyContent]
-  
-	def loginPost: Action[play.api.mvc.AnyContent]
+  def logout = optionalUserAction { implicit maybeUser =>
+    implicit request =>
+      gotoLogoutSucceeded
+  }
 }

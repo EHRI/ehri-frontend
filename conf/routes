@@ -7,11 +7,17 @@
 
 # OpenID
 GET     /login                          controllers.Application.login
-POST    /login                          controllers.Application.loginPost
+POST	/login							controllers.Application.loginPost
 GET     /logout                         controllers.Application.logout
-GET     /openid                         controllers.OpenIDLoginHandler.openIDCallback
 
-POST	/authenticate	  controllers.Application.authenticate
+# Plugin-handled login
+# OpenID
+GET     /openid                         controllers.OpenIDLoginHandler.openIDCallback
+POST	/openid							controllers.OpenIDLoginHandler.loginPost
+
+# Mozilla Persona
+POST	/persona						controllers.PersonaLoginHandler.loginPost
+
 GET     /logout           controllers.Application.logout
 POST     /logout           controllers.Application.logout
 

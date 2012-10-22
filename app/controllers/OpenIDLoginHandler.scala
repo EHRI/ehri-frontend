@@ -8,15 +8,24 @@ import play.api.libs.concurrent.execution.defaultContext
 import play.api._
 import play.api.mvc._
 
+/**
+ * Default object instantiation
+ */
 object OpenIDLoginHandler extends OpenIDLoginHandler(play.api.Play.current)
 
-class OpenIDLoginHandler(app: play.api.Application) extends LoginHandler with Controller with Auth with LoginLogout with Authorizer {
+/**
+ * OpenID login handler implementation.
+ */
+class OpenIDLoginHandler(app: play.api.Application) extends LoginHandler {
 
   import forms.UserForm
 
+  val openidError = """
+    |There was an error connecting to your OpenID provider.""".stripMargin
+
   def login = optionalUserAction { implicit maybeUser =>
     implicit request =>
-      Ok(views.html.login(form = UserForm.openid, action = routes.Application.loginPost))
+      Ok(views.html.login(form = UserForm.openid, action = routes.OpenIDLoginHandler.loginPost))
   }
 
   def loginPost = optionalUserAction { implicit maybeUser =>
@@ -24,7 +33,7 @@ class OpenIDLoginHandler(app: play.api.Application) extends LoginHandler with Co
       UserForm.openid.bindFromRequest.fold(
         error => {
           Logger.info("bad request " + error.toString)
-          BadRequest(views.html.login(form = error, action = routes.Application.loginPost))
+          BadRequest(views.html.login(form = error, action = routes.OpenIDLoginHandler.loginPost))
         },
         {
           case (openid) => AsyncResult(
