@@ -1,16 +1,24 @@
 package test
 
-import org.specs2.mutable._
-import play.api.test._
-import play.api.test.Helpers._
-import eu.ehri.plugin.test.utils.ServerRunner
-import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import org.junit.runner.RunWith
+import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
+import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import eu.ehri.extension.EhriNeo4jFramedResource
-import com.typesafe.config.ConfigFactory
 import org.specs2.specification.BeforeExample
+
+import eu.ehri.plugin.test.utils.ServerRunner
+import eu.ehri.extension.EhriNeo4jFramedResource
+
 import helpers.TestLoginHelper
+import play.api.test.FakeApplication
+import play.api.test.FakeRequest
+import play.api.test.Helpers.GET
+import play.api.test.Helpers.OK
+import play.api.test.Helpers.UNAUTHORIZED
+import play.api.test.Helpers.contentAsString
+import play.api.test.Helpers.route
+import play.api.test.Helpers.running
+import play.api.test.Helpers.status
 
 /**
  * Add your spec here.
@@ -20,6 +28,9 @@ import helpers.TestLoginHelper
 @RunWith(classOf[JUnitRunner])
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
   sequential
+
+  val testPrivilegedUser = "mike"
+  val testOrdinaryUser = "reto"
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
@@ -49,7 +60,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     }
 
     "list when logged in should get more items" in {
-      running(fakeLoginApplication(additionalConfiguration = config)) {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val list = route(fakeLoggedInRequest(GET, "/documentaryUnit/list")).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain("Items")
@@ -61,10 +72,18 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     }
 
     "give access to c1 when logged in" in {
-      running(fakeLoginApplication(additionalConfiguration = config)) {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val show = route(fakeLoggedInRequest(GET, "/documentaryUnit/show/c1")).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("c1")
+      }
+    }
+
+    "deny access to c1 when logged in as an ordinary user" in {
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        val show = route(fakeLoggedInRequest(GET, "/documentaryUnit/show/c2")).get
+        status(show) must equalTo(UNAUTHORIZED)
+        contentAsString(show) must not contain ("c2")
       }
     }
 

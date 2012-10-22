@@ -1,9 +1,9 @@
 package mocks
 
-import play.api._
-import play.api.mvc._
 import controllers.LoginHandler
-import controllers.LoginHandler
+import play.api.Play.current
+import play.api.mvc.Action
+
 
 class MockLoginHandler(app: play.api.Application) extends LoginHandler {
 
@@ -13,6 +13,6 @@ class MockLoginHandler(app: play.api.Application) extends LoginHandler {
   }
 
   def loginPost = Action { implicit request =>
-    gotoLoginSucceeded("mike")
+    gotoLoginSucceeded(current.configuration.getString("test.user.profile_id").getOrElse("anonymous"))
   }
 }

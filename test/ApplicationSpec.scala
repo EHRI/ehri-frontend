@@ -25,8 +25,8 @@ class ApplicationSpec extends Specification with TestLoginHelper {
     }
 
     "should display user email on login" in {
-      running(fakeLoginApplication) {
-        
+      running(fakeLoginApplication("mike")) {
+
         val home = route(fakeLoggedInRequest(GET, "/")).get
         status(home) must equalTo(OK)
         contentType(home) must beSome.which(_ == "text/html")

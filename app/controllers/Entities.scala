@@ -1,19 +1,14 @@
 package controllers
 
-import play.api.mvc.Controller
-import play.api.mvc.Action
-import play.api.libs.ws.WS
-import play.api.mvc.SimpleResult
-import play.api.mvc.ResponseHeader
-import play.api.libs.iteratee.Enumerator
-import play.api.libs.concurrent.execution.defaultContext
-import models.{ EntityDAO, EntityTypes }
-import play.api.libs.json.Json
 import com.codahale.jerkson.Json.generate
-import views.html.defaultpages.unauthorized
+
+import models.EntityDAO
+import models.EntityTypes
 import models.ItemNotFound
-import models.ValidationError
 import models.PermissionDenied
+import models.ValidationError
+import play.api.libs.concurrent.execution.defaultContext
+import play.api.mvc.Controller
 
 object Entities extends Controller with AuthController {
 

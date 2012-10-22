@@ -91,7 +91,7 @@ class EntityDAOSpec extends Specification with BeforeExample {
         val err = await(EntityDAO(entityType, userProfile).get("blibidyblob"))
         err must beLeft
         err.left.get mustEqual ItemNotFound
-      
+
       }
     }
 
