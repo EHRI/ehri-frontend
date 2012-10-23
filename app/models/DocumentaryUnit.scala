@@ -2,6 +2,9 @@ package models
 
 import defines._
 
+
+
+
 object DocumentaryUnit {
   
   val DESC_REL = "describes"
@@ -18,7 +21,7 @@ object DocumentaryUnit {
 case class DocumentaryUnit(
   val identifier: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
-  val descriptions: List[DocumentaryUnitDescription] = Nil) {
+  val descriptions: List[DocumentaryUnitDescription] = Nil) extends BaseModel {
 
   def withDescription(d: DocumentaryUnitDescription): DocumentaryUnit = copy(descriptions=descriptions++List(d))
   
@@ -40,6 +43,6 @@ case class DocumentaryUnitDescription(
   val languageCode: String,
   val title: Option[String],
   val scopeAndContent: Option[String]
-) {
+)  extends BaseModel {
   
 }
