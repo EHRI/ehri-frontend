@@ -8,10 +8,16 @@ import models._
 object DocumentaryUnitForm {
 
   val form = Form(
-      tuple(
+      mapping(
     		"identifier" -> nonEmptyText,
-    		"name" -> nonEmptyText,
-    		"publicationStatus" -> enum(defines.PublicationStatus)
-      )
+    		"publicationStatus" -> optional(enum(defines.PublicationStatus)),
+    		"descriptions" -> list(
+    		  mapping(
+    		    "languageCode" -> nonEmptyText,
+    		    "title" -> optional(text),
+    		    "scopeAndContent" -> optional(text)
+    		  )(DocumentaryUnitDescription.apply)(DocumentaryUnitDescription.unapply)
+            )
+      )(DocumentaryUnit.apply)(DocumentaryUnit.unapply)
   ) 
 }

@@ -11,7 +11,8 @@ case class Entity(
   data: Map[String, JsValue] = Map(),
   relationships: Map[String, List[Entity]] = Map()) {
 
-  def property(name: String) = data.get(name)
+  def property(name: String) = data.get(name)  
+  def relations(s: String): List[Entity] = relationships.getOrElse(s, List())
 
   override def toString() = "<%s (%d)>".format(property("identifier"), id)
 }
