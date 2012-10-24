@@ -12,7 +12,12 @@ case class Entity(
   relationships: Map[String, List[Entity]] = Map()) {
 
   def property(name: String) = data.get(name)  
-  def relations(s: String): List[Entity] = relationships.getOrElse(s, List())
+  def relations(s: String): List[Entity] = relationships.getOrElse(s, List())  
+  def withProperty(name: String, value: JsValue) = copy(data=data + (name -> value))
+  def withRelation(s: String, r: Entity) = {
+    val list: List[Entity] = relationships.getOrElse(s, Nil)
+    copy(relationships=relationships + (s -> (list ++ List(r))))
+  }
 
   override def toString() = "<%s (%d)>".format(property("identifier"), id)
 }

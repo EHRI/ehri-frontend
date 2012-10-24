@@ -9,10 +9,12 @@ object DocumentaryUnitForm {
 
   val form = Form(
       mapping(
+    		"id" -> optional(longNumber),
     		"identifier" -> nonEmptyText,
     		"publicationStatus" -> optional(enum(defines.PublicationStatus)),
     		"descriptions" -> list(
     		  mapping(
+    		    "id" -> optional(longNumber),
     		    "languageCode" -> nonEmptyText,
     		    "title" -> optional(text),
     		    "scopeAndContent" -> optional(text)

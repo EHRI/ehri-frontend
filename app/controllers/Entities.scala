@@ -65,11 +65,12 @@ object Entities extends Controller with AuthController {
   def update(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       val form = forms.formFor(EntityTypes.withName(entityType))
+      val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
       val action = routes.Entities.updatePost(entityType, id)
       Async {
         EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr match {
-            case Right(item) => Ok(views.html.entities.edit(Some(item), form, action))
+            case Right(item) => Ok(view(Some(item), form, action))
             case Left(err) => err match {
               case PermissionDenied => Unauthorized(views.html.errors.permissionDenied())
               case ItemNotFound => NotFound(views.html.errors.itemNotFound())
@@ -81,8 +82,16 @@ object Entities extends Controller with AuthController {
       }    
   }
 
-  def updatePost(entityType: String, id: String) = TODO
-
+  def updatePost(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      val form = forms.formFor(EntityTypes.withName(entityType)).bindFromRequest
+      val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
+      val action = routes.Entities.updatePost(entityType, id)
+      
+      Ok("not done yet")
+      
+  }
+  
   def delete(entityType: String, id: String) = TODO
 
   def deletePost(entityType: String, id: String) = TODO
