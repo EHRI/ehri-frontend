@@ -12,9 +12,7 @@ import eu.ehri.extension.EhriNeo4jFramedResource
 import helpers.TestLoginHelper
 import play.api.test.FakeApplication
 import play.api.test.FakeRequest
-import play.api.test.Helpers.GET
-import play.api.test.Helpers.OK
-import play.api.test.Helpers.UNAUTHORIZED
+import play.api.test.Helpers._
 import play.api.test.Helpers.contentAsString
 import play.api.test.Helpers.route
 import play.api.test.Helpers.running
@@ -92,6 +90,15 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val show = route(FakeRequest(GET, "/documentaryUnit/show/c4")).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("c4")
+      }
+    }
+
+    "allow deleting c4 when logged in" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        // get the number of items before...
+        val list = route(fakeLoggedInRequest(POST, "/documentaryUnit/delete/c4")).get
+        println(status(list))
+        status(list) must equalTo(SEE_OTHER)
       }
     }
 
