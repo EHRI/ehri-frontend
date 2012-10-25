@@ -11,6 +11,7 @@ object DocumentaryUnitForm {
       mapping(
     		"id" -> optional(longNumber),
     		"identifier" -> nonEmptyText,
+    		"name" -> nonEmptyText,
     		"publicationStatus" -> optional(enum(defines.PublicationStatus)),
     		"descriptions" -> list(
     		  mapping(

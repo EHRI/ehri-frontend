@@ -22,6 +22,7 @@ object Annotations {
  */
 trait BaseModel {
   def id: Option[Long]
+  def isA: EntityTypes.Value
 
   /**
    * Turn the item back into some raw data that can be
@@ -45,8 +46,9 @@ trait BaseModel {
           val datamap: Map[String, Any] = a.getOrElse("data", Map()).asInstanceOf[Map[String, Any]]
           val value = f.get(this) match {
             case None => None
+            case isa: EntityTypes.Value => isa.asInstanceOf[EntityTypes.Value].toString
             case Some(value) => value match {
-              case enum: PublicationStatus.Value => enum.asInstanceOf[PublicationStatus.Value].toString
+              case pub: PublicationStatus.Value => pub.asInstanceOf[PublicationStatus.Value].toString              
               case x => x
             }
             case x => x

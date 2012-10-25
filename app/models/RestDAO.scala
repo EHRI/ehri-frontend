@@ -36,6 +36,7 @@ trait RestDAO {
   }
 
   protected def checkError(response: Response): Either[RestError, Response] = {
+    println("RESPONSE: " + response.body)
     response.status match {
       case OK | CREATED => Right(response)
       case UNAUTHORIZED => Left(PermissionDenied)

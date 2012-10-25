@@ -7,4 +7,7 @@ object EntityTypes extends Enumeration() {
   val Action = Value("action")
   val UserProfile = Value("userProfile")
   val Group = Value("group")
+  val DocumentaryUnitDescription = Value("documentDescription")
+  val AgentDescription = Value("agentDescription")
+  val AuthorityDescription = Value("authorityDescription")
 }

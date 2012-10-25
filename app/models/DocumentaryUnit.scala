@@ -11,6 +11,7 @@ object DocumentaryUnit {
     new DocumentaryUnit(
       id = Some(e.id),
       identifier = e.identifier,
+      name = e.property("name").flatMap(_.asOpt[String]).getOrElse(""), // FIXME: Is this a good idea?
       publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt),
       descriptions = e.relations(DESC_REL).map(DocumentaryUnitDescription.apply(_))
     )
@@ -20,15 +21,17 @@ object DocumentaryUnit {
 case class DocumentaryUnit(
   val id: Option[Long],
   val identifier: String,
+  val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
   
   @Annotations.Relation(DocumentaryUnit.DESC_REL)
   val descriptions: List[DocumentaryUnitDescription] = Nil) extends BaseModel {
+  val isA = EntityTypes.DocumentaryUnit
 
   def withDescription(d: DocumentaryUnitDescription): DocumentaryUnit = copy(descriptions=descriptions++List(d))
   
-  def this(identifier: String, publicationStatus: Option[PublicationStatus.Value]) = 
-    this(None, identifier, publicationStatus, Nil)
+  def this(identifier: String, name: String, publicationStatus: Option[PublicationStatus.Value]) = 
+    this(None, identifier, name, publicationStatus, Nil)
 }
 
 object DocumentaryUnitDescription {
@@ -48,5 +51,6 @@ case class DocumentaryUnitDescription(
   val title: Option[String] = None,
   val scopeAndContent: Option[String] = None
 )  extends BaseModel {
+  val isA = EntityTypes.DocumentaryUnitDescription
   
 }

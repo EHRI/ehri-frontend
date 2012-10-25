@@ -9,22 +9,21 @@ import play.api.Play
 
 import com.codahale.jerkson.Json.generate
 
-
 case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
 
   import play.api.http.Status._
-    
+
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
-  private val headers: Map[String,String] = Map(
-      "Content-Type" -> "application/json"
+  private val headers: Map[String, String] = Map(
+    "Content-Type" -> "application/json"
   )
-  
+
   def authHeaders: Seq[(String, String)] = userProfile match {
     case Some(up) => (headers + ("Authorization" -> up.identifier.getOrElse(""))).toSeq
     case None => headers.toSeq
   }
-  
+
   def get(id: Long): Future[Either[RestError, AccessibleEntity]] = {
     WS.url(requestUrl + "/" + id.toString).withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
@@ -39,22 +38,30 @@ case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[U
 
   def get(key: String, value: String): Future[Either[RestError, AccessibleEntity]] = {
     WS.url(requestUrl).withHeaders(authHeaders: _*)
-    	.withQueryString("key" -> key, "value" -> value)
-    	.get.map { response =>
-      checkError(response).right.map(r => jsonToEntity(r.json))
-    }
+      .withQueryString("key" -> key, "value" -> value)
+      .get.map { response =>
+        checkError(response).right.map(r => jsonToEntity(r.json))
+      }
   }
 
-  def create(data: Map[String, Object]): Future[Either[RestError, AccessibleEntity]] = {
+  def create(data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
     WS.url(requestUrl).withHeaders(authHeaders: _*)
       .post(generate(Map("id" -> None, "data" -> data))).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }
 
-  def update(id: Long, data: Map[String, Object]): Future[Either[RestError, Entity]] = {
+  def update(id: Long, data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
     WS.url(requestUrl).withHeaders(authHeaders: _*)
       .put(generate(Map("id" -> id, "data" -> data))).map { response =>
+        checkError(response).right.map(r => jsonToEntity(r.json))
+      }
+  }
+
+  def update(id: String, data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
+    println(generate(Map("id" -> id, "data" -> data)))
+    WS.url(requestUrl + "/" + id).withHeaders(authHeaders: _*)
+      .put(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }

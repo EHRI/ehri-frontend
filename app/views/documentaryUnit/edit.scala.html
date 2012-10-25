@@ -1,14 +1,10 @@
-@(item: Option[AccessibleEntity], form: play.api.data.Form[DocumentaryUnit], action: Call)(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
+@(doc: Option[DocumentaryUnit], f: play.api.data.Form[DocumentaryUnit], action: Call)(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@defining(item.map(DocumentaryUnit(_))) { doc =>
-@defining(doc.map(form.fill(_)).getOrElse(form)) { f =>
-  
-
   @main("Update item")(maybeUser, req) {
 	
-		@item.map { v =>
+		@doc.map { v =>
 			<h4>Update @v.identifier</h4>
 		}.getOrElse {
 			<h4>Create</h4>
@@ -19,6 +15,7 @@
 			<fieldset id="identity-area">
 				<legend>@Messages("Identity")</legend>
 				@helper.inputText(f("identifier"), '_label -> "Identifier")
+				@helper.inputText(f("name"), '_label -> "Name")
 			</fieldset>
 		  
 			@helper.repeat(f("descriptions"), min=f("descriptions").indexes.length + 1) { desc =>
@@ -36,10 +33,6 @@
 			<div class="form-actions">
             <button type="submit" class="btn btn-primary">@Messages(doc.map(s => "Update").getOrElse("Create"))</button>
         </div>
-		}
-		
 	}
-    
+		
 }
-}
-
