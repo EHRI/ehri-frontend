@@ -54,22 +54,22 @@ class EntityDAOSpec extends Specification with BeforeExample {
 
     "create an item" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar")
+        val data = Map("id" -> None, "data" -> Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar"))
         await(EntityDAO(entityType, userProfile).create(data)) must beRight
       }
     }
 
     "update an item by id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar")
+        val data = Map("id" -> None, "data" -> Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar"))
         val entity = await(EntityDAO(entityType, userProfile).create(data)).right.get
-        await(EntityDAO(entityType, userProfile).update(entity.id, data)) must beRight
+        await(EntityDAO(entityType, userProfile).update(entity.id, data + ("id" -> entity.id))) must beRight
       }
     }
 
     "error when creating without an isA" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("identifier" -> "foobar", "name" -> "Foobar")
+        val data = Map("id" -> None, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val err = await(EntityDAO(entityType, userProfile).create(data))
         err must beLeft
         err.left.get mustEqual DeserializationError
@@ -78,7 +78,7 @@ class EntityDAOSpec extends Specification with BeforeExample {
 
     "error when creating an item with a non-unique id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("identifier" -> "foobar", "isA" -> "userProfile", "name" -> "Foobar")
+        val data = Map("id" -> None, "data" -> Map("identifier" -> "foobar", "isA" -> "userProfile", "name" -> "Foobar"))
         await(EntityDAO(entityType, userProfile).create(data))
         val err = await(EntityDAO(entityType, userProfile).create(data))
         err must beLeft
@@ -97,7 +97,7 @@ class EntityDAOSpec extends Specification with BeforeExample {
 
     "delete an item by id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar")
+        val data = Map("id" -> None, "data" -> Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar"))
         val entity = await(EntityDAO(entityType, userProfile).create(data)).right.get
         await(EntityDAO(entityType, userProfile).delete(entity.id)) must beRight
       }

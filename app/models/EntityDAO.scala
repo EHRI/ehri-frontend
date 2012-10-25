@@ -53,7 +53,7 @@ case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[U
 
   def update(id: Long, data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
     WS.url(requestUrl).withHeaders(authHeaders: _*)
-      .put(generate(Map("id" -> id, "data" -> data))).map { response =>
+      .put(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }
