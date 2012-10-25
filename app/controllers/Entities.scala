@@ -75,7 +75,6 @@ object Entities extends Controller with AuthController {
         errorForm => BadRequest(view(None, errorForm, action)),
         doc => {
           Async {
-            println("Sending data: " + doc.toData)
         	EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile))
         		.create(doc.toData).map { itemOrErr =>
 	          itemOrErr match {
