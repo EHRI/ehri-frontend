@@ -47,7 +47,7 @@ trait RestDAO {
         case _ => throw sys.error("Unexpected response: %d: %s".format(response.status, response.body))
       }
       case NOT_FOUND => Left(ItemNotFound)
-      case _ => throw sys.error("Unexpected response: %d: %s".format(response.status, response.body))
+      case _ => sys.error("Unexpected response: %d: %s".format(response.status, response.body))
     }
   }
 }

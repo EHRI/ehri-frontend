@@ -159,7 +159,47 @@ object Entities extends Controller with AuthController {
       }
   }
 
-  def delete(entityType: String, id: String) = TODO
+  def delete(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      val view = views.html.delete //(EntityTypes.withName(entityType))
+      val action = routes.Entities.deletePost(entityType, id)
+      Async {
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr match {
+            case Right(item) => {
+              val doc: DocumentaryUnit = DocumentaryUnit(item)
+              Ok(view(doc, action))
+            }
+            case Left(err) => err match {
+              case PermissionDenied => Unauthorized(views.html.errors.permissionDenied())
+              case ItemNotFound => NotFound(views.html.errors.itemNotFound())
+              case ValidationError => BadRequest(err.toString())
+              case _ => BadRequest(err.toString())
+            }
+          }
+        }
+      }
+  }
+      
 
-  def deletePost(entityType: String, id: String) = TODO
+  def deletePost(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      val view = views.html.delete //(EntityTypes.withName(entityType))
+      val action = routes.Entities.deletePost(entityType, id)
+      Async {
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).delete(id).map { boolOrErr =>
+          boolOrErr match {
+            case Right(res) => {              
+              Redirect(routes.Entities.list(entityType))
+            }
+            case Left(err) => err match {
+              case PermissionDenied => Unauthorized(views.html.errors.permissionDenied())
+              case ItemNotFound => NotFound(views.html.errors.itemNotFound())
+              case ValidationError => BadRequest(err.toString())
+              case _ => BadRequest(err.toString())
+            }
+          }
+        }
+      }
+  }
 }

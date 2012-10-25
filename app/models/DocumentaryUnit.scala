@@ -25,7 +25,8 @@ case class DocumentaryUnit(
   val publicationStatus: Option[PublicationStatus.Value] = None,
   
   @Annotations.Relation(DocumentaryUnit.DESC_REL)
-  val descriptions: List[DocumentaryUnitDescription] = Nil) extends BaseModel {
+  val descriptions: List[DocumentaryUnitDescription] = Nil
+) extends ManagedEntity {
   val isA = EntityTypes.DocumentaryUnit
 
   def withDescription(d: DocumentaryUnitDescription): DocumentaryUnit = copy(descriptions=descriptions++List(d))

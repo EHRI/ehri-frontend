@@ -66,6 +66,13 @@ case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[U
       }
   }
 
+  def delete(id: String): Future[Either[RestError, Boolean]] = {
+    WS.url(requestUrl + "/" + id).withHeaders(authHeaders: _*).delete.map { response =>
+      // FIXME: Check actual error content...
+      checkError(response).right.map(r => r.status == OK)
+    }
+  }
+
   def delete(id: Long): Future[Either[RestError, Boolean]] = {
     WS.url(requestUrl + "/" + id.toString).withHeaders(authHeaders: _*).delete.map { response =>
       // FIXME: Check actual error content...
