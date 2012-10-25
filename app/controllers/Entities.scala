@@ -58,9 +58,40 @@ object Entities extends Controller with AuthController {
       }
   }
 
-  def create(entityType: String) = TODO
+  def create(entityType: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      val form = forms.formFor(EntityTypes.withName(entityType))
+      val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
+      val action = routes.Entities.createPost(entityType)
+      Ok(view(None, form, action))
+  }
 
-  def createPost(entityType: String) = TODO
+  def createPost(entityType: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      val form = forms.formFor(EntityTypes.withName(entityType)).bindFromRequest
+      val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
+      val action = routes.Entities.createPost(entityType)
+      form.fold(
+        errorForm => BadRequest(view(None, errorForm, action)),
+        doc => {
+          Async {
+            println("Sending data: " + doc.toData)
+        	EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile))
+        		.create(doc.toData).map { itemOrErr =>
+	          itemOrErr match {
+	            case Right(item) => Redirect(routes.Entities.get(entityType, item.identifier))
+	            case Left(err) => err match {
+	              case PermissionDenied => Unauthorized(views.html.errors.permissionDenied())
+	              case ItemNotFound => NotFound(views.html.errors.itemNotFound())
+	              case ValidationError => BadRequest(err.toString())
+	              case _ => BadRequest(err.toString())
+	            }
+	          }
+        	}
+          }
+        }
+      )
+  }
 
   def update(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>

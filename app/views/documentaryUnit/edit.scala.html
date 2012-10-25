@@ -18,7 +18,7 @@
 				@helper.inputText(f("name"), '_label -> "Name")
 			</fieldset>
 		  
-			@helper.repeat(f("descriptions"), min=f("descriptions").indexes.length + 1) { desc =>
+			@helper.repeat(f("descriptions"), min=Math.max(f("descriptions").indexes.length, 1)) { desc =>
 			   <input type="hidden" value="@desc("id").value" name="id" />
 			   @helper.inputText(desc("languageCode"), '_label -> "Language Code")
 			   @helper.inputText(desc("title"), '_label -> "Title")
