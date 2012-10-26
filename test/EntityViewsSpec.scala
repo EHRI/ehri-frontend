@@ -102,10 +102,10 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
 
-    "show should permission denied when not logged in" in {
+    "should redirect to login page when permission denied when not logged in" in {
       running(FakeApplication(additionalConfiguration = config)) {
         val show = route(FakeRequest(GET, "/documentaryUnit/show/c1")).get
-        status(show) must equalTo(UNAUTHORIZED)
+        status(show) must equalTo(SEE_OTHER)
       }
     }
   }
