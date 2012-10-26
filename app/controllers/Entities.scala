@@ -15,17 +15,16 @@ import play.api.mvc.Result
 import scala.concurrent.Future
 import play.api.mvc.RequestHeader
 
-object Entities extends Controller with AuthController {
+object Entities extends Controller with AuthController with ControllerHelpers {
 
   def list(entityType: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       Async {
         WrapRest {
-
           rest.EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
             itemOrErr match {
               case Right(lst) => Ok(views.html.entities.list(lst))
-              case Left(err) => throw err;
+              case Left(err) => throw err
             }
           }
         }
@@ -39,23 +38,11 @@ object Entities extends Controller with AuthController {
           rest.EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
             itemOrErr match {
               case Right(item) => Ok(generate(item.data))
-              case Left(err) => throw err;
+              case Left(err) => throw err
             }
           }
         }
       }
-  }
-
-  def WrapRest(promise: Future[Result])(implicit maybeUser: Option[User], request: RequestHeader): Future[Result] = {
-    promise.recover {
-      case err @ PermissionDenied => maybeUser match {
-        case Some(user) => Unauthorized(views.html.errors.permissionDenied())
-        case None => authenticationFailed(request)
-      }
-      case ItemNotFound => NotFound(views.html.errors.itemNotFound())
-      case err @ ValidationError => BadRequest(err.toString())
-      case err @ _ => BadRequest(err.toString())
-    }
   }
 
   def get(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
@@ -65,17 +52,13 @@ object Entities extends Controller with AuthController {
           EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
             itemOrErr match {
               case Right(item) => Ok(views.html.entities.show(item))
-              case Left(err) => throw err;
+              case Left(err) => throw err
             }
           }
         }
       }
   }
 
-  /*  def restCreate[T <: AccessibleEntity](view: (T, Form[T], Action[AnyContent]) => String, action: Result, form: Form[T]): SimpleResult[AnyContent] = {
-    Ok("foo")
-  }
-*/
   def create(entityType: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       val form = forms.formFor(EntityTypes.withName(entityType))
@@ -98,7 +81,7 @@ object Entities extends Controller with AuthController {
                 .create(doc.toData).map { itemOrErr =>
                   itemOrErr match {
                     case Right(item) => Redirect(routes.Entities.get(entityType, item.identifier))
-                    case Left(err) => throw err;
+                    case Left(err) => throw err
                   }
                 }
             }
@@ -120,7 +103,7 @@ object Entities extends Controller with AuthController {
                 val doc: DocumentaryUnit = DocumentaryUnit(item)
                 Ok(view(Some(doc), form.fill(doc), action))
               }
-              case Left(err) => throw err;
+              case Left(err) => throw err
             }
           }
         }
@@ -134,12 +117,10 @@ object Entities extends Controller with AuthController {
       val action = routes.Entities.updatePost(entityType, id)
       Async {
         WrapRest {
-
           EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
             itemOrErr match {
               case Right(item) => {
                 val doc: DocumentaryUnit = DocumentaryUnit(item)
-
                 form.fold(
                   errorForm => BadRequest(view(Some(doc), errorForm, action)),
                   doc => {
@@ -150,7 +131,7 @@ object Entities extends Controller with AuthController {
                           .update(id, doc.toData).map { itemOrErr =>
                             itemOrErr match {
                               case Right(item) => Redirect(routes.Entities.get(entityType, item.identifier))
-                              case Left(err) => throw err;
+                              case Left(err) => throw err
                             }
                           }
                       }
@@ -158,7 +139,7 @@ object Entities extends Controller with AuthController {
                   }
                 )
               }
-              case Left(err) => throw err;
+              case Left(err) => throw err
             }
           }
         }
@@ -177,7 +158,7 @@ object Entities extends Controller with AuthController {
                 val doc: DocumentaryUnit = DocumentaryUnit(item)
                 Ok(view(doc, action))
               }
-              case Left(err) => throw err;
+              case Left(err) => throw err
             }
           }
         }
@@ -195,10 +176,9 @@ object Entities extends Controller with AuthController {
               case Right(res) => {
                 Redirect(routes.Entities.list(entityType))
               }
-              case Left(err) => throw err;
+              case Left(err) => throw err
             }
           }
-
         }
       }
   }
