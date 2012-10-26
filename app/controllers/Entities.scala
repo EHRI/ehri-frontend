@@ -22,10 +22,10 @@ object Entities extends Controller with AuthController with ControllerHelpers {
       Async {
         WrapRest {
           rest.EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
-            itemOrErr match {
-              case Right(lst) => Ok(views.html.entities.list(lst))
-              case Left(err) => throw err
-            }
+            itemOrErr.fold(
+              err => throw err,
+              lst => Ok(views.html.entities.list(lst))
+            )
           }
         }
       }
@@ -36,10 +36,10 @@ object Entities extends Controller with AuthController with ControllerHelpers {
       Async {
         WrapRest {
           rest.EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-            itemOrErr match {
-              case Right(item) => Ok(generate(item.data))
-              case Left(err) => throw err
-            }
+            itemOrErr.fold(
+              err => throw err,
+              item => Ok(generate(item.data))
+            )
           }
         }
       }
