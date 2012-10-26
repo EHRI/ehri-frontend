@@ -115,35 +115,37 @@ object Entities extends Controller with AuthController with ControllerHelpers {
       val form = forms.formFor(EntityTypes.withName(entityType)).bindFromRequest
       val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
       val action = routes.Entities.updatePost(entityType, id)
-      Async {
-        WrapRest {
-          EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-            itemOrErr match {
-              case Right(item) => {
-                val doc: DocumentaryUnit = DocumentaryUnit(item)
-                form.fold(
-                  errorForm => BadRequest(view(Some(doc), errorForm, action)),
-                  doc => {
-                    Async {
-                      WrapRest {
-                        println("Sending data: " + doc.toData)
-                        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile))
-                          .update(id, doc.toData).map { itemOrErr =>
-                            itemOrErr match {
-                              case Right(item) => Redirect(routes.Entities.get(entityType, item.identifier))
-                              case Left(err) => throw err
-                            }
-                          }
-                      }
-                    }
+      form.fold(
+        errorForm => {
+          Async {
+            WrapRest {
+              EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+                itemOrErr match {
+                  case Right(item) => {
+                    val doc: DocumentaryUnit = DocumentaryUnit(item)
+                    BadRequest(view(Some(doc), errorForm, action))
                   }
-                )
+                  case Left(err) => throw err
+                }
               }
-              case Left(err) => throw err
+            }
+          }
+        },
+        doc => {
+          Async {
+            WrapRest {
+              println("Sending data: " + doc.toData)
+              EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile))
+                .update(id, doc.toData).map { itemOrErr =>
+                  itemOrErr match {
+                    case Right(item) => Redirect(routes.Entities.get(entityType, item.identifier))
+                    case Left(err) => throw err
+                  }
+                }
             }
           }
         }
-      }
+      )
   }
 
   def delete(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
