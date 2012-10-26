@@ -21,7 +21,7 @@ object Entities extends Controller with AuthController with ControllerHelpers {
     implicit request =>
       Async {
         WrapRest {
-          rest.EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
+          EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
             itemOrErr.fold(
               err => throw err,
               lst => Ok(views.html.entities.list(lst))
@@ -35,7 +35,7 @@ object Entities extends Controller with AuthController with ControllerHelpers {
     implicit request =>
       Async {
         WrapRest {
-          rest.EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
             itemOrErr.fold(
               err => throw err,
               item => Ok(generate(item.data))
