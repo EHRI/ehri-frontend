@@ -11,7 +11,7 @@ import com.codahale.jerkson.Json.generate
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
 
-sealed trait RestError
+sealed trait RestError extends Throwable
 case object PermissionDenied extends RestError
 case object ValidationError extends RestError
 case object DeserializationError extends RestError
