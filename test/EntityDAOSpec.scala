@@ -9,15 +9,12 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import eu.ehri.extension.EhriNeo4jFramedResource
 import com.typesafe.config.ConfigFactory
-import models.{ EntityDAO, ValidationError }
+import rest._
 import play.api.libs.concurrent.execution.defaultContext
 import models.{ Entity, EntityTypes }
 import models.UserProfile
 import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample
-import models.IntegrityError
-import models.DeserializationError
-import models.ItemNotFound
 
 /**
  * Add your spec here.
