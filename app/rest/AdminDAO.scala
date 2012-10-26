@@ -1,14 +1,9 @@
-package models
+package rest
 
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
-import play.api.libs.ws.{ WS, Response }
-import play.api.libs.json.{ JsArray, JsValue }
-import play.api.Play
-
-import com.codahale.jerkson.Json.generate
-
-import com.codahale.jerkson.Json.generate
+import play.api.libs.ws.WS
+import models.Entity
 
 case class AdminDAO() extends RestDAO {
 

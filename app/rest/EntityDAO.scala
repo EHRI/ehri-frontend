@@ -1,17 +1,19 @@
-package models
+package rest
 
 import play.api.libs.concurrent.execution.defaultContext
-
 import scala.concurrent.Future
-import play.api.libs.ws.{ WS, Response }
-import play.api.libs.json.{ JsArray, JsValue }
-import play.api.Play
-
-import com.codahale.jerkson.Json.generate
+import play.api.libs.ws.WS
+import play.api.libs.json.JsArray
+import models.AccessibleEntity
+import models.EntityTypes
+import models.UserProfile
+import play.api.http.Status.OK
 
 case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
 
   import play.api.http.Status._
+  import com.codahale.jerkson.Json.generate
+
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 

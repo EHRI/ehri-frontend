@@ -3,7 +3,7 @@ package models
 import defines._
 
 
-object DocumentaryUnit {
+object DocumentaryUnit extends ManagedEntityBuilder[DocumentaryUnit] {
   
   final val DESC_REL = "describes"
   

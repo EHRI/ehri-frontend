@@ -54,7 +54,7 @@ class OpenIDLoginHandler(app: play.api.Application) extends LoginHandler {
           case Some(assoc) => gotoLoginSucceeded(assoc.user.get.profile_id)
           case None =>
             Async {
-              models.AdminDAO().createNewUserProfile.map {
+              rest.AdminDAO().createNewUserProfile.map {
                 case Right(entity) => {
                   val email = info.attributes.getOrElse("email", sys.error("No openid email"))
                   models.sql.OpenIDUser.create(email, entity.property("identifier").map(_.as[String]).get).map { user =>

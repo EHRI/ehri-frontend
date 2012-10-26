@@ -1,21 +1,24 @@
 package controllers
 
 import com.codahale.jerkson.Json.generate
-import models.EntityDAO
+import rest._
 import models.EntityTypes
-import models.ItemNotFound
-import models.PermissionDenied
-import models.ValidationError
 import play.api.libs.concurrent.execution.defaultContext
 import play.api.mvc.Controller
 import models.DocumentaryUnit
+import models.AccessibleEntity
+import play.api.data.Form
+import play.api.mvc.Action
+import play.api.mvc.SimpleResult
+import play.api.mvc.AnyContent
+import play.api.mvc.Result
 
 object Entities extends Controller with AuthController {
 
   def list(entityType: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       Async {
-        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
+        rest.EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
           itemOrErr match {
             case Right(lst) => Ok(views.html.entities.list(lst))
             case Left(err) => BadRequest("WRONG!" + err)
@@ -27,11 +30,14 @@ object Entities extends Controller with AuthController {
   def getJson(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       Async {
-        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+        rest.EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr match {
             case Right(item) => Ok(generate(item.data))
             case Left(err) => err match {
-              case PermissionDenied => Unauthorized(views.html.errors.permissionDenied())
+              case PermissionDenied => maybeUser match {
+                case Some(user) => Unauthorized(views.html.errors.permissionDenied())
+                case None => authenticationFailed(request)
+              }
               case ItemNotFound => NotFound(views.html.errors.itemNotFound())
               case ValidationError => BadRequest(err.toString())
               case _ => BadRequest(err.toString())
@@ -48,7 +54,10 @@ object Entities extends Controller with AuthController {
           itemOrErr match {
             case Right(item) => Ok(views.html.entities.show(item))
             case Left(err) => err match {
-              case PermissionDenied => Unauthorized(views.html.errors.permissionDenied())
+              case PermissionDenied => maybeUser match {
+                case Some(user) => Unauthorized(views.html.errors.permissionDenied())
+                case None => authenticationFailed(request)
+              }
               case ItemNotFound => NotFound(views.html.errors.itemNotFound())
               case ValidationError => BadRequest(err.toString())
               case _ => BadRequest(err.toString())
@@ -57,7 +66,11 @@ object Entities extends Controller with AuthController {
         }
       }
   }
-
+  
+/*  def restCreate[T <: AccessibleEntity](view: (T, Form[T], Action[AnyContent]) => String, action: Result, form: Form[T]): SimpleResult[AnyContent] = {
+    Ok("foo")
+  }
+*/
   def create(entityType: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       val form = forms.formFor(EntityTypes.withName(entityType))
@@ -80,7 +93,10 @@ object Entities extends Controller with AuthController {
 	          itemOrErr match {
 	            case Right(item) => Redirect(routes.Entities.get(entityType, item.identifier))
 	            case Left(err) => err match {
-	              case PermissionDenied => Unauthorized(views.html.errors.permissionDenied())
+	              case PermissionDenied => maybeUser match {
+	                case Some(user) => Unauthorized(views.html.errors.permissionDenied())
+	                case None => authenticationFailed(request)
+	              }
 	              case ItemNotFound => NotFound(views.html.errors.itemNotFound())
 	              case ValidationError => BadRequest(err.toString())
 	              case _ => BadRequest(err.toString())
@@ -105,7 +121,10 @@ object Entities extends Controller with AuthController {
               Ok(view(Some(doc), form.fill(doc), action))
             }
             case Left(err) => err match {
-              case PermissionDenied => Unauthorized(views.html.errors.permissionDenied())
+              case PermissionDenied => maybeUser match {
+                case Some(user) => Unauthorized(views.html.errors.permissionDenied())
+                case None => authenticationFailed(request)
+              }
               case ItemNotFound => NotFound(views.html.errors.itemNotFound())
               case ValidationError => BadRequest(err.toString())
               case _ => BadRequest(err.toString())

@@ -1,11 +1,12 @@
-package models
+package rest
+
+import models.{EntityReader,Entity,AccessibleEntity}
 
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.{ WS, Response }
 import play.api.libs.json.{ JsArray, JsValue }
 import play.api.Play
-import com.codahale.jerkson.Json.generate
 import com.codahale.jerkson.Json.generate
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
