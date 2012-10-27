@@ -19,42 +19,27 @@ object Entities extends Controller with AuthController with ControllerHelpers {
 
   def list(entityType: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      Async {
-        WrapRest {
-          EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
-            itemOrErr.fold(
-              err => throw err,
-              lst => Ok(views.html.entities.list(lst))
-            )
-          }
+      AsyncRest {
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
+          itemOrErr.right.map { lst => Ok(views.html.entities.list(lst)) }
         }
       }
   }
 
   def getJson(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      Async {
-        WrapRest {
-          EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-            itemOrErr.fold(
-              err => throw err,
-              item => Ok(generate(item.data))
-            )
-          }
+      AsyncRest {
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr.right.map { item => Ok(generate(item.data)) }
         }
       }
   }
 
   def get(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      Async {
-        WrapRest {
-          EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-            itemOrErr match {
-              case Right(item) => Ok(views.html.entities.show(item))
-              case Left(err) => throw err
-            }
-          }
+      AsyncRest {
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr.right.map { item => Ok(views.html.entities.show(item)) }
         }
       }
   }
@@ -75,16 +60,11 @@ object Entities extends Controller with AuthController with ControllerHelpers {
       form.fold(
         errorForm => BadRequest(view(None, errorForm, action)),
         doc => {
-          Async {
-            WrapRest {
-              EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile))
-                .create(doc.toData).map { itemOrErr =>
-                  itemOrErr match {
-                    case Right(item) => Redirect(routes.Entities.get(entityType, item.identifier))
-                    case Left(err) => throw err
-                  }
-                }
-            }
+          AsyncRest {
+            EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile))
+              .create(doc.toData).map { itemOrErr =>
+                itemOrErr.right.map { item => Redirect(routes.Entities.get(entityType, item.identifier)) }
+              }
           }
         }
       )
@@ -95,16 +75,11 @@ object Entities extends Controller with AuthController with ControllerHelpers {
       val form = forms.formFor(EntityTypes.withName(entityType))
       val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
       val action = routes.Entities.updatePost(entityType, id)
-      Async {
-        WrapRest {
-          EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-            itemOrErr match {
-              case Right(item) => {
-                val doc: DocumentaryUnit = DocumentaryUnit(item)
-                Ok(view(Some(doc), form.fill(doc), action))
-              }
-              case Left(err) => throw err
-            }
+      AsyncRest {
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr.right.map { item =>
+            val doc: DocumentaryUnit = DocumentaryUnit(item)
+            Ok(view(Some(doc), form.fill(doc), action))
           }
         }
       }
@@ -117,32 +92,23 @@ object Entities extends Controller with AuthController with ControllerHelpers {
       val action = routes.Entities.updatePost(entityType, id)
       form.fold(
         errorForm => {
-          Async {
-            WrapRest {
-              EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-                itemOrErr match {
-                  case Right(item) => {
-                    val doc: DocumentaryUnit = DocumentaryUnit(item)
-                    BadRequest(view(Some(doc), errorForm, action))
-                  }
-                  case Left(err) => throw err
-                }
+          AsyncRest {
+            EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+              itemOrErr.right.map { item =>
+                val doc: DocumentaryUnit = DocumentaryUnit(item)
+                BadRequest(view(Some(doc), errorForm, action))
               }
             }
           }
         },
         doc => {
-          Async {
-            WrapRest {
-              println("Sending data: " + doc.toData)
-              EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile))
-                .update(id, doc.toData).map { itemOrErr =>
-                  itemOrErr match {
-                    case Right(item) => Redirect(routes.Entities.get(entityType, item.identifier))
-                    case Left(err) => throw err
-                  }
+          AsyncRest {
+            EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile))
+              .update(id, doc.toData).map { itemOrErr =>
+                itemOrErr.right.map { item =>
+                  Redirect(routes.Entities.get(entityType, item.identifier))
                 }
-            }
+              }
           }
         }
       )
@@ -152,16 +118,12 @@ object Entities extends Controller with AuthController with ControllerHelpers {
     implicit request =>
       val view = views.html.delete //(EntityTypes.withName(entityType))
       val action = routes.Entities.deletePost(entityType, id)
-      Async {
-        WrapRest {
-          EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-            itemOrErr match {
-              case Right(item) => {
-                val doc: DocumentaryUnit = DocumentaryUnit(item)
-                Ok(view(doc, action))
-              }
-              case Left(err) => throw err
-            }
+      AsyncRest {
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr.right.map { item =>
+            val doc: DocumentaryUnit = DocumentaryUnit(item)
+            Ok(view(doc, action))
+
           }
         }
       }
@@ -169,18 +131,11 @@ object Entities extends Controller with AuthController with ControllerHelpers {
 
   def deletePost(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      val view = views.html.delete //(EntityTypes.withName(entityType))
+      val view = views.html.delete
       val action = routes.Entities.deletePost(entityType, id)
-      Async {
-        WrapRest {
-          EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).delete(id).map { boolOrErr =>
-            boolOrErr match {
-              case Right(res) => {
-                Redirect(routes.Entities.list(entityType))
-              }
-              case Left(err) => throw err
-            }
-          }
+      AsyncRest {
+        EntityDAO(EntityTypes.withName(entityType), maybeUser.flatMap(_.profile)).delete(id).map { boolOrErr =>
+          boolOrErr.right.map { ok => Redirect(routes.Entities.list(entityType)) }
         }
       }
   }
