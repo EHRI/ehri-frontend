@@ -5,7 +5,7 @@ import play.api.mvc._
 import jp.t2v.lab.play20.auth.{ Auth, LoginLogout }
 import play.api.libs.concurrent.execution.defaultContext
 import models.UserProfile
-import models.Entity
+import models.AccessibleEntity
 import models.EntityTypes
 import play.api.libs.json.JsString
 
@@ -22,7 +22,7 @@ trait AuthController extends Controller with Auth with Authorizer {
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
-              val fakeProfile = Some(UserProfile(Entity(-1, Map("identifier" -> JsString(user.profile_id)))))
+              val fakeProfile = Some(UserProfile(Some(-1L), user.profile_id, ""))
               rest.EntityDAO(EntityTypes.UserProfile, fakeProfile).get(user.profile_id).map { profileOrError =>
                 profileOrError match {
                   case Right(profile) => f(Some(user.withProfile(UserProfile(profile))))(request)

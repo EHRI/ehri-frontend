@@ -6,9 +6,35 @@ import play.api.libs.ws.WS
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 
-case class UserProfile(entity: Entity) {
-	def id: Long = entity.id
-	def identifier: Option[String] = entity.property("identifier").flatMap(_.asOpt[String])
-	def name: Option[String] = entity.property("name").map(_.toString)
-	def groups: Seq[Entity] = entity.relationships.getOrElse("belongsTo", Seq())
+object UserProfile extends ManagedEntityBuilder[UserProfile] {
+  
+  final val BELONGS_REL = "belongsTo"
+  
+  def apply(e: AccessibleEntity) = {
+    new UserProfile(
+      id = Some(e.id),
+      identifier = e.identifier,
+      name = e.property("name").flatMap(_.asOpt[String]).getOrElse(""), // FIXME: Is this a good idea?
+      groups = e.relations(BELONGS_REL).map(e => Group.apply(new AccessibleEntity(e)))
+    )
+  }
+  
+  def apply(id: Option[Long], identifier: String, name: String)
+  		= new UserProfile(id, identifier, name, Nil)
+
+  // Special form unapply method
+  def unform(up: UserProfile) = Some((up.id, up.identifier, up.name))
+}
+
+
+case class UserProfile (
+  val id: Option[Long],
+  val identifier: String,
+  val name: String,
+
+  @Annotations.Relation(UserProfile.BELONGS_REL)
+  val groups: List[Group] = Nil
+) extends ManagedEntity {
+  val isA = EntityTypes.UserProfile
+
 }
