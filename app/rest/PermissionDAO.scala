@@ -20,8 +20,7 @@ case class PermissionDAO(val userProfile: UserProfile) extends RestDAO {
   )
   
   def getUserPermissions: Future[Either[RestError, PermissionSet]] = {
-    WS.url(requestUrl).withHeaders(headers.toSeq: _*)
-      .post("").map { response =>
+    WS.url(requestUrl).withHeaders(headers.toSeq: _*).get.map { response =>
         checkError(response).right.map(r => PermissionSet(userProfile, r.json))
       }
   }
