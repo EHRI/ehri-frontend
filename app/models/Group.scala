@@ -7,12 +7,15 @@ import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 
 object Group extends ManagedEntityBuilder[Group] {
+
+  final val BELONGS_REL = "belongsTo"  
   
   def apply(e: AccessibleEntity) = {
     new Group(
       id = Some(e.id),
       identifier = e.identifier,
-      name = e.property("name").flatMap(_.asOpt[String]).getOrElse("")
+      name = e.property("name").flatMap(_.asOpt[String]).getOrElse(""),
+      groups = e.relations(BELONGS_REL).map(e => Group.apply(new AccessibleEntity(e)))      
     )
   }
 }
@@ -21,7 +24,11 @@ object Group extends ManagedEntityBuilder[Group] {
 case class Group (
   val id: Option[Long],
   val identifier: String,
-  val name: String
-) extends ManagedEntity {
+  val name: String,
+  
+  @Annotations.Relation(UserProfile.BELONGS_REL)
+  val groups: List[Group] = Nil
+  
+) extends ManagedEntity with Accessor[Group] {
   val isA = EntityTypes.Group
 }
