@@ -1,4 +1,4 @@
-@(item: ManagedEntity, action: Call)(implicit maybeUser: Option[models.sql.User], request: RequestHeader)
+@(item: ManagedEntity, action: Call, cancel: Call, maybeUser: Option[models.sql.User], request: RequestHeader)
 
 @main("Delete item")(maybeUser, request) {
 
@@ -9,7 +9,7 @@
             <p>This action cannot be reversed!  Are you sure you want to delete this item?</p>
             <form method="POST" action="@action" class="form-actions">
                 <button type="submit" class="btn btn-danger">@Messages("Yes, delete it!")</button>
-                <a href="@routes.Entities.get(item.isA.toString, item.identifier)" class="btn">@Messages("Cancel")</a>
+                <a href="@cancel.url" class="btn">@Messages("Cancel")</a>
             </form>
         </div>
     </div>

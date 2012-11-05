@@ -1,0 +1,32 @@
+@(item: ManagedEntity, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@accView(item: ManagedEntity) = {
+	<table>
+		<tr>
+			<th>Item:</th>
+			<th>@item.identifier</th>
+		</tr>
+		<tr>
+			<td></td>
+			<td>@itemView(item)</td>
+		</tr>
+	</table>    
+}
+
+@itemView(item: ManagedEntity) = {
+	<table>
+		@item.toData.map { case (k, v) =>
+			<tr>
+				<td>@k</td>
+				<td>@v</td>
+			</tr>
+		}
+	</table>  
+}
+
+@main("View item")(maybeUser, req) {
+	
+  
+	<h4>Properties</h4>
+	@itemView(item)
+}

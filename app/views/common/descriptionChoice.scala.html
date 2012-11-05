@@ -1,4 +1,4 @@
-@(f: play.api.data.Field, enum: Enumeration, label: String, blank: Boolean = false)(implicit req: RequestHeader)
+@(f: play.api.data.Field, enum: Enumeration, label: String, blank: Boolean = false)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

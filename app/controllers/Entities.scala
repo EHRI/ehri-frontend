@@ -4,8 +4,6 @@ import com.codahale.jerkson.Json.generate
 import rest._
 import play.api.libs.concurrent.execution.defaultContext
 import play.api.mvc.Controller
-import models.DocumentaryUnit
-import models.AccessibleEntity
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.SimpleResult
@@ -14,99 +12,157 @@ import play.api.mvc.Result
 import scala.concurrent.Future
 import play.api.mvc.RequestHeader
 import defines.EntityType
+import play.api.mvc.Call
+import models._
 
-object Entities extends Controller with AuthController with ControllerHelpers {
+object DocumentaryUnits extends EntityController[DocumentaryUnit] {
+  val entityType = EntityType.DocumentaryUnit
+  val listAction = routes.DocumentaryUnits.list
+  val createAction = routes.DocumentaryUnits.createPost
+  val updateAction = routes.DocumentaryUnits.updatePost _
+  val cancelAction = routes.DocumentaryUnits.get _
+  val deleteAction = routes.DocumentaryUnits.deletePost _
+  val form = forms.DocumentaryUnitForm.form
+  val showAction = routes.DocumentaryUnits.get _
+  val formView = views.html.documentaryUnit.edit.apply _
+  val showView = views.html.show.apply _
+  val listView = views.html.list.apply _
+  val deleteView = views.html.delete.apply _
+  val builder: (AccessibleEntity => DocumentaryUnit) = DocumentaryUnit.apply _
+}
 
-  def list(entityType: String) = userProfileAction { implicit maybeUser =>
+object UserProfiles extends EntityController[UserProfile] {
+  val entityType = EntityType.UserProfile
+  val listAction = routes.UserProfiles.list
+  val createAction = routes.UserProfiles.createPost
+  val updateAction = routes.UserProfiles.updatePost _
+  val cancelAction = routes.UserProfiles.get _
+  val deleteAction = routes.UserProfiles.deletePost _
+  val form = forms.UserProfileForm.form
+  val showAction = routes.UserProfiles.get _
+  val formView = views.html.userProfile.edit.apply _
+  val showView = views.html.show.apply _
+  val listView = views.html.list.apply _
+  val deleteView = views.html.delete.apply _
+  val builder: (AccessibleEntity => UserProfile) = UserProfile.apply _
+}
+
+object Groups extends EntityController[Group] {
+  val entityType = EntityType.Group
+  val listAction = routes.Groups.list
+  val createAction = routes.Groups.createPost
+  val updateAction = routes.Groups.updatePost _
+  val cancelAction = routes.Groups.get _
+  val deleteAction = routes.Groups.deletePost _
+  val form = forms.GroupForm.form
+  val showAction = routes.Groups.get _
+  val formView = views.html.group.edit.apply _
+  val showView = views.html.show.apply _
+  val listView = views.html.list.apply _
+  val deleteView = views.html.delete.apply _
+  val builder: (AccessibleEntity => Group) = Group.apply _
+}
+
+
+trait EntityController[T <: ManagedEntity] extends Controller with AuthController with ControllerHelpers {
+
+  val entityType: EntityType.Value
+  type ShowViewType = (T, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  type ListViewType = (Seq[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  type FormViewType = (Option[T], Form[T], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  type DeleteViewType = (T, Call, Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  
+  def builder: AccessibleEntity => T
+  val form: Form[T]
+  val listAction: Call
+  val showAction: String => Call
+  val createAction: Call
+  val updateAction: String => Call
+  val cancelAction: String => Call
+  val deleteAction: String => Call
+  val showView: ShowViewType
+  val formView: FormViewType
+  val listView: ListViewType
+  val deleteView: DeleteViewType
+  
+  def list = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
-        EntityDAO(EntityType.withName(entityType), maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
-          itemOrErr.right.map { lst => Ok(views.html.entities.list(lst)) }
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
+          itemOrErr.right.map { lst => Ok(listView(lst.map(builder(_)), showAction, maybeUser, request)) }
         }
       }
   }
 
-  def getJson(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
+  def getJson(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
-        EntityDAO(EntityType.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr.right.map { item => Ok(generate(item.data)) }
         }
       }
   }
 
-  def get(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
+  def get(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
-        EntityDAO(EntityType.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item => Ok(views.html.entities.show(item)) }
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr.right.map { item => Ok(showView(builder(item), maybeUser, request)) }
         }
       }
   }
 
-  def create(entityType: String) = userProfileAction { implicit maybeUser =>
+  def create = userProfileAction { implicit maybeUser =>
     implicit request =>
-      val form = forms.formFor(EntityType.withName(entityType))
-      val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
-      val action = routes.Entities.createPost(entityType)
-      Ok(view(None, form, action))
+      Ok(formView(None, form, createAction, maybeUser, request))
   }
 
-  def createPost(entityType: String) = userProfileAction { implicit maybeUser =>
+  def createPost = userProfileAction { implicit maybeUser =>
     implicit request =>
-      val form = forms.formFor(EntityType.withName(entityType)).bindFromRequest
-      val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
-      val action = routes.Entities.createPost(entityType)
-      form.fold(
-        errorForm => BadRequest(view(None, errorForm, action)),
+      form.bindFromRequest.fold(
+        errorForm => BadRequest(formView(None, errorForm, createAction, maybeUser, request)),
         doc => {
           AsyncRest {
-            EntityDAO(EntityType.withName(entityType), maybeUser.flatMap(_.profile))
+            EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .create(doc.toData).map { itemOrErr =>
-                itemOrErr.right.map { item => Redirect(routes.Entities.get(entityType, item.identifier)) }
+                itemOrErr.right.map { item => Redirect(showAction(item.identifier)) }
               }
           }
         }
       )
   }
 
-  def update(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
+  def update(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      val form = forms.formFor(EntityType.withName(entityType))
-      val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
-      val action = routes.Entities.updatePost(entityType, id)
       AsyncRest {
-        EntityDAO(EntityType.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr.right.map { item =>
-            val doc: DocumentaryUnit = DocumentaryUnit(item)
-            Ok(view(Some(doc), form.fill(doc), action))
+            val doc: T = builder(item)
+            Ok(formView(Some(doc), form.fill(doc), updateAction(id), maybeUser, request))
           }
         }
       }
   }
 
-  def updatePost(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
+  def updatePost(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      val form = forms.formFor(EntityType.withName(entityType)).bindFromRequest
-      val view = views.html.documentaryUnit.edit //(EntityTypes.withName(entityType))
-      val action = routes.Entities.updatePost(entityType, id)
-      form.fold(
+      form.bindFromRequest.fold(
         errorForm => {
           AsyncRest {
-            EntityDAO(EntityType.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-              itemOrErr.right.map { item =>
-                val doc: DocumentaryUnit = DocumentaryUnit(item)
-                BadRequest(view(Some(doc), errorForm, action))
+            EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+              itemOrErr.right.map { item =>                
+                val doc: T = builder(item)
+                BadRequest(formView(Some(doc), errorForm, updateAction(id), maybeUser, request))
               }
             }
           }
         },
         doc => {
           AsyncRest {
-            EntityDAO(EntityType.withName(entityType), maybeUser.flatMap(_.profile))
+            EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .update(id, doc.toData).map { itemOrErr =>
                 itemOrErr.right.map { item =>
-                  Redirect(routes.Entities.get(entityType, item.identifier))
+                  Redirect(showAction(item.identifier))
                 }
               }
           }
@@ -114,28 +170,24 @@ object Entities extends Controller with AuthController with ControllerHelpers {
       )
   }
 
-  def delete(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
+  def delete(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      val view = views.html.delete //(EntityTypes.withName(entityType))
-      val action = routes.Entities.deletePost(entityType, id)
       AsyncRest {
-        EntityDAO(EntityType.withName(entityType), maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr.right.map { item =>
-            val doc: DocumentaryUnit = DocumentaryUnit(item)
-            Ok(view(doc, action))
+            val doc: T = builder(item)
+            Ok(deleteView(doc, deleteAction(id), cancelAction(id), maybeUser, request))
 
           }
         }
       }
   }
 
-  def deletePost(entityType: String, id: String) = userProfileAction { implicit maybeUser =>
+  def deletePost(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      val view = views.html.delete
-      val action = routes.Entities.deletePost(entityType, id)
       AsyncRest {
-        EntityDAO(EntityType.withName(entityType), maybeUser.flatMap(_.profile)).delete(id).map { boolOrErr =>
-          boolOrErr.right.map { ok => Redirect(routes.Entities.list(entityType)) }
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).delete(id).map { boolOrErr =>
+          boolOrErr.right.map { ok => Redirect(listAction) }
         }
       }
   }

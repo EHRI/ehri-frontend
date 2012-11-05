@@ -19,6 +19,12 @@ object Group extends ManagedEntityBuilder[Group] {
       groups = e.relations(BELONGS_REL).map(e => Group.apply(new AccessibleEntity(e)))      
     )
   }
+  
+  def apply(id: Option[Long], identifier: String, name: String)
+  		= new Group(id, identifier, name, Nil)
+
+  // Special form unapply method
+  def unform(g: Group) = Some((g.id, g.identifier, g.name))  
 }
 
 

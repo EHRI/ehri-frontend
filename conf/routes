@@ -25,15 +25,35 @@ GET		/test			  controllers.Application.test
 
 # Home page
 GET     /                           controllers.Application.index
-GET     /:entityType/list           controllers.Entities.list(entityType: String)
-GET     /:entityType/show/:id       controllers.Entities.get(entityType: String, id: String)
-GET     /:entityType/json/:id       controllers.Entities.getJson(entityType: String, id: String)
-GET     /:entityType/create         controllers.Entities.create(entityType: String)
-POST    /:entityType/create         controllers.Entities.createPost(entityType: String)
-GET     /:entityType/delete/:id     controllers.Entities.delete(entityType: String, id: String)
-POST    /:entityType/delete/:id     controllers.Entities.deletePost(entityType: String, id: String)
-GET     /:entityType/update/:id     controllers.Entities.update(entityType: String, id: String)
-POST    /:entityType/update/:id     controllers.Entities.updatePost(entityType: String, id: String)
+GET     /documentaryUnit/list           controllers.DocumentaryUnits.list
+GET     /documentaryUnit/show/:id       controllers.DocumentaryUnits.get(id: String)
+GET     /documentaryUnit/json/:id       controllers.DocumentaryUnits.getJson(id: String)
+GET     /documentaryUnit/create         controllers.DocumentaryUnits.create
+POST    /documentaryUnit/create         controllers.DocumentaryUnits.createPost
+GET     /documentaryUnit/delete/:id     controllers.DocumentaryUnits.delete(id: String)
+POST    /documentaryUnit/delete/:id     controllers.DocumentaryUnits.deletePost(id: String)
+GET     /documentaryUnit/update/:id     controllers.DocumentaryUnits.update(id: String)
+POST    /documentaryUnit/update/:id     controllers.DocumentaryUnits.updatePost(id: String)
+
+GET     /userProfile/list           controllers.UserProfiles.list
+GET     /userProfile/show/:id       controllers.UserProfiles.get(id: String)
+GET     /userProfile/json/:id       controllers.UserProfiles.getJson(id: String)
+GET     /userProfile/create         controllers.UserProfiles.create
+POST    /userProfile/create         controllers.UserProfiles.createPost
+GET     /userProfile/delete/:id     controllers.UserProfiles.delete(id: String)
+POST    /userProfile/delete/:id     controllers.UserProfiles.deletePost(id: String)
+GET     /userProfile/update/:id     controllers.UserProfiles.update(id: String)
+POST    /userProfile/update/:id     controllers.UserProfiles.updatePost(id: String)
+
+GET     /group/list           controllers.Groups.list
+GET     /group/show/:id       controllers.Groups.get(id: String)
+GET     /group/json/:id       controllers.Groups.getJson(id: String)
+GET     /group/create         controllers.Groups.create
+POST    /group/create         controllers.Groups.createPost
+GET     /group/delete/:id     controllers.Groups.delete(id: String)
+POST    /group/delete/:id     controllers.Groups.deletePost(id: String)
+GET     /group/update/:id     controllers.Groups.update(id: String)
+POST    /group/update/:id     controllers.Groups.updatePost(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

@@ -50,9 +50,9 @@
 
 		<div id="entity-types">
 			<ul>
-				@List("documentaryUnit", "agent", "authority", "group", "userProfile").map { v =>
-					<li><a href="@routes.Entities.list(v)">@v</a></li>
-				}
+				<li><a href="@routes.DocumentaryUnits.list">@defines.EntityType.DocumentaryUnit.toString</a></li>
+				<li><a href="@routes.UserProfiles.list">@defines.EntityType.UserProfile.toString</a></li>
+				<li><a href="@routes.Groups.list">@defines.EntityType.Group.toString</a></li>
 			</ul>
 			<hr />
 		</div>

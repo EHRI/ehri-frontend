@@ -1,4 +1,4 @@
-@(doc: Option[DocumentaryUnit], f: play.api.data.Form[DocumentaryUnit], action: Call)(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
+@(doc: Option[DocumentaryUnit], f: play.api.data.Form[DocumentaryUnit], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

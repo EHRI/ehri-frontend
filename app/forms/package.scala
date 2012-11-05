@@ -36,10 +36,4 @@ package object forms {
     }
     def unbind(key: String, value: E#Value) = Map(key -> value.toString)
   }
-
-  private val formMappings = Map(
-    defines.EntityType.DocumentaryUnit -> DocumentaryUnitForm.form)
-
-  def formFor(e: defines.EntityType.Type) = formMappings.getOrElse(e,
-    sys.error("No form found for entity: " + e.toString()))
 }
