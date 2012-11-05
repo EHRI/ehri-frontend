@@ -1,0 +1,22 @@
+@(item: DocumentaryUnit, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+
+@main("View item")(maybeUser, req) {
+	
+  
+	<h3>@item.name (@item.identifier)</h3>
+  
+	@item.holder.map { holder =>
+	  <h4>Held by: @holder.name</h4>
+	}
+	
+	@if(!item.descriptions.isEmpty) {
+	  <h4>@Messages("Available Descriptions")</h4>
+		@item.descriptions.map { desc =>
+		  <h5>Language: @desc.languageCode</h5>
+		  
+		  <h5>Scope and content</h5>
+		  <p>@desc.scopeAndContent</p>
+		}
+	}
+}

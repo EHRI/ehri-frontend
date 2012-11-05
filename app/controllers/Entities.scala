@@ -25,7 +25,7 @@ object DocumentaryUnits extends EntityController[DocumentaryUnit] {
   val form = forms.DocumentaryUnitForm.form
   val showAction = routes.DocumentaryUnits.get _
   val formView = views.html.documentaryUnit.edit.apply _
-  val showView = views.html.show.apply _
+  val showView = views.html.documentaryUnit.show.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
   val builder: (AccessibleEntity => DocumentaryUnit) = DocumentaryUnit.apply _

@@ -5,7 +5,7 @@ import defines._
 object DocumentaryUnit extends ManagedEntityBuilder[DocumentaryUnit] {
   
   final val DESC_REL = "describes"
-  final val HELD_REL = "heldBy"
+  final val HELD_REL = "holds"
   
   def apply(e: AccessibleEntity) = {
     new DocumentaryUnit(
