@@ -11,12 +11,13 @@ import eu.ehri.extension.EhriNeo4jFramedResource
 import com.typesafe.config.ConfigFactory
 import rest._
 import play.api.libs.concurrent.execution.defaultContext
-import models.{ Entity, EntityTypes }
+import models.Entity
 import models.UserProfile
 import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample
 import helpers.TestLoginHelper
 import models.Group
+import defines.EntityType
 
 /**
  * Add your spec here.
@@ -30,7 +31,7 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
   val userProfile = UserProfile(Some(-1L), "mike", "Mike", List(Group(Some(-2L), "admin", "Admin")))
-  val entityType = EntityTypes.UserProfile
+  val entityType = EntityType.UserProfile
 
   val runner: ServerRunner = new ServerRunner(classOf[PermissionDAOSpec].getName, testPort)
   runner.getConfigurator
@@ -45,14 +46,28 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
   }
 
   "PermissionDAO" should {
-    "fetch user's own permissions" in {
+    "be able to fetch user's own permissions" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val perms = await(PermissionDAO(userProfile).getUserPermissions)
+        val perms = await(PermissionDAO[UserProfile](userProfile).get)
         perms must beRight
         println(perms.right.get.get("documentaryUnit", "create"))
         perms.right.get.get("documentaryUnit", "create") must beSome
       }
     }
+    
+    "be able to set a user's permissions" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        val user = UserProfile(Some(-2L), "reto", "Reto")
+        val data = Map("documentaryUnit" -> List("create"))
+        val perms = await(PermissionDAO(userProfile).get(user))
+        perms.right.get.get("documentaryUnit", "create") must beNone
+        val permset = await(PermissionDAO(userProfile).set(user, data))
+        permset must beRight
+        println(permset.right.get.get("documentaryUnit", "create"))
+        permset.right.get.get("documentaryUnit", "create") must beSome
+      }
+    }
+    
   }
 
   step {
