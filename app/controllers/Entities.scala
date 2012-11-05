@@ -17,7 +17,7 @@ import models._
 
 object DocumentaryUnits extends EntityController[DocumentaryUnit] {
   val entityType = EntityType.DocumentaryUnit
-  val listAction = routes.DocumentaryUnits.list
+  val listAction = routes.DocumentaryUnits.list _
   val createAction = routes.DocumentaryUnits.createPost
   val updateAction = routes.DocumentaryUnits.updatePost _
   val cancelAction = routes.DocumentaryUnits.get _
@@ -33,7 +33,7 @@ object DocumentaryUnits extends EntityController[DocumentaryUnit] {
 
 object UserProfiles extends EntityController[UserProfile] {
   val entityType = EntityType.UserProfile
-  val listAction = routes.UserProfiles.list
+  val listAction = routes.UserProfiles.list _
   val createAction = routes.UserProfiles.createPost
   val updateAction = routes.UserProfiles.updatePost _
   val cancelAction = routes.UserProfiles.get _
@@ -49,7 +49,7 @@ object UserProfiles extends EntityController[UserProfile] {
 
 object Groups extends EntityController[Group] {
   val entityType = EntityType.Group
-  val listAction = routes.Groups.list
+  val listAction = routes.Groups.list _
   val createAction = routes.Groups.createPost
   val updateAction = routes.Groups.updatePost _
   val cancelAction = routes.Groups.get _
@@ -65,7 +65,7 @@ object Groups extends EntityController[Group] {
 
 object Agents extends EntityController[Agent] {
   val entityType = EntityType.Agent
-  val listAction = routes.Agents.list
+  val listAction = routes.Agents.list _
   val createAction = routes.Agents.createPost
   val updateAction = routes.Agents.updatePost _
   val cancelAction = routes.Agents.get _
@@ -89,7 +89,7 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
   
   def builder: AccessibleEntity => T
   val form: Form[T]
-  val listAction: Call
+  val listAction: (Int, Int) => Call
   val showAction: String => Call
   val createAction: Call
   val updateAction: String => Call
@@ -100,10 +100,11 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
   val listView: ListViewType
   val deleteView: DeleteViewType
   
-  def list = userProfileAction { implicit maybeUser =>
+  def list(offset: Int, limit: Int) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
-        EntityDAO(entityType, maybeUser.flatMap(_.profile)).list.map { itemOrErr =>
+        EntityDAO(entityType, maybeUser.flatMap(_.profile))
+        	.list(math.max(offset, 0), math.max(limit, 20)).map { itemOrErr =>
           itemOrErr.right.map { lst => Ok(listView(lst.map(builder(_)), showAction, maybeUser, request)) }
         }
       }
@@ -202,7 +203,7 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
     implicit request =>
       AsyncRest {
         EntityDAO(entityType, maybeUser.flatMap(_.profile)).delete(id).map { boolOrErr =>
-          boolOrErr.right.map { ok => Redirect(listAction) }
+          boolOrErr.right.map { ok => Redirect(listAction(0, 20)) }
         }
       }
   }

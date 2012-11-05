@@ -91,8 +91,8 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     }
   }
 
-  def list: Future[Either[RestError, Seq[AccessibleEntity]]] = {
-    WS.url(requestUrl + "/list").withHeaders(authHeaders: _*).get.map { response =>
+  def list(offset: Int, limit: Int): Future[Either[RestError, Seq[AccessibleEntity]]] = {
+    WS.url(requestUrl + "/list?offset=%d&limit=%d".format(offset, limit)).withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json match {
           case JsArray(array) => array.map(js => jsonToEntity(js))
