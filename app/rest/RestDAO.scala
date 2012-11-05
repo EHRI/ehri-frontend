@@ -1,6 +1,6 @@
 package rest
 
-import models.{EntityReader,Entity,AccessibleEntity}
+import models.{ EntityReader, Entity, AccessibleEntity }
 
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
@@ -21,6 +21,14 @@ case object ItemNotFound extends RestError
 trait RestDAO {
 
   import play.api.http.Status._
+
+  import java.net.URI
+
+  def enc(s: String) = {
+    val url = new java.net.URL(s)
+    val uri: URI = new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef);
+    uri.toString
+  }
 
   lazy val host: String = Play.current.configuration.getString("neo4j.server.host").get
   lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get
