@@ -35,7 +35,6 @@ case class DocumentaryUnit(
   
   @Annotations.Relation(DocumentaryUnit.DESC_REL)
   val descriptions: List[DocumentaryUnitDescription] = Nil,
-  @Annotations.Relation(DocumentaryUnit.HELD_REL)
   val holder: Option[Agent] = None
 ) extends ManagedEntity {
   val isA = EntityType.DocumentaryUnit
