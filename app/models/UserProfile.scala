@@ -37,5 +37,7 @@ case class UserProfile (
   val groups: List[Group] = Nil
 ) extends ManagedEntity with Accessor[Group] {
   val isA = EntityType.UserProfile
+  
+  def isAdmin = getAccessor(groups, "admin").isDefined
 
 }

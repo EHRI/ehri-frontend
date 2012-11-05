@@ -63,6 +63,21 @@ object Groups extends EntityController[Group] {
   val builder: (AccessibleEntity => Group) = Group.apply _
 }
 
+object Agents extends EntityController[Agent] {
+  val entityType = EntityType.Agent
+  val listAction = routes.Agents.list
+  val createAction = routes.Agents.createPost
+  val updateAction = routes.Agents.updatePost _
+  val cancelAction = routes.Agents.get _
+  val deleteAction = routes.Agents.deletePost _
+  val form = forms.AgentForm.form
+  val showAction = routes.Agents.get _
+  val formView = views.html.agent.edit.apply _
+  val showView = views.html.show.apply _
+  val listView = views.html.list.apply _
+  val deleteView = views.html.delete.apply _
+  val builder: (AccessibleEntity => Agent) = Agent.apply _
+}
 
 trait EntityController[T <: ManagedEntity] extends Controller with AuthController with ControllerHelpers {
 

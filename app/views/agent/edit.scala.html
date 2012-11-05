@@ -1,0 +1,26 @@
+@(doc: Option[Agent], f: play.api.data.Form[Agent], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+ 
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+  @main("Update item")(maybeUser, req) {
+	
+		@doc.map { v =>
+			<h4>Update @v.identifier</h4>
+		}.getOrElse {
+			<h4>Create</h4>
+		}
+		
+	
+		@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+			<fieldset id="identity-area">
+				<legend>@Messages("Identity")</legend>
+				@helper.inputText(f("identifier"), '_label -> "Identifier")
+				@helper.inputText(f("name"), '_label -> "Name")
+			</fieldset>
+		  			
+			<div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages(doc.map(s => "Update").getOrElse("Create"))</button>
+        </div>
+	}
+		
+}

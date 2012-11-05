@@ -5,6 +5,7 @@ import defines._
 object DocumentaryUnit extends ManagedEntityBuilder[DocumentaryUnit] {
   
   final val DESC_REL = "describes"
+  final val HELD_REL = "heldBy"
   
   def apply(e: AccessibleEntity) = {
     new DocumentaryUnit(
@@ -12,9 +13,18 @@ object DocumentaryUnit extends ManagedEntityBuilder[DocumentaryUnit] {
       identifier = e.identifier,
       name = e.property("name").flatMap(_.asOpt[String]).getOrElse(""), // FIXME: Is this a good idea?
       publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt),
-      descriptions = e.relations(DESC_REL).map(DocumentaryUnitDescription.apply(_))
+      descriptions = e.relations(DESC_REL).map(DocumentaryUnitDescription.apply(_)),
+      holder = e.relations(HELD_REL).headOption.map(e => Agent.apply(new AccessibleEntity(e)))
     )
   }
+  
+  def apply(id: Option[Long], identifier: String, name: String, publicationStatus: Option[PublicationStatus.Value],
+		  	descriptions: List[DocumentaryUnitDescription])
+  		= new DocumentaryUnit(id, identifier, name, publicationStatus, descriptions, None)
+
+  // Special form unapply method
+  def unform(d: DocumentaryUnit) = Some((d.id, d.identifier, d.name, d.publicationStatus, d.descriptions))
+  
 }
 
 case class DocumentaryUnit(
@@ -24,7 +34,9 @@ case class DocumentaryUnit(
   val publicationStatus: Option[PublicationStatus.Value] = None,
   
   @Annotations.Relation(DocumentaryUnit.DESC_REL)
-  val descriptions: List[DocumentaryUnitDescription] = Nil
+  val descriptions: List[DocumentaryUnitDescription] = Nil,
+  @Annotations.Relation(DocumentaryUnit.HELD_REL)
+  val holder: Option[Agent] = None
 ) extends ManagedEntity {
   val isA = EntityType.DocumentaryUnit
 
