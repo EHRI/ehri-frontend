@@ -46,6 +46,11 @@
 		</div>
 
 		<h2>EHRI Test</h2>
+		@maybeUser.map { user =>
+		  @user.permissions.map { perms =>
+		  	<h3>Permissions: @perms</h3>		    
+		  }
+		}
 		<hr />
 
 		<div id="entity-types">
