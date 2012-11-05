@@ -3,8 +3,7 @@ package models
 trait Accessor[T<:Accessor[T]] {
 	val identifier: String
 	val groups: List[T]
-	
-	def getAccessor(id: String): Option[T] = getAccessor(List(this.asInstanceOf[T]), id)
+	val isA: defines.EntityType.Value
 	
 	// Search up the tree(?) if parent groups, looking
 	// for one with the desired id.

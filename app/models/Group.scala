@@ -5,6 +5,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
+import defines.EntityType
 
 object Group extends ManagedEntityBuilder[Group] {
 
@@ -30,5 +31,5 @@ case class Group (
   val groups: List[Group] = Nil
   
 ) extends ManagedEntity with Accessor[Group] {
-  val isA = EntityTypes.Group
+  val isA = EntityType.Group
 }

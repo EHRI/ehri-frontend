@@ -22,4 +22,10 @@ package object defines {
       case _ => JsError("String value expected")
     }
   }
+
+  object EnumWriter {
+    implicit def enumWrites[E <: Enumeration]: Writes[E#Value] = new Writes[E#Value] {
+      def writes(v: E#Value): JsValue = JsString(v.toString)
+    }
+  }
 }

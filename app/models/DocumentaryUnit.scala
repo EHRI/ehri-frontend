@@ -2,7 +2,6 @@ package models
 
 import defines._
 
-
 object DocumentaryUnit extends ManagedEntityBuilder[DocumentaryUnit] {
   
   final val DESC_REL = "describes"
@@ -27,7 +26,7 @@ case class DocumentaryUnit(
   @Annotations.Relation(DocumentaryUnit.DESC_REL)
   val descriptions: List[DocumentaryUnitDescription] = Nil
 ) extends ManagedEntity {
-  val isA = EntityTypes.DocumentaryUnit
+  val isA = EntityType.DocumentaryUnit
 
   def withDescription(d: DocumentaryUnitDescription): DocumentaryUnit = copy(descriptions=descriptions++List(d))
   
@@ -52,6 +51,6 @@ case class DocumentaryUnitDescription(
   val title: Option[String] = None,
   val scopeAndContent: Option[String] = None
 )  extends BaseModel {
-  val isA = EntityTypes.DocumentaryUnitDescription
+  val isA = EntityType.DocumentaryUnitDescription
   
 }

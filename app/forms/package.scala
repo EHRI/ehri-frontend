@@ -38,8 +38,8 @@ package object forms {
   }
 
   private val formMappings = Map(
-    models.EntityTypes.DocumentaryUnit -> DocumentaryUnitForm.form)
+    defines.EntityType.DocumentaryUnit -> DocumentaryUnitForm.form)
 
-  def formFor(e: models.EntityTypes.Type) = formMappings.getOrElse(e,
+  def formFor(e: defines.EntityType.Type) = formMappings.getOrElse(e,
     sys.error("No form found for entity: " + e.toString()))
 }

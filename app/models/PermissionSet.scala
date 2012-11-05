@@ -7,19 +7,18 @@ object PermissionSet {
   // Type alias for the very verbose permission-set data structure.
   type PermData = List[Map[String, Map[String, List[String]]]]
 
-  def apply(user: UserProfile, json: JsValue): PermissionSet = {
-    json.validate[PermData].fold(
-      valid = { pd => new PermissionSet(user, pd) },
-      invalid = { e => sys.error(e.toString) }
-    )
-  }
+  def apply[T <: Accessor[Group]](acc: T, json: JsValue) = json.validate[PermData].fold(
+    valid = { pd => new PermissionSet(acc, pd) },
+    invalid = { e => sys.error(e.toString) }
+  )
 }
 
 /**
  * Search
  */
-case class PermissionSet(val user: UserProfile, val data: PermissionSet.PermData) {
-  def get(sub: String, perm: String): Option[PermissionGrant] = {
+case class PermissionSet[T <: Accessor[Group]](val user: T, val data: PermissionSet.PermData) {
+
+  def get(sub: String, perm: String): Option[PermissionGrant[T]] = {
     val accessors = data.flatMap { pm =>
       pm.headOption.flatMap {
         case (user, perms) =>
@@ -31,8 +30,9 @@ case class PermissionSet(val user: UserProfile, val data: PermissionSet.PermData
     }
     accessors.headOption.map {
       case (userId, perm) =>
-        user.getAccessor(userId) match {
-          case Some(u) if u.identifier == user.id => PermissionGrant(perm)
+        if (user.identifier == userId) PermissionGrant(perm)
+        else user.getAccessor(user.groups, userId) match {
+          case Some(u) if u.identifier == user.identifier => PermissionGrant(perm)
           case s @ Some(u) => PermissionGrant(perm, s)
           case x => PermissionGrant(perm)
         }
@@ -40,7 +40,7 @@ case class PermissionSet(val user: UserProfile, val data: PermissionSet.PermData
   }
 }
 
-case class PermissionGrant(val permission: String, val inheritedFrom: Option[Accessor[Group]] = None) {
+case class PermissionGrant[T <: Accessor[Group]](val permission: String, val inheritedFrom: Option[Accessor[Group]] = None) {
   override def toString = inheritedFrom match {
     case Some(accessor) => "%s (from %s)".format(permission, accessor.identifier)
     case None => permission

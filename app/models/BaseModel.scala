@@ -1,6 +1,6 @@
 package models
 
-import defines.PublicationStatus
+import defines._
 
 /**
  * This type alias provides a means to ensure that the
@@ -22,7 +22,7 @@ object Annotations {
  */
 trait BaseModel {
   def id: Option[Long]
-  def isA: EntityTypes.Value
+  def isA: EntityType.Value
 
   /**
    * Turn the item back into some raw data that can be
@@ -47,7 +47,7 @@ trait BaseModel {
           val value = f.get(this) match {
             case None => None
             // Special case for entity type... hopefully we can make this go away...
-            case isa: EntityTypes.Value => isa.asInstanceOf[EntityTypes.Value].toString
+            case isa: EntityType.Value => isa.asInstanceOf[EntityType.Value].toString
             case Some(value) => value match {
               case pub: PublicationStatus.Value => pub.asInstanceOf[PublicationStatus.Value].toString              
               case x => x

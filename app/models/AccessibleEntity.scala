@@ -1,6 +1,7 @@
 package models
 
 import play.api.libs.json.JsValue
+import defines.EntityType
 
 
 class AccessibleEntity(
@@ -13,7 +14,7 @@ class AccessibleEntity(
   
   private val adminKeys = List("isA", "identifier", "_desc")
   def identifier = property("identifier").map(_.as[String]).getOrElse(sys.error("No 'identifier' property found."))
-  def entityType = EntityTypes.withName(
+  def entityType = EntityType.withName(
 		  property("isA")
 		  	.map(_.as[String])
 		  	.getOrElse(sys.error("No 'identifier' property found.")))

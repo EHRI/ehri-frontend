@@ -5,11 +5,12 @@ import scala.concurrent.Future
 import play.api.libs.ws.WS
 import play.api.libs.json.{JsArray,JsValue}
 import models.AccessibleEntity
-import models.{EntityTypes,EntityReader}
+import models.EntityReader
 import models.UserProfile
 import play.api.http.Status.OK
+import defines.EntityType
 
-case class EntityDAO(val entityType: EntityTypes.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
+case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
 
   import play.api.http.Status._
   import com.codahale.jerkson.Json.generate

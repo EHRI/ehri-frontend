@@ -5,6 +5,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
+import defines.EntityType
 
 object UserProfile extends ManagedEntityBuilder[UserProfile] {
   
@@ -35,6 +36,6 @@ case class UserProfile (
   @Annotations.Relation(UserProfile.BELONGS_REL)
   val groups: List[Group] = Nil
 ) extends ManagedEntity with Accessor[Group] {
-  val isA = EntityTypes.UserProfile
+  val isA = EntityType.UserProfile
 
 }

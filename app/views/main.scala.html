@@ -50,8 +50,8 @@
 
 		<div id="entity-types">
 			<ul>
-				@EntityTypes.values.toList.sorted.map { et =>
-					<li><a href="@routes.Entities.list(et.toString)">@et.toString</a></li>
+				@List("documentaryUnit", "agent", "authority", "group", "userProfile").map { v =>
+					<li><a href="@routes.Entities.list(v)">@v</a></li>
 				}
 			</ul>
 			<hr />

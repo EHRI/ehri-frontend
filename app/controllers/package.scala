@@ -1,9 +1,9 @@
 package object controllers {
 
   private val editViewMappings = Map(
-    models.EntityTypes.DocumentaryUnit -> views.html.documentaryUnit.edit)
+    defines.EntityType.DocumentaryUnit -> views.html.documentaryUnit.edit)
 
-  def editViewFor(e: models.EntityTypes.Type) = editViewMappings.getOrElse(e,
+  def editViewFor(e: defines.EntityType.Type) = editViewMappings.getOrElse(e,
     sys.error("No edit view found entity: " + e.toString()))
 
 }
