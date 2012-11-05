@@ -18,6 +18,7 @@ import org.specs2.specification.BeforeExample
 import helpers.TestLoginHelper
 import models.Group
 import defines.EntityType
+import defines.PermissionType
 
 /**
  * Add your spec here.
@@ -50,8 +51,7 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
       running(FakeApplication(additionalConfiguration = config)) {
         val perms = await(PermissionDAO[UserProfile](userProfile).get)
         perms must beRight
-        println(perms.right.get.get("documentaryUnit", "create"))
-        perms.right.get.get("documentaryUnit", "create") must beSome
+        perms.right.get.get(EntityType.DocumentaryUnit, PermissionType.Create) must beSome
       }
     }
     
@@ -60,11 +60,10 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
         val user = UserProfile(Some(-2L), "reto", "Reto")
         val data = Map("documentaryUnit" -> List("create"))
         val perms = await(PermissionDAO(userProfile).get(user))
-        perms.right.get.get("documentaryUnit", "create") must beNone
+        perms.right.get.get(EntityType.DocumentaryUnit, PermissionType.Create) must beNone
         val permset = await(PermissionDAO(userProfile).set(user, data))
         permset must beRight
-        println(permset.right.get.get("documentaryUnit", "create"))
-        permset.right.get.get("documentaryUnit", "create") must beSome
+        permset.right.get.get(EntityType.DocumentaryUnit, PermissionType.Create) must beSome
       }
     }
     

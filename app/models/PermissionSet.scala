@@ -2,13 +2,39 @@ package models
 
 import play.api.libs.json._
 
+import defines._
+
 object PermissionSet {
 
-  // Type alias for the very verbose permission-set data structure.
-  type PermData = List[Map[String, Map[String, List[String]]]]
+  // Type alias for the very verbose permission-set data structure
+  type PermData = List[Map[String, Map[EntityType.Value, List[PermissionType.Value]]]]
+  type PermDataRaw = List[Map[String, Map[String, List[String]]]]
 
-  def apply[T <: Accessor[Group]](acc: T, json: JsValue) = json.validate[PermData].fold(
-    valid = { pd => new PermissionSet(acc, pd) },
+  /**
+   * Convert the 'raw' string version of the Permission data into
+   * a less stringly typed version: all the entity types and permissions
+   * should all correspond to Enum values in EntityType and PermissionType.
+   */
+  def extract(pd: PermDataRaw): PermData = {
+    pd.map { pmap =>
+      pmap.mapValues { perms =>
+        perms.map {
+          case (et, plist) =>
+            try {
+              (EntityType.withName(et), plist.map(PermissionType.withName(_)))
+            } catch {
+              case e: NoSuchElementException =>
+                // If we get an expected permission, fail fast!
+                sys.error("Unable to extract permissions: Entity: '%s', elements: %s".format(et, plist))
+            }
+
+        }
+      }
+    }
+  }
+
+  def apply[T <: Accessor[Group]](acc: T, json: JsValue) = json.validate[PermDataRaw].fold(
+    valid = { pd => new PermissionSet(acc, extract(pd)) },
     invalid = { e => sys.error(e.toString) }
   )
 }
@@ -18,7 +44,7 @@ object PermissionSet {
  */
 case class PermissionSet[T <: Accessor[Group]](val user: T, val data: PermissionSet.PermData) {
 
-  def get(sub: String, perm: String): Option[PermissionGrant[T]] = {
+  def get(sub: EntityType.Value, perm: PermissionType.Value): Option[PermissionGrant[T]] = {
     val accessors = data.flatMap { pm =>
       pm.headOption.flatMap {
         case (user, perms) =>
@@ -40,9 +66,11 @@ case class PermissionSet[T <: Accessor[Group]](val user: T, val data: Permission
   }
 }
 
-case class PermissionGrant[T <: Accessor[Group]](val permission: String, val inheritedFrom: Option[Accessor[Group]] = None) {
+case class PermissionGrant[T <: Accessor[Group]](
+  val permission: PermissionType.Value,
+  val inheritedFrom: Option[Accessor[Group]] = None) {
   override def toString = inheritedFrom match {
     case Some(accessor) => "%s (from %s)".format(permission, accessor.identifier)
-    case None => permission
+    case None => permission.toString
   }
 }
