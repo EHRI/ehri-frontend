@@ -1,9 +1,9 @@
 @(item: DocumentaryUnit, maybeUser: Option[models.sql.User], req: RequestHeader)
 
+@import defines._
 
 @main("View item")(maybeUser, req) {
-	
-  
+
 	<h3>@item.name (@item.identifier)</h3>
   
 	@item.holder.map { holder =>
@@ -18,5 +18,20 @@
 		  <h5>Scope and content</h5>
 		  <p>@desc.scopeAndContent</p>
 		}
+	}
+	
+	@maybeUser.map { user =>
+	  @user.permissions.map { pset =>
+	  	<hr />
+  		@pset.get(EntityType.DocumentaryUnit, PermissionType.Create).map { p =>
+  		  <a href="@routes.DocumentaryUnits.create">Create New</a>&nbsp;
+  		}
+  		@pset.get(EntityType.DocumentaryUnit, PermissionType.Update).map { p =>
+  		  <a href="@routes.DocumentaryUnits.update(item.identifier)">Update</a>&nbsp;
+  		}
+  		@pset.get(EntityType.DocumentaryUnit, PermissionType.Delete).map { p =>
+  		  <a href="@routes.DocumentaryUnits.delete(item.identifier)">Delete</a>&nbsp;
+  		}	    
+	  }
 	}
 }
