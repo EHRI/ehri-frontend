@@ -7,10 +7,12 @@
 	<ul>
 	@items.map { item =>
 	  	<div class="list-item">
-			<h4><a href="@showAction(item.identifier)">@item.name</a></h4>
-			@item.holder.map { holder =>
-			  <p><strong>@holder.name</strong></p>
-			}
+			<h4>
+				<a href="@showAction(item.identifier)">@item.name</a>
+				@item.holder.map { holder =>
+					<strong> - @holder.name</strong>
+				}
+			</h4>
 			@item.descriptions.headOption.map { desc =>
 			  @desc.scopeAndContent.map { sc =>
 			    <p>@sc</p>
