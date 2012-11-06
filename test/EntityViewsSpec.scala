@@ -132,6 +132,10 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val cr = route(fakeLoggedInRequest(POST, 
             DocumentaryUnits.createPost.url).withHeaders(headers.toSeq:_*), testData).get
         status(cr) must equalTo(SEE_OTHER)
+        
+        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("hello-kitty").url)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain("Some content")        
       }
     }
 
