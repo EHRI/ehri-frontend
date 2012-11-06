@@ -1,0 +1,33 @@
+@(item: Agent, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@import defines._
+
+@main(item.name)(maybeUser, req) {
+
+	<h3>@item.name (@item.identifier)</h3>
+  
+	@if(!item.descriptions.isEmpty) {
+	  <h4>@Messages("Available Descriptions")</h4>
+		@item.descriptions.map { desc =>
+		  <h5>Language: @desc.languageCode</h5>
+		  
+		  <h5>General Context</h5>
+		  <p>@desc.generalContext</p>
+		}
+	}
+	
+	@maybeUser.map { user =>
+	  @user.permissions.map { pset =>
+	  	<hr />
+  		@pset.get(EntityType.Agent, PermissionType.Create).map { p =>
+  		  <a href="@routes.Agents.create">Create New</a>&nbsp;
+  		}
+  		@pset.get(EntityType.Agent, PermissionType.Update).map { p =>
+  		  <a href="@routes.Agents.update(item.identifier)">Update</a>&nbsp;
+  		}
+  		@pset.get(EntityType.Agent, PermissionType.Delete).map { p =>
+  		  <a href="@routes.Agents.delete(item.identifier)">Delete</a>&nbsp;
+  		}	    
+	  }
+	}
+}

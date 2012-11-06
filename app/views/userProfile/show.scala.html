@@ -1,0 +1,38 @@
+@(item: UserProfile, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@import defines._
+
+@main(item.name)(maybeUser, req) {
+	
+	<h3>User: @item.name (@item.identifier)</h3>
+	
+	@common.descriptionValue(Some(item.location.getOrElse("No location information given")), "Location")
+	@common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), "Languages")
+	@common.descriptionValue(Some(item.about.getOrElse("No biographical information given")), "About")
+	
+	<hr />
+	@if(item.groups.isEmpty) {
+	  <i>This user does not belong to any groups.</i>	  
+	} else {
+	  <strong>Groups: </strong>&nbsp;
+	  @item.groups.map { group =>
+	    <a href="@routes.Groups.get(group.identifier)">@group.name</a>
+	  }	  
+	}
+	
+	@maybeUser.map { user =>
+	  @user.permissions.map { pset =>
+	  	<hr />
+  		@pset.get(EntityType.UserProfile, PermissionType.Create).map { p =>
+  		  <a href="@routes.UserProfiles.create">Create New</a>&nbsp;
+  		}
+  		@pset.get(EntityType.UserProfile, PermissionType.Update).map { p =>
+  		  <a href="@routes.UserProfiles.update(item.identifier)">Update</a>&nbsp;
+  		}
+  		@pset.get(EntityType.UserProfile, PermissionType.Delete).map { p =>
+  		  <a href="@routes.UserProfiles.delete(item.identifier)">Delete</a>&nbsp;
+  		}	    
+	  }
+	}	
+	
+}

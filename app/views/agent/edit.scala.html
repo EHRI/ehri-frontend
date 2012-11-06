@@ -1,26 +1,40 @@
-@(doc: Option[Agent], f: play.api.data.Form[Agent], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: Option[Agent], f: play.api.data.Form[Agent], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-  @main("Update item")(maybeUser, req) {
+@main(item.map("Update " + _.name).getOrElse("Create item"))(maybeUser, req) {
 	
-		@doc.map { v =>
-			<h4>Update @v.identifier</h4>
-		}.getOrElse {
-			<h4>Create</h4>
-		}
-		
-	
-		@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-			<fieldset id="identity-area">
-				<legend>@Messages("Identity")</legend>
-				@helper.inputText(f("identifier"), '_label -> "Identifier")
-				@helper.inputText(f("name"), '_label -> "Name")
-			</fieldset>
-		  			
-			<div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages(doc.map(s => "Update").getOrElse("Create"))</button>
-        </div>
+	@item.map { v =>
+		<h3>Update @v.name</h3>
+	}.getOrElse {
+		<h3>Create</h3>
 	}
 		
+	
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+		<fieldset id="identity-area">
+			<legend>@Messages("Identity")</legend>
+			@helper.inputText(f("identifier"), '_label -> "Identifier")
+			@helper.inputText(f("name"), '_label -> "Name")
+		</fieldset>
+	  
+		@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+			<fieldset id="identity-area">
+				<legend>@Messages("Description")</legend>
+				<input type="hidden" value="@desc("id").value" name="id" />
+				@helper.inputText(desc("languageCode"), '_label -> "Language Code")
+				@helper.inputText(desc("name"), '_label -> "Authorized Form of Name")
+				@helper.textarea(desc("generalContext"), '_label -> "General Context")
+			</fieldset>
+		}
+		
+		<fieldset id="admin-area">
+				<legend>@Messages("Administration")</legend>
+				@common.descriptionChoice(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
+			</fieldset>
+		
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">@Messages(item.map(s => "Update").getOrElse("Create"))</button>
+		</div>
+	}
 }

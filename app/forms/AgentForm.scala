@@ -11,7 +11,16 @@ object AgentForm {
       mapping(
     		"id" -> optional(longNumber),
     		"identifier" -> nonEmptyText,
-    		"name" -> nonEmptyText
+    		"name" -> nonEmptyText,
+    		"publicationStatus" -> optional(enum(defines.PublicationStatus)),
+    		"descriptions" -> list(
+    		  mapping(
+    		    "id" -> optional(longNumber),
+    		    "languageCode" -> nonEmptyText,
+    		    "title" -> optional(text),
+    		    "generalContext" -> optional(text)
+    		  )(AgentDescription.apply)(AgentDescription.unapply)
+    		)
       )(Agent.apply)(Agent.unform)
   ) 
 }

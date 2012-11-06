@@ -16,6 +16,9 @@
 				<legend>@Messages("Identity")</legend>
 				@helper.inputText(f("identifier"), '_label -> "Identifier")
 				@helper.inputText(f("name"), '_label -> "Name")
+				@helper.inputText(f("location"), '_label -> "Location")
+				@helper.inputText(f("languages"), '_label -> "Languages")
+				@helper.textarea(f("about"), '_label -> "About")
 			</fieldset>
 		  			
 			<div class="form-actions">

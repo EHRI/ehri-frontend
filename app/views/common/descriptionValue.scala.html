@@ -1,0 +1,6 @@
+@(value: Option[String], title: String)
+
+@if(!value.getOrElse("").trim.isEmpty) {
+    <h4>@Messages(title)</h4>
+    <p>@value</p>
+}

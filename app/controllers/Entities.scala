@@ -41,7 +41,7 @@ object UserProfiles extends EntityController[UserProfile] {
   val form = forms.UserProfileForm.form
   val showAction = routes.UserProfiles.get _
   val formView = views.html.userProfile.edit.apply _
-  val showView = views.html.show.apply _
+  val showView = views.html.userProfile.show.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
   val builder: (AccessibleEntity => UserProfile) = UserProfile.apply _
@@ -57,7 +57,7 @@ object Groups extends EntityController[Group] {
   val form = forms.GroupForm.form
   val showAction = routes.Groups.get _
   val formView = views.html.group.edit.apply _
-  val showView = views.html.show.apply _
+  val showView = views.html.group.show.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
   val builder: (AccessibleEntity => Group) = Group.apply _
@@ -73,7 +73,7 @@ object Agents extends EntityController[Agent] {
   val form = forms.AgentForm.form
   val showAction = routes.Agents.get _
   val formView = views.html.agent.edit.apply _
-  val showView = views.html.show.apply _
+  val showView = views.html.agent.show.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
   val builder: (AccessibleEntity => Agent) = Agent.apply _

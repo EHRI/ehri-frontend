@@ -1,0 +1,31 @@
+@(item: Group, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@import defines._
+
+@main(item.name)(maybeUser, req) {
+	
+	<h3>Group: @item.name (@item.identifier)</h3>
+		
+	@if(!item.groups.isEmpty) {
+	  <hr />
+	  <strong>Parent Groups: </strong>&nbsp;
+	  @item.groups.map { group =>
+	    <a href="@routes.Groups.get(group.identifier)">@group.name</a>
+	  }	  
+	}
+	
+	@maybeUser.map { user =>
+	  @user.permissions.map { pset =>
+	  	<hr />
+  		@pset.get(EntityType.Group, PermissionType.Create).map { p =>
+  		  <a href="@routes.Groups.create">Create New</a>&nbsp;
+  		}
+  		@pset.get(EntityType.Group, PermissionType.Update).map { p =>
+  		  <a href="@routes.Groups.update(item.identifier)">Update</a>&nbsp;
+  		}
+  		@pset.get(EntityType.Group, PermissionType.Delete).map { p =>
+  		  <a href="@routes.Groups.delete(item.identifier)">Delete</a>&nbsp;
+  		}	    
+	  }
+	}	
+}
