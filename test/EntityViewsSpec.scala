@@ -5,10 +5,8 @@ import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.BeforeExample
-
 import eu.ehri.plugin.test.utils.ServerRunner
 import eu.ehri.extension.EhriNeo4jFramedResource
-
 import helpers.TestLoginHelper
 import play.api.test.FakeApplication
 import play.api.test.FakeRequest
@@ -17,6 +15,9 @@ import play.api.test.Helpers.contentAsString
 import play.api.test.Helpers.route
 import play.api.test.Helpers.running
 import play.api.test.Helpers.status
+import play.api.test.FakeHeaders
+import play.api.mvc.AnyContentAsFormUrlEncoded
+import play.api.http.HeaderNames
 
 /**
  * Add your spec here.
@@ -27,8 +28,13 @@ import play.api.test.Helpers.status
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
   sequential
 
+  import models.{UserProfile,Group}
+  import defines._
+  //import play.api.http.HeaderNames
+
   val testPrivilegedUser = "mike"
   val testOrdinaryUser = "reto"
+  val userProfile = UserProfile(id = Some(-1L), identifier = "mike", name = "Mike", groups = List(Group(Some(-2L), "admin", "Admin")))
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
@@ -44,10 +50,19 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     runner.setUp
   }
 
-  "Entity views" should {
-    
+  def joinQueryString(qs: Map[String, Seq[String]]): String = {
+    import java.net.URLEncoder
+    qs.map {
+      case (key, vals) => {
+        vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
+      }
+    }.flatten.mkString("&")
+  }
+
+  "DocumentaryUnit views" should {
+
     import controllers.routes.DocumentaryUnits
-    
+
     "list should get some (world-readable) items" in {
       running(FakeApplication(additionalConfiguration = config)) {
         val list = route(FakeRequest(GET, "/documentaryUnit/list")).get
@@ -98,10 +113,25 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "allow deleting c4 when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        // get the number of items before...
-        val list = route(fakeLoggedInRequest(POST, DocumentaryUnits.deletePost("c4").url)).get
-        println(status(list))
-        status(list) must equalTo(SEE_OTHER)
+        val del = route(fakeLoggedInRequest(POST, DocumentaryUnits.deletePost("c4").url)).get
+        status(del) must equalTo(SEE_OTHER)
+      }
+    }
+
+    "allow creating new items (when logged in)" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("hello-kitty"),
+          "name" -> Seq("Hello Kitty"),
+          "descriptions[0].languageCode" -> Seq("en"),
+          "descriptions[0].title" -> Seq("Hello Kitty"),
+          "descriptions[0].scopeAndContent" -> Seq("Some content"),
+          "publicationStatus" -> Seq("Published")
+        )
+        val headers: Map[String,String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
+        val cr = route(fakeLoggedInRequest(POST, 
+            DocumentaryUnits.createPost.url).withHeaders(headers.toSeq:_*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
       }
     }
 
