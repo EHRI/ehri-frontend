@@ -28,7 +28,7 @@ trait AuthController extends Controller with Auth with Authorizer {
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
-              val fakeProfile = UserProfile(None, user.profile_id, "")
+              val fakeProfile = UserProfile(None, user.profile_id, "", List())
               val profileRequest = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(user.profile_id)
               val permsRequest = rest.PermissionDAO(fakeProfile).get
               // These requests should execute in parallel...

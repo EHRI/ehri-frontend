@@ -11,20 +11,37 @@ object UserProfile extends ManagedEntityBuilder[UserProfile] {
   
   final val BELONGS_REL = "belongsTo"
   
+  /**
+   * Deserialization constructor.
+   */
   def apply(e: AccessibleEntity) = {
     new UserProfile(
       id = Some(e.id),
       identifier = e.identifier,
       name = e.property("name").flatMap(_.asOpt[String]).getOrElse(""), // FIXME: Is this a good idea?
+      location = e.property("location").flatMap(_.asOpt[String]),
+      about = e.property("about").flatMap(_.asOpt[String]),
+      languages = e.property("languages").flatMap(_.asOpt[List[String]]).getOrElse(List()),
       groups = e.relations(BELONGS_REL).map(e => Group.apply(new AccessibleEntity(e)))
     )
   }
-  
-  def apply(id: Option[Long], identifier: String, name: String)
-  		= new UserProfile(id, identifier, name, Nil)
 
-  // Special form unapply method
-  def unform(up: UserProfile) = Some((up.id, up.identifier, up.name))
+  /**
+   * Minimal constructor.
+   */
+  def apply(id: Option[Long], identifier: String, name: String, groups: List[Group])
+  		= new UserProfile(id, identifier, name, None, None, Nil, groups)
+  /**
+   * Form constructor.
+   */
+  def apply(id: Option[Long], identifier: String, name: String, location: Option[String],
+		  	about: Option[String], languages: List[String])
+  		= new UserProfile(id, identifier, name, location, about, languages, Nil)
+
+  /**
+   * Form destructuring.
+   */
+  def unform(up: UserProfile) = Some((up.id, up.identifier, up.name, up.location, up.about, up.languages))
 }
 
 
@@ -32,6 +49,9 @@ case class UserProfile (
   val id: Option[Long],
   val identifier: String,
   val name: String,
+  val location: Option[String],
+  val about: Option[String],
+  val languages: List[String] = Nil,
 
   @Annotations.Relation(UserProfile.BELONGS_REL)
   val groups: List[Group] = Nil

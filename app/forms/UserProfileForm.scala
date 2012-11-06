@@ -11,7 +11,10 @@ object UserProfileForm {
       mapping(
     		"id" -> optional(longNumber),
     		"identifier" -> nonEmptyText,
-    		"name" -> nonEmptyText
+    		"name" -> nonEmptyText,
+    		"location" -> optional(text),
+    		"about" -> optional(text),
+    		"languages" -> list(text)
       )(UserProfile.apply)(UserProfile.unform)
   ) 
 }

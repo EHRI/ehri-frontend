@@ -31,7 +31,7 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
-  val userProfile = UserProfile(Some(-1L), "mike", "Mike", List(Group(Some(-2L), "admin", "Admin")))
+  val userProfile = UserProfile(id=Some(-1L), identifier="mike", name="Mike", groups=List(Group(Some(-2L), "admin", "Admin")))
   val entityType = EntityType.UserProfile
 
   val runner: ServerRunner = new ServerRunner(classOf[PermissionDAOSpec].getName, testPort)
@@ -57,7 +57,7 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
     
     "be able to set a user's permissions" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val user = UserProfile(Some(-2L), "reto", "Reto")
+        val user = UserProfile(Some(-2L), "reto", "Reto", Nil)
         val data = Map("documentaryUnit" -> List("create"))
         val perms = await(PermissionDAO(userProfile).get(user))
         perms.right.get.get(EntityType.DocumentaryUnit, PermissionType.Create) must beNone
