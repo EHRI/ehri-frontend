@@ -103,7 +103,7 @@ class EntityDAOSpec extends Specification with BeforeExample {
 
     "list items" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        await(EntityDAO(entityType, userProfile).list) must beRight
+        await(EntityDAO(entityType, userProfile).list(0, 20)) must beRight
       }
     }
   }
