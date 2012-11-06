@@ -24,6 +24,12 @@
 				<input type="hidden" value="@desc("id").value" name="id" />
 				@helper.inputText(desc("languageCode"), '_label -> "Language Code")
 				@helper.inputText(desc("name"), '_label -> "Authorized Form of Name")
+				@helper.repeat(desc("otherFormsOfName"), min = 1) { onField =>
+					@helper.inputText(onField)
+				}
+				@helper.repeat(desc("parallelFormsOfName"), min = 1) { pnField =>
+					@helper.inputText(pnField)
+				}
 				@helper.textarea(desc("generalContext"), '_label -> "General Context")
 			</fieldset>
 		}

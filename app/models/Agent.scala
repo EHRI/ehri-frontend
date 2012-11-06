@@ -55,7 +55,9 @@ object AgentDescription {
     new AgentDescription(
       id = Some(e.id),
       languageCode = e.property("languageCode").map(_.as[String]).getOrElse(""),
-      name = e.property("title").flatMap(_.asOpt[String]),
+      name = e.property("name").flatMap(_.asOpt[String]),
+      otherFormsOfName = e.property("otherFormsOfName").flatMap(_.asOpt[List[String]]).getOrElse(List()),
+      parallelFormsOfName = e.property("parallelFormsOfName").flatMap(_.asOpt[List[String]]).getOrElse(List()),
       generalContext = e.property("generalContext").flatMap(_.asOpt[String])
     )
   }
@@ -65,6 +67,8 @@ case class AgentDescription(
   val id: Option[Long],
   val languageCode: String,
   val name: Option[String] = None,
+  val otherFormsOfName: List[String] = Nil,
+  val parallelFormsOfName: List[String] = Nil,  
   val generalContext: Option[String] = None
 )  extends BaseModel {
   val isA = EntityType.AgentDescription

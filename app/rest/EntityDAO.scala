@@ -57,6 +57,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def create(data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
+    println("CREATING: " + data)
     WS.url(requestUrl).withHeaders(authHeaders: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))

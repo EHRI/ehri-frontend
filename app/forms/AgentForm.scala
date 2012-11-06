@@ -17,7 +17,9 @@ object AgentForm {
     		  mapping(
     		    "id" -> optional(longNumber),
     		    "languageCode" -> nonEmptyText,
-    		    "title" -> optional(text),
+    		    "name" -> optional(text),
+	    		"otherFormsOfName" -> list(text),
+	    		"parallelFormsOfName" -> list(text),
     		    "generalContext" -> optional(text)
     		  )(AgentDescription.apply)(AgentDescription.unapply)
     		)
