@@ -117,8 +117,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(del) must equalTo(SEE_OTHER)
       }
     }
-
-    "allow creating new items (when logged in)" in {
+    
+    "allow creating new items when logged in as privileged user" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("hello-kitty"),
@@ -138,6 +138,49 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         contentAsString(show) must contain("Some content")        
       }
     }
+    
+    "allow updating items when logged in as privileged user" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("c1"),
+          "name" -> Seq("Collection 1"),
+          "descriptions[0].languageCode" -> Seq("en"),
+          "descriptions[0].title" -> Seq("Collection 1"),
+          "descriptions[0].scopeAndContent" -> Seq("New Content for c1"),
+          "publicationStatus" -> Seq("Draft")
+        )
+        val headers: Map[String,String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
+        val cr = route(fakeLoggedInRequest(POST, 
+            DocumentaryUnits.updatePost("c1").url).withHeaders(headers.toSeq:_*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+        
+        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c1").url)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain("New Content for c1")        
+      }
+    }
+
+    "disallow updating items when logged in as unprivileged user" in {
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("c4"),
+          "name" -> Seq("Collection 4"),
+          "descriptions[0].languageCode" -> Seq("en"),
+          "descriptions[0].title" -> Seq("Collection 4"),
+          "descriptions[0].scopeAndContent" -> Seq("New Content for c4"),
+          "publicationStatus" -> Seq("Draft")
+        )
+        val headers: Map[String,String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
+        val cr = route(fakeLoggedInRequest(POST, 
+            DocumentaryUnits.updatePost("c4").url).withHeaders(headers.toSeq:_*), testData).get
+        status(cr) must equalTo(UNAUTHORIZED)
+        
+        // We can view the item when not logged in...
+        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c4").url)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must not contain("New Content for c4")        
+      }
+    }   
 
     "should redirect to login page when permission denied when not logged in" in {
       running(FakeApplication(additionalConfiguration = config)) {
