@@ -16,6 +16,10 @@ import scala.concurrent.Future
  */
 trait AuthController extends Controller with Auth with Authorizer {
 
+  /**
+   * Action composition that adds extra context to regular requests. Namely,
+   * the profile of the user requesting the page, and her permissions.
+   */
   def userProfileAction(f: Option[User] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
       implicit request =>
@@ -27,19 +31,18 @@ trait AuthController extends Controller with Auth with Authorizer {
               val fakeProfile = UserProfile(None, user.profile_id, "")
               val profileRequest = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(user.profile_id)
               val permsRequest = rest.PermissionDAO(fakeProfile).get
+              // These requests should execute in parallel...
               for {
                 r1 <- profileRequest
                 r2 <- permsRequest
               } yield {
-                val p: User = r1 match {
-                  case Right(profile) => user.withProfile(UserProfile(profile))
-                  case Left(err) => sys.error("Unable to fetch user profile: " + err)
-                }
-                val p2: User = r2 match {
-                  case Right(perms) => p.withPermissions(perms)
-                  case Left(err) => sys.error("Unable to fetch user profile: " + err)
-                }
-                f(Some(p2))(request)
+                // Check nothing errored horribly...
+                if (r1.isLeft) sys.error("Unable to fetch user profile: " + r1.left.get)
+                if (r2.isLeft) sys.error("Unable to fetch user permissions: " + r2.left.get)
+
+                // We're okay, so construct the complete profile.
+                val u = user.withProfile(UserProfile(r1.right.get)).withPermissions(r2.right.get)
+                f(Some(u))(request)
               }
             }
           }
