@@ -31,7 +31,7 @@ object DocumentaryUnits extends EntityController[DocumentaryUnit] {
   val builder: (AccessibleEntity => DocumentaryUnit) = DocumentaryUnit.apply _
 }
 
-object UserProfiles extends EntityController[UserProfile] {
+object UserProfiles extends AccessorController[UserProfile] {
   val entityType = EntityType.UserProfile
   val listAction = routes.UserProfiles.list _
   val createAction = routes.UserProfiles.createPost
@@ -47,7 +47,7 @@ object UserProfiles extends EntityController[UserProfile] {
   val builder: (AccessibleEntity => UserProfile) = UserProfile.apply _
 }
 
-object Groups extends EntityController[Group] {
+object Groups extends AccessorController[Group] {
   val entityType = EntityType.Group
   val listAction = routes.Groups.list _
   val createAction = routes.Groups.createPost
@@ -77,6 +77,23 @@ object Agents extends EntityController[Agent] {
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
   val builder: (AccessibleEntity => Agent) = Agent.apply _
+}
+
+trait AccessorController[T <: Accessor[Group]] extends EntityController[T] {
+  def permissions(id: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      	maybeUser.flatMap(_.profile).map { userProfile =>
+	      AsyncRest {
+	        for {
+	          itemOrErr <- EntityDAO(entityType, Some(userProfile)).get(id)
+	          permsOrErr <- PermissionDAO(userProfile).get(builder(itemOrErr.right.get))
+	        } yield {
+	          
+	          permsOrErr.right.map { perms => Ok(perms.toString) }
+	        }
+	      }      	  
+      	}.getOrElse(Unauthorized("sorry!"))  
+  }  
 }
 
 trait EntityController[T <: ManagedEntity] extends Controller with AuthController with ControllerHelpers {

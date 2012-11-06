@@ -13,7 +13,7 @@ import com.codahale.jerkson.Json
 
 import defines._
 
-case class PermissionDAO[T <: Accessor[Group]](val accessor: T) extends RestDAO {
+case class PermissionDAO[T <: Accessor[Group]](val accessor: UserProfile) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/permission".format(host, port, mount)
 
@@ -22,7 +22,7 @@ case class PermissionDAO[T <: Accessor[Group]](val accessor: T) extends RestDAO 
     "Authorization" -> accessor.identifier
   )
   
-  def get: Future[Either[RestError, PermissionSet[T]]] = {
+  def get: Future[Either[RestError, PermissionSet[UserProfile]]] = {
     WS.url(requestUrl).withHeaders(headers.toSeq: _*).get.map { response =>
         checkError(response).right.map(r => PermissionSet(accessor, r.json))
       }

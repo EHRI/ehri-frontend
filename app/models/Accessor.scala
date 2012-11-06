@@ -1,6 +1,6 @@
 package models
 
-trait Accessor[T<:Accessor[T]] {
+trait Accessor[T<:Accessor[T]] extends ManagedEntity {
 	val identifier: String
 	val groups: List[T]
 	val isA: defines.EntityType.Value
