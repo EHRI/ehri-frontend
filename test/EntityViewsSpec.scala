@@ -45,6 +45,9 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
   }
 
   "Entity views" should {
+    
+    import controllers.routes.DocumentaryUnits
+    
     "list should get some (world-readable) items" in {
       running(FakeApplication(additionalConfiguration = config)) {
         val list = route(FakeRequest(GET, "/documentaryUnit/list")).get
@@ -59,7 +62,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "list when logged in should get more items" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val list = route(fakeLoggedInRequest(GET, "/documentaryUnit/list")).get
+        val list = route(fakeLoggedInRequest(GET, DocumentaryUnits.list(0, 20).url)).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain("Items")
         contentAsString(list) must contain("c1")
@@ -71,7 +74,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "give access to c1 when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, "/documentaryUnit/show/c1")).get
+        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c1").url)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("c1")
       }
@@ -79,7 +82,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "deny access to c1 when logged in as an ordinary user" in {
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, "/documentaryUnit/show/c2")).get
+        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c2").url)).get
         status(show) must equalTo(UNAUTHORIZED)
         contentAsString(show) must not contain ("c2")
       }
@@ -87,7 +90,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "allow access to c4 by default" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val show = route(FakeRequest(GET, "/documentaryUnit/show/c4")).get
+        val show = route(FakeRequest(GET, DocumentaryUnits.get("c4").url)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("c4")
       }
@@ -96,7 +99,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     "allow deleting c4 when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // get the number of items before...
-        val list = route(fakeLoggedInRequest(POST, "/documentaryUnit/delete/c4")).get
+        val list = route(fakeLoggedInRequest(POST, DocumentaryUnits.deletePost("c4").url)).get
         println(status(list))
         status(list) must equalTo(SEE_OTHER)
       }
@@ -104,7 +107,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "should redirect to login page when permission denied when not logged in" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val show = route(FakeRequest(GET, "/documentaryUnit/show/c1")).get
+        val show = route(FakeRequest(GET, DocumentaryUnits.get("c1").url)).get
         status(show) must equalTo(SEE_OTHER)
       }
     }
