@@ -17,7 +17,7 @@ import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample
 import helpers.TestLoginHelper
 import models.Group
-import defines.EntityType
+import defines._
 import defines.PermissionType
 
 /**
@@ -51,7 +51,7 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
       running(FakeApplication(additionalConfiguration = config)) {
         val perms = await(PermissionDAO[UserProfile](userProfile).get)
         perms must beRight
-        perms.right.get.get(EntityType.DocumentaryUnit, PermissionType.Create) must beSome
+        perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
       }
     }
     
@@ -60,10 +60,10 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
         val user = UserProfile(Some(-2L), "reto", "Reto", Nil)
         val data = Map("documentaryUnit" -> List("create"))
         val perms = await(PermissionDAO(userProfile).get(user))
-        perms.right.get.get(EntityType.DocumentaryUnit, PermissionType.Create) must beNone
+        perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
         val permset = await(PermissionDAO(userProfile).set(user, data))
         permset must beRight
-        permset.right.get.get(EntityType.DocumentaryUnit, PermissionType.Create) must beSome
+        permset.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
       }
     }
     

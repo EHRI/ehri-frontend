@@ -274,6 +274,23 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
   }
+  
+  "UserProfile views" should {
+
+    import controllers.routes.UserProfiles
+
+    "reliably set permissions" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, List[String]] = Map(
+        	ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
+        )
+        val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
+        val cr = route(fakeLoggedInRequest(POST,
+          UserProfiles.permissionsPost("reto").url).withHeaders(headers.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+      }
+    }
+  }
 
   step {
     runner.stop
