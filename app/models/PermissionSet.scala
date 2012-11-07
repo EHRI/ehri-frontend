@@ -7,13 +7,13 @@ import defines._
 object PermissionSet {
 
   // Type alias for the very verbose permission-set data structure
-  type PermData = List[Map[String, Map[EntityType.Value, List[PermissionType.Value]]]]
+  type PermData = List[Map[String, Map[ContentType.Value, List[PermissionType.Value]]]]
   type PermDataRaw = List[Map[String, Map[String, List[String]]]]
 
   /**
    * Convert the 'raw' string version of the Permission data into
    * a less stringly typed version: all the entity types and permissions
-   * should all correspond to Enum values in EntityType and PermissionType.
+   * should all correspond to Enum values in ContentType and PermissionType.
    */
   def extract(pd: PermDataRaw): PermData = {
     pd.map { pmap =>
@@ -21,7 +21,7 @@ object PermissionSet {
         perms.map {
           case (et, plist) =>
             try {
-              (EntityType.withName(et), plist.map(PermissionType.withName(_)))
+              (ContentType.withName(et), plist.map(PermissionType.withName(_)))
             } catch {
               case e: NoSuchElementException =>
                 // If we get an expected permission, fail fast!
@@ -44,7 +44,7 @@ object PermissionSet {
  */
 case class PermissionSet[T <: Accessor[Group]](val user: T, val data: PermissionSet.PermData) {
 
-  def get(sub: EntityType.Value, perm: PermissionType.Value): Option[PermissionGrant[T]] = {
+  def get(sub: ContentType.Value, perm: PermissionType.Value): Option[PermissionGrant[T]] = {
     val accessors = data.flatMap { pm =>
       pm.headOption.flatMap {
         case (user, perms) =>

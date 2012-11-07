@@ -23,13 +23,13 @@
 	@maybeUser.map { user =>
 	  @user.permissions.map { pset =>
 	  	<hr />
-  		@pset.get(EntityType.DocumentaryUnit, PermissionType.Create).map { p =>
+  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Create).map { p =>
   		  <a href="@routes.DocumentaryUnits.create">Create New</a>&nbsp;
   		}
-  		@pset.get(EntityType.DocumentaryUnit, PermissionType.Update).map { p =>
+  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Update).map { p =>
   		  <a href="@routes.DocumentaryUnits.update(item.identifier)">Update</a>&nbsp;
   		}
-  		@pset.get(EntityType.DocumentaryUnit, PermissionType.Delete).map { p =>
+  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Delete).map { p =>
   		  <a href="@routes.DocumentaryUnits.delete(item.identifier)">Delete</a>&nbsp;
   		}	    
 	  }

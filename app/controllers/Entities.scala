@@ -11,7 +11,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Result
 import scala.concurrent.Future
 import play.api.mvc.RequestHeader
-import defines.EntityType
+import defines._
 import play.api.mvc.Call
 import models._
 
@@ -38,6 +38,7 @@ object UserProfiles extends AccessorController[UserProfile] {
   val updateAction = routes.UserProfiles.updatePost _
   val cancelAction = routes.UserProfiles.get _
   val deleteAction = routes.UserProfiles.deletePost _
+  val setPermsAction = routes.UserProfiles.permissionsPost _
   val form = forms.UserProfileForm.form
   val showAction = routes.UserProfiles.get _
   val formView = views.html.userProfile.edit.apply _
@@ -54,6 +55,7 @@ object Groups extends AccessorController[Group] {
   val updateAction = routes.Groups.updatePost _
   val cancelAction = routes.Groups.get _
   val deleteAction = routes.Groups.deletePost _
+  val setPermsAction = routes.Groups.permissionsPost _
   val form = forms.GroupForm.form
   val showAction = routes.Groups.get _
   val formView = views.html.group.edit.apply _
@@ -80,20 +82,49 @@ object Agents extends EntityController[Agent] {
 }
 
 trait AccessorController[T <: Accessor[Group]] extends EntityController[T] {
+
+  val setPermsAction: String => Call
+
   def permissions(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      	maybeUser.flatMap(_.profile).map { userProfile =>
-	      AsyncRest {
-	        for {
-	          itemOrErr <- EntityDAO(entityType, Some(userProfile)).get(id)
-	          permsOrErr <- PermissionDAO(userProfile).get(builder(itemOrErr.right.get))
-	        } yield {
-	          
-	          permsOrErr.right.map { perms => Ok(perms.toString) }
-	        }
-	      }      	  
-      	}.getOrElse(Unauthorized("sorry!"))  
-  }  
+      maybeUser.flatMap(_.profile).map { userProfile =>
+        AsyncRest {
+          for {
+            itemOrErr <- EntityDAO(entityType, Some(userProfile)).get(id)
+            permsOrErr <- PermissionDAO(userProfile).get(builder(itemOrErr.right.get))
+          } yield {
+
+            permsOrErr.right.map { perms =>
+              Ok(views.html.permissions.edit(builder(itemOrErr.right.get), perms, setPermsAction(id), maybeUser, request))
+            }
+          }
+        }
+      }.getOrElse(Unauthorized("sorry!"))
+  }
+
+  def permissionsPost(id: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      val data = request.body.asFormUrlEncoded.getOrElse(Map())
+      val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
+        (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
+      }.toMap
+
+      println("PERMS: " + perms)
+
+      maybeUser.flatMap(_.profile).map { userProfile =>
+        AsyncRest {
+          for {
+            itemOrErr <- EntityDAO(entityType, Some(userProfile)).get(id)
+            newpermsOrErr <- PermissionDAO(userProfile).set(builder(itemOrErr.right.get), perms)
+          } yield {
+            newpermsOrErr.right.map { perms =>
+              Ok(perms.toString)
+            }
+          }
+        }
+      }.getOrElse(Unauthorized("sorry!"))
+
+  }
 }
 
 trait EntityController[T <: ManagedEntity] extends Controller with AuthController with ControllerHelpers {
@@ -103,7 +134,7 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
   type ListViewType = (Seq[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   type FormViewType = (Option[T], Form[T], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   type DeleteViewType = (T, Call, Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
-  
+
   def builder: AccessibleEntity => T
   val form: Form[T]
   val listAction: (Int, Int) => Call
@@ -116,14 +147,14 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
   val formView: FormViewType
   val listView: ListViewType
   val deleteView: DeleteViewType
-  
+
   def list(offset: Int, limit: Int) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
         EntityDAO(entityType, maybeUser.flatMap(_.profile))
-        	.list(math.max(offset, 0), math.max(limit, 20)).map { itemOrErr =>
-          itemOrErr.right.map { lst => Ok(listView(lst.map(builder(_)), showAction, maybeUser, request)) }
-        }
+          .list(math.max(offset, 0), math.max(limit, 20)).map { itemOrErr =>
+            itemOrErr.right.map { lst => Ok(listView(lst.map(builder(_)), showAction, maybeUser, request)) }
+          }
       }
   }
 
@@ -183,7 +214,7 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
         errorForm => {
           AsyncRest {
             EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-              itemOrErr.right.map { item =>                
+              itemOrErr.right.map { item =>
                 val doc: T = builder(item)
                 BadRequest(formView(Some(doc), errorForm, updateAction(id), maybeUser, request))
               }

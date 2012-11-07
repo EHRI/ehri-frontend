@@ -36,8 +36,10 @@ case class PermissionDAO[T <: Accessor[Group]](val accessor: UserProfile) extend
   }
     
   def set(user: T, data: Map[String, List[String]]): Future[Either[RestError, PermissionSet[T]]] = {
+    println("Setting perms: " + data)
     WS.url("%s/%s/%s".format(requestUrl, user.isA, user.identifier))
     	.withHeaders(headers.toSeq: _*).post(Json.generate(data)).map { response =>
+    	  println(response.json)
         checkError(response).right.map(r => PermissionSet[T](user, r.json))
       }
   }  
