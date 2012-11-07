@@ -23,6 +23,9 @@
   		@pset.get(ContentType.Group, PermissionType.Update).map { p =>
   		  <a href="@routes.Groups.update(item.identifier)">Update</a>&nbsp;
   		}
+  		@pset.get(ContentType.Group, PermissionType.Grant).map { p =>
+  		  <a href="@routes.Groups.permissions(item.identifier)">Grant</a>&nbsp;
+  		}	      		  		
   		@pset.get(ContentType.Group, PermissionType.Delete).map { p =>
   		  <a href="@routes.Groups.delete(item.identifier)">Delete</a>&nbsp;
   		}	    

@@ -23,7 +23,7 @@
   		  <a href="@routes.Agents.create">Create New</a>&nbsp;
   		}
   		@pset.get(ContentType.Agent, PermissionType.Update).map { p =>
-  		  <a href="@routes.Agents.update(item.identifier)">Update</a>&nbsp;
+  		  <a href="@routes.Agents.update(item.identifier)">Edit</a>&nbsp;
   		}
   		@pset.get(ContentType.Agent, PermissionType.Delete).map { p =>
   		  <a href="@routes.Agents.delete(item.identifier)">Delete</a>&nbsp;

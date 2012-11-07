@@ -38,6 +38,7 @@ object UserProfiles extends AccessorController[UserProfile] {
   val updateAction = routes.UserProfiles.updatePost _
   val cancelAction = routes.UserProfiles.get _
   val deleteAction = routes.UserProfiles.deletePost _
+  val permsAction = routes.UserProfiles.permissions _
   val setPermsAction = routes.UserProfiles.permissionsPost _
   val form = forms.UserProfileForm.form
   val showAction = routes.UserProfiles.get _
@@ -55,6 +56,7 @@ object Groups extends AccessorController[Group] {
   val updateAction = routes.Groups.updatePost _
   val cancelAction = routes.Groups.get _
   val deleteAction = routes.Groups.deletePost _
+  val permsAction = routes.Groups.permissions _
   val setPermsAction = routes.Groups.permissionsPost _
   val form = forms.GroupForm.form
   val showAction = routes.Groups.get _
@@ -83,6 +85,7 @@ object Agents extends EntityController[Agent] {
 
 trait AccessorController[T <: Accessor[Group]] extends EntityController[T] {
 
+  val permsAction: String => Call
   val setPermsAction: String => Call
 
   def permissions(id: String) = userProfileAction { implicit maybeUser =>
@@ -99,7 +102,7 @@ trait AccessorController[T <: Accessor[Group]] extends EntityController[T] {
             }
           }
         }
-      }.getOrElse(Unauthorized("sorry!"))
+      }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
   }
 
   def permissionsPost(id: String) = userProfileAction { implicit maybeUser =>
@@ -109,8 +112,6 @@ trait AccessorController[T <: Accessor[Group]] extends EntityController[T] {
         (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
       }.toMap
 
-      println("PERMS: " + perms)
-
       maybeUser.flatMap(_.profile).map { userProfile =>
         AsyncRest {
           for {
@@ -118,11 +119,11 @@ trait AccessorController[T <: Accessor[Group]] extends EntityController[T] {
             newpermsOrErr <- PermissionDAO(userProfile).set(builder(itemOrErr.right.get), perms)
           } yield {
             newpermsOrErr.right.map { perms =>
-              Ok(perms.toString)
+              Redirect(permsAction(id))
             }
           }
         }
-      }.getOrElse(Unauthorized("sorry!"))
+      }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
 
   }
 }
