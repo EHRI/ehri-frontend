@@ -46,6 +46,7 @@ object UserProfiles extends AccessorController[UserProfile] {
   val showView = views.html.userProfile.show.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
+  val permView = views.html.userProfile.permissions.apply _
   val builder: (AccessibleEntity => UserProfile) = UserProfile.apply _
 }
 
@@ -64,6 +65,7 @@ object Groups extends AccessorController[Group] {
   val showView = views.html.group.show.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
+  val permView = views.html.group.permissions.apply _
   val builder: (AccessibleEntity => Group) = Group.apply _
 }
 
@@ -87,6 +89,8 @@ trait AccessorController[T <: Accessor[Group]] extends EntityController[T] {
 
   val permsAction: String => Call
   val setPermsAction: String => Call
+  type PermViewType = (T, PermissionSet[T], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  val permView: PermViewType
 
   def permissions(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
@@ -98,7 +102,7 @@ trait AccessorController[T <: Accessor[Group]] extends EntityController[T] {
           } yield {
 
             permsOrErr.right.map { perms =>
-              Ok(views.html.permissions.edit(builder(itemOrErr.right.get), perms, setPermsAction(id), maybeUser, request))
+              Ok(permView(builder(itemOrErr.right.get), perms, setPermsAction(id), maybeUser, request))
             }
           }
         }

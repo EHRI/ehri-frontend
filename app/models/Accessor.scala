@@ -1,9 +1,11 @@
 package models
 
+
 trait Accessor[T<:Accessor[T]] extends ManagedEntity {
 	val identifier: String
+	val name: String
+	val isA: defines.EntityType.Value  
 	val groups: List[T]
-	val isA: defines.EntityType.Value
 	
 	// Search up the tree(?) if parent groups, looking
 	// for one with the desired id.

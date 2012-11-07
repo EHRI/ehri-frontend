@@ -58,12 +58,19 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
     "be able to set a user's permissions" in {
       running(FakeApplication(additionalConfiguration = config)) {
         val user = UserProfile(Some(-2L), "reto", "Reto", Nil)
-        val data = Map("documentaryUnit" -> List("create"))
+        val data = Map("agent" -> List("create", "update", "delete"), "documentaryUnit" -> List("create", "update","delete"))
         val perms = await(PermissionDAO(userProfile).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
+        perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
+        perms.right.get.get(ContentType.Agent, PermissionType.Create) must beNone
+        perms.right.get.get(ContentType.Agent, PermissionType.Update) must beNone
         val permset = await(PermissionDAO(userProfile).set(user, data))
         permset must beRight
-        permset.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
+        val newperms = permset.right.get
+        newperms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
+        newperms.get(ContentType.DocumentaryUnit, PermissionType.Update) must beSome
+        newperms.get(ContentType.Agent, PermissionType.Create) must beSome
+        newperms.get(ContentType.Agent, PermissionType.Update) must beSome
       }
     }
     
