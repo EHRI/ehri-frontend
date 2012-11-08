@@ -55,7 +55,7 @@ case class UserProfile (
 
   @Annotations.Relation(UserProfile.BELONGS_REL)
   val groups: List[Group] = Nil
-) extends ManagedEntity with Accessor[Group] {
+) extends ManagedEntity with Accessor {
   val isA = EntityType.UserProfile
   
   def isAdmin = getAccessor(groups, "admin").isDefined

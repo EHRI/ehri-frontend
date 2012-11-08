@@ -1,4 +1,4 @@
-@(item: UserProfile, perms: PermissionSet[UserProfile], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: Accessor, perms: PermissionSet[Accessor], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
  
 @import defines._
 
@@ -7,6 +7,15 @@
   @main("Update Permissions")(maybeUser, req) {
 	
     <h4>Set Permissions: @item.identifier</h4>
+    
+	@if(!item.groups.isEmpty) {
+	  <strong>Parent Groups: </strong>&nbsp;
+	  @item.groups.map { group =>
+	    <a href="@routes.Groups.get(group.identifier)">@group.name</a>
+	  }	  
+	}
+    
+	<hr />
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<fieldset id="permissions-area">

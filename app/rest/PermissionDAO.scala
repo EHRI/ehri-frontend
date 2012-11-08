@@ -13,7 +13,7 @@ import com.codahale.jerkson.Json
 
 import defines._
 
-case class PermissionDAO[T <: Accessor[Group]](val accessor: UserProfile) extends RestDAO {
+case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/permission".format(host, port, mount)
 

@@ -33,7 +33,7 @@ object PermissionSet {
     }
   }
 
-  def apply[T <: Accessor[Group]](acc: T, json: JsValue) = json.validate[PermDataRaw].fold(
+  def apply[T <: Accessor](acc: T, json: JsValue) = json.validate[PermDataRaw].fold(
     valid = { pd => new PermissionSet(acc, extract(pd)) },
     invalid = { e => sys.error(e.toString) }
   )
@@ -42,7 +42,7 @@ object PermissionSet {
 /**
  * Search
  */
-case class PermissionSet[T <: Accessor[Group]](val user: T, val data: PermissionSet.PermData) {
+case class PermissionSet[+T <: Accessor](val user: T, val data: PermissionSet.PermData) {
 
   def get(sub: ContentType.Value, perm: PermissionType.Value): Option[PermissionGrant[T]] = {
     val accessors = data.flatMap { pm =>
@@ -66,9 +66,9 @@ case class PermissionSet[T <: Accessor[Group]](val user: T, val data: Permission
   }
 }
 
-case class PermissionGrant[T <: Accessor[Group]](
+case class PermissionGrant[+T <: Accessor](
   val permission: PermissionType.Value,
-  val inheritedFrom: Option[Accessor[Group]] = None) {
+  val inheritedFrom: Option[Accessor] = None) {
   override def toString = inheritedFrom match {
     case Some(accessor) => "%s (from %s)".format(permission, accessor.identifier)
     case None => permission.toString

@@ -46,7 +46,7 @@ object UserProfiles extends AccessorController[UserProfile] {
   val showView = views.html.userProfile.show.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
-  val permView = views.html.userProfile.permissions.apply _
+  val permView = views.html.permissions.edit.apply _
   val builder: (AccessibleEntity => UserProfile) = UserProfile.apply _
 }
 
@@ -65,7 +65,7 @@ object Groups extends AccessorController[Group] {
   val showView = views.html.group.show.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
-  val permView = views.html.group.permissions.apply _
+  val permView = views.html.permissions.edit.apply _
   val builder: (AccessibleEntity => Group) = Group.apply _
 }
 
@@ -85,11 +85,11 @@ object Agents extends EntityController[Agent] {
   val builder: (AccessibleEntity => Agent) = Agent.apply _
 }
 
-trait AccessorController[T <: Accessor[Group]] extends EntityController[T] {
+trait AccessorController[T <: Accessor] extends EntityController[T] {
 
   val permsAction: String => Call
   val setPermsAction: String => Call
-  type PermViewType = (T, PermissionSet[T], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  type PermViewType = (Accessor, PermissionSet[Accessor], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val permView: PermViewType
 
   def permissions(id: String) = userProfileAction { implicit maybeUser =>

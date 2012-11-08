@@ -36,6 +36,6 @@ case class Group (
   @Annotations.Relation(UserProfile.BELONGS_REL)
   val groups: List[Group] = Nil
   
-) extends ManagedEntity with Accessor[Group] {
+) extends ManagedEntity with Accessor {
   val isA = EntityType.Group
 }
