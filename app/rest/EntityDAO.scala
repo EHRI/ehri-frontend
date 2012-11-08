@@ -3,7 +3,7 @@ package rest
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import play.api.libs.json.{JsArray,JsValue}
+import play.api.libs.json.{ JsArray, JsValue }
 import models.AccessibleEntity
 import models.EntityReader
 import models.UserProfile
@@ -23,7 +23,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
       invalid = { errors =>
         throw new RuntimeException("Error getting item: " + errors)
       })
-  }  
+  }
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
@@ -57,6 +57,14 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def create(data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
+    WS.url(requestUrl).withHeaders(authHeaders: _*)
+      .post(generate(data)).map { response =>
+        checkError(response).right.map(r => jsonToEntity(r.json))
+      }
+  }
+
+  def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
+    val requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType, id, givenType)
     WS.url(requestUrl).withHeaders(authHeaders: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))

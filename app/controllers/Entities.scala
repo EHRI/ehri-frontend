@@ -15,23 +15,26 @@ import defines._
 import play.api.mvc.Call
 import models._
 
-object DocumentaryUnits extends EntityController[DocumentaryUnit] {
+object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit] with EntityRead[DocumentaryUnit] with EntityUpdate[DocumentaryUnit] with EntityDelete[DocumentaryUnit] {
   val entityType = EntityType.DocumentaryUnit
   val listAction = routes.DocumentaryUnits.list _
-  val createAction = routes.DocumentaryUnits.createPost
-  val updateAction = routes.DocumentaryUnits.updatePost _
   val cancelAction = routes.DocumentaryUnits.get _
   val deleteAction = routes.DocumentaryUnits.deletePost _
+  val updateAction = routes.DocumentaryUnits.updatePost _
   val form = forms.DocumentaryUnitForm.form
+  val docForm = forms.DocumentaryUnitForm.form
   val showAction = routes.DocumentaryUnits.get _
+  val docShowAction = routes.DocumentaryUnits.get _
+  val docCreateAction = routes.DocumentaryUnits.docCreatePost _
   val formView = views.html.documentaryUnit.edit.apply _
   val showView = views.html.documentaryUnit.show.apply _
   val listView = views.html.documentaryUnit.list.apply _
+  val docFormView = views.html.documentaryUnit.create.apply _  
   val deleteView = views.html.delete.apply _
   val builder: (AccessibleEntity => DocumentaryUnit) = DocumentaryUnit.apply _
 }
 
-object UserProfiles extends AccessorController[UserProfile] {
+object UserProfiles extends AccessorController[UserProfile] with CRUD[UserProfile] {
   val entityType = EntityType.UserProfile
   val listAction = routes.UserProfiles.list _
   val createAction = routes.UserProfiles.createPost
@@ -50,7 +53,7 @@ object UserProfiles extends AccessorController[UserProfile] {
   val builder: (AccessibleEntity => UserProfile) = UserProfile.apply _
 }
 
-object Groups extends AccessorController[Group] {
+object Groups extends AccessorController[Group] with CRUD[Group] {
   val entityType = EntityType.Group
   val listAction = routes.Groups.list _
   val createAction = routes.Groups.createPost
@@ -69,20 +72,71 @@ object Groups extends AccessorController[Group] {
   val builder: (AccessibleEntity => Group) = Group.apply _
 }
 
-object Agents extends EntityController[Agent] {
+object Agents extends DocumentaryUnitContext[Agent] with CRUD[Agent] {
   val entityType = EntityType.Agent
   val listAction = routes.Agents.list _
   val createAction = routes.Agents.createPost
   val updateAction = routes.Agents.updatePost _
   val cancelAction = routes.Agents.get _
   val deleteAction = routes.Agents.deletePost _
+  val docShowAction = routes.DocumentaryUnits.get _
+  val docCreateAction = routes.Agents.docCreatePost _
   val form = forms.AgentForm.form
+  val docForm = forms.DocumentaryUnitForm.form
   val showAction = routes.Agents.get _
   val formView = views.html.agent.edit.apply _
   val showView = views.html.agent.show.apply _
+  val showDocView = views.html.documentaryUnit.show.apply _
+  val docFormView = views.html.documentaryUnit.create.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
   val builder: (AccessibleEntity => Agent) = Agent.apply _
+}
+
+trait CRUD[T <: ManagedEntity] extends EntityCreate[T] with EntityRead[T] with EntityUpdate[T] with EntityDelete[T]
+
+trait DocumentaryUnitContext[T <: ManagedEntity] extends EntityController[T] {
+  
+  type DocFormViewType = (T, Form[DocumentaryUnit], 
+		  Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  val docFormView: DocFormViewType
+  val docForm: Form[DocumentaryUnit]
+  val docShowAction: String => Call	
+  val docCreateAction: String => Call
+  
+  def docCreate(id: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      AsyncRest {
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr.right.map { item => Ok(docFormView(builder(item), docForm, docCreateAction(id), maybeUser, request)) }
+        }
+      }            
+  }
+
+  def docCreatePost(id: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      docForm.bindFromRequest.fold(
+        errorForm => {
+          AsyncRest {
+            EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+              itemOrErr.right.map { item =>
+                BadRequest(docFormView(builder(item), errorForm, docCreateAction(id), maybeUser, request))
+              }
+            }
+          }
+        },
+        doc => {
+          AsyncRest {
+            EntityDAO(entityType, maybeUser.flatMap(_.profile))
+              .createInContext(EntityType.DocumentaryUnit, id, doc.toData).map { itemOrErr =>
+                itemOrErr.right.map { item =>
+                  Redirect(docShowAction(item.identifier))
+                }
+              }
+          }
+        }
+      )      
+  }  
 }
 
 trait AccessorController[T <: Accessor] extends EntityController[T] {
@@ -133,35 +187,18 @@ trait AccessorController[T <: Accessor] extends EntityController[T] {
 }
 
 trait EntityController[T <: ManagedEntity] extends Controller with AuthController with ControllerHelpers {
-
   val entityType: EntityType.Value
+  def builder: AccessibleEntity => T
+}
+
+trait EntityRead[T <: ManagedEntity] extends EntityController[T] {
+
   type ShowViewType = (T, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   type ListViewType = (Seq[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
-  type FormViewType = (Option[T], Form[T], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
-  type DeleteViewType = (T, Call, Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
-
-  def builder: AccessibleEntity => T
-  val form: Form[T]
+  val listView: ListViewType
   val listAction: (Int, Int) => Call
   val showAction: String => Call
-  val createAction: Call
-  val updateAction: String => Call
-  val cancelAction: String => Call
-  val deleteAction: String => Call
   val showView: ShowViewType
-  val formView: FormViewType
-  val listView: ListViewType
-  val deleteView: DeleteViewType
-
-  def list(offset: Int, limit: Int) = userProfileAction { implicit maybeUser =>
-    implicit request =>
-      AsyncRest {
-        EntityDAO(entityType, maybeUser.flatMap(_.profile))
-          .list(math.max(offset, 0), math.max(limit, 20)).map { itemOrErr =>
-            itemOrErr.right.map { lst => Ok(listView(lst.map(builder(_)), showAction, maybeUser, request)) }
-          }
-      }
-  }
 
   def getJson(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
@@ -180,7 +217,24 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
         }
       }
   }
+  
+  def list(offset: Int, limit: Int) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      AsyncRest {
+        EntityDAO(entityType, maybeUser.flatMap(_.profile))
+          .list(math.max(offset, 0), math.max(limit, 20)).map { itemOrErr =>
+            itemOrErr.right.map { lst => Ok(listView(lst.map(builder(_)), showAction, maybeUser, request)) }
+          }
+      }
+  }  
+}
 
+trait EntityCreate[T <: ManagedEntity] extends EntityRead[T] {
+  type FormViewType = (Option[T], Form[T], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  val createAction: Call
+  val formView: FormViewType
+  val form: Form[T]
+  
   def create = userProfileAction { implicit maybeUser =>
     implicit request =>
       Ok(formView(None, form, createAction, maybeUser, request))
@@ -200,7 +254,13 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
         }
       )
   }
+}
 
+trait EntityUpdate[T <: ManagedEntity] extends EntityRead[T] {
+  val updateAction: String => Call
+  val formView: EntityCreate[T]#FormViewType
+  val form: Form[T]
+  
   def update(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
@@ -238,7 +298,16 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
         }
       )
   }
+}
+  
+trait EntityDelete[T <: ManagedEntity] extends EntityRead[T] {
 
+  type DeleteViewType = (T, Call, Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  val deleteAction: String => Call
+  val deleteView: DeleteViewType
+  val cancelAction: String => Call
+
+  
   def delete(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {

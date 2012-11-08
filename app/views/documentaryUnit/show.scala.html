@@ -24,7 +24,7 @@
 	  @user.permissions.map { pset =>
 	  	<hr />
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Create).map { p =>
-  		  <a href="@routes.DocumentaryUnits.create">Create New</a>&nbsp;
+  		  <a href="@routes.DocumentaryUnits.docCreate(item.identifier)">Create Child Item</a>&nbsp;
   		}
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Update).map { p =>
   		  <a href="@routes.DocumentaryUnits.update(item.identifier)">Update</a>&nbsp;

@@ -28,12 +28,12 @@ GET     /                           controllers.Application.index
 GET     /documentaryUnit/list           controllers.DocumentaryUnits.list(offset: Int ?= 0, limit: Int ?=20)
 GET     /documentaryUnit/show/:id       controllers.DocumentaryUnits.get(id: String)
 GET     /documentaryUnit/json/:id       controllers.DocumentaryUnits.getJson(id: String)
-GET     /documentaryUnit/create         controllers.DocumentaryUnits.create
-POST    /documentaryUnit/create         controllers.DocumentaryUnits.createPost
 GET     /documentaryUnit/delete/:id     controllers.DocumentaryUnits.delete(id: String)
 POST    /documentaryUnit/delete/:id     controllers.DocumentaryUnits.deletePost(id: String)
 GET     /documentaryUnit/update/:id     controllers.DocumentaryUnits.update(id: String)
 POST    /documentaryUnit/update/:id     controllers.DocumentaryUnits.updatePost(id: String)
+GET     /documentaryUnit/create/:id     controllers.DocumentaryUnits.docCreate(id: String)
+POST    /documentaryUnit/create/:id     controllers.DocumentaryUnits.docCreatePost(id: String)
 
 GET     /userProfile/list           controllers.UserProfiles.list(offset: Int ?= 0, limit: Int ?=20)
 GET     /userProfile/show/:id       controllers.UserProfiles.get(id: String)
@@ -68,6 +68,8 @@ GET     /agent/delete/:id     controllers.Agents.delete(id: String)
 POST    /agent/delete/:id     controllers.Agents.deletePost(id: String)
 GET     /agent/update/:id     controllers.Agents.update(id: String)
 POST    /agent/update/:id     controllers.Agents.updatePost(id: String)
+GET     /agent/create/:id     controllers.Agents.docCreate(id: String)
+POST    /agent/create/:id     controllers.Agents.docCreatePost(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

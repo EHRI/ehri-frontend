@@ -20,8 +20,11 @@
 	  @user.permissions.map { pset =>
 	  	<hr />
   		@pset.get(ContentType.Agent, PermissionType.Create).map { p =>
-  		  <a href="@routes.Agents.create">Create New</a>&nbsp;
+  		  <a href="@routes.Agents.create">Create New Repository</a>&nbsp;
   		}
+  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Create).map { p =>
+  		  <a href="@routes.Agents.docCreate(item.identifier)">Create New Documentary Unit</a>&nbsp;
+  		}  		
   		@pset.get(ContentType.Agent, PermissionType.Update).map { p =>
   		  <a href="@routes.Agents.update(item.identifier)">Edit</a>&nbsp;
   		}

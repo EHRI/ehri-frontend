@@ -130,10 +130,10 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
-          DocumentaryUnits.createPost.url).withHeaders(headers.toSeq: _*), testData).get
+          controllers.routes.Agents.docCreatePost("r1").url).withHeaders(headers.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
-        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("hello-kitty").url)).get
+        val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("Some content")
       }
