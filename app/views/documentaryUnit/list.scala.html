@@ -1,9 +1,25 @@
 @(items: Seq[DocumentaryUnit], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
 
+@import scala.util.control.Exception._
+
 @main("View item")(maybeUser, req) {
 
-	<h3>Items:</h3>
+	<h3>Items:
   
+	@defining(req.getQueryString("offset").flatMap(s => catching(classOf[NumberFormatException]).opt(s.toInt)).getOrElse(0)) { offset =>
+	  @if(offset > 0) {
+		  @if((offset - 20) > 0) {
+	    	  <a href="?offset=@{"%d".format(math.max(0, offset - 20))}">Prev</a> |
+	   	  } else {
+	    	  <a href="?">Prev</a> |	   	    
+	   	  }
+	  } else {
+	    Prev |
+	  }
+	  <a href="?offset=@{"%d".format(offset + 20)}">Next</a>
+	}
+    </h3>
+	
 	<ul>
 	@items.map { item =>
 	  	<div class="list-item">
