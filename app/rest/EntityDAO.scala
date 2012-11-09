@@ -133,11 +133,9 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def page(page: Int, limit: Int): Future[Either[RestError, Page[AccessibleEntity]]] = {
-    println("PAGE: " + page)
     implicit val entityPageReads = PageReads.pageReads(models.EntityReader.entityReads)
     WS.url(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)).withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map { r =>
-        println(r.json)
         r.json.validate[Page[models.Entity]].fold(
           valid = { page => 
             Page(page.total, page.offset, page.limit, page.list.map(e => new AccessibleEntity(e)))            
