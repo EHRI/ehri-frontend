@@ -27,7 +27,7 @@
 			<h4>
 				<a href="@showAction(item.identifier)">@item.name</a>
 				@item.holder.map { holder =>
-					<strong> - @holder.name</strong>
+					<strong> - <a href="@controllers.routes.Agents.get(holder.identifier)">@holder.name</a></strong>
 				}
 			</h4>
 			@item.descriptions.headOption.map { desc =>
