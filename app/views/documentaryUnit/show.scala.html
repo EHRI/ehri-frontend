@@ -20,9 +20,10 @@
 		}
 	}
 	
+  	<hr />
+	<a href="@routes.DocumentaryUnits.list(1, 20)">Back to List</a>&nbsp;
 	@maybeUser.map { user =>
 	  @user.permissions.map { pset =>
-	  	<hr />
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Create).map { p =>
   		  <a href="@routes.DocumentaryUnits.docCreate(item.identifier)">Create Child Item</a>&nbsp;
   		}

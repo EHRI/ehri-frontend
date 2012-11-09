@@ -19,12 +19,12 @@
 			  float: right;
 			}
 			
-			#entity-types ul {
+			#entity-types ul, .pagination ul {
 			    list-style: none;
 			    padding-left: 0px;
 			}
 			
-			#entity-types li {
+			#entity-types li, .pagination li {
 			  display: inline;
 			  padding-right: 20px;
 			}
@@ -50,10 +50,10 @@
 
 		<div id="entity-types">
 			<ul>
-				<li><a href="@routes.DocumentaryUnits.list(0, 20)">@defines.EntityType.DocumentaryUnit.toString</a></li>
-				<li><a href="@routes.Agents.list(0, 20)">@defines.EntityType.Agent.toString</a></li>
-				<li><a href="@routes.UserProfiles.list(0, 20)">@defines.EntityType.UserProfile.toString</a></li>
-				<li><a href="@routes.Groups.list(0, 20)">@defines.EntityType.Group.toString</a></li>				
+				<li><a href="@routes.DocumentaryUnits.list(1, 20)">@defines.EntityType.DocumentaryUnit.toString</a></li>
+				<li><a href="@routes.Agents.list(1, 20)">@defines.EntityType.Agent.toString</a></li>
+				<li><a href="@routes.UserProfiles.list(1, 20)">@defines.EntityType.UserProfile.toString</a></li>
+				<li><a href="@routes.Groups.list(1, 20)">@defines.EntityType.Group.toString</a></li>				
 			</ul>
 			<hr />
 		</div>

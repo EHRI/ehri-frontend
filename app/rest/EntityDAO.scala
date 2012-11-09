@@ -10,6 +10,28 @@ import models.UserProfile
 import play.api.http.Status.OK
 import defines.EntityType
 
+import models.Entity
+
+case class Page[+T](val total: Long, val offset: Int, val limit: Int, val list: Seq[T]) {
+  def numPages = (total / limit) + (total % limit).min(1)
+  def page = (offset / limit) + 1 
+}
+
+object PageReads {
+
+  import play.api.libs.json._
+  import play.api.libs.json.util._
+  import play.api.libs.json.Reads._
+  import models.EntityReader._
+
+  implicit def pageReads[T](r: Reads[T]): Reads[Page[T]] = (
+    (__ \ "total").read[Long] and
+    (__ \ "offset").read[Int] and
+    (__ \ "limit").read[Int] and
+    (__ \ "values").lazyRead(list[T](r))
+  )(Page[T] _)
+}
+
 case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
 
   import play.api.http.Status._
@@ -106,6 +128,24 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
           case JsArray(array) => array.map(js => jsonToEntity(js))
           case _ => throw new RuntimeException("Unexpected response to list...")
         }
+      }
+    }
+  }
+
+  def page(page: Int, limit: Int): Future[Either[RestError, Page[AccessibleEntity]]] = {
+    println("PAGE: " + page)
+    implicit val entityPageReads = PageReads.pageReads(models.EntityReader.entityReads)
+    WS.url(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)).withHeaders(authHeaders: _*).get.map { response =>
+      checkError(response).right.map { r =>
+        println(r.json)
+        r.json.validate[Page[models.Entity]].fold(
+          valid = { page => 
+            Page(page.total, page.offset, page.limit, page.list.map(e => new AccessibleEntity(e)))            
+          },
+          invalid = { e =>
+            sys.error("Unable to decode paginated list result: " + e.toString)
+          }
+        )
       }
     }
   }

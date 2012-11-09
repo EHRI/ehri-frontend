@@ -1,27 +1,28 @@
-@(items: Seq[DocumentaryUnit], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
-
-@import scala.util.control.Exception._
+@(page: rest.Page[DocumentaryUnit], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @main("View item")(maybeUser, req) {
 
-	<h3>Items:
+	<h3>Displaying items @(page.offset + 1) to @(page.offset + page.list.size) of @page.total</h3>
   
-	@defining(req.getQueryString("offset").flatMap(s => catching(classOf[NumberFormatException]).opt(s.toInt)).getOrElse(0)) { offset =>
-	  @if(offset > 0) {
-		  @if((offset - 20) > 0) {
-	    	  <a href="?offset=@{"%d".format(math.max(0, offset - 20))}">Prev</a> |
-	   	  } else {
-	    	  <a href="?">Prev</a> |	   	    
-	   	  }
-	  } else {
-	    Prev |
-	  }
-	  <a href="?offset=@{"%d".format(offset + 20)}">Next</a>
-	}
-    </h3>
+	<div id="pagination" class="pagination">
+    	<ul>
+		@views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
+			@range.map { cp =>
+	        	@if(cp == page.page.toInt) {
+	                <li class="disabled"><a>@cp</a></li>
+	            } else {
+	                <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
+	            }
+	        }
+	        @if(range.last != page.numPages) {
+	        	<li class="disabled"><a>...</a></li>
+	        }
+		}
+		</ul>
+	</div>
 	
 	<ul>
-	@items.map { item =>
+	@page.list.map { item =>
 	  	<div class="list-item">
 			<h4>
 				<a href="@showAction(item.identifier)">@item.name</a>

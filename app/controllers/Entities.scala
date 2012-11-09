@@ -194,7 +194,7 @@ trait EntityController[T <: ManagedEntity] extends Controller with AuthControlle
 trait EntityRead[T <: ManagedEntity] extends EntityController[T] {
 
   type ShowViewType = (T, Option[models.sql.User], RequestHeader) => play.api.templates.Html
-  type ListViewType = (Seq[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  type ListViewType = (rest.Page[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val listView: ListViewType
   val listAction: (Int, Int) => Call
   val showAction: String => Call
@@ -218,12 +218,12 @@ trait EntityRead[T <: ManagedEntity] extends EntityController[T] {
       }
   }
   
-  def list(offset: Int, limit: Int) = userProfileAction { implicit maybeUser =>
+  def list(page: Int, limit: Int) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
         EntityDAO(entityType, maybeUser.flatMap(_.profile))
-          .list(math.max(offset, 0), math.max(limit, 20)).map { itemOrErr =>
-            itemOrErr.right.map { lst => Ok(listView(lst.map(builder(_)), showAction, maybeUser, request)) }
+          .page(math.max(page, 1), math.max(limit, 1)).map { itemOrErr =>
+            itemOrErr.right.map { lst => Ok(listView(lst.copy(list=lst.list.map(builder(_))), showAction, maybeUser, request)) }
           }
       }
   }  

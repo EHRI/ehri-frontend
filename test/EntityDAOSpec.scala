@@ -106,6 +106,12 @@ class EntityDAOSpec extends Specification with BeforeExample {
         await(EntityDAO(entityType, userProfile).list(0, 20)) must beRight
       }
     }
+    
+    "page items" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        await(EntityDAO(entityType, userProfile).page(1, 20)) must beRight
+      }
+    }    
   }
 
   step {

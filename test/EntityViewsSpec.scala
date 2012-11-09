@@ -65,9 +65,9 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "list should get some (world-readable) items" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val list = route(FakeRequest(GET, "/documentaryUnit/list")).get
+        val list = route(FakeRequest(GET, DocumentaryUnits.list(1, 20).url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain("Items")
+        contentAsString(list) must contain("Displaying items")
 
         contentAsString(list) must not contain ("c1")
         contentAsString(list) must contain("c4")
@@ -77,9 +77,9 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "list when logged in should get more items" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val list = route(fakeLoggedInRequest(GET, DocumentaryUnits.list(0, 20).url)).get
+        val list = route(fakeLoggedInRequest(GET, DocumentaryUnits.list(1, 20).url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain("Items")
+        contentAsString(list) must contain("Displaying items")
         contentAsString(list) must contain("c1")
         contentAsString(list) must contain("c2")
         contentAsString(list) must contain("c3")
@@ -196,7 +196,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "list should get some (world-readable) items" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val list = route(FakeRequest(GET, Agents.list(0, 20).url)).get
+        val list = route(FakeRequest(GET, Agents.list(1, 20).url)).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain("Items")
 
