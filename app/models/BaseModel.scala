@@ -46,9 +46,9 @@ trait BaseModel {
           val datamap: Map[String, Any] = a.getOrElse("data", Map()).asInstanceOf[Map[String, Any]]
           val value = f.get(this) match {
             case None => None
-            case isa: Enumeration#Value => isa.toString
+            case enum: Enumeration#Value => enum.toString
             case Some(value) => value match {
-              case pub: Enumeration#Value => pub.toString              
+              case enum: Enumeration#Value => enum.toString              
               case x => x
             }
             case x => x
