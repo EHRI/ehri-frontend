@@ -46,10 +46,9 @@ trait BaseModel {
           val datamap: Map[String, Any] = a.getOrElse("data", Map()).asInstanceOf[Map[String, Any]]
           val value = f.get(this) match {
             case None => None
-            // Special case for entity type... hopefully we can make this go away...
-            case isa: EntityType.Value => isa.asInstanceOf[EntityType.Value].toString
+            case isa: Enumeration#Value => isa.toString
             case Some(value) => value match {
-              case pub: PublicationStatus.Value => pub.asInstanceOf[PublicationStatus.Value].toString              
+              case pub: Enumeration#Value => pub.toString              
               case x => x
             }
             case x => x
