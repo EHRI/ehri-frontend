@@ -5,7 +5,6 @@ import defines._
 import play.api.libs.concurrent.execution.defaultContext
 import rest.EntityDAO
 import controllers.base.CRUD
-import controllers.base.AccessorController
 
 
 object UserProfiles extends AccessorController[UserProfile] with CRUD[UserProfile] {

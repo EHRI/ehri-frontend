@@ -1,14 +1,15 @@
 package controllers
 
-import models.{AccessibleEntity,DocumentaryUnit}
+import models.{AccessibleEntity,ManagedEntity,DocumentaryUnit}
 import defines._
 import play.api.libs.concurrent.execution.defaultContext
 import rest.EntityDAO
 import controllers.base.EntityUpdate
 import controllers.base.EntityRead
 import controllers.base.EntityDelete
-import controllers.base.DocumentaryUnitContext
+import controllers.base.EntityController
 
+import play.api.data.Form
 
 object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit]
 			with EntityRead[DocumentaryUnit]
@@ -50,6 +51,58 @@ object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit]
             }
           }
       }
+  }
+}
+
+
+/**
+ * Controller trait for extending Entity classes which server as
+ * context for the creation of DocumentaryUnits, i.e. Agent and
+ * DocumentaryUnit itself.
+ */
+trait DocumentaryUnitContext[T <: ManagedEntity] extends EntityController[T] {
+  
+  import play.api.mvc.Call
+  import play.api.mvc.RequestHeader
+
+  type DocFormViewType = (T, Form[DocumentaryUnit], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  val docFormView: DocFormViewType
+  val docForm: Form[DocumentaryUnit]
+  val docShowAction: String => Call
+  val docCreateAction: String => Call
+
+  def docCreate(id: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      AsyncRest {
+        EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+          itemOrErr.right.map { item => Ok(docFormView(builder(item), docForm, docCreateAction(id), maybeUser, request)) }
+        }
+      }
+  }
+
+  def docCreatePost(id: String) = userProfileAction { implicit maybeUser =>
+    implicit request =>
+      docForm.bindFromRequest.fold(
+        errorForm => {
+          AsyncRest {
+            EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+              itemOrErr.right.map { item =>
+                BadRequest(docFormView(builder(item), errorForm, docCreateAction(id), maybeUser, request))
+              }
+            }
+          }
+        },
+        doc => {
+          AsyncRest {
+            EntityDAO(entityType, maybeUser.flatMap(_.profile))
+              .createInContext(EntityType.DocumentaryUnit, id, doc.toData).map { itemOrErr =>
+                itemOrErr.right.map { item =>
+                  Redirect(docShowAction(item.identifier))
+                }
+              }
+          }
+        }
+      )
   }
 }
 
