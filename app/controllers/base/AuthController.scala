@@ -1,15 +1,11 @@
-package controllers
+package controllers.base
 
 import play.api._
 import play.api.mvc._
-import jp.t2v.lab.play20.auth.{ Auth, LoginLogout }
+import jp.t2v.lab.play20.auth.Auth
 import play.api.libs.concurrent.execution.defaultContext
 import models.UserProfile
-import models.AccessibleEntity
-import play.api.libs.json.JsString
 import defines.EntityType
-import rest.PermissionDAO
-import scala.concurrent.Future
 
 /*
  * Wraps optionalUserAction to asyncronously fetch the User's profile.

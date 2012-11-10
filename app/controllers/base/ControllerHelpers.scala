@@ -1,8 +1,7 @@
-package controllers
+package controllers.base
 
 import scala.concurrent.Future
 import play.api.mvc.RequestHeader
-import models.sql.User
 import play.api.mvc.Result
 import play.api.libs.concurrent.execution.defaultContext
 import rest._

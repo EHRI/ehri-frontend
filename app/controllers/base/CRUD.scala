@@ -1,116 +1,37 @@
-package controllers
+package controllers.base
 
-import com.codahale.jerkson.Json.generate
 import rest._
 import play.api.libs.concurrent.execution.defaultContext
 import play.api.mvc.Controller
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.SimpleResult
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
-import scala.concurrent.Future
 import play.api.mvc.RequestHeader
 import defines._
 import play.api.mvc.Call
 import models._
 
-object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit] with EntityRead[DocumentaryUnit] with EntityUpdate[DocumentaryUnit] with EntityDelete[DocumentaryUnit] {
-  val entityType = EntityType.DocumentaryUnit
-  val listAction = routes.DocumentaryUnits.list _
-  val cancelAction = routes.DocumentaryUnits.get _
-  val deleteAction = routes.DocumentaryUnits.deletePost _
-  val updateAction = routes.DocumentaryUnits.updatePost _
-  val form = forms.DocumentaryUnitForm.form
-  val docForm = forms.DocumentaryUnitForm.form
-  val showAction = routes.DocumentaryUnits.get _
-  val docShowAction = routes.DocumentaryUnits.get _
-  val docCreateAction = routes.DocumentaryUnits.docCreatePost _
-  val formView = views.html.documentaryUnit.edit.apply _
-  val showView = views.html.documentaryUnit.show.apply _
-  val listView = views.html.documentaryUnit.list.apply _
-  val docFormView = views.html.documentaryUnit.create.apply _  
-  val deleteView = views.html.delete.apply _
-  val builder: (AccessibleEntity => DocumentaryUnit) = DocumentaryUnit.apply _
-}
-
-object UserProfiles extends AccessorController[UserProfile] with CRUD[UserProfile] {
-  val entityType = EntityType.UserProfile
-  val listAction = routes.UserProfiles.list _
-  val createAction = routes.UserProfiles.createPost
-  val updateAction = routes.UserProfiles.updatePost _
-  val cancelAction = routes.UserProfiles.get _
-  val deleteAction = routes.UserProfiles.deletePost _
-  val permsAction = routes.UserProfiles.permissions _
-  val setPermsAction = routes.UserProfiles.permissionsPost _
-  val form = forms.UserProfileForm.form
-  val showAction = routes.UserProfiles.get _
-  val formView = views.html.userProfile.edit.apply _
-  val showView = views.html.userProfile.show.apply _
-  val listView = views.html.list.apply _
-  val deleteView = views.html.delete.apply _
-  val permView = views.html.permissions.edit.apply _
-  val builder: (AccessibleEntity => UserProfile) = UserProfile.apply _
-}
-
-object Groups extends AccessorController[Group] with CRUD[Group] {
-  val entityType = EntityType.Group
-  val listAction = routes.Groups.list _
-  val createAction = routes.Groups.createPost
-  val updateAction = routes.Groups.updatePost _
-  val cancelAction = routes.Groups.get _
-  val deleteAction = routes.Groups.deletePost _
-  val permsAction = routes.Groups.permissions _
-  val setPermsAction = routes.Groups.permissionsPost _
-  val form = forms.GroupForm.form
-  val showAction = routes.Groups.get _
-  val formView = views.html.group.edit.apply _
-  val showView = views.html.group.show.apply _
-  val listView = views.html.list.apply _
-  val deleteView = views.html.delete.apply _
-  val permView = views.html.permissions.edit.apply _
-  val builder: (AccessibleEntity => Group) = Group.apply _
-}
-
-object Agents extends DocumentaryUnitContext[Agent] with CRUD[Agent] {
-  val entityType = EntityType.Agent
-  val listAction = routes.Agents.list _
-  val createAction = routes.Agents.createPost
-  val updateAction = routes.Agents.updatePost _
-  val cancelAction = routes.Agents.get _
-  val deleteAction = routes.Agents.deletePost _
-  val docShowAction = routes.DocumentaryUnits.get _
-  val docCreateAction = routes.Agents.docCreatePost _
-  val form = forms.AgentForm.form
-  val docForm = forms.DocumentaryUnitForm.form
-  val showAction = routes.Agents.get _
-  val formView = views.html.agent.edit.apply _
-  val showView = views.html.agent.show.apply _
-  val showDocView = views.html.documentaryUnit.show.apply _
-  val docFormView = views.html.documentaryUnit.create.apply _
-  val listView = views.html.list.apply _
-  val deleteView = views.html.delete.apply _
-  val builder: (AccessibleEntity => Agent) = Agent.apply _
-}
 
 trait CRUD[T <: ManagedEntity] extends EntityCreate[T] with EntityRead[T] with EntityUpdate[T] with EntityDelete[T]
 
+/**
+ * Controller trait for extending Entity classes which server as
+ * context for the creation of DocumentaryUnits, i.e. Agent and
+ * DocumentaryUnit itself.
+ */
 trait DocumentaryUnitContext[T <: ManagedEntity] extends EntityController[T] {
-  
-  type DocFormViewType = (T, Form[DocumentaryUnit], 
-		  Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+
+  type DocFormViewType = (T, Form[DocumentaryUnit], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val docFormView: DocFormViewType
   val docForm: Form[DocumentaryUnit]
-  val docShowAction: String => Call	
+  val docShowAction: String => Call
   val docCreateAction: String => Call
-  
+
   def docCreate(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
         EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr.right.map { item => Ok(docFormView(builder(item), docForm, docCreateAction(id), maybeUser, request)) }
         }
-      }            
+      }
   }
 
   def docCreatePost(id: String) = userProfileAction { implicit maybeUser =>
@@ -135,8 +56,8 @@ trait DocumentaryUnitContext[T <: ManagedEntity] extends EntityController[T] {
               }
           }
         }
-      )      
-  }  
+      )
+  }
 }
 
 trait AccessorController[T <: Accessor] extends EntityController[T] {
@@ -200,11 +121,13 @@ trait EntityRead[T <: ManagedEntity] extends EntityController[T] {
   val showAction: String => Call
   val showView: ShowViewType
 
+  import com.codahale.jerkson.Json
+  
   def getJson(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
         EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item => Ok(generate(item.data)) }
+          itemOrErr.right.map { item => Ok(Json.generate(item.data)) }
         }
       }
   }
@@ -217,16 +140,16 @@ trait EntityRead[T <: ManagedEntity] extends EntityController[T] {
         }
       }
   }
-  
+
   def list(page: Int, limit: Int) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
         EntityDAO(entityType, maybeUser.flatMap(_.profile))
           .page(math.max(page, 1), math.max(limit, 1)).map { itemOrErr =>
-            itemOrErr.right.map { lst => Ok(listView(lst.copy(list=lst.list.map(builder(_))), showAction, maybeUser, request)) }
+            itemOrErr.right.map { lst => Ok(listView(lst.copy(list = lst.list.map(builder(_))), showAction, maybeUser, request)) }
           }
       }
-  }  
+  }
 }
 
 trait EntityCreate[T <: ManagedEntity] extends EntityRead[T] {
@@ -234,7 +157,7 @@ trait EntityCreate[T <: ManagedEntity] extends EntityRead[T] {
   val createAction: Call
   val formView: FormViewType
   val form: Form[T]
-  
+
   def create = userProfileAction { implicit maybeUser =>
     implicit request =>
       Ok(formView(None, form, createAction, maybeUser, request))
@@ -260,7 +183,7 @@ trait EntityUpdate[T <: ManagedEntity] extends EntityRead[T] {
   val updateAction: String => Call
   val formView: EntityCreate[T]#FormViewType
   val form: Form[T]
-  
+
   def update(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
@@ -299,7 +222,7 @@ trait EntityUpdate[T <: ManagedEntity] extends EntityRead[T] {
       )
   }
 }
-  
+
 trait EntityDelete[T <: ManagedEntity] extends EntityRead[T] {
 
   type DeleteViewType = (T, Call, Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
@@ -307,7 +230,6 @@ trait EntityDelete[T <: ManagedEntity] extends EntityRead[T] {
   val deleteView: DeleteViewType
   val cancelAction: String => Call
 
-  
   def delete(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {

@@ -3,8 +3,8 @@ package controllers
 import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.{Auth,LoginLogout}
-
 import play.api.Play.current
+import controllers.base.{Authorizer,LoginHandler}
 
 
 object Application extends Controller with Auth with LoginLogout with Authorizer {

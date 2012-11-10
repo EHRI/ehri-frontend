@@ -6,9 +6,10 @@ import play.api.libs.ws.WS
 import play.api.libs.concurrent.execution.defaultContext
 import play.api.libs.json.JsString
 
+
 object PersonaLoginHandler extends PersonaLoginHandler(play.api.Play.current)
 
-class PersonaLoginHandler(app: play.api.Application) extends LoginHandler {
+class PersonaLoginHandler(app: play.api.Application) extends base.LoginHandler {
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"

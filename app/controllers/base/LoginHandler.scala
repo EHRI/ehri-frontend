@@ -1,4 +1,4 @@
-package controllers
+package controllers.base
 
 import play.Plugin
 import jp.t2v.lab.play20.auth.LoginLogout

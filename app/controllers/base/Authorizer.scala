@@ -1,8 +1,12 @@
-package controllers
+package controllers.base
 
 import jp.t2v.lab.play20.auth._
 import play.api._
 import play.api.mvc._
+
+
+import play.api.Play.current
+import controllers.routes
 
 /*
  * Implementation of play2-auth
@@ -14,15 +18,10 @@ case object Administrator extends Permission
 case object NormalUser extends Permission
 
 
-import play.api.Play.current
-
-import models.sql.UserDAO
-
-
 trait Authorizer extends Results with AuthConfig {
   
   // Specific type of user-finder loaded via a plugin
-  lazy val userFinder: UserDAO = current.plugin(classOf[UserDAO]).get
+  lazy val userFinder: models.sql.UserDAO = current.plugin(classOf[models.sql.UserDAO]).get
   
   type Id = String
 
@@ -77,7 +76,7 @@ trait Authorizer extends Results with AuthConfig {
    * A redirect target after a failed authentication.
    */
   def authenticationFailed(request: RequestHeader): PlainResult = 
-    Redirect(routes.Application.login).withSession("access_uri" -> request.uri)
+    Redirect(controllers.routes.Application.login).withSession("access_uri" -> request.uri)
 
   /**
    * A redirect target after a failed authorization.

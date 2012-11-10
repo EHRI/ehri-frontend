@@ -1,12 +1,11 @@
 package controllers
 
-import jp.t2v.lab.play20.auth.LoginLogout
-import jp.t2v.lab.play20.auth.Auth
-import play.api.mvc.Controller
 import play.api.libs.openid._
 import play.api.libs.concurrent.execution.defaultContext
 import play.api._
 import play.api.mvc._
+import forms.UserForm
+import models.sql.OpenIDAssociation
 
 /**
  * Default object instantiation
@@ -16,7 +15,7 @@ object OpenIDLoginHandler extends OpenIDLoginHandler(play.api.Play.current)
 /**
  * OpenID login handler implementation.
  */
-class OpenIDLoginHandler(app: play.api.Application) extends LoginHandler {
+class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
 
   import forms.UserForm
 
