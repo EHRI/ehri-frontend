@@ -1,6 +1,6 @@
 package mocks
 
-import controllers.LoginHandler
+import controllers.base.LoginHandler
 import play.api.Play.current
 import play.api.mvc.Action
 
