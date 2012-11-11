@@ -16,6 +16,8 @@
 		}
 	}
 	
+	@common.visibility(item)
+	
 	@maybeUser.map { user =>
 	  @user.permissions.map { pset =>
 	  	<hr />

@@ -1,0 +1,25 @@
+@(item: models.base.AccessibleEntity)
+
+
+<hr />
+@if(!item.accessors.isEmpty) {
+	<h4>@Messages("Visibility Restricted to: ")</h4>
+	<ul>
+		@item.accessors.map { acc =>
+			@acc match {
+
+		    case u: UserProfileRepr => {
+		    	<li><a href="@routes.UserProfiles.get(u.identifier)">@u.name</a></li>
+		    }
+		    case g: GroupRepr => {
+		    	<li><a href="@routes.Groups.get(g.identifier)">@g.name</a></li>
+		    }
+	
+		    case _ => {
+		    }		    
+		}
+	}
+	</ul>
+} else {
+	<h4>@Messages("Visible to: Everyone")</h4>  
+}
