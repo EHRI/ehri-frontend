@@ -37,24 +37,29 @@ trait BaseModel {
         a + (f.getName -> f.get(this))
       } else {
         // Handle relations...
-        val rel = f.getAnnotation(classOf[Relation])
-        if (rel != null) {
-          val relmap = a.getOrElse("relationships", Map[String, Any]()).asInstanceOf[Map[String, Any]]
-          val rellst = f.get(this).asInstanceOf[List[BaseModel]].map(_.toData)
-          a + ("relationships" -> (relmap + (rel.value -> rellst)))
-        } else {
-          val datamap: Map[String, Any] = a.getOrElse("data", Map()).asInstanceOf[Map[String, Any]]
-          val value = f.get(this) match {
-            case None => None
-            case enum: Enumeration#Value => enum.toString
-            case Some(value) => value match {
-              case enum: Enumeration#Value => enum.toString              
+        Option(f.getAnnotation(classOf[Relation])) match {
+          case Some(rel) => {
+            val relmap = a.getOrElse("relationships", Map[String, Any]()).asInstanceOf[Map[String, Any]]
+            val rellst = f.get(this) match {
+              case lst: List[_] => lst.asInstanceOf[List[BaseModel]].map(_.toData)
+              case sng: BaseModel => List(sng).map(_.toData)
+              case _ => Nil
+            }
+            a + ("relationships" -> (relmap + (rel.value -> rellst)))
+          }
+          case None => {
+            val datamap: Map[String, Any] = a.getOrElse("data", Map()).asInstanceOf[Map[String, Any]]
+            val value = f.get(this) match {
+              case None => None
+              case enum: Enumeration#Value => enum.toString
+              case Some(value) => value match {
+                case enum: Enumeration#Value => enum.toString
+                case x => x
+              }
               case x => x
             }
-            case x => x
+            a + ("data" -> (datamap + (f.getName -> value)))
           }
-
-          a + ("data" -> (datamap + (f.getName -> value)))
         }
       }
     }
