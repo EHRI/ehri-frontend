@@ -9,9 +9,10 @@ import defines._
 import play.api.mvc.Call
 import models._
 import models.base.AccessibleEntity
+import models.base.Formable
 
 
-trait CRUD[F <: BaseModel, T <: AccessibleEntity] extends EntityCreate[F,T] with EntityRead[F,T] with EntityUpdate[F,T] with EntityDelete[F,T]
+trait CRUD[F <: BaseModel, T <: AccessibleEntity with Formable[F]] extends EntityCreate[F,T] with EntityRead[F,T] with EntityUpdate[F,T] with EntityDelete[F,T]
 
 
 trait EntityController[F <: BaseModel, T <: AccessibleEntity] extends Controller with AuthController with ControllerHelpers {
@@ -86,7 +87,7 @@ trait EntityCreate[F <: BaseModel, T <: AccessibleEntity] extends EntityRead[F,T
   }
 }
 
-trait EntityUpdate[F <: BaseModel, T <: AccessibleEntity] extends EntityRead[F,T] {
+trait EntityUpdate[F <: BaseModel, T <: AccessibleEntity with Formable[F]] extends EntityRead[F,T] {
   val updateAction: String => Call
   val formView: EntityCreate[F,T]#FormViewType
   val form: Form[F]
@@ -98,7 +99,7 @@ trait EntityUpdate[F <: BaseModel, T <: AccessibleEntity] extends EntityRead[F,T
           itemOrErr.right.map { item =>
             val doc: T = builder(item)
             // TODO: Work out most economic way of filling form from T
-            Ok(formView(Some(doc), form, updateAction(id), maybeUser, request))
+            Ok(formView(Some(doc), form.fill(doc.to), updateAction(id), maybeUser, request))
           }
         }
       }

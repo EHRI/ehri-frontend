@@ -7,17 +7,33 @@ import models.base.Accessor
 import models.base.NamedEntity
 import models.base.Description
 import models.base.DescribedEntity
+import models.base.Formable
 
 case class DocumentaryUnitRepr(val e: Entity) extends NamedEntity 
 		with AccessibleEntity
 		with HierarchicalEntity
-		with DescribedEntity {
+		with DescribedEntity
+		with Formable[DocumentaryUnit] {
   val holder: Option[AgentRepr] = e.relations(DocumentaryUnit.HELD_REL).headOption.map(AgentRepr(_))
   val publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt)
-  override def descriptions: List[DocumentaryUnitDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(DocumentaryUnitDescriptionRepr(_))  
+  override def descriptions: List[DocumentaryUnitDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(DocumentaryUnitDescriptionRepr(_))
+  
+  def to: DocumentaryUnit = new DocumentaryUnit(
+    id = Some(e.id),
+    identifier = identifier,
+    name = name,
+    publicationStatus = publicationStatus,
+    descriptions = descriptions.map(_.to)
+  )
 }
 
-case class DocumentaryUnitDescriptionRepr(val e: Entity) extends AccessibleEntity with Description {
+case class DocumentaryUnitDescriptionRepr(val e: Entity) extends Description with Formable[DocumentaryUnitDescription] {
+  def to = new DocumentaryUnitDescription(
+	id = Some(e.id),
+	languageCode = languageCode,
+	title = e.property("title").flatMap(_.asOpt[String]),
+	scopeAndContent = e.property("scopeAndContent").flatMap(_.asOpt[String])
+  )
 }
 
 object DocumentaryUnit  {
@@ -40,17 +56,6 @@ case class DocumentaryUnit(
   val isA = EntityType.DocumentaryUnit
 
   def withDescription(d: DocumentaryUnitDescription): DocumentaryUnit = copy(descriptions=descriptions++List(d))
-}
-
-object DocumentaryUnitDescription {
-  def apply(e: Entity) = {
-    new DocumentaryUnitDescription(
-      id = Some(e.id),
-      languageCode = e.property("languageCode").map(_.as[String]).getOrElse(""),
-      title = e.property("title").flatMap(_.asOpt[String]),
-      scopeAndContent = e.property("scopeAndContent").flatMap(_.asOpt[String])
-    )
-  }
 }
 
 case class DocumentaryUnitDescription(

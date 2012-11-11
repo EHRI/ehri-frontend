@@ -46,7 +46,7 @@ trait AccessorController[F <: BaseModel, T <: Accessor] extends EntityController
         AsyncRest {
           for {
             itemOrErr <- EntityDAO(entityType, Some(userProfile)).get(id)
-            permsOrErr <- PermissionDAO(userProfile).get(builder(itemOrErr.right.get))
+            permsOrErr <- rest.PermissionDAO(userProfile).get(builder(itemOrErr.right.get))
           } yield {
 
             permsOrErr.right.map { perms =>

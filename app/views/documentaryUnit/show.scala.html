@@ -27,13 +27,15 @@
 		@item.accessors.map { acc =>
 		  @acc match {
 
-		    case u: UserProfile => {
+		    case u: UserProfileRepr => {
 		    	<li><a href="@routes.UserProfiles.get(u.identifier)">@u.name</a></li>
 		    }
-		    case g: Group => {
+		    case g: GroupRepr => {
 		    	<li><a href="@routes.Groups.get(g.identifier)">@g.name</a></li>
 		    }
 
+		    case _ => {
+		    }		    
 		  }
 		}
 	  </ul>

@@ -10,13 +10,30 @@ import models.base.AccessibleEntity
 import models.base.NamedEntity
 import models.base.DescribedEntity
 import models.base.Description
+import models.base.Formable
 
-case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity with DescribedEntity {
-  override def descriptions: List[AgentDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescriptionRepr(_))  
+case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity with DescribedEntity with Formable[Agent] {
+  override def descriptions: List[AgentDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescriptionRepr(_))
+  val publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt)
+  
+  def to: Agent = new Agent(
+    id = Some(e.id),
+    identifier = identifier,
+    name = name,
+    publicationStatus = publicationStatus,
+    descriptions = descriptions.map(_.to)
+  )
 }
 
-case class AgentDescriptionRepr(val e: Entity) extends AccessibleEntity with Description {
-  
+case class AgentDescriptionRepr(val e: Entity) extends Description with Formable[AgentDescription] {
+  def to: AgentDescription = new AgentDescription(
+	id = Some(e.id),
+	languageCode = languageCode,
+	name = e.property("name").flatMap(_.asOpt[String]),
+	otherFormsOfName = e.property("otherFormsOfName").flatMap(_.asOpt[List[String]]).getOrElse(List()),
+	parallelFormsOfName = e.property("parallelFormsOfName").flatMap(_.asOpt[List[String]]).getOrElse(List()),	
+	generalContext = e.property("generalContext").flatMap(_.asOpt[String])      
+  )
 }
 
 
@@ -36,11 +53,6 @@ case class Agent (
   val descriptions: List[AgentDescription] = Nil  
 ) extends BaseModel {
   val isA = EntityType.Agent
-}
-
-
-object AgentDescription {
-
 }
 
 case class AgentDescription(
