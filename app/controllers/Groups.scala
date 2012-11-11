@@ -1,13 +1,16 @@
 package controllers
 
-import models.{AccessibleEntity,Accessor,PermissionSet,Group}
+import models.{PermissionSet, Group,GroupRepr}
+import models.base.Accessor
+import models.base.AccessibleEntity
 import defines._
 import play.api.libs.concurrent.execution.defaultContext
 import rest.{EntityDAO,PermissionDAO}
 import controllers.base.{CRUD,EntityController}
+import models.BaseModel
 
 
-object Groups extends AccessorController[Group] with CRUD[Group] {
+object Groups extends AccessorController[Group,GroupRepr] with CRUD[Group,GroupRepr] {
   val entityType = EntityType.Group
   val listAction = routes.Groups.list _
   val createAction = routes.Groups.createPost
@@ -23,11 +26,11 @@ object Groups extends AccessorController[Group] with CRUD[Group] {
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
   val permView = views.html.permissions.edit.apply _
-  val builder: (AccessibleEntity => Group) = Group.apply _
+  val builder = GroupRepr
 }
 
 
-trait AccessorController[T <: Accessor] extends EntityController[T] {
+trait AccessorController[F <: BaseModel, T <: Accessor] extends EntityController[F,T] {
   
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader
@@ -73,6 +76,5 @@ trait AccessorController[T <: Accessor] extends EntityController[T] {
           }
         }
       }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
-
   }
 }

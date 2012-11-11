@@ -12,6 +12,6 @@ object GroupForm {
     		"id" -> optional(longNumber),
     		"identifier" -> nonEmptyText,
     		"name" -> nonEmptyText
-      )(Group.apply)(Group.unform)
+      )(Group.apply)(Group.unapply)
   ) 
 }

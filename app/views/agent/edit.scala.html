@@ -1,4 +1,4 @@
-@(item: Option[Agent], f: play.api.data.Form[Agent], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: Option[AgentRepr], f: play.api.data.Form[Agent], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

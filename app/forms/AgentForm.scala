@@ -23,6 +23,6 @@ object AgentForm {
     		    "generalContext" -> optional(text)
     		  )(AgentDescription.apply)(AgentDescription.unapply)
     		)
-      )(Agent.apply)(Agent.unform)
+      )(Agent.apply)(Agent.unapply)
   ) 
 }

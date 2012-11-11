@@ -16,6 +16,7 @@ import models.UserProfile
 import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample
 import defines.EntityType
+import models.UserProfileRepr
 
 /**
  * Add your spec here.
@@ -28,7 +29,7 @@ class EntityDAOSpec extends Specification with BeforeExample {
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
-  val userProfile = Some(UserProfile(Some(-1L), "mike", "Mike", Nil))
+  val userProfile = Some(UserProfileRepr(Entity.fromString("mike", EntityType.UserProfile)))
   val entityType = EntityType.UserProfile
 
   val runner: ServerRunner = new ServerRunner(classOf[EntityDAOSpec].getName, testPort)

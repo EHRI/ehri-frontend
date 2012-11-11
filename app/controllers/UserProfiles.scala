@@ -1,13 +1,15 @@
 package controllers
 
-import models.{AccessibleEntity,UserProfile}
+import models.{UserProfile}
+import models.base.AccessibleEntity
 import defines._
 import play.api.libs.concurrent.execution.defaultContext
 import rest.EntityDAO
 import controllers.base.CRUD
+import models.UserProfileRepr
 
 
-object UserProfiles extends AccessorController[UserProfile] with CRUD[UserProfile] {
+object UserProfiles extends AccessorController[UserProfile,UserProfileRepr] with CRUD[UserProfile,UserProfileRepr] {
   val entityType = EntityType.UserProfile
   val listAction = routes.UserProfiles.list _
   val createAction = routes.UserProfiles.createPost
@@ -23,6 +25,6 @@ object UserProfiles extends AccessorController[UserProfile] with CRUD[UserProfil
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
   val permView = views.html.permissions.edit.apply _
-  val builder: (AccessibleEntity => UserProfile) = UserProfile.apply _
+  val builder = UserProfileRepr
 }
 

@@ -21,6 +21,6 @@ object DocumentaryUnitForm {
     		    "scopeAndContent" -> optional(text)
     		  )(DocumentaryUnitDescription.apply)(DocumentaryUnitDescription.unapply)
             )
-      )(DocumentaryUnit.apply)(DocumentaryUnit.unform)
+      )(DocumentaryUnit.apply)(DocumentaryUnit.unapply)
   ) 
 }

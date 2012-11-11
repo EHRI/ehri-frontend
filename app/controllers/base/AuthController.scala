@@ -6,6 +6,11 @@ import jp.t2v.lab.play20.auth.Auth
 import play.api.libs.concurrent.execution.defaultContext
 import models.UserProfile
 import defines.EntityType
+import models.UserProfileRepr
+import models.Entity
+import play.api.libs.json.JsValue
+import play.api.libs.json.JsString
+import models.Entity
 
 /*
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
@@ -24,7 +29,7 @@ trait AuthController extends Controller with Auth with Authorizer {
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
-              val fakeProfile = UserProfile(None, user.profile_id, "", List())
+              val fakeProfile = UserProfileRepr(Entity.fromString(user.profile_id, EntityType.UserProfile))
               val profileRequest = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(user.profile_id)
               val permsRequest = rest.PermissionDAO(fakeProfile).get
               // These requests should execute in parallel...
@@ -37,7 +42,7 @@ trait AuthController extends Controller with Auth with Authorizer {
                 if (r2.isLeft) sys.error("Unable to fetch user permissions: " + r2.left.get)
 
                 // We're okay, so construct the complete profile.
-                val u = user.withProfile(UserProfile(r1.right.get)).withPermissions(r2.right.get)
+                val u = user.withProfile(UserProfileRepr(r1.right.get)).withPermissions(r2.right.get)
                 f(Some(u))(request)
               }
             }

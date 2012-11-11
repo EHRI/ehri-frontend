@@ -1,4 +1,4 @@
-@(items: rest.Page[ManagedEntity], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(items: rest.Page[models.base.AccessibleEntity], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @main("View item")(maybeUser, req) {
 

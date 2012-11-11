@@ -1,6 +1,6 @@
-@(item: ManagedEntity, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: models.base.AccessibleEntity, maybeUser: Option[models.sql.User], req: RequestHeader)
 
-@accView(item: ManagedEntity) = {
+@accView(item: models.base.AccessibleEntity) = {
 	<table>
 		<tr>
 			<th>Item:</th>
@@ -13,9 +13,9 @@
 	</table>    
 }
 
-@itemView(item: ManagedEntity) = {
+@itemView(item: models.base.AccessibleEntity) = {
 	<table>
-		@item.toData.map { case (k, v) =>
+		@item.e.data.map { case (k, v) =>
 			<tr>
 				<td>@k</td>
 				<td>@v</td>

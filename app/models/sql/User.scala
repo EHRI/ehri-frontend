@@ -3,14 +3,15 @@ package models.sql
 import play.api.Plugin
 import models.UserProfile
 import models.PermissionSet
+import models.UserProfileRepr
 
 trait User {
 	def email: String
-	def permissions: Option[PermissionSet[UserProfile]]
+	def permissions: Option[PermissionSet[UserProfileRepr]]
 	def profile_id: String
-	def profile: Option[models.UserProfile]	
-	def withProfile(p: UserProfile): User
-	def withPermissions(p: PermissionSet[UserProfile]): User
+	def profile: Option[models.UserProfileRepr]	
+	def withProfile(p: UserProfileRepr): User
+	def withPermissions(p: PermissionSet[UserProfileRepr]): User
 }
 
 trait UserDAO extends Plugin {

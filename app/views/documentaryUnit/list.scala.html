@@ -1,4 +1,4 @@
-@(page: rest.Page[DocumentaryUnit], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(page: rest.Page[DocumentaryUnitRepr], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @main("View item")(maybeUser, req) {
 
@@ -31,7 +31,7 @@
 				}
 			</h4>
 			@item.descriptions.headOption.map { desc =>
-			  @desc.scopeAndContent.map { sc =>
+			  @desc.e.property("scopeAndContent").flatMap(_.asOpt[String]).map { sc =>
 			    <p>@sc</p>
 			  }
 			  

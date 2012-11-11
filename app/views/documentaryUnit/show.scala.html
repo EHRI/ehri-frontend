@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: DocumentaryUnitRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @import defines._
 
@@ -16,7 +16,7 @@
 		  <h5>Language: @desc.languageCode</h5>
 		  
 		  <h5>Scope and content</h5>
-		  <p>@desc.scopeAndContent</p>
+		  <p>@desc.e.stringProperty("scopeAndContent")</p>
 		}
 	}
 

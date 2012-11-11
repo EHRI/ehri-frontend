@@ -1,8 +1,8 @@
 package models
 
 import play.api.libs.json._
-
 import defines._
+import models.base.Accessor
 
 object PermissionSet {
 

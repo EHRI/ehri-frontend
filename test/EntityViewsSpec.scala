@@ -18,6 +18,9 @@ import play.api.test.Helpers.status
 import play.api.test.FakeHeaders
 import play.api.mvc.AnyContentAsFormUrlEncoded
 import play.api.http.HeaderNames
+import models.UserProfileRepr
+import models.Entity
+import models.base.Accessor
 
 /**
  * Add your spec here.
@@ -34,7 +37,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
   val testPrivilegedUser = "mike"
   val testOrdinaryUser = "reto"
-  val userProfile = UserProfile(id = Some(-1L), identifier = "mike", name = "Mike", groups = List(Group(Some(-2L), "admin", "Admin")))
+  val userProfile = UserProfileRepr(Entity.fromString("mike", EntityType.UserProfile)
+		  .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
@@ -280,7 +284,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     import controllers.routes.UserProfiles
     import rest.PermissionDAO
     
-    val subjectUser = UserProfile(Some(-1), "reto", "", Nil)
+    val subjectUser = UserProfileRepr(Entity.fromString("reto", EntityType.UserProfile))
 
     "reliably set permissions" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
@@ -295,7 +299,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(cr) must equalTo(SEE_OTHER)
         
         // Now check we can read back the same permissions.
-        val permCall = await(PermissionDAO[UserProfile](userProfile).get(subjectUser))
+        val permCall = await(PermissionDAO[UserProfileRepr](userProfile).get(subjectUser))
         permCall must beRight
         val perms = permCall.right.get
         perms.get(ContentType.Agent, PermissionType.Create) must beSome

@@ -1,7 +1,7 @@
 package rest
 
-import models.{ EntityReader, Entity, AccessibleEntity }
-
+import models.{ EntityReader, Entity }
+import models.base.AccessibleEntity
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.{ WS, Response }

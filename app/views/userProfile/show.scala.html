@@ -1,4 +1,4 @@
-@(item: UserProfile, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: UserProfileRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @import defines._
 
@@ -6,9 +6,9 @@
 	
 	<h3>User: @item.name (@item.identifier)</h3>
 	
-	@common.descriptionValue(Some(item.location.getOrElse("No location information given")), "Location")
-	@common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), "Languages")
-	@common.descriptionValue(Some(item.about.getOrElse("No biographical information given")), "About")
+	@common.descriptionValue(Some(item.e.property("location").flatMap(_.asOpt[String]).getOrElse("No location information given")), "Location")
+	@* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), "Languages") *@
+	@* @common.descriptionValue(Some(item.about.getOrElse("No biographical information given")), "About") *@
 	
 	<hr />
 	@if(item.groups.isEmpty) {

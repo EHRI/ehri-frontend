@@ -1,37 +1,30 @@
 package models
 
 import defines._
+import models.base.HierarchicalEntity
+import models.base.AccessibleEntity
+import models.base.Accessor
+import models.base.NamedEntity
+import models.base.Description
+import models.base.DescribedEntity
 
-object DocumentaryUnit extends ManagedEntityBuilder[DocumentaryUnit] {
+case class DocumentaryUnitRepr(val e: Entity) extends NamedEntity 
+		with AccessibleEntity
+		with HierarchicalEntity
+		with DescribedEntity {
+  val holder: Option[AgentRepr] = e.relations(DocumentaryUnit.HELD_REL).headOption.map(AgentRepr(_))
+  val publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt)
+  override def descriptions: List[DocumentaryUnitDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(DocumentaryUnitDescriptionRepr(_))  
+}
+
+case class DocumentaryUnitDescriptionRepr(val e: Entity) extends AccessibleEntity with Description {
+}
+
+object DocumentaryUnit  {
   
   final val DESC_REL = "describes"
   final val ACCESS_REL = "access"
   final val HELD_REL = "holds"
-  
-  def apply(e: AccessibleEntity) = {
-    new DocumentaryUnit(
-      id = Some(e.id),
-      identifier = e.identifier,
-      name = e.property("name").flatMap(_.asOpt[String]).getOrElse(""), // FIXME: Is this a good idea?
-      publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt),
-      descriptions = e.relations(DESC_REL).map(DocumentaryUnitDescription.apply(_)),
-      holder = e.relations(HELD_REL).headOption.map(e => Agent.apply(new AccessibleEntity(e))),
-      accessors = e.relations(ACCESS_REL).flatMap { e =>
-        e.property("isA").flatMap(_.asOpt[String]).map { s => s match {
-          case s: String if s == EntityType.UserProfile.toString => List(UserProfile.apply(new AccessibleEntity(e)))
-          case s: String if s == EntityType.Group.toString => List(Group.apply(new AccessibleEntity(e)))
-          case _ => Nil
-        }}        
-      }.flatten
-    )
-  }
-  
-  def apply(id: Option[Long], identifier: String, name: String, publicationStatus: Option[PublicationStatus.Value],
-		  	descriptions: List[DocumentaryUnitDescription])
-  		= new DocumentaryUnit(id, identifier, name, publicationStatus, descriptions, None, Nil)
-
-  // Special form unapply method
-  def unform(d: DocumentaryUnit) = Some((d.id, d.identifier, d.name, d.publicationStatus, d.descriptions))
   
 }
 
@@ -42,18 +35,11 @@ case class DocumentaryUnit(
   val publicationStatus: Option[PublicationStatus.Value] = None,
   
   @Annotations.Relation(DocumentaryUnit.DESC_REL)
-  val descriptions: List[DocumentaryUnitDescription] = Nil,
-  @Annotations.Relation(DocumentaryUnit.HELD_REL)
-  val holder: Option[Agent] = None,
-  @Annotations.Relation(DocumentaryUnit.ACCESS_REL)
-  val accessors: List[Accessor] = Nil
-) extends ManagedEntity {
+  val descriptions: List[DocumentaryUnitDescription] = Nil
+) extends BaseModel {
   val isA = EntityType.DocumentaryUnit
 
   def withDescription(d: DocumentaryUnitDescription): DocumentaryUnit = copy(descriptions=descriptions++List(d))
-  
-  def this(identifier: String, name: String, publicationStatus: Option[PublicationStatus.Value]) = 
-    this(None, identifier, name, publicationStatus, Nil)
 }
 
 object DocumentaryUnitDescription {

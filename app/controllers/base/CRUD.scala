@@ -8,17 +8,18 @@ import play.api.mvc.RequestHeader
 import defines._
 import play.api.mvc.Call
 import models._
+import models.base.AccessibleEntity
 
 
-trait CRUD[T <: ManagedEntity] extends EntityCreate[T] with EntityRead[T] with EntityUpdate[T] with EntityDelete[T]
+trait CRUD[F <: BaseModel, T <: AccessibleEntity] extends EntityCreate[F,T] with EntityRead[F,T] with EntityUpdate[F,T] with EntityDelete[F,T]
 
 
-trait EntityController[T <: ManagedEntity] extends Controller with AuthController with ControllerHelpers {
+trait EntityController[F <: BaseModel, T <: AccessibleEntity] extends Controller with AuthController with ControllerHelpers {
   val entityType: EntityType.Value
-  def builder: AccessibleEntity => T
+  def builder: Entity => T
 }
 
-trait EntityRead[T <: ManagedEntity] extends EntityController[T] {
+trait EntityRead[F <: BaseModel, T <: AccessibleEntity] extends EntityController[F,T] {
 
   type ShowViewType = (T, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   type ListViewType = (rest.Page[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
@@ -58,11 +59,11 @@ trait EntityRead[T <: ManagedEntity] extends EntityController[T] {
   }
 }
 
-trait EntityCreate[T <: ManagedEntity] extends EntityRead[T] {
-  type FormViewType = (Option[T], Form[T], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+trait EntityCreate[F <: BaseModel, T <: AccessibleEntity] extends EntityRead[F,T] {
+  type FormViewType = (Option[T], Form[F], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val createAction: Call
   val formView: FormViewType
-  val form: Form[T]
+  val form: Form[F]
 
   def create = userProfileAction { implicit maybeUser =>
     implicit request =>
@@ -77,7 +78,7 @@ trait EntityCreate[T <: ManagedEntity] extends EntityRead[T] {
           AsyncRest {
             EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .create(doc.toData).map { itemOrErr =>
-                itemOrErr.right.map { item => Redirect(showAction(item.identifier)) }
+                itemOrErr.right.map { item => Redirect(showAction(builder(item).identifier)) }
               }
           }
         }
@@ -85,10 +86,10 @@ trait EntityCreate[T <: ManagedEntity] extends EntityRead[T] {
   }
 }
 
-trait EntityUpdate[T <: ManagedEntity] extends EntityRead[T] {
+trait EntityUpdate[F <: BaseModel, T <: AccessibleEntity] extends EntityRead[F,T] {
   val updateAction: String => Call
-  val formView: EntityCreate[T]#FormViewType
-  val form: Form[T]
+  val formView: EntityCreate[F,T]#FormViewType
+  val form: Form[F]
 
   def update(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
@@ -96,7 +97,8 @@ trait EntityUpdate[T <: ManagedEntity] extends EntityRead[T] {
         EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
           itemOrErr.right.map { item =>
             val doc: T = builder(item)
-            Ok(formView(Some(doc), form.fill(doc), updateAction(id), maybeUser, request))
+            // TODO: Work out most economic way of filling form from T
+            Ok(formView(Some(doc), form, updateAction(id), maybeUser, request))
           }
         }
       }
@@ -120,7 +122,7 @@ trait EntityUpdate[T <: ManagedEntity] extends EntityRead[T] {
             EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .update(id, doc.toData).map { itemOrErr =>
                 itemOrErr.right.map { item =>
-                  Redirect(showAction(item.identifier))
+                  Redirect(showAction(builder(item).identifier))
                 }
               }
           }
@@ -129,7 +131,7 @@ trait EntityUpdate[T <: ManagedEntity] extends EntityRead[T] {
   }
 }
 
-trait EntityDelete[T <: ManagedEntity] extends EntityRead[T] {
+trait EntityDelete[F <: BaseModel, T <: AccessibleEntity] extends EntityRead[F,T] {
 
   type DeleteViewType = (T, Call, Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val deleteAction: String => Call

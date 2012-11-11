@@ -4,13 +4,14 @@ import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.WS
 import play.api.libs.json.{ JsArray, JsValue }
-import models.AccessibleEntity
+import models.base.AccessibleEntity
 import models.EntityReader
 import models.UserProfile
 import play.api.http.Status.OK
 import defines.EntityType
-
 import models.Entity
+import models.Entity
+import models.UserProfileRepr
 
 case class Page[+T](val total: Long, val offset: Int, val limit: Int, val list: Seq[T]) {
   def numPages = (total / limit) + (total % limit).min(1)
@@ -32,15 +33,15 @@ object PageReads {
   )(Page[T] _)
 }
 
-case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
+case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[UserProfileRepr] = None) extends RestDAO {
 
   import play.api.http.Status._
   import com.codahale.jerkson.Json.generate
 
-  def jsonToEntity(js: JsValue): AccessibleEntity = {
+  def jsonToEntity(js: JsValue): Entity = {
     EntityReader.entityReads.reads(js).fold(
       valid = { item =>
-        new AccessibleEntity(item.id, item.data, item.relationships)
+        new Entity(item.id, item.data, item.relationships)
       },
       invalid = { errors =>
         throw new RuntimeException("Error getting item: " + errors)
@@ -58,19 +59,19 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     case None => headers.toSeq
   }
 
-  def get(id: Long): Future[Either[RestError, AccessibleEntity]] = {
+  def get(id: Long): Future[Either[RestError, Entity]] = {
     WS.url(requestUrl + "/" + id.toString).withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def get(id: String): Future[Either[RestError, AccessibleEntity]] = {
+  def get(id: String): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def get(key: String, value: String): Future[Either[RestError, AccessibleEntity]] = {
+  def get(key: String, value: String): Future[Either[RestError, Entity]] = {
     WS.url(requestUrl).withHeaders(authHeaders: _*)
       .withQueryString("key" -> key, "value" -> value)
       .get.map { response =>
@@ -78,14 +79,14 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
       }
   }
 
-  def create(data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
+  def create(data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(requestUrl).withHeaders(authHeaders: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }
 
-  def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
+  def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     val requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType, id, givenType)
     WS.url(requestUrl).withHeaders(authHeaders: _*)
       .post(generate(data)).map { response =>
@@ -93,14 +94,14 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
       }
   }
 
-  def update(id: Long, data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
+  def update(id: Long, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(requestUrl).withHeaders(authHeaders: _*)
       .put(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }
 
-  def update(id: String, data: Map[String, Any]): Future[Either[RestError, AccessibleEntity]] = {
+  def update(id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders: _*)
       .put(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
@@ -121,7 +122,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     }
   }
 
-  def list(offset: Int, limit: Int): Future[Either[RestError, Seq[AccessibleEntity]]] = {
+  def list(offset: Int, limit: Int): Future[Either[RestError, Seq[Entity]]] = {
     WS.url(requestUrl + "/list?offset=%d&limit=%d".format(offset, limit)).withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json match {
@@ -132,13 +133,13 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     }
   }
 
-  def page(page: Int, limit: Int): Future[Either[RestError, Page[AccessibleEntity]]] = {
+  def page(page: Int, limit: Int): Future[Either[RestError, Page[Entity]]] = {
     implicit val entityPageReads = PageReads.pageReads(models.EntityReader.entityReads)
     WS.url(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)).withHeaders(authHeaders: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
           valid = { page => 
-            Page(page.total, page.offset, page.limit, page.list.map(e => new AccessibleEntity(e)))            
+            Page(page.total, page.offset, page.limit, page.list)          
           },
           invalid = { e =>
             sys.error("Unable to decode paginated list result: " + e.toString)

@@ -12,8 +12,8 @@ import java.util.Date
 // -- Users
 
 case class OpenIDUser(id: Long, email: String, profile_id: String, 
-    profile: Option[models.UserProfile] = None,
-    permissions: Option[models.PermissionSet[models.UserProfile]] = None) extends User {
+    profile: Option[models.UserProfileRepr] = None,
+    permissions: Option[models.PermissionSet[models.UserProfileRepr]] = None) extends User {
 
   lazy val associations: Seq[OpenIDAssociation] = DB.withConnection { implicit connection =>
     SQL(
@@ -35,8 +35,8 @@ case class OpenIDUser(id: Long, email: String, profile_id: String,
     this
   }
 
-  def withProfile(p: models.UserProfile) = copy(profile = Some(p))
-  def withPermissions(p: models.PermissionSet[models.UserProfile]) = copy(permissions = Some(p))
+  def withProfile(p: models.UserProfileRepr) = copy(profile = Some(p))
+  def withPermissions(p: models.PermissionSet[models.UserProfileRepr]) = copy(permissions = Some(p))
 
   def isStaff = false // STUB
 }

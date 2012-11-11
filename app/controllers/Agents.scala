@@ -1,13 +1,16 @@
 package controllers
 
-import models.{AccessibleEntity,Agent}
+import models.base.AccessibleEntity
 import defines._
 import play.api.libs.concurrent.execution.defaultContext
 import rest.EntityDAO
 import controllers.base.CRUD
+import models.Entity
+import models.AgentRepr
+import models.Agent
 
 
-object Agents extends DocumentaryUnitContext[Agent] with CRUD[Agent] {
+object Agents extends DocumentaryUnitContext[Agent,AgentRepr] with CRUD[Agent,AgentRepr] {
   val entityType = EntityType.Agent
   val listAction = routes.Agents.list _
   val createAction = routes.Agents.createPost
@@ -25,5 +28,5 @@ object Agents extends DocumentaryUnitContext[Agent] with CRUD[Agent] {
   val docFormView = views.html.documentaryUnit.create.apply _
   val listView = views.html.list.apply _
   val deleteView = views.html.delete.apply _
-  val builder: (AccessibleEntity => Agent) = Agent.apply _
+  val builder = AgentRepr
 }

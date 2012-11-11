@@ -15,6 +15,6 @@ object UserProfileForm {
     		"location" -> optional(text),
     		"about" -> optional(text),
     		"languages" -> list(text)
-      )(UserProfile.apply)(UserProfile.unform)
+      )(UserProfile.apply)(UserProfile.unapply)
   ) 
 }

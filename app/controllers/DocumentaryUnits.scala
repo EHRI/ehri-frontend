@@ -1,6 +1,7 @@
 package controllers
 
-import models.{AccessibleEntity,ManagedEntity,DocumentaryUnit}
+import models.{DocumentaryUnit,DocumentaryUnitRepr}
+import models.base.AccessibleEntity
 import defines._
 import play.api.libs.concurrent.execution.defaultContext
 import rest.EntityDAO
@@ -8,13 +9,15 @@ import controllers.base.EntityUpdate
 import controllers.base.EntityRead
 import controllers.base.EntityDelete
 import controllers.base.EntityController
-
 import play.api.data.Form
+import models.DocumentaryUnitRepr
+import models.Entity
+import models.BaseModel
 
-object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit]
-			with EntityRead[DocumentaryUnit]
-			with EntityUpdate[DocumentaryUnit]
-			with EntityDelete[DocumentaryUnit] {
+object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit,DocumentaryUnitRepr]
+			with EntityRead[DocumentaryUnit,DocumentaryUnitRepr]
+			with EntityUpdate[DocumentaryUnit,DocumentaryUnitRepr]
+			with EntityDelete[DocumentaryUnit,DocumentaryUnitRepr] {
   
   val entityType = EntityType.DocumentaryUnit
   val listAction = routes.DocumentaryUnits.list _
@@ -31,9 +34,9 @@ object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit]
   val listView = views.html.documentaryUnit.list.apply _
   val docFormView = views.html.documentaryUnit.create.apply _
   val deleteView = views.html.delete.apply _
-  val builder: (AccessibleEntity => DocumentaryUnit) = DocumentaryUnit.apply _
+  val builder = DocumentaryUnitRepr
 
-  def publishPost(id: String) = userProfileAction { implicit maybeUser =>
+/*  def publishPost(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
         EntityDAO(entityType, maybeUser.flatMap(_.profile))
@@ -51,7 +54,7 @@ object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit]
             }
           }
       }
-  }
+  }*/
 }
 
 
@@ -60,7 +63,7 @@ object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit]
  * context for the creation of DocumentaryUnits, i.e. Agent and
  * DocumentaryUnit itself.
  */
-trait DocumentaryUnitContext[T <: ManagedEntity] extends EntityController[T] {
+trait DocumentaryUnitContext[F <: BaseModel, T <: AccessibleEntity] extends EntityController[F,T] {
   
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader
@@ -97,7 +100,7 @@ trait DocumentaryUnitContext[T <: ManagedEntity] extends EntityController[T] {
             EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .createInContext(EntityType.DocumentaryUnit, id, doc.toData).map { itemOrErr =>
                 itemOrErr.right.map { item =>
-                  Redirect(docShowAction(item.identifier))
+                  Redirect(docShowAction(builder(item).identifier))
                 }
               }
           }

@@ -6,30 +6,24 @@ import play.api.libs.ws.WS
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import defines._
+import models.base.AccessibleEntity
+import models.base.NamedEntity
+import models.base.DescribedEntity
+import models.base.Description
+
+case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity with DescribedEntity {
+  override def descriptions: List[AgentDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescriptionRepr(_))  
+}
+
+case class AgentDescriptionRepr(val e: Entity) extends AccessibleEntity with Description {
+  
+}
 
 
-object Agent extends ManagedEntityBuilder[Agent] {
+object Agent {
 
   final val DESC_REL = "describes"
-  final val ADDRESS_REL = "hasAddress"  
-  
-  def apply(e: AccessibleEntity) = {
-    new Agent(
-      id = Some(e.id),
-      identifier = e.identifier,
-      name = e.property("name").flatMap(_.asOpt[String]).getOrElse(""),      
-      publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt),
-      descriptions = e.relations(DESC_REL).map(AgentDescription.apply(_))
-    )
-  }
-
-  // This will be required for basic form construction
-  //def apply(id: Option[Long], identifier: String, name: String, publicationStatus: Option[PublicationStatus.Value],
-  //		  	descriptions: List[DocumentaryUnitDescription])
-  //		= new Agent(id, identifier, name, publicationStatus)
-
-  // Special form unapply method
-  def unform(g: Agent) = Some((g.id, g.identifier, g.name, g.publicationStatus, g.descriptions))  
+  final val ADDRESS_REL = "hasAddress"
 }
 
 
@@ -38,29 +32,15 @@ case class Agent (
   val identifier: String,
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
-  
   @Annotations.Relation(Agent.DESC_REL)
-  val descriptions: List[AgentDescription] = Nil
-  
-  //@Annotations.Relation(Agent.ADDRESS_REL)
-  //val addresses: List[Address] = Nil
-  
-) extends ManagedEntity {
+  val descriptions: List[AgentDescription] = Nil  
+) extends BaseModel {
   val isA = EntityType.Agent
 }
 
 
 object AgentDescription {
-  def apply(e: Entity) = {
-    new AgentDescription(
-      id = Some(e.id),
-      languageCode = e.property("languageCode").map(_.as[String]).getOrElse(""),
-      name = e.property("name").flatMap(_.asOpt[String]),
-      otherFormsOfName = e.property("otherFormsOfName").flatMap(_.asOpt[List[String]]).getOrElse(List()),
-      parallelFormsOfName = e.property("parallelFormsOfName").flatMap(_.asOpt[List[String]]).getOrElse(List()),
-      generalContext = e.property("generalContext").flatMap(_.asOpt[String])
-    )
-  }
+
 }
 
 case class AgentDescription(
@@ -70,8 +50,7 @@ case class AgentDescription(
   val otherFormsOfName: List[String] = Nil,
   val parallelFormsOfName: List[String] = Nil,  
   val generalContext: Option[String] = None
-)  extends BaseModel {
+) extends BaseModel {
   val isA = EntityType.AgentDescription
-  
 }
 

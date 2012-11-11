@@ -1,4 +1,4 @@
-@(item: ManagedEntity, action: Call, cancel: Call, maybeUser: Option[models.sql.User], request: RequestHeader)
+@(item: models.base.AccessibleEntity, action: Call, cancel: Call, maybeUser: Option[models.sql.User], request: RequestHeader)
 
 @main("Delete item")(maybeUser, request) {
 

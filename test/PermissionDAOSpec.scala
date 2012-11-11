@@ -19,6 +19,8 @@ import helpers.TestLoginHelper
 import models.Group
 import defines._
 import defines.PermissionType
+import models.UserProfileRepr
+import models.base.Accessor
 
 /**
  * Add your spec here.
@@ -31,7 +33,8 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
-  val userProfile = UserProfile(id=Some(-1L), identifier="mike", name="Mike", groups=List(Group(Some(-2L), "admin", "Admin")))
+  val userProfile = UserProfileRepr(Entity.fromString("mike", EntityType.UserProfile)
+      .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
   val entityType = EntityType.UserProfile
 
   val runner: ServerRunner = new ServerRunner(classOf[PermissionDAOSpec].getName, testPort)
@@ -49,7 +52,7 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val perms = await(PermissionDAO[UserProfile](userProfile).get)
+        val perms = await(PermissionDAO[UserProfileRepr](userProfile).get)
         perms must beRight
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
       }
@@ -57,7 +60,7 @@ class PermissionDAOSpec extends Specification with BeforeExample with TestLoginH
     
     "be able to set a user's permissions" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val user = UserProfile(Some(-2L), "reto", "Reto", Nil)
+        val user = UserProfileRepr(Entity.fromString("reto", EntityType.UserProfile))
         val data = Map("agent" -> List("create", "update", "delete"), "documentaryUnit" -> List("create", "update","delete"))
         val perms = await(PermissionDAO(userProfile).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
