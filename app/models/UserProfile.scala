@@ -10,6 +10,7 @@ import defines.EntityType
 object UserProfile extends ManagedEntityBuilder[UserProfile] {
   
   final val BELONGS_REL = "belongsTo"
+  final val PLACEHOLDER_TITLE = "[No Title Found]"
   
   /**
    * Deserialization constructor.
@@ -18,7 +19,7 @@ object UserProfile extends ManagedEntityBuilder[UserProfile] {
     new UserProfile(
       id = Some(e.id),
       identifier = e.identifier,
-      name = e.property("name").flatMap(_.asOpt[String]).getOrElse(""), // FIXME: Is this a good idea?
+      name = e.property("name").flatMap(_.asOpt[String]).getOrElse(PLACEHOLDER_TITLE), // FIXME: Is this a good idea?
       location = e.property("location").flatMap(_.asOpt[String]),
       about = e.property("about").flatMap(_.asOpt[String]),
       languages = e.property("languages").flatMap(_.asOpt[List[String]]).getOrElse(List()),

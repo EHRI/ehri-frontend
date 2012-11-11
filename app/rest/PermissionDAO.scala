@@ -40,5 +40,5 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
     	.withHeaders(headers.toSeq: _*).post(Json.generate(data)).map { response =>
         checkError(response).right.map(r => PermissionSet[T](user, r.json))
       }
-  }  
+  }
 }
