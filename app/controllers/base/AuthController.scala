@@ -26,11 +26,19 @@ trait AuthController extends Controller with Auth with Authorizer {
       implicit request =>
         userOption match {
           case Some(user) => {
+
+            // FIXME: This is a DELIBERATE BACKDOOR
+            val currentUser = request.getQueryString("asUser").map { name =>
+              println("CURRENT USER: " + name)
+              println("WARNING: Running with user override backdoor for testing on: ?as=name")
+              name
+            }.getOrElse(user.profile_id)
+
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
-              val fakeProfile = UserProfileRepr(Entity.fromString(user.profile_id, EntityType.UserProfile))
-              val profileRequest = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(user.profile_id)
+              val fakeProfile = UserProfileRepr(Entity.fromString(currentUser, EntityType.UserProfile))
+              val profileRequest = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
               val permsRequest = rest.PermissionDAO(fakeProfile).get
               // These requests should execute in parallel...
               for {
