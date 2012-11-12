@@ -18,7 +18,6 @@ import org.specs2.specification.BeforeExample
 import defines.{EntityType,ContentType,PermissionType}
 import models.UserProfileRepr
 import models.DocumentaryUnitRepr
-import eu.ehri.project.models.DocumentaryUnit
 import models.DocumentaryUnitRepr
 import models.DocumentaryUnitRepr
 
