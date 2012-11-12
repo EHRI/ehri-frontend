@@ -80,22 +80,21 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def create(data: Map[String, Any]): Future[Either[RestError, Entity]] = {
-    WS.url(requestUrl).withHeaders(authHeaders: _*)
+    WS.url(enc(requestUrl)).withHeaders(authHeaders: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }
 
   def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
-    val requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType, id, givenType)
-    WS.url(requestUrl).withHeaders(authHeaders: _*)
+    WS.url(enc("%s/%s/%s".format(requestUrl, id, givenType))).withHeaders(authHeaders: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }
 
   def update(id: Long, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
-    WS.url(requestUrl).withHeaders(authHeaders: _*)
+    WS.url(enc(requestUrl)).withHeaders(authHeaders: _*)
       .put(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }

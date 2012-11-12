@@ -15,6 +15,7 @@ case class DocumentaryUnitRepr(val e: Entity) extends NamedEntity
 		with DescribedEntity
 		with Formable[DocumentaryUnit] {
   val holder: Option[AgentRepr] = e.relations(DocumentaryUnit.HELD_REL).headOption.map(AgentRepr(_))
+  val parent: Option[DocumentaryUnitRepr] = e.relations(DocumentaryUnit.CHILD_REL).headOption.map(DocumentaryUnitRepr(_))
   val publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt)
   override def descriptions: List[DocumentaryUnitDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(DocumentaryUnitDescriptionRepr(_))
   
@@ -41,6 +42,7 @@ object DocumentaryUnit  {
   final val DESC_REL = "describes"
   final val ACCESS_REL = "access"
   final val HELD_REL = "holds"
+  final val CHILD_REL = "childOf"
   
 }
 
