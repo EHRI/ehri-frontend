@@ -12,15 +12,15 @@ import models.base.AccessibleEntity
 import models.base.Formable
 
 
-trait CRUD[F <: BaseModel, T <: AccessibleEntity with Formable[F]] extends EntityCreate[F,T] with EntityRead[F,T] with EntityUpdate[F,T] with EntityDelete[F,T]
+trait CRUD[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityCreate[F,T] with EntityRead[F,T] with EntityUpdate[F,T] with EntityDelete[F,T]
 
 
-trait EntityController[F <: BaseModel, T <: AccessibleEntity] extends Controller with AuthController with ControllerHelpers {
+trait EntityController[F <: Persistable, T <: AccessibleEntity] extends Controller with AuthController with ControllerHelpers {
   val entityType: EntityType.Value
   def builder: Entity => T
 }
 
-trait EntityRead[F <: BaseModel, T <: AccessibleEntity] extends EntityController[F,T] {
+trait EntityRead[F <: Persistable, T <: AccessibleEntity] extends EntityController[F,T] {
 
   type ShowViewType = (T, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   type ListViewType = (rest.Page[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
@@ -60,7 +60,7 @@ trait EntityRead[F <: BaseModel, T <: AccessibleEntity] extends EntityController
   }
 }
 
-trait EntityCreate[F <: BaseModel, T <: AccessibleEntity] extends EntityRead[F,T] {
+trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[F,T] {
   type FormViewType = (Option[T], Form[F], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val createAction: Call
   val formView: FormViewType
@@ -87,7 +87,7 @@ trait EntityCreate[F <: BaseModel, T <: AccessibleEntity] extends EntityRead[F,T
   }
 }
 
-trait EntityUpdate[F <: BaseModel, T <: AccessibleEntity with Formable[F]] extends EntityRead[F,T] {
+trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[F,T] {
   val updateAction: String => Call
   val formView: EntityCreate[F,T]#FormViewType
   val form: Form[F]
@@ -132,7 +132,7 @@ trait EntityUpdate[F <: BaseModel, T <: AccessibleEntity with Formable[F]] exten
   }
 }
 
-trait EntityDelete[F <: BaseModel, T <: AccessibleEntity] extends EntityRead[F,T] {
+trait EntityDelete[F <: Persistable, T <: AccessibleEntity] extends EntityRead[F,T] {
 
   type DeleteViewType = (T, Call, Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val deleteAction: String => Call

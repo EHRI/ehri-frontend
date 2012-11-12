@@ -52,7 +52,7 @@ case class DocumentaryUnit(
   
   @Annotations.Relation(DocumentaryUnit.DESC_REL)
   val descriptions: List[DocumentaryUnitDescription] = Nil
-) extends BaseModel {
+) extends Persistable {
   val isA = EntityType.DocumentaryUnit
 
   def withDescription(d: DocumentaryUnitDescription): DocumentaryUnit = copy(descriptions=descriptions++List(d))
@@ -63,7 +63,7 @@ case class DocumentaryUnitDescription(
   val languageCode: String,
   val title: Option[String] = None,
   val scopeAndContent: Option[String] = None
-)  extends BaseModel {
+)  extends Persistable {
   val isA = EntityType.DocumentaryUnitDescription
   
 }

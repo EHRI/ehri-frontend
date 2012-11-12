@@ -38,6 +38,6 @@ case class UserProfile (
   val location: Option[String],
   val about: Option[String],
   val languages: List[String] = Nil
-) extends BaseModel {
+) extends Persistable {
   val isA = EntityType.UserProfile
 }

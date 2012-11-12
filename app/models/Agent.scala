@@ -51,7 +51,7 @@ case class Agent (
   val publicationStatus: Option[PublicationStatus.Value] = None,
   @Annotations.Relation(Agent.DESC_REL)
   val descriptions: List[AgentDescription] = Nil  
-) extends BaseModel {
+) extends Persistable {
   val isA = EntityType.Agent
 }
 
@@ -62,7 +62,7 @@ case class AgentDescription(
   val otherFormsOfName: List[String] = Nil,
   val parallelFormsOfName: List[String] = Nil,  
   val generalContext: Option[String] = None
-) extends BaseModel {
+) extends Persistable {
   val isA = EntityType.AgentDescription
 }
 

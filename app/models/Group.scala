@@ -28,6 +28,6 @@ object Group {
 case class Group(
   val id: Option[Long],
   val identifier: String,
-  val name: String) extends BaseModel {
+  val name: String) extends Persistable {
   val isA = EntityType.Group
 }

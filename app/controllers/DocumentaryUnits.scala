@@ -12,7 +12,7 @@ import controllers.base.EntityController
 import play.api.data.Form
 import models.DocumentaryUnitRepr
 import models.Entity
-import models.BaseModel
+import models.Persistable
 
 object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit,DocumentaryUnitRepr]
 			with EntityRead[DocumentaryUnit,DocumentaryUnitRepr]
@@ -63,7 +63,7 @@ object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit,Documenta
  * context for the creation of DocumentaryUnits, i.e. Agent and
  * DocumentaryUnit itself.
  */
-trait DocumentaryUnitContext[F <: BaseModel, T <: AccessibleEntity] extends EntityController[F,T] {
+trait DocumentaryUnitContext[F <: Persistable, T <: AccessibleEntity] extends EntityController[F,T] {
   
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader

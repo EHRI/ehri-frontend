@@ -19,7 +19,11 @@ case class Entity(
   relationships: Map[String, List[Entity]] = Map()) {
 
   def property(name: String) = data.get(name)
-  def stringProperty(name: String) = property(name).flatMap(_.asOpt[String]).getOrElse("")
+  
+  /**
+   * Shortcut for fetching a Option[String] property.
+   */
+  def stringProperty(name: String) = property(name).flatMap(_.asOpt[String])
   def relations(s: String): List[Entity] = relationships.getOrElse(s, List())  
   def withProperty(name: String, value: JsValue) = copy(data=data + (name -> value))
   def withRelation(s: String, r: Entity) = {

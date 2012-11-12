@@ -18,9 +18,10 @@ object Annotations {
 }
 
 /**
- * Base class for Entity-backed models.
+ * Base class for `pure` form-backed models that need to be
+ * persisted on the server.
  */
-trait BaseModel {
+trait Persistable {
   def id: Option[Long]
   def isA: EntityType.Value
 
@@ -41,8 +42,8 @@ trait BaseModel {
           case Some(rel) => {
             val relmap = a.getOrElse("relationships", Map[String, Any]()).asInstanceOf[Map[String, Any]]
             val rellst = f.get(this) match {
-              case lst: List[_] => lst.asInstanceOf[List[BaseModel]].map(_.toData)
-              case sng: BaseModel => List(sng).map(_.toData)
+              case lst: List[_] => lst.asInstanceOf[List[Persistable]].map(_.toData)
+              case sng: Persistable => List(sng).map(_.toData)
               case _ => Nil
             }
             a + ("relationships" -> (relmap + (rel.value -> rellst)))
@@ -63,9 +64,5 @@ trait BaseModel {
         }
       }
     }
-  }
-
-  def toEntity = {
-
   }
 }

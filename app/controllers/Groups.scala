@@ -7,7 +7,7 @@ import defines._
 import play.api.libs.concurrent.execution.defaultContext
 import rest.{EntityDAO,PermissionDAO}
 import controllers.base.{CRUD,EntityController}
-import models.BaseModel
+import models.Persistable
 
 
 object Groups extends AccessorController[Group,GroupRepr] with CRUD[Group,GroupRepr] {
@@ -30,7 +30,7 @@ object Groups extends AccessorController[Group,GroupRepr] with CRUD[Group,GroupR
 }
 
 
-trait AccessorController[F <: BaseModel, T <: Accessor] extends EntityController[F,T] {
+trait AccessorController[F <: Persistable, T <: Accessor] extends EntityController[F,T] {
   
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader
