@@ -17,6 +17,9 @@ import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample
 import defines.{EntityType,ContentType,PermissionType}
 import models.UserProfileRepr
+import models.DocumentaryUnitRepr
+import eu.ehri.project.models.DocumentaryUnit
+import models.DocumentaryUnitRepr
 
 /**
  * Add your spec here.
@@ -143,6 +146,24 @@ class DAOSpec extends Specification with BeforeExample {
       }
     }    
   }  
+  
+  "VisibilityDAO" should {
+    "set visibility correctly" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        
+        // First, fetch an object and assert its accessibility
+        val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
+        DocumentaryUnitRepr(c1a).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike"))
+        
+        val set = await(VisibilityDAO(userProfile).set(DocumentaryUnitRepr(c1a), Map(
+            EntityType.UserProfile.toString -> List("mike", "reto"),
+            EntityType.Group.toString -> List("admin"))))
+        set must beRight
+        val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
+        DocumentaryUnitRepr(c1b).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike", "reto"))    
+      }
+    }
+  }
   
   "CypherDAO" should {
     "get a JsValue for a graph item" in {
