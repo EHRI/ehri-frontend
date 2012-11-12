@@ -32,6 +32,9 @@
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Update).map { p =>
   		  <a href="@routes.DocumentaryUnits.update(item.identifier)">Update</a>&nbsp;
   		}
+  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Update).map { p =>
+  		  <a href="@routes.DocumentaryUnits.visibility(item.identifier)">Set Visibility</a>&nbsp;
+  		}
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Delete).map { p =>
   		  <a href="@routes.DocumentaryUnits.delete(item.identifier)">Delete</a>&nbsp;
   		}	    

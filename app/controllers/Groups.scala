@@ -13,7 +13,9 @@ import models.base.Formable
 import play.api.libs.ws.WS
 import controllers.base.EntityRead
 
-object Groups extends AccessorController[Group, GroupRepr] with CRUD[Group, GroupRepr] {
+object Groups extends AccessorController[Group, GroupRepr] 
+		with VisibilityController[Group,GroupRepr]
+		with CRUD[Group, GroupRepr] {
   val entityType = EntityType.Group
   val listAction = routes.Groups.list _
   val createAction = routes.Groups.createPost
@@ -22,6 +24,11 @@ object Groups extends AccessorController[Group, GroupRepr] with CRUD[Group, Grou
   val deleteAction = routes.Groups.deletePost _
   val permsAction = routes.Groups.permissions _
   val setPermsAction = routes.Groups.permissionsPost _
+  
+  val setVisibilityAction = routes.Groups.visibilityPost _
+  val visibilityAction = routes.Groups.visibility _
+  val visibilityView = views.html.visibility.apply _  
+  
   val form = forms.GroupForm.form
   val showAction = routes.Groups.get _
   val formView = views.html.group.edit.apply _

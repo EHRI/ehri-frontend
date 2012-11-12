@@ -15,6 +15,7 @@ import models.Entity
 import models.Persistable
 
 object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit,DocumentaryUnitRepr]
+			with VisibilityController[DocumentaryUnit,DocumentaryUnitRepr]
 			with EntityRead[DocumentaryUnit,DocumentaryUnitRepr]
 			with EntityUpdate[DocumentaryUnit,DocumentaryUnitRepr]
 			with EntityDelete[DocumentaryUnit,DocumentaryUnitRepr] {
@@ -24,6 +25,11 @@ object DocumentaryUnits extends DocumentaryUnitContext[DocumentaryUnit,Documenta
   val cancelAction = routes.DocumentaryUnits.get _
   val deleteAction = routes.DocumentaryUnits.deletePost _
   val updateAction = routes.DocumentaryUnits.updatePost _
+
+  val setVisibilityAction = routes.DocumentaryUnits.visibilityPost _
+  val visibilityAction = routes.DocumentaryUnits.visibility _
+  val visibilityView = views.html.visibility.apply _    
+  
   val form = forms.DocumentaryUnitForm.form
   val docForm = forms.DocumentaryUnitForm.form
   val showAction = routes.DocumentaryUnits.get _

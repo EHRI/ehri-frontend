@@ -10,7 +10,9 @@ import models.AgentRepr
 import models.Agent
 
 
-object Agents extends DocumentaryUnitContext[Agent,AgentRepr] with CRUD[Agent,AgentRepr] {
+object Agents extends DocumentaryUnitContext[Agent,AgentRepr]
+		with VisibilityController[Agent,AgentRepr]
+		with CRUD[Agent,AgentRepr] {
   val entityType = EntityType.Agent
   val listAction = routes.Agents.list _
   val createAction = routes.Agents.createPost
@@ -19,6 +21,11 @@ object Agents extends DocumentaryUnitContext[Agent,AgentRepr] with CRUD[Agent,Ag
   val deleteAction = routes.Agents.deletePost _
   val docShowAction = routes.DocumentaryUnits.get _
   val docCreateAction = routes.Agents.docCreatePost _
+
+  val setVisibilityAction = routes.Agents.visibilityPost _
+  val visibilityAction = routes.Agents.visibility _
+  val visibilityView = views.html.visibility.apply _    
+  
   val form = forms.AgentForm.form
   val docForm = forms.DocumentaryUnitForm.form
   val showAction = routes.Agents.get _

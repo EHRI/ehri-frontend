@@ -31,6 +31,9 @@
   		@pset.get(ContentType.UserProfile, PermissionType.Update).map { p =>
   		  <a href="@routes.UserProfiles.update(item.identifier)">Update</a>&nbsp;
   		}
+  		@pset.get(ContentType.UserProfile, PermissionType.Update).map { p =>
+  		  <a href="@routes.UserProfiles.visibility(item.identifier)">Set Visibility</a>&nbsp;
+  		}  		
   		@pset.get(ContentType.UserProfile, PermissionType.Grant).map { p =>
   		  <a href="@routes.UserProfiles.permissions(item.identifier)">Grant</a>&nbsp;
   		}	      		

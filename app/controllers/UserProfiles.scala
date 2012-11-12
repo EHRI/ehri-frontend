@@ -9,7 +9,9 @@ import controllers.base.CRUD
 import models.UserProfileRepr
 
 
-object UserProfiles extends AccessorController[UserProfile,UserProfileRepr] with VisibilityController[UserProfile,UserProfileRepr] with CRUD[UserProfile,UserProfileRepr] {
+object UserProfiles extends AccessorController[UserProfile,UserProfileRepr]
+		with VisibilityController[UserProfile,UserProfileRepr]
+		with CRUD[UserProfile,UserProfileRepr] {
   val entityType = EntityType.UserProfile
   val listAction = routes.UserProfiles.list _
   val createAction = routes.UserProfiles.createPost

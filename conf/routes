@@ -34,6 +34,8 @@ GET     /documentaryUnit/update/:id     controllers.DocumentaryUnits.update(id: 
 POST    /documentaryUnit/update/:id     controllers.DocumentaryUnits.updatePost(id: String)
 GET     /documentaryUnit/create/:id     controllers.DocumentaryUnits.docCreate(id: String)
 POST    /documentaryUnit/create/:id     controllers.DocumentaryUnits.docCreatePost(id: String)
+GET     /documentaryUnit/visibility/:id     controllers.DocumentaryUnits.visibility(id: String)
+POST    /documentaryUnit/visibility/:id     controllers.DocumentaryUnits.visibilityPost(id: String)
 
 GET     /userProfile/list           controllers.UserProfiles.list(page: Int ?= 1, limit: Int ?=20)
 GET     /userProfile/show/:id       controllers.UserProfiles.get(id: String)
@@ -60,6 +62,8 @@ GET     /group/update/:id     controllers.Groups.update(id: String)
 POST    /group/update/:id     controllers.Groups.updatePost(id: String)
 GET     /group/permissions/:id     controllers.Groups.permissions(id: String)
 POST    /group/permissions/:id     controllers.Groups.permissionsPost(id: String)
+GET     /group/visibility/:id     controllers.Groups.visibility(id: String)
+POST    /group/visibility/:id     controllers.Groups.visibilityPost(id: String)
 
 GET     /agent/list           controllers.Agents.list(page: Int ?= 1, limit: Int ?=20)
 GET     /agent/show/:id       controllers.Agents.get(id: String)
@@ -72,6 +76,8 @@ GET     /agent/update/:id     controllers.Agents.update(id: String)
 POST    /agent/update/:id     controllers.Agents.updatePost(id: String)
 GET     /agent/create/:id     controllers.Agents.docCreate(id: String)
 POST    /agent/create/:id     controllers.Agents.docCreatePost(id: String)
+GET     /agent/visibility/:id     controllers.Agents.visibility(id: String)
+POST    /agent/visibility/:id     controllers.Agents.visibilityPost(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
