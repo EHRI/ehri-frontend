@@ -140,6 +140,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("Some content")
+        contentAsString(show) must contain("Held by")
       }
     }
 
