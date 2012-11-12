@@ -9,15 +9,21 @@ import controllers.base.CRUD
 import models.UserProfileRepr
 
 
-object UserProfiles extends AccessorController[UserProfile,UserProfileRepr] with CRUD[UserProfile,UserProfileRepr] {
+object UserProfiles extends AccessorController[UserProfile,UserProfileRepr] with VisibilityController[UserProfile,UserProfileRepr] with CRUD[UserProfile,UserProfileRepr] {
   val entityType = EntityType.UserProfile
   val listAction = routes.UserProfiles.list _
   val createAction = routes.UserProfiles.createPost
   val updateAction = routes.UserProfiles.updatePost _
   val cancelAction = routes.UserProfiles.get _
   val deleteAction = routes.UserProfiles.deletePost _
+  
   val permsAction = routes.UserProfiles.permissions _
   val setPermsAction = routes.UserProfiles.permissionsPost _
+  
+  val setVisibilityAction = routes.UserProfiles.visibilityPost _
+  val visibilityAction = routes.UserProfiles.visibility _
+  val visibilityView = views.html.visibility.apply _
+  
   val form = forms.UserProfileForm.form
   val showAction = routes.UserProfiles.get _
   val formView = views.html.userProfile.edit.apply _

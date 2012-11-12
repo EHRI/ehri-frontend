@@ -46,6 +46,8 @@ GET     /userProfile/update/:id     controllers.UserProfiles.update(id: String)
 POST    /userProfile/update/:id     controllers.UserProfiles.updatePost(id: String)
 GET     /userProfile/permissions/:id     controllers.UserProfiles.permissions(id: String)
 POST    /userProfile/permissions/:id     controllers.UserProfiles.permissionsPost(id: String)
+GET     /userProfile/visibility/:id     controllers.UserProfiles.visibility(id: String)
+POST    /userProfile/visibility/:id     controllers.UserProfiles.visibilityPost(id: String)
 
 GET     /group/list           controllers.Groups.list(page: Int ?= 1, limit: Int ?=20)
 GET     /group/show/:id       controllers.Groups.get(id: String)

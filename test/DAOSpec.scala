@@ -151,7 +151,7 @@ class DAOSpec extends Specification with BeforeExample {
         
         //println(await(WS.url("http://localhost:7575/db/data/").get).body)
         
-        val res = await(dao.cypher("START n = node(*) WHERE has(n.identifier) and n.identifier = 'mike' RETURN n"))
+        val res = await(dao.cypher("START n = node:userProfile('identifier:*') RETURN n.identifier, n.name"))
         res.right.map { r =>
           println(r)
         }
