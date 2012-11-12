@@ -20,6 +20,7 @@ import models.UserProfileRepr
 import models.DocumentaryUnitRepr
 import eu.ehri.project.models.DocumentaryUnit
 import models.DocumentaryUnitRepr
+import models.DocumentaryUnitRepr
 
 /**
  * Add your spec here.
@@ -61,6 +62,26 @@ class DAOSpec extends Specification with BeforeExample {
       }
     }
 
+    "create an item in (agent) context" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        val data = Map("id" -> None, "data" -> Map("isA" -> EntityType.DocumentaryUnit.toString, "identifier" -> "foobar", "name" -> "Foobar"))
+        val r = await(EntityDAO(EntityType.Agent, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "r1", data))
+        r must beRight
+        DocumentaryUnitRepr(r.right.get).holder must beSome
+        DocumentaryUnitRepr(r.right.get).holder.get.identifier must equalTo("r1")
+      }
+    }
+
+    "create an item in (doc) context" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        val data = Map("id" -> None, "data" -> Map("isA" -> EntityType.DocumentaryUnit.toString, "identifier" -> "foobar", "name" -> "Foobar"))
+        val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "c1", data))
+        r must beRight
+        DocumentaryUnitRepr(r.right.get).parent must beSome
+        DocumentaryUnitRepr(r.right.get).parent.get.identifier must equalTo("c1")
+      }
+    }
+        
     "update an item by id" in {
       running(FakeApplication(additionalConfiguration = config)) {
         val data = Map("id" -> None, "data" -> Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar"))
