@@ -14,6 +14,8 @@ import com.codahale.jerkson.Json
 import defines._
 import models.UserProfileRepr
 
+object PermissionDAO
+
 case class PermissionDAO[T <: Accessor](val accessor: UserProfileRepr) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/permission".format(host, port, mount)

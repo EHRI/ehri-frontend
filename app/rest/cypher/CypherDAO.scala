@@ -1,15 +1,22 @@
 package rest.cypher
 
-import play.api.libs.ws.{ WS, Response }
-import com.codahale.jerkson.Json._
-import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
-import play.api.libs.json.JsValue
-import play.api.libs.json._
-import play.api.libs.json.util._
-import rest.RestDAO
+
+import com.codahale.jerkson.Json.generate
 
 import play.api.PlayException
+import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.json.JsValue
+import play.api.libs.json.Reads
+import play.api.libs.json.Reads.StringReads
+import play.api.libs.json.Reads.functorReads
+import play.api.libs.json.Reads.list
+import play.api.libs.json.__
+import play.api.libs.json.util.functionalCanBuildApplicative
+import play.api.libs.json.util.toFunctionalBuilderOps
+import play.api.libs.ws.Response
+import play.api.libs.ws.WS
+import rest.RestDAO
 
 case class CypherError(
   val message: String, val exception: String, val stacktrace: List[String]  
@@ -24,6 +31,10 @@ object CypherErrorReader {
     (__ \ "exception").read[String] and
     (__ \ "stacktrace").lazyRead(list[String])
   )(CypherError)
+}
+
+object CypherDAO {
+  
 }
 
 case class CypherDAO() extends RestDAO {

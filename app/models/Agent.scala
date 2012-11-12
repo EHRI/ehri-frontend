@@ -1,16 +1,13 @@
 package models
 
-import play.api.libs.concurrent.Promise
-import play.api.libs.json.JsValue
-import play.api.libs.ws.WS
-import play.api.libs.concurrent.execution.defaultContext
-import scala.concurrent.Future
-import defines._
+import defines.EntityType
+import defines.PublicationStatus
+import defines.enum
 import models.base.AccessibleEntity
-import models.base.NamedEntity
 import models.base.DescribedEntity
 import models.base.Description
 import models.base.Formable
+import models.base.NamedEntity
 
 case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity with DescribedEntity with Formable[Agent] {
   override def descriptions: List[AgentDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescriptionRepr(_))

@@ -5,12 +5,14 @@ import defines._
 import play.api.libs.concurrent.execution.defaultContext
 import rest.EntityDAO
 import controllers.base.CRUD
+import controllers.base.VisibilityController
 import models.Entity
 import models.AgentRepr
 import models.Agent
+import controllers.base.DocumentaryUnitCreator
 
 
-object Agents extends DocumentaryUnitContext[Agent,AgentRepr]
+object Agents extends DocumentaryUnitCreator[Agent,AgentRepr]
 		with VisibilityController[Agent,AgentRepr]
 		with CRUD[Agent,AgentRepr] {
   val entityType = EntityType.Agent

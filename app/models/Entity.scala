@@ -1,11 +1,24 @@
 package models
 
-import play.api.libs.json.JsValue
-import play.api.libs.json._
-import play.api.libs.json.util._
-import play.api.libs.json.Reads._
-import play.api.libs.json.Writes._
 import defines.EntityType
+import play.api.libs.json.JsString
+import play.api.libs.json.JsValue
+import play.api.libs.json.Reads
+import play.api.libs.json.Reads.JsValueReads
+import play.api.libs.json.Reads.LongReads
+import play.api.libs.json.Reads.StringReads
+import play.api.libs.json.Reads.functorReads
+import play.api.libs.json.Reads.list
+import play.api.libs.json.Reads.map
+import play.api.libs.json.Writes
+import play.api.libs.json.Writes.JsValueWrites
+import play.api.libs.json.Writes.LongWrites
+import play.api.libs.json.Writes.mapWrites
+import play.api.libs.json.Writes.traversableWrites
+import play.api.libs.json.__
+import play.api.libs.json.util.functionalCanBuildApplicative
+import play.api.libs.json.util.toFunctionalBuilderOps
+import play.api.libs.json.util.unlift
 
 object Entity {
   def fromString(s: String, t: EntityType.Value) = {
