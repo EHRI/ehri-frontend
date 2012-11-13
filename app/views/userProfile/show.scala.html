@@ -37,6 +37,9 @@
   		@pset.get(ContentType.UserProfile, PermissionType.Grant).map { p =>
   		  <a href="@routes.UserProfiles.permissions(item.identifier)">Grant</a>&nbsp;
   		}	      		
+  		@pset.get(ContentType.UserProfile, PermissionType.Grant).map { p =>
+  		  <a href="@routes.Groups.membership(item.e.isA.toString, item.identifier)">Groups</a>&nbsp;
+  		}	      		  		
   		@pset.get(ContentType.UserProfile, PermissionType.Delete).map { p =>
   		  <a href="@routes.UserProfiles.delete(item.identifier)">Delete</a>&nbsp;
   		}	    

@@ -1,0 +1,32 @@
+@(item: models.base.Accessor, groups: List[(String,String)], maybeUser: Option[models.sql.User], req: RequestHeader)
+ 
+@import defines._
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@main(Messages("Manage Groups"))(maybeUser, req) {
+	
+    <h2>@Messages("Manage Groups"): @item.name</h2>
+    
+	@if(!item.groups.isEmpty) {
+	  <strong>@Messages("Current Groups"): </strong>&nbsp;
+	  @item.groups.map { group =>
+	    <a href="@routes.Groups.get(group.identifier)">@group.name</a> (<a href="@routes.Groups.removeMember(group.identifier, item.e.isA.toString, item.identifier)">Remove</a>)
+	  }	  
+	}
+    
+	<hr />
+
+	@if(groups.isEmpty) {
+	  <strong>@Messages("This %s cannot be added to additional groups".format(item.e.isA))</strong>
+	} else {
+	  <strong>@Messages("Add Additional Group"): </strong>&nbsp;
+	  <ul>
+	  @groups.map { case (identifier, name) =>
+	  	<li>
+	    	<a href="@routes.Groups.addMember(identifier, item.e.isA.toString, item.identifier)">@name</a>
+	  	</li>
+	  }	  
+	  </ul>
+	}	
+}

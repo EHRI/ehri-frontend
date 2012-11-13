@@ -20,32 +20,15 @@ trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable
   import play.api.libs.json.util._
   import play.api.libs.json._
 
-  def parseUsers(json: JsValue): List[(String, String)] = {
-    (json \ "data").as[List[List[String]]].flatMap { lst =>
-      lst match {
-        case x :: y :: _ => Some((x, y))
-        case _ => None
-      }
-    }
-  }
-
   def visibility(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       maybeUser.flatMap(_.profile).map { userProfile =>
         AsyncRest {
           for {
             itemOrErr <- rest.EntityDAO(entityType, Some(userProfile)).get(id)
-            usersOrErr <- new rest.cypher.CypherDAO()
-              .cypher("START n=node:%s('identifier:*') RETURN n.identifier, n.name".format(EntityType.UserProfile))
-            groupsOrErr <- rest.cypher.CypherDAO()
-              .cypher("START n=node:%s('identifier:*') RETURN n.identifier, n.name".format(EntityType.Group))
+            users <- rest.RestHelpers.getUserList
+            groups <- rest.RestHelpers.getGroupList
           } yield {
-            if (usersOrErr.isLeft) sys.error("Unable to fetch user list: " + usersOrErr.left.get)
-            if (groupsOrErr.isLeft) sys.error("Unable to fetch user list: " + groupsOrErr.left.get)
-
-            val users = parseUsers(usersOrErr.right.get)
-            val groups = parseUsers(groupsOrErr.right.get)
-
             itemOrErr.right.map { item =>
               Ok(views.html.visibility(builder(item), users, groups, setVisibilityAction(id), maybeUser, request))
             }

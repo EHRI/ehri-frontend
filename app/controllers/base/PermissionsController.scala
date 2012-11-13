@@ -7,8 +7,9 @@ import models.base.Accessor
 import play.api.libs.concurrent.execution.defaultContext
 import play.api.mvc.Call
 import play.api.mvc.RequestHeader
+import defines.EntityType
 
-trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityController[F, T] {
+trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[F, T] {
 
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader
