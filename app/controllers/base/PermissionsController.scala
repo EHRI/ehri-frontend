@@ -9,7 +9,7 @@ import play.api.mvc.Call
 import play.api.mvc.RequestHeader
 import defines.EntityType
 
-trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[F, T] {
+trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[T] {
 
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader

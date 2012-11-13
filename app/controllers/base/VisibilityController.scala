@@ -5,7 +5,7 @@ import models.base._
 import models.Persistable
 import defines._
 
-trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[F, T] {
+trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
 
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader

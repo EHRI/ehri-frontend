@@ -20,7 +20,7 @@ import controllers.base.DocumentaryUnitCreator
 
 object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit,DocumentaryUnitRepr]
 			with VisibilityController[DocumentaryUnit,DocumentaryUnitRepr]
-			with EntityRead[DocumentaryUnit,DocumentaryUnitRepr]
+			with EntityRead[DocumentaryUnitRepr]
 			with EntityUpdate[DocumentaryUnit,DocumentaryUnitRepr]
 			with EntityDelete[DocumentaryUnit,DocumentaryUnitRepr] {
   

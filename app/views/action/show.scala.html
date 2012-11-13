@@ -1,0 +1,25 @@
+@(item: ActionRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@import defines._
+
+@main("Action " + item.identifier)(maybeUser, req) {
+
+	<h2>@item.timeStamp</h2>
+	@item.actioner.map { accessor =>
+		@accessor match {
+
+	    case u: UserProfileRepr => {
+	    	<h5><a href="@routes.UserProfiles.get(u.identifier)">@u.name</a></h5>
+	    }
+	    case g: GroupRepr => {
+	    	<h5><a href="@routes.Groups.get(g.identifier)">@g.name</a></h5>
+	    }
+
+	    case _ => {
+	    }		    
+
+		}
+	}
+	<p>@item.logMessage</p>
+  
+}

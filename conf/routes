@@ -84,6 +84,9 @@ POST    /agent/create/:id     controllers.Agents.docCreatePost(id: String)
 GET     /agent/visibility/:id     controllers.Agents.visibility(id: String)
 POST    /agent/visibility/:id     controllers.Agents.visibilityPost(id: String)
 
+GET     /action/list           controllers.Actions.list(page: Int ?= 1, limit: Int ?=20)
+GET     /action/show/:id       controllers.Actions.get(id: String)
+
 # API
 GET     /api/*path               controllers.ApiController.get(path: String)
 

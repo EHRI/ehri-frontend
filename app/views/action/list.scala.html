@@ -1,0 +1,48 @@
+@(page: rest.Page[ActionRepr], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@main("Actions")(maybeUser, req) {
+
+	<h3>Displaying items @(page.offset + 1) to @(page.offset + page.list.size) of @page.total</h3>
+  
+	<div id="pagination" class="pagination">
+    	<ul>
+		@views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
+			@range.map { cp =>
+	        	@if(cp == page.page.toInt) {
+	                <li class="disabled"><a>@cp</a></li>
+	            } else {
+	                <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
+	            }
+	        }
+	        @if(range.last != page.numPages) {
+	        	<li class="disabled"><a>...</a></li>
+	        }
+		}
+		</ul>
+	</div>
+	
+	<ul>
+	@page.list.map { item =>
+	  	<div class="list-item">
+			<h4><a href="@routes.Actions.get(item.identifier)">@item.timeStamp</a>
+			@item.actioner.map { accessor =>
+				@accessor match {
+	
+			    case u: UserProfileRepr => {
+			    	- <a href="@routes.UserProfiles.get(u.identifier)">@u.name</a>
+			    }
+			    case g: GroupRepr => {
+			    	- <a href="@routes.Groups.get(g.identifier)">@g.name</a>
+			    }
+		
+			    case _ => {
+			    }		    
+	
+				}
+			}
+			</h4>
+			<p>@item.logMessage</p>
+		</div>
+	}
+	</ul>    
+}

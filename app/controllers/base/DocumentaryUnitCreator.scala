@@ -15,7 +15,7 @@ import play.api.mvc.RequestHeader
  * context for the creation of DocumentaryUnits, i.e. Agent and
  * DocumentaryUnit itself.
  */
-trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends EntityController[F,T] {
+trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends EntityController[T] {
   
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader
