@@ -30,7 +30,7 @@ object Groups extends PermissionsController[Group, GroupRepr]
   val showAction = routes.Groups.get _
   val formView = views.html.group.edit.apply _
   val showView = views.html.group.show.apply _
-  val listView = views.html.list.apply _
+  val listView = views.html.accessors.list.apply _
   val deleteView = views.html.delete.apply _
   val permView = views.html.accessors.edit.apply _
   val builder = GroupRepr

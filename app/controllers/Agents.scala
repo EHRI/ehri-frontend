@@ -35,7 +35,7 @@ object Agents extends DocumentaryUnitCreator[Agent,AgentRepr]
   val showView = views.html.agent.show.apply _
   val showDocView = views.html.documentaryUnit.show.apply _
   val docFormView = views.html.documentaryUnit.create.apply _
-  val listView = views.html.list.apply _
+  val listView = views.html.agent.list.apply _
   val deleteView = views.html.delete.apply _
   val builder = AgentRepr
 }
