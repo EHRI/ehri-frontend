@@ -1,0 +1,34 @@
+@(items: rest.Page[AgentRepr], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@main("View item")(maybeUser, req) {
+
+	<h3>Items:</h3>
+  
+	<h3>Displaying items @(items.offset + 1) to @(items.offset + items.list.size) of @items.total</h3>
+  
+	<div id="pagination" class="pagination">
+    	<ul>
+		@views.Helpers.paginationRanges(items.page.toInt + 1, items.numPages.toInt).map { range =>
+			@range.map { cp =>
+	        	@if(cp == items.page.toInt) {
+	                <li class="disabled"><a>@cp</a></li>
+	            } else {
+	                <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
+	            }
+	        }
+	        @if(range.last != items.numPages) {
+	        	<li class="disabled"><a>...</a></li>
+	        }
+		}
+		</ul>
+	</div>
+	
+	<ul>
+	@items.list.map { item =>
+	  	<li>
+			<a href="@showAction(item.identifier)">@item.name</a>
+		</li>
+	}
+	</ul>
+    
+}
