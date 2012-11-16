@@ -9,16 +9,21 @@ object DocumentaryUnitForm {
 
   val form = Form(
       mapping(
-    		"id" -> optional(longNumber),
-    		"identifier" -> nonEmptyText,
-    		"name" -> nonEmptyText,
-    		"publicationStatus" -> optional(enum(defines.PublicationStatus)),
+    		Entity.ID -> optional(longNumber),
+    		Entity.IDENTIFIER -> nonEmptyText,
+    		DocumentaryUnit.NAME -> nonEmptyText,
+    		DocumentaryUnit.PUB_STATUS -> optional(enum(defines.PublicationStatus)),
     		"descriptions" -> list(
     		  mapping(
-    		    "id" -> optional(longNumber),
+    		    Entity.ID -> optional(longNumber),
     		    "languageCode" -> nonEmptyText,
-    		    "title" -> optional(text),
-    		    "scopeAndContent" -> optional(text)
+    		    DocumentaryUnit.TITLE -> optional(text),
+    		    "context" -> mapping(
+    		        DocumentaryUnit.ADMIN_BIOG -> optional(text),
+    		        DocumentaryUnit.ARCH_HIST -> optional(text),
+    		        DocumentaryUnit.ACQUISITION -> optional(text)
+    		    )(DocumentaryUnitContext.apply)(DocumentaryUnitContext.unapply),
+    		    DocumentaryUnit.SCOPE_CONTENT -> optional(text)
     		  )(DocumentaryUnitDescription.apply)(DocumentaryUnitDescription.unapply)
             )
       )(DocumentaryUnit.apply)(DocumentaryUnit.unapply)

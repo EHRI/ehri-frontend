@@ -152,6 +152,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Collection 1"),
           "descriptions[0].scopeAndContent" -> Seq("New Content for c1"),
+          "descriptions[0].context.acquistition" -> Seq("Acquisistion info"),
           "publicationStatus" -> Seq("Draft")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")

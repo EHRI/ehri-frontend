@@ -2,13 +2,14 @@ package models.base
 
 import defines._
 import models.Relation
-import scala.annotation.target.field
+import models.Entity
 
 /**
  * Base class for `pure` form-backed models that need to be
  * persisted on the server.
  */
 trait Persistable {
+  
   def id: Option[Long]
   def isA: EntityType.Value
 
@@ -27,7 +28,7 @@ trait Persistable {
         // Handle relations...
         Option(f.getAnnotation(classOf[Relation])) match {
           case Some(rel) => {
-            val relmap = a.getOrElse("relationships", Map[String, Any]()).asInstanceOf[Map[String, Any]]
+            val relmap = a.getOrElse(Entity.RELATIONSHIPS, Map[String, Any]()).asInstanceOf[Map[String, Any]]
             val rellst = f.get(this) match {
               case lst: List[_] => lst.flatMap { i => i match {
                 case i: Persistable => List(i.toData)
@@ -36,11 +37,13 @@ trait Persistable {
               case sng: Persistable => List(sng).map(_.toData)
               case _ => Nil
             }
-            a + ("relationships" -> (relmap + (rel.value -> rellst)))
+            a + (Entity.RELATIONSHIPS -> (relmap + (rel.value -> rellst)))
           }
+          // Handle data attributes...
           case None => {
-            val datamap: Map[String, Any] = a.getOrElse("data", Map()).asInstanceOf[Map[String, Any]]
+            val datamap: Map[String, Any] = a.getOrElse(Entity.DATA, Map()).asInstanceOf[Map[String, Any]]
             val value = f.get(this) match {
+              // TODO: Handle nested case classes, i.e. sub-parts of objects.
               case None => None
               case enum: Enumeration#Value => enum.toString
               case Some(value) => value match {
@@ -49,7 +52,12 @@ trait Persistable {
               }
               case x => x
             }
-            a + ("data" -> (datamap + (f.getName -> value)))
+            
+            // Handle nested case classes
+            value match {
+              case as: AttributeSet => a + (Entity.DATA -> (datamap ++ as.toData))
+              case _ => a + (Entity.DATA -> (datamap + (f.getName -> value)))  
+            }
           }
         }
       }
