@@ -29,7 +29,10 @@ trait Persistable {
           case Some(rel) => {
             val relmap = a.getOrElse("relationships", Map[String, Any]()).asInstanceOf[Map[String, Any]]
             val rellst = f.get(this) match {
-              case lst: List[_] => lst.asInstanceOf[List[Persistable]].map(_.toData)
+              case lst: List[_] => lst.flatMap { i => i match {
+                case i: Persistable => List(i.toData)
+                case _ => Nil
+              }}
               case sng: Persistable => List(sng).map(_.toData)
               case _ => Nil
             }
