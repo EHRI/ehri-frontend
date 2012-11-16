@@ -8,7 +8,7 @@ import controllers.base.VisibilityController
 import defines.EntityType
 import models.DocumentaryUnit
 import models.DocumentaryUnitRepr
-import models.Persistable
+import models.base.Persistable
 import models.base.AccessibleEntity
 import play.api.data.Form
 import play.api.libs.concurrent.execution.defaultContext
@@ -22,7 +22,7 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit,Documenta
 			with VisibilityController[DocumentaryUnit,DocumentaryUnitRepr]
 			with EntityRead[DocumentaryUnitRepr]
 			with EntityUpdate[DocumentaryUnit,DocumentaryUnitRepr]
-			with EntityDelete[DocumentaryUnit,DocumentaryUnitRepr] {
+			with EntityDelete[DocumentaryUnitRepr] {
   
   val entityType = EntityType.DocumentaryUnit
   val listAction = routes.DocumentaryUnits.list _
@@ -55,7 +55,7 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit,Documenta
               val doc = builder(item)
               AsyncRest {
                 EntityDAO(entityType, maybeUser.flatMap(_.profile))
-                  .update(id, doc.copy(publicationStatus = Some(defines.PublicationStatus.Published)).toData).map { itemOrErr =>
+                  .update(id, doc.to.copy(publicationStatus = Some(defines.PublicationStatus.Published)).toData).map { itemOrErr =>
                     itemOrErr.right.map { item =>
                       Redirect(docShowAction(item.identifier))
                     }

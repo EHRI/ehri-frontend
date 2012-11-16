@@ -1,6 +1,7 @@
 package models
 
 import defines.EntityType
+
 import play.api.libs.json.JsString
 import play.api.libs.json.JsValue
 import play.api.libs.json.Reads

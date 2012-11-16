@@ -2,7 +2,7 @@ package controllers.base
 
 import play.api.libs.concurrent.execution.defaultContext
 import models.base._
-import models.Persistable
+import models.base.Persistable
 import defines._
 
 trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {

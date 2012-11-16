@@ -8,6 +8,7 @@ import models.base.DescribedEntity
 import models.base.Description
 import models.base.Formable
 import models.base.NamedEntity
+import models.base.Persistable
 
 case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity with DescribedEntity with Formable[Agent] {
   override def descriptions: List[AgentDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescriptionRepr(_))

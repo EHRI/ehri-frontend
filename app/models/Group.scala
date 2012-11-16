@@ -10,6 +10,7 @@ import models.base.AccessibleEntity
 import models.base.Accessor
 import models.base.NamedEntity
 import models.base.Formable
+import models.base.Persistable
 
 case class GroupRepr(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[Group] {
 

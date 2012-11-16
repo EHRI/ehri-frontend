@@ -8,6 +8,7 @@ import models.base.NamedEntity
 import models.base.Description
 import models.base.DescribedEntity
 import models.base.Formable
+import models.base.Persistable
 
 case class DocumentaryUnitRepr(val e: Entity) extends NamedEntity 
 		with AccessibleEntity

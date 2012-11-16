@@ -2,7 +2,7 @@ package controllers.base
 
 import defines.ContentType
 import models.PermissionSet
-import models.Persistable
+import models.base.Persistable
 import models.base.Accessor
 import play.api.libs.concurrent.execution.defaultContext
 import play.api.mvc.Call

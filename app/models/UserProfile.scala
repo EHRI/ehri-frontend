@@ -10,6 +10,7 @@ import models.base.AccessibleEntity
 import models.base.Accessor
 import models.base.NamedEntity
 import models.base.Formable
+import models.base.Persistable
 
 case class UserProfileRepr(val e: Entity) extends AccessibleEntity
 	with Accessor with NamedEntity with Formable[UserProfile] {

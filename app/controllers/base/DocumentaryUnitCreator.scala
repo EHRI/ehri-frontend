@@ -3,7 +3,7 @@ package controllers.base
 import defines.EntityType
 import models.DocumentaryUnit
 import models.DocumentaryUnitRepr
-import models.Persistable
+import models.base.Persistable
 import models.base.AccessibleEntity
 import play.api.data.Form
 import play.api.libs.concurrent.execution.defaultContext
