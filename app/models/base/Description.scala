@@ -15,7 +15,7 @@ object Description {
 }
 
 
-trait Description {
+trait Description extends AccessibleEntity {
 	val e: Entity
 	
 	val languageCode: String = e.property("languageCode").flatMap(_.asOpt[String]).getOrElse(sys.error("No language code found"))

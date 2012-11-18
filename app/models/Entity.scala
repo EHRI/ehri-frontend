@@ -1,6 +1,6 @@
 package models
 
-import defines.EntityType
+import defines._
 
 import play.api.libs.json.JsString
 import play.api.libs.json.JsValue

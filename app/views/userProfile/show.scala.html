@@ -6,7 +6,7 @@
 	
 	<h3>User: @item.name (@item.identifier)</h3>
 	
-	@common.descriptionValue(Some(item.e.property("location").flatMap(_.asOpt[String]).getOrElse("No location information given")), "Location")
+	@common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse("No location information given")), "Location")
 	@* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), "Languages") *@
 	@* @common.descriptionValue(Some(item.about.getOrElse("No biographical information given")), "About") *@
 	
@@ -38,7 +38,7 @@
   		  <a href="@routes.UserProfiles.permissions(item.identifier)">Grant</a>&nbsp;
   		}	      		
   		@pset.get(ContentType.UserProfile, PermissionType.Grant).map { p =>
-  		  <a href="@routes.Groups.membership(item.e.isA.toString, item.identifier)">Groups</a>&nbsp;
+  		  <a href="@routes.Groups.membership(item.isA.toString, item.identifier)">Groups</a>&nbsp;
   		}	      		  		
   		@pset.get(ContentType.UserProfile, PermissionType.Delete).map { p =>
   		  <a href="@routes.UserProfiles.delete(item.identifier)">Delete</a>&nbsp;

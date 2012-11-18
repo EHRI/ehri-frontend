@@ -1,5 +1,7 @@
 import play.api.libs.json.JsResult
 package object defines {
+  
+  implicit def enumToString(e: Enumeration#Value) = e.toString
 
   import play.api.libs.json.{ Writes, JsString, JsValue, Reads, JsSuccess, JsError }
 

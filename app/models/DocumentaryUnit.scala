@@ -10,6 +10,8 @@ import models.base.DescribedEntity
 import models.base.Formable
 import models.base.Persistable
 import models.base.AttributeSet
+import models.base.Field
+import models.base.Field._
 
 case class DocumentaryUnitRepr(val e: Entity) extends NamedEntity 
 		with AccessibleEntity
@@ -36,11 +38,16 @@ case class DocumentaryUnitDescriptionRepr(val e: Entity) extends Description wit
 	languageCode = languageCode,
 	title = e.property(DocumentaryUnit.TITLE).flatMap(_.asOpt[String]),
 	context = DocumentaryUnitContext(
-	  adminBiogHist = e.property(DocumentaryUnit.ADMIN_BIOG).flatMap(_.asOpt[String]),
-	  archivalHistory = e.property(DocumentaryUnit.ARCH_HIST).flatMap(_.asOpt[String]),
-	  acquisition = e.property(DocumentaryUnit.ACQUISITION).flatMap(_.asOpt[String])	  
+	  adminBiogHist = stringProperty(DocumentaryUnit.ADMIN_BIOG),
+	  archivalHistory = stringProperty(DocumentaryUnit.ARCH_HIST),
+	  acquisition = stringProperty(DocumentaryUnit.ACQUISITION)	  
 	),
-	scopeAndContent = e.property(DocumentaryUnit.SCOPE_CONTENT).flatMap(_.asOpt[String])
+	content = DocumentaryUnitContent(
+		scopeAndContent = stringProperty(DocumentaryUnit.SCOPE_CONTENT),    
+		appraisal = stringProperty(DocumentaryUnit.APPRAISAL),
+		accruals = stringProperty(DocumentaryUnit.ACCRUALS),
+		systemOfArrangement = stringProperty(DocumentaryUnit.SYS_ARR)
+	)	
   )
 }
 
@@ -51,13 +58,16 @@ object DocumentaryUnit  {
   final val HELD_REL = "holds"
   final val CHILD_REL = "childOf"
     
-  val NAME = "name"
-  val TITLE = "title"
-  val ADMIN_BIOG = "adminBiogHist"
-  val ARCH_HIST = "archivalHistory"
-  val ACQUISITION = "acquisition"
-  val SCOPE_CONTENT = "scopeAndContent"
-  val PUB_STATUS = "publicationStatus"
+  val NAME = Field("name", "Name")
+  val TITLE = Field("title", "Title")
+  val ADMIN_BIOG = Field("adminBiogHist", "Administrator and Biographical History")
+  val ARCH_HIST = Field("archivalHistory", "Archival History")
+  val ACQUISITION = Field("acquisition", "Acquisition")
+  val SCOPE_CONTENT = Field("scopeAndContent", "Scope and Content")
+  val APPRAISAL = Field("appraisal", "Appraisals")
+  val ACCRUALS = Field("accruals", "Accruals")
+  val SYS_ARR = Field("systemOfArrangement", "System of Arrangement")
+  val PUB_STATUS = Field("publicationStatus", "Publication Status")
     
   
 }
@@ -81,15 +91,21 @@ case class DocumentaryUnitDescription(
   val languageCode: String,
   val title: Option[String] = None,
   val context: DocumentaryUnitContext,
-  val scopeAndContent: Option[String] = None
+  val content: DocumentaryUnitContent
 )  extends Persistable {
   val isA = EntityType.DocumentaryUnitDescription
   
 }
 
-
 case class DocumentaryUnitContext(
 		val adminBiogHist: Option[String] = None,
 		val archivalHistory: Option[String] = None,
 		val acquisition: Option[String] = None
+) extends AttributeSet
+
+case class DocumentaryUnitContent(
+		val scopeAndContent: Option[String] = None,
+		val appraisal: Option[String] = None,
+		val accruals: Option[String] = None,
+		val systemOfArrangement: Option[String] = None
 ) extends AttributeSet

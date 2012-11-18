@@ -15,7 +15,7 @@
 
 @itemView(item: models.base.AccessibleEntity) = {
 	<table>
-		@item.e.data.map { case (k, v) =>
+		@item.data.map { case (k, v) =>
 			<tr>
 				<td>@k</td>
 				<td>@v</td>

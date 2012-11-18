@@ -11,20 +11,20 @@
 	@if(!item.groups.isEmpty) {
 	  <strong>@Messages("Current Groups"): </strong>&nbsp;
 	  @item.groups.map { group =>
-	    <a href="@routes.Groups.get(group.identifier)">@group.name</a> (<a href="@routes.Groups.removeMember(group.identifier, item.e.isA.toString, item.identifier)">Remove</a>)
+	    <a href="@routes.Groups.get(group.identifier)">@group.name</a> (<a href="@routes.Groups.removeMember(group.identifier, item.isA.toString, item.identifier)">Remove</a>)
 	  }	  
 	}
     
 	<hr />
 
 	@if(groups.isEmpty) {
-	  <strong>@Messages("This %s cannot be added to additional groups".format(item.e.isA))</strong>
+	  <strong>@Messages("This %s cannot be added to additional groups".format(item.isA))</strong>
 	} else {
 	  <strong>@Messages("Add Additional Group"): </strong>&nbsp;
 	  <ul>
 	  @groups.map { case (identifier, name) =>
 	  	<li>
-	    	<a href="@routes.Groups.addMember(identifier, item.e.isA.toString, item.identifier)">@name</a>
+	    	<a href="@routes.Groups.addMember(identifier, item.isA.toString, item.identifier)">@name</a>
 	  	</li>
 	  }	  
 	  </ul>

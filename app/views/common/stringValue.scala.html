@@ -1,0 +1,8 @@
+@(desc: models.base.AccessibleEntity, field: models.base.Field)
+
+@defining(desc.stringProperty(field.id)) { value =>
+	@if(!value.getOrElse("").trim.isEmpty) {
+		<h4>@Messages(field.name)</h4>
+		<p>@value</p>
+	}  
+}
