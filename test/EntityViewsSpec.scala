@@ -129,7 +129,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "name" -> Seq("Hello Kitty"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Hello Kitty"),
-          "descriptions[0].scopeAndContent" -> Seq("Some content"),
+          "descriptions[0].content.scopeAndContent" -> Seq("Some content"),
           "publicationStatus" -> Seq("Published")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
@@ -151,7 +151,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "name" -> Seq("Collection 1"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Collection 1"),
-          "descriptions[0].scopeAndContent" -> Seq("New Content for c1"),
+          "descriptions[0].content.scopeAndContent" -> Seq("New Content for c1"),
           "descriptions[0].context.acquistition" -> Seq("Acquisistion info"),
           "publicationStatus" -> Seq("Draft")
         )
@@ -173,7 +173,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "name" -> Seq("Collection 4"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Collection 4"),
-          "descriptions[0].scopeAndContent" -> Seq("New Content for c4"),
+          "descriptions[0].content.scopeAndContent" -> Seq("New Content for c4"),
           "publicationStatus" -> Seq("Draft")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
