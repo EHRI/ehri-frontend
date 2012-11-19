@@ -42,6 +42,24 @@
 					@common.stringFormValue(desc, DocumentaryUnit.SYS_ARR)				  
 				}
 			</fieldset>
+		  	<fieldset id="conditions-area">
+				<legend>@Messages("Conditions")</legend>
+				@defining(desc("conditions")) { desc =>
+					@common.stringFormValue(desc, DocumentaryUnit.ACCESS_COND)
+					@common.stringFormValue(desc, DocumentaryUnit.REPROD_COND)
+					@common.stringFormValue(desc, DocumentaryUnit.PHYSICAL_CHARS)
+					@common.stringFormValue(desc, DocumentaryUnit.FINDING_AIDS)				  
+				}
+			</fieldset>
+		  	<fieldset id="materials-area">
+				<legend>@Messages("Materials")</legend>
+				@defining(desc("materials")) { desc =>
+					@common.stringFormValue(desc, DocumentaryUnit.LOCATION_ORIGINALS)
+					@common.stringFormValue(desc, DocumentaryUnit.LOCATION_COPIES)
+					@common.stringFormValue(desc, DocumentaryUnit.RELATED_UNITS)
+					@common.stringFormValue(desc, DocumentaryUnit.PUBLICATION_NOTE)				  
+				}
+			</fieldset>
 		}
 		
 		<fieldset id="admin-area">

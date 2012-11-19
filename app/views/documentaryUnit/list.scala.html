@@ -26,6 +26,9 @@
 	  	<div class="list-item">
 			<h4>
 				<a href="@showAction(item.identifier)">@item.name</a>
+				@item.dateString.map { d =>
+				  &nbsp;[@d]
+				}
 				@item.holder.map { holder =>
 					<strong> - <a href="@controllers.routes.Agents.get(holder.identifier)">@holder.name</a></strong>
 				}

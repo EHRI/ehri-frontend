@@ -12,4 +12,5 @@ object EntityType extends Enumeration() {
   val DocumentaryUnitDescription = Value("documentDescription")
   val AgentDescription = Value("agentDescription")
   val AuthorityDescription = Value("authorityDescription")
+  val DatePeriod = Value("datePeriod")
 }
