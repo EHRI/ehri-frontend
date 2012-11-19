@@ -25,7 +25,6 @@ case class DatePeriodRepr(val e: Entity) extends Formable[DatePeriod] {
 }
 
 object DatePeriod {
-    
   val START_DATE = Field("startDate", "Start Date")
   val END_DATE = Field("endDate", "End Date")
 }
