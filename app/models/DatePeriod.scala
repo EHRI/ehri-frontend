@@ -18,7 +18,8 @@ import org.joda.time.DateTime
 case class DatePeriodRepr(val e: Entity) extends Formable[DatePeriod] {
   def to: DatePeriod = new DatePeriod(
     id = Some(e.id),
-    startDate = e.stringProperty(DatePeriod.START_DATE).map(new DateTime(_)).getOrElse(sys.error("No date period start date defined")),
+    startDate = e.stringProperty(DatePeriod.START_DATE).map(new DateTime(_))
+    					.getOrElse(sys.error("No start date defined date period [%s]".format(e.id))),
     endDate = e.stringProperty(DatePeriod.END_DATE).map(new DateTime(_))
   )
 }
@@ -36,6 +37,10 @@ case class DatePeriod(
 ) extends Persistable {
   val isA = EntityType.DatePeriod  
   
+  /**
+   * Get a string representing the year-range of this period,
+   * i.e. 1939-1945
+   */
   def years: String = {
     List(Some(startDate), endDate).filter(_.isDefined).map(_.get.getYear).distinct.mkString("-")
   }
