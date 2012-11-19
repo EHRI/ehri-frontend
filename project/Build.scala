@@ -16,6 +16,7 @@ object ApplicationBuild extends Build {
     "com.sun.jersey" % "jersey-core" % "1.9",
     "org.neo4j.app" % "neo4j-server" % "1.8" classifier "static-web" classifier "",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
+    "joda-time" % "joda-time" % "2.1",
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
     "ehri-project" % "ehri-plugin" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "")
