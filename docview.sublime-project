@@ -1,0 +1,19 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"folder_exclude_patterns": [
+				".*",
+				"target",
+				"logs",
+				"bin"
+			],
+			"file_exclude_patterns": [
+				".*",
+				"docview.sublime-project",
+				"docview.sublime-workspace"
+			]
+		}
+	]
+}

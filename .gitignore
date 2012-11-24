@@ -11,3 +11,4 @@ tmp
 .target
 bin
 dist
+*.sublime-workspace
