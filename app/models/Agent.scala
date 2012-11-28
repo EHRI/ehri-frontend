@@ -9,6 +9,9 @@ import models.base.Description
 import models.base.Formable
 import models.base.NamedEntity
 import models.base.Persistable
+import models.base.Field
+import models.base.Field._
+
 
 case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity with DescribedEntity with Formable[Agent] {
   override def descriptions: List[AgentDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescriptionRepr(_))
@@ -24,13 +27,34 @@ case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity wi
 }
 
 case class AgentDescriptionRepr(val e: Entity) extends Description with Formable[AgentDescription] {
+  import Agent._
+  
+  def addresses: List[AddressRepr] = e.relations(Agent.ADDRESS_REL).map(AddressRepr(_))
+  
   def to: AgentDescription = new AgentDescription(
     id = Some(e.id),
     languageCode = languageCode,
-    name = e.property("name").flatMap(_.asOpt[String]),
-    otherFormsOfName = e.property("otherFormsOfName").flatMap(_.asOpt[List[String]]).getOrElse(List()),
-    parallelFormsOfName = e.property("parallelFormsOfName").flatMap(_.asOpt[List[String]]).getOrElse(List()),
-    generalContext = e.property("generalContext").flatMap(_.asOpt[String])
+    name = e.stringProperty(NAME),
+    otherFormsOfName = e.listProperty(OTHER_FORMS_OF_NAME),
+    parallelFormsOfName = e.listProperty(PARALLEL_FORMS_OF_NAME),
+    addresses = addresses.map(_.to),
+    generalContext = e.stringProperty(GENERAL_CONTEXT)
+  )
+}
+
+case class AddressRepr(val e: Entity) extends Formable[Address] {
+  def to: Address = new Address(
+    id = Some(e.id),
+    name = e.stringProperty(Address.ADDRESS_NAME).getOrElse("Unnamed Address"),
+    contactPerson = e.stringProperty(Address.CONTACT_PERSON),
+    streetAddress = e.stringProperty(Address.STREET_ADDRESS),
+    city = e.stringProperty(Address.CITY),
+    region = e.stringProperty(Address.REGION),    
+    countryCode = e.stringProperty(Address.COUNTRY_CODE),
+    email = e.stringProperty(Address.EMAIL),
+    telephone = e.stringProperty(Address.TELEPHONE),
+    fax = e.stringProperty(Address.FAX),
+    url = e.stringProperty(Address.URL)
   )
 }
 
@@ -38,6 +62,25 @@ object Agent {
 
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
+    
+  // Field set
+  val NAME = Field("name", "Authorized Form of Name")
+  val GENERAL_CONTEXT = Field("generalContext", "General Context")
+  val OTHER_FORMS_OF_NAME = Field("otherFormsOfName", "Other Forms of Name")
+  val PARALLEL_FORMS_OF_NAME = Field("parallelFormsOfName", "Parallel forms of Name")
+}
+
+object Address {
+  val ADDRESS_NAME = Field("name", "Address Name")
+  val CONTACT_PERSON = Field("contactPerson", "Contact Person")
+  val STREET_ADDRESS = Field("streetAddress", "Street Address")
+  val CITY = Field("city", "City")
+  val REGION = Field("region", "Region")
+  val COUNTRY_CODE = Field("countryCode", "Country")
+  val EMAIL = Field("email", "Email")
+  val TELEPHONE = Field("telephone", "Telephone")
+  val FAX = Field("fax", "Fax")
+  val URL = Field("url", "Web URL")  
 }
 
 case class Agent(
@@ -45,7 +88,8 @@ case class Agent(
   val identifier: String,
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
-  @Annotations.Relation(Agent.DESC_REL) val descriptions: List[AgentDescription] = Nil) extends Persistable {
+  @Annotations.Relation(Agent.DESC_REL) val descriptions: List[AgentDescription] = Nil
+) extends Persistable {
   val isA = EntityType.Agent
 }
 
@@ -55,7 +99,28 @@ case class AgentDescription(
   val name: Option[String] = None,
   val otherFormsOfName: List[String] = Nil,
   val parallelFormsOfName: List[String] = Nil,
-  val generalContext: Option[String] = None) extends Persistable {
+  @Annotations.Relation(Agent.ADDRESS_REL) val addresses: List[Address] = Nil,  
+  val generalContext: Option[String] = None
+) extends Persistable {
   val isA = EntityType.AgentDescription
 }
+
+case class Address(
+  val id: Option[Long],
+  val name: String,
+  val contactPerson: Option[String] = None,
+  val streetAddress: Option[String] = None,
+  val city: Option[String] = None,
+  val region: Option[String] = None,
+  val countryCode: Option[String]  = None,
+  val email: Option[String] = None,
+  val telephone: Option[String] = None,
+  val fax: Option[String] = None,
+  val url: Option[String] = None
+) extends Persistable {
+  val isA = EntityType.Address
+}
+
+
+
 

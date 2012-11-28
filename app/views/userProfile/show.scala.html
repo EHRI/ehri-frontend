@@ -22,26 +22,33 @@
 	
 	@common.visibility(item)
 	
+  	<hr />
+	<a href="@routes.UserProfiles.list(1, 20)">@Messages("Back to List")</a>	
 	@maybeUser.map { user =>
 	  @user.permissions.map { pset =>
-	  	<hr />
   		@pset.get(ContentType.UserProfile, PermissionType.Create).map { p =>
-  		  <a href="@routes.UserProfiles.create">Create New</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.UserProfiles.create">@Messages("Create New User")</a>
   		}
   		@pset.get(ContentType.UserProfile, PermissionType.Update).map { p =>
-  		  <a href="@routes.UserProfiles.update(item.identifier)">Update</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.UserProfiles.update(item.identifier)">@Messages("Modify Profile")</a>
   		}
   		@pset.get(ContentType.UserProfile, PermissionType.Update).map { p =>
-  		  <a href="@routes.UserProfiles.visibility(item.identifier)">Set Visibility</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.UserProfiles.visibility(item.identifier)">@Messages("Set Visibility")</a>
   		}  		
   		@pset.get(ContentType.UserProfile, PermissionType.Grant).map { p =>
-  		  <a href="@routes.UserProfiles.permissions(item.identifier)">Grant</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.UserProfiles.permissions(item.identifier)">@Messages("Modify Permissions")</a>
   		}	      		
   		@pset.get(ContentType.UserProfile, PermissionType.Grant).map { p =>
-  		  <a href="@routes.Groups.membership(item.isA.toString, item.identifier)">Groups</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.Groups.membership(item.isA.toString, item.identifier)">@Messages("Add/Remove Parent Groups")</a>
   		}	      		  		
   		@pset.get(ContentType.UserProfile, PermissionType.Delete).map { p =>
-  		  <a href="@routes.UserProfiles.delete(item.identifier)">Delete</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.UserProfiles.delete(item.identifier)">@Messages("Delete User")</a>
   		}	    
 	  }
 	}	

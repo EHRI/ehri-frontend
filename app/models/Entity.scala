@@ -45,6 +45,7 @@ case class Entity(
    * Shortcut for fetching a Option[String] property.
    */
   def stringProperty(name: String) = property(name).flatMap(_.asOpt[String])
+  def listProperty(name: String) = property(name).flatMap(_.asOpt[List[String]]).getOrElse(List())
   def relations(s: String): List[Entity] = relationships.getOrElse(s, List())  
   def withProperty(name: String, value: JsValue) = copy(data=data + (name -> value))
   def withRelation(s: String, r: Entity) = {

@@ -43,20 +43,24 @@
 	@common.visibility(item)
 	
   	<hr />
-	<a href="@routes.DocumentaryUnits.list(1, 20)">Back to List</a>&nbsp;
+	<a href="@routes.DocumentaryUnits.list(1, 20)">@Messages("Back to List")</a>
 	@maybeUser.map { user =>
 	  @user.permissions.map { pset =>
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Create).map { p =>
-  		  <a href="@routes.DocumentaryUnits.docCreate(item.identifier)">Create Child Item</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.DocumentaryUnits.docCreate(item.identifier)">@Messages("Create Child Item")</a>
   		}
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Update).map { p =>
-  		  <a href="@routes.DocumentaryUnits.update(item.identifier)">Update</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.DocumentaryUnits.update(item.identifier)">@Messages("Modify Record")</a>
   		}
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Update).map { p =>
-  		  <a href="@routes.DocumentaryUnits.visibility(item.identifier)">Set Visibility</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.DocumentaryUnits.visibility(item.identifier)">@Messages("Set Visibility")</a>
   		}
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Delete).map { p =>
-  		  <a href="@routes.DocumentaryUnits.delete(item.identifier)">Delete</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.DocumentaryUnits.delete(item.identifier)">@Messages("Delete Record")</a>
   		}	    
 	  }
 	}

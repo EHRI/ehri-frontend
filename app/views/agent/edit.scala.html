@@ -24,14 +24,30 @@
 				<input type="hidden" value="@desc("id").value" name="id" />
 				@helper.inputText(desc("languageCode"), '_label -> "Language Code")
 				@helper.inputText(desc("name"), '_label -> "Authorized Form of Name")
-				@helper.repeat(desc("otherFormsOfName"), min = 1) { onField =>
+				@helper.repeat(desc("otherFormsOfName"), min = desc("otherFormsOfName").indexes.length + 1) { onField =>
 					@helper.inputText(onField)
 				}
-				@helper.repeat(desc("parallelFormsOfName"), min = 1) { pnField =>
+				@helper.repeat(desc("parallelFormsOfName"), min = desc("parallelFormsOfName").indexes.length + 1) { pnField =>
 					@helper.inputText(pnField)
 				}
 				@helper.textarea(desc("generalContext"), '_label -> "General Context")
 			</fieldset>
+			<fieldset id="contact-area">
+				<legend>@Messages("Contact")</legend>
+				@helper.repeat(desc("addresses"), min=math.max(desc("addresses").indexes.length, 1)) { desc =>
+					@common.stringInputValue(desc, Address.ADDRESS_NAME)
+					@common.stringInputValue(desc, Address.CONTACT_PERSON)
+					@common.stringInputValue(desc, Address.STREET_ADDRESS)
+					@common.stringInputValue(desc, Address.CITY)
+					@common.stringInputValue(desc, Address.REGION)
+					@common.stringInputValue(desc, Address.COUNTRY_CODE)
+					@common.stringInputValue(desc, Address.EMAIL)
+					@common.stringInputValue(desc, Address.TELEPHONE)
+					@common.stringInputValue(desc, Address.FAX)
+					@common.stringInputValue(desc, Address.URL)
+				}
+			</fieldset>		  
+
 		}
 		
 		<fieldset id="admin-area">

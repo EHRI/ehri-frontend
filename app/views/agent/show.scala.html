@@ -18,23 +18,29 @@
 	
 	@common.visibility(item)
 	
+  	<hr />
+	<a href="@routes.Agents.list(1, 20)">@Messages("Back to List")</a>
 	@maybeUser.map { user =>
 	  @user.permissions.map { pset =>
-	  	<hr />
   		@pset.get(ContentType.Agent, PermissionType.Create).map { p =>
-  		  <a href="@routes.Agents.create">Create New Repository</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.Agents.create">Create New Repository</a>
   		}
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Create).map { p =>
-  		  <a href="@routes.Agents.docCreate(item.identifier)">Create New Documentary Unit</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.Agents.docCreate(item.identifier)">@Messages("Create New Documentary Unit")</a>
   		}  		
   		@pset.get(ContentType.Agent, PermissionType.Update).map { p =>
-  		  <a href="@routes.Agents.visibility(item.identifier)">Set Visibility</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.Agents.visibility(item.identifier)">@Messages("Set Visibility")</a>
   		}
   		@pset.get(ContentType.Agent, PermissionType.Update).map { p =>
-  		  <a href="@routes.Agents.update(item.identifier)">Edit</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.Agents.update(item.identifier)">@Messages("Modify Record")</a>
   		}
   		@pset.get(ContentType.Agent, PermissionType.Delete).map { p =>
-  		  <a href="@routes.Agents.delete(item.identifier)">Delete</a>&nbsp;
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.Agents.delete(item.identifier)">@Messages("Delete Record")</a>
   		}	    
 	  }
 	}

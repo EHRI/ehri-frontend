@@ -4,30 +4,9 @@
 
 @main(Messages("Create Documentary Unit"))(maybeUser, req) {
 	
-	<h3>@Messages("Create Documentary Unit")</h3>
-	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-		<fieldset id="identity-area">
-			<legend>@Messages("Identity")</legend>
-			@helper.inputText(f("identifier"), '_label -> "Identifier")
-			@helper.inputText(f("name"), '_label -> "Name")
-		</fieldset>
-	  
-		@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-			<fieldset id="identity-area">
-				<legend>@Messages("Description")</legend>
-				<input type="hidden" value="@desc("id").value" name="id" />
-				@helper.inputText(desc("languageCode"), '_label -> "Language Code")
-				@helper.inputText(desc("title"), '_label -> "Title")
-				@helper.textarea(desc("scopeAndContent"), '_label -> "Scope and Content")
-			</fieldset>
-		}
-		
-		<fieldset id="admin-area">
-				<legend>@Messages("Administration")</legend>
-				@common.descriptionChoice(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
-			</fieldset>
-		
+		@documentaryUnit.renderForm(f)
+	
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">@Messages("Create")</button>
 		</div>

@@ -13,6 +13,7 @@ trait AccessibleEntity {
   
   // Proxy methods - TODO: Reduce the need for these?
   def stringProperty(name: String) = e.stringProperty(name)
+  def listProperty(name: String) = e.listProperty(name)
   def isA = e.isA
   def property(name: String) = e.property(name)
   def data = e.data

@@ -50,7 +50,7 @@ trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[
             newpermsOrErr <- rest.PermissionDAO(userProfile).set(builder(itemOrErr.right.get), perms)
           } yield {
             newpermsOrErr.right.map { perms =>
-              Redirect(permsAction(id))
+              Redirect(showAction(id))
             }
           }
         }
