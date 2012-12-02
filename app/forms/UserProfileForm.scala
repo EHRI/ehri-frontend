@@ -9,7 +9,7 @@ object UserProfileForm {
 
   val form = Form(
       mapping(
-    		"id" -> optional(longNumber),
+    		"id" -> optional(text),
     		"identifier" -> nonEmptyText,
     		"name" -> nonEmptyText,
     		"location" -> optional(text),

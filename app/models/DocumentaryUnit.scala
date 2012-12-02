@@ -94,7 +94,7 @@ object DocumentaryUnit  {
 }
 
 case class DocumentaryUnit(
-  val id: Option[Long],
+  val id: Option[String],
   val identifier: String,
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
@@ -108,7 +108,7 @@ case class DocumentaryUnit(
 }
 
 case class DocumentaryUnitDescription(
-  val id: Option[Long],
+  val id: Option[String],
   val languageCode: String,
   val title: Option[String] = None,
   val context: DocumentaryUnitContext,

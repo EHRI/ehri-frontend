@@ -24,18 +24,19 @@ import play.api.libs.json.util.unlift
 object Entity {
   
   val ID = "id"
-  val ISA = "isA"
   val IDENTIFIER = "identifier"
   val DATA = "data"
+  val TYPE = "type"
   val RELATIONSHIPS = "relationships"  
   
   def fromString(s: String, t: EntityType.Value) = {
-    new Entity(-1L, Map(IDENTIFIER -> JsString(s), ISA -> JsString(t.toString)), Map())
+    new Entity("", t, Map(IDENTIFIER -> JsString(s)), Map())
   }
 }
 
 case class Entity(
-  id: Long,
+  id: String,
+  `type`: EntityType.Value,
   data: Map[String, JsValue] = Map(),
   relationships: Map[String, List[Entity]] = Map()) {
 
@@ -52,22 +53,21 @@ case class Entity(
     val list: List[Entity] = relationships.getOrElse(s, Nil)
     copy(relationships=relationships + (s -> (list ++ List(r))))
   }
-  private val adminKeys = List(Entity.ISA, Entity.IDENTIFIER, "_desc")
+  private val adminKeys = List(Entity.IDENTIFIER)
   def valueData: Map[String, JsValue] = {
     data.filterNot { case (k, v) => adminKeys.contains(k) }
   }
 
-  lazy val isA: EntityType.Value = EntityType.withName(
-		  property(Entity.ISA)
-		  	.map(_.as[String])
-		  	.getOrElse(sys.error("No 'isA' property found.")))
+  lazy val isA: EntityType.Value = `type`
   
   override def toString() = "<%s (%d)>".format(property(Entity.IDENTIFIER), id)
 }
 
 object EntityWriter {
+  import defines.EnumWriter._
   implicit val entityWrites: Writes[Entity] = (
-     (__ \ Entity.ID).write[Long] and
+     (__ \ Entity.ID).write[String] and
+     (__ \ Entity.TYPE).write[EntityType.Type](EnumWriter.enumWrites) and
      (__ \ Entity.DATA).lazyWrite(mapWrites[JsValue]) and
      (__ \ Entity.RELATIONSHIPS).lazyWrite(
          mapWrites[List[Entity]])
@@ -75,8 +75,10 @@ object EntityWriter {
 }
 
 object EntityReader {
+  import defines.EnumReader
   implicit val entityReads: Reads[Entity] = (
-    (__ \ Entity.ID).read[Long] and
+    (__ \ Entity.ID).read[String] and
+    (__ \ Entity.TYPE).read[EntityType.Type](EnumReader.enumReads(EntityType)) and
     (__ \ Entity.DATA).lazyRead(map[JsValue]) and
     (__ \ Entity.RELATIONSHIPS).lazyRead(
       map[List[Entity]](list(entityReads))))(Entity.apply _)

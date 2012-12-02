@@ -27,7 +27,7 @@ object Group {
 }
 
 case class Group(
-  val id: Option[Long],
+  val id: Option[String],
   val identifier: String,
   val name: String) extends Persistable {
   val isA = EntityType.Group

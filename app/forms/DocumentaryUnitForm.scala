@@ -11,13 +11,13 @@ object DocumentaryUnitForm {
 
   val form = Form(
       mapping(
-    		Entity.ID -> optional(longNumber),
+    		Entity.ID -> optional(text),
     		Entity.IDENTIFIER -> nonEmptyText,
     		DocumentaryUnit.NAME.id -> nonEmptyText,
     		DocumentaryUnit.PUB_STATUS.id -> optional(enum(defines.PublicationStatus)),
     		"descriptions" -> list(
     		  mapping(
-    		    Entity.ID -> optional(longNumber),
+    		    Entity.ID -> optional(text),
     		    "languageCode" -> nonEmptyText,
     		    DocumentaryUnit.TITLE.id -> optional(text),
     		    "context" -> mapping(

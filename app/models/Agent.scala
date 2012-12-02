@@ -84,7 +84,7 @@ object Address {
 }
 
 case class Agent(
-  val id: Option[Long],
+  val id: Option[String],
   val identifier: String,
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
@@ -94,7 +94,7 @@ case class Agent(
 }
 
 case class AgentDescription(
-  val id: Option[Long],
+  val id: Option[String],
   val languageCode: String,
   val name: Option[String] = None,
   val otherFormsOfName: List[String] = Nil,
@@ -106,7 +106,7 @@ case class AgentDescription(
 }
 
 case class Address(
-  val id: Option[Long],
+  val id: Option[String],
   val name: String,
   val contactPerson: Option[String] = None,
   val streetAddress: Option[String] = None,

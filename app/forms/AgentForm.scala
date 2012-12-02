@@ -9,20 +9,20 @@ object AgentForm {
 
   val form = Form(
     mapping(
-      "id" -> optional(longNumber),
+      "id" -> optional(text),
       "identifier" -> nonEmptyText,
       Agent.NAME.id -> nonEmptyText,
       "publicationStatus" -> optional(enum(defines.PublicationStatus)),
       "descriptions" -> list(
         mapping(
-          "id" -> optional(longNumber),
+          "id" -> optional(text),
           "languageCode" -> nonEmptyText,
           Agent.NAME.id -> optional(text),
           Agent.OTHER_FORMS_OF_NAME.id -> list(text),
           Agent.PARALLEL_FORMS_OF_NAME.id -> list(text),
           "addresses" -> list(
             mapping(
-              "id" -> optional(longNumber),
+              "id" -> optional(text),
               Address.ADDRESS_NAME.id -> nonEmptyText,
               Address.CONTACT_PERSON.id -> optional(text),
               Address.STREET_ADDRESS.id -> optional(text),

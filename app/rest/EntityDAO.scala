@@ -41,7 +41,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   def jsonToEntity(js: JsValue): Entity = {
     EntityReader.entityReads.reads(js).fold(
       valid = { item =>
-        new Entity(item.id, item.data, item.relationships)
+        new Entity(item.id, item.`type`, item.data, item.relationships)
       },
       invalid = { errors =>
         throw new RuntimeException("Error getting item: " + errors)

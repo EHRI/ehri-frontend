@@ -56,14 +56,14 @@ class DAOSpec extends Specification with BeforeExample {
 
     "create an item" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "data" -> Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar"))
+        val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         await(EntityDAO(entityType, Some(userProfile)).create(data)) must beRight
       }
     }
 
     "create an item in (agent) context" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "data" -> Map("isA" -> EntityType.DocumentaryUnit.toString, "identifier" -> "foobar", "name" -> "Foobar"))
+        val data = Map("id" -> None, "type" -> EntityType.DocumentaryUnit.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val r = await(EntityDAO(EntityType.Agent, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "r1", data))
         r must beRight
         DocumentaryUnitRepr(r.right.get).holder must beSome
@@ -73,7 +73,7 @@ class DAOSpec extends Specification with BeforeExample {
 
     "create an item in (doc) context" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "data" -> Map("isA" -> EntityType.DocumentaryUnit.toString, "identifier" -> "foobar", "name" -> "Foobar"))
+        val data = Map("id" -> None, "type" -> EntityType.DocumentaryUnit.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "c1", data))
         r must beRight
         DocumentaryUnitRepr(r.right.get).parent must beSome
@@ -83,13 +83,13 @@ class DAOSpec extends Specification with BeforeExample {
         
     "update an item by id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "data" -> Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar"))
+        val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val entity = await(EntityDAO(entityType, Some(userProfile)).create(data)).right.get
         await(EntityDAO(entityType, Some(userProfile)).update(entity.id, data + ("id" -> entity.id))) must beRight
       }
     }
 
-    "error when creating without an isA" in {
+    "error when creating without a type" in {
       running(FakeApplication(additionalConfiguration = config)) {
         val data = Map("id" -> None, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val err = await(EntityDAO(entityType, Some(userProfile)).create(data))
@@ -100,7 +100,7 @@ class DAOSpec extends Specification with BeforeExample {
 
     "error when creating an item with a non-unique id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "data" -> Map("identifier" -> "foobar", "isA" -> "userProfile", "name" -> "Foobar"))
+        val data = Map("id" -> None, "type" -> "userProfile", "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         await(EntityDAO(entityType, Some(userProfile)).create(data))
         val err = await(EntityDAO(entityType, Some(userProfile)).create(data))
         err must beLeft
@@ -119,7 +119,7 @@ class DAOSpec extends Specification with BeforeExample {
 
     "delete an item by id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "data" -> Map("isA" -> entityType.toString, "identifier" -> "foobar", "name" -> "Foobar"))
+        val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val entity = await(EntityDAO(entityType, Some(userProfile)).create(data)).right.get
         await(EntityDAO(entityType, Some(userProfile)).delete(entity.id)) must beRight
       }

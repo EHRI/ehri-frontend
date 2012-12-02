@@ -33,7 +33,7 @@ object UserProfile {
 
 
 case class UserProfile (
-  val id: Option[Long],
+  val id: Option[String],
   val identifier: String,
   val name: String,
   val location: Option[String],

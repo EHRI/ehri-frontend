@@ -38,17 +38,20 @@ trait RestDAO {
     //println("RESPONSE: " + response.body)
     response.status match {
       case OK | CREATED => Right(response)
-      case UNAUTHORIZED => Left(PermissionDenied)
-      case BAD_REQUEST => (response.json \ "error") match {
-        case JsString("ValidationError") => Left(ValidationError)
-        case JsString("DeserializationError") => Left(DeserializationError)
-        case JsString("IntegrityError") => Left(IntegrityError)
-        case _ => throw sys.error("Unexpected response: %d: %s".format(response.status, response.body))
-      }
-      case NOT_FOUND => Left(ItemNotFound)
-      case _ => {
-        println(response.body)
-        sys.error("Unexpected response: %d: %s".format(response.status, response.body))
+      case e => e match {
+
+        case UNAUTHORIZED => Left(PermissionDenied)
+        case BAD_REQUEST => (response.json \ "error") match {
+          case JsString("ValidationError") => Left(ValidationError)
+          case JsString("DeserializationError") => Left(DeserializationError)
+          case JsString("IntegrityError") => Left(IntegrityError)
+          case _ => throw sys.error("Unexpected response: %d: %s".format(response.status, response.body))
+        }
+        case NOT_FOUND => Left(ItemNotFound)
+        case _ => {
+          println(response.body)
+          sys.error("Unexpected response: %d: %s".format(response.status, response.body))
+        }
       }
     }
   }

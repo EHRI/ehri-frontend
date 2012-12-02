@@ -9,7 +9,7 @@ object GroupForm {
 
   val form = Form(
       mapping(
-    		"id" -> optional(longNumber),
+    		"id" -> optional(text),
     		"identifier" -> nonEmptyText,
     		"name" -> nonEmptyText
       )(Group.apply)(Group.unapply)

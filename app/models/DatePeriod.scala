@@ -30,7 +30,7 @@ object DatePeriod {
 }
 
 case class DatePeriod(
-  val id: Option[Long],
+  val id: Option[String],
   val startDate: DateTime,
   val endDate: Option[DateTime] = None
 ) extends Persistable {
