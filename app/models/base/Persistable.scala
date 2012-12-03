@@ -24,7 +24,7 @@ trait Persistable {
 
       f.getName match {
         case s: String if s == Entity.ID => a + (f.getName -> f.get(this))
-        case s: String if s == Entity.TYPE => a + (f.getName -> f.get(this).toString)
+        case s: String if s == "isA" => a + (Entity.TYPE -> f.get(this).toString)
         case _ => {
           // Handle relations...
           Option(f.getAnnotation(classOf[Relation])) match {

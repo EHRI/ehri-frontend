@@ -26,7 +26,7 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
           AsyncRest {
             rest.EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .create(doc.toData).map { itemOrErr =>
-                itemOrErr.right.map { item => Redirect(showAction(builder(item).identifier)) }
+                itemOrErr.right.map { item => Redirect(showAction(item.id)) }
               }
           }
         }

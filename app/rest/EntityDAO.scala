@@ -93,13 +93,6 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
       }
   }
 
-  def update(id: Long, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl)).withHeaders(authHeaders: _*)
-      .put(generate(data)).map { response =>
-        checkError(response).right.map(r => jsonToEntity(r.json))
-      }
-  }
-
   def update(id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders: _*)
       .put(generate(data)).map { response =>
@@ -109,13 +102,6 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
 
   def delete(id: String): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders: _*).delete.map { response =>
-      // FIXME: Check actual error content...
-      checkError(response).right.map(r => r.status == OK)
-    }
-  }
-
-  def delete(id: Long): Future[Either[RestError, Boolean]] = {
-    WS.url(requestUrl + "/" + id.toString).withHeaders(authHeaders: _*).delete.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => r.status == OK)
     }

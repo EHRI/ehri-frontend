@@ -85,7 +85,9 @@ class DAOSpec extends Specification with BeforeExample {
       running(FakeApplication(additionalConfiguration = config)) {
         val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val entity = await(EntityDAO(entityType, Some(userProfile)).create(data)).right.get
-        await(EntityDAO(entityType, Some(userProfile)).update(entity.id, data + ("id" -> entity.id))) must beRight
+        val udata = data + ("id" -> entity.id)
+        val res = await(EntityDAO(entityType, Some(userProfile)).update(entity.id, udata))
+        res must beRight
       }
     }
 

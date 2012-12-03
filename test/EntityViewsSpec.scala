@@ -229,7 +229,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           Agents.createPost.url).withHeaders(headers.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
-        val show = route(fakeLoggedInRequest(GET, Agents.get("wiener-library").url)).get
+        // FIXME: This route will change when a property ID mapping scheme is devised
+        val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("Some content")
       }
@@ -252,7 +253,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           Agents.updatePost("r1").url).withHeaders(headers.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
-        val show = route(fakeLoggedInRequest(GET, Agents.get("r1").url)).get
+        val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("New Content for r1")
       }
@@ -297,7 +298,6 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
           UserProfiles.permissionsPost(subjectUser.identifier).url).withHeaders(headers.toSeq: _*), testData).get
-        println(contentAsString(cr))
         status(cr) must equalTo(SEE_OTHER)
         
         // Now check we can read back the same permissions.

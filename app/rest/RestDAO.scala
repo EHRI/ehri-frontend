@@ -41,7 +41,7 @@ trait RestDAO {
       case e => e match {
 
         case UNAUTHORIZED => Left(PermissionDenied)
-        case BAD_REQUEST => (response.json \ "error") match {
+        case BAD_REQUEST => println(response.json) ; (response.json \ "error") match {
           case JsString("ValidationError") => Left(ValidationError)
           case JsString("DeserializationError") => Left(DeserializationError)
           case JsString("IntegrityError") => Left(IntegrityError)

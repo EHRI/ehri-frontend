@@ -51,7 +51,7 @@ trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends En
             rest.EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .createInContext(EntityType.DocumentaryUnit, id, doc.toData).map { itemOrErr =>
                 itemOrErr.right.map { item =>
-                  Redirect(docShowAction(DocumentaryUnitRepr(item).identifier))
+                  Redirect(docShowAction(item.id))
                 }
               }
           }

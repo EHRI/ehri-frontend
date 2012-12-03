@@ -43,7 +43,7 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
             rest.EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .update(id, doc.toData).map { itemOrErr =>
                 itemOrErr.right.map { item =>
-                  Redirect(showAction(builder(item).identifier))
+                  Redirect(showAction(item.id))
                 }
               }
           }

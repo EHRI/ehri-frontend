@@ -60,7 +60,7 @@ case class Entity(
 
   lazy val isA: EntityType.Value = `type`
   
-  override def toString() = "<%s (%d)>".format(property(Entity.IDENTIFIER), id)
+  override def toString() = "<Entity: %s>".format(id)
 }
 
 object EntityWriter {
