@@ -11,7 +11,7 @@ import models.base.NamedEntity
 import models.base.Persistable
 import models.base.Field
 import models.base.Field._
-
+import models.base.AttributeSet
 
 case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity with DescribedEntity with Formable[Agent] {
   override def descriptions: List[AgentDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescriptionRepr(_))
@@ -28,9 +28,9 @@ case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity wi
 
 case class AgentDescriptionRepr(val e: Entity) extends Description with Formable[AgentDescription] {
   import Agent._
-  
+
   def addresses: List[AddressRepr] = e.relations(Agent.ADDRESS_REL).map(AddressRepr(_))
-  
+
   def to: AgentDescription = new AgentDescription(
     id = Some(e.id),
     languageCode = languageCode,
@@ -38,14 +38,16 @@ case class AgentDescriptionRepr(val e: Entity) extends Description with Formable
     otherFormsOfName = e.listProperty(OTHER_FORMS_OF_NAME),
     parallelFormsOfName = e.listProperty(PARALLEL_FORMS_OF_NAME),
     addresses = addresses.map(_.to),
-    history = e.stringProperty(HISTORY),
-    generalContext = e.stringProperty(GENERAL_CONTEXT),
-    mandates = e.stringProperty(HISTORY),
-    administrativeStructure = e.stringProperty(ADMINISTRATIVE_STRUCTURE),
-    records = e.stringProperty(RECORDS),
-    buildings = e.stringProperty(BUILDINGS),
-    holdings = e.stringProperty(HOLDINGS),
-    findingAids = e.stringProperty(FINDING_AIDS)    
+    details = AgentDetails(
+      history = e.stringProperty(HISTORY),
+      generalContext = e.stringProperty(GENERAL_CONTEXT),
+      mandates = e.stringProperty(HISTORY),
+      administrativeStructure = e.stringProperty(ADMINISTRATIVE_STRUCTURE),
+      records = e.stringProperty(RECORDS),
+      buildings = e.stringProperty(BUILDINGS),
+      holdings = e.stringProperty(HOLDINGS),
+      findingAids = e.stringProperty(FINDING_AIDS)
+    )
   )
 }
 
@@ -56,7 +58,7 @@ case class AddressRepr(val e: Entity) extends Formable[Address] {
     contactPerson = e.stringProperty(Address.CONTACT_PERSON),
     streetAddress = e.stringProperty(Address.STREET_ADDRESS),
     city = e.stringProperty(Address.CITY),
-    region = e.stringProperty(Address.REGION),    
+    region = e.stringProperty(Address.REGION),
     countryCode = e.stringProperty(Address.COUNTRY_CODE),
     email = e.stringProperty(Address.EMAIL),
     telephone = e.stringProperty(Address.TELEPHONE),
@@ -69,7 +71,7 @@ object Agent {
 
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
-    
+
   // Field set
   val NAME = Field("name", "Authorized Form of Name")
   val OTHER_FORMS_OF_NAME = Field("otherFormsOfName", "Other Forms of Name")
@@ -95,7 +97,7 @@ object Address {
   val EMAIL = Field("email", "Email")
   val TELEPHONE = Field("telephone", "Telephone")
   val FAX = Field("fax", "Fax")
-  val URL = Field("url", "Web URL")  
+  val URL = Field("url", "Web URL")
 }
 
 case class Agent(
@@ -103,8 +105,7 @@ case class Agent(
   val identifier: String,
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
-  @Annotations.Relation(Agent.DESC_REL) val descriptions: List[AgentDescription] = Nil
-) extends Persistable {
+  @Annotations.Relation(Agent.DESC_REL) val descriptions: List[AgentDescription] = Nil) extends Persistable {
   val isA = EntityType.Agent
 }
 
@@ -115,15 +116,7 @@ case class AgentDescription(
   val otherFormsOfName: List[String] = Nil,
   val parallelFormsOfName: List[String] = Nil,
   @Annotations.Relation(Agent.ADDRESS_REL) val addresses: List[Address] = Nil,
-  val history: Option[String] = None,
-  val generalContext: Option[String] = None,
-  val mandates: Option[String] = None,
-  val administrativeStructure: Option[String] = None,
-  val records: Option[String] = None,
-  val buildings: Option[String] = None,
-  val holdings: Option[String] = None,
-  val findingAids: Option[String] = None
-) extends Persistable {
+  val details: AgentDetails) extends Persistable {
   val isA = EntityType.AgentDescription
 }
 
@@ -134,15 +127,21 @@ case class Address(
   val streetAddress: Option[String] = None,
   val city: Option[String] = None,
   val region: Option[String] = None,
-  val countryCode: Option[String]  = None,
+  val countryCode: Option[String] = None,
   val email: Option[String] = None,
   val telephone: Option[String] = None,
   val fax: Option[String] = None,
-  val url: Option[String] = None
-) extends Persistable {
+  val url: Option[String] = None) extends Persistable {
   val isA = EntityType.Address
 }
 
-
-
-
+case class AgentDetails(
+  val history: Option[String] = None,
+  val generalContext: Option[String] = None,
+  val mandates: Option[String] = None,
+  val administrativeStructure: Option[String] = None,
+  val records: Option[String] = None,
+  val buildings: Option[String] = None,
+  val holdings: Option[String] = None,
+  val findingAids: Option[String] = None
+) extends AttributeSet

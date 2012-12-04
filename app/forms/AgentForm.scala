@@ -39,14 +39,16 @@ object AgentForm {
               URL.id -> optional(text)
             )(Address.apply)(Address.unapply)
           ),
-          HISTORY.id -> optional(text),
-          GENERAL_CONTEXT.id -> optional(text),
-          MANDATES.id -> optional(text),
-          ADMINISTRATIVE_STRUCTURE.id -> optional(text),
-          RECORDS.id -> optional(text),
-          BUILDINGS.id -> optional(text),
-          HOLDINGS.id -> optional(text),
-          FINDING_AIDS.id -> optional(text)
+          "description" -> mapping(
+            HISTORY.id -> optional(text),
+            GENERAL_CONTEXT.id -> optional(text),
+            MANDATES.id -> optional(text),
+            ADMINISTRATIVE_STRUCTURE.id -> optional(text),
+            RECORDS.id -> optional(text),
+            BUILDINGS.id -> optional(text),
+            HOLDINGS.id -> optional(text),
+            FINDING_AIDS.id -> optional(text)
+          )(AgentDetails.apply)(AgentDetails.unapply)
         )(AgentDescription.apply)(AgentDescription.unapply)
       )
     )(Agent.apply)(Agent.unapply)

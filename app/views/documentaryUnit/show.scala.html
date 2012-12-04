@@ -1,6 +1,7 @@
 @(item: DocumentaryUnitRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @import defines._
+@import DocumentaryUnit._
 
 @main("View item")(maybeUser, req) {
 
@@ -22,21 +23,21 @@
 	  <h4>@Messages("Available Descriptions")</h4>
 		@item.descriptions.map { desc =>
 		  <h5>Language: @desc.languageCode</h5>		  
-		  @common.stringValue(desc, DocumentaryUnit.ADMIN_BIOG)
-		  @common.stringValue(desc, DocumentaryUnit.ARCH_HIST)
-		  @common.stringValue(desc, DocumentaryUnit.ACQUISITION)
-		  @common.stringValue(desc, DocumentaryUnit.SCOPE_CONTENT)
-		  @common.stringValue(desc, DocumentaryUnit.APPRAISAL)
-		  @common.stringValue(desc, DocumentaryUnit.ACCRUALS)
-		  @common.stringValue(desc, DocumentaryUnit.SYS_ARR)
-		  @common.stringValue(desc, DocumentaryUnit.ACCESS_COND)
-		  @common.stringValue(desc, DocumentaryUnit.REPROD_COND)
-		  @common.stringValue(desc, DocumentaryUnit.PHYSICAL_CHARS)
-		  @common.stringValue(desc, DocumentaryUnit.FINDING_AIDS)
-		  @common.stringValue(desc, DocumentaryUnit.LOCATION_ORIGINALS)
-		  @common.stringValue(desc, DocumentaryUnit.LOCATION_COPIES)
-		  @common.stringValue(desc, DocumentaryUnit.RELATED_UNITS)
-		  @common.stringValue(desc, DocumentaryUnit.PUBLICATION_NOTE)
+		  @common.stringValue(desc, ADMIN_BIOG)
+		  @common.stringValue(desc, ARCH_HIST)
+		  @common.stringValue(desc, ACQUISITION)
+		  @common.stringValue(desc, SCOPE_CONTENT)
+		  @common.stringValue(desc, APPRAISAL)
+		  @common.stringValue(desc, ACCRUALS)
+		  @common.stringValue(desc, SYS_ARR)
+		  @common.stringValue(desc, ACCESS_COND)
+		  @common.stringValue(desc, REPROD_COND)
+		  @common.stringValue(desc, PHYSICAL_CHARS)
+		  @common.stringValue(desc, FINDING_AIDS)
+		  @common.stringValue(desc, LOCATION_ORIGINALS)
+		  @common.stringValue(desc, LOCATION_COPIES)
+		  @common.stringValue(desc, RELATED_UNITS)
+		  @common.stringValue(desc, PUBLICATION_NOTE)
 		}
 	}
 

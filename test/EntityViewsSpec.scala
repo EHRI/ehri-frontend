@@ -221,7 +221,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].name" -> Seq("Wiener Library"),
           "descriptions[0].otherFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
           "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
-          "descriptions[0].generalContext" -> Seq("Some content"),
+          "descriptions[0].description.history" -> Seq("Some history"),
+          "descriptions[0].description.generalContext" -> Seq("Some content"),
           "publicationStatus" -> Seq("Published")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
@@ -232,6 +233,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         // FIXME: This route will change when a property ID mapping scheme is devised
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(show) must equalTo(OK)
+        contentAsString(show) must contain("Some history")
         contentAsString(show) must contain("Some content")
       }
     }
@@ -245,7 +247,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].name" -> Seq("Repository 1"),
           "descriptions[0].otherFormsOfName[0]" -> Seq("Repository 1 (Alt)"),
           "descriptions[0].parallelFormsOfName[0]" -> Seq("Repository 1 (Alt)"),
-          "descriptions[0].generalContext" -> Seq("New Content for r1"),
+          "descriptions[0].description.history" -> Seq("New History for r1"),
+          "descriptions[0].description.generalContext" -> Seq("New Content for r1"),
           "publicationStatus" -> Seq("Draft")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")

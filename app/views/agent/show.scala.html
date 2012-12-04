@@ -1,6 +1,7 @@
 @(item: AgentRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @import defines._
+@import Agent._
 
 @main(item.name)(maybeUser, req) {
 
@@ -11,8 +12,15 @@
 		@item.descriptions.map { desc =>
 		  <h5>Language: @desc.languageCode</h5>
 		  
-		  <h5>General Context</h5>
-		  <p>@desc.stringProperty("generalContext")</p>
+		  <h5>Description</h5>
+		  @common.stringValue(desc, HISTORY)
+		  @common.stringValue(desc, GENERAL_CONTEXT)
+		  @common.stringValue(desc, MANDATES)
+		  @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
+		  @common.stringValue(desc, RECORDS)
+		  @common.stringValue(desc, BUILDINGS)
+		  @common.stringValue(desc, HOLDINGS)
+		  @common.stringValue(desc, FINDING_AIDS)
 		}
 	}
 	
