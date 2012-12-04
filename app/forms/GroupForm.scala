@@ -9,8 +9,8 @@ object GroupForm {
 
   val form = Form(
       mapping(
-    		"id" -> optional(text),
-    		"identifier" -> nonEmptyText,
+    		Entity.ID -> optional(text),
+    		Entity.IDENTIFIER -> nonEmptyText,
     		"name" -> nonEmptyText
       )(Group.apply)(Group.unapply)
   ) 

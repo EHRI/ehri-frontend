@@ -9,8 +9,8 @@ object UserProfileForm {
 
   val form = Form(
       mapping(
-    		"id" -> optional(text),
-    		"identifier" -> nonEmptyText,
+    		Entity.ID -> optional(nonEmptyText),
+    		Entity.IDENTIFIER -> nonEmptyText,
     		"name" -> nonEmptyText,
     		"location" -> optional(text),
     		"about" -> optional(text),

@@ -2,6 +2,9 @@ package models.base
 
 import models.Entity
 
+object AccessibleEntity {
+  val IDENTIFIER = Field("identifier", "Identifier")
+}
 
 trait AccessibleEntity {
   

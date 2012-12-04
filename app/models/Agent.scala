@@ -38,7 +38,14 @@ case class AgentDescriptionRepr(val e: Entity) extends Description with Formable
     otherFormsOfName = e.listProperty(OTHER_FORMS_OF_NAME),
     parallelFormsOfName = e.listProperty(PARALLEL_FORMS_OF_NAME),
     addresses = addresses.map(_.to),
-    generalContext = e.stringProperty(GENERAL_CONTEXT)
+    history = e.stringProperty(HISTORY),
+    generalContext = e.stringProperty(GENERAL_CONTEXT),
+    mandates = e.stringProperty(HISTORY),
+    administrativeStructure = e.stringProperty(ADMINISTRATIVE_STRUCTURE),
+    records = e.stringProperty(RECORDS),
+    buildings = e.stringProperty(BUILDINGS),
+    holdings = e.stringProperty(HOLDINGS),
+    findingAids = e.stringProperty(FINDING_AIDS)    
   )
 }
 
@@ -65,9 +72,17 @@ object Agent {
     
   // Field set
   val NAME = Field("name", "Authorized Form of Name")
-  val GENERAL_CONTEXT = Field("generalContext", "General Context")
   val OTHER_FORMS_OF_NAME = Field("otherFormsOfName", "Other Forms of Name")
   val PARALLEL_FORMS_OF_NAME = Field("parallelFormsOfName", "Parallel forms of Name")
+
+  val HISTORY = Field("history", "History")
+  val GENERAL_CONTEXT = Field("generalContext", "General Context")
+  val MANDATES = Field("mandates", "Mandates/Sources of Authority")
+  val ADMINISTRATIVE_STRUCTURE = Field("administrativeStructure", "Administrative Structure")
+  val RECORDS = Field("records", "Records Management and Other Policies")
+  val BUILDINGS = Field("buildings", "Building(s)")
+  val HOLDINGS = Field("holdings", "Archival and Other Holdings")
+  val FINDING_AIDS = Field("findingAids", "Finding Aids")
 }
 
 object Address {
@@ -99,8 +114,15 @@ case class AgentDescription(
   val name: Option[String] = None,
   val otherFormsOfName: List[String] = Nil,
   val parallelFormsOfName: List[String] = Nil,
-  @Annotations.Relation(Agent.ADDRESS_REL) val addresses: List[Address] = Nil,  
-  val generalContext: Option[String] = None
+  @Annotations.Relation(Agent.ADDRESS_REL) val addresses: List[Address] = Nil,
+  val history: Option[String] = None,
+  val generalContext: Option[String] = None,
+  val mandates: Option[String] = None,
+  val administrativeStructure: Option[String] = None,
+  val records: Option[String] = None,
+  val buildings: Option[String] = None,
+  val holdings: Option[String] = None,
+  val findingAids: Option[String] = None
 ) extends Persistable {
   val isA = EntityType.AgentDescription
 }
