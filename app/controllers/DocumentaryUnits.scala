@@ -57,7 +57,7 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit,Documenta
                 EntityDAO(entityType, maybeUser.flatMap(_.profile))
                   .update(id, doc.to.copy(publicationStatus = Some(defines.PublicationStatus.Published)).toData).map { itemOrErr =>
                     itemOrErr.right.map { item =>
-                      Redirect(docShowAction(item.identifier))
+                      Redirect(docShowAction(item.id))
                     }
                   }
               }

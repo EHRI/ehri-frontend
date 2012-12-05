@@ -24,7 +24,7 @@
 	<ul>
 	@page.list.map { item =>
 	  	<div class="list-item">
-			<h4><a href="@routes.Actions.get(item.identifier)">@item.time</a>
+			<h4><a href="@routes.Actions.get(item.id)">@item.time</a>
 			@item.actioner.map { accessor =>
 				@accessor match {
 	

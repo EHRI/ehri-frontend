@@ -36,19 +36,19 @@
   		}
   		@pset.get(ContentType.DocumentaryUnit, PermissionType.Create).map { p =>
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Agents.docCreate(item.identifier)">@Messages("Create New Documentary Unit")</a>
+  		  <a href="@routes.Agents.docCreate(item.id)">@Messages("Create New Documentary Unit")</a>
   		}  		
   		@pset.get(ContentType.Agent, PermissionType.Update).map { p =>
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Agents.visibility(item.identifier)">@Messages("Set Visibility")</a>
+  		  <a href="@routes.Agents.visibility(item.id)">@Messages("Set Visibility")</a>
   		}
   		@pset.get(ContentType.Agent, PermissionType.Update).map { p =>
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Agents.update(item.identifier)">@Messages("Modify Record")</a>
+  		  <a href="@routes.Agents.update(item.id)">@Messages("Modify Record")</a>
   		}
   		@pset.get(ContentType.Agent, PermissionType.Delete).map { p =>
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Agents.delete(item.identifier)">@Messages("Delete Record")</a>
+  		  <a href="@routes.Agents.delete(item.id)">@Messages("Delete Record")</a>
   		}	    
 	  }
 	}

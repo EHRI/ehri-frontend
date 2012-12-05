@@ -100,7 +100,7 @@ object Groups extends PermissionsController[Group, GroupRepr]
     implicit request =>
       maybeUser.flatMap(_.profile).map { userProfile =>
         AsyncRest {
-          rest.PermissionDAO(userProfile).addGroup(id, EntityType.withName(userType), userId).map { boolOrErr =>
+          rest.PermissionDAO(userProfile).addGroup(id, userId).map { boolOrErr =>
             boolOrErr.right.map { ok =>
               Redirect(routes.Groups.membership(userType, userId))
             }
@@ -137,7 +137,7 @@ object Groups extends PermissionsController[Group, GroupRepr]
     implicit request =>
       maybeUser.flatMap(_.profile).map { userProfile =>
         AsyncRest {
-          rest.PermissionDAO(userProfile).removeGroup(id, EntityType.withName(userType), userId).map { boolOrErr =>
+          rest.PermissionDAO(userProfile).removeGroup(id, userId).map { boolOrErr =>
             boolOrErr.right.map { ok =>
               Redirect(routes.Groups.membership(userType, userId))
             }

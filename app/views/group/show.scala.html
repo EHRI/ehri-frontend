@@ -26,23 +26,23 @@
   		}
   		@pset.get(ContentType.Group, PermissionType.Update).map { p =>
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.update(item.identifier)">@Messages("Modify Group")</a>
+  		  <a href="@routes.Groups.update(item.id)">@Messages("Modify Group")</a>
   		}
   		@pset.get(ContentType.Group, PermissionType.Update).map { p =>
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.visibility(item.identifier)">@Messages("Set Visibility")</a>
+  		  <a href="@routes.Groups.visibility(item.id)">@Messages("Set Visibility")</a>
   		}
   		@pset.get(ContentType.Group, PermissionType.Grant).map { p =>
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.permissions(item.identifier)">@Messages("Modify Permissions")</a>
+  		  <a href="@routes.Groups.permissions(item.id)">@Messages("Modify Permissions")</a>
   		}	      		  		
   		@pset.get(ContentType.Group, PermissionType.Grant).map { p =>
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.membership(item.isA.toString, item.identifier)">@Messages("Add/Remove Parent Groups")</a>
+  		  <a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("Add/Remove Parent Groups")</a>
   		}	      		  		
   		@pset.get(ContentType.Group, PermissionType.Delete).map { p =>
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.delete(item.identifier)">@Messages("Delete Group")</a>
+  		  <a href="@routes.Groups.delete(item.id)">@Messages("Delete Group")</a>
   		}	    
 	  }
 	}	

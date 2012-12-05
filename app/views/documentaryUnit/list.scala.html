@@ -25,12 +25,12 @@
 	@page.list.map { item =>
 	  	<div class="list-item">
 			<h4>
-				<a href="@showAction(item.identifier)">@item.name</a>
+				<a href="@showAction(item.id)">@item.name</a>
 				@item.dateString.map { d =>
 				  &nbsp;[@d]
 				}
 				@item.holder.map { holder =>
-					<strong> - <a href="@controllers.routes.Agents.get(holder.identifier)">@holder.name</a></strong>
+					<strong> - <a href="@controllers.routes.Agents.get(holder.id)">@holder.name</a></strong>
 				}
 			</h4>
 			@item.descriptions.headOption.map { desc =>
