@@ -56,7 +56,7 @@ case class PermissionSet[+T <: Accessor](val user: T, val data: PermissionSet.Pe
     }
     accessors.headOption.map {
       case (userId, perm) =>
-        if (user.identifier == userId) PermissionGrant(perm)
+        if (user.id == userId) PermissionGrant(perm)
         else user.getAccessor(user.groups, userId) match {
           case Some(u) if u.identifier == user.identifier => PermissionGrant(perm)
           case s @ Some(u) => PermissionGrant(perm, s)

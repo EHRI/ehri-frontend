@@ -30,7 +30,7 @@ object Entity {
   val RELATIONSHIPS = "relationships"  
   
   def fromString(s: String, t: EntityType.Value) = {
-    new Entity("", t, Map(IDENTIFIER -> JsString(s)), Map())
+    new Entity(s, t, Map(IDENTIFIER -> JsString(s)), Map())
   }
 }
 

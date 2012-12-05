@@ -36,14 +36,16 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfileRepr) extends R
   }
 
   def get(user: T): Future[Either[RestError, PermissionSet[T]]] = {
-    WS.url(enc("%s/%s".format(requestUrl, user.identifier)))
+    WS.url(enc("%s/%s".format(requestUrl, user.id)))
       .withHeaders(headers.toSeq: _*).get.map { response =>
         checkError(response).right.map(r => PermissionSet[T](user, r.json))
       }
   }
 
   def set(user: T, data: Map[String, List[String]]): Future[Either[RestError, PermissionSet[T]]] = {
-    WS.url(enc("%s/%s".format(requestUrl, user.identifier)))
+    println("SETTING PERMS FOR: " + user.id)
+    println(enc("%s/%s".format(requestUrl, user.id)))
+    WS.url(enc("%s/%s".format(requestUrl, user.id)))
       .withHeaders(headers.toSeq: _*).post(Json.generate(data)).map { response =>
         checkError(response).right.map(r => PermissionSet[T](user, r.json))
       }

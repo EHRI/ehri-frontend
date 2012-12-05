@@ -24,7 +24,7 @@ trait Accessor extends AccessibleEntity with NamedEntity {
 	def getAccessor(groups: List[Accessor], id: String): Option[Accessor] = {
 	  groups match {
 	    case lst @ head :: rest => {
-	      if (head.identifier == id) Some(head)	        
+	      if (head.id == id) Some(head)	        
 	      else getAccessor(head.groups, id) match {
 	          case s @ Some(g) => s
 	          case None => getAccessor(rest, id)
