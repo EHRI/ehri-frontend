@@ -40,13 +40,13 @@ trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable
   def visibilityPost(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       maybeUser.flatMap(_.profile).map { userProfile =>
-        val data = request.body.asFormUrlEncoded.getOrElse(Map()).map { case (i, s) => (i, s.toList) }
+        val data = request.body.asFormUrlEncoded.getOrElse(List()).flatMap { case (_, s) => s.toList }
         AsyncRest {
           rest.EntityDAO(entityType, Some(userProfile)).get(id).map { itemOrErr =>
             itemOrErr.right.map { item =>
               val model = builder(item)
               AsyncRest {
-                rest.VisibilityDAO(userProfile).set(model, data).map { boolOrErr =>
+                rest.VisibilityDAO(userProfile).set(model, data.toList).map { boolOrErr =>
                   boolOrErr.right.map { bool =>
                     Redirect(showAction(id))
                   }

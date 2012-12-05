@@ -177,9 +177,7 @@ class DAOSpec extends Specification with BeforeExample {
         val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
         DocumentaryUnitRepr(c1a).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike"))
         
-        val set = await(VisibilityDAO(userProfile).set(DocumentaryUnitRepr(c1a), Map(
-            EntityType.UserProfile.toString -> List("mike", "reto"),
-            EntityType.Group.toString -> List("admin"))))
+        val set = await(VisibilityDAO(userProfile).set(DocumentaryUnitRepr(c1a), List("mike", "reto", "admin")))
         set must beRight
         val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
         DocumentaryUnitRepr(c1b).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike", "reto"))    
