@@ -10,4 +10,5 @@ object ContentType extends Enumeration() {
   val Authority = Value("authority")
   val UserProfile = Value("userProfile")
   val Group = Value("group")
+  val Annotation = Value("annotation")
 }
