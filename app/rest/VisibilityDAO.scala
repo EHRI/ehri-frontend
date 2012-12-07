@@ -21,7 +21,7 @@ case class VisibilityDAO[T <: AccessibleEntity](val accessor: UserProfileRepr) e
 
   private val headers: Map[String, String] = Map(
     "Content-Type" -> "application/json",
-    "Authorization" -> accessor.identifier
+    "Authorization" -> accessor.id
   )
   
   def set(user: T, data: List[String]): Future[Either[RestError, Boolean]] = {

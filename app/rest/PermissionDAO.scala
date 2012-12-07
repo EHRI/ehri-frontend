@@ -26,7 +26,7 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfileRepr) extends R
 
   private val headers: Map[String, String] = Map(
     "Content-Type" -> "application/json",
-    "Authorization" -> accessor.identifier
+    "Authorization" -> accessor.id
   )
 
   def get: Future[Either[RestError, PermissionSet[UserProfileRepr]]] = {

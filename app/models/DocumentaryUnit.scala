@@ -69,7 +69,7 @@ object DocumentaryUnit  {
   
   final val DESC_REL = "describes"
   final val ACCESS_REL = "access"
-  final val HELD_REL = "holds"
+  final val HELD_REL = "heldBy"
   final val CHILD_REL = "childOf"
     
   /* ISAD(G)-based field set */

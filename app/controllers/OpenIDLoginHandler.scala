@@ -56,7 +56,7 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
               rest.AdminDAO().createNewUserProfile.map {
                 case Right(entity) => {
                   val email = info.attributes.getOrElse("email", sys.error("No openid email"))
-                  models.sql.OpenIDUser.create(email, entity.property("identifier").map(_.as[String]).get).map { user =>
+                  models.sql.OpenIDUser.create(email, entity.id).map { user =>
                     user.addAssociation(info.id)
                     gotoLoginSucceeded(user.profile_id)
                   }.getOrElse(BadRequest("Creation of user db failed!"))

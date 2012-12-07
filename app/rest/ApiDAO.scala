@@ -27,7 +27,7 @@ case class ApiDAO(val userProfile: Option[UserProfileRepr]) extends RestDAO {
   )
   
   def authHeaders: Seq[(String, String)] = userProfile match {
-    case Some(up) => (headers + ("Authorization" -> up.identifier)).toSeq
+    case Some(up) => (headers + ("Authorization" -> up.id)).toSeq
     case None => headers.toSeq
   }
   
