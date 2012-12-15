@@ -38,7 +38,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
   val testPrivilegedUser = "mike"
   val testOrdinaryUser = "reto"
   val userProfile = UserProfileRepr(Entity.fromString("mike", EntityType.UserProfile)
-		  .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
+    .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
@@ -88,6 +88,18 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         contentAsString(list) must contain("c2")
         contentAsString(list) must contain("c3")
         contentAsString(list) must contain("c4")
+      }
+    }
+
+    "link to other privileged actions when logged in" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c1").url)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain(DocumentaryUnits.update("c1").url)
+        contentAsString(show) must contain(DocumentaryUnits.delete("c1").url)
+        contentAsString(show) must contain(DocumentaryUnits.docCreate("c1").url)
+        contentAsString(show) must contain(DocumentaryUnits.visibility("c1").url)
+        contentAsString(show) must contain(DocumentaryUnits.list().url)
       }
     }
 
@@ -206,7 +218,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(list) must equalTo(OK)
         contentAsString(list) must contain("Items")
 
-        contentAsString(list) must contain ("r1")
+        contentAsString(list) must contain("r1")
         contentAsString(list) must contain("r2")
 
       }
@@ -235,6 +247,18 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(show) must equalTo(OK)
         contentAsString(show) must contain("Some history")
         contentAsString(show) must contain("Some content")
+      }
+    }
+
+    "link to other privileged actions when logged in" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val show = route(fakeLoggedInRequest(GET, Agents.get("r1").url)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain(Agents.update("r1").url)
+        contentAsString(show) must contain(Agents.delete("r1").url)
+        contentAsString(show) must contain(Agents.docCreate("r1").url)
+        contentAsString(show) must contain(Agents.visibility("r1").url)
+        contentAsString(show) must contain(Agents.list().url)
       }
     }
 
@@ -284,25 +308,26 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
   }
-  
+
   "UserProfile views" should {
 
-    import controllers.routes.UserProfiles
+    import controllers.routes.{ UserProfiles, Groups }
     import rest.PermissionDAO
-    
+
     val subjectUser = UserProfileRepr(Entity.fromString("reto", EntityType.UserProfile))
+    val id = subjectUser.identifier
 
     "reliably set permissions" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val testData: Map[String, List[String]] = Map(
-        	ContentType.Agent.toString -> List(PermissionType.Create.toString),
-        	ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
+          ContentType.Agent.toString -> List(PermissionType.Create.toString),
+          ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
           UserProfiles.permissionsPost(subjectUser.identifier).url).withHeaders(headers.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
-        
+
         // Now check we can read back the same permissions.
         val permCall = await(PermissionDAO[UserProfileRepr](userProfile).get(subjectUser))
         permCall must beRight
@@ -310,7 +335,83 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         perms.get(ContentType.Agent, PermissionType.Create) must beSome
         perms.get(ContentType.Agent, PermissionType.Create).get.inheritedFrom must beNone
         perms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
-        perms.get(ContentType.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone        
+        perms.get(ContentType.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
+      }
+    }
+
+    "link to other privileged actions when logged in" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val show = route(fakeLoggedInRequest(GET, UserProfiles.get(id).url)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain(UserProfiles.update(id).url)
+        contentAsString(show) must contain(UserProfiles.delete(id).url)
+        contentAsString(show) must contain(UserProfiles.permissions(id).url)
+        contentAsString(show) must contain(UserProfiles.visibility(id).url)
+        contentAsString(show) must contain(UserProfiles.list().url)
+        contentAsString(show) must contain(Groups.membership(EntityType.UserProfile.toString, id).url)
+      }
+    }
+
+    "allow adding users to groups" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        // Going to add user Reto to group Niod
+        val add = route(fakeLoggedInRequest(POST,
+          Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)).get
+        status(add) must equalTo(SEE_OTHER)
+
+        // TODO: Check user is actually part of other group?
+      }
+    }
+
+    "allow removing users from groups" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        // Going to add remove Reto from group KCL
+        val rem = route(fakeLoggedInRequest(POST,
+          Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)).get
+        status(rem) must equalTo(SEE_OTHER)
+      }
+    }
+  }
+
+  "Group views" should {
+
+    import controllers.routes.Groups
+    import rest.PermissionDAO
+    import models.GroupRepr
+
+    val subjectUser = GroupRepr(Entity.fromString("kcl", EntityType.Group))
+    val id = subjectUser.identifier
+
+    "detail when logged in should link to other privileged actions" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val show = route(fakeLoggedInRequest(GET, Groups.get(id).url)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain(Groups.update(id).url)
+        contentAsString(show) must contain(Groups.delete(id).url)
+        contentAsString(show) must contain(Groups.permissions(id).url)
+        contentAsString(show) must contain(Groups.membership(EntityType.Group.toString, id).url)
+        contentAsString(show) must contain(Groups.visibility(id).url)
+        contentAsString(show) must contain(Groups.list().url)
+      }
+    }
+
+    "allow adding groups to groups" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        // Add KCL to Admin
+        val add = route(fakeLoggedInRequest(POST,
+          Groups.addMemberPost("admin", EntityType.UserProfile.toString, id).url)).get
+        status(add) must equalTo(SEE_OTHER)
+
+        // TODO: Check group is actually part of other group?
+      }
+    }
+
+    "allow removing groups from groups" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        // Remove NIOD from Admin
+        val rem = route(fakeLoggedInRequest(POST,
+          Groups.removeMemberPost("admin", EntityType.UserProfile.toString, "niod").url)).get
+        status(rem) must equalTo(SEE_OTHER)
       }
     }
   }
