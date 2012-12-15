@@ -17,24 +17,21 @@ import play.api.mvc.AnyContent
 import play.api.libs.ws.Response
 import play.api.mvc.RequestHeader
 import play.api.mvc.Headers
+import play.api.http.HeaderNames
+import play.api.http.ContentTypes
 
 case class ApiDAO(val userProfile: Option[UserProfileRepr]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 
-  private val headers: Map[String, String] = Map(
-
-  )
-  
-  def authHeaders: Seq[(String, String)] = userProfile match {
-    case Some(up) => (headers + ("Authorization" -> up.id)).toSeq
-    case None => headers.toSeq
+  def authHeaders: Map[String, String] = userProfile match {
+    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
+    case None => headers
   }
   
 
   def get(urlpart: String, headers: Headers): Future[Response] = {
     WS.url(enc("%s/%s".format(requestUrl, urlpart)))
-    	.withHeaders(authHeaders.toSeq: _*)
-    	.withHeaders(headers.toSimpleMap.toSeq: _*).get
+    	.withHeaders(authHeaders.toSeq: _*).get
   }
 }

@@ -8,8 +8,9 @@ import play.api.libs.json.JsValue
 import play.api.libs.json._
 import play.api.libs.json.util._
 import rest.RestDAO
-
 import play.api.PlayException
+import play.api.http.HeaderNames
+import play.api.http.ContentTypes
 
 case class GremlinError(
   val message: String, val exception: String, val stacktrace: List[String]) extends PlayException("Gremlin Script Error: %s".format(exception), message)
@@ -34,13 +35,6 @@ case class GremlinDAO() extends RestDAO {
    */
   val scripts = new ScriptSource()
 
-  /**
-   *  For as-yet-undetermined reasons that data coming back from Neo4j seems
-   *  to be encoded as ISO-8859-1, so we need to convert it to UTF-8. Obvs.
-   *  this problem should eventually be fixed at the source, rather than here.
-   */
-  def fixEncoding(s: String) = new String(s.getBytes("ISO-8859-1"), "UTF-8")
-
   /*
    * Enum for declaring direction of relationships.
    */
@@ -48,11 +42,6 @@ case class GremlinDAO() extends RestDAO {
     type Direction = Value
     val In, Out = Value
   }
-
-  val headers = Map(
-    "Accept" -> "application/json",
-    "Content-Type" -> "application/json; charset=utf8"
-  )
 
   import GremlinErrorReader._
 

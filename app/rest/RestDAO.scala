@@ -10,6 +10,8 @@ import play.api.Play
 import com.codahale.jerkson.Json.generate
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
+import play.api.http.HeaderNames
+import play.api.http.ContentTypes
 
 sealed trait RestError extends Throwable
 case object PermissionDenied extends RestError
@@ -18,8 +20,33 @@ case object DeserializationError extends RestError
 case object IntegrityError extends RestError
 case object ItemNotFound extends RestError
 
+
+object RestDAO extends RestDAO
+
+
 trait RestDAO {
 
+  /**
+   * Name of the header that passes that accessing user id to
+   * the server.
+   */
+  val AUTH_HEADER_NAME = "Authorization"
+
+  /**
+   *  For as-yet-undetermined reasons that data coming back from Neo4j seems
+   *  to be encoded as ISO-8859-1, so we need to convert it to UTF-8. Obvs.
+   *  this problem should eventually be fixed at the source, rather than here.
+   */
+  def fixEncoding(s: String) = new String(s.getBytes("ISO-8859-1"), "UTF-8")
+
+  /**
+   * Standard headers we sent to every Neo4j/EHRI Server request.
+   */
+  val headers = Map(
+    HeaderNames.ACCEPT -> ContentTypes.JSON,
+    HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
+  )  
+  
   import play.api.http.Status._
 
   import java.net.URI

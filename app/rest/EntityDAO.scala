@@ -12,6 +12,8 @@ import defines.EntityType
 import models.Entity
 import models.Entity
 import models.UserProfileRepr
+import play.api.http.ContentTypes
+import play.api.http.HeaderNames
 
 case class Page[+T](val total: Long, val offset: Int, val limit: Int, val list: Seq[T]) {
   def numPages = (total / limit) + (total % limit).min(1)
@@ -50,29 +52,25 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
-  private val headers: Map[String, String] = Map(
-    "Content-Type" -> "application/json"
-  )
-
-  def authHeaders: Seq[(String, String)] = userProfile match {
-    case Some(up) => (headers + ("Authorization" -> up.id)).toSeq
-    case None => headers.toSeq
+  def authHeaders: Map[String, String] = userProfile match {
+    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
+    case None => headers
   }
 
   def get(id: Long): Future[Either[RestError, Entity]] = {
-    WS.url(requestUrl + "/" + id.toString).withHeaders(authHeaders: _*).get.map { response =>
+    WS.url(requestUrl + "/" + id.toString).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
   def get(id: String): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders: _*).get.map { response =>
+    WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
   def get(key: String, value: String): Future[Either[RestError, Entity]] = {
-    WS.url(requestUrl).withHeaders(authHeaders: _*)
+    WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*)
       .withQueryString("key" -> key, "value" -> value)
       .get.map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
@@ -80,35 +78,35 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def create(data: Map[String, Any]): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl)).withHeaders(authHeaders: _*)
+    WS.url(enc(requestUrl)).withHeaders(authHeaders.toSeq: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }
 
   def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
-    WS.url(enc("%s/%s/%s".format(requestUrl, id, givenType))).withHeaders(authHeaders: _*)
+    WS.url(enc("%s/%s/%s".format(requestUrl, id, givenType))).withHeaders(authHeaders.toSeq: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }
 
   def update(id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders: _*)
+    WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders.toSeq: _*)
       .put(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
       }
   }
 
   def delete(id: String): Future[Either[RestError, Boolean]] = {
-    WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders: _*).delete.map { response =>
+    WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => r.status == OK)
     }
   }
 
   def list(offset: Int, limit: Int): Future[Either[RestError, Seq[Entity]]] = {
-    WS.url(requestUrl + "/list?offset=%d&limit=%d".format(offset, limit)).withHeaders(authHeaders: _*).get.map { response =>
+    WS.url(requestUrl + "/list?offset=%d&limit=%d".format(offset, limit)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json match {
           case JsArray(array) => array.map(js => jsonToEntity(js))
@@ -120,7 +118,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
 
   def page(page: Int, limit: Int): Future[Either[RestError, Page[Entity]]] = {
     implicit val entityPageReads = PageReads.pageReads(models.EntityReader.entityReads)
-    WS.url(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)).withHeaders(authHeaders: _*).get.map { response =>
+    WS.url(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
           valid = { page => 

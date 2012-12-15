@@ -4,6 +4,8 @@ import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.WS
 import models.Entity
+import play.api.http.HeaderNames
+import play.api.http.ContentTypes
 
 case class AdminDAO() extends RestDAO {
 
@@ -12,13 +14,9 @@ case class AdminDAO() extends RestDAO {
   
   def requestUrl = "http://%s:%d/%s/admin".format(host, port, mount)
 
-  private val headers: Seq[(String,String)] = Seq(
-      "Content-Type" -> "application/json"
-  )
-
   def createNewUserProfile: Future[Either[RestError, Entity]] = {
 
-    WS.url(requestUrl + "/createDefaultUserProfile").withHeaders(headers: _*)
+    WS.url(requestUrl + "/createDefaultUserProfile").withHeaders(headers.toSeq: _*)
       .post("").map { response =>
         checkError(response).right.map(r => r.json.as[Entity])
       }
