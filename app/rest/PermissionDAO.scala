@@ -53,16 +53,16 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfileRepr) extends R
   def addGroup(groupId: String, userId: String): Future[Either[RestError, Boolean]] = {
     WS.url(enc("%s/%s/%s/%s".format(baseUrl,
       EntityType.Group, groupId, userId)))
-      .withHeaders(headers.toSeq: _*).post(Map[String, List[String]]()).map { response =>
+      .withHeaders(authHeaders.toSeq: _*).post(Map[String, List[String]]()).map { response =>
         checkError(response).right.map(r => r.status == OK)
       }
   }
-  
+
   def removeGroup(groupId: String, userId: String): Future[Either[RestError, Boolean]] = {
     WS.url(enc("%s/%s/%s/%s".format(baseUrl,
       EntityType.Group, groupId, userId)))
-      .withHeaders(headers.toSeq: _*).delete.map { response =>
+      .withHeaders(authHeaders.toSeq: _*).delete.map { response =>
         checkError(response).right.map(r => r.status == OK)
       }
-  }  
+  }
 }
