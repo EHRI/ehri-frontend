@@ -8,11 +8,11 @@
 	<h3>@item.name (@item.identifier)</h3>
   
 	@item.holder.map { holder =>
-	  <h4>Held by: <a href="@routes.Agents.get(holder.identifier)">@holder.name</a></h4>
+	  <h4>Held by: <a href="@routes.Agents.get(holder.id)">@holder.name</a></h4>
 	}
 
 	@item.parent.map { parent =>
-	  <h4>Parent item: <a href="@routes.DocumentaryUnits.get(parent.identifier)">@parent.name</a></h4>
+	  <h4>Parent item: <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
 	}
 	
 	@item.dateString.map { d =>
