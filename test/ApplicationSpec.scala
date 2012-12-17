@@ -4,7 +4,6 @@ import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.mvc.Cookie
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.http.HeaderNames
 
 import helpers.TestLoginHelper

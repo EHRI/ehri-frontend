@@ -10,7 +10,7 @@ import org.specs2.runner.JUnitRunner
 import eu.ehri.extension.EhriNeo4jFramedResource
 import com.typesafe.config.ConfigFactory
 import rest._
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.concurrent.execution.defaultContext
 import models.Entity
 import models.UserProfile
 import play.api.libs.json.JsString
