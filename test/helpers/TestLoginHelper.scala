@@ -6,7 +6,7 @@ import play.api.test.FakeApplication
 import play.api.test.FakeRequest
 import play.api.test.Helpers.POST
 import play.api.test.Helpers.header
-import play.api.test.Helpers.route
+import play.api.test.Helpers._
 
 trait TestLoginHelper {
 

@@ -54,18 +54,9 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     runner.setUp
   }
 
-  def joinQueryString(qs: Map[String, Seq[String]]): String = {
-    import java.net.URLEncoder
-    qs.map {
-      case (key, vals) => {
-        vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
-      }
-    }.flatten.mkString("&")
-  }
-
   "DocumentaryUnit views" should {
 
-    import controllers.routes.DocumentaryUnits
+    import controllers.routes.{DocumentaryUnits,Agents}
 
     "list should get some (world-readable) items" in {
       running(FakeApplication(additionalConfiguration = config)) {
@@ -100,6 +91,15 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         contentAsString(show) must contain(DocumentaryUnits.docCreate("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.visibility("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.list().url)
+      }
+    }
+
+    "link to holder" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c1").url)).get
+        status(show) must equalTo(OK)
+
+        contentAsString(show) must contain(Agents.get("r1").url)
       }
     }
 
