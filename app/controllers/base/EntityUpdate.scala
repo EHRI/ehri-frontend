@@ -48,13 +48,8 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
                 if (itemOrErr.isLeft) {
                   itemOrErr.left.get match {
                     case err: rest.ValidationError => {
-                      
-                      val serverErrors: Seq[FormError] = err.errorSet.errorsFor.flatMap { case(field, list) =>
-                        list.map { errorItem =>
-                          FormError(field, errorItem)
-                        }
-                      }.toSeq
-                      val filledForm = form.fill(doc).copy(errors=serverErrors)
+                      val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
+                      val filledForm = form.fill(doc).copy(errors=form.errors ++ serverErrors)
                       Right(BadRequest(formView(None, filledForm, updateAction(id), maybeUser, request)))
                     }
                     case e => Left(e)
