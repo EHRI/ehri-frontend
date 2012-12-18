@@ -1,0 +1,5 @@
+@(desc: play.api.data.Field, field: models.base.Field)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@helper.inputText(desc(field.id), '_label -> Messages(field.name))
