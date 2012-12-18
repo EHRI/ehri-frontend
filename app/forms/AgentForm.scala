@@ -22,8 +22,8 @@ object AgentForm {
           Entity.ID -> optional(nonEmptyText),
           "languageCode" -> nonEmptyText,
           NAME.id -> optional(text),
-          OTHER_FORMS_OF_NAME.id -> list(text),
-          PARALLEL_FORMS_OF_NAME.id -> list(text),
+          OTHER_FORMS_OF_NAME.id -> optional(list(text)),
+          PARALLEL_FORMS_OF_NAME.id -> optional(list(text)),
           "addresses" -> list(
             mapping(
               Entity.ID -> optional(nonEmptyText),

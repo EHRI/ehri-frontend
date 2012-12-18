@@ -113,8 +113,8 @@ case class AgentDescription(
   val id: Option[String],
   val languageCode: String,
   val name: Option[String] = None,
-  val otherFormsOfName: List[String] = Nil,
-  val parallelFormsOfName: List[String] = Nil,
+  val otherFormsOfName: Option[List[String]] = None,
+  val parallelFormsOfName: Option[List[String]] = None,
   @Annotations.Relation(Agent.ADDRESS_REL) val addresses: List[Address] = Nil,
   val details: AgentDetails) extends Persistable {
   val isA = EntityType.AgentDescription

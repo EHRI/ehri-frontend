@@ -21,13 +21,13 @@ trait ControllerHelpers {
       promise.map { respOrErr =>
         respOrErr.fold(
           err => err match {
-            case err @ PermissionDenied => maybeUser match {
+            case e: PermissionDenied => maybeUser match {
               case Some(user) => Unauthorized(views.html.errors.permissionDenied())
               case None => authenticationFailed(request)
             }
-            case ItemNotFound => NotFound(views.html.errors.itemNotFound())
-            case err @ ValidationError => BadRequest(err.toString())
-            case err @ _ => BadRequest(err.toString())
+            case e: ItemNotFound => NotFound(views.html.errors.itemNotFound())
+            case e: ValidationError => BadRequest(err.toString())
+            case e => BadRequest(e.toString())
           },
           resp => resp
         )

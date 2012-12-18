@@ -24,43 +24,48 @@
 		@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
 			<fieldset id="identity-area">
 				<legend>@Messages("Description")</legend>
-				<input type="hidden" value="@desc("id").value" name="id" />
+				@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
+  					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
+				} 
 				@helper.inputText(desc("languageCode"), '_label -> "Language Code")
 				@helper.inputText(desc("name"), '_label -> "Authorized Form of Name")
-				@helper.repeat(desc("otherFormsOfName"), min = desc("otherFormsOfName").indexes.length + 1) { onField =>
+				@helper.repeat(desc(OTHER_FORMS_OF_NAME), min = item.flatMap(_.listProperty(OTHER_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { onField =>
 					@helper.inputText(onField)
 				}
-				@helper.repeat(desc("parallelFormsOfName"), min = desc("parallelFormsOfName").indexes.length + 1) { pnField =>
+				@helper.repeat(desc(PARALLEL_FORMS_OF_NAME), min = item.flatMap(_.listProperty(PARALLEL_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { pnField =>
 					@helper.inputText(pnField)
 				}
 			</fieldset>
 			<fieldset id="contact-area">
 				<legend>@Messages("Contact")</legend>
 				@helper.repeat(desc("addresses"), min=math.max(desc("addresses").indexes.length, 1)) { desc =>
-					@common.stringInputValue(desc, ADDRESS_NAME)
-					@common.stringInputValue(desc, CONTACT_PERSON)
-					@common.stringInputValue(desc, STREET_ADDRESS)
-					@common.stringInputValue(desc, CITY)
-					@common.stringInputValue(desc, REGION)
-					@common.stringInputValue(desc, COUNTRY_CODE)
-					@common.stringInputValue(desc, EMAIL)
-					@common.stringInputValue(desc, TELEPHONE)
-					@common.stringInputValue(desc, FAX)
-					@common.stringInputValue(desc, URL)
+					@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
+	  					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
+					} 
+					@formHelpers.lineInput(desc, ADDRESS_NAME)
+					@formHelpers.lineInput(desc, CONTACT_PERSON)
+					@formHelpers.lineInput(desc, STREET_ADDRESS)
+					@formHelpers.lineInput(desc, CITY)
+					@formHelpers.lineInput(desc, REGION)
+					@formHelpers.lineInput(desc, COUNTRY_CODE)
+					@formHelpers.lineInput(desc, EMAIL)
+					@formHelpers.lineInput(desc, TELEPHONE)
+					@formHelpers.lineInput(desc, FAX)
+					@formHelpers.lineInput(desc, URL)
 				}
 			</fieldset>		
 				
 		  	<fieldset id="content-area">
 				<legend>@Messages("Description")</legend>
 				@defining(desc("description")) { desc =>
-					@common.stringFormValue(desc, HISTORY)
-					@common.stringFormValue(desc, GENERAL_CONTEXT)
-					@common.stringFormValue(desc, MANDATES)
-					@common.stringFormValue(desc, ADMINISTRATIVE_STRUCTURE)				  
-					@common.stringFormValue(desc, RECORDS)
-					@common.stringFormValue(desc, BUILDINGS)
-					@common.stringFormValue(desc, HOLDINGS)
-					@common.stringFormValue(desc, FINDING_AIDS)
+					@formHelpers.textInput(desc, HISTORY)
+					@formHelpers.textInput(desc, GENERAL_CONTEXT)
+					@formHelpers.textInput(desc, MANDATES)
+					@formHelpers.textInput(desc, ADMINISTRATIVE_STRUCTURE)				  
+					@formHelpers.textInput(desc, RECORDS)
+					@formHelpers.textInput(desc, BUILDINGS)
+					@formHelpers.textInput(desc, HOLDINGS)
+					@formHelpers.textInput(desc, FINDING_AIDS)
 				}
 			</fieldset>				
 
@@ -68,7 +73,7 @@
 		
 		<fieldset id="admin-area">
 				<legend>@Messages("Administration")</legend>
-				@common.descriptionChoice(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
+				@formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
 			</fieldset>
 		
 		<div class="form-actions">

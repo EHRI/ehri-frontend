@@ -9,49 +9,51 @@
 	@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
 		<fieldset id="identity-area">
 		<legend>@Messages("Description")</legend>
-		<input type="hidden" value="@desc("id").value" name="id" />
+		@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
+				<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
+		} 
 		@helper.inputText(desc("languageCode"), '_label -> "Language Code")
 		@helper.inputText(desc("title"), '_label -> "Title")
 	</fieldset>
 		<fieldset id="context-area">
 		<legend>@Messages("Context")</legend>
 		@defining(desc("context")) { desc =>
-				@common.stringFormValue(desc, DocumentaryUnit.ADMIN_BIOG)
-				@common.stringFormValue(desc, DocumentaryUnit.ARCH_HIST)
-				@common.stringFormValue(desc, DocumentaryUnit.ACQUISITION)				  
+				@formHelpers.textInput(desc, DocumentaryUnit.ADMIN_BIOG)
+				@formHelpers.textInput(desc, DocumentaryUnit.ARCH_HIST)
+				@formHelpers.textInput(desc, DocumentaryUnit.ACQUISITION)				  
 			}
 	</fieldset>		  
 	  	<fieldset id="content-area">
 		<legend>@Messages("Content")</legend>
 		@defining(desc("content")) { desc =>
-				@common.stringFormValue(desc, DocumentaryUnit.SCOPE_CONTENT)
-				@common.stringFormValue(desc, DocumentaryUnit.APPRAISAL)
-				@common.stringFormValue(desc, DocumentaryUnit.ACCRUALS)
-				@common.stringFormValue(desc, DocumentaryUnit.SYS_ARR)				  
+				@formHelpers.textInput(desc, DocumentaryUnit.SCOPE_CONTENT)
+				@formHelpers.textInput(desc, DocumentaryUnit.APPRAISAL)
+				@formHelpers.textInput(desc, DocumentaryUnit.ACCRUALS)
+				@formHelpers.textInput(desc, DocumentaryUnit.SYS_ARR)				  
 			}
 	</fieldset>
 	  	<fieldset id="conditions-area">
 				<legend>@Messages("Conditions")</legend>
 		@defining(desc("conditions")) { desc =>
-				@common.stringFormValue(desc, DocumentaryUnit.ACCESS_COND)
-				@common.stringFormValue(desc, DocumentaryUnit.REPROD_COND)
-				@common.stringFormValue(desc, DocumentaryUnit.PHYSICAL_CHARS)
-				@common.stringFormValue(desc, DocumentaryUnit.FINDING_AIDS)				  
+				@formHelpers.textInput(desc, DocumentaryUnit.ACCESS_COND)
+				@formHelpers.textInput(desc, DocumentaryUnit.REPROD_COND)
+				@formHelpers.textInput(desc, DocumentaryUnit.PHYSICAL_CHARS)
+				@formHelpers.textInput(desc, DocumentaryUnit.FINDING_AIDS)				  
 			}
 	</fieldset>
 	  	<fieldset id="materials-area">
 		<legend>@Messages("Materials")</legend>
 		@defining(desc("materials")) { desc =>
-				@common.stringFormValue(desc, DocumentaryUnit.LOCATION_ORIGINALS)
-				@common.stringFormValue(desc, DocumentaryUnit.LOCATION_COPIES)
-				@common.stringFormValue(desc, DocumentaryUnit.RELATED_UNITS)
-				@common.stringFormValue(desc, DocumentaryUnit.PUBLICATION_NOTE)				  
+				@formHelpers.textInput(desc, DocumentaryUnit.LOCATION_ORIGINALS)
+				@formHelpers.textInput(desc, DocumentaryUnit.LOCATION_COPIES)
+				@formHelpers.textInput(desc, DocumentaryUnit.RELATED_UNITS)
+				@formHelpers.textInput(desc, DocumentaryUnit.PUBLICATION_NOTE)				  
 			}
 		</fieldset>
 	}
 
 <fieldset id="admin-area">
 	<legend>@Messages("Administration")</legend>
-	@common.descriptionChoice(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
+	@formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
 </fieldset>
 

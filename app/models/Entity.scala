@@ -1,30 +1,14 @@
 package models
 
 import defines._
+import play.api.libs.json._
 
-import play.api.libs.json.JsString
-import play.api.libs.json.JsValue
-import play.api.libs.json.Reads
-import play.api.libs.json.Reads.JsValueReads
-import play.api.libs.json.Reads.LongReads
-import play.api.libs.json.Reads.StringReads
-import play.api.libs.json.Reads.functorReads
-import play.api.libs.json.Reads.list
-import play.api.libs.json.Reads.map
-import play.api.libs.json.Writes
-import play.api.libs.json.Writes.JsValueWrites
-import play.api.libs.json.Writes.LongWrites
-import play.api.libs.json.Writes.mapWrites
-import play.api.libs.json.Writes.traversableWrites
-import play.api.libs.json.__
-import play.api.libs.json.util.functionalCanBuildApplicative
-import play.api.libs.json.util.toFunctionalBuilderOps
-import play.api.libs.json.util.unlift
 
 object Entity {
   
   val ID = "id"
   val IDENTIFIER = "identifier"
+  val ISA = "isA"
   val DATA = "data"
   val TYPE = "type"
   val RELATIONSHIPS = "relationships"  
@@ -45,8 +29,8 @@ case class Entity(
   /**
    * Shortcut for fetching a Option[String] property.
    */
-  def stringProperty(name: String) = property(name).flatMap(_.asOpt[String])
-  def listProperty(name: String) = property(name).flatMap(_.asOpt[List[String]]).getOrElse(List())
+  def stringProperty(name: String): Option[String] = property(name).flatMap(_.asOpt[String])
+  def listProperty(name: String): Option[List[String]] = property(name).flatMap(_.asOpt[List[String]])
   def relations(s: String): List[Entity] = relationships.getOrElse(s, List())  
   def withProperty(name: String, value: JsValue) = copy(data=data + (name -> value))
   def withRelation(s: String, r: Entity) = {
@@ -64,6 +48,10 @@ case class Entity(
 }
 
 object EntityWriter {
+  import play.api.libs.json.Reads._
+  import play.api.libs.json.Writes._
+  import play.api.libs.json.util._
+
   import defines.EnumWriter._
   implicit val entityWrites: Writes[Entity] = (
      (__ \ Entity.ID).write[String] and
@@ -75,7 +63,11 @@ object EntityWriter {
 }
 
 object EntityReader {
+  import play.api.libs.json.Reads._
+  import play.api.libs.json.Writes._
+  import play.api.libs.json.util._
   import defines.EnumReader
+
   implicit val entityReads: Reads[Entity] = (
     (__ \ Entity.ID).read[String] and
     (__ \ Entity.TYPE).read[EntityType.Type](EnumReader.enumReads(EntityType)) and

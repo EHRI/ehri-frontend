@@ -14,14 +14,55 @@ import play.api.http.HeaderNames
 import play.api.http.ContentTypes
 
 sealed trait RestError extends Throwable
-case object PermissionDenied extends RestError
-case object ValidationError extends RestError
-case object DeserializationError extends RestError
-case object IntegrityError extends RestError
-case object ItemNotFound extends RestError
+case class PermissionDenied() extends RestError
+case class ValidationError(errorSet: ErrorSet) extends RestError
+case class DeserializationError() extends RestError
+case class IntegrityError() extends RestError
+case class ItemNotFound() extends RestError
 
 
 object RestDAO extends RestDAO
+
+/**
+ * Structure that holds a set of errors for an entity and its
+ * subtree relations.
+ * 
+ */
+object ErrorSet {
+
+  import play.api.libs.json.Reads
+  import play.api.libs.json.Reads._
+  import play.api.libs.json.util._
+  import play.api.libs.json._
+
+  implicit val errorReads: Reads[ErrorSet] = (
+    (__ \ "errors").lazyRead(map[List[String]]) and
+    (__ \ Entity.RELATIONSHIPS).lazyRead(
+      map[List[Option[ErrorSet]]](list(optional(errorReads)))))(ErrorSet.apply _)
+
+
+  def fromJson(json: JsValue): ErrorSet = json.validate[ErrorSet].fold(
+    valid = { item => item },
+    invalid = { e =>
+      sys.error("Unable to parse error: " + json + " -> " + e)
+    }
+  )
+}
+
+case class ErrorSet(
+  errors: Map[String,List[String]],
+  relationships: Map[String,List[Option[ErrorSet]]]
+) {
+
+  /**
+   * Given a persistable class, unfurl the nested errors so that they
+   * conform to members of this class's form fields.
+   */
+  def errorsFor: Map[String,List[String]] = {
+    // TODO: Handle nested errors
+    errors
+  }
+}
 
 
 trait RestDAO {
@@ -31,13 +72,6 @@ trait RestDAO {
    * the server.
    */
   val AUTH_HEADER_NAME = "Authorization"
-
-  /**
-   *  For as-yet-undetermined reasons that data coming back from Neo4j seems
-   *  to be encoded as ISO-8859-1, so we need to convert it to UTF-8. Obvs.
-   *  this problem should eventually be fixed at the source, rather than here.
-   */
-  def fixEncoding(s: String) = new String(s.getBytes("ISO-8859-1"), "UTF-8")
 
   /**
    * Standard headers we sent to every Neo4j/EHRI Server request.
@@ -67,14 +101,16 @@ trait RestDAO {
       case OK | CREATED => Right(response)
       case e => e match {
 
-        case UNAUTHORIZED => Left(PermissionDenied)
-        case BAD_REQUEST => println(response.json) ; (response.json \ "error") match {
-          case JsString("ValidationError") => Left(ValidationError)
-          case JsString("DeserializationError") => Left(DeserializationError)
-          case JsString("IntegrityError") => Left(IntegrityError)
-          case _ => throw sys.error("Unexpected response: %d: %s".format(response.status, response.body))
-        }
-        case NOT_FOUND => Left(ItemNotFound)
+        case UNAUTHORIZED => Left(PermissionDenied())
+        case BAD_REQUEST => response.json.validate[ErrorSet].fold(
+          valid = { errorSet =>
+            Left(ValidationError(errorSet))
+          },
+          invalid = { e =>
+            throw sys.error("Unexpected BAD REQUEST: %s \n%s".format(e, response.body))
+          }
+        )
+        case NOT_FOUND => Left(ItemNotFound())
         case _ => {
           println(response.body)
           sys.error("Unexpected response: %d: %s".format(response.status, response.body))

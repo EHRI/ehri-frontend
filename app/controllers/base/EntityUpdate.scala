@@ -5,7 +5,7 @@ import models.base.AccessibleEntity
 import play.api.mvc.RequestHeader
 import play.api.mvc.Call
 import models.base.Persistable
-import play.api.data.Form
+import play.api.data.{Form,FormError}
 import models.base.Formable
 
 trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
@@ -42,9 +42,24 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
           AsyncRest {
             rest.EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .update(id, doc.toData).map { itemOrErr =>
-                itemOrErr.right.map { item =>
-                  Redirect(showAction(item.id))
-                }
+                // If we have an error, check if it's a validation error.
+                // If so, we need to merge those errors back into the form
+                // and redisplay it...
+                if (itemOrErr.isLeft) {
+                  itemOrErr.left.get match {
+                    case err: rest.ValidationError => {
+                      
+                      val serverErrors: Seq[FormError] = err.errorSet.errorsFor.flatMap { case(field, list) =>
+                        list.map { errorItem =>
+                          FormError(field, errorItem)
+                        }
+                      }.toSeq
+                      val filledForm = form.fill(doc).copy(errors=serverErrors)
+                      Right(BadRequest(formView(None, filledForm, updateAction(id), maybeUser, request)))
+                    }
+                    case e => Left(e)
+                  } 
+                } else itemOrErr.right.map { item => Redirect(showAction(item.id)) }
               }
           }
         }

@@ -5,7 +5,7 @@ import models.base.AccessibleEntity
 import play.api.mvc.RequestHeader
 import play.api.mvc.Call
 import models.base.Persistable
-import play.api.data.Form
+import play.api.data.{Form,FormError}
 
 trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
   type FormViewType = (Option[T], Form[F], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
@@ -26,7 +26,19 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
           AsyncRest {
             rest.EntityDAO(entityType, maybeUser.flatMap(_.profile))
               .create(doc.toData).map { itemOrErr =>
-                itemOrErr.right.map { item => Redirect(showAction(item.id)) }
+                // If we have an error, check if it's a validation error.
+                // If so, we need to merge those errors back into the form
+                // and redisplay it...
+                if (itemOrErr.isLeft) {
+                  itemOrErr.left.get match {
+                    case err: rest.ValidationError => {
+                      val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
+                      val filledForm = form.fill(doc).copy(errors=form.errors ++ serverErrors)
+                      Right(BadRequest(formView(None, filledForm, createAction, maybeUser, request)))
+                    }
+                    case e => Left(e)
+                  } 
+                } else itemOrErr.right.map { item => Redirect(showAction(item.id)) }
               }
           }
         }

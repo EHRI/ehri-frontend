@@ -2,7 +2,7 @@ package rest
 
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
-import play.api.libs.ws.WS
+import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json.{ JsArray, JsValue }
 import models.base.AccessibleEntity
 import models.EntityReader
@@ -11,6 +11,7 @@ import play.api.http.Status.OK
 import defines.EntityType
 import models.Entity
 import models.Entity
+import play.api.libs.json.Json
 import models.UserProfileRepr
 import play.api.http.ContentTypes
 import play.api.http.HeaderNames
@@ -50,6 +51,17 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
       })
   }
 
+  /**
+   *  For as-yet-undetermined reasons that data coming back from Neo4j seems
+   *  to be encoded as ISO-8859-1, so we need to convert it to UTF-8. Obvs.
+   *  this problem should eventually be fixed at the source, rather than here.
+   *  NB: Fixed in Play 2.1 RC1
+   */
+  def fixEncoding(s: String) = new String(s.getBytes("ISO-8859-1"), "UTF-8")
+
+  // Temporary solution until we upgrade to Play 2.1
+  def json(r: WSResponse): JsValue = Json.parse(fixEncoding(r.body))
+
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
   def authHeaders: Map[String, String] = userProfile match {
@@ -59,13 +71,13 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
 
   def get(id: Long): Future[Either[RestError, Entity]] = {
     WS.url(requestUrl + "/" + id.toString).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => jsonToEntity(r.json))
+      checkError(response).right.map(r => jsonToEntity(json(r)))
     }
   }
 
   def get(id: String): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => jsonToEntity(r.json))
+      checkError(response).right.map(r => jsonToEntity(json(r)))
     }
   }
 
@@ -73,28 +85,28 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*)
       .withQueryString("key" -> key, "value" -> value)
       .get.map { response =>
-        checkError(response).right.map(r => jsonToEntity(r.json))
+        checkError(response).right.map(r => jsonToEntity(json(r)))
       }
   }
 
   def create(data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl)).withHeaders(authHeaders.toSeq: _*)
       .post(generate(data)).map { response =>
-        checkError(response).right.map(r => jsonToEntity(r.json))
+        checkError(response).right.map(r => jsonToEntity(json(r)))
       }
   }
 
   def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(enc("%s/%s/%s".format(requestUrl, id, givenType))).withHeaders(authHeaders.toSeq: _*)
       .post(generate(data)).map { response =>
-        checkError(response).right.map(r => jsonToEntity(r.json))
+        checkError(response).right.map(r => jsonToEntity(json(r)))
       }
   }
 
   def update(id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders.toSeq: _*)
       .put(generate(data)).map { response =>
-        checkError(response).right.map(r => jsonToEntity(r.json))
+        checkError(response).right.map(r => jsonToEntity(json(r)))
       }
   }
 
@@ -108,7 +120,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   def list(offset: Int, limit: Int): Future[Either[RestError, Seq[Entity]]] = {
     WS.url(requestUrl + "/list?offset=%d&limit=%d".format(offset, limit)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json match {
+        json(r) match {
           case JsArray(array) => array.map(js => jsonToEntity(js))
           case _ => throw new RuntimeException("Unexpected response to list...")
         }
@@ -120,7 +132,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     implicit val entityPageReads = PageReads.pageReads(models.EntityReader.entityReads)
     WS.url(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[Page[models.Entity]].fold(
+        json(r).validate[Page[models.Entity]].fold(
           valid = { page => 
             Page(page.total, page.offset, page.limit, page.list)          
           },
