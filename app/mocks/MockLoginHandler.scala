@@ -2,14 +2,14 @@ package mocks
 
 import controllers.base.LoginHandler
 import play.api.Play.current
-import play.api.mvc.Action
+import play.api.mvc._
 
 
 class MockLoginHandler(app: play.api.Application) extends LoginHandler {
 
   def login = Action {
     implicit request =>
-      Ok("Mock login form")
+      Ok(views.html.mocks.mockLoginForm(controllers.routes.Application.loginPost, request))
   }
 
   def loginPost = Action { implicit request =>
