@@ -1,2 +1,2 @@
-5000:mocks.MockUserDAO
-5001:mocks.MockLoginHandler
+5000:models.sql.OpenIDUserDAOPlugin
+5001:controllers.OpenIDLoginHandler
