@@ -54,16 +54,16 @@ object Groups extends PermissionsController[Group, GroupRepr]
             itemOrErr.right.map { item =>
               // filter out the groups the user already belongs to
               val user = Accessor(item)
-              val filteredGroups = groups.filter(t => t._1 != user.identifier).filter {
+              val filteredGroups = groups.filter(t => t._1 != user.id).filter {
                 case (ident, name) =>
                   // if the user is admin, they can add the user to ANY group
                   if (userProfile.isAdmin) {
-                    !user.groups.map(_.identifier).contains(ident)
+                    !user.groups.map(_.id).contains(ident)
                   } else {
                     // if not, they can add the user to groups they belong to
                     // TODO: Enforce these policies with the permission system!
-                    (!user.groups.map(_.identifier).contains(ident)) &&
-                      userProfile.groups.map(_.identifier).contains(ident)
+                    (!user.groups.map(_.id).contains(ident)) &&
+                      userProfile.groups.map(_.id).contains(ident)
                   }
               }
               Ok(views.html.group.membership(user, filteredGroups, maybeUser, request))

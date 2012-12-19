@@ -19,7 +19,7 @@ object RestHelpers {
 
   def getGroupList: Future[List[(String,String)]] = {
     rest.cypher.CypherDAO()
-              .cypher("START n=node:entities('__ISA__:%s') RETURN n.identifier, n.name".format(EntityType.Group)).map { goe =>
+              .cypher("START n=node:entities('__ISA__:%s') RETURN n.__ID__, n.name".format(EntityType.Group)).map { goe =>
       if (goe.isLeft) sys.error("Unable to fetch user list: " + goe.left.get)
       parseUsers(goe.right.get)
     }    
@@ -27,7 +27,7 @@ object RestHelpers {
   
   def getUserList: Future[List[(String,String)]] = {
     rest.cypher.CypherDAO()
-              .cypher("START n=node:entities('__ISA__:%s') RETURN n.identifier, n.name".format(EntityType.UserProfile)).map { goe =>
+              .cypher("START n=node:entities('__ISA__:%s') RETURN n.__ID__, n.name".format(EntityType.UserProfile)).map { goe =>
       if (goe.isLeft) sys.error("Unable to fetch user list: " + goe.left.get)
       parseUsers(goe.right.get)
     }    

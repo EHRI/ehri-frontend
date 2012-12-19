@@ -107,7 +107,12 @@ trait RestDAO {
             Left(ValidationError(errorSet))
           },
           invalid = { e =>
-            throw sys.error("Unexpected BAD REQUEST: %s \n%s".format(e, response.body))
+            // Temporary approach to handling random Deserialization errors.
+            // In practice this should happen
+            if ((response.json \ "error").asOpt[String] == Some("DeserializationError"))
+              Left(DeserializationError())
+            else
+              throw sys.error("Unexpected BAD REQUEST: %s \n%s".format(e, response.body))
           }
         )
         case NOT_FOUND => Left(ItemNotFound())
