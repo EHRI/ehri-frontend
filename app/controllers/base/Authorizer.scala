@@ -25,6 +25,9 @@ trait Authorizer extends Results with AuthConfig {
   
   type Id = String
 
+  override def resolver(implicit request: RequestHeader): RelationResolver[Id] = 
+      new CookieRelationResolver[Id](request)
+
   /** 
    * A type that represents a user in your application.
    * `User`, `Account` and so on.

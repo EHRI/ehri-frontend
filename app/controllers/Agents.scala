@@ -16,6 +16,7 @@ object Agents extends DocumentaryUnitCreator[Agent,AgentRepr]
 		with VisibilityController[Agent,AgentRepr]
 		with CRUD[Agent,AgentRepr] {
   val entityType = EntityType.Agent
+  val contentType = ContentType.Agent
   val listAction = routes.Agents.list _
   val createAction = routes.Agents.createPost
   val updateAction = routes.Agents.updatePost _

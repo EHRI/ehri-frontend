@@ -15,6 +15,7 @@ object UserProfiles extends PermissionsController[UserProfile,UserProfileRepr]
 		with VisibilityController[UserProfile,UserProfileRepr]
 		with CRUD[UserProfile,UserProfileRepr] {
   val entityType = EntityType.UserProfile
+  val contentType = ContentType.UserProfile
   val listAction = routes.UserProfiles.list _
   val createAction = routes.UserProfiles.createPost
   val updateAction = routes.UserProfiles.updatePost _

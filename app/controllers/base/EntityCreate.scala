@@ -6,6 +6,7 @@ import play.api.mvc.RequestHeader
 import play.api.mvc.Call
 import models.base.Persistable
 import play.api.data.{Form,FormError}
+import defines.PermissionType
 
 trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
   type FormViewType = (Option[T], Form[F], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
@@ -15,7 +16,9 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
 
   def create = userProfileAction { implicit maybeUser =>
     implicit request =>
-      Ok(formView(None, form, createAction, maybeUser, request))
+    EnsurePermission(PermissionType.Create) {
+      Ok(formView(None, form, createAction, maybeUser, request))      
+    }
   }
 
   def createPost = userProfileAction { implicit maybeUser =>

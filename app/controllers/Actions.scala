@@ -9,6 +9,7 @@ import controllers.base.EntityRead
 
 object Actions extends EntityRead[ActionRepr] {
   val entityType = EntityType.Action
+  val contentType = ContentType.Action
   val listAction = routes.Actions.list _
   val showAction = routes.Actions.get _
   val showView = views.html.action.show.apply _

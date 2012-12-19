@@ -44,6 +44,9 @@ object PermissionSet {
  */
 case class PermissionSet[+T <: Accessor](val user: T, val data: PermissionSet.PermData) {
 
+  def has(sub: ContentType.Value, perm: PermissionType.Value): Boolean =
+        !data.flatMap(t => t.headOption).flatMap(_._2.get(sub)).filter(_.contains(perm)).isEmpty
+
   def get(sub: ContentType.Value, perm: PermissionType.Value): Option[PermissionGrant[T]] = {
     val accessors = data.flatMap { pm =>
       pm.headOption.flatMap {
@@ -58,7 +61,7 @@ case class PermissionSet[+T <: Accessor](val user: T, val data: PermissionSet.Pe
       case (userId, perm) =>
         if (user.id == userId) PermissionGrant(perm)
         else user.getAccessor(user.groups, userId) match {
-          case Some(u) if u.identifier == user.identifier => PermissionGrant(perm)
+          case Some(u) if u.id == user.id => PermissionGrant(perm)
           case s @ Some(u) => PermissionGrant(perm, s)
           case x => PermissionGrant(perm)
         }
@@ -70,7 +73,7 @@ case class PermissionGrant[+T <: Accessor](
   val permission: PermissionType.Value,
   val inheritedFrom: Option[Accessor] = None) {
   override def toString = inheritedFrom match {
-    case Some(accessor) => "%s (from %s)".format(permission, accessor.identifier)
+    case Some(accessor) => "%s (from %s)".format(permission, accessor.id)
     case None => permission.toString
   }
 }

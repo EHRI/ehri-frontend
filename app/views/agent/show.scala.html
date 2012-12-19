@@ -1,4 +1,4 @@
-@(item: AgentRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: AgentRepr, maybeUser: Option[models.sql.User], perms: Option[models.ItemPermissionSet[_]], req: RequestHeader)
 
 @import defines._
 @import Agent._

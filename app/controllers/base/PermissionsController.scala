@@ -42,6 +42,7 @@ trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[
       val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
         (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
       }.toMap
+      println("PERMS: " + perms)
 
       maybeUser.flatMap(_.profile).map { userProfile =>
         AsyncRest {

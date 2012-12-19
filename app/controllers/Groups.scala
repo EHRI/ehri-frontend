@@ -3,7 +3,7 @@ package controllers
 import controllers.base.CRUD
 import controllers.base.PermissionsController
 import controllers.base.VisibilityController
-import defines.EntityType
+import defines.{ContentType,EntityType}
 import models.Group
 import models.GroupRepr
 import play.api.libs.concurrent.execution.defaultContext
@@ -14,6 +14,7 @@ object Groups extends PermissionsController[Group, GroupRepr]
 		with VisibilityController[Group,GroupRepr]
 		with CRUD[Group, GroupRepr] {
   val entityType = EntityType.Group
+  val contentType = ContentType.Group
   val listAction = routes.Groups.list _
   val createAction = routes.Groups.createPost
   val updateAction = routes.Groups.updatePost _

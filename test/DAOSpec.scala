@@ -96,7 +96,7 @@ class DAOSpec extends Specification with BeforeExample {
         val data = Map("id" -> None, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val err = await(EntityDAO(entityType, Some(userProfile)).create(data))
         err must beLeft
-        err.left.get mustEqual DeserializationError
+        err.left.get must beAnInstanceOf[DeserializationError]
       }
     }
 
@@ -106,7 +106,7 @@ class DAOSpec extends Specification with BeforeExample {
         await(EntityDAO(entityType, Some(userProfile)).create(data))
         val err = await(EntityDAO(entityType, Some(userProfile)).create(data))
         err must beLeft
-        err.left.get mustEqual IntegrityError
+        err.left.get must beAnInstanceOf[ValidationError]
       }
     }
 
@@ -114,7 +114,7 @@ class DAOSpec extends Specification with BeforeExample {
       running(FakeApplication(additionalConfiguration = config)) {
         val err = await(EntityDAO(entityType, Some(userProfile)).get("blibidyblob"))
         err must beLeft
-        err.left.get mustEqual ItemNotFound
+        err.left.get must beAnInstanceOf[ItemNotFound]
 
       }
     }

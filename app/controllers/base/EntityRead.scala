@@ -8,7 +8,7 @@ import play.api.mvc.Call
 
 trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
 
-  type ShowViewType = (T, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  type ShowViewType = (T, Option[models.sql.User], Option[models.ItemPermissionSet[_]], RequestHeader) => play.api.templates.Html
   type ListViewType = (rest.Page[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val listView: ListViewType
   val listAction: (Int, Int) => Call
@@ -26,11 +26,12 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
       }
   }
 
-  def get(id: String) = userProfileAction { implicit maybeUser =>
+  def get(id: String) = itemPermAction(id) { implicit maybeUser =>
+    implicit maybePerms =>
     implicit request =>
       AsyncRest {
         rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item => Ok(showView(builder(item), maybeUser, request)) }
+          itemOrErr.right.map { item => Ok(showView(builder(item), maybeUser, maybePerms, request)) }
         }
       }
   }

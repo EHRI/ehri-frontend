@@ -96,7 +96,10 @@ object Persistable {
 
     // Map the top-level errors
     val nmap = (currentMap /: errorSet.errors.toSeq) { (m, kev) =>
-      m + ("%s.%s".format(newpath, kev._1) -> kev._2)
+      if (newpath.isEmpty)
+        m + (kev._1 -> kev._2)
+      else
+        m + ("%s.%s".format(newpath, kev._1) -> kev._2)
     }
 
     // And then the nested relationship errors

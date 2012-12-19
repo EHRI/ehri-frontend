@@ -1,4 +1,4 @@
-@(item: UserProfileRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: UserProfileRepr, maybeUser: Option[models.sql.User], perms: Option[models.ItemPermissionSet[_]], req: RequestHeader)
 
 @import defines._
 

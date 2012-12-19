@@ -5,7 +5,7 @@ import controllers.base.EntityDelete
 import controllers.base.EntityRead
 import controllers.base.EntityUpdate
 import controllers.base.VisibilityController
-import defines.EntityType
+import defines.{ContentType,EntityType}
 import models.DocumentaryUnit
 import models.DocumentaryUnitRepr
 import models.base.Persistable
@@ -25,6 +25,7 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit,Documenta
 			with EntityDelete[DocumentaryUnitRepr] {
   
   val entityType = EntityType.DocumentaryUnit
+  val contentType = ContentType.DocumentaryUnit
   val listAction = routes.DocumentaryUnits.list _
   val cancelAction = routes.DocumentaryUnits.get _
   val deleteAction = routes.DocumentaryUnits.deletePost _

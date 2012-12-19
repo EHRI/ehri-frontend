@@ -7,19 +7,22 @@ import play.api.mvc.Call
 import models.base.Persistable
 import play.api.data.{Form,FormError}
 import models.base.Formable
+import defines.PermissionType
 
 trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
   val updateAction: String => Call
   val formView: EntityCreate[F,T]#FormViewType
   val form: Form[F]
 
-  def update(id: String) = userProfileAction { implicit maybeUser =>
+  def update(id: String) = itemPermAction(id) { implicit maybeUser => implicit maybePerms =>
     implicit request =>
-      AsyncRest {
-        rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item =>
-            val doc: T = builder(item)
-            Ok(formView(Some(doc), form.fill(doc.to), updateAction(id), maybeUser, request))
+      EnsureItemPermission(PermissionType.Update) {
+        AsyncRest {
+          rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+            itemOrErr.right.map { item =>
+              val doc: T = builder(item)
+              Ok(formView(Some(doc), form.fill(doc.to), updateAction(id), maybeUser, request))
+            }
           }
         }
       }

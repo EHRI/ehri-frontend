@@ -5,10 +5,11 @@ import scala.concurrent.Future
 import play.api.libs.ws.WS
 import models.Entity
 import models.UserProfile
+import models.base.AccessibleEntity
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.{ PermissionSet, Group }
+import models.{ PermissionSet, ItemPermissionSet, Group }
 import models.base.Accessor
 import com.codahale.jerkson.Json
 import defines._
@@ -40,6 +41,20 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfileRepr) extends R
     WS.url(enc("%s/%s".format(requestUrl, user.id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkError(response).right.map(r => PermissionSet[T](user, r.json))
+      }
+  }
+
+  def getItem(id: String): Future[Either[RestError, ItemPermissionSet[UserProfileRepr]]] = {
+    WS.url(enc("%s/%s/%s".format(requestUrl, accessor.id, id)))
+      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        checkError(response).right.map(r => ItemPermissionSet(accessor, r.json))
+      }
+  }
+
+  def getItem(user: T, id: String): Future[Either[RestError, ItemPermissionSet[T]]] = {
+    WS.url(enc("%s/%s/%s".format(requestUrl, user.id, id)))
+      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        checkError(response).right.map(r => ItemPermissionSet[T](user, r.json))
       }
   }
 
