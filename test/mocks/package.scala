@@ -8,5 +8,5 @@ package object mocks {
   def MOCK_USER = new models.sql.OpenIDUser(
       id=1L,
       email=MOCK_EMAIL,
-      profile_id="mike")
+      profile_id=current.configuration.getString("test.user.profile_id").getOrElse("anonymous"))
 }
