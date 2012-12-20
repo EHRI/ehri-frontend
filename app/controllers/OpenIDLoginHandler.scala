@@ -39,7 +39,8 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
             OpenID.redirectURL(
               openid,
               routes.OpenIDLoginHandler.openIDCallback.absoluteURL(),
-              Seq("email" -> "http://schema.openid.net/contact/email"))
+              Seq("email" -> "http://schema.openid.net/contact/email",
+                  "axemail" -> "http://axschema.org/contact/email"))
               .map(url => Redirect(url)))
         })
   }
@@ -50,12 +51,14 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
       OpenID.verifiedId.map { info =>
         // check if there's a user with the right id
         OpenIDAssociation.findByUrl(info.id) match {
+          // FIXME: Handle case where user exists in auth DB but not
+          // on the server.	
           case Some(assoc) => gotoLoginSucceeded(assoc.user.get.profile_id)
           case None =>
+            val email = extractEmail(info.attributes).getOrElse(sys.error("No openid email"))
             Async {
               rest.AdminDAO().createNewUserProfile.map {
                 case Right(entity) => {
-                  val email = info.attributes.getOrElse("email", sys.error("No openid email"))
                   models.sql.OpenIDUser.create(email, entity.id).map { user =>
                     user.addAssociation(info.id)
                     gotoLoginSucceeded(user.profile_id)
@@ -69,5 +72,10 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
           // TODO: Check error condition?
         }
       })
+  }
+  
+  private def extractEmail(attrs: Map[String,String]): Option[String] = {
+    println("ATTRS: " + attrs)
+    attrs.get("email").orElse(attrs.get("axemail"))
   }
 }
