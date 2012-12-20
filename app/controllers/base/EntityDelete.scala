@@ -13,9 +13,9 @@ trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
   val deleteView: DeleteViewType
   val cancelAction: String => Call
 
-  def delete(id: String) = itemPermAction(id) { implicit maybeUser => implicit maybePerms =>
-    implicit request =>
-      EnsureItemPermission(PermissionType.Delete) {
+  def delete(id: String) = withItemPermission(id, PermissionType.Delete) { implicit maybeUser =>
+    implicit maybePerms =>
+      implicit request =>
         AsyncRest {
           rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
             itemOrErr.right.map { item =>
@@ -25,15 +25,15 @@ trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
             }
           }
         }
-      }
   }
 
-  def deletePost(id: String) = userProfileAction { implicit maybeUser =>
-    implicit request =>
-      AsyncRest {
-        rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).delete(id).map { boolOrErr =>
-          boolOrErr.right.map { ok => Redirect(listAction(0, 20)) }
+  def deletePost(id: String) = withItemPermission(id, PermissionType.Delete) { implicit maybeUser =>
+    implicit maybePerms =>
+      implicit request =>
+        AsyncRest {
+          rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).delete(id).map { boolOrErr =>
+            boolOrErr.right.map { ok => Redirect(listAction(0, 20)) }
+          }
         }
-      }
   }
 }

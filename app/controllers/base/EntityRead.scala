@@ -7,6 +7,8 @@ import play.api.mvc.Call
 
 
 trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
+  
+  val DEFAULT_LIMIT = 20
 
   type ShowViewType = (T, Option[models.sql.User], Option[models.ItemPermissionSet[_]], RequestHeader) => play.api.templates.Html
   type ListViewType = (rest.Page[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
@@ -26,7 +28,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
       }
   }
 
-  def get(id: String) = itemPermAction(id) { implicit maybeUser =>
+  def get(id: String) = itemPermissionAction(id) { implicit maybeUser =>
     implicit maybePerms =>
     implicit request =>
       AsyncRest {
@@ -36,7 +38,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
       }
   }
 
-  def list(page: Int, limit: Int) = userProfileAction { implicit maybeUser =>
+  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = userProfileAction { implicit maybeUser =>
     implicit request =>
       AsyncRest {
         rest.EntityDAO(entityType, maybeUser.flatMap(_.profile))

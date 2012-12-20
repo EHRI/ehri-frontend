@@ -5,18 +5,18 @@ import models.base.AccessibleEntity
 import play.api.mvc.RequestHeader
 import play.api.mvc.Call
 import models.base.Persistable
-import play.api.data.{Form,FormError}
+import play.api.data.{ Form, FormError }
 import models.base.Formable
 import defines.PermissionType
 
 trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
   val updateAction: String => Call
-  val formView: EntityCreate[F,T]#FormViewType
+  val formView: EntityCreate[F, T]#FormViewType
   val form: Form[F]
 
-  def update(id: String) = itemPermAction(id) { implicit maybeUser => implicit maybePerms =>
-    implicit request =>
-      EnsureItemPermission(PermissionType.Update) {
+  def update(id: String) = withItemPermission(id, PermissionType.Update) { implicit maybeUser =>
+    implicit maybePerms =>
+      implicit request =>
         AsyncRest {
           rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
             itemOrErr.right.map { item =>
@@ -25,42 +25,42 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
             }
           }
         }
-      }
   }
 
-  def updatePost(id: String) = userProfileAction { implicit maybeUser =>
-    implicit request =>
-      form.bindFromRequest.fold(
-        errorForm => {
-          AsyncRest {
-            rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-              itemOrErr.right.map { item =>
-                val doc: T = builder(item)
-                BadRequest(formView(Some(doc), errorForm, updateAction(id), maybeUser, request))
+  def updatePost(id: String) = withItemPermission(id, PermissionType.Update) { implicit maybeUser =>
+    implicit maybePerms =>
+      implicit request =>
+        form.bindFromRequest.fold(
+          errorForm => {
+            AsyncRest {
+              rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
+                itemOrErr.right.map { item =>
+                  val doc: T = builder(item)
+                  BadRequest(formView(Some(doc), errorForm, updateAction(id), maybeUser, request))
+                }
               }
             }
-          }
-        },
-        doc => {
-          AsyncRest {
-            rest.EntityDAO(entityType, maybeUser.flatMap(_.profile))
-              .update(id, doc.toData).map { itemOrErr =>
-                // If we have an error, check if it's a validation error.
-                // If so, we need to merge those errors back into the form
-                // and redisplay it...
-                if (itemOrErr.isLeft) {
-                  itemOrErr.left.get match {
-                    case err: rest.ValidationError => {
-                      val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
-                      val filledForm = form.fill(doc).copy(errors=form.errors ++ serverErrors)
-                      Right(BadRequest(formView(None, filledForm, updateAction(id), maybeUser, request)))
+          },
+          doc => {
+            AsyncRest {
+              rest.EntityDAO(entityType, maybeUser.flatMap(_.profile))
+                .update(id, doc.toData).map { itemOrErr =>
+                  // If we have an error, check if it's a validation error.
+                  // If so, we need to merge those errors back into the form
+                  // and redisplay it...
+                  if (itemOrErr.isLeft) {
+                    itemOrErr.left.get match {
+                      case err: rest.ValidationError => {
+                        val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
+                        val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
+                        Right(BadRequest(formView(None, filledForm, updateAction(id), maybeUser, request)))
+                      }
+                      case e => Left(e)
                     }
-                    case e => Left(e)
-                  } 
-                } else itemOrErr.right.map { item => Redirect(showAction(item.id)) }
-              }
+                  } else itemOrErr.right.map { item => Redirect(showAction(item.id)) }
+                }
+            }
           }
-        }
-      )
+        )
   }
 }

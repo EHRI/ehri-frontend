@@ -20,42 +20,44 @@ trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable
   import play.api.libs.json.util._
   import play.api.libs.json._
 
-  def visibility(id: String) = userProfileAction { implicit maybeUser =>
-    implicit request =>
-      maybeUser.flatMap(_.profile).map { userProfile =>
-        AsyncRest {
-          for {
-            itemOrErr <- rest.EntityDAO(entityType, Some(userProfile)).get(id)
-            users <- rest.RestHelpers.getUserList
-            groups <- rest.RestHelpers.getGroupList
-          } yield {
-            itemOrErr.right.map { item =>
-              Ok(views.html.visibility(builder(item), users, groups, setVisibilityAction(id), maybeUser, request))
+  def visibility(id: String) = withItemPermission(id, PermissionType.Update) { implicit maybeUser =>
+    implicit maybePerms =>
+      implicit request =>
+        maybeUser.flatMap(_.profile).map { userProfile =>
+          AsyncRest {
+            for {
+              itemOrErr <- rest.EntityDAO(entityType, Some(userProfile)).get(id)
+              users <- rest.RestHelpers.getUserList
+              groups <- rest.RestHelpers.getGroupList
+            } yield {
+              itemOrErr.right.map { item =>
+                Ok(views.html.visibility(builder(item), users, groups, setVisibilityAction(id), maybeUser, request))
+              }
             }
           }
-        }
-      }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
+        }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
   }
 
-  def visibilityPost(id: String) = userProfileAction { implicit maybeUser =>
-    implicit request =>
-      maybeUser.flatMap(_.profile).map { userProfile =>
-        val data = request.body.asFormUrlEncoded.getOrElse(List()).flatMap { case (_, s) => s.toList }
-        AsyncRest {
-          rest.EntityDAO(entityType, Some(userProfile)).get(id).map { itemOrErr =>
-            itemOrErr.right.map { item =>
-              val model = builder(item)
-              AsyncRest {
-                rest.VisibilityDAO(userProfile).set(model, data.toList).map { boolOrErr =>
-                  boolOrErr.right.map { bool =>
-                    Redirect(showAction(id))
+  def visibilityPost(id: String) = withItemPermission(id, PermissionType.Update) { implicit maybeUser =>
+    implicit maybePerms =>
+      implicit request =>
+        maybeUser.flatMap(_.profile).map { userProfile =>
+          val data = request.body.asFormUrlEncoded.getOrElse(List()).flatMap { case (_, s) => s.toList }
+          AsyncRest {
+            rest.EntityDAO(entityType, Some(userProfile)).get(id).map { itemOrErr =>
+              itemOrErr.right.map { item =>
+                val model = builder(item)
+                AsyncRest {
+                  rest.VisibilityDAO(userProfile).set(model, data.toList).map { boolOrErr =>
+                    boolOrErr.right.map { bool =>
+                      Redirect(showAction(id))
+                    }
                   }
                 }
               }
             }
           }
-        }
-      }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
+        }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
   }
 }
 

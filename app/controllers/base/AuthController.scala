@@ -11,6 +11,8 @@ import models.Entity
 import play.api.libs.json.JsValue
 import play.api.libs.json.JsString
 import models.{Entity,ItemPermissionSet}
+import defines.PermissionType
+import defines.ContentType
 
 /*
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
@@ -60,24 +62,17 @@ trait AuthController extends Controller with Auth with Authorizer {
     }
   }
 
-  def itemPermAction(id: String)(f: Option[User] => Option[ItemPermissionSet[_]] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def itemPermissionAction(id: String)(f: Option[User] => Option[ItemPermissionSet[_]] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
       implicit request =>
         userOption match {
           case Some(user) => {
 
-            // FIXME: This is a DELIBERATE BACKDOOR
-            val currentUser = request.getQueryString("asUser").map { name =>
-              println("CURRENT USER: " + name)
-              println("WARNING: Running with user override backdoor for testing on: ?as=name")
-              name
-            }.getOrElse(user.profile_id)
-
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
-              val fakeProfile = UserProfileRepr(Entity.fromString(currentUser, EntityType.UserProfile))
-              val profileRequest = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
+              val fakeProfile = UserProfileRepr(Entity.fromString(user.profile_id, EntityType.UserProfile))
+              val profileRequest = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(user.profile_id)
               val permsRequest = rest.PermissionDAO(fakeProfile).get
               val itemPermRequest = rest.PermissionDAO(fakeProfile).getItem(id)
               // These requests should execute in parallel...
@@ -100,5 +95,40 @@ trait AuthController extends Controller with Auth with Authorizer {
         }
     }
   }
+
+    def withItemPermission(id: String,
+      perm: PermissionType.Value)(
+      f: Option[User] => Option[ItemPermissionSet[_]] => Request[AnyContent] => Result)(
+          implicit contentType: ContentType.Value): Action[AnyContent] = {
+    itemPermissionAction(id) { implicit maybeUser => implicit itemPerms => implicit request =>
+      
+      // If we have a user, and that user has a set of permissions, check them
+      val resultOpt = for (user <- maybeUser ; iperms <- itemPerms ; perms <- user.permissions) yield {
+        if (perms.has(contentType, perm) || iperms.has(perm) )
+          f(maybeUser)(itemPerms)(request)
+        else
+          Unauthorized(views.html.errors.permissionDenied())
+      }
+      
+      resultOpt.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
+    }
+  } 
+
+  def withContentPermission(
+      perm: PermissionType.Value)(f: Option[User] => Request[AnyContent] => Result)(
+          implicit contentType: ContentType.Value): Action[AnyContent] = {
+    userProfileAction { implicit maybeUser => implicit request =>
+      
+      // If we have a user, and that user has a set of permissions, check them
+      val resultOpt = for (user <- maybeUser ; perms <- user.permissions) yield {
+        if (perms.has(contentType, perm))
+          f(maybeUser)(request)
+        else
+          Unauthorized(views.html.errors.permissionDenied())
+      }
+      
+      resultOpt.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
+    }
+  } 
 
 }

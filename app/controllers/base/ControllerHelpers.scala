@@ -34,45 +34,4 @@ trait ControllerHelpers {
       }
     }
   }
-
-  import defines._
-
-  /**
-   * Ensure the user has global permissions to perform an operation. 
-  */
-  def EnsurePermission(perm: PermissionType.Value)(block: Result)(
-        implicit maybeUser: Option[User], 
-        contentType: ContentType.Value, request: RequestHeader): Result = {
-
-    val r = for { user <- maybeUser ; permissions <- user.permissions } yield {
-      if (permissions.has(contentType, perm)) {
-        block
-      } else {
-        Unauthorized(views.html.errors.permissionDenied())
-      }
-    }
-    r.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
-  }
-
-  /**
-   * Ensure the user has permissions on a given item to perform an action.
-   * This function must have an implicit ItemPermissionSet in scope.
-   */
-  def EnsureItemPermission(perm: PermissionType.Value)(block: Result)(
-        implicit maybeUser: Option[User], maybePerms: Option[models.ItemPermissionSet[_]], 
-        contentType: ContentType.Value, request: RequestHeader): Result = {
-
-    val r = for { itemPerms <- maybePerms ; user <- maybeUser ; permissions <- user.permissions } yield {
-      if (itemPerms.has(perm)) {
-        block
-      } else {
-        if (permissions.has(contentType, perm)) {
-          block
-        } else {
-          Unauthorized(views.html.errors.permissionDenied())
-        }
-      }
-    }
-    r.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
-  }
 }

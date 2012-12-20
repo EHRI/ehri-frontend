@@ -5,7 +5,7 @@ import models.base.AccessibleEntity
 import play.api.mvc.RequestHeader
 import play.api.mvc.Call
 import models.base.Persistable
-import play.api.data.{Form,FormError}
+import play.api.data.{ Form, FormError }
 import defines.PermissionType
 
 trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
@@ -14,14 +14,12 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
   val formView: FormViewType
   val form: Form[F]
 
-  def create = userProfileAction { implicit maybeUser =>
+  def create = withContentPermission(PermissionType.Create) { implicit maybeUser =>
     implicit request =>
-    EnsurePermission(PermissionType.Create) {
-      Ok(formView(None, form, createAction, maybeUser, request))      
-    }
+      Ok(formView(None, form, createAction, maybeUser, request))
   }
 
-  def createPost = userProfileAction { implicit maybeUser =>
+  def createPost = withContentPermission(PermissionType.Create) { implicit maybeUser =>
     implicit request =>
       form.bindFromRequest.fold(
         errorForm => BadRequest(formView(None, errorForm, createAction, maybeUser, request)),
@@ -36,11 +34,11 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
                   itemOrErr.left.get match {
                     case err: rest.ValidationError => {
                       val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
-                      val filledForm = form.fill(doc).copy(errors=form.errors ++ serverErrors)
+                      val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
                       Right(BadRequest(formView(None, filledForm, createAction, maybeUser, request)))
                     }
                     case e => Left(e)
-                  } 
+                  }
                 } else itemOrErr.right.map { item => Redirect(showAction(item.id)) }
               }
           }
