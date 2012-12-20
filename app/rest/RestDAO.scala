@@ -109,10 +109,12 @@ trait RestDAO {
           invalid = { e =>
             // Temporary approach to handling random Deserialization errors.
             // In practice this should happen
-            if ((response.json \ "error").asOpt[String] == Some("DeserializationError"))
+            if ((response.json \ "error").asOpt[String] == Some("DeserializationError")) {
+              println("GOT DESERIALIZATION ERROR: " + response.json)
               Left(DeserializationError())
-            else
+            } else {
               throw sys.error("Unexpected BAD REQUEST: %s \n%s".format(e, response.body))
+            }
           }
         )
         case NOT_FOUND => Left(ItemNotFound())

@@ -86,6 +86,7 @@ trait AuthController extends Controller with Auth with Authorizer {
                 if (r2.isLeft) sys.error("Unable to fetch user permissions: " + r2.left.get)
                 if (r3.isLeft) sys.error("Unable to fetch user permissions for item: " + r3.left.get)
                 // We're okay, so construct the complete profile.
+                println("ITEM PERMS: " + r3.right.get)
                 val u = user.withProfile(UserProfileRepr(r1.right.get)).withPermissions(r2.right.get)
                 f(Some(u))(Some(r3.right.get))(request)
               }
