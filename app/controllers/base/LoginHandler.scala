@@ -10,7 +10,7 @@ trait LoginHandler extends Plugin with Controller with Auth with LoginLogout wit
 
   def login: Action[play.api.mvc.AnyContent]
   def loginPost: Action[play.api.mvc.AnyContent]
-  
+
   def logout = optionalUserAction { implicit maybeUser =>
     implicit request =>
       gotoLogoutSucceeded

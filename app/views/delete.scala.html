@@ -1,6 +1,6 @@
-@(item: models.base.AccessibleEntity, action: Call, cancel: Call, maybeUser: Option[models.sql.User], request: RequestHeader)
+@(item: models.base.AccessibleEntity, action: Call, cancel: Call, user: UserProfileRepr, request: RequestHeader)
 
-@main("Delete item")(maybeUser, request) {
+@main("Delete item")(Some(user), request) {
 
     <div class="row">
         <div class="span12 columns">

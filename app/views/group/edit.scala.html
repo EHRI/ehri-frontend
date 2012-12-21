@@ -1,8 +1,8 @@
-@(doc: Option[GroupRepr], f: play.api.data.Form[Group], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(doc: Option[GroupRepr], f: play.api.data.Form[Group], action: Call, user: UserProfileRepr, req: RequestHeader)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-  @main("Update item")(maybeUser, req) {
+  @main("Update item")(Some(user), req) {
 	
 		@doc.map { v =>
 			<h4>Update @v.identifier</h4>

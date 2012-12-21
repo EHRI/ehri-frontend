@@ -11,14 +11,7 @@ import java.util.Date
 
 // -- Users
 
-case class OpenIDUser(id: Long, email: String, profile_id: String, 
-    profile: Option[models.UserProfileRepr] = None,
-    globalPermissions: Option[acl.GlobalPermissionSet[models.UserProfileRepr]] = None,
-    itemPermissions: Option[acl.ItemPermissionSet[models.UserProfileRepr]] = None) extends User {
-
-  def withProfile(p: models.UserProfileRepr) = copy(profile = Some(p))
-  def withGlobalPermissions(p: acl.GlobalPermissionSet[models.UserProfileRepr]) = copy(globalPermissions = Some(p))
-  def withItemPermissions(p: acl.ItemPermissionSet[models.UserProfileRepr]) = copy(itemPermissions = Some(p))
+case class OpenIDUser(id: Long, email: String, profile_id: String) extends User {
 
   lazy val associations: Seq[OpenIDAssociation] = DB.withConnection { implicit connection =>
     SQL(

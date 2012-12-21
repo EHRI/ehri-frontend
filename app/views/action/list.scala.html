@@ -1,4 +1,4 @@
-@(page: rest.Page[ActionRepr], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(page: rest.Page[ActionRepr], showAction: String => Call, maybeUser: Option[UserProfileRepr], req: RequestHeader)
 
 @main("Actions")(maybeUser, req) {
 

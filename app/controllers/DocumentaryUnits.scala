@@ -5,7 +5,7 @@ import controllers.base.EntityDelete
 import controllers.base.EntityRead
 import controllers.base.EntityUpdate
 import controllers.base.VisibilityController
-import defines.{ContentType,EntityType}
+import defines.{ ContentType, EntityType }
 import models.DocumentaryUnit
 import models.DocumentaryUnitRepr
 import models.base.Persistable
@@ -17,13 +17,12 @@ import play.api.mvc.RequestHeader
 import rest.EntityDAO
 import controllers.base.DocumentaryUnitCreator
 
+object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit, DocumentaryUnitRepr]
+  with VisibilityController[DocumentaryUnit, DocumentaryUnitRepr]
+  with EntityRead[DocumentaryUnitRepr]
+  with EntityUpdate[DocumentaryUnit, DocumentaryUnitRepr]
+  with EntityDelete[DocumentaryUnitRepr] {
 
-object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit,DocumentaryUnitRepr]
-			with VisibilityController[DocumentaryUnit,DocumentaryUnitRepr]
-			with EntityRead[DocumentaryUnitRepr]
-			with EntityUpdate[DocumentaryUnit,DocumentaryUnitRepr]
-			with EntityDelete[DocumentaryUnitRepr] {
-  
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentType.DocumentaryUnit
   val listAction = routes.DocumentaryUnits.list _
@@ -33,8 +32,8 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit,Documenta
 
   val setVisibilityAction = routes.DocumentaryUnits.visibilityPost _
   val visibilityAction = routes.DocumentaryUnits.visibility _
-  val visibilityView = views.html.visibility.apply _    
-  
+  val visibilityView = views.html.visibility.apply _
+
   val form = forms.DocumentaryUnitForm.form
   val docForm = forms.DocumentaryUnitForm.form
   val showAction = routes.DocumentaryUnits.get _
@@ -46,26 +45,6 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit,Documenta
   val docFormView = views.html.documentaryUnit.create.apply _
   val deleteView = views.html.delete.apply _
   val builder = DocumentaryUnitRepr
-
-/*  def publishPost(id: String) = userProfileAction { implicit maybeUser =>
-    implicit request =>
-      AsyncRest {
-        EntityDAO(entityType, maybeUser.flatMap(_.profile))
-          .get(id).map { itemOrErr =>
-            itemOrErr.right.map { item =>
-              val doc = builder(item)
-              AsyncRest {
-                EntityDAO(entityType, maybeUser.flatMap(_.profile))
-                  .update(id, doc.to.copy(publicationStatus = Some(defines.PublicationStatus.Published)).toData).map { itemOrErr =>
-                    itemOrErr.right.map { item =>
-                      Redirect(docShowAction(item.id))
-                    }
-                  }
-              }
-            }
-          }
-      }
-  }*/
 }
 
 

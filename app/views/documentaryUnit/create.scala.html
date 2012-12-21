@@ -1,8 +1,8 @@
-@(item: models.base.AccessibleEntity, f: play.api.data.Form[DocumentaryUnit], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: models.base.AccessibleEntity, f: play.api.data.Form[DocumentaryUnit], action: Call, user: UserProfileRepr, req: RequestHeader)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("Create Documentary Unit"))(maybeUser, req) {
+@main(Messages("Create Documentary Unit"))(Some(user), req) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@documentaryUnit.renderForm(f)

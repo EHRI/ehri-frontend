@@ -1,8 +1,8 @@
-@(item: Option[DocumentaryUnitRepr], f: play.api.data.Form[DocumentaryUnit], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: Option[DocumentaryUnitRepr], f: play.api.data.Form[DocumentaryUnit], action: Call, user: UserProfileRepr, req: RequestHeader)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(item.map("Update " + _.name).getOrElse("Create item"))(maybeUser, req) {
+@main(item.map("Update " + _.name).getOrElse("Create item"))(Some(user), req) {
 		
   
 	@item.map { v =>

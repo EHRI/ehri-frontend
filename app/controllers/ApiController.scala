@@ -13,10 +13,10 @@ object ApiController extends Controller with AuthController with ControllerHelpe
   def get(urlpart: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       Async {
-        rest.ApiDAO(maybeUser.flatMap(_.profile))
-        	.get(List(urlpart, request.rawQueryString).mkString("?"), request.headers).map { r =>
-          SimpleResult(body = Enumerator(r.body), header = ResponseHeader(status = r.status))
-        }
+        rest.ApiDAO(maybeUser)
+          .get(List(urlpart, request.rawQueryString).mkString("?"), request.headers).map { r =>
+            SimpleResult(body = Enumerator(r.body), header = ResponseHeader(status = r.status))
+          }
       }
   }
 }

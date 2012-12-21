@@ -1,11 +1,11 @@
-@(item: Option[AgentRepr], f: play.api.data.Form[Agent], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: Option[AgentRepr], f: play.api.data.Form[Agent], action: Call, user: UserProfileRepr, req: RequestHeader)
  
 @import models.Address._
 @import models.Agent._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(item.map("Update " + _.name).getOrElse("Create item"))(maybeUser, req) {
+@main(item.map("Update " + _.name).getOrElse("Create item"))(Some(user), req) {
 	
 	@item.map { v =>
 		<h3>Update @v.name</h3>

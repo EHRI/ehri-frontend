@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("Login"))(maybeUser, request) {
+@main(Messages("Login"))(None, request) {
 <h2>@Messages("Please Login")</h2>
     <script type="application/javascript">
      jQuery(function($) {

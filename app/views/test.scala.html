@@ -1,6 +1,6 @@
 @(message: String)(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
 
-@main("Testing login!")(maybeUser, req) {
+@main("Testing login!")(None, req) {
 
 <h1>Hello, world...</h1>
     

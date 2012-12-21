@@ -1,10 +1,10 @@
-@(item: models.base.Accessor, groups: List[(String,String)], maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: models.base.Accessor, groups: List[(String,String)], user: UserProfileRepr, req: RequestHeader)
  
 @import defines._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("Manage Groups"))(maybeUser, req) {
+@main(Messages("Manage Groups"))(Some(user), req) {
 	
     <h2>@Messages("Manage Groups"): @item.name</h2>
     

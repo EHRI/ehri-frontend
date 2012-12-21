@@ -40,7 +40,7 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
               openid,
               routes.OpenIDLoginHandler.openIDCallback.absoluteURL(),
               Seq("email" -> "http://schema.openid.net/contact/email",
-                  "axemail" -> "http://axschema.org/contact/email"))
+                "axemail" -> "http://axschema.org/contact/email"))
               .map(url => Redirect(url)))
         })
   }
@@ -73,8 +73,8 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
         }
       })
   }
-  
-  private def extractEmail(attrs: Map[String,String]): Option[String] = {
+
+  private def extractEmail(attrs: Map[String, String]): Option[String] = {
     println("ATTRS: " + attrs)
     attrs.get("email").orElse(attrs.get("axemail"))
   }

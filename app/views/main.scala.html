@@ -1,4 +1,4 @@
-@(title: String)(maybeUser: Option[models.sql.User], req: RequestHeader)(content: Html)
+@(title: String)(maybeUser: Option[UserProfileRepr], req: RequestHeader)(content: Html)
 
 <!DOCTYPE html>
 
@@ -38,8 +38,8 @@
     <body>
 
 	    <div id="head-section">
-			@maybeUser.map { user =>
-			  <span>@user.email (<a href="/logout" id="signout">Sign out</a>)</span>			  
+			@maybeUser.flatMap(_.account).map { account =>
+			  <span>@account.email (<a href="/logout" id="signout">Sign out</a>)</span>			  
 			}.getOrElse {
 			  <a href="/login" id="signin">Sign in</a>
 			}

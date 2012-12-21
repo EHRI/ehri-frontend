@@ -7,25 +7,27 @@ import play.api.mvc.Call
 import models.base.Persistable
 import play.api.data.{ Form, FormError }
 import defines.PermissionType
+import models.UserProfileRepr
 
 trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
-  type FormViewType = (Option[T], Form[F], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  type FormViewType = (Option[T], Form[F], Call, UserProfileRepr, RequestHeader) => play.api.templates.Html
   val createAction: Call
   val formView: FormViewType
   val form: Form[F]
 
-  def create = withContentPermission(PermissionType.Create) { implicit maybeUser =>
+  def create = withContentPermission(PermissionType.Create) { implicit user =>
     implicit request =>
-      Ok(formView(None, form, createAction, maybeUser, request))
+      Ok(formView(None, form, createAction, user, request))
   }
 
-  def createPost = withContentPermission(PermissionType.Create) { implicit maybeUser =>
+  def createPost = withContentPermission(PermissionType.Create) { implicit user =>
     implicit request =>
       form.bindFromRequest.fold(
-        errorForm => BadRequest(formView(None, errorForm, createAction, maybeUser, request)),
+        errorForm => BadRequest(formView(None, errorForm, createAction, user, request)),
         doc => {
+          implicit val maybeUser = Some(user)
           AsyncRest {
-            rest.EntityDAO(entityType, maybeUser.flatMap(_.profile))
+            rest.EntityDAO(entityType, maybeUser)
               .create(doc.toData).map { itemOrErr =>
                 // If we have an error, check if it's a validation error.
                 // If so, we need to merge those errors back into the form
@@ -35,7 +37,7 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
                     case err: rest.ValidationError => {
                       val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
                       val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-                      Right(BadRequest(formView(None, filledForm, createAction, maybeUser, request)))
+                      Right(BadRequest(formView(None, filledForm, createAction, user, request)))
                     }
                     case e => Left(e)
                   }

@@ -1,10 +1,10 @@
-@(item: models.base.Accessor, action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: models.base.Accessor, action: Call, user: UserProfileRepr, req: RequestHeader)
  
 @import defines._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-  @main("Update Permissions")(maybeUser, req) {
+  @main("Update Permissions")(Some(user), req) {
 	
     <h4>Set Permissions: @item.identifier</h4>
     

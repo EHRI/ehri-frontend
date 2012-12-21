@@ -36,6 +36,8 @@ object UserProfiles extends PermissionsController[UserProfile,UserProfileRepr]
   val listView = views.html.userProfile.list.apply _
   val deleteView = views.html.delete.apply _
   val permView = views.html.accessors.edit.apply _
-  val builder = UserProfileRepr
+  // NB: Because the UserProfileRepr class has more optional
+  // parameters we use the companion object apply method here.
+  val builder = UserProfileRepr.apply _
 }
 

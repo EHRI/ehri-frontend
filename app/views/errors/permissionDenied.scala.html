@@ -1,4 +1,4 @@
-@()(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
+@()(implicit maybeUser: Option[UserProfileRepr], req: RequestHeader)
 
 @main("Permission Denied")(maybeUser, req) {
 

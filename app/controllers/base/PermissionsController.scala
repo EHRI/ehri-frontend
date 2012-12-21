@@ -9,48 +9,47 @@ import play.api.mvc.Call
 import play.api.mvc.RequestHeader
 import defines.EntityType
 import defines.PermissionType
+import models.UserProfileRepr
 
 trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[T] {
 
   val permsAction: String => Call
   val setPermsAction: String => Call
-  type PermViewType = (Accessor, GlobalPermissionSet[Accessor], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  type PermViewType = (Accessor, GlobalPermissionSet[Accessor], Call, UserProfileRepr, RequestHeader) => play.api.templates.Html
   val permView: PermViewType
 
-  def permissions(id: String) = withItemPermission(id, PermissionType.Grant) { implicit maybeUser =>
-      implicit request =>
-        maybeUser.flatMap(_.profile).map { userProfile =>
-          AsyncRest {
-            for {
-              itemOrErr <- rest.EntityDAO(entityType, Some(userProfile)).get(id)
-              permsOrErr <- rest.PermissionDAO(userProfile).get(builder(itemOrErr.right.get))
-            } yield {
+  def permissions(id: String) = withItemPermission(id, PermissionType.Grant) { implicit user =>
+    implicit request =>
+      implicit val maybeUser = Some(user)
+      AsyncRest {
+        for {
+          itemOrErr <- rest.EntityDAO(entityType, Some(user)).get(id)
+          permsOrErr <- rest.PermissionDAO(user).get(builder(itemOrErr.right.get))
+        } yield {
 
-              permsOrErr.right.map { perms =>
-                Ok(permView(builder(itemOrErr.right.get), perms, setPermsAction(id), maybeUser, request))
-              }
-            }
+          permsOrErr.right.map { perms =>
+            Ok(permView(builder(itemOrErr.right.get), perms, setPermsAction(id), user, request))
           }
-        }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
+        }
+      }
   }
 
-  def permissionsPost(id: String) = withItemPermission(id, PermissionType.Grant) { implicit maybeUser =>
-      implicit request =>
-        val data = request.body.asFormUrlEncoded.getOrElse(Map())
-        val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
-          (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
-        }.toMap
-        maybeUser.flatMap(_.profile).map { userProfile =>
-          AsyncRest {
-            for {
-              itemOrErr <- rest.EntityDAO(entityType, Some(userProfile)).get(id)
-              newpermsOrErr <- rest.PermissionDAO(userProfile).set(builder(itemOrErr.right.get), perms)
-            } yield {
-              newpermsOrErr.right.map { perms =>
-                Redirect(showAction(id))
-              }
-            }
+  def permissionsPost(id: String) = withItemPermission(id, PermissionType.Grant) { implicit user =>
+    implicit request =>
+      val data = request.body.asFormUrlEncoded.getOrElse(Map())
+      val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
+        (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
+      }.toMap
+      implicit val maybeUser = Some(user)
+      AsyncRest {
+        for {
+          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+          newpermsOrErr <- rest.PermissionDAO(user).set(builder(itemOrErr.right.get), perms)
+        } yield {
+          newpermsOrErr.right.map { perms =>
+            Redirect(showAction(id))
           }
-        }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
+        }
+      }
   }
 }
