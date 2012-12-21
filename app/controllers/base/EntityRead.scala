@@ -10,7 +10,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   
   val DEFAULT_LIMIT = 20
 
-  type ShowViewType = (T, Option[models.sql.User], Option[models.ItemPermissionSet[_]], RequestHeader) => play.api.templates.Html
+  type ShowViewType = (T, Option[models.sql.User], Option[acl.ItemPermissionSet[_]], RequestHeader) => play.api.templates.Html
   type ListViewType = (rest.Page[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val listView: ListViewType
   val listAction: (Int, Int) => Call

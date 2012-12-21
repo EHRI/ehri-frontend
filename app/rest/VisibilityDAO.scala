@@ -8,7 +8,8 @@ import models.UserProfile
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.{PermissionSet, Group}
+import models.{Group}
+import acl.GlobalPermissionSet
 import models.base.Accessor
 import com.codahale.jerkson.Json
 import defines._

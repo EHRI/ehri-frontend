@@ -12,9 +12,9 @@ import java.util.Date
 // -- Users
 
 case class PersonaUser(profile_id: String, email: String, profile: Option[models.UserProfileRepr] = None,
-    permissions: Option[models.PermissionSet[models.UserProfileRepr]] = None) extends User {  
+    permissions: Option[acl.GlobalPermissionSet[models.UserProfileRepr]] = None) extends User {  
   def withProfile(prof: models.UserProfileRepr) = copy(profile=Some(prof))
-  def withPermissions(p: models.PermissionSet[models.UserProfileRepr]) = copy(permissions = Some(p))  
+  def withPermissions(p: acl.GlobalPermissionSet[models.UserProfileRepr]) = copy(permissions = Some(p))  
 }
 
 object PersonaUser extends UserDAO {

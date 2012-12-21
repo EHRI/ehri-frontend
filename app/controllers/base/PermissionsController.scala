@@ -1,7 +1,7 @@
 package controllers.base
 
 import defines.ContentType
-import models.PermissionSet
+import acl.GlobalPermissionSet
 import models.base.Persistable
 import models.base.Accessor
 import play.api.libs.concurrent.execution.defaultContext
@@ -14,7 +14,7 @@ trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[
 
   val permsAction: String => Call
   val setPermsAction: String => Call
-  type PermViewType = (Accessor, PermissionSet[Accessor], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
+  type PermViewType = (Accessor, GlobalPermissionSet[Accessor], Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val permView: PermViewType
 
   def permissions(id: String) = withItemPermission(id, PermissionType.Grant) { implicit maybeUser =>

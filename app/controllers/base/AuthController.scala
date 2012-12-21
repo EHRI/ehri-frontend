@@ -10,7 +10,8 @@ import models.UserProfileRepr
 import models.Entity
 import play.api.libs.json.JsValue
 import play.api.libs.json.JsString
-import models.{Entity,ItemPermissionSet}
+import models.{Entity}
+import acl.ItemPermissionSet
 import defines.PermissionType
 import defines.ContentType
 

@@ -104,6 +104,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def update(id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
+    println("Sending data: " + generate(data))
     WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders.toSeq: _*)
       .put(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(json(r)))
