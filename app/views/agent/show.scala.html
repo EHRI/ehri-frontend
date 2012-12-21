@@ -1,4 +1,4 @@
-@(item: AgentRepr, maybeUser: Option[models.sql.User], perms: Option[acl.ItemPermissionSet[_]], req: RequestHeader)
+@(item: AgentRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @import defines._
 @import Agent._
@@ -29,27 +29,25 @@
   	<hr />
 	<a href="@routes.Agents.list(1, 20)">@Messages("Back to List")</a>
 	@maybeUser.map { user =>
-	  @user.permissions.map { pset =>
-  		@pset.get(ContentType.Agent, PermissionType.Create).map { p =>
-  		  &nbsp;|&nbsp;
-  		  <a href="@routes.Agents.create">Create New Repository</a>
-  		}
-  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Create).map { p =>
+	  @if(user.hasPermission(PermissionType.Create)(ContentType.Agent)) {
+  		&nbsp;|&nbsp;
+  		<a href="@routes.Agents.create">Create New Repository</a>
+  	  }
+  		@if(user.hasPermission(PermissionType.Create)(ContentType.Agent)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Agents.docCreate(item.id)">@Messages("Create New Documentary Unit")</a>
   		}  		
-  		@pset.get(ContentType.Agent, PermissionType.Update).map { p =>
+  		@if(user.hasPermission(PermissionType.Update)(ContentType.Agent)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Agents.visibility(item.id)">@Messages("Set Visibility")</a>
   		}
-  		@pset.get(ContentType.Agent, PermissionType.Update).map { p =>
+  		@if(user.hasPermission(PermissionType.Update)(ContentType.Agent)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Agents.update(item.id)">@Messages("Modify Record")</a>
   		}
-  		@pset.get(ContentType.Agent, PermissionType.Delete).map { p =>
+  		@if(user.hasPermission(PermissionType.Delete)(ContentType.Agent)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Agents.delete(item.id)">@Messages("Delete Record")</a>
-  		}	    
-	  }
+  		}
 	}
 }

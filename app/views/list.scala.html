@@ -1,4 +1,6 @@
-@(items: rest.Page[models.base.AccessibleEntity], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(items: rest.Page[models.UserProfileRepr], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@import defines._
 
 @main("View item")(maybeUser, req) {
 
@@ -7,7 +9,7 @@
 	<ul>
 	@items.list.map { item =>
 	  	<li>
-			<a href="@showAction(item.id)">@item.identifier</a>
+			<a href="@showAction(item.id)">@item.name</a>
 		</li>
 	}
 	</ul>

@@ -21,7 +21,6 @@ trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable
   import play.api.libs.json._
 
   def visibility(id: String) = withItemPermission(id, PermissionType.Update) { implicit maybeUser =>
-    implicit maybePerms =>
       implicit request =>
         maybeUser.flatMap(_.profile).map { userProfile =>
           AsyncRest {
@@ -39,7 +38,6 @@ trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable
   }
 
   def visibilityPost(id: String) = withItemPermission(id, PermissionType.Update) { implicit maybeUser =>
-    implicit maybePerms =>
       implicit request =>
         maybeUser.flatMap(_.profile).map { userProfile =>
           val data = request.body.asFormUrlEncoded.getOrElse(List()).flatMap { case (_, s) => s.toList }

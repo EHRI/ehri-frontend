@@ -33,7 +33,7 @@ object UserProfiles extends PermissionsController[UserProfile,UserProfileRepr]
   val showAction = routes.UserProfiles.get _
   val formView = views.html.userProfile.edit.apply _
   val showView = views.html.userProfile.show.apply _
-  val listView = views.html.accessors.list.apply _
+  val listView = views.html.userProfile.list.apply _
   val deleteView = views.html.delete.apply _
   val permView = views.html.accessors.edit.apply _
   val builder = UserProfileRepr

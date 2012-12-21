@@ -1,0 +1,10 @@
+@()(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@main("Database problem")(maybeUser, req) {
+
+	<h1>@Messages("We're sorry, but there's problem")</h1>
+
+	<p>
+		I'm afraid it looks like our database server has gone down. There's not much we can do without it, so please try again later.
+	</p>
+}

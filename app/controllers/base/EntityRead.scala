@@ -7,10 +7,9 @@ import play.api.mvc.Call
 
 
 trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
-  
   val DEFAULT_LIMIT = 20
 
-  type ShowViewType = (T, Option[models.sql.User], Option[acl.ItemPermissionSet[_]], RequestHeader) => play.api.templates.Html
+  type ShowViewType = (T, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   type ListViewType = (rest.Page[T], String => Call, Option[models.sql.User], RequestHeader) => play.api.templates.Html
   val listView: ListViewType
   val listAction: (Int, Int) => Call
@@ -29,11 +28,10 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   }
 
   def get(id: String) = itemPermissionAction(id) { implicit maybeUser =>
-    implicit maybePerms =>
     implicit request =>
       AsyncRest {
         rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item => Ok(showView(builder(item), maybeUser, maybePerms, request)) }
+          itemOrErr.right.map { item => Ok(showView(builder(item), maybeUser, request)) }
         }
       }
   }

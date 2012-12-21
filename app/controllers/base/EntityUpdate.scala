@@ -15,7 +15,6 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
   val form: Form[F]
 
   def update(id: String) = withItemPermission(id, PermissionType.Update) { implicit maybeUser =>
-    implicit maybePerms =>
       implicit request =>
         AsyncRest {
           rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
@@ -28,7 +27,6 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
   }
 
   def updatePost(id: String) = withItemPermission(id, PermissionType.Update) { implicit maybeUser =>
-    implicit maybePerms =>
       implicit request =>
         form.bindFromRequest.fold(
           errorForm => {

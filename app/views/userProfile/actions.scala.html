@@ -1,0 +1,28 @@
+@(item: UserProfileRepr, maybeUser: Option[models.sql.User], request: RequestHeader)
+
+@import defines._
+
+<hr />
+<a href="@routes.UserProfiles.list()">@Messages("Back to List")</a>	
+@maybeUser.map { user =>
+	@if(user.hasPermission(PermissionType.Update)(ContentType.UserProfile)) {
+	  &nbsp;|&nbsp;
+	  <a href="@routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a>
+	}
+	@if(user.hasPermission(PermissionType.Update)(ContentType.UserProfile)) {
+	  &nbsp;|&nbsp;
+	  <a href="@routes.UserProfiles.visibility(item.id)">@Messages("Set Visibility")</a>
+	}  		
+	@if(user.hasPermission(PermissionType.Grant)(ContentType.UserProfile)) {
+	  &nbsp;|&nbsp;
+	  <a href="@routes.UserProfiles.permissions(item.id)">@Messages("Modify Permissions")</a>
+	}	      		
+	@if(user.hasPermission(PermissionType.Grant)(ContentType.UserProfile)) {
+	  &nbsp;|&nbsp;
+	  <a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("Add/Remove Parent Groups")</a>
+	}	      		  		
+	@if(user.hasPermission(PermissionType.Delete)(ContentType.UserProfile)) {
+	  &nbsp;|&nbsp;
+	  <a href="@routes.UserProfiles.delete(item.id)">@Messages("Delete User")</a>
+	}
+}	

@@ -27,7 +27,6 @@ trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends En
   val docCreateAction: String => Call
 
   def docCreate(id: String) = withItemPermission(id, PermissionType.Create) { implicit maybeUser =>
-    implicit maybePerms =>
       implicit request =>
         AsyncRest {
           rest.EntityDAO(entityType, maybeUser.flatMap(_.profile)).get(id).map { itemOrErr =>
@@ -37,7 +36,6 @@ trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends En
   }
 
   def docCreatePost(id: String) = withItemPermission(id, PermissionType.Create) { implicit maybeUser =>
-    implicit maybePerms =>
       implicit request =>
         docForm.bindFromRequest.fold(
           errorForm => {

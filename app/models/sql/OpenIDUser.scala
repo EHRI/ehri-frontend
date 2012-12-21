@@ -13,7 +13,12 @@ import java.util.Date
 
 case class OpenIDUser(id: Long, email: String, profile_id: String, 
     profile: Option[models.UserProfileRepr] = None,
-    permissions: Option[acl.GlobalPermissionSet[models.UserProfileRepr]] = None) extends User {
+    globalPermissions: Option[acl.GlobalPermissionSet[models.UserProfileRepr]] = None,
+    itemPermissions: Option[acl.ItemPermissionSet[models.UserProfileRepr]] = None) extends User {
+
+  def withProfile(p: models.UserProfileRepr) = copy(profile = Some(p))
+  def withGlobalPermissions(p: acl.GlobalPermissionSet[models.UserProfileRepr]) = copy(globalPermissions = Some(p))
+  def withItemPermissions(p: acl.ItemPermissionSet[models.UserProfileRepr]) = copy(itemPermissions = Some(p))
 
   lazy val associations: Seq[OpenIDAssociation] = DB.withConnection { implicit connection =>
     SQL(
@@ -34,9 +39,6 @@ case class OpenIDUser(id: Long, email: String, profile_id: String,
     println("Added association! " + res)
     this
   }
-
-  def withProfile(p: models.UserProfileRepr) = copy(profile = Some(p))
-  def withPermissions(p: acl.GlobalPermissionSet[models.UserProfileRepr]) = copy(permissions = Some(p))
 
   def isStaff = false // STUB
 }

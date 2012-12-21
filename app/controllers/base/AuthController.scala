@@ -53,7 +53,7 @@ trait AuthController extends Controller with Auth with Authorizer {
                 if (r2.isLeft) sys.error("Unable to fetch user permissions: " + r2.left.get)
 
                 // We're okay, so construct the complete profile.
-                val u = user.withProfile(UserProfileRepr(r1.right.get)).withPermissions(r2.right.get)
+                val u = user.withProfile(UserProfileRepr(r1.right.get)).withGlobalPermissions(r2.right.get)
                 f(Some(u))(request)
               }
             }
@@ -63,7 +63,7 @@ trait AuthController extends Controller with Auth with Authorizer {
     }
   }
 
-  def itemPermissionAction(id: String)(f: Option[User] => Option[ItemPermissionSet[_]] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def itemPermissionAction(id: String)(f: Option[User] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
       implicit request =>
         userOption match {
@@ -77,37 +77,35 @@ trait AuthController extends Controller with Auth with Authorizer {
               val permsRequest = rest.PermissionDAO(fakeProfile).get
               val itemPermRequest = rest.PermissionDAO(fakeProfile).getItem(id)
               // These requests should execute in parallel...
-              for {
-                r1 <- profileRequest
-                r2 <- permsRequest
-                r3 <- itemPermRequest
-              } yield {
+              for { r1 <- profileRequest ; r2 <- permsRequest ; r3 <- itemPermRequest } yield {
                 // Check nothing errored horribly...
                 if (r1.isLeft) sys.error("Unable to fetch user profile: " + r1.left.get)
                 if (r2.isLeft) sys.error("Unable to fetch user permissions: " + r2.left.get)
                 if (r3.isLeft) sys.error("Unable to fetch user permissions for item: " + r3.left.get)
                 // We're okay, so construct the complete profile.
                 println("ITEM PERMS: " + r3.right.get)
-                val u = user.withProfile(UserProfileRepr(r1.right.get)).withPermissions(r2.right.get)
-                f(Some(u))(Some(r3.right.get))(request)
+                val u = user.withProfile(UserProfileRepr(r1.right.get))
+                  .withGlobalPermissions(r2.right.get)
+                  .withItemPermissions(r3.right.get)
+                f(Some(u))(request)
               }
             }
           }
-          case None => f(userOption)(None)(request)
+          case None => f(userOption)(request)
         }
     }
   }
 
     def withItemPermission(id: String,
       perm: PermissionType.Value)(
-      f: Option[User] => Option[ItemPermissionSet[_]] => Request[AnyContent] => Result)(
+      f: Option[User] => Request[AnyContent] => Result)(
           implicit contentType: ContentType.Value): Action[AnyContent] = {
-    itemPermissionAction(id) { implicit maybeUser => implicit itemPerms => implicit request =>
+    itemPermissionAction(id) { implicit maybeUser => implicit request =>
       
       // If we have a user, and that user has a set of permissions, check them
-      val resultOpt = for (user <- maybeUser ; iperms <- itemPerms ; perms <- user.permissions) yield {
+      val resultOpt = for (user <- maybeUser ; iperms <- user.itemPermissions ; perms <- user.globalPermissions) yield {
         if (perms.has(contentType, perm) || iperms.has(perm) )
-          f(maybeUser)(itemPerms)(request)
+          f(maybeUser)(request)
         else
           Unauthorized(views.html.errors.permissionDenied())
       }
@@ -122,7 +120,7 @@ trait AuthController extends Controller with Auth with Authorizer {
     userProfileAction { implicit maybeUser => implicit request =>
       
       // If we have a user, and that user has a set of permissions, check them
-      val resultOpt = for (user <- maybeUser ; perms <- user.permissions) yield {
+      val resultOpt = for (user <- maybeUser ; perms <- user.globalPermissions) yield {
         if (perms.has(contentType, perm))
           f(maybeUser)(request)
         else

@@ -1,10 +1,15 @@
-@(items: rest.Page[models.base.Accessor], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(items: rest.Page[models.UserProfileRepr], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@import defines._
 
 @main("View item")(maybeUser, req) {
 
-	<h3>Items:</h3>
-  
 	<h3>Displaying items @(items.offset + 1) to @(items.offset + items.list.size) of @items.total</h3>
+	@maybeUser.map { user =>
+  		@if(user.hasPermission(PermissionType.Create)(ContentType.UserProfile)) {
+  		  <a href="@routes.UserProfiles.create">@Messages("Create New User")</a>
+  		}
+	}
   
 	<div id="pagination" class="pagination">
     	<ul>

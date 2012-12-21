@@ -18,7 +18,6 @@ trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[
   val permView: PermViewType
 
   def permissions(id: String) = withItemPermission(id, PermissionType.Grant) { implicit maybeUser =>
-    implicit maybePerms =>
       implicit request =>
         maybeUser.flatMap(_.profile).map { userProfile =>
           AsyncRest {
@@ -36,7 +35,6 @@ trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[
   }
 
   def permissionsPost(id: String) = withItemPermission(id, PermissionType.Grant) { implicit maybeUser =>
-    implicit maybePerms =>
       implicit request =>
         val data = request.body.asFormUrlEncoded.getOrElse(Map())
         val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>

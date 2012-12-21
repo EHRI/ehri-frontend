@@ -1,0 +1,39 @@
+@(items: rest.Page[models.GroupRepr], showAction: String => Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+
+@import defines._
+
+@main("View item")(maybeUser, req) {
+
+	<h3>Displaying items @(items.offset + 1) to @(items.offset + items.list.size) of @items.total</h3>
+	@maybeUser.map { user =>
+  		@if(user.hasPermission(PermissionType.Create)(ContentType.Group)) {
+  		  <a href="@routes.Groups.create">@Messages("Create New Group")</a>
+  		}
+	}
+  
+	<div id="pagination" class="pagination">
+    	<ul>
+		@views.Helpers.paginationRanges(items.page.toInt + 1, items.numPages.toInt).map { range =>
+			@range.map { cp =>
+	        	@if(cp == items.page.toInt) {
+	                <li class="disabled"><a>@cp</a></li>
+	            } else {
+	                <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
+	            }
+	        }
+	        @if(range.last != items.numPages) {
+	        	<li class="disabled"><a>...</a></li>
+	        }
+		}
+		</ul>
+	</div>
+	
+	<ul>
+	@items.list.map { item =>
+	  	<li>
+			<a href="@showAction(item.id)">@item.name</a>
+		</li>
+	}
+	</ul>
+    
+}

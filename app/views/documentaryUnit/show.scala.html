@@ -1,4 +1,4 @@
-@(item: DocumentaryUnitRepr, maybeUser: Option[models.sql.User], perms: Option[acl.ItemPermissionSet[_]], req: RequestHeader)
+@(item: DocumentaryUnitRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @import defines._
 @import DocumentaryUnit._
@@ -46,23 +46,21 @@
   	<hr />
 	<a href="@routes.DocumentaryUnits.list(1, 20)">@Messages("Back to List")</a>
 	@maybeUser.map { user =>
-	  @user.permissions.map { pset =>
-  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Create).map { p =>
+  		@if(user.hasPermission(PermissionType.Create)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.DocumentaryUnits.docCreate(item.id)">@Messages("Create Child Item")</a>
   		}
-  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Update).map { p =>
+  		@if(user.hasPermission(PermissionType.Update)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.DocumentaryUnits.update(item.id)">@Messages("Modify Record")</a>
   		}
-  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Update).map { p =>
+  		@if(user.hasPermission(PermissionType.Update)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.DocumentaryUnits.visibility(item.id)">@Messages("Set Visibility")</a>
   		}
-  		@pset.get(ContentType.DocumentaryUnit, PermissionType.Delete).map { p =>
+  		@if(user.hasPermission(PermissionType.Delete)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.DocumentaryUnits.delete(item.id)">@Messages("Delete Record")</a>
   		}	    
-	  }
 	}
 }

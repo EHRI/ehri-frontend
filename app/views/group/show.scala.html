@@ -1,4 +1,4 @@
-@(item: GroupRepr, maybeUser: Option[models.sql.User], perms: Option[acl.ItemPermissionSet[_]], req: RequestHeader)
+@(item: GroupRepr, maybeUser: Option[models.sql.User], req: RequestHeader)
 
 @import defines._
 
@@ -19,31 +19,29 @@
   	<hr />
 	<a href="@routes.Groups.list(1, 20)">@Messages("Back to List")</a>	
 	@maybeUser.map { user =>
-	  @user.permissions.map { pset =>
-  		@pset.get(ContentType.Group, PermissionType.Create).map { p =>
+  		@if(user.hasPermission(PermissionType.Create)(ContentType.Group)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.create">@Messages("Create New Group")</a>
   		}
-  		@pset.get(ContentType.Group, PermissionType.Update).map { p =>
+  		@if(user.hasPermission(PermissionType.Update)(ContentType.Group)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.update(item.id)">@Messages("Modify Group")</a>
   		}
-  		@pset.get(ContentType.Group, PermissionType.Update).map { p =>
+  		@if(user.hasPermission(PermissionType.Update)(ContentType.Group)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.visibility(item.id)">@Messages("Set Visibility")</a>
   		}
-  		@pset.get(ContentType.Group, PermissionType.Grant).map { p =>
+  		@if(user.hasPermission(PermissionType.Grant)(ContentType.Group)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.permissions(item.id)">@Messages("Modify Permissions")</a>
   		}	      		  		
-  		@pset.get(ContentType.Group, PermissionType.Grant).map { p =>
+  		@if(user.hasPermission(PermissionType.Grant)(ContentType.Group)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("Add/Remove Parent Groups")</a>
   		}	      		  		
-  		@pset.get(ContentType.Group, PermissionType.Delete).map { p =>
+  		@if(user.hasPermission(PermissionType.Delete)(ContentType.Group)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.delete(item.id)">@Messages("Delete Group")</a>
   		}	    
-	  }
 	}	
 }

@@ -1,4 +1,4 @@
-@(item: models.base.Accessor, perms: PermissionSet[models.base.Accessor], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(item: models.base.Accessor, perms: acl.GlobalPermissionSet[models.base.Accessor], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
  
 @import defines._
 
