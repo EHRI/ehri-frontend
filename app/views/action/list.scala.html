@@ -29,10 +29,10 @@
 				@accessor match {
 	
 			    case u: UserProfileRepr => {
-			    	- <a href="@routes.UserProfiles.get(u.identifier)">@u.name</a>
+			    	- <a href="@routes.UserProfiles.get(u.id)">@u.name</a>
 			    }
 			    case g: GroupRepr => {
-			    	- <a href="@routes.Groups.get(g.identifier)">@g.name</a>
+			    	- <a href="@routes.Groups.get(g.id)">@g.name</a>
 			    }
 		
 			    case _ => {

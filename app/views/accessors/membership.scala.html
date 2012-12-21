@@ -11,7 +11,7 @@
 	@if(!item.groups.isEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;
 	  @item.groups.map { group =>
-	    <a href="@routes.Groups.get(group.identifier)">@group.name</a>
+	    <a href="@routes.Groups.get(group.id)">@group.name</a>
 	  }	  
 	}
     
