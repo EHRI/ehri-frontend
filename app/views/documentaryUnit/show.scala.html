@@ -44,7 +44,7 @@
 	@common.visibility(item)
 	
   	<hr />
-	<a href="@routes.DocumentaryUnits.list(1, 20)">@Messages("Back to List")</a>
+	<a href="@routes.DocumentaryUnits.list()">@Messages("Back to List")</a>
 	@maybeUser.map { user =>
   		@if(user.hasPermission(PermissionType.Create)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;

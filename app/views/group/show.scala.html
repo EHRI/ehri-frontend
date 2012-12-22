@@ -17,7 +17,7 @@
 	@common.visibility(item)
 
   	<hr />
-	<a href="@routes.Groups.list(1, 20)">@Messages("Back to List")</a>	
+	<a href="@routes.Groups.list()">@Messages("Back to List")</a>	
 	@maybeUser.map { user =>
   		@if(user.hasPermission(PermissionType.Create)(ContentType.Group)) {
   		  &nbsp;|&nbsp;
