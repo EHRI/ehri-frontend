@@ -20,7 +20,7 @@
 	}
 	
 	@if(!item.descriptions.isEmpty) {
-	  <h4>@Messages("Available Descriptions")</h4>
+		<h4>@Messages("Available Descriptions")</h4>
 		@item.descriptions.map { desc =>
 		  <h5>Language: @desc.languageCode</h5>		  
 		  @common.stringValue(desc, ADMIN_BIOG)
