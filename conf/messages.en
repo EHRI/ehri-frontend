@@ -1,0 +1,11 @@
+agent.descriptions=Descriptions
+agent.description=Description Area
+agent.identity=Identity Area
+agent.contact=Contact Area
+agent.addresses=Address Area
+agent.access=Access Area
+agent.services=Services Area
+
+# general forms
+update.heading=Update {0}
+create.heading=Create New Item

@@ -1,17 +1,15 @@
-@(item: Option[AgentRepr], f: play.api.data.Form[Agent], action: Call, user: UserProfileRepr, req: RequestHeader)
+@(item: Option[AgentRepr], f: play.api.data.Form[Agent], action: Call, user: UserProfileRepr, req: RequestHeader)(implicit lang: Lang)
  
 @import models.Address._
 @import models.Agent._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(item.map("Update " + _.name).getOrElse("Create item"))(Some(user), req) {
+@main(item.map(i => Messages("update.heading", i.name)).getOrElse(Messages("create.heading")))(Some(user), req) {
 	
-	@item.map { v =>
-		<h3>Update @v.name</h3>
-	}.getOrElse {
-		<h3>Create</h3>
-	}
+	<h3>
+		@item.map(i => Messages("update.heading", i.name)).getOrElse(Messages("create.heading"))
+	</h3>
 		
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
@@ -23,7 +21,7 @@
 	  
 		@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
 			<fieldset id="identity-area">
-				<legend>@Messages("Description")</legend>
+				<legend>@Messages("agent.identity")</legend>
 				@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
   					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
 				} 
@@ -38,7 +36,7 @@
 			</fieldset>
 			<fieldset id="contact-area">
 				<legend>@Messages("Contact")</legend>
-				@helper.repeat(desc("addresses"), min=math.max(desc("addresses").indexes.length, 1)) { desc =>
+				@helper.repeat(desc("agent.addresses"), min=math.max(desc("addresses").indexes.length, 1)) { desc =>
 					@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
 	  					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
 					} 
@@ -55,8 +53,8 @@
 				}
 			</fieldset>		
 				
-		  	<fieldset id="content-area">
-				<legend>@Messages("Description")</legend>
+		  	<fieldset id="description-area">
+				<legend>@Messages("agent.description")</legend>
 				@defining(desc("description")) { desc =>
 					@formHelpers.textInput(desc, HISTORY)
 					@formHelpers.textInput(desc, GENERAL_CONTEXT)
@@ -67,8 +65,47 @@
 					@formHelpers.textInput(desc, HOLDINGS)
 					@formHelpers.textInput(desc, FINDING_AIDS)
 				}
+			</fieldset>
+				
+		  	<fieldset id="access-area">
+				<legend>@Messages("agent.access")</legend>
+				@defining(desc("access")) { desc =>
+					@formHelpers.textInput(desc, OPENING_TIMES)
+					@formHelpers.textInput(desc, CONDITIONS)
+					@formHelpers.textInput(desc, ACCESSIBILITY)
+				}
+			</fieldset>				
+				
+		  	<fieldset id="services-area">
+				<legend>@Messages("agent.services")</legend>
+				@defining(desc("services")) { desc =>
+					@formHelpers.textInput(desc, RESEARCH_SERVICES)
+					@formHelpers.textInput(desc, REPROD_SERVICES)
+					@formHelpers.textInput(desc, PUBLIC_AREAS)
+				}
 			</fieldset>				
 
+		  	<fieldset id="control-area">
+				<legend>@Messages("agent.control")</legend>
+				@defining(desc("control")) { desc =>
+					@formHelpers.lineInput(desc, DESCRIPTION_IDENTIFIER)
+					@formHelpers.lineInput(desc, INSTITUTION_IDENTIFIER)
+					@formHelpers.textInput(desc, RULES_CONVENTIONS)
+					@formHelpers.textInput(desc, STATUS)
+					@formHelpers.textInput(desc, LEVEL_OF_DETAIL)
+					@formHelpers.textInput(desc, DATES_CVD)
+					@* TODO: Make scripts a dropdown... *@
+					@helper.repeat(desc(LANGUAGES_USED), min = item.flatMap(_.listProperty(LANGUAGES_USED).map(_.length)).getOrElse(0) + 1) { pnField =>
+						@helper.inputText(pnField)
+					}
+					@helper.repeat(desc(SCRIPTS_USED), min = item.flatMap(_.listProperty(SCRIPTS_USED).map(_.length)).getOrElse(0) + 1) { pnField =>
+						@helper.inputText(pnField)
+					}					
+					@formHelpers.textInput(desc, SOURCES)
+					@formHelpers.textInput(desc, MAINTENANCE_NOTES)
+				}
+			</fieldset>				
+				
 		}
 		
 		<fieldset id="admin-area">

@@ -10,6 +10,7 @@ import models.base.Field._
 object DocumentaryUnitForm {
 
   import DocumentaryUnit._
+  import DocumentaryUnitDescription._
   
   val form = Form(            
       mapping(
@@ -26,25 +27,25 @@ object DocumentaryUnitForm {
     		        ADMIN_BIOG.id -> optional(text),
     		        ARCH_HIST.id -> optional(text),
     		        ACQUISITION.id -> optional(text)
-    		    )(DocumentaryUnitContext.apply)(DocumentaryUnitContext.unapply),
+    		    )(Context.apply)(Context.unapply),
     		    "content" -> mapping(
     		        SCOPE_CONTENT.id -> optional(text),
     		        APPRAISAL.id -> optional(text),
     		        ACCRUALS.id -> optional(text),
     		        SYS_ARR.id -> optional(text)
-    		    )(DocumentaryUnitContent.apply)(DocumentaryUnitContent.unapply),
+    		    )(Content.apply)(Content.unapply),
     		    "conditions" -> mapping(
     		        ACCESS_COND.id -> optional(text),
     		        REPROD_COND.id -> optional(text),
     		        PHYSICAL_CHARS.id -> optional(text),
     		        FINDING_AIDS.id -> optional(text)
-    		    )(DocumentaryUnitConditions.apply)(DocumentaryUnitConditions.unapply),
+    		    )(Conditions.apply)(Conditions.unapply),
     		    "materials" -> mapping(
     		        LOCATION_ORIGINALS.id -> optional(text),
     		        LOCATION_COPIES.id -> optional(text),
     		        RELATED_UNITS.id -> optional(text),
     		        PUBLICATION_NOTE.id -> optional(text)
-    		    )(DocumentaryUnitMaterials.apply)(DocumentaryUnitMaterials.unapply)
+    		    )(Materials.apply)(Materials.unapply)
     		  )(DocumentaryUnitDescription.apply)(DocumentaryUnitDescription.unapply)
             )
       )(DocumentaryUnit.apply)(DocumentaryUnit.unapply)

@@ -28,6 +28,7 @@ case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity wi
 
 case class AgentDescriptionRepr(val e: Entity) extends Description with Formable[AgentDescription] {
   import Agent._
+  import AgentDescription._
 
   def addresses: List[AddressRepr] = e.relations(Agent.ADDRESS_REL).map(AddressRepr(_))
 
@@ -38,7 +39,7 @@ case class AgentDescriptionRepr(val e: Entity) extends Description with Formable
     otherFormsOfName = e.listProperty(OTHER_FORMS_OF_NAME),
     parallelFormsOfName = e.listProperty(PARALLEL_FORMS_OF_NAME),
     addresses = addresses.map(_.to),
-    details = AgentDetails(
+    details = Details(
       history = e.stringProperty(HISTORY),
       generalContext = e.stringProperty(GENERAL_CONTEXT),
       mandates = e.stringProperty(HISTORY),
@@ -47,6 +48,28 @@ case class AgentDescriptionRepr(val e: Entity) extends Description with Formable
       buildings = e.stringProperty(BUILDINGS),
       holdings = e.stringProperty(HOLDINGS),
       findingAids = e.stringProperty(FINDING_AIDS)
+    ),
+    access = Access(
+      openingTimes = e.stringProperty(OPENING_TIMES),
+      conditions = e.stringProperty(CONDITIONS),
+      accessibility = e.stringProperty(ACCESSIBILITY)
+    ),
+    services = Services(
+      researchServices = e.stringProperty(RESEARCH_SERVICES),
+      reproductionServices = e.stringProperty(REPROD_SERVICES),
+      publicAreas = e.stringProperty(PUBLIC_AREAS)
+    ),
+    control = Control(
+      descriptionIdentifier = e.stringProperty(DESCRIPTION_IDENTIFIER),
+      institutionIdentifier = e.stringProperty(INSTITUTION_IDENTIFIER),
+      rulesAndConventions = e.stringProperty(RULES_CONVENTIONS),
+      status = e.stringProperty(STATUS),
+      levelOfDetail = e.stringProperty(LEVEL_OF_DETAIL),
+      datesCDR = e.stringProperty(DATES_CVD),
+      languages = e.listProperty(LANGUAGES_USED),
+      scripts = e.listProperty(SCRIPTS_USED),
+      sources = e.stringProperty(SOURCES),
+      maintenanceNotes = e.stringProperty(MAINTENANCE_NOTES)        
     )
   )
 }
@@ -85,6 +108,29 @@ object Agent {
   val BUILDINGS = Field("buildings", "Building(s)")
   val HOLDINGS = Field("holdings", "Archival and Other Holdings")
   val FINDING_AIDS = Field("findingAids", "Finding Aids")
+
+  // Access
+  val OPENING_TIMES = Field("openingTimes", "Opening times")
+  val CONDITIONS = Field("conditions", "Conditions of access and use")
+  val ACCESSIBILITY = Field("accessibility", "Accessibility")
+
+  // Services
+  val RESEARCH_SERVICES = Field("researchServices", "Research Services")
+  val REPROD_SERVICES = Field("reproductionServices", "Reproduction Services")
+  val PUBLIC_AREAS = Field("publicAreas", "Public Areas")
+
+  // Control
+  val DESCRIPTION_IDENTIFIER = Field("descriptionIdentifier", "Description Identifier")
+  val INSTITUTION_IDENTIFIER = Field("institutionIdentifier", "Institution Identifier")
+  val RULES_CONVENTIONS = Field("rulesAndConventions", "Rules and Conventions Used")
+  val STATUS = Field("status", "Status")
+  val LEVEL_OF_DETAIL = Field("levelOfDetail", "Level of Detail")
+  val DATES_CVD = Field("datesCVD", "Dates of creation, revision, and deletion")
+  val LANGUAGES_USED = Field("languages", "Language(s) used")
+  val SCRIPTS_USED = Field("scripts", "Script(s) used")
+  val SOURCES = Field("sources", "Sources")
+  val MAINTENANCE_NOTES = Field("maintenanceNotes", "Maintenance Notes")
+
 }
 
 object Address {
@@ -116,7 +162,11 @@ case class AgentDescription(
   val otherFormsOfName: Option[List[String]] = None,
   val parallelFormsOfName: Option[List[String]] = None,
   @Annotations.Relation(Agent.ADDRESS_REL) val addresses: List[Address] = Nil,
-  val details: AgentDetails) extends Persistable {
+  val details: AgentDescription.Details,
+  val access: AgentDescription.Access,
+  val services: AgentDescription.Services,
+  val control: AgentDescription.Control
+) extends Persistable {
   val isA = EntityType.AgentDescription
 }
 
@@ -135,13 +185,39 @@ case class Address(
   val isA = EntityType.Address
 }
 
-case class AgentDetails(
-  val history: Option[String] = None,
-  val generalContext: Option[String] = None,
-  val mandates: Option[String] = None,
-  val administrativeStructure: Option[String] = None,
-  val records: Option[String] = None,
-  val buildings: Option[String] = None,
-  val holdings: Option[String] = None,
-  val findingAids: Option[String] = None
-) extends AttributeSet
+object AgentDescription {
+
+  case class Details(
+    val history: Option[String] = None,
+    val generalContext: Option[String] = None,
+    val mandates: Option[String] = None,
+    val administrativeStructure: Option[String] = None,
+    val records: Option[String] = None,
+    val buildings: Option[String] = None,
+    val holdings: Option[String] = None,
+    val findingAids: Option[String] = None) extends AttributeSet
+
+  case class Access(
+    val openingTimes: Option[String] = None,
+    val conditions: Option[String] = None,
+    val accessibility: Option[String] = None) extends AttributeSet
+
+  case class Services(
+    val researchServices: Option[String] = None,
+    val reproductionServices: Option[String] = None,
+    val publicAreas: Option[String] = None) extends AttributeSet
+
+  case class Control(
+    val descriptionIdentifier: Option[String] = None,
+    val institutionIdentifier: Option[String] = None,
+    val rulesAndConventions: Option[String] = None,
+    val status: Option[String] = None,
+    val levelOfDetail: Option[String] = None,
+    val datesCDR: Option[String] = None,
+    val languages: Option[List[String]] = None,
+    val scripts: Option[List[String]] = None,
+    val sources: Option[String] = None,
+    val maintenanceNotes: Option[String] = None
+  ) extends AttributeSet
+}
+

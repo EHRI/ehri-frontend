@@ -10,7 +10,8 @@ object AgentForm {
 
   import Agent._
   import Address._
-  
+  import AgentDescription._
+
   val form = Form(
     mapping(
       Entity.ID -> optional(nonEmptyText),
@@ -48,7 +49,29 @@ object AgentForm {
             BUILDINGS.id -> optional(text),
             HOLDINGS.id -> optional(text),
             FINDING_AIDS.id -> optional(text)
-          )(AgentDetails.apply)(AgentDetails.unapply)
+          )(Details.apply)(Details.unapply),
+          "access" -> mapping(
+            OPENING_TIMES.id -> optional(text),
+            CONDITIONS.id -> optional(text),
+            ACCESSIBILITY.id -> optional(text)
+          )(Access.apply)(Access.unapply),
+          "services" -> mapping(
+            RESEARCH_SERVICES.id -> optional(text),
+            REPROD_SERVICES.id -> optional(text),
+            PUBLIC_AREAS.id -> optional(text)
+          )(Services.apply)(Services.unapply),
+          "control" -> mapping(
+            DESCRIPTION_IDENTIFIER.id -> optional(text),
+            INSTITUTION_IDENTIFIER.id -> optional(text),
+            RULES_CONVENTIONS.id -> optional(text),
+            STATUS.id -> optional(text),
+            LEVEL_OF_DETAIL.id -> optional(text),
+            DATES_CVD.id -> optional(text),
+            LANGUAGES_USED.id -> optional(list(text)),
+            SCRIPTS_USED.id -> optional(list(text)),
+            SOURCES.id -> optional(text),
+            MAINTENANCE_NOTES.id -> optional(text)
+          )(Control.apply)(Control.unapply)
         )(AgentDescription.apply)(AgentDescription.unapply)
       )
     )(Agent.apply)(Agent.unapply)

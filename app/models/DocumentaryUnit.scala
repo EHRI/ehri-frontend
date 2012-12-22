@@ -42,28 +42,29 @@ case class DocumentaryUnitDescriptionRepr(val e: Entity)
   extends Description
   with Formable[DocumentaryUnitDescription] {
   import DocumentaryUnit._
+  import DocumentaryUnitDescription._
   def to = new DocumentaryUnitDescription(
     id = Some(e.id),
     languageCode = languageCode,
     title = e.property(TITLE).flatMap(_.asOpt[String]),
-    context = DocumentaryUnitContext(
+    context = Context(
       adminBiogHist = stringProperty(ADMIN_BIOG),
       archivalHistory = stringProperty(ARCH_HIST),
       acquisition = stringProperty(ACQUISITION)
     ),
-    content = DocumentaryUnitContent(
+    content = Content(
       scopeAndContent = stringProperty(SCOPE_CONTENT),
       appraisal = stringProperty(APPRAISAL),
       accruals = stringProperty(ACCRUALS),
       systemOfArrangement = stringProperty(SYS_ARR)
     ),
-    conditions = DocumentaryUnitConditions(
+    conditions = Conditions(
       conditionsOfAccess = stringProperty(ACCESS_COND),
       conditionsOfReproduction = stringProperty(REPROD_COND),
       physicalCharacteristics = stringProperty(PHYSICAL_CHARS),
       findingAids = stringProperty(FINDING_AIDS)
     ),
-    materials = DocumentaryUnitMaterials(
+    materials = Materials(
       locationOfOriginals = stringProperty(LOCATION_ORIGINALS),
       locationOfCopies = stringProperty(LOCATION_COPIES),
       relatedUnitsOfDescription = stringProperty(RELATED_UNITS),
@@ -116,33 +117,36 @@ case class DocumentaryUnitDescription(
   val id: Option[String],
   val languageCode: String,
   val title: Option[String] = None,
-  val context: DocumentaryUnitContext,
-  val content: DocumentaryUnitContent,
-  val conditions: DocumentaryUnitConditions,
-  val materials: DocumentaryUnitMaterials) extends Persistable {
-  val isA = EntityType.DocumentaryUnitDescription
-
+  val context: DocumentaryUnitDescription.Context,
+  val content: DocumentaryUnitDescription.Content,
+  val conditions: DocumentaryUnitDescription.Conditions,
+  val materials: DocumentaryUnitDescription.Materials
+) extends Persistable {
+  val isA = EntityType.DocumentaryUnitDescription  
 }
 
-case class DocumentaryUnitContext(
-  val adminBiogHist: Option[String] = None,
-  val archivalHistory: Option[String] = None,
-  val acquisition: Option[String] = None) extends AttributeSet
+object DocumentaryUnitDescription {
+	case class Context(
+	  val adminBiogHist: Option[String] = None,
+	  val archivalHistory: Option[String] = None,
+	  val acquisition: Option[String] = None) extends AttributeSet
+	
+	case class Content(
+	  val scopeAndContent: Option[String] = None,
+	  val appraisal: Option[String] = None,
+	  val accruals: Option[String] = None,
+	  val systemOfArrangement: Option[String] = None) extends AttributeSet
+	
+	case class Conditions(
+	  val conditionsOfAccess: Option[String] = None,
+	  val conditionsOfReproduction: Option[String] = None,
+	  val physicalCharacteristics: Option[String] = None,
+	  val findingAids: Option[String] = None) extends AttributeSet
+	
+	case class Materials(
+	  val locationOfOriginals: Option[String] = None,
+	  val locationOfCopies: Option[String] = None,
+	  val relatedUnitsOfDescription: Option[String] = None,
+	  val publicationNote: Option[String] = None) extends AttributeSet    
+}
 
-case class DocumentaryUnitContent(
-  val scopeAndContent: Option[String] = None,
-  val appraisal: Option[String] = None,
-  val accruals: Option[String] = None,
-  val systemOfArrangement: Option[String] = None) extends AttributeSet
-
-case class DocumentaryUnitConditions(
-  val conditionsOfAccess: Option[String] = None,
-  val conditionsOfReproduction: Option[String] = None,
-  val physicalCharacteristics: Option[String] = None,
-  val findingAids: Option[String] = None) extends AttributeSet
-
-case class DocumentaryUnitMaterials(
-  val locationOfOriginals: Option[String] = None,
-  val locationOfCopies: Option[String] = None,
-  val relatedUnitsOfDescription: Option[String] = None,
-  val publicationNote: Option[String] = None) extends AttributeSet
