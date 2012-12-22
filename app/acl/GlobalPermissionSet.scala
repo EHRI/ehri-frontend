@@ -24,19 +24,17 @@ object GlobalPermissionSet {
    */
   def extract(pd: PermDataRaw): PermData = {
     pd.flatMap { pmap =>
-      pmap.headOption.map {
-        case (user, perms) =>
-          (user, perms.map {
-            case (et, plist) =>
-              try {
-                (ContentType.withName(et), plist.map(PermissionType.withName(_)))
-              } catch {
-                case e: NoSuchElementException =>
-                  // If we get an expected permission, fail fast!
-                  sys.error("Unable to extract permissions: Entity: '%s', elements: %s".format(et, plist))
-              }
-
-          })
+      pmap.headOption.map { case (user, perms) =>
+		(user, perms.map {
+		  case (et, plist) =>
+		    try {
+		      (ContentType.withName(et), plist.map(PermissionType.withName(_)))
+		    } catch {
+		      case e: NoSuchElementException =>
+		      // If we get an expected permission, fail fast!
+		    sys.error("Unable to extract permissions: Entity: '%s', elements: %s".format(et, plist))
+		  }
+		})
       }
     }
   }
