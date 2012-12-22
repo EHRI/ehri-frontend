@@ -16,37 +16,48 @@ object ItemPermissionSet {
    * a less stringly typed version: all the entity types and permissions
    * should all correspond to Enum values in ContentType and PermissionType.
    */
-  def extract(pd: PermDataRaw): PermData = {
+  private def extract(pd: PermDataRaw): PermData = {
     pd.flatMap { userPermMap =>
-      userPermMap.headOption.map { case (userId, plist) =>
+      userPermMap.headOption.flatMap { case (userId, plist) =>
         try {
-          List((userId, plist.map(PermissionType.withName(_))))
+          Some((userId, plist.map(PermissionType.withName(_))))
         } catch {
           case e: NoSuchElementException =>
                 // If we get an expected permission, fail fast!
                 sys.error("Unable to extract permissions: elements: %s".format(plist))          
         }
-      }.getOrElse(Nil)
+      }
     }
   }
 
-  def apply[T <: Accessor](acc: T, json: JsValue) = json.validate[PermDataRaw].fold(
-    valid = { pd => new ItemPermissionSet(acc, extract(pd)) },
+  /**
+   * Construct an item permission set from a JSON value.
+   */
+  def apply[T <: Accessor](accessor: T, json: JsValue) = json.validate[PermDataRaw].fold(
+    valid = { pd => new ItemPermissionSet(accessor, extract(pd)) },
     invalid = { e => sys.error(e.toString) }
   )
 }
 
 /**
- * Search
+ * Item-level permissions granted to either a UserProfile or a Group.
  */
 case class ItemPermissionSet[+T <: Accessor](val user: T, val data: ItemPermissionSet.PermData)
 	extends PermissionSet {
 
-  def has(perm: PermissionType.Value): Boolean = expandOwnerPerms(data.flatMap(t => t._2)).contains(perm)
+  /**
+   * Check if this permission set has the given permission (hackily expanded
+   * to account for owner permissions.
+   */
+  def has(permission: PermissionType.Value): Boolean = expandOwnerPerms(data.flatMap(t => t._2)).contains(permission)
 
-  def get(perm: PermissionType.Value): Option[PermissionGrant[T]] = {
+  /**
+   * Get the permission grant for a given permission (if any), which contains
+   * the accessor to whom the permission was granted.
+   */  
+  def get(permission: PermissionType.Value): Option[PermissionGrant[T]] = {
     val accessors = data.flatMap { case (uid, perms) =>
-        if (expandOwnerPerms(perms).contains(perm)) Some((uid, perm))
+        if (expandOwnerPerms(perms).contains(permission)) Some((uid, permission))
         else None
     }
     accessors.headOption.map {
