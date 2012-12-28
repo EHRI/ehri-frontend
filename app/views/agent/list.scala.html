@@ -1,10 +1,8 @@
-@(items: rest.Page[AgentRepr], showAction: String => Call, maybeUser: Option[UserProfileRepr], req: RequestHeader)
+@(items: rest.Page[Agent], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
 
 @main("View item")(maybeUser, req) {
 
-	<h3>Items:</h3>
-  
-	<h3>Displaying items @(items.offset + 1) to @(items.offset + items.list.size) of @items.total</h3>
+	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
   
 	<div id="pagination" class="pagination">
     	<ul>

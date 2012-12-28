@@ -1,7 +1,7 @@
-@(item: AgentRepr, maybeUser: Option[UserProfileRepr], req: RequestHeader)
+@(item: Agent, maybeUser: Option[UserProfile], req: RequestHeader)
 
 @import defines._
-@import Isdiah._
+@import models.forms.Isdiah._
 
 @main(item.name)(maybeUser, req) {
 
@@ -13,7 +13,7 @@
 		  <h5>Language: @desc.languageCode</h5>
 
 		  <h5>Description</h5>
-		  @common.stringValue(desc, Isdiah.HISTORY)
+		  @common.stringValue(desc, HISTORY)
 		  @common.stringValue(desc, GENERAL_CONTEXT)
 		  @common.stringValue(desc, MANDATES)
 		  @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)

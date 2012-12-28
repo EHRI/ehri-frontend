@@ -1,8 +1,7 @@
-@(item: DocumentaryUnitRepr, maybeUser: Option[UserProfileRepr], req: RequestHeader)
+@(item: DocumentaryUnit, maybeUser: Option[UserProfile], req: RequestHeader)
 
 @import defines._
-@import DocumentaryUnit._
-@import IsadG._
+@import models.forms.IsadG._
 
 @main("View item")(maybeUser, req) {
 

@@ -40,7 +40,7 @@ object ItemPermissionSet {
 }
 
 /**
- * Item-level permissions granted to either a UserProfile or a Group.
+ * Item-level permissions granted to either a UserProfileF or a GroupF.
  */
 case class ItemPermissionSet[+T <: Accessor](val user: T, val data: ItemPermissionSet.PermData)
 	extends PermissionSet {

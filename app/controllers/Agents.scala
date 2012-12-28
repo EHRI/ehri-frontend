@@ -1,20 +1,18 @@
 package controllers
 
-import models.base.AccessibleEntity
+import play.api._
+import play.api.mvc._
 import defines._
-import play.api.libs.concurrent.execution.defaultContext
-import rest.EntityDAO
-import controllers.base.CRUD
-import controllers.base.VisibilityController
-import models.Entity
-import models.AgentRepr
+import base.CRUD
+import base.VisibilityController
 import models.Agent
-import controllers.base.DocumentaryUnitCreator
+import models.forms.AgentF
+import base.DocumentaryUnitCreator
 
 
-object Agents extends DocumentaryUnitCreator[Agent,AgentRepr]
-		with VisibilityController[Agent,AgentRepr]
-		with CRUD[Agent,AgentRepr] {
+object Agents extends DocumentaryUnitCreator[AgentF,Agent]
+		with VisibilityController[AgentF,Agent]
+		with CRUD[AgentF,Agent] {
   val entityType = EntityType.Agent
   val contentType = ContentType.Agent
   val listAction = routes.Agents.list _
@@ -29,8 +27,8 @@ object Agents extends DocumentaryUnitCreator[Agent,AgentRepr]
   val visibilityAction = routes.Agents.visibility _
   val visibilityView = views.html.visibility.apply _    
   
-  val form = forms.AgentForm.form
-  val docForm = forms.DocumentaryUnitForm.form
+  val form = models.forms.AgentForm.form
+  val docForm = models.forms.DocumentaryUnitForm.form
   val showAction = routes.Agents.get _
   val formView = views.html.agent.edit.apply _
   val showView = views.html.agent.show.apply _
@@ -38,5 +36,5 @@ object Agents extends DocumentaryUnitCreator[Agent,AgentRepr]
   val docFormView = views.html.documentaryUnit.create.apply _
   val listView = views.html.agent.list.apply _
   val deleteView = views.html.delete.apply _
-  val builder = AgentRepr
+  val builder = Agent
 }

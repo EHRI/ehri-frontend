@@ -4,13 +4,13 @@ import play.api.libs.concurrent.execution.defaultContext
 import models.base.AccessibleEntity
 import play.api.mvc.RequestHeader
 import play.api.mvc.Call
-import models.UserProfileRepr
+import models.UserProfile
 
 trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   val DEFAULT_LIMIT = 20
 
-  type ShowViewType = (T, Option[UserProfileRepr], RequestHeader) => play.api.templates.Html
-  type ListViewType = (rest.Page[T], String => Call, Option[UserProfileRepr], RequestHeader) => play.api.templates.Html
+  type ShowViewType = (T, Option[UserProfile], RequestHeader) => play.api.templates.Html
+  type ListViewType = (rest.Page[T], String => Call, Option[UserProfile], RequestHeader) => play.api.templates.Html
   val listView: ListViewType
   val listAction: (Int, Int) => Call
   val showAction: String => Call

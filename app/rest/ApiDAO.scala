@@ -4,15 +4,13 @@ import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.WS
 import models.Entity
-import models.UserProfile
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.{Group}
 import acl.GlobalPermissionSet
 import models.base.Accessor
 import com.codahale.jerkson.Json
 import defines._
-import models.UserProfileRepr
+import models.UserProfile
 import models.base.AccessibleEntity
 import play.api.mvc.AnyContent
 import play.api.libs.ws.Response
@@ -21,7 +19,7 @@ import play.api.mvc.Headers
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
 
-case class ApiDAO(val userProfile: Option[UserProfileRepr]) extends RestDAO {
+case class ApiDAO(val userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 

@@ -4,7 +4,7 @@ import play.api.libs.concurrent.execution.defaultContext
 import models.base._
 import models.base.Persistable
 import defines._
-import models.UserProfileRepr
+import models.UserProfile
 
 trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
 
@@ -13,13 +13,9 @@ trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable
 
   val visibilityAction: String => Call
   val setVisibilityAction: String => Call
-  type VisibilityViewType = (Accessor, List[(String, String)], List[(String, String)], Call, UserProfileRepr, RequestHeader) => play.api.templates.Html
+  type VisibilityViewType = (Accessor, List[(String, String)], List[(String, String)], Call, UserProfile, RequestHeader) => play.api.templates.Html
   val visibilityView: VisibilityViewType
 
-  import play.api.libs.json.Reads
-  import play.api.libs.json.Reads._
-  import play.api.libs.json.util._
-  import play.api.libs.json._
 
   def visibility(id: String) = withItemPermission(id, PermissionType.Update) { implicit user =>
     implicit request =>

@@ -6,13 +6,12 @@ import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json.{ JsArray, JsValue }
 import models.base.AccessibleEntity
 import models.EntityReader
-import models.UserProfile
 import play.api.http.Status.OK
 import defines.EntityType
 import models.Entity
 import models.Entity
 import play.api.libs.json.Json
-import models.UserProfileRepr
+import models.UserProfile
 import play.api.http.ContentTypes
 import play.api.http.HeaderNames
 
@@ -36,7 +35,7 @@ object PageReads {
   )(Page[T] _)
 }
 
-case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[UserProfileRepr] = None) extends RestDAO {
+case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
 
   import play.api.http.Status._
   import com.codahale.jerkson.Json.generate

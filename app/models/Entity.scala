@@ -48,11 +48,9 @@ case class Entity(
 }
 
 object EntityWriter {
-  import play.api.libs.json.Reads._
   import play.api.libs.json.Writes._
   import play.api.libs.json.util._
 
-  import defines.EnumWriter._
   implicit val entityWrites: Writes[Entity] = (
      (__ \ Entity.ID).write[String] and
      (__ \ Entity.TYPE).write[EntityType.Type](EnumWriter.enumWrites) and
@@ -64,7 +62,6 @@ object EntityWriter {
 
 object EntityReader {
   import play.api.libs.json.Reads._
-  import play.api.libs.json.Writes._
   import play.api.libs.json.util._
   import defines.EnumReader
 

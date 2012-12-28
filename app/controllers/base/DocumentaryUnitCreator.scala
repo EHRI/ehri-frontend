@@ -1,16 +1,13 @@
 package controllers.base
 
 import defines.EntityType
-import models.DocumentaryUnit
-import models.DocumentaryUnitRepr
+import models.forms.DocumentaryUnitF
 import models.base.Persistable
 import models.base.AccessibleEntity
 import play.api.data.Form
 import play.api.libs.concurrent.execution.defaultContext
-import play.api.mvc.Call
-import play.api.mvc.RequestHeader
 import defines.PermissionType
-import models.UserProfileRepr
+import models.UserProfile
 
 /**
  * Controller trait for extending Entity classes which server as
@@ -21,9 +18,9 @@ trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends En
 
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader
-  type DocFormViewType = (T, Form[DocumentaryUnit], Call, UserProfileRepr, RequestHeader) => play.api.templates.Html
+  type DocFormViewType = (T, Form[DocumentaryUnitF], Call, UserProfile, RequestHeader) => play.api.templates.Html
   val docFormView: DocFormViewType
-  val docForm: Form[DocumentaryUnit]
+  val docForm: Form[DocumentaryUnitF]
   val docShowAction: String => Call
   val docCreateAction: String => Call
 

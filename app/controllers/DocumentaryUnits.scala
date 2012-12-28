@@ -1,27 +1,21 @@
 package controllers
 
-import controllers.base.EntityController
-import controllers.base.EntityDelete
-import controllers.base.EntityRead
-import controllers.base.EntityUpdate
-import controllers.base.VisibilityController
+import play.api._
+import play.api.mvc._
+import base.EntityDelete
+import base.EntityRead
+import base.EntityUpdate
+import base.VisibilityController
 import defines.{ ContentType, EntityType }
+import models.forms.DocumentaryUnitF
 import models.DocumentaryUnit
-import models.DocumentaryUnitRepr
-import models.base.Persistable
-import models.base.AccessibleEntity
-import play.api.data.Form
-import play.api.libs.concurrent.execution.defaultContext
-import play.api.mvc.Call
-import play.api.mvc.RequestHeader
-import rest.EntityDAO
-import controllers.base.DocumentaryUnitCreator
+import base.DocumentaryUnitCreator
 
-object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit, DocumentaryUnitRepr]
-  with VisibilityController[DocumentaryUnit, DocumentaryUnitRepr]
-  with EntityRead[DocumentaryUnitRepr]
-  with EntityUpdate[DocumentaryUnit, DocumentaryUnitRepr]
-  with EntityDelete[DocumentaryUnitRepr] {
+object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnitF, DocumentaryUnit]
+  with VisibilityController[DocumentaryUnitF, DocumentaryUnit]
+  with EntityRead[DocumentaryUnit]
+  with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
+  with EntityDelete[DocumentaryUnit] {
 
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentType.DocumentaryUnit
@@ -34,8 +28,8 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit, Document
   val visibilityAction = routes.DocumentaryUnits.visibility _
   val visibilityView = views.html.visibility.apply _
 
-  val form = forms.DocumentaryUnitForm.form
-  val docForm = forms.DocumentaryUnitForm.form
+  val form = models.forms.DocumentaryUnitForm.form
+  val docForm = models.forms.DocumentaryUnitForm.form
   val showAction = routes.DocumentaryUnits.get _
   val docShowAction = routes.DocumentaryUnits.get _
   val docCreateAction = routes.DocumentaryUnits.docCreatePost _
@@ -44,7 +38,7 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnit, Document
   val listView = views.html.documentaryUnit.list.apply _
   val docFormView = views.html.documentaryUnit.create.apply _
   val deleteView = views.html.delete.apply _
-  val builder = DocumentaryUnitRepr
+  val builder = DocumentaryUnit
 }
 
 

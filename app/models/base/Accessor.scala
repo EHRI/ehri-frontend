@@ -2,16 +2,15 @@ package models.base
 
 import defines.EntityType
 import models.Entity
-import models.UserProfileRepr
-import models.GroupRepr
-import models.UserProfileRepr
+import models.Group
+import models.UserProfile
 
 object Accessor {
   final val BELONGS_REL = "belongsTo"
     
 	def apply(e: Entity): Accessor = e.isA match {
-	  case EntityType.UserProfile => UserProfileRepr(e)
-	  case EntityType.Group => GroupRepr(e)
+	  case EntityType.UserProfile => UserProfile(e)
+	  case EntityType.Group => Group(e)
 	  case _ => sys.error("Unknow entity type for Accessor: " + e.isA.toString())
 	} 	
 }

@@ -1,19 +1,11 @@
 package models
 
-import defines.EntityType
-import defines.PublicationStatus
-import defines.enum
 import models.base.AccessibleEntity
-import models.base.DescribedEntity
-import models.base.Description
-import models.base.Formable
-import models.base.NamedEntity
 import models.base.Accessor
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.DateTimeFormat
 
-case class ActionRepr(val e: Entity) extends AccessibleEntity {
+case class ActionLog(val e: Entity) extends AccessibleEntity {
 
   val ACTIONER_REL = "hasActioner"
 

@@ -1,19 +1,18 @@
 package controllers
 
-import models.{UserProfile}
-import models.base.AccessibleEntity
+import play.api._
+import play.api.mvc._
 import defines._
-import play.api.libs.concurrent.execution.defaultContext
-import rest.EntityDAO
-import controllers.base.CRUD
-import controllers.base.VisibilityController
-import controllers.base.PermissionsController
-import models.UserProfileRepr
+import base.CRUD
+import base.VisibilityController
+import base.PermissionsController
+import models.UserProfile
+import models.forms.UserProfileF
 
 
-object UserProfiles extends PermissionsController[UserProfile,UserProfileRepr]
-		with VisibilityController[UserProfile,UserProfileRepr]
-		with CRUD[UserProfile,UserProfileRepr] {
+object UserProfiles extends PermissionsController[UserProfileF,UserProfile]
+		with VisibilityController[UserProfileF,UserProfile]
+		with CRUD[UserProfileF,UserProfile] {
   val entityType = EntityType.UserProfile
   val contentType = ContentType.UserProfile
   val listAction = routes.UserProfiles.list _
@@ -29,15 +28,15 @@ object UserProfiles extends PermissionsController[UserProfile,UserProfileRepr]
   val visibilityAction = routes.UserProfiles.visibility _
   val visibilityView = views.html.visibility.apply _
   
-  val form = forms.UserProfileForm.form
+  val form = models.forms.UserProfileForm.form
   val showAction = routes.UserProfiles.get _
   val formView = views.html.userProfile.edit.apply _
   val showView = views.html.userProfile.show.apply _
   val listView = views.html.userProfile.list.apply _
   val deleteView = views.html.delete.apply _
   val permView = views.html.accessors.edit.apply _
-  // NB: Because the UserProfileRepr class has more optional
+  // NB: Because the UserProfile class has more optional
   // parameters we use the companion object apply method here.
-  val builder = UserProfileRepr.apply _
+  val builder = UserProfile.apply _
 }
 

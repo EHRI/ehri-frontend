@@ -4,21 +4,19 @@ import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.WS
 import models.Entity
-import models.UserProfile
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.{Group}
 import acl.GlobalPermissionSet
 import models.base.Accessor
 import com.codahale.jerkson.Json
 import defines._
-import models.UserProfileRepr
+import models.UserProfile
 import models.base.AccessibleEntity
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
 
-case class VisibilityDAO[T <: AccessibleEntity](val accessor: UserProfileRepr) extends RestDAO {
+case class VisibilityDAO[T <: AccessibleEntity](val accessor: UserProfile) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/access".format(host, port, mount)
 

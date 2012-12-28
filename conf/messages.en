@@ -1,8 +1,10 @@
-# general forms
+# general models.forms
 update.heading=Update {0}
 create.heading=Create New Item
 
-# Actions
+pagination.displayingItems=Displaying item(s) {0} to {1} of {2}
+
+# ActionLogs
 actions.backToList=Back to List
 actions.deleteItem=Delete Item
 actions.updateItem=Update Item
@@ -36,7 +38,7 @@ isdiah.otherFormsOfName=Other Form(s) of Name
 isdiah.parallelFormsOfName=Parallel Form(s) of Name
 isdiah.institutionType=Institution Type
 
-# Address
+# AddressF
 isdiah.addressName=Address Name
 isdiah.addressArea=Address Area
 isdiah.contactPerson=Contact Person

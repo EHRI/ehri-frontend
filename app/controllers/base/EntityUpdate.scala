@@ -2,7 +2,6 @@ package controllers.base
 
 import play.api.libs.concurrent.execution.defaultContext
 import models.base.AccessibleEntity
-import play.api.mvc.RequestHeader
 import play.api.mvc.Call
 import models.base.Persistable
 import play.api.data.{ Form, FormError }

@@ -1,8 +1,8 @@
-@(page: rest.Page[ActionRepr], showAction: String => Call, maybeUser: Option[UserProfileRepr], req: RequestHeader)
+@(page: rest.Page[ActionLog], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
 
-@main("Actions")(maybeUser, req) {
+@main(Messages("actionLogs.heading"))(maybeUser, req) {
 
-	<h3>Displaying items @(page.offset + 1) to @(page.offset + page.list.size) of @page.total</h3>
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
   
 	<div id="pagination" class="pagination">
     	<ul>
@@ -24,14 +24,14 @@
 	<ul>
 	@page.list.map { item =>
 	  	<div class="list-item">
-			<h4><a href="@routes.Actions.get(item.id)">@item.time</a>
+			<h4><a href="@routes.ActionLogs.get(item.id)">@item.time</a>
 			@item.actioner.map { accessor =>
 				@accessor match {
 	
-			    case u: UserProfileRepr => {
+			    case u: UserProfile => {
 			    	- <a href="@routes.UserProfiles.get(u.id)">@u.name</a>
 			    }
-			    case g: GroupRepr => {
+			    case g: Group => {
 			    	- <a href="@routes.Groups.get(g.id)">@g.name</a>
 			    }
 		

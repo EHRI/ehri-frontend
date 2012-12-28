@@ -1,6 +1,6 @@
-@(item: Option[AgentRepr], f: play.api.data.Form[Agent], action: Call, user: UserProfileRepr, req: RequestHeader)(implicit lang: Lang)
+@(item: Option[Agent], f: play.api.data.Form[models.forms.AgentF], action: Call, user: UserProfile, req: RequestHeader)(implicit lang: Lang)
 
-@import models.Isdiah._
+@import models.forms.Isdiah._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

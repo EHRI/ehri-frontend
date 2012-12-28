@@ -1,4 +1,4 @@
-@(item: models.base.AccessibleEntity, f: play.api.data.Form[DocumentaryUnit], action: Call, user: UserProfileRepr, req: RequestHeader)
+@(item: models.base.AccessibleEntity, f: play.api.data.Form[models.forms.DocumentaryUnitF], action: Call, user: UserProfile, req: RequestHeader)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

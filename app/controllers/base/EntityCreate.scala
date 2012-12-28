@@ -7,10 +7,10 @@ import play.api.mvc.Call
 import models.base.Persistable
 import play.api.data.{ Form, FormError }
 import defines.PermissionType
-import models.UserProfileRepr
+import models.UserProfile
 
 trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
-  type FormViewType = (Option[T], Form[F], Call, UserProfileRepr, RequestHeader) => play.api.templates.Html
+  type FormViewType = (Option[T], Form[F], Call, UserProfile, RequestHeader) => play.api.templates.Html
   val createAction: Call
   val formView: FormViewType
   val form: Form[F]

@@ -1,12 +1,13 @@
 package controllers.base
 
+import play.api._
+import play.api.mvc._
 import jp.t2v.lab.play20.auth._
 import play.api._
 import play.api.mvc._
 
 
 import play.api.Play.current
-import controllers.routes
 
 /*
  * Implementation of play2-auth
@@ -65,7 +66,7 @@ trait Authorizer extends Results with AuthConfig {
    * A redirect target after a successful user login.
    */
   def loginSucceeded(request: RequestHeader): PlainResult = {
-    val uri = request.session.get("access_uri").getOrElse(routes.DocumentaryUnits.list().url)
+    val uri = request.session.get("access_uri").getOrElse(controllers.routes.DocumentaryUnits.list().url)
     request.session - "access_uri"
     Redirect(uri)
   }

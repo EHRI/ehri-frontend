@@ -1,4 +1,4 @@
-@(item: models.base.AccessibleEntity, users: List[(String,String)], groups: List[(String,String)], action: Call, user: UserProfileRepr, req: RequestHeader)
+@(item: models.base.AccessibleEntity, users: List[(String,String)], groups: List[(String,String)], action: Call, user: UserProfile, req: RequestHeader)
 
 
 @main("Set Visibility")(Some(user), req) {

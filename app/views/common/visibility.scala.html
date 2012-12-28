@@ -8,10 +8,10 @@
 		@item.accessors.map { acc =>
 			@acc match {
 
-		    case u: UserProfileRepr => {
+		    case u: UserProfile => {
 		    	<li><a href="@routes.UserProfiles.get(u.id)">@u.name</a></li>
 		    }
-		    case g: GroupRepr => {
+		    case g: Group => {
 		    	<li><a href="@routes.Groups.get(g.id)">@g.name</a></li>
 		    }
 	

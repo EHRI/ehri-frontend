@@ -5,7 +5,7 @@ object EntityType extends Enumeration() {
   val DocumentaryUnit = Value("documentaryUnit")
   val Agent = Value("agent")
   val Authority = Value("authority")
-  val Action = Value("action")
+  val ActionLog = Value("action")
   val UserProfile = Value("userProfile")
   val Group = Value("group")
   val ContentType = Value("contentType")

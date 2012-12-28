@@ -1,10 +1,10 @@
-@(items: rest.Page[models.GroupRepr], showAction: String => Call, maybeUser: Option[UserProfileRepr], req: RequestHeader)
+@(items: rest.Page[models.Group], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
 
 @import defines._
 
 @main("View item")(maybeUser, req) {
 
-	<h3>Displaying items @(items.offset + 1) to @(items.offset + items.list.size) of @items.total</h3>
+	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
 	@maybeUser.map { user =>
   		@if(user.hasPermission(PermissionType.Create)(ContentType.Group)) {
   		  <a href="@routes.Groups.create">@Messages("Create New Group")</a>

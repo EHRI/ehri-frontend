@@ -1,4 +1,4 @@
-@(item: ActionRepr, maybeUser: Option[UserProfileRepr], req: RequestHeader)
+@(item: ActionLog, maybeUser: Option[UserProfile], req: RequestHeader)
 
 @import defines._
 
@@ -8,10 +8,10 @@
 	@item.actioner.map { accessor =>
 		@accessor match {
 
-	    case u: UserProfileRepr => {
+	    case u: UserProfile => {
 	    	<h5><a href="@routes.UserProfiles.get(u.id)">@u.name</a></h5>
 	    }
-	    case g: GroupRepr => {
+	    case g: Group => {
 	    	<h5><a href="@routes.Groups.get(g.id)">@g.name</a></h5>
 	    }
 
@@ -23,5 +23,5 @@
 	<p>@item.logMessage</p>
   
 	<hr />
-	<a href="@routes.Actions.list()">@Messages("Back to List")</a>
+	<a href="@routes.ActionLogs.list()">@Messages("actions.backToList")</a>
 }

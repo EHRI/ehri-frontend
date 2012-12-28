@@ -4,8 +4,6 @@ import play.api.libs.openid._
 import play.api.libs.concurrent.execution.defaultContext
 import play.api._
 import play.api.mvc._
-import forms.UserForm
-import models.sql.OpenIDAssociation
 
 /**
  * Default object instantiation
@@ -17,7 +15,8 @@ object OpenIDLoginHandler extends OpenIDLoginHandler(play.api.Play.current)
  */
 class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
 
-  import forms.UserForm
+  import models.forms.UserForm
+  import models.sql._
 
   val openidError = """
     |There was an error connecting to your OpenID provider.""".stripMargin
@@ -46,7 +45,6 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
   }
 
   def openIDCallback = Action { implicit request =>
-    import models.sql.OpenIDAssociation
     AsyncResult(
       OpenID.verifiedId.map { info =>
         // check if there's a user with the right id

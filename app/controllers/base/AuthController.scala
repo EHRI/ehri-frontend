@@ -4,17 +4,11 @@ import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.Auth
 import play.api.libs.concurrent.execution.defaultContext
-import models.UserProfile
 import defines.EntityType
-import models.UserProfileRepr
-import models.Entity
-import play.api.libs.json.JsValue
-import play.api.libs.json.JsString
-import models.{ Entity }
-import acl.ItemPermissionSet
 import defines.PermissionType
 import defines.ContentType
-import scala.concurrent.Future
+
+import models.UserProfile
 
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
@@ -36,10 +30,10 @@ trait AuthController extends Controller with Auth with Authorizer {
   }
   
   /**
-   * Action composition that adds extra context to regular requests. Namely,
+   * ActionLog composition that adds extra context to regular requests. Namely,
    * the profile of the user requesting the page, and her permissions.
    */
-  def userProfileAction(f: Option[UserProfileRepr] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def userProfileAction(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
       implicit request =>
         userOption match {
@@ -51,13 +45,13 @@ trait AuthController extends Controller with Auth with Authorizer {
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
-              val fakeProfile = UserProfileRepr(Entity.fromString(currentUser, EntityType.UserProfile))
+              val fakeProfile = UserProfile(models.Entity.fromString(currentUser, EntityType.UserProfile))
               val getProf = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
               val getGlobalPerms = rest.PermissionDAO(fakeProfile).get
               // These requests should execute in parallel...
               val futureUserOrError = for { r1 <- getProf; r2 <- getGlobalPerms } yield {
                 for { entity <- r1.right; gperms <- r2.right } yield {
-                  UserProfileRepr(entity, account = Some(user), globalPermissions = Some(gperms))
+                  UserProfile(entity, account = Some(user), globalPermissions = Some(gperms))
                 }
               }
 
@@ -80,7 +74,7 @@ trait AuthController extends Controller with Auth with Authorizer {
    *    - the user's global permissions
    *    - the item permissions for that user
    */
-  def itemPermissionAction(id: String)(f: Option[UserProfileRepr] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def itemPermissionAction(id: String)(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
       implicit request =>
         userOption match {
@@ -92,8 +86,8 @@ trait AuthController extends Controller with Auth with Authorizer {
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
-              val fakeProfile = UserProfileRepr(
-                Entity.fromString(user.profile_id, EntityType.UserProfile))
+              val fakeProfile = UserProfile(
+                models.Entity.fromString(user.profile_id, EntityType.UserProfile))
 
               val getProf = rest.EntityDAO(
                 EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
@@ -102,7 +96,7 @@ trait AuthController extends Controller with Auth with Authorizer {
               // These requests should execute in parallel...
               val futureUserOrError = for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms } yield {
                 for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right } yield {
-                  UserProfileRepr(entity, account = Some(user),
+                  UserProfile(entity, account = Some(user),
                     globalPermissions = Some(gperms), itemPermissions = Some(iperms))
                 }
               }
@@ -126,7 +120,7 @@ trait AuthController extends Controller with Auth with Authorizer {
    */
   def withItemPermission(id: String,
     perm: PermissionType.Value)(
-      f: UserProfileRepr => Request[AnyContent] => Result)(
+      f: UserProfile => Request[AnyContent] => Result)(
         implicit contentType: ContentType.Value): Action[AnyContent] = {
     itemPermissionAction(id) { implicit maybeUser =>
       implicit request =>
@@ -142,7 +136,7 @@ trait AuthController extends Controller with Auth with Authorizer {
    * and return an action with the user in scope.
    */
   def withContentPermission(
-    perm: PermissionType.Value)(f: UserProfileRepr => Request[AnyContent] => Result)(
+    perm: PermissionType.Value)(f: UserProfile => Request[AnyContent] => Result)(
       implicit contentType: ContentType.Value): Action[AnyContent] = {
     userProfileAction { implicit maybeUser =>
       implicit request =>

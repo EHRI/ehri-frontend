@@ -1,3 +1,5 @@
+package models
+
 package object forms {
 
   /*
@@ -6,7 +8,6 @@ package object forms {
    * https://github.com/leon/play-enumeration.git
    */
   
-  import play.api.mvc._
   import play.api.data.format.Formatter
   import play.api.data.{ FormError, Forms, Mapping }
 

@@ -3,7 +3,6 @@ package models
 /**
  * Classes representing an ISDIAH collection-holding institution
  */
-import defines.EntityType
 import defines.PublicationStatus
 import defines.enum
 import models.base.AccessibleEntity
@@ -11,83 +10,22 @@ import models.base.DescribedEntity
 import models.base.Description
 import models.base.Formable
 import models.base.NamedEntity
-import models.base.Persistable
-import models.base.Field
-import models.base.AttributeSet
 
-/**
- * ISDIAH Field definitions
- */
-case object Isdiah {
-  val IDENTIFIER = "identifier"
-  val NAME = "name"
-  val PUBLICATION_STATUS = "publicationStatus"
-
-  // Field set
-  val IDENTITY_AREA = "identityArea"
-  val AUTHORIZED_FORM_OF_NAME = "authorizedFormOfName"
-  val OTHER_FORMS_OF_NAME = "otherFormsOfName"
-  val PARALLEL_FORMS_OF_NAME = "parallelFormsOfName"
-  val INSTITUTION_TYPE = "institutionType"
-
-  // Address
-  val ADDRESS_AREA = "addressArea"
-  val ADDRESS_NAME = "addressName"
-  val CONTACT_PERSON = "contactPerson"
-  val STREET_ADDRESS = "streetAddress"
-  val CITY = "city"
-  val REGION = "region"
-  val COUNTRY_CODE = "countryCode"
-  val EMAIL = "email"
-  val TELEPHONE = "telephone"
-  val FAX = "fax"
-  val URL = "url"
-
-  val DESCRIPTION_AREA = "descriptionArea"
-  val HISTORY = "history"
-  val GENERAL_CONTEXT = "generalContext"
-  val MANDATES = "mandates"
-  val ADMINISTRATIVE_STRUCTURE = "administrativeStructure"
-  val RECORDS = "records"
-  val BUILDINGS = "buildings"
-  val HOLDINGS = "holdings"
-  val FINDING_AIDS = "findingAids"
-
-  // Access
-  val ACCESS_AREA = "accessArea"
-  val OPENING_TIMES = "openingTimes"
-  val CONDITIONS = "conditions"
-  val ACCESSIBILITY = "accessibility"
-
-  // Services
-  val SERVICES_AREA = "servicesArea"
-  val RESEARCH_SERVICES = "researchServices"
-  val REPROD_SERVICES = "reproductionServices"
-  val PUBLIC_AREAS = "publicAreas"
-
-  // Control
-  val CONTROL_AREA = "controlArea"
-  val DESCRIPTION_IDENTIFIER = "descriptionIdentifier"
-  val INSTITUTION_IDENTIFIER = "institutionIdentifier"
-  val RULES_CONVENTIONS = "rulesAndConventions"
-  val STATUS = "status"
-  val LEVEL_OF_DETAIL = "levelOfDetail"
-  val DATES_CVD = "datesCVD"
-  val LANGUAGES_USED = "languages"
-  val SCRIPTS_USED = "scripts"
-  val SOURCES = "sources"
-  val MAINTENANCE_NOTES = "maintenanceNotes"
-}
+import models.forms.Isdiah._
+import models.forms.{AgentF,AgentDescriptionF,AddressF}
 
 
-
-case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity with DescribedEntity with Formable[Agent] {
-  override def descriptions: List[AgentDescriptionRepr] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescriptionRepr(_))
+case class Agent(val e: Entity)
+  extends NamedEntity
+  with AccessibleEntity
+  with DescribedEntity
+  with Formable[AgentF] {
+  override def descriptions: List[AgentDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescription(_))
 
   val publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt)
 
 
-  def to: Agent = new Agent(
+  def to: AgentF = new AgentF(
     id = Some(e.id),
     identifier = identifier,
     name = name,
@@ -96,15 +34,13 @@ case class AgentRepr(val e: Entity) extends NamedEntity with AccessibleEntity wi
   )
 }
 
-case class AgentDescriptionRepr(val e: Entity) extends Description with Formable[AgentDescription] {
+case class AgentDescription(val e: Entity) extends Description with Formable[AgentDescriptionF] {
 
-  import Agent._
-  import AgentDescription._
-  import Isdiah._
+  import AgentDescriptionF._
 
-  def addresses: List[AddressRepr] = e.relations(Agent.ADDRESS_REL).map(AddressRepr(_))
+  def addresses: List[Address] = e.relations(AgentF.ADDRESS_REL).map(Address(_))
 
-  def to: AgentDescription = new AgentDescription(
+  def to: AgentDescriptionF = new AgentDescriptionF(
     id = Some(e.id),
     languageCode = languageCode,
     name = e.stringProperty(NAME),
@@ -146,9 +82,8 @@ case class AgentDescriptionRepr(val e: Entity) extends Description with Formable
   )
 }
 
-case class AddressRepr(val e: Entity) extends Formable[Address] {
-  import Isdiah._
-  def to: Address = new Address(
+case class Address(val e: Entity) extends Formable[AddressF] {
+  def to: AddressF = new AddressF(
     id = Some(e.id),
     name = e.stringProperty(ADDRESS_NAME).getOrElse("Unnamed Address"),
     contactPerson = e.stringProperty(CONTACT_PERSON),
@@ -161,92 +96,5 @@ case class AddressRepr(val e: Entity) extends Formable[Address] {
     fax = e.stringProperty(FAX),
     url = e.stringProperty(URL)
   )
-}
-
-object Agent {
-
-  final val DESC_REL = "describes"
-  final val ADDRESS_REL = "hasAddress"
-}
-
-case class Agent(
-  val id: Option[String],
-  val identifier: String,
-  val name: String,
-  val publicationStatus: Option[PublicationStatus.Value] = None,
-  @Annotations.Relation(Agent.DESC_REL) val descriptions: List[AgentDescription] = Nil
-) extends Persistable {
-  val isA = EntityType.Agent
-}
-
-case class AgentDescription(
-  val id: Option[String],
-  val languageCode: String,
-  val name: Option[String] = None,
-  val otherFormsOfName: Option[List[String]] = None,
-  val parallelFormsOfName: Option[List[String]] = None,
-  @Annotations.Relation(Agent.ADDRESS_REL) val addresses: List[Address] = Nil,
-  val details: AgentDescription.Details,
-  val access: AgentDescription.Access,
-  val services: AgentDescription.Services,
-  val control: AgentDescription.Control
-) extends Persistable {
-  val isA = EntityType.AgentDescription
-}
-
-case class Address(
-  val id: Option[String],
-  val name: String,
-  val contactPerson: Option[String] = None,
-  val streetAddress: Option[String] = None,
-  val city: Option[String] = None,
-  val region: Option[String] = None,
-  val countryCode: Option[String] = None,
-  val email: Option[String] = None,
-  val telephone: Option[String] = None,
-  val fax: Option[String] = None,
-  val url: Option[String] = None
-) extends Persistable {
-  val isA = EntityType.Address
-}
-
-object AgentDescription {
-
-  case class Details(
-    val history: Option[String] = None,
-    val generalContext: Option[String] = None,
-    val mandates: Option[String] = None,
-    val administrativeStructure: Option[String] = None,
-    val records: Option[String] = None,
-    val buildings: Option[String] = None,
-    val holdings: Option[String] = None,
-    val findingAids: Option[String] = None
-  ) extends AttributeSet
-
-  case class Access(
-    val openingTimes: Option[String] = None,
-    val conditions: Option[String] = None,
-    val accessibility: Option[String] = None
-  ) extends AttributeSet
-
-  case class Services(
-    val researchServices: Option[String] = None,
-    val reproductionServices: Option[String] = None,
-    val publicAreas: Option[String] = None
-  ) extends AttributeSet
-
-  case class Control(
-    val descriptionIdentifier: Option[String] = None,
-    val institutionIdentifier: Option[String] = None,
-    val rulesAndConventions: Option[String] = None,
-    val status: Option[String] = None,
-    val levelOfDetail: Option[String] = None,
-    val datesCDR: Option[String] = None,
-    val languages: Option[List[String]] = None,
-    val scripts: Option[List[String]] = None,
-    val sources: Option[String] = None,
-    val maintenanceNotes: Option[String] = None
-  ) extends AttributeSet
-
 }
 

@@ -1,34 +1,18 @@
 package models
 
-import play.api.libs.concurrent.Promise
-import play.api.libs.json.JsValue
-import play.api.libs.ws.WS
-import play.api.libs.concurrent.execution.defaultContext
-import scala.concurrent.Future
-import defines.EntityType
 import models.base.AccessibleEntity
 import models.base.Accessor
 import models.base.NamedEntity
 import models.base.Formable
-import models.base.Persistable
 
-case class GroupRepr(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[Group] {
+import models.forms.{GroupF,UserProfileF}
 
-  def to: Group = new Group(
+case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[GroupF] {
+
+  def to: GroupF = new GroupF(
     id = Some(e.id),
     identifier = identifier,
-    name = e.property("name").flatMap(_.asOpt[String]).getOrElse(UserProfile.PLACEHOLDER_TITLE)
+    name = e.property("name").flatMap(_.asOpt[String]).getOrElse(UserProfileF.PLACEHOLDER_TITLE)
   )
 }
 
-object Group {
-
-  final val BELONGS_REL = "belongsTo"
-}
-
-case class Group(
-  val id: Option[String],
-  val identifier: String,
-  val name: String) extends Persistable {
-  val isA = EntityType.Group
-}

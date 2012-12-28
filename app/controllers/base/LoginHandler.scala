@@ -2,7 +2,6 @@ package controllers.base
 
 import play.Plugin
 import jp.t2v.lab.play20.auth.LoginLogout
-import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.Auth
 

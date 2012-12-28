@@ -1,11 +1,10 @@
 package controllers
 
-import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.{ Auth, LoginLogout }
 import play.api.Play.current
-import controllers.base.{ Authorizer, LoginHandler }
-import controllers.base.AuthController
+
+import base.{Authorizer,AuthController,LoginHandler}
 
 object Application extends Controller with Auth with LoginLogout with Authorizer with AuthController {
 

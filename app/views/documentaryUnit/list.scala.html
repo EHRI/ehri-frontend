@@ -1,8 +1,8 @@
-@(page: rest.Page[DocumentaryUnitRepr], showAction: String => Call, maybeUser: Option[UserProfileRepr], req: RequestHeader)
+@(page: rest.Page[DocumentaryUnit], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
 
 @main("View item")(maybeUser, req) {
 
-	<h3>Displaying items @(page.offset + 1) to @(page.offset + page.list.size) of @page.total</h3>
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
   
 	<div id="pagination" class="pagination">
     	<ul>

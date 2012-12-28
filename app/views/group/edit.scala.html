@@ -1,8 +1,8 @@
-@(doc: Option[GroupRepr], f: play.api.data.Form[Group], action: Call, user: UserProfileRepr, req: RequestHeader)
+@(doc: Option[Group], f: play.api.data.Form[models.forms.GroupF], action: Call, user: UserProfile, req: RequestHeader)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-  @main("Update item")(Some(user), req) {
+  @main(doc.map(i => Messages("update.heading", i.name)).getOrElse("create.heading"))(Some(user), req) {
 	
 		@doc.map { v =>
 			<h4>Update @v.identifier</h4>

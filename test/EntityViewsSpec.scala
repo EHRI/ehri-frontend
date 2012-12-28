@@ -18,7 +18,7 @@ import play.api.test.Helpers.status
 import play.api.test.FakeHeaders
 import play.api.mvc.AnyContentAsFormUrlEncoded
 import play.api.http.HeaderNames
-import models.UserProfileRepr
+import models.UserProfile
 import models.Entity
 import models.base.Accessor
 
@@ -31,13 +31,12 @@ import models.base.Accessor
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
   sequential
 
-  import models.{ UserProfile, Group }
   import defines._
   //import play.api.http.HeaderNames
 
   val testPrivilegedUser = "mike"
   val testOrdinaryUser = "reto"
-  val userProfile = UserProfileRepr(Entity.fromString("mike", EntityType.UserProfile)
+  val userProfile = UserProfile(Entity.fromString("mike", EntityType.UserProfile)
     .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
 
   val testPort = 7575
@@ -48,6 +47,10 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     .getThirdpartyJaxRsClasses()
     .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/ehri"));
   runner.start
+
+  // Some constants that should be on common pages
+  val listDisplayHeading: String = "Displaying item(s)"
+
 
   def before = {
     runner.tearDown
@@ -62,7 +65,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(FakeApplication(additionalConfiguration = config)) {
         val list = route(FakeRequest(GET, DocumentaryUnits.list(1, 20).url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain("Displaying items")
+        contentAsString(list) must contain(listDisplayHeading)
 
         contentAsString(list) must not contain ("c1")
         contentAsString(list) must contain("c4")
@@ -74,7 +77,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val list = route(fakeLoggedInRequest(GET, DocumentaryUnits.list(1, 20).url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain("Displaying items")
+        contentAsString(list) must contain(listDisplayHeading)
         contentAsString(list) must contain("c1")
         contentAsString(list) must contain("c2")
         contentAsString(list) must contain("c3")
@@ -216,7 +219,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(FakeApplication(additionalConfiguration = config)) {
         val list = route(FakeRequest(GET, Agents.list(1, 20).url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain("Items")
+        contentAsString(list) must contain(listDisplayHeading)
 
         contentAsString(list) must contain("r1")
         contentAsString(list) must contain("r2")
@@ -314,7 +317,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     import controllers.routes.{ UserProfiles, Groups }
     import rest.PermissionDAO
 
-    val subjectUser = UserProfileRepr(Entity.fromString("reto", EntityType.UserProfile))
+    val subjectUser = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
     val id = subjectUser.identifier
 
     "reliably set permissions" in {
@@ -329,7 +332,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(cr) must equalTo(SEE_OTHER)
 
         // Now check we can read back the same permissions.
-        val permCall = await(PermissionDAO[UserProfileRepr](userProfile).get(subjectUser))
+        val permCall = await(PermissionDAO[UserProfile](userProfile).get(subjectUser))
         permCall must beRight
         val perms = permCall.right.get
         perms.get(ContentType.Agent, PermissionType.Create) must beSome
@@ -377,9 +380,9 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     import controllers.routes.Groups
     import rest.PermissionDAO
-    import models.GroupRepr
+    import models.Group
 
-    val subjectUser = GroupRepr(Entity.fromString("kcl", EntityType.Group))
+    val subjectUser = Group(Entity.fromString("kcl", EntityType.Group))
     val id = subjectUser.identifier
 
     "detail when logged in should link to other privileged actions" in {

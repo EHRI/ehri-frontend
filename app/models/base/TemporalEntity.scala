@@ -1,6 +1,6 @@
 package models.base
 
-import models.DatePeriodRepr
+import models.DatePeriod
 import models.Entity
 
 trait TemporalEntity {
@@ -9,7 +9,7 @@ trait TemporalEntity {
   
   final val DATE_REL = "hasDate"
 
-  val dates: List[DatePeriodRepr] = e.relations(DATE_REL).map(DatePeriodRepr(_))
+  val dates: List[DatePeriod] = e.relations(DATE_REL).map(DatePeriod(_))
   
   lazy val dateString: Option[String] = dates.map(_.to.years) match {
     case Nil => None

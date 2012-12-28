@@ -12,14 +12,13 @@ import com.typesafe.config.ConfigFactory
 import rest._
 import play.api.libs.concurrent.execution.defaultContext
 import models.Entity
-import models.UserProfile
 import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample
 import defines.{EntityType,ContentType,PermissionType}
-import models.UserProfileRepr
-import models.DocumentaryUnitRepr
-import models.DocumentaryUnitRepr
-import models.DocumentaryUnitRepr
+import models.UserProfile
+import models.DocumentaryUnit
+import models.DocumentaryUnit
+import models.DocumentaryUnit
 
 /**
  * Add your spec here.
@@ -32,7 +31,7 @@ class DAOSpec extends Specification with BeforeExample {
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
-  val userProfile = UserProfileRepr(Entity.fromString("mike", EntityType.UserProfile))
+  val userProfile = UserProfile(Entity.fromString("mike", EntityType.UserProfile))
   val entityType = EntityType.UserProfile
 
   val runner: ServerRunner = new ServerRunner(classOf[DAOSpec].getName, testPort)
@@ -66,8 +65,8 @@ class DAOSpec extends Specification with BeforeExample {
         val data = Map("id" -> None, "type" -> EntityType.DocumentaryUnit.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val r = await(EntityDAO(EntityType.Agent, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "r1", data))
         r must beRight
-        DocumentaryUnitRepr(r.right.get).holder must beSome
-        DocumentaryUnitRepr(r.right.get).holder.get.identifier must equalTo("r1")
+        DocumentaryUnit(r.right.get).holder must beSome
+        DocumentaryUnit(r.right.get).holder.get.identifier must equalTo("r1")
       }
     }
 
@@ -76,8 +75,8 @@ class DAOSpec extends Specification with BeforeExample {
         val data = Map("id" -> None, "type" -> EntityType.DocumentaryUnit.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
         val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "c1", data))
         r must beRight
-        DocumentaryUnitRepr(r.right.get).parent must beSome
-        DocumentaryUnitRepr(r.right.get).parent.get.identifier must equalTo("c1")
+        DocumentaryUnit(r.right.get).parent must beSome
+        DocumentaryUnit(r.right.get).parent.get.identifier must equalTo("c1")
       }
     }
         
@@ -143,7 +142,7 @@ class DAOSpec extends Specification with BeforeExample {
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val perms = await(PermissionDAO[UserProfileRepr](userProfile).get)
+        val perms = await(PermissionDAO[UserProfile](userProfile).get)
         perms must beRight
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
       }
@@ -151,7 +150,7 @@ class DAOSpec extends Specification with BeforeExample {
     
     "be able to set a user's permissions" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val user = UserProfileRepr(Entity.fromString("reto", EntityType.UserProfile))
+        val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         val data = Map("agent" -> List("create", "update", "delete"), "documentaryUnit" -> List("create", "update","delete"))
         val perms = await(PermissionDAO(userProfile).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
@@ -175,12 +174,12 @@ class DAOSpec extends Specification with BeforeExample {
         
         // First, fetch an object and assert its accessibility
         val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
-        DocumentaryUnitRepr(c1a).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike"))
+        DocumentaryUnit(c1a).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike"))
         
-        val set = await(VisibilityDAO(userProfile).set(DocumentaryUnitRepr(c1a), List("mike", "reto", "admin")))
+        val set = await(VisibilityDAO(userProfile).set(DocumentaryUnit(c1a), List("mike", "reto", "admin")))
         set must beRight
         val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
-        DocumentaryUnitRepr(c1b).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike", "reto"))    
+        DocumentaryUnit(c1b).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike", "reto"))
       }
     }
   }

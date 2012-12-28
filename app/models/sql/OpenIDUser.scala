@@ -1,13 +1,11 @@
 package models.sql
 
-import play.api._
 import play.api.db._
 import play.api.Play.current
 
 import anorm._
 import anorm.SqlParser._
 
-import java.util.Date
 
 // -- Users
 

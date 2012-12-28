@@ -54,7 +54,7 @@ object GlobalPermissionSet {
 }
 
 /**
- * Global permissions granted to either a UserProfile or a Group.
+ * Global permissions granted to either a UserProfileF or a GroupF.
  */
 case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPermissionSet.PermData)
   extends PermissionSet {

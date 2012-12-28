@@ -1,10 +1,6 @@
 package models.sql
 
-import defines._
 import play.api.Plugin
-import models.UserProfile
-import acl._
-import models.UserProfileRepr
 
 trait User {
 	def email: String

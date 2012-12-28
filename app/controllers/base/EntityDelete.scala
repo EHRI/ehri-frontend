@@ -5,11 +5,11 @@ import models.base.AccessibleEntity
 import play.api.mvc.RequestHeader
 import play.api.mvc.Call
 import defines.PermissionType
-import models.UserProfileRepr
+import models.UserProfile
 
 trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
 
-  type DeleteViewType = (T, Call, Call, UserProfileRepr, RequestHeader) => play.api.templates.Html
+  type DeleteViewType = (T, Call, Call, UserProfile, RequestHeader) => play.api.templates.Html
   val deleteAction: String => Call
   val deleteView: DeleteViewType
   val cancelAction: String => Call

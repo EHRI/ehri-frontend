@@ -1,18 +1,19 @@
 package controllers
 
-import controllers.base.CRUD
-import controllers.base.PermissionsController
-import controllers.base.VisibilityController
+import play.api._
+import play.api.mvc._
+import base.CRUD
+import base.PermissionsController
+import base.VisibilityController
 import defines.{ ContentType, EntityType, PermissionType }
+import models.forms.GroupF
 import models.Group
-import models.GroupRepr
 import play.api.libs.concurrent.execution.defaultContext
-import models.UserProfileRepr
 import models.base.Accessor
 
-object Groups extends PermissionsController[Group, GroupRepr]
-  with VisibilityController[Group, GroupRepr]
-  with CRUD[Group, GroupRepr] {
+object Groups extends PermissionsController[GroupF, Group]
+  with VisibilityController[GroupF, Group]
+  with CRUD[GroupF, Group] {
   val entityType = EntityType.Group
   implicit val contentType = ContentType.Group
   val listAction = routes.Groups.list _
@@ -27,14 +28,14 @@ object Groups extends PermissionsController[Group, GroupRepr]
   val visibilityAction = routes.Groups.visibility _
   val visibilityView = views.html.visibility.apply _
 
-  val form = forms.GroupForm.form
+  val form = models.forms.GroupForm.form
   val showAction = routes.Groups.get _
   val formView = views.html.group.edit.apply _
   val showView = views.html.group.show.apply _
   val listView = views.html.group.list.apply _
   val deleteView = views.html.delete.apply _
   val permView = views.html.accessors.edit.apply _
-  val builder = GroupRepr
+  val builder = Group
 
   /*
    *	Membership
