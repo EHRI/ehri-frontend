@@ -2,11 +2,12 @@
 
 @import defines._
 @import DocumentaryUnit._
+@import IsadG._
 
 @main("View item")(maybeUser, req) {
 
 	<h3>@item.name (@item.identifier)</h3>
-  
+
 	@item.holder.map { holder =>
 	  <h4>Held by: <a href="@routes.Agents.get(holder.id)">@holder.name</a></h4>
 	}
@@ -14,15 +15,15 @@
 	@item.parent.map { parent =>
 	  <h4>Parent item: <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
 	}
-	
+
 	@item.dateString.map { d =>
-		<h4>@d</h4>	  
+		<h4>@d</h4>
 	}
-	
+
 	@if(!item.descriptions.isEmpty) {
 		<h4>@Messages("Available Descriptions")</h4>
 		@item.descriptions.map { desc =>
-		  <h5>Language: @desc.languageCode</h5>		  
+		  <h5>Language: @desc.languageCode</h5>
 		  @common.stringValue(desc, ADMIN_BIOG)
 		  @common.stringValue(desc, ARCH_HIST)
 		  @common.stringValue(desc, ACQUISITION)
@@ -42,25 +43,25 @@
 	}
 
 	@common.visibility(item)
-	
+
   	<hr />
-	<a href="@routes.DocumentaryUnits.list()">@Messages("Back to List")</a>
+	<a href="@routes.DocumentaryUnits.list()">@Messages("actions.backToList")</a>
 	@maybeUser.map { user =>
   		@if(user.hasPermission(PermissionType.Create)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.DocumentaryUnits.docCreate(item.id)">@Messages("Create Child Item")</a>
+  		  <a href="@routes.DocumentaryUnits.docCreate(item.id)">@Messages("actions.createChildDocUnit")</a>
   		}
   		@if(user.hasPermission(PermissionType.Update)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.DocumentaryUnits.update(item.id)">@Messages("Modify Record")</a>
+  		  <a href="@routes.DocumentaryUnits.update(item.id)">@Messages("actions.updateItem")</a>
   		}
   		@if(user.hasPermission(PermissionType.Update)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.DocumentaryUnits.visibility(item.id)">@Messages("Set Visibility")</a>
+  		  <a href="@routes.DocumentaryUnits.visibility(item.id)">@Messages("actions.setVisibility")</a>
   		}
   		@if(user.hasPermission(PermissionType.Delete)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.DocumentaryUnits.delete(item.id)">@Messages("Delete Record")</a>
-  		}	    
+  		  <a href="@routes.DocumentaryUnits.delete(item.id)">@Messages("actions.deleteItem")</a>
+  		}
 	}
 }

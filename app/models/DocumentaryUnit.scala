@@ -10,9 +10,31 @@ import models.base.DescribedEntity
 import models.base.Formable
 import models.base.Persistable
 import models.base.AttributeSet
-import models.base.Field
-import models.base.Field._
 import models.base.TemporalEntity
+
+case object IsadG {
+  /* ISAD(G)-based field set */
+  val NAME = "name"
+  val IDENTIFIER = "identifier"
+  val TITLE = "title"
+  val ADMIN_BIOG = "adminBiogHist"
+  val ARCH_HIST = "archivalHistory"
+  val ACQUISITION = "acquisition"
+  val SCOPE_CONTENT = "scopeAndContent"
+  val APPRAISAL = "appraisal"
+  val ACCRUALS = "accruals"
+  val SYS_ARR = "systemOfArrangement"
+  val PUB_STATUS = "publicationStatus"
+  val ACCESS_COND = "conditionsOfAccess"
+  val REPROD_COND = "conditionsOfReproduction"
+  val PHYSICAL_CHARS = "physicalCharacteristics"
+  val FINDING_AIDS = "findingAids"
+  val LOCATION_ORIGINALS = "locationOfOriginals"
+  val LOCATION_COPIES = "locationOfCopies"
+  val RELATED_UNITS = "relatedUnitsOfDescription"
+  val PUBLICATION_NOTE = "publicationNote"
+
+}
 
 case class DocumentaryUnitRepr(val e: Entity) extends NamedEntity
   with AccessibleEntity
@@ -23,6 +45,7 @@ case class DocumentaryUnitRepr(val e: Entity) extends NamedEntity
 
   import DocumentaryUnit._
   import DescribedEntity._
+  import IsadG._
 
   val holder: Option[AgentRepr] = e.relations(HELD_REL).headOption.map(AgentRepr(_))
   val parent: Option[DocumentaryUnitRepr] = e.relations(CHILD_REL).headOption.map(DocumentaryUnitRepr(_))
@@ -41,6 +64,7 @@ case class DocumentaryUnitRepr(val e: Entity) extends NamedEntity
 case class DocumentaryUnitDescriptionRepr(val e: Entity)
   extends Description
   with Formable[DocumentaryUnitDescription] {
+  import IsadG._
   import DocumentaryUnit._
   import DocumentaryUnitDescription._
   def to = new DocumentaryUnitDescription(
@@ -80,25 +104,6 @@ object DocumentaryUnit {
   final val HELD_REL = "heldBy"
   final val CHILD_REL = "childOf"
 
-  /* ISAD(G)-based field set */
-  val NAME = Field("name", "Name")
-  val TITLE = Field("title", "Title")
-  val ADMIN_BIOG = Field("adminBiogHist", "Administrator and Biographical History")
-  val ARCH_HIST = Field("archivalHistory", "Archival History")
-  val ACQUISITION = Field("acquisition", "Acquisition")
-  val SCOPE_CONTENT = Field("scopeAndContent", "Scope and Content")
-  val APPRAISAL = Field("appraisal", "Appraisals")
-  val ACCRUALS = Field("accruals", "Accruals")
-  val SYS_ARR = Field("systemOfArrangement", "System of Arrangement")
-  val PUB_STATUS = Field("publicationStatus", "Publication Status")
-  val ACCESS_COND = Field("conditionsOfAccess", "Conditions Governing Access")
-  val REPROD_COND = Field("conditionsOfReproduction", "Conditions Governing Reproduction")
-  val PHYSICAL_CHARS = Field("physicalCharacteristics", "Physical Characteristics")
-  val FINDING_AIDS = Field("findingAids", "Finding Aids")
-  val LOCATION_ORIGINALS = Field("locationOfOriginals", "Location of Originals")
-  val LOCATION_COPIES = Field("locationOfCopies", "Location of Copies")
-  val RELATED_UNITS = Field("relatedUnitsOfDescription", "Related Units of Description")
-  val PUBLICATION_NOTE = Field("publicationNote", "Publication Note")
 }
 
 case class DocumentaryUnit(
@@ -122,7 +127,7 @@ case class DocumentaryUnitDescription(
   val conditions: DocumentaryUnitDescription.Conditions,
   val materials: DocumentaryUnitDescription.Materials
 ) extends Persistable {
-  val isA = EntityType.DocumentaryUnitDescription  
+  val isA = EntityType.DocumentaryUnitDescription
 }
 
 object DocumentaryUnitDescription {
@@ -130,23 +135,23 @@ object DocumentaryUnitDescription {
 	  val adminBiogHist: Option[String] = None,
 	  val archivalHistory: Option[String] = None,
 	  val acquisition: Option[String] = None) extends AttributeSet
-	
+
 	case class Content(
 	  val scopeAndContent: Option[String] = None,
 	  val appraisal: Option[String] = None,
 	  val accruals: Option[String] = None,
 	  val systemOfArrangement: Option[String] = None) extends AttributeSet
-	
+
 	case class Conditions(
 	  val conditionsOfAccess: Option[String] = None,
 	  val conditionsOfReproduction: Option[String] = None,
 	  val physicalCharacteristics: Option[String] = None,
 	  val findingAids: Option[String] = None) extends AttributeSet
-	
+
 	case class Materials(
 	  val locationOfOriginals: Option[String] = None,
 	  val locationOfCopies: Option[String] = None,
 	  val relatedUnitsOfDescription: Option[String] = None,
-	  val publicationNote: Option[String] = None) extends AttributeSet    
+	  val publicationNote: Option[String] = None) extends AttributeSet
 }
 

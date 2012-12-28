@@ -1,5 +1,5 @@
-@(desc: play.api.data.Field, field: models.base.Field)
+@(desc: play.api.data.Field, fieldName: String, prefix: String = "")
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@helper.inputText(desc(field.id), '_label -> Messages(field.name))
+@helper.inputText(desc(fieldName), '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))

@@ -1,19 +1,19 @@
 @(item: AgentRepr, maybeUser: Option[UserProfileRepr], req: RequestHeader)
 
 @import defines._
-@import Agent._
+@import Isdiah._
 
 @main(item.name)(maybeUser, req) {
 
 	<h3>@item.name (@item.identifier)</h3>
-  
+
 	@if(!item.descriptions.isEmpty) {
 	  <h4>@Messages("Available Descriptions")</h4>
 		@item.descriptions.map { desc =>
 		  <h5>Language: @desc.languageCode</h5>
-		  
+
 		  <h5>Description</h5>
-		  @common.stringValue(desc, HISTORY)
+		  @common.stringValue(desc, Isdiah.HISTORY)
 		  @common.stringValue(desc, GENERAL_CONTEXT)
 		  @common.stringValue(desc, MANDATES)
 		  @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
@@ -23,31 +23,33 @@
 		  @common.stringValue(desc, FINDING_AIDS)
 		}
 	}
-	
+
 	@common.visibility(item)
-	
+
   	<hr />
-	<a href="@routes.Agents.list(1, 20)">@Messages("Back to List")</a>
+	<a href="@routes.Agents.list(1, 20)">@Messages("actions.backToList")</a>
 	@maybeUser.map { user =>
-	  @if(user.hasPermission(PermissionType.Create)(ContentType.Agent)) {
-  		&nbsp;|&nbsp;
-  		<a href="@routes.Agents.create">Create New Repository</a>
-  	  }
-  		@if(user.hasPermission(PermissionType.Create)(ContentType.Agent)) {
+	  @defining(ContentType.Agent) { implicit contentType =>
+		@if(user.hasPermission(PermissionType.Create)) {
+		  &nbsp;|&nbsp;
+		  <a href="@routes.Agents.create">@Messages("actions.createNewRepository")</a>
+		}
+  		@if(user.hasPermission(PermissionType.Create)(ContentType.DocumentaryUnit)) {
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Agents.docCreate(item.id)">@Messages("Create New Documentary Unit")</a>
-  		}  		
-  		@if(user.hasPermission(PermissionType.Update)(ContentType.Agent)) {
-  		  &nbsp;|&nbsp;
-  		  <a href="@routes.Agents.visibility(item.id)">@Messages("Set Visibility")</a>
+  		  <a href="@routes.Agents.docCreate(item.id)">@Messages("actions.createNewDocUnit")</a>
   		}
-  		@if(user.hasPermission(PermissionType.Update)(ContentType.Agent)) {
+  		@if(user.hasPermission(PermissionType.Update)) {
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Agents.update(item.id)">@Messages("Modify Record")</a>
+  		  <a href="@routes.Agents.visibility(item.id)">@Messages("actions.setVisibility")</a>
   		}
-  		@if(user.hasPermission(PermissionType.Delete)(ContentType.Agent)) {
+  		@if(user.hasPermission(PermissionType.Update)) {
   		  &nbsp;|&nbsp;
-  		  <a href="@routes.Agents.delete(item.id)">@Messages("Delete Record")</a>
+  		  <a href="@routes.Agents.update(item.id)">@Messages("actions.updateItem")</a>
   		}
+  		@if(user.hasPermission(PermissionType.Delete)) {
+  		  &nbsp;|&nbsp;
+  		  <a href="@routes.Agents.delete(item.id)">@Messages("actions.deleteItem")</a>
+  		}
+      }
 	}
 }

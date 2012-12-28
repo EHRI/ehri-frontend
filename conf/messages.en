@@ -1,11 +1,118 @@
-agent.descriptions=Descriptions
-agent.description=Description Area
-agent.identity=Identity Area
-agent.contact=Contact Area
-agent.addresses=Address Area
-agent.access=Access Area
-agent.services=Services Area
-
 # general forms
 update.heading=Update {0}
 create.heading=Create New Item
+
+# Actions
+actions.backToList=Back to List
+actions.deleteItem=Delete Item
+actions.updateItem=Update Item
+actions.createNewItem=Create New Item
+actions.setVisibility=Set Visibility
+actions.modifyPermissions=Modify Permissions
+actions.createNewDocUnit=Create New Documentary Unit
+actions.createChildDocUnit=Create Child Documentary Unit
+actions.createNewRepository=Create New Repository
+actions.createNewUser=Create New User Profile
+actions.createNewGroup=Create New Group
+actions.modifyGroups=Add/Remove Parent Groups
+
+#
+# ISDIAH Field definitions
+#
+
+# Form sections
+isdiah.descriptionArea=Description Area
+isdiah.identity=Identity Area
+isdiah.contact=Contact Area
+isdiah.addresses=Address Area
+isdiah.access=Access Area
+isdiah.services=Services Area
+
+# Identity Section
+isdiah.identityArea=Identity Area
+isdiah.identifier=Identifier
+isdiah.authorizedFormOfName=Authorized Form Of Name
+isdiah.otherFormsOfName=Other Form(s) of Name
+isdiah.parallelFormsOfName=Parallel Form(s) of Name
+isdiah.institutionType=Institution Type
+
+# Address
+isdiah.addressName=Address Name
+isdiah.addressArea=Address Area
+isdiah.contactPerson=Contact Person
+isdiah.streetAddress=Street Address
+isdiah.city=City
+isdiah.region=Region
+isdiah.countryCode=Country Code
+isdiah.email=Email
+isdiah.telephone=Telephone
+isdiah.fax=Fax
+isdiah.url=Website Address
+
+# Description
+isdiah.descriptionArea=Description Area
+isdiah.history=History
+isdiah.generalContext=General Context
+isdiah.mandates=Mandates
+isdiah.administrativeStructure=Administrative Structure
+isdiah.records=Records
+isdiah.buildings=Buildings
+isdiah.holdings=Holdings
+isdiah.findingAids=Finding Aids
+
+# Access
+isdiah.accessArea=Access Area
+isdiah.openingTimes=Opening Times
+isdiah.conditions=Conditions of Access
+isdiah.accessibility=Accessibility
+
+# Services
+isdiah.servicesArea=Services Area
+isdiah.researchServices=Research Services
+isdiah.reproductionServices=Reproduction Services
+isdiah.publicAreas=Public Areas
+
+# Control
+isdiah.controlArea=Control Area
+isdiah.descriptionIdentifier=Description Identifier
+isdiah.institutionIdentifier=Institution Identifier
+isdiah.rulesAndConventions=Rules and Conventions
+isdiah.status=Status
+isdiah.levelOfDetail=Level of Detail
+isdiah.datesCVD=Dates of Creation and Deletion
+isdiah.languages=Languages
+isdiah.scripts=Scripts
+isdiah.sources=Sources
+isdiah.maintenanceNotes=Maintenance Notes
+
+
+#
+# ISAD(G)-based field set
+#
+
+# Form sections
+isadg.identity=Identity Area
+isadg.context=Context Area
+isadg.content=Content Area
+isadg.conditions=Conditions Area
+isadg.materials=Materials Area
+
+isadg.name=Name
+isadg.identifier=Identifier
+isadg.title=Title
+isadg.adminBiogHist=Administrative and Biographical History
+isadg.archivalHistory=Archival History
+isadg.acquisition=Acquisition
+isadg.scopeAndContent=Scope and Content
+isadg.appraisal=Appraisal
+isadg.accruals=Accruals
+isadg.systemOfArrangement=System of Arrangement
+isadg.publicationStatus=Publication Status
+isadg.conditionsOfAccess=Conditions of Access
+isadg.conditionsOfReproduction=Conditions of Reproduction
+isadg.physicalCharacteristics=Physical Characteristics
+isadg.findingAids=Finding Aids
+isadg.locationOfOriginals=Location of Originals
+isadg.locationOfCopies=Location of Copies
+isadg.relatedUnitsOfDescription=Related Units of Description
+isadg.publicationNote=Publication Note

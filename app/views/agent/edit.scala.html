@@ -1,120 +1,121 @@
 @(item: Option[AgentRepr], f: play.api.data.Form[Agent], action: Call, user: UserProfileRepr, req: RequestHeader)(implicit lang: Lang)
- 
-@import models.Address._
-@import models.Agent._
+
+@import models.Isdiah._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @main(item.map(i => Messages("update.heading", i.name)).getOrElse(Messages("create.heading")))(Some(user), req) {
-	
+
 	<h3>
 		@item.map(i => Messages("update.heading", i.name)).getOrElse(Messages("create.heading"))
 	</h3>
-		
-	
+
+
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-		<fieldset id="identity-area">
-			<legend>@Messages("Identity")</legend>
-			@helper.inputText(f("identifier"), '_label -> "Identifier")
-			@helper.inputText(f("name"), '_label -> "Name")
-		</fieldset>
-	  
-		@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+		@defining("isdiah") { fieldPrefix =>
 			<fieldset id="identity-area">
-				<legend>@Messages("agent.identity")</legend>
-				@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
-  					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
-				} 
-				@helper.inputText(desc("languageCode"), '_label -> "Language Code")
-				@helper.inputText(desc("name"), '_label -> "Authorized Form of Name")
-				@helper.repeat(desc(OTHER_FORMS_OF_NAME), min = item.flatMap(_.listProperty(OTHER_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { onField =>
-					@helper.inputText(onField)
-				}
-				@helper.repeat(desc(PARALLEL_FORMS_OF_NAME), min = item.flatMap(_.listProperty(PARALLEL_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { pnField =>
-					@helper.inputText(pnField)
-				}
+				<legend>@Messages("Identity")</legend>
+				@helper.inputText(f("identifier"), '_label -> "Identifier")
+				@helper.inputText(f("name"), '_label -> "Name")
 			</fieldset>
-			<fieldset id="contact-area">
-				<legend>@Messages("Contact")</legend>
-				@helper.repeat(desc("agent.addresses"), min=math.max(desc("addresses").indexes.length, 1)) { desc =>
+
+			@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+				<fieldset id="identity-area">
+					<legend>@Messages("agent.identity")</legend>
 					@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
 	  					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
-					} 
-					@formHelpers.lineInput(desc, ADDRESS_NAME)
-					@formHelpers.lineInput(desc, CONTACT_PERSON)
-					@formHelpers.lineInput(desc, STREET_ADDRESS)
-					@formHelpers.lineInput(desc, CITY)
-					@formHelpers.lineInput(desc, REGION)
-					@formHelpers.lineInput(desc, COUNTRY_CODE)
-					@formHelpers.lineInput(desc, EMAIL)
-					@formHelpers.lineInput(desc, TELEPHONE)
-					@formHelpers.lineInput(desc, FAX)
-					@formHelpers.lineInput(desc, URL)
-				}
-			</fieldset>		
-				
-		  	<fieldset id="description-area">
-				<legend>@Messages("agent.description")</legend>
-				@defining(desc("description")) { desc =>
-					@formHelpers.textInput(desc, HISTORY)
-					@formHelpers.textInput(desc, GENERAL_CONTEXT)
-					@formHelpers.textInput(desc, MANDATES)
-					@formHelpers.textInput(desc, ADMINISTRATIVE_STRUCTURE)				  
-					@formHelpers.textInput(desc, RECORDS)
-					@formHelpers.textInput(desc, BUILDINGS)
-					@formHelpers.textInput(desc, HOLDINGS)
-					@formHelpers.textInput(desc, FINDING_AIDS)
-				}
-			</fieldset>
-				
-		  	<fieldset id="access-area">
-				<legend>@Messages("agent.access")</legend>
-				@defining(desc("access")) { desc =>
-					@formHelpers.textInput(desc, OPENING_TIMES)
-					@formHelpers.textInput(desc, CONDITIONS)
-					@formHelpers.textInput(desc, ACCESSIBILITY)
-				}
-			</fieldset>				
-				
-		  	<fieldset id="services-area">
-				<legend>@Messages("agent.services")</legend>
-				@defining(desc("services")) { desc =>
-					@formHelpers.textInput(desc, RESEARCH_SERVICES)
-					@formHelpers.textInput(desc, REPROD_SERVICES)
-					@formHelpers.textInput(desc, PUBLIC_AREAS)
-				}
-			</fieldset>				
-
-		  	<fieldset id="control-area">
-				<legend>@Messages("agent.control")</legend>
-				@defining(desc("control")) { desc =>
-					@formHelpers.lineInput(desc, DESCRIPTION_IDENTIFIER)
-					@formHelpers.lineInput(desc, INSTITUTION_IDENTIFIER)
-					@formHelpers.textInput(desc, RULES_CONVENTIONS)
-					@formHelpers.textInput(desc, STATUS)
-					@formHelpers.textInput(desc, LEVEL_OF_DETAIL)
-					@formHelpers.textInput(desc, DATES_CVD)
-					@* TODO: Make scripts a dropdown... *@
-					@helper.repeat(desc(LANGUAGES_USED), min = item.flatMap(_.listProperty(LANGUAGES_USED).map(_.length)).getOrElse(0) + 1) { pnField =>
+					}
+					@helper.inputText(desc("languageCode"), '_label -> "Language Code")
+					@helper.inputText(desc(NAME), '_label -> "Authorized Form of Name")
+					@helper.repeat(desc(OTHER_FORMS_OF_NAME), min = item.flatMap(_.listProperty(OTHER_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { onField =>
+						@helper.inputText(onField)
+					}
+					@helper.repeat(desc(PARALLEL_FORMS_OF_NAME), min = item.flatMap(_.listProperty(PARALLEL_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { pnField =>
 						@helper.inputText(pnField)
 					}
-					@helper.repeat(desc(SCRIPTS_USED), min = item.flatMap(_.listProperty(SCRIPTS_USED).map(_.length)).getOrElse(0) + 1) { pnField =>
-						@helper.inputText(pnField)
-					}					
-					@formHelpers.textInput(desc, SOURCES)
-					@formHelpers.textInput(desc, MAINTENANCE_NOTES)
-				}
-			</fieldset>				
-				
-		}
-		
-		<fieldset id="admin-area">
+				</fieldset>
+				<fieldset id="contact-area">
+					<legend>@Messages("Contact")</legend>
+					@helper.repeat(desc("agent.addresses"), min=math.max(desc("addresses").indexes.length, 1)) { desc =>
+						@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
+		  					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
+						}
+						@formHelpers.lineInput(desc, ADDRESS_NAME, fieldPrefix)
+						@formHelpers.lineInput(desc, CONTACT_PERSON, fieldPrefix)
+						@formHelpers.lineInput(desc, STREET_ADDRESS, fieldPrefix)
+						@formHelpers.lineInput(desc, CITY, fieldPrefix)
+						@formHelpers.lineInput(desc, REGION, fieldPrefix)
+						@formHelpers.lineInput(desc, COUNTRY_CODE, fieldPrefix)
+						@formHelpers.lineInput(desc, EMAIL, fieldPrefix)
+						@formHelpers.lineInput(desc, TELEPHONE, fieldPrefix)
+						@formHelpers.lineInput(desc, FAX, fieldPrefix)
+						@formHelpers.lineInput(desc, URL, fieldPrefix)
+					}
+				</fieldset>
+
+			  	<fieldset id="description-area">
+					<legend>@Messages("agent.description")</legend>
+					@defining(desc("description")) { desc =>
+						@formHelpers.textInput(desc, HISTORY, fieldPrefix)
+						@formHelpers.textInput(desc, GENERAL_CONTEXT, fieldPrefix)
+						@formHelpers.textInput(desc, MANDATES, fieldPrefix)
+						@formHelpers.textInput(desc, ADMINISTRATIVE_STRUCTURE, fieldPrefix)
+						@formHelpers.textInput(desc, RECORDS, fieldPrefix)
+						@formHelpers.textInput(desc, BUILDINGS, fieldPrefix)
+						@formHelpers.textInput(desc, HOLDINGS, fieldPrefix)
+						@formHelpers.textInput(desc, FINDING_AIDS, fieldPrefix)
+					}
+				</fieldset>
+
+			  	<fieldset id="access-area">
+					<legend>@Messages("agent.access")</legend>
+					@defining(desc("access")) { desc =>
+						@formHelpers.textInput(desc, OPENING_TIMES, fieldPrefix)
+						@formHelpers.textInput(desc, CONDITIONS, fieldPrefix)
+						@formHelpers.textInput(desc, ACCESSIBILITY, fieldPrefix)
+					}
+				</fieldset>
+
+			  	<fieldset id="services-area">
+					<legend>@Messages("agent.services")</legend>
+					@defining(desc("services")) { desc =>
+						@formHelpers.textInput(desc, RESEARCH_SERVICES, fieldPrefix)
+						@formHelpers.textInput(desc, REPROD_SERVICES, fieldPrefix)
+						@formHelpers.textInput(desc, PUBLIC_AREAS, fieldPrefix)
+					}
+				</fieldset>
+
+			  	<fieldset id="control-area">
+					<legend>@Messages("agent.control")</legend>
+					@defining(desc("control")) { desc =>
+						@formHelpers.lineInput(desc, DESCRIPTION_IDENTIFIER, fieldPrefix)
+						@formHelpers.lineInput(desc, INSTITUTION_IDENTIFIER, fieldPrefix)
+						@formHelpers.textInput(desc, RULES_CONVENTIONS, fieldPrefix)
+						@formHelpers.textInput(desc, STATUS, fieldPrefix)
+						@formHelpers.textInput(desc, LEVEL_OF_DETAIL, fieldPrefix)
+						@formHelpers.textInput(desc, DATES_CVD, fieldPrefix)
+						@* TODO: Make scripts a dropdown... *@
+						@helper.repeat(desc(LANGUAGES_USED), min = item.flatMap(_.listProperty(LANGUAGES_USED).map(_.length)).getOrElse(0) + 1) { pnField =>
+							@helper.inputText(pnField)
+						}
+						@helper.repeat(desc(SCRIPTS_USED), min = item.flatMap(_.listProperty(SCRIPTS_USED).map(_.length)).getOrElse(0) + 1) { pnField =>
+							@helper.inputText(pnField)
+						}
+						@formHelpers.textInput(desc, SOURCES, fieldPrefix)
+						@formHelpers.textInput(desc, MAINTENANCE_NOTES, fieldPrefix)
+					}
+				</fieldset>
+
+			}
+
+			<fieldset id="admin-area">
 				<legend>@Messages("Administration")</legend>
 				@formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
 			</fieldset>
-		
-		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">@Messages(item.map(s => "Update").getOrElse("Create"))</button>
-		</div>
+
+			<div class="form-actions">
+				<button type="submit" class="btn btn-primary">@Messages(item.map(s => "Update").getOrElse("Create"))</button>
+			</div>
+		}
 	}
 }
