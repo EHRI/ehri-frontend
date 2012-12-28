@@ -15,6 +15,8 @@ package models.base
 import defines._
 import models.Relation
 import models.Entity
+import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
 
 object Persistable {
   def getRelationToAttributeMap[T <:Persistable](p: T): Map[String,String] = {
@@ -173,8 +175,10 @@ trait Persistable {
               val value = f.get(this) match {
                 // TODO: Handle nested case classes, i.e. sub-parts of objects.
                 case None => None
+                case date: DateTime => ISODateTimeFormat.date.print(date)
                 case enum: Enumeration#Value => enum.toString
                 case Some(value) => value match {
+                  case date: DateTime => ISODateTimeFormat.date.print(date)
                   case enum: Enumeration#Value => enum.toString
                   case x => x
                 }

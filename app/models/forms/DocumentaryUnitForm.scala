@@ -4,7 +4,7 @@ import play.api.data._
 import play.api.data.Forms._
 import defines.{EntityType, PublicationStatus}
 import models.Annotations
-import models.base.{AttributeSet, Persistable}
+import models.base.{AttributeSet, Persistable,TemporalEntity}
 
 
 case object IsadG {
@@ -47,7 +47,11 @@ case class DocumentaryUnitF(
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
 
-  @Annotations.Relation(DocumentaryUnitF.DESC_REL) val descriptions: List[DocumentaryUnitDescriptionF] = Nil) extends Persistable {
+  @Annotations.Relation(TemporalEntity.DATE_REL)
+  val dates: List[DatePeriodF] = Nil,
+  @Annotations.Relation(DocumentaryUnitF.DESC_REL)
+  val descriptions: List[DocumentaryUnitDescriptionF] = Nil
+) extends Persistable {
   val isA = EntityType.DocumentaryUnit
 
   def withDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = copy(descriptions = descriptions ++ List(d))
@@ -103,6 +107,7 @@ object DocumentaryUnitForm {
     		"identifier" -> nonEmptyText,
     		NAME -> nonEmptyText,
     		PUB_STATUS -> optional(enum(defines.PublicationStatus)),
+        "dates" -> list(DatePeriodForm.form.mapping),
     		"descriptions" -> list(
     		  mapping(
     		    "id" -> optional(nonEmptyText),

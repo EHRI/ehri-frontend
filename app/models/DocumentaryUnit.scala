@@ -33,6 +33,7 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
     identifier = identifier,
     name = name,
     publicationStatus = publicationStatus,
+    dates = dates.map(_.to),
     descriptions = descriptions.map(_.to)
   )
 }

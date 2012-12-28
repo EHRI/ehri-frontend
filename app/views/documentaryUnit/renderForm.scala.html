@@ -9,6 +9,16 @@
 		@helper.inputText(f(NAME), '_label -> Messages("%s.%s".format(fieldPrefix, NAME)))
 		</fieldset>
 
+        @helper.repeat(f("dates"), min=f("dates").indexes.length    ) { desc =>
+
+            @helper.input(desc(Entity.ID)) { (id, name, value, args) =>
+                <input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
+            }
+            @helper.inputText(desc("startDate"), '_label -> Messages("dates.startDate"))
+            @helper.inputText(desc("endDate"), '_label -> Messages("dates.endDate"))
+
+        }
+
 		@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
 			<fieldset id="identity-area">
 			<legend>@Messages("Description")</legend>
