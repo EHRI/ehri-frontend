@@ -1,14 +1,13 @@
 package controllers
 
 import play.api._
-import play.api.mvc._
 import base.CRUD
 import base.PermissionsController
 import base.VisibilityController
 import defines.{ ContentType, EntityType, PermissionType }
+import play.api.libs.concurrent.execution.defaultContext
 import models.forms.GroupF
 import models.Group
-import play.api.libs.concurrent.execution.defaultContext
 import models.base.Accessor
 
 object Groups extends PermissionsController[GroupF, Group]
@@ -63,11 +62,12 @@ object Groups extends PermissionsController[GroupF, Group]
                 } else {
                   // if not, they can add the user to groups they belong to
                   // TODO: Enforce these policies with the permission system!
+                  // TODO: WRITE TESTS FOR THESE WEIRD BEHAVIOURS!!!
                   (!accessor.groups.map(_.id).contains(ident)) &&
                     user.groups.map(_.id).contains(ident)
                 }
             }
-            Ok(views.html.group.membership(user, filteredGroups, user, request))
+            Ok(views.html.group.membership(accessor, filteredGroups, user, request))
           }
         }
       }
