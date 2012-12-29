@@ -35,8 +35,8 @@
 					}
 				</fieldset>
 				<fieldset id="contact-area">
-					<legend>@Messages("Contact")</legend>
-					@helper.repeat(desc("agent.addresses"), min=math.max(desc("addresses").indexes.length, 1)) { desc =>
+					<legend>@Messages("agent.addresses")</legend>
+					@helper.repeat(desc("addresses"), min=math.max(desc("addresses").indexes.length, 1)) { desc =>
 						@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
 		  					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
 						}

@@ -45,8 +45,8 @@ isdiah.parallelFormsOfName=Parallel Form(s) of Name
 isdiah.institutionType=Institution Type
 
 # AddressF
-isdiah.addressName=Address Name
 isdiah.addressArea=Address Area
+isdiah.name=Address Name
 isdiah.contactPerson=Contact Person
 isdiah.streetAddress=Street Address
 isdiah.city=City

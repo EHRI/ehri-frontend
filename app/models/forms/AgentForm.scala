@@ -24,7 +24,7 @@ case object Isdiah {
 
   // AddressF
   val ADDRESS_AREA = "addressArea"
-  val ADDRESS_NAME = "addressName"
+  val ADDRESS_NAME = "name"
   val CONTACT_PERSON = "contactPerson"
   val STREET_ADDRESS = "streetAddress"
   val CITY = "city"
@@ -173,7 +173,7 @@ object AgentDescriptionForm {
       NAME -> optional(text),
       OTHER_FORMS_OF_NAME -> optional(list(text)),
       PARALLEL_FORMS_OF_NAME -> optional(list(text)),
-      ADDRESS_AREA -> list(
+      "addresses" -> list(
         mapping(
           Entity.ID -> optional(nonEmptyText),
           ADDRESS_NAME -> nonEmptyText,

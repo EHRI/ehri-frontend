@@ -82,7 +82,7 @@ case class AgentDescription(val e: Entity) extends Description with Formable[Age
   )
 }
 
-case class Address(val e: Entity) extends Formable[AddressF] {
+case class Address(val e: Entity) extends AccessibleEntity with Formable[AddressF] {
   def to: AddressF = new AddressF(
     id = Some(e.id),
     name = e.stringProperty(ADDRESS_NAME).getOrElse("Unnamed Address"),

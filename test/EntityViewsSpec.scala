@@ -258,6 +258,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
           "descriptions[0].descriptionArea.history" -> Seq("Some history"),
           "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
+          "descriptions[0].addresses[0].name" -> Seq("An Address"),
           "publicationStatus" -> Seq("Published")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
@@ -270,6 +271,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(show) must equalTo(OK)
         contentAsString(show) must contain("Some history")
         contentAsString(show) must contain("Some content")
+        contentAsString(show) must contain("An Address")
       }
     }
 

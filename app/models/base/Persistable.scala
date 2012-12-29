@@ -145,7 +145,6 @@ trait Persistable {
    * posted to the rest server.
    */
   def toData: Map[String, Any] = {
-
     (Map[String, Any]() /: getClass.getDeclaredFields) { (a, f) =>
       f.setAccessible(true)
 
