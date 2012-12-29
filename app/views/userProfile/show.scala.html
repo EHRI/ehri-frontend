@@ -22,33 +22,26 @@
 	
 	@common.visibility(item)
 
-    <hr />
-    <a href="@routes.UserProfiles.list()">@Messages("Back to List")</a>
-    @maybeUser.map { user =>
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
-            &nbsp;|&nbsp;
-            <a href="@routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a>
-        }
+    <ul class="item-actions">
+        <li><a href="@routes.UserProfiles.list()">@Messages("Back to List")</a></li>
+        @maybeUser.map { user =>
             @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
-                &nbsp;|&nbsp;
-                <a href="@routes.UserProfiles.visibility(item.id)">@Messages("Set Visibility")</a>
-        }
-            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
-                &nbsp;|&nbsp;
-                <a href="@routes.UserProfiles.permissions(item.id)">@Messages("Modify Permissions")</a>
-        }
-            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
-                &nbsp;|&nbsp;
-                <a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("Add/Remove Parent Groups")</a>
+                <li><a href="@routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a></li>
             }
-            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Delete)) {
-                &nbsp;|&nbsp;
-                <a href="@routes.UserProfiles.delete(item.id)">@Messages("Delete User")</a>
+                @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
+                    <li><a href="@routes.UserProfiles.visibility(item.id)">@Messages("Set Visibility")</a></li>
+            }
+                @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
+                    <li><a href="@routes.UserProfiles.permissions(item.id)">@Messages("Modify Permissions")</a></li>
+            }
+                @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
+                    <li><a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("Add/Remove Parent Groups")</a></li>
+                }
+                @if(user.hasPermission(ContentType.UserProfile, PermissionType.Delete)) {
+                    <li><a href="@routes.UserProfiles.delete(item.id)">@Messages("Delete User")</a></li>
+            }
+            <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
         }
-
-        &nbsp;|&nbsp;
-        <a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a>
-    }
-
+    </ul>
 
 }

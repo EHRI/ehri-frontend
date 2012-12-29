@@ -10,16 +10,15 @@ import models.UserProfile
 /**
  * Data Access Object for Action-related requests.
  */
-case class ActionLogDAO(val userProfile: Option[UserProfile]) extends RestDAO {
+case class ActionLogDAO(val userProfile: UserProfile) extends RestDAO {
 
 
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/action".format(baseUrl)
 
-  def authHeaders: Map[String, String] = userProfile match {
-    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
-    case None => headers
-  }
+  private val authHeaders: Map[String, String] = headers + (
+    AUTH_HEADER_NAME -> userProfile.id
+  )
 
   def history(id: String, page: Int, limit: Int): Future[Either[RestError, Page[Entity]]] = {
     implicit val entityPageReads = PageReads.pageReads(models.EntityReader.entityReads)

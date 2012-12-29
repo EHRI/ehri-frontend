@@ -16,13 +16,14 @@ object ActionLogs extends EntityRead[ActionLog] {
 
   val builder = ActionLog
 
-  def historyFor(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = userProfileAction { implicit maybeUser =>
+  def historyFor(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = withUserAction { implicit user =>
     implicit request =>
 
+    implicit val maybeUser = Some(user)
     AsyncRest {
-      rest.ActionLogDAO(maybeUser)
+      rest.ActionLogDAO(user)
         .history(id, math.max(page, 1), math.max(limit, 1)).map { itemOrErr =>
-        itemOrErr.right.map { lst => Ok(views.html.actionLogs.itemList(id, lst.copy(list = lst.list.map(builder(_))), showAction, maybeUser, request)) }
+        itemOrErr.right.map { lst => Ok(views.html.actionLogs.itemList(id, lst.copy(list = lst.list.map(builder(_))), showAction, user, request)) }
       }
     }
 

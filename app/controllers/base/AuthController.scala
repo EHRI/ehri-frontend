@@ -1,5 +1,6 @@
 package controllers.base
 
+import _root_.models.UserProfile
 import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.Auth
@@ -111,6 +112,20 @@ trait AuthController extends Controller with Auth with Authorizer {
           }
           case None => f(None)(request)
         }
+    }
+  }
+
+  /**
+   * Wrap userProfileAction to ensure we have a user, or
+   * access is denied
+   */
+  def withUserAction(f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
+    userProfileAction { implicit  maybeUser =>
+      implicit request =>
+        maybeUser.map { user =>
+          f(user)(request)
+        }.getOrElse(authenticationFailed(request))
+
     }
   }
 

@@ -21,6 +21,9 @@ trait ControllerHelpers {
       promise.map { respOrErr =>
         respOrErr.fold(
           err => err match {
+            // TODO: Rethink whether we want to redirect here?  All our
+            // actions should already be permission-secure, so it's really
+            // an error if the server denies permission for something.
             case e: PermissionDenied => maybeUser match {
               case Some(user) => Unauthorized(views.html.errors.permissionDenied())
               case None => authenticationFailed(request)

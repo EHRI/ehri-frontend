@@ -16,36 +16,28 @@
 	
 	@common.visibility(item)
 
-  	<hr />
-	<a href="@routes.Groups.list()">@Messages("Back to List")</a>	
-	@maybeUser.map { user =>
-  		@if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
-  		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.create">@Messages("Create New Group")</a>
-  		}
-  		@if(user.hasPermission(ContentType.Group, PermissionType.Update)) {
-  		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.update(item.id)">@Messages("Modify Group")</a>
-  		}
-  		@if(user.hasPermission(ContentType.Group, PermissionType.Update)) {
-  		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.visibility(item.id)">@Messages("Set Visibility")</a>
-  		}
-  		@if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
-  		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.permissions(item.id)">@Messages("Modify Permissions")</a>
-  		}	      		  		
-  		@if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
-  		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("Add/Remove Parent Groups")</a>
-  		}	      		  		
-  		@if(user.hasPermission(ContentType.Group, PermissionType.Delete)) {
-  		  &nbsp;|&nbsp;
-  		  <a href="@routes.Groups.delete(item.id)">@Messages("Delete Group")</a>
-  		}
-
-        &nbsp;|&nbsp;
-        <a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a>
-
-	}	
+  	<ul class="item-actions">
+        <li><a href="@routes.Groups.list()">@Messages("actions.backToList")</a></li>
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
+              <li><a href="@routes.Groups.create">@Messages("actions.createNewGroup")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Update)) {
+              <li><a href="@routes.Groups.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Update)) {
+              <li><a href="@routes.Groups.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
+              <li><a href="@routes.Groups.permissions(item.id)">@Messages("actions.modifyPermissions")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
+              <li><a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Delete)) {
+              <li><a href="@routes.Groups.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+            <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+        }
+    </ul>
 }
