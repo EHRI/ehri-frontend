@@ -2,7 +2,7 @@
 update.heading=Update {0}
 create.heading=Create New Item
 
-pagination.displayingItems=Displaying item(s) {0} to {1} of {2}
+pagination.displayingItems={2,choice,0#No Items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 # ActionLogs
 actions.backToList=Back to List
@@ -18,6 +18,7 @@ actions.createNewUser=Create New User Profile
 actions.createNewGroup=Create New Group
 actions.modifyGroups=Add/Remove Parent Groups
 actions.historyForItem=Change history for item: {0}
+actions.showHistory=Item History
 
 #
 # ISDIAH Field definitions
