@@ -3,19 +3,11 @@ package rest
 import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.Entity
-import models.base.AccessibleEntity
-import play.api.libs.concurrent.execution.defaultContext
-import scala.concurrent.Future
-import play.api.libs.ws.WS
 import acl._
 import models.base.Accessor
 import com.codahale.jerkson.Json
 import defines._
 import models.UserProfile
-import play.api.mvc.Response
-import play.api.http.HeaderNames
-import play.api.http.ContentTypes
 
 object PermissionDAO
 

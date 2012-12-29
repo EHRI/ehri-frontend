@@ -1,17 +1,15 @@
 package rest
 
-import models.{ EntityReader, Entity }
-import models.base.AccessibleEntity
-import play.api.libs.concurrent.execution.defaultContext
-import scala.concurrent.Future
-import play.api.libs.ws.{ WS, Response }
-import play.api.libs.json.{ JsArray, JsValue }
+import models.Entity
+import play.api.libs.json._
 import play.api.Play
-import com.codahale.jerkson.Json.generate
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsString
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
+import scala.Left
+import play.api.libs.ws.Response
+import scala.Right
+import scala.Some
+
 
 sealed trait RestError extends Throwable
 case class PermissionDenied() extends RestError
@@ -30,7 +28,6 @@ object RestDAO extends RestDAO
  */
 object ErrorSet {
 
-  import play.api.libs.json.Reads
   import play.api.libs.json.Reads._
   import play.api.libs.json.util._
   import play.api.libs.json._
@@ -90,6 +87,17 @@ trait RestDAO {
     val uri: URI = new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef);
     uri.toString
   }
+
+  /**
+   *  For as-yet-undetermined reasons that data coming back from Neo4j seems
+   *  to be encoded as ISO-8859-1, so we need to convert it to UTF-8. Obvs.
+   *  this problem should eventually be fixed at the source, rather than here.
+   *  NB: Fixed in Play 2.1 RC1
+   */
+  def fixEncoding(s: String) = new String(s.getBytes("ISO-8859-1"), "UTF-8")
+
+  // Temporary solution until we upgrade to Play 2.1
+  def json(r: Response): JsValue = Json.parse(fixEncoding(r.body))
 
   lazy val host: String = Play.current.configuration.getString("neo4j.server.host").get
   lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get

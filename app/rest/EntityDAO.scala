@@ -4,28 +4,35 @@ import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json.{ JsArray, JsValue }
-import models.base.AccessibleEntity
 import models.EntityReader
-import play.api.http.Status.OK
 import defines.EntityType
-import models.Entity
 import models.Entity
 import play.api.libs.json.Json
 import models.UserProfile
-import play.api.http.ContentTypes
-import play.api.http.HeaderNames
 
+/**
+ * Class representing a page of data.
+ *
+ * @param total
+ * @param offset
+ * @param limit
+ * @param list
+ * @tparam T
+ */
 case class Page[+T](val total: Long, val offset: Int, val limit: Int, val list: Seq[T]) {
   def numPages = (total / limit) + (total % limit).min(1)
-  def page = (offset / limit) + 1 
+  def page = (offset / limit) + 1
 }
 
+/**
+ * Decode a JSON page representation.
+ *
+ */
 object PageReads {
 
   import play.api.libs.json._
   import play.api.libs.json.util._
   import play.api.libs.json.Reads._
-  import models.EntityReader._
 
   implicit def pageReads[T](r: Reads[T]): Reads[Page[T]] = (
     (__ \ "total").read[Long] and
@@ -35,6 +42,12 @@ object PageReads {
   )(Page[T] _)
 }
 
+/**
+ * Data Access Object for fetching data about generic entity types.
+ *
+ * @param entityType
+ * @param userProfile
+ */
 case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
 
   import play.api.http.Status._
@@ -49,17 +62,6 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
         throw new RuntimeException("Error getting item: " + errors)
       })
   }
-
-  /**
-   *  For as-yet-undetermined reasons that data coming back from Neo4j seems
-   *  to be encoded as ISO-8859-1, so we need to convert it to UTF-8. Obvs.
-   *  this problem should eventually be fixed at the source, rather than here.
-   *  NB: Fixed in Play 2.1 RC1
-   */
-  def fixEncoding(s: String) = new String(s.getBytes("ISO-8859-1"), "UTF-8")
-
-  // Temporary solution until we upgrade to Play 2.1
-  def json(r: WSResponse): JsValue = Json.parse(fixEncoding(r.body))
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
@@ -118,7 +120,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def list(offset: Int, limit: Int): Future[Either[RestError, Seq[Entity]]] = {
-    WS.url(requestUrl + "/list?offset=%d&limit=%d".format(offset, limit)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(enc(requestUrl + "/list?offset=%d&limit=%d".format(offset, limit))).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         json(r) match {
           case JsArray(array) => array.map(js => jsonToEntity(js))
@@ -130,11 +132,12 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
 
   def page(page: Int, limit: Int): Future[Either[RestError, Page[Entity]]] = {
     implicit val entityPageReads = PageReads.pageReads(models.EntityReader.entityReads)
-    WS.url(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(enc(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)))
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         json(r).validate[Page[models.Entity]].fold(
-          valid = { page => 
-            Page(page.total, page.offset, page.limit, page.list)          
+          valid = { page =>
+            Page(page.total, page.offset, page.limit, page.list)
           },
           invalid = { e =>
             sys.error("Unable to decode paginated list result: " + e.toString)
