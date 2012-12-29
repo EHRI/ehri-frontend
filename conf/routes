@@ -86,6 +86,7 @@ POST    /agent/visibility/:id     controllers.Agents.visibilityPost(id: String)
 
 GET     /action/list           controllers.ActionLogs.list(page: Int ?= 1, limit: Int ?=20)
 GET     /action/show/:id       controllers.ActionLogs.get(id: String)
+GET     /history/:id        controllers.ActionLogs.historyFor(id: String, page: Int ?=1, limit: Int ?=20)
 
 # API
 GET     /api/*path               controllers.ApiController.get(path: String)

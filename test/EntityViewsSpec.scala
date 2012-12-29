@@ -209,6 +209,23 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(show) must equalTo(SEE_OTHER)
       }
     }
+
+    "not show history when not logged in as a privileged user" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+
+        val show = route(fakeLoggedInRequest(GET, controllers.routes.ActionLogs.historyFor("c1", 0, 20).url)).get
+        status(show) must equalTo(SEE_OTHER)
+      }
+    }
+
+
+    "show history when logged in as privileged user" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+
+        val show = route(fakeLoggedInRequest(GET, controllers.routes.ActionLogs.historyFor("c1", 0, 20).url)).get
+        status(show) must equalTo(OK)
+      }
+    }
   }
 
   "Agent views" should {

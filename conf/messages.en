@@ -17,6 +17,7 @@ actions.createNewRepository=Create New Repository
 actions.createNewUser=Create New User Profile
 actions.createNewGroup=Create New Group
 actions.modifyGroups=Add/Remove Parent Groups
+actions.historyForItem=Change history for item: {0}
 
 #
 # ISDIAH Field definitions
