@@ -2,7 +2,9 @@
 update.heading=Update {0}
 create.heading=Create New Item
 
-pagination.displayingItems={2,choice,0#No Items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
+# Pagination display. Should say something like "Displaying items 1 to 20 of 25.
+# If there are 0 items, says "No items found", one item, "One item found" etc.
+pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 # ActionLogs
 actions.backToList=Back to List
