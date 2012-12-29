@@ -62,5 +62,8 @@
   		  &nbsp;|&nbsp;
   		  <a href="@routes.DocumentaryUnits.delete(item.id)">@Messages("actions.deleteItem")</a>
   		}
+
+        &nbsp;|&nbsp;
+        <a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a>
 	}
 }

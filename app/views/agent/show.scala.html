@@ -29,6 +29,7 @@
   	<hr />
 	<a href="@routes.Agents.list(1, 20)">@Messages("actions.backToList")</a>
 	@maybeUser.map { user =>
+
 	  @defining(ContentType.Agent) { implicit contentType =>
 		@if(user.hasPermission(PermissionType.Create)) {
 		  &nbsp;|&nbsp;
@@ -51,5 +52,8 @@
   		  <a href="@routes.Agents.delete(item.id)">@Messages("actions.deleteItem")</a>
   		}
       }
-	}
+
+      &nbsp;|&nbsp;
+      <a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a>
+    }
 }

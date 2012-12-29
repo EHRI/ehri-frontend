@@ -42,6 +42,10 @@
   		@if(user.hasPermission(PermissionType.Delete)(ContentType.Group)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.delete(item.id)">@Messages("Delete Group")</a>
-  		}	    
+  		}
+
+        &nbsp;|&nbsp;
+        <a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a>
+
 	}	
 }

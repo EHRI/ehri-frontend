@@ -25,4 +25,7 @@
 	  &nbsp;|&nbsp;
 	  <a href="@routes.UserProfiles.delete(item.id)">@Messages("Delete User")</a>
 	}
+
+    &nbsp;|&nbsp;
+    <a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a>
 }	
