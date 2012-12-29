@@ -21,9 +21,8 @@ case class UserProfile(
   val globalPermissions: Option[GlobalPermissionSet[UserProfile]] = None,
   val itemPermissions: Option[ItemPermissionSet[UserProfile]] = None) extends AccessibleEntity
   with Accessor with NamedEntity with Formable[UserProfileF] {
-  def isAdmin = getAccessor(groups, "admin").isDefined
 
-  def hasPermission(p: PermissionType.Value)(implicit ct: ContentType.Value): Boolean = {
+  def hasPermission(ct: ContentType.Value, p: PermissionType.Value): Boolean = {
     globalPermissions.map { gp =>
       if (gp.has(ct, p)) true
       else {

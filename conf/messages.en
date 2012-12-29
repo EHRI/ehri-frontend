@@ -22,6 +22,8 @@ actions.modifyGroups=Add/Remove Parent Groups
 actions.historyForItem=Change history for item: {0}
 actions.showHistory=Item History
 
+accessor.notInAnyGroups=This user does not belong to any groups.
+
 #
 # ISDIAH Field definitions
 #

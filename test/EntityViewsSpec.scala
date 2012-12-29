@@ -48,8 +48,10 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/ehri"));
   runner.start
 
-  // Some constants that should be on common pages
-  val listDisplayHeading: String = "Displaying item(s)"
+  // Common headers/strings
+  val multipleItemsHeader = "Displaying items"
+  val oneItemHeader = "One item found"
+  val noItemsHeader = "No items found"
 
 
   def before = {
@@ -65,7 +67,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(FakeApplication(additionalConfiguration = config)) {
         val list = route(FakeRequest(GET, DocumentaryUnits.list(1, 20).url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain(listDisplayHeading)
+        contentAsString(list) must contain("One item found")
 
         contentAsString(list) must not contain ("c1")
         contentAsString(list) must contain("c4")
@@ -77,7 +79,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val list = route(fakeLoggedInRequest(GET, DocumentaryUnits.list(1, 20).url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain(listDisplayHeading)
+        contentAsString(list) must contain(multipleItemsHeader)
         contentAsString(list) must contain("c1")
         contentAsString(list) must contain("c2")
         contentAsString(list) must contain("c3")
@@ -213,7 +215,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     "not show history when not logged in as a privileged user" in {
       running(FakeApplication(additionalConfiguration = config)) {
 
-        val show = route(fakeLoggedInRequest(GET, controllers.routes.ActionLogs.historyFor("c1", 0, 20).url)).get
+        val show = route(fakeLoggedInRequest(GET,
+            controllers.routes.ActionLogs.historyFor("c1", 0, 20).url)).get
         status(show) must equalTo(SEE_OTHER)
       }
     }
@@ -222,7 +225,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     "show history when logged in as privileged user" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
 
-        val show = route(fakeLoggedInRequest(GET, controllers.routes.ActionLogs.historyFor("c1", 0, 20).url)).get
+        val show = route(fakeLoggedInRequest(GET,
+            controllers.routes.ActionLogs.historyFor("c1", 0, 20).url)).get
         status(show) must equalTo(OK)
       }
     }
@@ -236,8 +240,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(FakeApplication(additionalConfiguration = config)) {
         val list = route(FakeRequest(GET, Agents.list(1, 20).url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain(listDisplayHeading)
-
+        contentAsString(list) must contain(multipleItemsHeader)
         contentAsString(list) must contain("r1")
         contentAsString(list) must contain("r2")
 

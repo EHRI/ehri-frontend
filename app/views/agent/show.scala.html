@@ -29,31 +29,24 @@
   	<hr />
 	<a href="@routes.Agents.list(1, 20)">@Messages("actions.backToList")</a>
 	@maybeUser.map { user =>
-
-	  @defining(ContentType.Agent) { implicit contentType =>
-		@if(user.hasPermission(PermissionType.Create)) {
-		  &nbsp;|&nbsp;
-		  <a href="@routes.Agents.create">@Messages("actions.createNewRepository")</a>
-		}
-  		@if(user.hasPermission(PermissionType.Create)(ContentType.DocumentaryUnit)) {
+  		@if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Agents.docCreate(item.id)">@Messages("actions.createNewDocUnit")</a>
   		}
-  		@if(user.hasPermission(PermissionType.Update)) {
+  		@if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Agents.visibility(item.id)">@Messages("actions.setVisibility")</a>
   		}
-  		@if(user.hasPermission(PermissionType.Update)) {
+  		@if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Agents.update(item.id)">@Messages("actions.updateItem")</a>
   		}
-  		@if(user.hasPermission(PermissionType.Delete)) {
+  		@if(user.hasPermission(ContentType.Agent, PermissionType.Delete)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Agents.delete(item.id)">@Messages("actions.deleteItem")</a>
   		}
-      }
 
-      &nbsp;|&nbsp;
-      <a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a>
+        &nbsp;|&nbsp;
+        <a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a>
     }
 }

@@ -19,27 +19,27 @@
   	<hr />
 	<a href="@routes.Groups.list()">@Messages("Back to List")</a>	
 	@maybeUser.map { user =>
-  		@if(user.hasPermission(PermissionType.Create)(ContentType.Group)) {
+  		@if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.create">@Messages("Create New Group")</a>
   		}
-  		@if(user.hasPermission(PermissionType.Update)(ContentType.Group)) {
+  		@if(user.hasPermission(ContentType.Group, PermissionType.Update)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.update(item.id)">@Messages("Modify Group")</a>
   		}
-  		@if(user.hasPermission(PermissionType.Update)(ContentType.Group)) {
+  		@if(user.hasPermission(ContentType.Group, PermissionType.Update)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.visibility(item.id)">@Messages("Set Visibility")</a>
   		}
-  		@if(user.hasPermission(PermissionType.Grant)(ContentType.Group)) {
+  		@if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.permissions(item.id)">@Messages("Modify Permissions")</a>
   		}	      		  		
-  		@if(user.hasPermission(PermissionType.Grant)(ContentType.Group)) {
+  		@if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("Add/Remove Parent Groups")</a>
   		}	      		  		
-  		@if(user.hasPermission(PermissionType.Delete)(ContentType.Group)) {
+  		@if(user.hasPermission(ContentType.Group, PermissionType.Delete)) {
   		  &nbsp;|&nbsp;
   		  <a href="@routes.Groups.delete(item.id)">@Messages("Delete Group")</a>
   		}

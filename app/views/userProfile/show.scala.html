@@ -1,5 +1,7 @@
 @(item: UserProfile, maybeUser: Option[UserProfile], req: RequestHeader)
 
+@import defines._
+
 @main(item.name)(maybeUser, req) {
 	
 	<h3>User: @item.name (@item.identifier)</h3>
@@ -10,7 +12,7 @@
 	
 	<hr />
 	@if(item.groups.isEmpty) {
-	  <i>This user does not belong to any groups.</i>	  
+	  <i>@Messages("accessor.notInAnyGroups")</i>
 	} else {
 	  <strong>Groups: </strong>&nbsp;
 	  @item.groups.map { group =>
@@ -19,6 +21,34 @@
 	}
 	
 	@common.visibility(item)
-	
-	@userProfile.actions(item, maybeUser, req)	
+
+    <hr />
+    <a href="@routes.UserProfiles.list()">@Messages("Back to List")</a>
+    @maybeUser.map { user =>
+        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
+            &nbsp;|&nbsp;
+            <a href="@routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a>
+        }
+            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
+                &nbsp;|&nbsp;
+                <a href="@routes.UserProfiles.visibility(item.id)">@Messages("Set Visibility")</a>
+        }
+            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
+                &nbsp;|&nbsp;
+                <a href="@routes.UserProfiles.permissions(item.id)">@Messages("Modify Permissions")</a>
+        }
+            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
+                &nbsp;|&nbsp;
+                <a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("Add/Remove Parent Groups")</a>
+            }
+            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Delete)) {
+                &nbsp;|&nbsp;
+                <a href="@routes.UserProfiles.delete(item.id)">@Messages("Delete User")</a>
+        }
+
+        &nbsp;|&nbsp;
+        <a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a>
+    }
+
+
 }

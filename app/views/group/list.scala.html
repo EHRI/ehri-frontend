@@ -6,7 +6,7 @@
 
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
 	@maybeUser.map { user =>
-  		@if(user.hasPermission(PermissionType.Create)(ContentType.Group)) {
+  		@if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
   		  <a href="@routes.Groups.create">@Messages("Create New Group")</a>
   		}
 	}

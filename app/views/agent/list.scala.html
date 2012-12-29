@@ -1,9 +1,17 @@
 @(items: rest.Page[Agent], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
 
+@import defines._
+
 @main("View item")(maybeUser, req) {
 
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
-  
+
+    @maybeUser.map { user =>
+        @if(user.hasPermission(ContentType.Agent, PermissionType.Create)) {
+            <a href="@routes.Agents.create">@Messages("actions.createNewRepository")</a>
+        }
+    }
+
 	<div id="pagination" class="pagination">
     	<ul>
 		@views.Helpers.paginationRanges(items.page.toInt + 1, items.numPages.toInt).map { range =>

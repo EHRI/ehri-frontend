@@ -125,7 +125,7 @@ trait AuthController extends Controller with Auth with Authorizer {
     itemPermissionAction(id) { implicit maybeUser =>
       implicit request =>
         maybeUser.flatMap { user =>
-          if (user.hasPermission(perm)) Some(f(user)(request))
+          if (user.hasPermission(contentType, perm)) Some(f(user)(request))
           else None
         }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }
@@ -141,7 +141,7 @@ trait AuthController extends Controller with Auth with Authorizer {
     userProfileAction { implicit maybeUser =>
       implicit request =>
         maybeUser.flatMap { user =>
-          if (user.hasPermission(perm)) Some(f(user)(request))
+          if (user.hasPermission(contentType, perm)) Some(f(user)(request))
           else None
         }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }
