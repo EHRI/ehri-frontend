@@ -9,7 +9,7 @@
 		@helper.inputText(f(NAME), '_label -> Messages("%s.%s".format(fieldPrefix, NAME)))
 		</fieldset>
 
-        @helper.repeat(f("dates"), min=f("dates").indexes.length    ) { desc =>
+        @helper.repeat(f("dates"), min=math.max(f("dates").indexes.length, 1)) { desc =>
 
             @helper.input(desc(Entity.ID)) { (id, name, value, args) =>
                 <input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
