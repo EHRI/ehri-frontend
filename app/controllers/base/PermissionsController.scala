@@ -18,7 +18,7 @@ trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[
   type PermViewType = (Accessor, GlobalPermissionSet[Accessor], Call, UserProfile, RequestHeader) => play.api.templates.Html
   val permView: PermViewType
 
-  def permissions(id: String) = withItemPermission(id, PermissionType.Grant) { implicit user =>
+  def permissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
@@ -33,7 +33,7 @@ trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[
       }
   }
 
-  def permissionsPost(id: String) = withItemPermission(id, PermissionType.Grant) { implicit user =>
+  def permissionsPost(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>

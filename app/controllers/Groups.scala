@@ -14,7 +14,7 @@ object Groups extends PermissionsController[GroupF, Group]
   with VisibilityController[GroupF, Group]
   with CRUD[GroupF, Group] {
   val entityType = EntityType.Group
-  implicit val contentType = ContentType.Group
+  val contentType = ContentType.Group
   val listAction = routes.Groups.list _
   val createAction = routes.Groups.createPost
   val updateAction = routes.Groups.updatePost _
@@ -43,7 +43,7 @@ object Groups extends PermissionsController[GroupF, Group]
   /**
    * Present a list of groups to which the current user can be added.
    */
-  def membership(userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant) { implicit user =>
+  def membership(userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
@@ -76,7 +76,7 @@ object Groups extends PermissionsController[GroupF, Group]
   /**
    * Confirm adding the given user to the specified group.
    */
-  def addMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant) { implicit user =>
+  def addMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
@@ -96,7 +96,7 @@ object Groups extends PermissionsController[GroupF, Group]
   /**
    * Add the user to the group and redirect to the show view.
    */
-  def addMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant) { implicit user =>
+  def addMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
@@ -111,7 +111,7 @@ object Groups extends PermissionsController[GroupF, Group]
   /**
    * Confirm adding the given user to the specified group.
    */
-  def removeMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant) { implicit user =>
+  def removeMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
@@ -131,7 +131,7 @@ object Groups extends PermissionsController[GroupF, Group]
   /**
    * Add the user to the group and redirect to the show view.
    */
-  def removeMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant) { implicit user =>
+  def removeMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {

@@ -1,6 +1,6 @@
 package controllers.base
 
-import defines.EntityType
+import defines.{EntityType,ContentType}
 import models.forms.DocumentaryUnitF
 import models.base.Persistable
 import models.base.AccessibleEntity
@@ -25,7 +25,7 @@ trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends En
   val docShowAction: String => Call
   val docCreateAction: String => Call
 
-  def docCreate(id: String) = withItemPermission(id, PermissionType.Create) { implicit user =>
+  def docCreate(id: String) = withItemPermission(id, PermissionType.Create, ContentType.DocumentaryUnit) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
@@ -35,7 +35,7 @@ trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends En
       }
   }
 
-  def docCreatePost(id: String) = withItemPermission(id, PermissionType.Create) { implicit user =>
+  def docCreatePost(id: String) = withItemPermission(id, PermissionType.Create, ContentType.DocumentaryUnit) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
 

@@ -134,9 +134,8 @@ trait AuthController extends Controller with Auth with Authorizer {
    * and return an action with the user in scope.
    */
   def withItemPermission(id: String,
-    perm: PermissionType.Value)(
-      f: UserProfile => Request[AnyContent] => Result)(
-        implicit contentType: ContentType.Value): Action[AnyContent] = {
+    perm: PermissionType.Value, contentType: ContentType.Value)(
+      f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
     itemPermissionAction(id) { implicit maybeUser =>
       implicit request =>
         maybeUser.flatMap { user =>
@@ -151,8 +150,8 @@ trait AuthController extends Controller with Auth with Authorizer {
    * and return an action with the user in scope.
    */
   def withContentPermission(
-    perm: PermissionType.Value)(f: UserProfile => Request[AnyContent] => Result)(
-      implicit contentType: ContentType.Value): Action[AnyContent] = {
+    perm: PermissionType.Value, contentType: ContentType.Value)(
+      f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit maybeUser =>
       implicit request =>
         maybeUser.flatMap { user =>

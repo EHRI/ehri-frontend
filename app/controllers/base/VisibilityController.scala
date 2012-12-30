@@ -27,7 +27,7 @@ trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable
 
   val visibilityView: VisibilityViewType
 
-  def visibility(id: String) = withItemPermission(id, PermissionType.Update) { implicit user =>
+  def visibility(id: String) = withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
@@ -43,7 +43,7 @@ trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable
       }
   }
 
-  def visibilityPost(id: String) = withItemPermission(id, PermissionType.Update) { implicit user =>
+  def visibilityPost(id: String) = withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       val data = request.body.asFormUrlEncoded.getOrElse(List()).flatMap { case (_, s) => s.toList }

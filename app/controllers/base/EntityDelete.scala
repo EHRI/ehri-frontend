@@ -19,7 +19,7 @@ trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
   val deleteView: DeleteViewType
   val cancelAction: String => Call
 
-  def delete(id: String) = withItemPermission(id, PermissionType.Delete) { implicit user =>
+  def delete(id: String) = withItemPermission(id, PermissionType.Delete, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
@@ -32,7 +32,7 @@ trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
       }
   }
 
-  def deletePost(id: String) = withItemPermission(id, PermissionType.Delete) { implicit user =>
+  def deletePost(id: String) = withItemPermission(id, PermissionType.Delete, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {

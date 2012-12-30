@@ -19,7 +19,7 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
   val formView: EntityCreate[F, T]#FormViewType
   val form: Form[F]
 
-  def update(id: String) = withItemPermission(id, PermissionType.Update) { implicit user =>
+  def update(id: String) = withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
@@ -32,7 +32,7 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
       }
   }
 
-  def updatePost(id: String) = withItemPermission(id, PermissionType.Update) { implicit user =>
+  def updatePost(id: String) = withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
 
