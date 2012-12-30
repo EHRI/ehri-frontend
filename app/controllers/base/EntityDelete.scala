@@ -7,6 +7,11 @@ import play.api.mvc.Call
 import defines.PermissionType
 import models.UserProfile
 
+/**
+ * Controller trait for deleting AccessibleEntities.
+ *
+ * @tparam T the Entity's built representation
+ */
 trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
 
   type DeleteViewType = (T, Call, Call, UserProfile, RequestHeader) => play.api.templates.Html
@@ -22,7 +27,6 @@ trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
           itemOrErr.right.map { item =>
             val doc: T = builder(item)
             Ok(deleteView(doc, deleteAction(id), cancelAction(id), user, request))
-
           }
         }
       }
