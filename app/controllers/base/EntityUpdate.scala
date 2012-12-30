@@ -49,11 +49,9 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...
-
                 itemOrErr.fold(
                   err => err match {
                     case err: rest.ValidationError => {
-
                       val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
                       val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
                       Right(renderForm(filledForm))
