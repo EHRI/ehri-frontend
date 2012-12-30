@@ -9,6 +9,12 @@ import play.api.data.{ Form, FormError }
 import defines.PermissionType
 import models.UserProfile
 
+/**
+ * Controller trait for creating AccessibleEntities.
+ *
+ * @tparam F the Entity's formable representation
+ * @tparam T the Entity's built representation
+ */
 trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
   type FormViewType = (Option[T], Form[F], Call, UserProfile, RequestHeader) => play.api.templates.Html
   val createAction: Call
