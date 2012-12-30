@@ -74,6 +74,10 @@ trait AuthController extends Controller with Auth with Authorizer {
    * 	- the user's profile
    *    - the user's global permissions
    *    - the item permissions for that user
+   *
+   *  NB: Since we want to get the user's permissions in parallel with
+   *  their global perms and user profile, we don't wrap userProfileAction
+   *  but duplicate a bunch of code instead ;(
    */
   def itemPermissionAction(id: String)(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
