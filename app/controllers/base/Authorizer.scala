@@ -9,18 +9,19 @@ import play.api.mvc._
 
 import play.api.Play.current
 
+
 /*
  * Implementation of play2-auth
  * https://github.com/t2v/play20-auth/blob/master/README.md
  */
 
-sealed trait Permission
-case object Administrator extends Permission
-case object NormalUser extends Permission
-
-
 trait Authorizer extends Results with AuthConfig {
-  
+
+  /**
+   * Dummy permission (which is not actually used.)
+   */
+  sealed trait Permission
+
   // Specific type of user-finder loaded via a plugin
   lazy val userFinder: models.sql.UserDAO = current.plugin(classOf[models.sql.UserDAO]).get
   
@@ -35,7 +36,7 @@ trait Authorizer extends Results with AuthConfig {
    */
   type User = models.sql.User
 
-  /** 
+  /**
    * A type that is defined by every action for authorization.
    * This sample uses the following trait.
    *
@@ -92,7 +93,10 @@ trait Authorizer extends Results with AuthConfig {
    * Describe the procedure according to your application.
    */
   def authorize(user: User, authority: Authority): Boolean = {
-    // FIXME: Need to use ACL for this...
+    // FIXME: Need to use ACL for this, but the play20-auth scheme might not fit perfectly
+    // with ours because of the split between a User account (sql) and a UserProfile. For
+    // the time being we do authorization ourselves and don't worry about implementing
+    // this function properly.
     true
   }
 }
