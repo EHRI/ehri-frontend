@@ -23,12 +23,11 @@ trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[
       implicit val maybeUser = Some(user)
       AsyncRest {
         for {
-          itemOrErr <- rest.EntityDAO(entityType, Some(user)).get(id)
+          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
           permsOrErr <- rest.PermissionDAO(user).get(builder(itemOrErr.right.get))
         } yield {
-
-          permsOrErr.right.map { perms =>
-            Ok(permView(builder(itemOrErr.right.get), perms, setPermsAction(id), user, request))
+          for { perms <- permsOrErr.right; item <- itemOrErr.right} yield {
+            Ok(permView(builder(item), perms, setPermsAction(id), user, request))
           }
         }
       }
