@@ -16,6 +16,28 @@ object Entity {
   def fromString(s: String, t: EntityType.Value) = {
     new Entity(s, t, Map(IDENTIFIER -> JsString(s)), Map())
   }
+
+
+  import play.api.libs.json.Writes._
+  import play.api.libs.json.Reads._
+  import play.api.libs.json.util._
+  import defines.EnumReader
+
+  implicit val entityWrites: Writes[Entity] = (
+    (__ \ Entity.ID).write[String] and
+      (__ \ Entity.TYPE).write[EntityType.Type](EnumWriter.enumWrites) and
+      (__ \ Entity.DATA).lazyWrite(mapWrites[JsValue]) and
+      (__ \ Entity.RELATIONSHIPS).lazyWrite(
+        mapWrites[List[Entity]])
+  )(unlift(Entity.unapply))
+
+  implicit val entityReads: Reads[Entity] = (
+    (__ \ Entity.ID).read[String] and
+      (__ \ Entity.TYPE).read[EntityType.Type](EnumReader.enumReads(EntityType)) and
+      (__ \ Entity.DATA).lazyRead(map[JsValue]) and
+      (__ \ Entity.RELATIONSHIPS).lazyRead(
+        map[List[Entity]](list(entityReads)))
+  )(Entity.apply _)
 }
 
 case class Entity(
@@ -45,30 +67,4 @@ case class Entity(
   lazy val isA: EntityType.Value = `type`
   
   override def toString() = "<Entity: %s>".format(id)
-}
-
-object EntityWriter {
-  import play.api.libs.json.Writes._
-  import play.api.libs.json.util._
-
-  implicit val entityWrites: Writes[Entity] = (
-     (__ \ Entity.ID).write[String] and
-     (__ \ Entity.TYPE).write[EntityType.Type](EnumWriter.enumWrites) and
-     (__ \ Entity.DATA).lazyWrite(mapWrites[JsValue]) and
-     (__ \ Entity.RELATIONSHIPS).lazyWrite(
-         mapWrites[List[Entity]])
-  )(unlift(Entity.unapply))
-}
-
-object EntityReader {
-  import play.api.libs.json.Reads._
-  import play.api.libs.json.util._
-  import defines.EnumReader
-
-  implicit val entityReads: Reads[Entity] = (
-    (__ \ Entity.ID).read[String] and
-    (__ \ Entity.TYPE).read[EntityType.Type](EnumReader.enumReads(EntityType)) and
-    (__ \ Entity.DATA).lazyRead(map[JsValue]) and
-    (__ \ Entity.RELATIONSHIPS).lazyRead(
-      map[List[Entity]](list(entityReads))))(Entity.apply _)
 }

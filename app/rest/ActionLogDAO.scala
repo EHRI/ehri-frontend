@@ -12,7 +12,6 @@ import models.UserProfile
  */
 case class ActionLogDAO(val userProfile: UserProfile) extends RestDAO {
 
-
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/action".format(baseUrl)
 
@@ -21,7 +20,9 @@ case class ActionLogDAO(val userProfile: UserProfile) extends RestDAO {
   )
 
   def history(id: String, page: Int, limit: Int): Future[Either[RestError, Page[Entity]]] = {
-    implicit val entityPageReads = PageReads.pageReads(models.EntityReader.entityReads)
+    implicit val entityReads = Entity.entityReads
+    implicit val entityPageReads = PageReads.pageReads
+
     WS.url(enc(requestUrl + "/for/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>

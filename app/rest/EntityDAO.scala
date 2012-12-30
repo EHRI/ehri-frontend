@@ -4,7 +4,6 @@ import play.api.libs.concurrent.execution.defaultContext
 import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json.{ JsArray, JsValue }
-import models.EntityReader
 import defines.EntityType
 import models.Entity
 import play.api.libs.json.Json
@@ -34,12 +33,27 @@ object PageReads {
   import play.api.libs.json.util._
   import play.api.libs.json.Reads._
 
-  implicit def pageReads[T](r: Reads[T]): Reads[Page[T]] = (
+  implicit def pageReads[T](implicit r: Reads[T]): Reads[Page[T]] = (
     (__ \ "total").read[Long] and
     (__ \ "offset").read[Int] and
     (__ \ "limit").read[Int] and
     (__ \ "values").lazyRead(list[T](r))
   )(Page[T] _)
+}
+
+object EntityDAO {
+  implicit val entityReads = Entity.entityReads
+
+  def jsonToEntity(js: JsValue): Entity = {
+    js.validate.fold(
+      valid = { item =>
+        new Entity(item.id, item.`type`, item.data, item.relationships)
+      },
+      invalid = { errors =>
+        throw new RuntimeException("Error getting item: " + errors)
+      }
+    )
+  }
 }
 
 /**
@@ -50,18 +64,9 @@ object PageReads {
  */
 case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
 
+  import EntityDAO._
   import play.api.http.Status._
   import com.codahale.jerkson.Json.generate
-
-  def jsonToEntity(js: JsValue): Entity = {
-    EntityReader.entityReads.reads(js).fold(
-      valid = { item =>
-        new Entity(item.id, item.`type`, item.data, item.relationships)
-      },
-      invalid = { errors =>
-        throw new RuntimeException("Error getting item: " + errors)
-      })
-  }
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
@@ -131,7 +136,8 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def page(page: Int, limit: Int): Future[Either[RestError, Page[Entity]]] = {
-    implicit val entityPageReads = PageReads.pageReads(models.EntityReader.entityReads)
+    import Entity.entityReads
+    implicit val entityPageReads = PageReads.pageReads
     WS.url(enc(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
