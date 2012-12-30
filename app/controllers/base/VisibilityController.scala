@@ -1,21 +1,31 @@
 package controllers.base
 
+import play.api.mvc.{Call,RequestHeader}
 import play.api.libs.concurrent.execution.defaultContext
 import models.base._
 import models.base.Persistable
 import defines._
 import models.UserProfile
 
+/**
+ * Trait for setting visibility on any AccessibleEntity.
+ *
+ * @tparam F the entity's formable class
+ * @tparam T the entity's build class
+ */
 trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
-
-  import play.api.mvc.Call
-  import play.api.mvc.RequestHeader
 
   val visibilityAction: String => Call
   val setVisibilityAction: String => Call
-  type VisibilityViewType = (Accessor, List[(String, String)], List[(String, String)], Call, UserProfile, RequestHeader) => play.api.templates.Html
-  val visibilityView: VisibilityViewType
 
+  /**
+   * The visibility view takes an Accessor object, a list of id->name groups tuples,
+   * a list of id->name user tuples, an action to redirect to when complete, a
+   * UserProfile, and a request.
+   */
+  type VisibilityViewType = (Accessor, List[(String, String)], List[(String, String)], Call, UserProfile, RequestHeader) => play.api.templates.Html
+
+  val visibilityView: VisibilityViewType
 
   def visibility(id: String) = withItemPermission(id, PermissionType.Update) { implicit user =>
     implicit request =>

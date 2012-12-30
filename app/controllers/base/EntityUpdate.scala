@@ -8,6 +8,12 @@ import play.api.data.{ Form, FormError }
 import models.base.Formable
 import defines.PermissionType
 
+/**
+ * Controller trait which updates an AccessibleEntity.
+ *
+ * @tparam F the Entity's formable representation
+ * @tparam T the Entity's built representation
+ */
 trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
   val updateAction: String => Call
   val formView: EntityCreate[F, T]#FormViewType
