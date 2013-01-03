@@ -30,7 +30,7 @@ case class ApiDAO(val userProfile: Option[UserProfile]) extends RestDAO {
   
 
   def get(urlpart: String, headers: Headers): Future[Response] = {
-    WS.url(enc("%s/%s".format(requestUrl, urlpart)))
+    WS.url(enc(requestUrl, urlpart))
     	.withHeaders(authHeaders.toSeq: _*).get
   }
 }

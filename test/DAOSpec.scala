@@ -165,7 +165,27 @@ class DAOSpec extends Specification with BeforeExample {
         newperms.get(ContentType.Agent, PermissionType.Create) must beSome
         newperms.get(ContentType.Agent, PermissionType.Update) must beSome
       }
-    }    
+    }
+
+    "be able to set a user's permissions within a scope" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
+        val data = List("create", "update","delete")
+        val perms = await(PermissionDAO(userProfile).get(user))
+        perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
+        perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
+        perms.right.get.get(ContentType.Agent, PermissionType.Create) must beNone
+        perms.right.get.get(ContentType.Agent, PermissionType.Update) must beNone
+        await(PermissionDAO(userProfile).setForScope(user, ContentType.DocumentaryUnit, "r1", data))
+        // Since c1 is held by r1, we should now have permissions to update and delete c1.
+        val permset = await(PermissionDAO(userProfile).getItem(user, "c1"))
+        permset must beRight
+        val newItemPerms = permset.right.get
+        newItemPerms.get(PermissionType.Create) must beSome
+        newItemPerms.get(PermissionType.Update) must beSome
+        newItemPerms.get(PermissionType.Delete) must beSome
+      }
+    }
   }  
   
   "VisibilityDAO" should {

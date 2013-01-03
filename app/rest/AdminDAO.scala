@@ -11,8 +11,7 @@ case class AdminDAO() extends RestDAO {
   def requestUrl = "http://%s:%d/%s/admin".format(host, port, mount)
 
   def createNewUserProfile: Future[Either[RestError, Entity]] = {
-
-    WS.url(requestUrl + "/createDefaultUserProfile").withHeaders(headers.toSeq: _*)
+    WS.url(enc(requestUrl, "createDefaultUserProfile")).withHeaders(headers.toSeq: _*)
       .post("").map { response =>
         checkError(response).right.map(r => EntityDAO.jsonToEntity(r.json))
       }

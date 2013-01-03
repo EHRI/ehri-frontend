@@ -25,7 +25,7 @@ case class VisibilityDAO[T <: AccessibleEntity](val accessor: UserProfile) exten
   )
   
   def set(user: T, data: List[String]): Future[Either[RestError, Boolean]] = {
-    WS.url(enc("%s/%s".format(requestUrl, user.id)))
+    WS.url(enc(requestUrl, user.id))
     	.withHeaders(authHeaders.toSeq: _*).post(Json.generate(data)).map { response =>
         checkError(response).right.map(r => true)
       }

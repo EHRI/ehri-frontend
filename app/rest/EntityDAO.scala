@@ -76,13 +76,13 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def get(id: Long): Future[Either[RestError, Entity]] = {
-    WS.url(requestUrl + "/" + id.toString).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(json(r)))
     }
   }
 
   def get(id: String): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(json(r)))
     }
   }
@@ -103,7 +103,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
-    WS.url(enc("%s/%s/%s".format(requestUrl, id, givenType))).withHeaders(authHeaders.toSeq: _*)
+    WS.url(enc(requestUrl, id, givenType)).withHeaders(authHeaders.toSeq: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(json(r)))
       }
@@ -111,21 +111,21 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
 
   def update(id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     println("Sending data: " + generate(data))
-    WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders.toSeq: _*)
+    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
       .put(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(json(r)))
       }
   }
 
   def delete(id: String): Future[Either[RestError, Boolean]] = {
-    WS.url(enc(requestUrl + "/" + id)).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
+    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => r.status == OK)
     }
   }
 
   def list(offset: Int, limit: Int): Future[Either[RestError, Seq[Entity]]] = {
-    WS.url(enc(requestUrl + "/list?offset=%d&limit=%d".format(offset, limit))).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(enc(requestUrl, "list?offset=%d&limit=%d".format(offset, limit))).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         json(r) match {
           case JsArray(array) => array.map(js => jsonToEntity(js))
@@ -138,7 +138,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   def page(page: Int, limit: Int): Future[Either[RestError, Page[Entity]]] = {
     import Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
-    WS.url(enc(requestUrl + "/page?offset=%d&limit=%d".format((page-1)*limit, limit)))
+    WS.url(enc(requestUrl, "page?offset=%d&limit=%d".format((page-1)*limit, limit)))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         json(r).validate[Page[models.Entity]].fold(

@@ -23,7 +23,7 @@ case class ActionLogDAO(val userProfile: UserProfile) extends RestDAO {
     implicit val entityReads = Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
 
-    WS.url(enc(requestUrl + "/for/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
+    WS.url(enc(requestUrl, "for/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         json(r).validate[Page[models.Entity]].fold(

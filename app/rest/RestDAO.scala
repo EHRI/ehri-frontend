@@ -82,8 +82,8 @@ trait RestDAO {
 
   import java.net.URI
 
-  def enc(s: String) = {
-    val url = new java.net.URL(s)
+  def enc(s: Any*) = {
+    val url = new java.net.URL(s.mkString("/"))
     val uri: URI = new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef);
     uri.toString
   }
