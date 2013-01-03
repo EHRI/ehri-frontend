@@ -6,7 +6,7 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.BeforeExample
 import eu.ehri.plugin.test.utils.ServerRunner
-import eu.ehri.extension.EhriNeo4jFramedResource
+import eu.ehri.extension.AbstractAccessibleEntityResource
 import helpers.TestLoginHelper
 import play.api.test.FakeApplication
 import play.api.test.FakeRequest
@@ -45,7 +45,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
   val runner: ServerRunner = new ServerRunner(classOf[ApplicationSpec].getName, testPort)
   runner.getConfigurator
     .getThirdpartyJaxRsClasses()
-    .add(new ThirdPartyJaxRsPackage(classOf[EhriNeo4jFramedResource[_]].getPackage.getName, "/ehri"));
+    .add(new ThirdPartyJaxRsPackage(classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"))
   runner.start
 
   // Common headers/strings

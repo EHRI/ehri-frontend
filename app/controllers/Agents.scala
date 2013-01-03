@@ -3,16 +3,22 @@ package controllers
 import play.api._
 import play.api.mvc._
 import defines._
-import base.CRUD
-import base.VisibilityController
+import base._
 import models.Agent
 import models.forms.AgentF
-import base.DocumentaryUnitCreator
 
 
 object Agents extends DocumentaryUnitCreator[AgentF,Agent]
 		with VisibilityController[AgentF,Agent]
-		with CRUD[AgentF,Agent] {
+		with CRUD[AgentF,Agent]
+    with PermissionScopeController[Agent] {
+
+  val permissionScopeAction = routes.Agents.permissionScope _
+  val setPermissionScopeAction = routes.Agents.permissionScopePost _
+  val permissionScopeView = views.html.permissionScope.apply _
+
+  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+
   val entityType = EntityType.Agent
   val contentType = ContentType.Agent
   val listAction = routes.Agents.list _

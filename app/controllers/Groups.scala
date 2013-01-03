@@ -1,8 +1,9 @@
 package controllers
 
+import _root_.models.base.Accessor
 import play.api._
 import base.CRUD
-import base.PermissionsController
+import base.PermissionHolderController
 import base.VisibilityController
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.execution.defaultContext
@@ -10,7 +11,7 @@ import models.forms.GroupF
 import models.Group
 import models.base.Accessor
 
-object Groups extends PermissionsController[GroupF, Group]
+object Groups extends PermissionHolderController[GroupF, Group]
   with VisibilityController[GroupF, Group]
   with CRUD[GroupF, Group] {
   val entityType = EntityType.Group

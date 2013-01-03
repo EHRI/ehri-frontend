@@ -5,12 +5,12 @@ import play.api.mvc._
 import defines._
 import base.CRUD
 import base.VisibilityController
-import base.PermissionsController
+import base.PermissionHolderController
 import models.UserProfile
 import models.forms.UserProfileF
 
 
-object UserProfiles extends PermissionsController[UserProfileF,UserProfile]
+object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
 		with VisibilityController[UserProfileF,UserProfile]
 		with CRUD[UserProfileF,UserProfile] {
   val entityType = EntityType.UserProfile

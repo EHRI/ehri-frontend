@@ -11,7 +11,7 @@ import models.UserProfile
 
 import play.api.libs.concurrent.execution.defaultContext
 
-trait PermissionsController[F <: Persistable, T <: Accessor] extends EntityRead[T] {
+trait PermissionHolderController[F <: Persistable, T <: Accessor] extends EntityRead[T] {
 
   val permsAction: String => Call
   val setPermsAction: String => Call
