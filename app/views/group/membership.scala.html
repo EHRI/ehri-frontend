@@ -4,23 +4,23 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("Manage Groups"))(Some(user), req) {
+@main(Messages("actions.manageGroups"))(Some(user), req) {
 	
-    <h2>@Messages("Manage Groups"): @item.name</h2>
+    <h2>@Messages("actions.manageGroupsFor", item.name)</h2>
     
 	@if(!item.groups.isEmpty) {
-	  <strong>@Messages("Current Groups"): </strong>&nbsp;
+	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;
 	  @item.groups.map { group =>
-	    <a href="@routes.Groups.get(group.id)">@group.name</a> (<a href="@routes.Groups.removeMember(group.id, item.isA.toString, item.id)">Remove</a>)
+	    <a href="@routes.Groups.get(group.id)">@group.name</a> (<a href="@routes.Groups.removeMember(group.id, item.isA.toString, item.id)">@Messages("accessor.removeGroup")</a>)
 	  }	  
 	}
     
 	<hr />
 
 	@if(groups.isEmpty) {
-	  <strong>@Messages("This %s cannot be added to additional groups".format(item.isA))</strong>
+	  <strong>@Messages("accessor.itemCannotBeAddedToAdditionalGroups", item.isA)</strong>
 	} else {
-	  <strong>@Messages("Add Additional Group"): </strong>&nbsp;
+	  <strong>@Messages("actions.addNewGroup"): </strong>&nbsp;
 	  <ul>
 	  @groups.map { case (identifier, name) =>
 	  	<li>

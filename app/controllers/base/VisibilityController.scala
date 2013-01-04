@@ -37,6 +37,7 @@ trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable
           groups <- rest.RestHelpers.getGroupList
         } yield {
           itemOrErr.right.map { item =>
+            // TODO: Allow overriding the view here?
             Ok(views.html.visibility(builder(item), users, groups, setVisibilityAction(id), user, request))
           }
         }

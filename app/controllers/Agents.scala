@@ -13,9 +13,11 @@ object Agents extends DocumentaryUnitCreator[AgentF,Agent]
 		with CRUD[AgentF,Agent]
     with PermissionScopeController[Agent] {
 
+  val addScopedPermissionAction = routes.Agents.addScopedPermissions _
+  val addScopedPermissionView = views.html.permissionScope.apply _
   val permissionScopeAction = routes.Agents.permissionScope _
+  val permissionScopeView = views.html.setPermissionScope.apply _
   val setPermissionScopeAction = routes.Agents.permissionScopePost _
-  val permissionScopeView = views.html.permissionScope.apply _
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 

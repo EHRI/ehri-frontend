@@ -1,47 +1,33 @@
-@(item: models.base.AccessibleEntity, accessor: models.base.Accessor, perms: acl.GlobalPermissionSet[models.base.Accessor], contentTypes: Seq[defines.ContentType.Value], action: Call, user: UserProfile, req: RequestHeader)
+@(item: models.base.AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call, user: UserProfile, req: RequestHeader)
 
 @import defines._
 
-@main(Messages("actions.grantPermissionsInScope", item, accessor))(Some(user), req) {
-	
-  
-	<h2>@Messages("actions.grantPermissionsInScope", item, accessor)</h2>
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-		<fieldset id="permissionScope-area">
+@main(Messages("actions.manageGroups"))(Some(user), req) {
 
-        <table class="permissions-matrix">
-        <tr>
-        <th></th>
-        @PermissionType.values.toList.map { perm =>
-            <th>@perm.toString</th>
+    <h2>@Messages("actions.manageScopedPermissionForAccessor", item.identifier)</h2>
+
+    @if(!groups.isEmpty) {
+        <strong>@Messages("contentTypes.group"): </strong>&nbsp;
+        <ul>
+        @groups.map { case (id, name) =>
+        <li>
+            <a href="@action(item.id, EntityType.Group, id)">@name</a>
+        </li>
         }
-        </tr>
-        @contentTypes.map { entity =>
-            <tr>
-                <td>@entity.toString</td>
-                @PermissionType.values.toList.map { perm =>
-                    <td>
-                    @defining(perms.get(entity, perm)) { permOpt =>
-                        <input type="checkbox" name="@entity.toString" value="@perm.toString"
-                        @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
-                            checked
-                        } />
-                        @permOpt.flatMap(_.inheritedFrom).map { user =>
-                            <span title="@Messages("Inherited from " + user.name)">*</span>
-                        }
-                    }
-                    </td>
-                }
-            </tr>
+        </ul>
+        <hr />
+    }
+
+    @if(!users.isEmpty) {
+        <strong>@Messages("contentTypes.userProfile"): </strong>&nbsp;
+        <ul>
+        @users.map { case (id, name) =>
+        <li>
+            <a href="@action(item.id, EntityType.UserProfile, id)">@name</a>
+        </li>
         }
-    </table>
-
-
-		</fieldset>
-	  
-		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">@Messages("permissionScope.update")</button>
-		</div>
-	}
+        </ul>
+    }
 }

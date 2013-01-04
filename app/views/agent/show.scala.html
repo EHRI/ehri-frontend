@@ -56,6 +56,9 @@
             @if(user.hasPermission(ContentType.Agent, PermissionType.Delete)) {
                 <li><a href="@routes.Agents.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
+            @if(user.hasPermission(ContentType.Agent, PermissionType.Grant)) {
+                <li><a href="@routes.Agents.addScopedPermissions(item.id)">@Messages("actions.manageScopedPermissions")</a></li>
+            }
             <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>

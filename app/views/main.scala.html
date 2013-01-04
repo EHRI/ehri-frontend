@@ -1,5 +1,7 @@
 @(title: String)(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)
 
+@import defines._
+
 <!DOCTYPE html>
 
 <html>
@@ -48,22 +50,22 @@
 
 	    <div id="head-section">
 			@maybeUser.flatMap(_.account).map { account =>
-			  <span>@account.email (<a href="/logout" id="signout">Sign out</a>)</span>			  
+			  <span>@account.email (<a href="/logout" id="signout">@Messages("banner.signout")</a>)</span>
 			}.getOrElse {
-			  <a href="/login" id="signin">Sign in</a>
+			  <a href="/login" id="signin">@Messages("banner.signin")</a>
 			}
 		</div>
 
-		<h2>EHRI Test</h2>
+		<h2>@Messages("banner.heading")</h2>
 		<hr />
 
 		<div id="entity-types">
 			<ul>
-				<li><a href="@routes.DocumentaryUnits.list(1, 20)">@defines.EntityType.DocumentaryUnit.toString</a></li>
-				<li><a href="@routes.Agents.list(1, 20)">@defines.EntityType.Agent.toString</a></li>
-				<li><a href="@routes.UserProfiles.list(1, 20)">@defines.EntityType.UserProfile.toString</a></li>
-				<li><a href="@routes.Groups.list(1, 20)">@defines.EntityType.Group.toString</a></li>				
-				<li><a href="@routes.ActionLogs.list(1, 20)">@defines.EntityType.ActionLog.toString</a></li>
+				<li><a href="@routes.DocumentaryUnits.list(1, 20)">@Messages("contentTypes." + EntityType.DocumentaryUnit)</a></li>
+				<li><a href="@routes.Agents.list(1, 20)">@Messages("contentTypes." + EntityType.Agent)</a></li>
+				<li><a href="@routes.UserProfiles.list(1, 20)">@Messages("contentTypes." + EntityType.UserProfile)</a></li>
+				<li><a href="@routes.Groups.list(1, 20)">@Messages("contentTypes." + EntityType.Group)</a></li>
+				<li><a href="@routes.ActionLogs.list(1, 20)">@Messages("contentTypes." + EntityType.ActionLog)</a></li>
 			</ul>
 			<hr />
 		</div>

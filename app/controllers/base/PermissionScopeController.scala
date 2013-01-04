@@ -17,18 +17,39 @@ trait PermissionScopeController[T <: AccessibleEntity] extends EntityRead[T] {
 
   val targetContentTypes: Seq[ContentType.Value]
 
+  val addScopedPermissionAction: String => Call
   val permissionScopeAction: (String, String, String) => Call
   val setPermissionScopeAction: (String, String, String) => Call
 
-  /**
-   * The visibility view takes an Accessor object, a list of id->name groups tuples,
-   * a list of id->name user tuples, an action to redirect to when complete, a
-   * UserProfile, and a request.
-   */
+
+  type AddScopedPermissionViewType = (AccessibleEntity,
+        Seq[(String,String)], Seq[(String,String)],
+        (String,String,String) => Call, UserProfile, RequestHeader) => play.api.templates.Html
+  val addScopedPermissionView: AddScopedPermissionViewType
+
   type PermissionScopeViewType = (AccessibleEntity, Accessor, GlobalPermissionSet[models.base.Accessor],
         Seq[ContentType.Value], Call, UserProfile, RequestHeader) => play.api.templates.Html
 
   val permissionScopeView: PermissionScopeViewType
+
+
+  def addScopedPermissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+    implicit request =>
+
+    implicit val maybeUser = Some(user)
+    AsyncRest {
+      for {
+        itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+        users <- rest.RestHelpers.getUserList
+        groups <- rest.RestHelpers.getGroupList
+      } yield {
+        for { item <- itemOrErr.right } yield {
+          Ok(addScopedPermissionView(builder(item), users, groups, permissionScopeAction, user, request))
+        }
+      }
+    }
+  }
+
 
   def permissionScope(id: String, userType: String, userId: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>

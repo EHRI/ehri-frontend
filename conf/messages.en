@@ -1,3 +1,15 @@
+# Friendly names for content types
+contentTypes.group=Groups
+contentTypes.userProfile=Users
+contentTypes.agent=Repositories
+contentTypes.documentaryUnit=Documentary Units
+contentTypes.action=System Events
+
+# General main page parts
+banner.heading=EHRI Dev Test
+banner.signin=Sign In
+banner.signout=Sign Out
+
 # general models.forms
 update.heading=Update {0}
 create.heading=Create New Item
@@ -24,10 +36,17 @@ actions.createNewRepository=Create New Repository
 actions.createNewUser=Create New User Profile
 actions.createNewGroup=Create New Group
 actions.modifyGroups=Add/Remove Parent Groups
+actions.manageGroupsFor=Manage Groups: {0}
 actions.historyForItem=Change history for item: {0}
 actions.showHistory=Item History
+actions.addNewGroup=Add New Group
+actions.manageScopedPermissions=Managed User Permissions
+actions.manageScopedPermissionForAccessor=Manage Scoped Permissions for {0}
 
 accessor.notInAnyGroups=This user does not belong to any groups.
+accessor.currentGroups=Current Groups
+accessor.removeGroup=Remove
+accessor.itemCannotBeAddedToAdditionalGroup=This {0} cannot be added to additional groups
 
 #
 # ISDIAH Field definitions
@@ -50,7 +69,6 @@ isdiah.parallelFormsOfName=Parallel Form(s) of Name
 isdiah.institutionType=Institution Type
 
 # AddressF
-isdiah.addressArea=Address Area
 isdiah.name=Address Name
 isdiah.contactPerson=Contact Person
 isdiah.streetAddress=Street Address
@@ -63,7 +81,6 @@ isdiah.fax=Fax
 isdiah.url=Website Address
 
 # Description
-isdiah.descriptionArea=Description Area
 isdiah.history=History
 isdiah.generalContext=General Context
 isdiah.mandates=Mandates
