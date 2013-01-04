@@ -10,6 +10,15 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
 
   lazy val loginHandler: LoginHandler = current.plugin(classOf[LoginHandler]).get
 
+  /**
+   * Look up the 'show' page of a generic item id
+   * @param id
+   */
+  def genericShow(id: String) = Action {
+    NotImplemented
+  }
+
+
   def index = userProfileAction { implicit maybeUser =>
     implicit request =>
       Ok(views.html.index("Your new application is ready."))

@@ -48,6 +48,12 @@ trait AuthController extends Controller with Auth with Authorizer {
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
+              // TODO: For the permissions to be properly initialized they must
+              // recieve a completely-constructed instance of the UserProfile
+              // object, complete with the groups it belongs to. Since this isn't
+              // available initially, and we don't want to block for it to become
+              // available, we should probably add the user to the permissions when
+              // we have both items from the server.
               val fakeProfile = UserProfile(models.Entity.fromString(currentUser, EntityType.UserProfile))
               val getProf = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
               val getGlobalPerms = rest.PermissionDAO(fakeProfile).get
@@ -95,9 +101,13 @@ trait AuthController extends Controller with Auth with Authorizer {
             Async {
               // Since we know the user's profile_id we can get the real
               // details by using a fake profile to access their profile as them...
-              val fakeProfile = UserProfile(
-                models.Entity.fromString(user.profile_id, EntityType.UserProfile))
-
+              // TODO: For the permissions to be properly initialized they must
+              // recieve a completely-constructed instance of the UserProfile
+              // object, complete with the groups it belongs to. Since this isn't
+              // available initially, and we don't want to block for it to become
+              // available, we should probably add the user to the permissions when
+              // we have both items from the server.
+              val fakeProfile = UserProfile(models.Entity.fromString(user.profile_id, EntityType.UserProfile))
               val getProf = rest.EntityDAO(
                 EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
               val getGlobalPerms = rest.PermissionDAO(fakeProfile).get

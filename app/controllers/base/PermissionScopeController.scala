@@ -58,13 +58,15 @@ trait PermissionScopeController[T <: AccessibleEntity] extends EntityRead[T] {
         for {
           itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
           userOrErr <- rest.EntityDAO(EntityType.withName(userType), maybeUser).get(userId)
-          // FIXME: Faking user for fetching perms to avoid blocking
-          // we should ensure that the userType is valid first.
+          // FIXME: Faking user for fetching perms to avoid blocking.
+          // This means that when we have both the perm set and the user
+          // we need to re-assemble them so that the permission set has
+          // access to a user's groups to understand inheritance.
           permsOrErr <- rest.PermissionDAO(user)
               .getScope(Accessor(models.Entity.fromString(userId, EntityType.withName(userType))), id)
         } yield {
           for { item <- itemOrErr.right ; accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
-            Ok(permissionScopeView(builder(item),  Accessor(accessor), perms, targetContentTypes,
+            Ok(permissionScopeView(builder(item),  Accessor(accessor), perms.copy(user=Accessor(accessor)), targetContentTypes,
               setPermissionScopeAction(id, userType, userId), user, request))
           }
         }

@@ -84,10 +84,12 @@ case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPerm
     accessors.headOption.map {
       case (userId, perm) =>
         if (user.id == userId) PermissionGrant(perm)
-        else user.getAccessor(user.groups, userId) match {
-          case Some(u) if u.id == user.id => PermissionGrant(perm)
-          case s @ Some(u) => PermissionGrant(perm, s)
-          case x => PermissionGrant(perm)
+        else {
+          user.getAccessor(user.groups, userId) match {
+            case Some(u) if u.id == user.id => PermissionGrant(perm)
+            case s @ Some(u) => PermissionGrant(perm, s)
+            case x => PermissionGrant(perm)
+          }
         }
     }
   }

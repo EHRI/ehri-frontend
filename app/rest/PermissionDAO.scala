@@ -78,6 +78,7 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
   def getScope(user: T, id: String): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     WS.url(enc(requestUrl, user.id, "scope", id))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      println(response.json)
       checkError(response).right.map(r => GlobalPermissionSet[T](user, r.json))
     }
   }
