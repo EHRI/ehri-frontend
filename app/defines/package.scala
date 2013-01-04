@@ -18,7 +18,7 @@ package object defines {
         try {
           JsSuccess(enum.withName(s))
         } catch {
-          case _ => JsError("Enumeration expected")
+          case _ => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
         }
       }
       case _ => JsError("String value expected")
@@ -32,7 +32,7 @@ package object defines {
           try {
             JsSuccess(enum.withName(s))
           } catch {
-            case _ => JsError("Enumeration expected")
+            case _ => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
           }
         }
         case _ => JsError("String value expected")

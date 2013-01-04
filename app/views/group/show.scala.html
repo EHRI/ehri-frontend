@@ -30,6 +30,7 @@
             }
             @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
               <li><a href="@routes.Groups.permissions(item.id)">@Messages("actions.modifyPermissions")</a></li>
+              <li><a href="@routes.Groups.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
             }
             @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
               <li><a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>

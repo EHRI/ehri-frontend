@@ -37,11 +37,12 @@ trait PermissionScopeController[T <: AccessibleEntity] extends EntityRead[T] {
         for {
           itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
           userOrErr <- rest.EntityDAO(EntityType.withName(userType), maybeUser).get(userId)
+          // FIXME: Faking user for fetching perms to avoid blocking
+          // we should ensure that the userType is valid first.
           permsOrErr <- rest.PermissionDAO(user)
-              .getScope(Accessor(userOrErr.right.get), itemOrErr.right.get.id)
+              .getScope(Accessor(models.Entity.fromString(userId, EntityType.withName(userType))), id)
         } yield {
           for { item <- itemOrErr.right ; accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
-            println("PERMS: " + perms)
             Ok(permissionScopeView(builder(item),  Accessor(accessor), perms, targetContentTypes,
               setPermissionScopeAction(id, userType, userId), user, request))
           }

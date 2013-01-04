@@ -35,6 +35,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
   val listView = views.html.group.list.apply _
   val deleteView = views.html.delete.apply _
   val permView = views.html.accessors.edit.apply _
+  val permListView = views.html.accessors.permissionGrantList.apply _
   val builder = Group
 
   /*

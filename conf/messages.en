@@ -13,6 +13,7 @@ actions.updateItem=Update Item
 actions.createNewItem=Create New Item
 actions.setVisibility=Set Visibility
 actions.modifyPermissions=Modify Permissions
+actions.listPermissionGrants=View Permissions
 actions.createNewDocUnit=Create New Documentary Unit
 actions.createChildDocUnit=Create Child Documentary Unit
 actions.createNewRepository=Create New Repository

@@ -13,6 +13,6 @@ case class ItemWithId(val e: Entity) extends AccessibleEntity {
 
   val NAME = "name"
 
-  def name = e.stringProperty(NAME).getOrElse(identity())
+  def name = e.stringProperty(NAME).getOrElse(e.id)
 }
 

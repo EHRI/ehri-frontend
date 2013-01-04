@@ -7,7 +7,7 @@ import acl._
 import models.base.Accessor
 import com.codahale.jerkson.Json
 import defines._
-import models.UserProfile
+import models.{Entity, UserProfile}
 import play.api.libs.json.JsArray
 
 object PermissionDAO
@@ -29,14 +29,20 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
     }
   }
 
-  def list(user: T): Future[Either[RestError, Seq[models.Entity]]] = {
+  def list(user: T, page: Int, limit: Int): Future[Either[RestError, Page[models.PermissionGrant]]] = {
+    import Entity.entityReads
+    implicit val entityPageReads = PageReads.pageReads
     WS.url(enc(requestUrl, "list", user.id))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        json(r) match {
-          case JsArray(array) => array.map(js => EntityDAO.jsonToEntity(js))
-          case _ => throw new RuntimeException("Unexpected response to list...")
-        }
+        json(r).validate[Page[models.Entity]].fold(
+          valid = { page =>
+            Page(page.total, page.offset, page.limit, page.list.map(models.PermissionGrant(_)))
+          },
+          invalid = { e =>
+            sys.error("Unable to decode paginated list result: %s\n%s".format(e, json(r)))
+          }
+        )
       }
     }
   }

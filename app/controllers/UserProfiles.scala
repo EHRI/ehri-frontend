@@ -35,6 +35,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   val listView = views.html.userProfile.list.apply _
   val deleteView = views.html.delete.apply _
   val permView = views.html.accessors.edit.apply _
+  val permListView = views.html.accessors.permissionGrantList.apply _
   // NB: Because the UserProfile class has more optional
   // parameters we use the companion object apply method here.
   val builder = UserProfile.apply _
