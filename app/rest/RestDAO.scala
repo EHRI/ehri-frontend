@@ -17,7 +17,7 @@ case class ValidationError(errorSet: ErrorSet) extends RestError
 case class DeserializationError() extends RestError
 case class IntegrityError() extends RestError
 case class ItemNotFound() extends RestError
-
+case class ServerError() extends RestError
 
 object RestDAO extends RestDAO
 

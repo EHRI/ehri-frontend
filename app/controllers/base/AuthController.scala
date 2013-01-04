@@ -10,6 +10,8 @@ import defines.PermissionType
 import defines.ContentType
 
 import models.UserProfile
+import java.net.ConnectException
+import rest.ServerError
 
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
@@ -61,6 +63,8 @@ trait AuthController extends Controller with Auth with Authorizer {
                   case Left(err) => sys.error("Unable to fetch page prerequisites: " + err)
                   case Right(up) => f(Some(up))(request)
                 }
+              } recover {
+                case e: ConnectException => InternalServerError(views.html.errors.serverTimeout()(request))
               }
             }
           }
@@ -111,6 +115,8 @@ trait AuthController extends Controller with Auth with Authorizer {
                   case Left(err) => sys.error("Unable to fetch page prerequisites: " + err)
                   case Right(up) => f(Some(up))(request)
                 }
+              } recover {
+                case e: ConnectException => InternalServerError(views.html.errors.serverTimeout()(request))
               }
             }
           }

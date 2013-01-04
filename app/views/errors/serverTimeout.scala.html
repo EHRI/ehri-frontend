@@ -1,0 +1,10 @@
+@()(req: RequestHeader)
+
+@main(Messages("errors.databaseError"))(None, req) {
+
+	<h2>@Messages("errors.genericProblem")</h2>
+
+	<p>
+		@Messages("errors.databaseErrorMessage")
+	</p>
+}

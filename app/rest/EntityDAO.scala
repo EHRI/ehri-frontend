@@ -8,6 +8,7 @@ import defines.EntityType
 import models.Entity
 import play.api.libs.json.Json
 import models.UserProfile
+import java.net.ConnectException
 
 /**
  * Class representing a page of data.
@@ -50,7 +51,7 @@ object EntityDAO {
         new Entity(item.id, item.`type`, item.data, item.relationships)
       },
       invalid = { errors =>
-        throw new RuntimeException("Error getting item: " + errors)
+        sys.error("Error getting item: %s\n%s".format(errors, js))
       }
     )
   }
@@ -92,21 +93,21 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
       .withQueryString("key" -> key, "value" -> value)
       .get.map { response =>
         checkError(response).right.map(r => jsonToEntity(json(r)))
-      }
+    }
   }
 
   def create(data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl)).withHeaders(authHeaders.toSeq: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(json(r)))
-      }
+    }
   }
 
   def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, givenType)).withHeaders(authHeaders.toSeq: _*)
       .post(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(json(r)))
-      }
+    }
   }
 
   def update(id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
@@ -114,7 +115,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
       .put(generate(data)).map { response =>
         checkError(response).right.map(r => jsonToEntity(json(r)))
-      }
+    }
   }
 
   def delete(id: String): Future[Either[RestError, Boolean]] = {
@@ -129,7 +130,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
       checkError(response).right.map { r =>
         json(r) match {
           case JsArray(array) => array.map(js => jsonToEntity(js))
-          case _ => throw new RuntimeException("Unexpected response to list...")
+          case _ => sys.error("Unable to decode list result: " + json(r))
         }
       }
     }

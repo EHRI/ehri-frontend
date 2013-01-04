@@ -7,6 +7,7 @@ import play.api.libs.concurrent.execution.defaultContext
 import rest._
 import play.api.mvc.Controller
 import play.api.mvc.AsyncResult
+import java.net.ConnectException
 
 trait ControllerHelpers {
   this: Controller with AuthController =>
@@ -30,10 +31,13 @@ trait ControllerHelpers {
             }
             case e: ItemNotFound => NotFound(views.html.errors.itemNotFound())
             case e: ValidationError => BadRequest(err.toString())
+            case e: ServerError => InternalServerError("Sorry, but the server appears to be down right now.")
             case e => BadRequest(e.toString())
           },
           resp => resp
         )
+      } recover {
+        case e: ConnectException => InternalServerError("Connection problems")
       }
     }
   }
