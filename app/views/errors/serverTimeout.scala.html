@@ -1,6 +1,6 @@
-@()(req: RequestHeader)
+@()(maybeUser: Option[UserProfile], req: RequestHeader)
 
-@main(Messages("errors.databaseError"))(None, req) {
+@main(Messages("errors.databaseError"))(maybeUser, req) {
 
 	<h2>@Messages("errors.genericProblem")</h2>
 

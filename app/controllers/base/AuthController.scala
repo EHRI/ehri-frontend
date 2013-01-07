@@ -70,7 +70,11 @@ trait AuthController extends Controller with Auth with Authorizer {
                   case Right(up) => f(Some(up))(request)
                 }
               } recover {
-                case e: ConnectException => InternalServerError(views.html.errors.serverTimeout()(request))
+                case e: ConnectException => {
+                  // We still have to show the user is logged in, so use the fake profile in the error view
+                  val fakeUserProfile = fakeProfile.copy(account=Some(user))
+                  InternalServerError(views.html.errors.serverTimeout()(Some(fakeUserProfile), request))
+                }
               }
             }
           }
@@ -126,7 +130,11 @@ trait AuthController extends Controller with Auth with Authorizer {
                   case Right(up) => f(Some(up))(request)
                 }
               } recover {
-                case e: ConnectException => InternalServerError(views.html.errors.serverTimeout()(request))
+                case e: ConnectException => {
+                  // We still have to show the user is logged in, so use the fake profile in the error view
+                  val fakeUserProfile = fakeProfile.copy(account=Some(user))
+                  InternalServerError(views.html.errors.serverTimeout()(Some(fakeUserProfile), request))
+                }
               }
             }
           }
@@ -140,12 +148,10 @@ trait AuthController extends Controller with Auth with Authorizer {
    * access is denied
    */
   def withUserAction(f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
-    userProfileAction { implicit  maybeUser =>
-      implicit request =>
-        maybeUser.map { user =>
-          f(user)(request)
-        }.getOrElse(authenticationFailed(request))
-
+    userProfileAction { implicit  maybeUser => implicit request =>
+      maybeUser.map { user =>
+        f(user)(request)
+      }.getOrElse(authenticationFailed(request))
     }
   }
 
@@ -156,12 +162,11 @@ trait AuthController extends Controller with Auth with Authorizer {
   def withItemPermission(id: String,
     perm: PermissionType.Value, contentType: ContentType.Value)(
       f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
-    itemPermissionAction(id) { implicit maybeUser =>
-      implicit request =>
-        maybeUser.flatMap { user =>
-          if (user.hasPermission(contentType, perm)) Some(f(user)(request))
-          else None
-        }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
+    itemPermissionAction(id) { implicit maybeUser => implicit request =>
+      maybeUser.flatMap { user =>
+        if (user.hasPermission(contentType, perm)) Some(f(user)(request))
+        else None
+      }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }
   }
 
@@ -172,12 +177,11 @@ trait AuthController extends Controller with Auth with Authorizer {
   def withContentPermission(
     perm: PermissionType.Value, contentType: ContentType.Value)(
       f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
-    userProfileAction { implicit maybeUser =>
-      implicit request =>
-        maybeUser.flatMap { user =>
-          if (user.hasPermission(contentType, perm)) Some(f(user)(request))
-          else None
-        }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
+    userProfileAction { implicit maybeUser => implicit request =>
+      maybeUser.flatMap { user =>
+        if (user.hasPermission(contentType, perm)) Some(f(user)(request))
+        else None
+      }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }
   }
 }
