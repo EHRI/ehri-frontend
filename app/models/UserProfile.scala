@@ -27,7 +27,7 @@ case class UserProfile(
       if (gp.has(ct, p)) true
       else {
         itemPermissions.map { ip =>
-          ip.has(p)
+          ip.contentType == ct && ip.has(p)
         }.getOrElse(false)
       }
     }.getOrElse(false)

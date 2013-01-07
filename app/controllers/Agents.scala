@@ -4,14 +4,21 @@ import play.api._
 import play.api.mvc._
 import defines._
 import base._
-import models.Agent
+import models.{DocumentaryUnit, Agent}
 import models.forms.AgentF
 
 
 object Agents extends DocumentaryUnitCreator[AgentF,Agent]
 		with VisibilityController[AgentF,Agent]
 		with CRUD[AgentF,Agent]
-    with PermissionScopeController[Agent] {
+    with PermissionScopeController[Agent]
+  with PermissionItemController[Agent] {
+
+  val addItemPermissionAction = routes.Agents.addItemPermissions _
+  val addItemPermissionView = views.html.permissionItem.apply _
+  val permissionItemAction = routes.Agents.permissionItem _
+  val permissionItemView = views.html.setPermissionItem.apply _
+  val setPermissionItemAction = routes.Agents.permissionItemPost _
 
   val addScopedPermissionAction = routes.Agents.addScopedPermissions _
   val addScopedPermissionView = views.html.permissionScope.apply _

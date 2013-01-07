@@ -41,6 +41,9 @@
             @if(user.hasPermission(ContentType.UserProfile, PermissionType.Delete)) {
               <li><a href="@routes.UserProfiles.delete(item.id)">@Messages("Delete User")</a></li>
             }
+            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
+              <li><a href="@routes.UserProfiles.addItemPermissions(item.id)">@Messages("actions.manageItemPermissions")</a></li>
+            }
             <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>

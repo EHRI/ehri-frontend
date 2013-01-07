@@ -58,6 +58,12 @@
             @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Delete)) {
               <li><a href="@routes.DocumentaryUnits.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
+            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Grant)) {
+                <li><a href="@routes.DocumentaryUnits.addItemPermissions(item.id)">@Messages("actions.manageItemPermissions")</a></li>
+            }
+            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Grant)) {
+                <li><a href="@routes.DocumentaryUnits.addItemPermissions(item.id)">@Messages("actions.manageItemPermissions")</a></li>
+            }
             <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>

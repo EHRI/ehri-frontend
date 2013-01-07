@@ -26,7 +26,5 @@ object ActionLogs extends EntityRead[ActionLog] {
         itemOrErr.right.map { lst => Ok(views.html.actionLogs.itemList(id, lst.copy(list = lst.list.map(builder(_))), showAction, user, request)) }
       }
     }
-
-
   }
 }

@@ -4,9 +4,9 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("actions.manageScopedPermissionsForAccessor", item.identifier))(Some(user), req) {
+@main(Messages("actions.manageItemPermissionsForAccessor", item.identifier))(Some(user), req) {
 
-    <h2>@Messages("actions.manageScopedPermissionsForAccessor", item.identifier)</h2>
+    <h2>@Messages("actions.manageItemPermissionsForAccessor", item.identifier)</h2>
 
     @if(!groups.isEmpty) {
         <strong>@Messages("contentTypes.group"): </strong>&nbsp;

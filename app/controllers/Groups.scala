@@ -2,9 +2,7 @@ package controllers
 
 import _root_.models.base.Accessor
 import play.api._
-import base.CRUD
-import base.PermissionHolderController
-import base.VisibilityController
+import base.{PermissionItemController, CRUD, PermissionHolderController, VisibilityController}
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.execution.defaultContext
 import models.forms.GroupF
@@ -13,7 +11,15 @@ import models.base.Accessor
 
 object Groups extends PermissionHolderController[GroupF, Group]
   with VisibilityController[GroupF, Group]
-  with CRUD[GroupF, Group] {
+  with CRUD[GroupF, Group]
+  with PermissionItemController[Group] {
+
+  val addItemPermissionAction = routes.Groups.addItemPermissions _
+  val addItemPermissionView = views.html.permissionItem.apply _
+  val permissionItemAction = routes.Groups.permissionItem _
+  val permissionItemView = views.html.setPermissionItem.apply _
+  val setPermissionItemAction = routes.Groups.permissionItemPost _
+
   val entityType = EntityType.Group
   val contentType = ContentType.Group
   val listAction = routes.Groups.list _

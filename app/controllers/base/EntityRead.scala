@@ -34,7 +34,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
       }
   }
 
-  def get(id: String) = itemPermissionAction(id) { implicit maybeUser =>
+  def get(id: String) = itemPermissionAction(contentType, id) { implicit maybeUser =>
     implicit request =>
       AsyncRest {
         rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
