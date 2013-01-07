@@ -13,10 +13,12 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
 	with CRUD[UserProfileF,UserProfile]
   with PermissionItemController[UserProfile] {
 
+  val managePermissionAction = routes.UserProfiles.managePermissions _
+  val managePermissionView = views.html.permissions.managePermissions.apply _
   val addItemPermissionAction = routes.UserProfiles.addItemPermissions _
-  val addItemPermissionView = views.html.permissionItem.apply _
+  val addItemPermissionView = views.html.permissions.permissionItem.apply _
   val permissionItemAction = routes.UserProfiles.permissionItem _
-  val permissionItemView = views.html.setPermissionItem.apply _
+  val permissionItemView = views.html.permissions.setPermissionItem.apply _
   val setPermissionItemAction = routes.UserProfiles.permissionItemPost _
 
   val entityType = EntityType.UserProfile

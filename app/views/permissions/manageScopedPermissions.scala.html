@@ -1,0 +1,23 @@
+@(item: models.base.AccessibleEntity, itemPage: rest.Page[models.PermissionGrant], scopePage: rest.Page[models.PermissionGrant], itemPermAction: Call, scopePermAction: Call, user: UserProfile, req: RequestHeader)
+
+@import defines._
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@main(Messages("actions.manageScopePermissionsForItem", item.identifier))(Some(user), req) {
+
+    <h2>@Messages("actions.manageScopePermissionsForItem", item.identifier)</h2>
+
+    <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
+
+    @permissions._permissionList(itemPage, "page", req)
+
+    <hr />
+
+    <h2>@Messages("permissions.scopedPermissionsForItem", item.identifier)</h2>
+
+    <a href="@scopePermAction">@Messages("actions.manageScopedPermissions")</a>
+
+    @permissions._permissionList(scopePage, "spage", req)
+
+}

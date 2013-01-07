@@ -13,7 +13,7 @@ import acl.GlobalPermissionSet
  *
  * @tparam T the entity's build class
  */
-trait PermissionScopeController[T <: AccessibleEntity] extends EntityRead[T] {
+trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemController[T] {
 
   val targetContentTypes: Seq[ContentType.Value]
 
@@ -21,6 +21,9 @@ trait PermissionScopeController[T <: AccessibleEntity] extends EntityRead[T] {
   val permissionScopeAction: (String, String, String) => Call
   val setPermissionScopeAction: (String, String, String) => Call
 
+  type ManageScopedPermissionViewType = (AccessibleEntity, rest.Page[models.PermissionGrant],
+    rest.Page[models.PermissionGrant], Call, Call, UserProfile, RequestHeader) => play.api.templates.Html
+  val manageScopedPermissionView: ManageScopedPermissionViewType
 
   type AddScopedPermissionViewType = (AccessibleEntity,
         Seq[(String,String)], Seq[(String,String)],
@@ -32,6 +35,23 @@ trait PermissionScopeController[T <: AccessibleEntity] extends EntityRead[T] {
 
   val permissionScopeView: PermissionScopeViewType
 
+
+  def manageScopedPermissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+    implicit request =>
+
+      implicit val maybeUser = Some(user)
+      AsyncRest {
+        for {
+          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+          permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id)
+          scopeGrantsOrErr <- rest.PermissionDAO(user).listForScope(id)
+        } yield {
+          for { item <- itemOrErr.right ; permGrants <- permGrantsOrErr.right ; scopeGrants <- scopeGrantsOrErr.right } yield {
+            Ok(manageScopedPermissionView(builder(item), permGrants, scopeGrants, addItemPermissionAction(id), addScopedPermissionAction(id), user, request))
+          }
+        }
+      }
+  }
 
   def addScopedPermissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
@@ -90,7 +110,7 @@ trait PermissionScopeController[T <: AccessibleEntity] extends EntityRead[T] {
             AsyncRest {
               rest.PermissionDAO(user).setScope(Accessor(accessor), item.id, perms).map { boolOrErr =>
                 boolOrErr.right.map { bool =>
-                  Redirect(showAction(id))
+                  Redirect(managePermissionAction(id))
                 }
               }
             }

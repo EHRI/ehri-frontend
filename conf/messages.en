@@ -40,19 +40,24 @@ actions.manageGroupsFor=Manage Groups: {0}
 actions.historyForItem=Change history for item: {0}
 actions.showHistory=Item History
 actions.addNewGroup=Add New Group
-actions.manageScopedPermissions=Managed User Permissions
+actions.manageScopedPermissions=Managed Scoped Permissions
 actions.manageScopedPermissionsForAccessor=Manage Scoped Permissions for {0}
+actions.manageScopedPermissionsForItem=Manage Scoped Permissions for {0}
 actions.manageItemPermissions=Manage Item Permissions
 actions.manageItemPermissionsForAccessor=Manage Item Permissions for {0}
+actions.manageItemPermissionsForItem=Manage Item Permissions for {0}
 actions.grantPermissionsInScope=Manage Permissions in scope {0} for {1}
 actions.grantPermissionsOnItem=Manage Permissions on {0} for {1}
 actions.updatePermissions=Update Permissions
+actions.managePermissions=Manage Permissions
 
 accessor.notInAnyGroups=This user does not belong to any groups.
 accessor.currentGroups=Current Groups
 accessor.removeGroup=Remove
 accessor.itemCannotBeAddedToAdditionalGroup=This {0} cannot be added to additional groups
 
+permissions.itemPermissionsForItem=Item-level Permissions for {0}
+permissions.scopedPermissionsForItem=Scoped Permissions for {0}
 permissions.inheritedFrom=Inherited From: {0}
 
 #

@@ -29,12 +29,22 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
     }
   }
 
-  def list(user: T, page: Int, limit: Int): Future[Either[RestError, Page[models.PermissionGrant]]] = {
+  // FIXME: Hard-coded limit
+  def list(user: T, offset: Int = 0, limit: Int = 20): Future[Either[RestError, Page[models.PermissionGrant]]] =
+    listWithUrl(enc(requestUrl, "list/%s?offset=%d&limit=%d".format(user.id, offset, limit)))
+
+  def listForItem(id: String, offset: Int = 0, limit: Int = 20): Future[Either[RestError, Page[models.PermissionGrant]]] =
+    listWithUrl(enc(requestUrl, "listForItem/%s?offset=%d&limit=%d".format(id, offset, limit)))
+
+  def listForScope(id: String, offset: Int = 0, limit: Int = 20): Future[Either[RestError, Page[models.PermissionGrant]]] =
+    listWithUrl(enc(requestUrl, "listForScope/%s?offset=%d&limit=%d".format(id, offset, limit)))
+
+  private def listWithUrl(url: String): Future[Either[RestError, Page[models.PermissionGrant]]] = {
     import Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
-    WS.url(enc(requestUrl, "list", user.id))
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
+        println(r.json)
         json(r).validate[Page[models.Entity]].fold(
           valid = { page =>
             Page(page.total, page.offset, page.limit, page.list.map(models.PermissionGrant(_)))

@@ -57,10 +57,7 @@
                 <li><a href="@routes.Agents.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
             @if(user.hasPermission(ContentType.Agent, PermissionType.Grant)) {
-                <li><a href="@routes.Agents.addScopedPermissions(item.id)">@Messages("actions.manageScopedPermissions")</a></li>
-            }
-            @if(user.hasPermission(ContentType.Agent, PermissionType.Grant)) {
-                <li><a href="@routes.Agents.addItemPermissions(item.id)">@Messages("actions.manageItemPermissions")</a></li>
+                <li><a href="@routes.Agents.manageScopedPermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
             <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
         }

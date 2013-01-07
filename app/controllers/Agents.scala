@@ -11,22 +11,24 @@ import models.forms.AgentF
 object Agents extends DocumentaryUnitCreator[AgentF,Agent]
 		with VisibilityController[AgentF,Agent]
 		with CRUD[AgentF,Agent]
-    with PermissionScopeController[Agent]
-  with PermissionItemController[Agent] {
+    with PermissionScopeController[Agent] {
 
+  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+
+  val managePermissionAction = routes.Agents.manageScopedPermissions _
+  val managePermissionView = views.html.permissions.managePermissions.apply _
+  val manageScopedPermissionView = views.html.permissions.manageScopedPermissions.apply _
   val addItemPermissionAction = routes.Agents.addItemPermissions _
-  val addItemPermissionView = views.html.permissionItem.apply _
+  val addItemPermissionView = views.html.permissions.permissionItem.apply _
   val permissionItemAction = routes.Agents.permissionItem _
-  val permissionItemView = views.html.setPermissionItem.apply _
+  val permissionItemView = views.html.permissions.setPermissionItem.apply _
   val setPermissionItemAction = routes.Agents.permissionItemPost _
 
   val addScopedPermissionAction = routes.Agents.addScopedPermissions _
-  val addScopedPermissionView = views.html.permissionScope.apply _
+  val addScopedPermissionView = views.html.permissions.permissionScope.apply _
   val permissionScopeAction = routes.Agents.permissionScope _
-  val permissionScopeView = views.html.setPermissionScope.apply _
+  val permissionScopeView = views.html.permissions.setPermissionScope.apply _
   val setPermissionScopeAction = routes.Agents.permissionScopePost _
-
-  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
   val entityType = EntityType.Agent
   val contentType = ContentType.Agent

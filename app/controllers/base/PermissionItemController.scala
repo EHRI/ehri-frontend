@@ -14,10 +14,14 @@ import acl.{ItemPermissionSet, GlobalPermissionSet}
  */
 trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
+  val managePermissionAction: String => Call
   val addItemPermissionAction: String => Call
   val permissionItemAction: (String, String, String) => Call
   val setPermissionItemAction: (String, String, String) => Call
 
+  type ManagePermissionViewType = (AccessibleEntity, rest.Page[models.PermissionGrant],
+    Call, UserProfile, RequestHeader) => play.api.templates.Html
+  val managePermissionView: ManagePermissionViewType
 
   type AddItemPermissionViewType = (AccessibleEntity,
         Seq[(String,String)], Seq[(String,String)],
@@ -29,6 +33,21 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
   val permissionItemView: PermissionItemViewType
 
+  def managePermissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+    implicit request =>
+
+      implicit val maybeUser = Some(user)
+      AsyncRest {
+        for {
+          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+          permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id)
+        } yield {
+          for { item <- itemOrErr.right ; permGrants <- permGrantsOrErr.right } yield {
+            Ok(managePermissionView(builder(item), permGrants, addItemPermissionAction(id), user, request))
+          }
+        }
+      }
+  }
 
   def addItemPermissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
@@ -41,7 +60,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
         groups <- rest.RestHelpers.getGroupList
       } yield {
         for { item <- itemOrErr.right } yield {
-          Ok(addItemPermissionView(builder(item), users, groups, permissionItemAction, user, request))
+          Ok(views.html.permissions.permissionItem(builder(item), users, groups, permissionItemAction, user, request))
         }
       }
     }
@@ -85,7 +104,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
             AsyncRest {
               rest.PermissionDAO(user).setItem(Accessor(accessor), contentType, item.id, perms).map { boolOrErr =>
                 boolOrErr.right.map { bool =>
-                  Redirect(showAction(id))
+                  Redirect(managePermissionAction(id))
                 }
               }
             }

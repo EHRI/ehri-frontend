@@ -39,7 +39,7 @@
               <li><a href="@routes.Groups.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
             @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
-                <li><a href="@routes.Groups.addItemPermissions(item.id)">@Messages("actions.manageItemPermissions")</a></li>
+                <li><a href="@routes.Groups.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
             <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
         }

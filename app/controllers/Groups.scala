@@ -14,10 +14,12 @@ object Groups extends PermissionHolderController[GroupF, Group]
   with CRUD[GroupF, Group]
   with PermissionItemController[Group] {
 
+  val managePermissionAction = routes.Groups.managePermissions _
+  val managePermissionView = views.html.permissions.managePermissions.apply _
   val addItemPermissionAction = routes.Groups.addItemPermissions _
-  val addItemPermissionView = views.html.permissionItem.apply _
+  val addItemPermissionView = views.html.permissions.permissionItem.apply _
   val permissionItemAction = routes.Groups.permissionItem _
-  val permissionItemView = views.html.setPermissionItem.apply _
+  val permissionItemView = views.html.permissions.setPermissionItem.apply _
   val setPermissionItemAction = routes.Groups.permissionItemPost _
 
   val entityType = EntityType.Group

@@ -13,13 +13,24 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnitF, Documen
   with EntityRead[DocumentaryUnit]
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
   with EntityDelete[DocumentaryUnit]
-  with PermissionItemController[DocumentaryUnit] {
+  with PermissionScopeController[DocumentaryUnit] {
 
+  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+
+  val managePermissionAction = routes.DocumentaryUnits.manageScopedPermissions _
+  val managePermissionView = views.html.permissions.managePermissions.apply _
+  val manageScopedPermissionView = views.html.permissions.manageScopedPermissions.apply _
   val addItemPermissionAction = routes.DocumentaryUnits.addItemPermissions _
-  val addItemPermissionView = views.html.permissionItem.apply _
+  val addItemPermissionView = views.html.permissions.permissionItem.apply _
   val permissionItemAction = routes.DocumentaryUnits.permissionItem _
-  val permissionItemView = views.html.setPermissionItem.apply _
+  val permissionItemView = views.html.permissions.setPermissionItem.apply _
   val setPermissionItemAction = routes.DocumentaryUnits.permissionItemPost _
+
+  val addScopedPermissionAction = routes.Agents.addScopedPermissions _
+  val addScopedPermissionView = views.html.permissions.permissionScope.apply _
+  val permissionScopeAction = routes.Agents.permissionScope _
+  val permissionScopeView = views.html.permissions.setPermissionScope.apply _
+  val setPermissionScopeAction = routes.Agents.permissionScopePost _
 
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentType.DocumentaryUnit
