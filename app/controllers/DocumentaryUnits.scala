@@ -2,20 +2,24 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-import base.EntityDelete
-import base.EntityRead
-import base.EntityUpdate
-import base.VisibilityController
+import base._
 import defines.{ ContentType, EntityType }
 import models.forms.DocumentaryUnitF
 import models.DocumentaryUnit
-import base.DocumentaryUnitCreator
+import models.DocumentaryUnit
 
 object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnitF, DocumentaryUnit]
   with VisibilityController[DocumentaryUnitF, DocumentaryUnit]
   with EntityRead[DocumentaryUnit]
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
-  with EntityDelete[DocumentaryUnit] {
+  with EntityDelete[DocumentaryUnit]
+  with PermissionItemController[DocumentaryUnit] {
+
+  val addItemPermissionAction = routes.DocumentaryUnits.addItemPermissions _
+  val addItemPermissionView = views.html.permissionItem.apply _
+  val permissionItemAction = routes.DocumentaryUnits.permissionItem _
+  val permissionItemView = views.html.setPermissionItem.apply _
+  val setPermissionItemAction = routes.DocumentaryUnits.permissionItemPost _
 
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentType.DocumentaryUnit

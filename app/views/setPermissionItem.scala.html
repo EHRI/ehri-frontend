@@ -1,0 +1,42 @@
+@(item: models.base.AccessibleEntity, accessor: models.base.Accessor, perms: acl.ItemPermissionSet[models.base.Accessor], contentType: defines.ContentType.Value, action: Call, user: UserProfile, req: RequestHeader)
+
+@import defines._
+
+@main(Messages("actions.grantPermissionsOnItem", item.identifier, accessor.name))(Some(user), req) {
+	
+  
+	<h2>@Messages("actions.grantPermissionsOnItem", item.identifier, accessor.name)</h2>
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+		<fieldset id="permissionItem-area">
+
+        <table class="permissions-matrix">
+        <tr>
+        @PermissionType.values.toList.map { perm =>
+            <th>@perm</th>
+        }
+        </tr>
+        <tr>
+            @PermissionType.values.toList.map { perm =>
+                <td>
+                @defining(perms.get(perm)) { permOpt =>
+                    <input type="checkbox" name="@contentType" value="@perm"
+                    @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
+                        checked
+                    } />
+                    @permOpt.flatMap(_.inheritedFrom).map { user =>
+                        <span title="@Messages("permissions.inheritedFrom", user.name)">*</span>
+                    }
+                }
+                </td>
+            }
+        </tr>
+    </table>
+
+
+		</fieldset>
+	  
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">@Messages("actions.updatePermissions")</button>
+		</div>
+	}
+}

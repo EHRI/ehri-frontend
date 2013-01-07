@@ -93,7 +93,7 @@ trait AuthController extends Controller with Auth with Authorizer {
    *  their global perms and user profile, we don't wrap userProfileAction
    *  but duplicate a bunch of code instead ;(
    */
-  def itemPermissionAction(id: String)(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def itemPermissionAction(contentType: ContentType.Value, id: String)(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
       implicit request =>
         userOption match {
@@ -114,8 +114,10 @@ trait AuthController extends Controller with Auth with Authorizer {
               val fakeProfile = UserProfile(models.Entity.fromString(user.profile_id, EntityType.UserProfile))
               val getProf = rest.EntityDAO(
                 EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
-              val getGlobalPerms = rest.PermissionDAO(fakeProfile).get
-              val getItemPerms = rest.PermissionDAO(fakeProfile).getItem(id)
+              // NB: Instead of getting *just* global perms here we also fetch
+              // everything in scope for the given item
+              val getGlobalPerms = rest.PermissionDAO(fakeProfile).getScope(id)
+              val getItemPerms = rest.PermissionDAO(fakeProfile).getItem(contentType, id)
               // These requests should execute in parallel...
               val futureUserOrError = for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms } yield {
                 for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right } yield {
@@ -162,7 +164,7 @@ trait AuthController extends Controller with Auth with Authorizer {
   def withItemPermission(id: String,
     perm: PermissionType.Value, contentType: ContentType.Value)(
       f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
-    itemPermissionAction(id) { implicit maybeUser => implicit request =>
+    itemPermissionAction(contentType, id) { implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>
         if (user.hasPermission(contentType, perm)) Some(f(user)(request))
         else None

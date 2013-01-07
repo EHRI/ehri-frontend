@@ -178,7 +178,7 @@ class DAOSpec extends Specification with BeforeExample {
         perms.right.get.get(ContentType.Agent, PermissionType.Update) must beNone
         await(PermissionDAO(userProfile).setScope(user, "r1", data))
         // Since c1 is held by r1, we should now have permissions to update and delete c1.
-        val permset = await(PermissionDAO(userProfile).getItem(user, "c1"))
+        val permset = await(PermissionDAO(userProfile).getItem(user, ContentType.DocumentaryUnit, "c1"))
         permset must beRight
         val newItemPerms = permset.right.get
         newItemPerms.get(PermissionType.Create) must beSome

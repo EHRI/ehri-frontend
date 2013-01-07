@@ -3,16 +3,22 @@ package controllers
 import play.api._
 import play.api.mvc._
 import defines._
-import base.CRUD
-import base.VisibilityController
-import base.PermissionHolderController
-import models.UserProfile
+import base.{PermissionItemController, CRUD, VisibilityController, PermissionHolderController}
+import models.{Group, UserProfile}
 import models.forms.UserProfileF
 
 
 object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
-		with VisibilityController[UserProfileF,UserProfile]
-		with CRUD[UserProfileF,UserProfile] {
+	with VisibilityController[UserProfileF,UserProfile]
+	with CRUD[UserProfileF,UserProfile]
+  with PermissionItemController[UserProfile] {
+
+  val addItemPermissionAction = routes.UserProfiles.addItemPermissions _
+  val addItemPermissionView = views.html.permissionItem.apply _
+  val permissionItemAction = routes.UserProfiles.permissionItem _
+  val permissionItemView = views.html.setPermissionItem.apply _
+  val setPermissionItemAction = routes.UserProfiles.permissionItemPost _
+
   val entityType = EntityType.UserProfile
   val contentType = ContentType.UserProfile
   val listAction = routes.UserProfiles.list _
