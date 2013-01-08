@@ -17,6 +17,7 @@ trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemCon
 
   val targetContentTypes: Seq[ContentType.Value]
 
+  val manageScopedPermissionAction: (String,Int,Int,Int) => Call
   val addScopedPermissionAction: String => Call
   val permissionScopeAction: (String, String, String) => Call
   val setPermissionScopeAction: (String, String, String) => Call
@@ -36,15 +37,15 @@ trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemCon
   val permissionScopeView: PermissionScopeViewType
 
 
-  def manageScopedPermissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+  def manageScopedPermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
 
       implicit val maybeUser = Some(user)
       AsyncRest {
         for {
           itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id)
-          scopeGrantsOrErr <- rest.PermissionDAO(user).listForScope(id)
+          permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id, math.max(page, 1), math.max(limit, 1))
+          scopeGrantsOrErr <- rest.PermissionDAO(user).listForScope(id, math.max(spage, 1), math.max(limit, 1))
         } yield {
           for { item <- itemOrErr.right ; permGrants <- permGrantsOrErr.right ; scopeGrants <- scopeGrantsOrErr.right } yield {
             Ok(manageScopedPermissionView(builder(item), permGrants, scopeGrants, addItemPermissionAction(id), addScopedPermissionAction(id), user, request))
@@ -110,7 +111,7 @@ trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemCon
             AsyncRest {
               rest.PermissionDAO(user).setScope(Accessor(accessor), item.id, perms).map { boolOrErr =>
                 boolOrErr.right.map { bool =>
-                  Redirect(managePermissionAction(id))
+                  Redirect(manageScopedPermissionAction(id, 1, 1, DEFAULT_LIMIT))
                 }
               }
             }

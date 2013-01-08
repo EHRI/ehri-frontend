@@ -17,7 +17,8 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnitF, Documen
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
-  val managePermissionAction = routes.DocumentaryUnits.manageScopedPermissions _
+  val managePermissionAction = routes.DocumentaryUnits.managePermissions _
+  val manageScopedPermissionAction = routes.DocumentaryUnits.manageScopedPermissions _
   val managePermissionView = views.html.permissions.managePermissions.apply _
   val manageScopedPermissionView = views.html.permissions.manageScopedPermissions.apply _
   val addItemPermissionAction = routes.DocumentaryUnits.addItemPermissions _

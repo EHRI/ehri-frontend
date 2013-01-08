@@ -15,7 +15,8 @@ object Agents extends DocumentaryUnitCreator[AgentF,Agent]
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
-  val managePermissionAction = routes.Agents.manageScopedPermissions _
+  val managePermissionAction = routes.Agents.managePermissions _
+  val manageScopedPermissionAction = routes.Agents.manageScopedPermissions _
   val managePermissionView = views.html.permissions.managePermissions.apply _
   val manageScopedPermissionView = views.html.permissions.manageScopedPermissions.apply _
   val addItemPermissionAction = routes.Agents.addItemPermissions _

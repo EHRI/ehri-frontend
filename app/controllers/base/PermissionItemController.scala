@@ -14,7 +14,7 @@ import acl.{ItemPermissionSet, GlobalPermissionSet}
  */
 trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
-  val managePermissionAction: String => Call
+  val managePermissionAction: (String,Int,Int) => Call
   val addItemPermissionAction: String => Call
   val permissionItemAction: (String, String, String) => Call
   val setPermissionItemAction: (String, String, String) => Call
@@ -33,14 +33,14 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
   val permissionItemView: PermissionItemViewType
 
-  def managePermissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+  def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
 
       implicit val maybeUser = Some(user)
       AsyncRest {
         for {
           itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id)
+          permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id, math.max(page, 1), math.max(limit, 1))
         } yield {
           for { item <- itemOrErr.right ; permGrants <- permGrantsOrErr.right } yield {
             Ok(managePermissionView(builder(item), permGrants, addItemPermissionAction(id), user, request))
@@ -104,7 +104,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
             AsyncRest {
               rest.PermissionDAO(user).setItem(Accessor(accessor), contentType, item.id, perms).map { boolOrErr =>
                 boolOrErr.right.map { bool =>
-                  Redirect(managePermissionAction(id))
+                  Redirect(managePermissionAction(id, 1 , DEFAULT_LIMIT))
                 }
               }
             }

@@ -30,6 +30,13 @@ trait PermissionHolderController[F <: Persistable, T <: Accessor] extends Entity
   type PermListViewType = (Accessor, rest.Page[PermissionGrant], UserProfile, RequestHeader) => play.api.templates.Html
   val permListView: PermListViewType
 
+  /**
+   * Display a list of permissions that have been granted to the given accessor.
+   * @param id
+   * @param page
+   * @param limit
+   * @return
+   */
   def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
