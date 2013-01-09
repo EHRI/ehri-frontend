@@ -23,6 +23,9 @@ POST     /logout           controllers.Application.logout
 
 GET		/test			  controllers.Application.test
 
+GET     /mailTest           controllers.Application.mailTest
+POST     /mailTest           controllers.Application.mailTestPost
+
 # Home page
 GET     /                           controllers.Application.index
 GET     /docs/list           controllers.DocumentaryUnits.list(page: Int ?= 1, limit: Int ?=20)
