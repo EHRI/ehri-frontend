@@ -8,7 +8,7 @@ import models.forms.DocumentaryUnitF
 import models.DocumentaryUnit
 import models.DocumentaryUnit
 
-object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnitF, DocumentaryUnit]
+object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
   with VisibilityController[DocumentaryUnitF, DocumentaryUnit]
   with EntityRead[DocumentaryUnit]
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
@@ -16,6 +16,8 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnitF, Documen
   with PermissionScopeController[DocumentaryUnit] {
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+  val childContentType = ContentType.DocumentaryUnit
+  val childEntityType = EntityType.DocumentaryUnit
 
   val managePermissionAction = routes.DocumentaryUnits.managePermissions _
   val manageScopedPermissionAction = routes.DocumentaryUnits.manageScopedPermissions _
@@ -45,14 +47,14 @@ object DocumentaryUnits extends DocumentaryUnitCreator[DocumentaryUnitF, Documen
   val visibilityView = views.html.visibility.apply _
 
   val form = models.forms.DocumentaryUnitForm.form
-  val docForm = models.forms.DocumentaryUnitForm.form
+  val childForm = models.forms.DocumentaryUnitForm.form
   val showAction = routes.DocumentaryUnits.get _
-  val docShowAction = routes.DocumentaryUnits.get _
-  val docCreateAction = routes.DocumentaryUnits.docCreatePost _
+  val childShowAction = routes.DocumentaryUnits.get _
+  val childCreateAction = routes.DocumentaryUnits.childCreatePost _
   val formView = views.html.documentaryUnit.edit.apply _
   val showView = views.html.documentaryUnit.show.apply _
   val listView = views.html.documentaryUnit.list.apply _
-  val docFormView = views.html.documentaryUnit.create.apply _
+  val childFormView = views.html.documentaryUnit.create.apply _
   val deleteView = views.html.delete.apply _
   val builder = DocumentaryUnit
 }

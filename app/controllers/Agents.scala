@@ -5,15 +5,17 @@ import play.api.mvc._
 import defines._
 import base._
 import models.{DocumentaryUnit, Agent}
-import models.forms.AgentF
+import models.forms.{AgentF,DocumentaryUnitF}
 
 
-object Agents extends DocumentaryUnitCreator[AgentF,Agent]
+object Agents extends CreationContext[DocumentaryUnitF,Agent]
 		with VisibilityController[AgentF,Agent]
 		with CRUD[AgentF,Agent]
     with PermissionScopeController[Agent] {
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+  val childContentType = ContentType.DocumentaryUnit
+  val childEntityType = EntityType.DocumentaryUnit
 
   val managePermissionAction = routes.Agents.managePermissions _
   val manageScopedPermissionAction = routes.Agents.manageScopedPermissions _
@@ -38,20 +40,20 @@ object Agents extends DocumentaryUnitCreator[AgentF,Agent]
   val updateAction = routes.Agents.updatePost _
   val cancelAction = routes.Agents.get _
   val deleteAction = routes.Agents.deletePost _
-  val docShowAction = routes.DocumentaryUnits.get _
-  val docCreateAction = routes.Agents.docCreatePost _
+  val childShowAction = routes.DocumentaryUnits.get _
+  val childCreateAction = routes.Agents.childCreatePost _
 
   val setVisibilityAction = routes.Agents.visibilityPost _
   val visibilityAction = routes.Agents.visibility _
   val visibilityView = views.html.visibility.apply _    
   
   val form = models.forms.AgentForm.form
-  val docForm = models.forms.DocumentaryUnitForm.form
+  val childForm = models.forms.DocumentaryUnitForm.form
   val showAction = routes.Agents.get _
   val formView = views.html.agent.edit.apply _
   val showView = views.html.agent.show.apply _
   val showDocView = views.html.documentaryUnit.show.apply _
-  val docFormView = views.html.documentaryUnit.create.apply _
+  val childFormView = views.html.documentaryUnit.create.apply _
   val listView = views.html.agent.list.apply _
   val deleteView = views.html.delete.apply _
   val builder = Agent

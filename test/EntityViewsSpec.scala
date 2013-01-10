@@ -93,7 +93,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(show) must equalTo(OK)
         contentAsString(show) must contain(DocumentaryUnits.update("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.delete("c1").url)
-        contentAsString(show) must contain(DocumentaryUnits.docCreate("c1").url)
+        contentAsString(show) must contain(DocumentaryUnits.childCreate("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.visibility("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.list().url)
       }
@@ -151,7 +151,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
-          controllers.routes.Agents.docCreatePost("r1").url).withHeaders(headers.toSeq: _*), testData).get
+          controllers.routes.Agents.childCreatePost("r1").url).withHeaders(headers.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
@@ -281,7 +281,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(show) must equalTo(OK)
         contentAsString(show) must contain(Agents.update("r1").url)
         contentAsString(show) must contain(Agents.delete("r1").url)
-        contentAsString(show) must contain(Agents.docCreate("r1").url)
+        contentAsString(show) must contain(Agents.childCreate("r1").url)
         contentAsString(show) must contain(Agents.visibility("r1").url)
         contentAsString(show) must contain(Agents.list().url)
       }

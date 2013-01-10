@@ -15,44 +15,48 @@ import play.api.mvc.AsyncResult
  * context for the creation of DocumentaryUnits, i.e. Agent and
  * DocumentaryUnit itself.
  */
-trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends EntityController[T] {
+trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityController[T] {
 
   import play.api.mvc.Call
   import play.api.mvc.RequestHeader
-  type DocFormViewType = (T, Form[DocumentaryUnitF], Call, UserProfile, RequestHeader) => play.api.templates.Html
-  val docFormView: DocFormViewType
-  val docForm: Form[DocumentaryUnitF]
-  val docShowAction: String => Call
-  val docCreateAction: String => Call
 
-  def docCreate(id: String) = withItemPermission(id, PermissionType.Create, ContentType.DocumentaryUnit) { implicit user =>
+  val childContentType: ContentType.Value
+  val childEntityType: EntityType.Value
+
+  type ChildFormViewType = (T, Form[CF], Call, UserProfile, RequestHeader) => play.api.templates.Html
+  val childFormView: ChildFormViewType
+  val childForm: Form[CF]
+  val childShowAction: String => Call
+  val childCreateAction: String => Call
+
+  def childCreate(id: String) = withItemPermission(id, PermissionType.Create, childContentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
         rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item => Ok(docFormView(builder(item), docForm, docCreateAction(id), user, request)) }
+          itemOrErr.right.map { item => Ok(childFormView(builder(item), childForm, childCreateAction(id), user, request)) }
         }
       }
   }
 
-  def docCreatePost(id: String) = withItemPermission(id, PermissionType.Create, ContentType.DocumentaryUnit) { implicit user =>
+  def childCreatePost(id: String) = withItemPermission(id, PermissionType.Create, childContentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)
 
-      def renderForm(form: Form[models.forms.DocumentaryUnitF]): AsyncResult = AsyncRest {
+      def renderForm(form: Form[CF]): AsyncResult = AsyncRest {
         rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
           itemOrErr.right.map { item =>
-            BadRequest(docFormView(builder(item), form, docCreateAction(id), user, request))
+            BadRequest(childFormView(builder(item), form, childCreateAction(id), user, request))
           }
         }
       }
 
-      docForm.bindFromRequest.fold(
+      childForm.bindFromRequest.fold(
         errorForm => renderForm(errorForm),
         doc => {
           AsyncRest {
             rest.EntityDAO(entityType, maybeUser)
-              .createInContext(EntityType.DocumentaryUnit, id, doc.toData).map { itemOrErr =>
+              .createInContext(childEntityType, id, doc.toData).map { itemOrErr =>
                 // If we have an error, check if it's a validation error.
                 // If so, we need to merge those errors back into the form
                 // and redisplay it...
@@ -60,12 +64,12 @@ trait DocumentaryUnitCreator[F <: Persistable, T <: AccessibleEntity] extends En
                   itemOrErr.left.get match {
                     case err: rest.ValidationError => {
                       val serverErrors = doc.errorsToForm(err.errorSet)
-                      val filledForm = docForm.fill(doc).copy(errors = docForm.errors ++ serverErrors)
+                      val filledForm = childForm.fill(doc).copy(errors = childForm.errors ++ serverErrors)
                       Right(renderForm(filledForm))
                     }
                     case e => Left(e)
                   }
-                } else itemOrErr.right.map { item => Redirect(docShowAction(item.id)) }
+                } else itemOrErr.right.map { item => Redirect(childShowAction(item.id)) }
               }
           }
         }

@@ -45,7 +45,7 @@
         <li><a href="@routes.Agents.list(1, 20)">@Messages("actions.backToList")</a></li>
         @maybeUser.map { user =>
             @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
-                <li><a href="@routes.Agents.docCreate(item.id)">@Messages("actions.createNewDocUnit")</a></li>
+                <li><a href="@routes.Agents.childCreate(item.id)">@Messages("actions.createNewDocUnit")</a></li>
             }
             @if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
                 <li><a href="@routes.Agents.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
