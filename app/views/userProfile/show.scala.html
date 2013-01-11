@@ -6,9 +6,9 @@
 	
 	<h3>User: @item.name (@item.identifier)</h3>
 	
-	@common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse("No location information given")), "Location")
-	@* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), "Languages") *@
-	@* @common.descriptionValue(Some(item.about.getOrElse("No biographical information given")), "About") *@
+	@common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse(Messages("profile.noLocationGiven"))), Messages("profile.location"))
+	@* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), Messages("profile.languages")) *@
+	@* @common.descriptionValue(Some(item.about.getOrElse(Messages("profile.noBioGiven"))), Messages("profile.about")) *@
 	
 	<hr />
 	@if(item.groups.isEmpty) {

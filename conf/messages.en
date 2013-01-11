@@ -65,6 +65,16 @@ confirmations.itemWasUpdated=Item '{0}' was successfully updated
 confirmations.itemWasDeleted=Item '{0}' was successfully deleted
 
 #
+# User Profile Field definitions
+#
+profile.about=About
+profile.languages=Languages
+profile.location=Location
+profile.noLocationGiven=No location given
+profile.noLanguagesGiven=No languages given
+profile.noBioGiven=No biography given
+
+#
 # ISDIAH Field definitions
 #
 

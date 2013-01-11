@@ -3,7 +3,7 @@
 @import defines._
 @import models.forms.IsadG._
 
-@main("View item")(maybeUser, req) {
+@main(item.identifier)(maybeUser, req) {
 
 	<h3>@item.name (@item.identifier)</h3>
 
