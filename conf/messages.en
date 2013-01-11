@@ -60,6 +60,10 @@ permissions.itemPermissionsForItem=Item-level Permissions for {0}
 permissions.scopedPermissionsForItem=Scoped Permissions for {0}
 permissions.inheritedFrom=Inherited From: {0}
 
+confirmations.itemWasCreated=Item '{0}' was successfully created
+confirmations.itemWasUpdated=Item '{0}' was successfully updated
+confirmations.itemWasDeleted=Item '{0}' was successfully deleted
+
 #
 # ISDIAH Field definitions
 #

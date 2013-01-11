@@ -6,6 +6,7 @@ import play.api.mvc.RequestHeader
 import play.api.mvc.Call
 import defines.PermissionType
 import models.UserProfile
+import play.api.i18n.Messages
 
 /**
  * Controller trait for deleting AccessibleEntities.
@@ -37,7 +38,9 @@ trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
       implicit val maybeUser = Some(user)
       AsyncRest {
         rest.EntityDAO(entityType, maybeUser).delete(id).map { boolOrErr =>
-          boolOrErr.right.map { ok => Redirect(listAction(0, DEFAULT_LIMIT)) }
+          boolOrErr.right.map {
+            ok => Redirect(listAction(0, DEFAULT_LIMIT)).flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+          }
         }
       }
   }

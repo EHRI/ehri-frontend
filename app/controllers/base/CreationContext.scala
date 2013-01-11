@@ -9,6 +9,7 @@ import play.api.libs.concurrent.execution.defaultContext
 import defines.PermissionType
 import models.UserProfile
 import play.api.mvc.AsyncResult
+import play.api.i18n.Messages
 
 /**
  * Controller trait for extending Entity classes which server as
@@ -69,7 +70,9 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityCo
                     }
                     case e => Left(e)
                   }
-                } else itemOrErr.right.map { item => Redirect(childShowAction(item.id)) }
+                } else itemOrErr.right.map {
+                  item => Redirect(childShowAction(item.id)).flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+                }
               }
           }
         }

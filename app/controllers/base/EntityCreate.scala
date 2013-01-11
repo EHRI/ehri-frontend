@@ -8,6 +8,7 @@ import models.base.Persistable
 import play.api.data.{ Form, FormError }
 import defines.PermissionType
 import models.UserProfile
+import play.api.i18n.Messages
 
 /**
  * Controller trait for creating AccessibleEntities.
@@ -47,7 +48,9 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
                     }
                     case e => Left(e)
                   }
-                } else itemOrErr.right.map { item => Redirect(showAction(item.id)) }
+                } else itemOrErr.right.map {
+                  item => Redirect(showAction(item.id)).flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+                }
               }
           }
         }

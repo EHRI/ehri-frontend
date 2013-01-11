@@ -7,6 +7,7 @@ import models.base.Persistable
 import play.api.data.{ Form, FormError }
 import models.base.Formable
 import defines.PermissionType
+import play.api.i18n.Messages
 
 /**
  * Controller trait which updates an AccessibleEntity.
@@ -64,7 +65,7 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
                     }
                     case e => Left(e)
                   },
-                  item => Right(Redirect(showAction(item.id)))
+                  item => Right(Redirect(showAction(item.id)).flashing("success" -> Messages("confirmations.itemWasUpdated", item.id)))
                 )
             }
           }
