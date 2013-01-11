@@ -15,7 +15,7 @@ case class ActionLog(val e: Entity) extends AccessibleEntity {
   val actioner: Option[Accessor] = e.relations(ACTIONER_REL).headOption.map(Accessor(_))
   
   def time = {
-    DateTimeFormat.forPattern("yyyy-MM-dd HH:MM:SS").print(timeStamp)
+    DateTimeFormat.forPattern("yyyy-MM-dd HH:MM:ss").print(timeStamp)
   }
 }
 

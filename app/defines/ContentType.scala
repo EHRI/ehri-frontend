@@ -13,4 +13,5 @@ object ContentType extends Enumeration() {
   val Group = Value("group")
   val Annotation = Value("annotation")
   val CvocConcept = Value("cvocConcept")
+  val CvocVocabulary = Value("cvocVocabulary")
 }
