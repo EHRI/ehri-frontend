@@ -29,11 +29,11 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val permissionItemView = views.html.permissions.setPermissionItem.apply _
   val setPermissionItemAction = routes.DocumentaryUnits.permissionItemPost _
 
-  val addScopedPermissionAction = routes.Agents.addScopedPermissions _
+  val addScopedPermissionAction = routes.DocumentaryUnits.addScopedPermissions _
   val addScopedPermissionView = views.html.permissions.permissionScope.apply _
-  val permissionScopeAction = routes.Agents.permissionScope _
+  val permissionScopeAction = routes.DocumentaryUnits.permissionScope _
   val permissionScopeView = views.html.permissions.setPermissionScope.apply _
-  val setPermissionScopeAction = routes.Agents.permissionScopePost _
+  val setPermissionScopeAction = routes.DocumentaryUnits.permissionScopePost _
 
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentType.DocumentaryUnit
