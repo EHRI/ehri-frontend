@@ -31,13 +31,13 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
 
   // FIXME: Hard-coded limit
   def list(user: T, page: Int, limit: Int): Future[Either[RestError, Page[models.PermissionGrant]]] =
-    listWithUrl(enc(requestUrl, "page/%s?offset=%d&limit=%d".format(user.id, (page-1)*limit, limit)))
+    listWithUrl(enc(requestUrl, "list/%s?offset=%d&limit=%d".format(user.id, (page-1)*limit, limit)))
 
   def listForItem(id: String, page: Int, limit: Int): Future[Either[RestError, Page[models.PermissionGrant]]] =
-    listWithUrl(enc(requestUrl, "pageForItem/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
+    listWithUrl(enc(requestUrl, "listForItem/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
 
   def listForScope(id: String, page: Int, limit: Int): Future[Either[RestError, Page[models.PermissionGrant]]] =
-    listWithUrl(enc(requestUrl, "pageForScope/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
+    listWithUrl(enc(requestUrl, "listForScope/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
 
   private def listWithUrl(url: String): Future[Either[RestError, Page[models.PermissionGrant]]] = {
     import Entity.entityReads
