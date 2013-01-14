@@ -230,6 +230,90 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(show) must equalTo(OK)
       }
     }
+
+    "allow granting permissions to create a doc within the scope of r2" in {
+      import ContentType._
+      val testRepo = "r2"
+      val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("test"),
+        "name" -> Seq("Test Item"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].title" -> Seq("Test Item"),
+        "descriptions[0].content.scopeAndContent" -> Seq("A test"),
+        "publicationStatus" -> Seq("Draft")
+      )
+
+      // Trying to create the item should fail initially.
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        // Check we cannot create an item...
+        val cr = route(fakeLoggedInRequest(POST,
+          Agents.childCreatePost("r2").url).withHeaders(headers.toSeq: _*), testData).get
+        status(cr) must equalTo(UNAUTHORIZED)
+      }
+
+      // Grant permissions to create docs within the scope of r2
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val permTestData: Map[String,List[String]] = Map(
+          DocumentaryUnit.toString -> List("create", "update", "delete")
+        )
+        val permReq = route(fakeLoggedInRequest(POST,
+          Agents.permissionScopePost(testRepo, ContentType.UserProfile, testOrdinaryUser).url)
+              .withHeaders(headers.toSeq: _*), permTestData).get
+        status(permReq) must equalTo(SEE_OTHER)
+      }
+      // Now try again and create the item... it should succeed.
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        // Check we cannot create an item...
+        val cr = route(fakeLoggedInRequest(POST,
+          Agents.childCreatePost(testRepo).url).withHeaders(headers.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+        val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(getR) must equalTo(OK)
+      }
+    }
+
+    "allow granting permissions on a specific item" in {
+      import ContentType._
+      val testItem = "c4"
+      val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq(testItem),
+        "name" -> Seq("Changed Name"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].title" -> Seq("Changed Name"),
+        "descriptions[0].content.scopeAndContent" -> Seq("A test"),
+        "publicationStatus" -> Seq("Draft")
+      )
+
+      // Trying to create the item should fail initially.
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        // Check we cannot create an item...
+        val cr = route(fakeLoggedInRequest(POST,
+          DocumentaryUnits.updatePost(testItem).url).withHeaders(headers.toSeq: _*), testData).get
+        status(cr) must equalTo(UNAUTHORIZED)
+      }
+
+      // Grant permissions to update item c1
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val permTestData: Map[String,List[String]] = Map(
+          DocumentaryUnit.toString -> List("update")
+        )
+        val permReq = route(fakeLoggedInRequest(POST,
+          DocumentaryUnits.permissionItemPost(testItem, ContentType.UserProfile, testOrdinaryUser).url)
+          .withHeaders(headers.toSeq: _*), permTestData).get
+        status(permReq) must equalTo(SEE_OTHER)
+      }
+      // Now try again to update the item, which should succeed
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        // Check we can update the item
+        val cr = route(fakeLoggedInRequest(POST,
+          DocumentaryUnits.updatePost(testItem).url).withHeaders(headers.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+        val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(getR) must equalTo(OK)
+      }
+    }
   }
 
   "Agent views" should {

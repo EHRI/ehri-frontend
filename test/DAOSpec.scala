@@ -186,7 +186,23 @@ class DAOSpec extends Specification with BeforeExample {
         newItemPerms.get(PermissionType.Delete) must beSome
       }
     }
-  }  
+
+    "be able to set a user's permissions for an item" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
+        // NB: Currently, there's already a test permission grant for Reto-create on c1...
+        val data = List("update","delete")
+        val perms = await(PermissionDAO(userProfile).getItem(user, ContentType.DocumentaryUnit, "c1"))
+        perms.right.get.get(PermissionType.Update) must beNone
+        perms.right.get.get(PermissionType.Delete) must beNone
+        val permReq = await(PermissionDAO(userProfile).setItem(user, ContentType.DocumentaryUnit, "c1", data))
+        permReq must beRight
+        val newItemPerms = permReq.right.get
+        newItemPerms.get(PermissionType.Update) must beSome
+        newItemPerms.get(PermissionType.Delete) must beSome
+      }
+    }
+  }
   
   "VisibilityDAO" should {
     "set visibility correctly" in {
