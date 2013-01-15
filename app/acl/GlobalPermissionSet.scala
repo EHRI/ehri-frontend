@@ -47,7 +47,7 @@ object GlobalPermissionSet {
   /**
    * Construct a new global permission set from a JSON value.
    */
-  def apply[T <: Accessor](accessor: T, json: JsValue): GlobalPermissionSet[T] = json.validate[PermDataRaw].fold(
+  def apply[T <: Accessor](accessor: T, json: JsValue): GlobalPermissionSet[T] = json.validate[List[Map[String, Map[String, List[String]]]]].fold(
     valid = { pd => new GlobalPermissionSet(accessor, extract(pd)) },
     invalid = { e => sys.error(e.toString) }
   )

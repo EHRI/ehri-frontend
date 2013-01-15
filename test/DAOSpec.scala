@@ -10,7 +10,7 @@ import org.specs2.runner.JUnitRunner
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import com.typesafe.config.ConfigFactory
 import rest._
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import models.Entity
 import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample

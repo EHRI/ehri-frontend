@@ -31,11 +31,12 @@ object ErrorSet {
   import play.api.libs.json.Reads._
   import play.api.libs.json.util._
   import play.api.libs.json._
+  import play.api.libs.functional.syntax._
 
   implicit val errorReads: Reads[ErrorSet] = (
     (__ \ "errors").lazyRead(map[List[String]]) and
     (__ \ Entity.RELATIONSHIPS).lazyRead(
-      map[List[Option[ErrorSet]]](list(optional(errorReads)))))(ErrorSet.apply _)
+      map[List[Option[ErrorSet]]](list(optionWithNull(errorReads)))))(ErrorSet.apply _)
 
 
   def fromJson(json: JsValue): ErrorSet = json.validate[ErrorSet].fold(
@@ -87,17 +88,6 @@ trait RestDAO {
     val uri: URI = new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef);
     uri.toString
   }
-
-  /**
-   *  For as-yet-undetermined reasons that data coming back from Neo4j seems
-   *  to be encoded as ISO-8859-1, so we need to convert it to UTF-8. Obvs.
-   *  this problem should eventually be fixed at the source, rather than here.
-   *  NB: Fixed in Play 2.1 RC1
-   */
-  def fixEncoding(s: String) = new String(s.getBytes("ISO-8859-1"), "UTF-8")
-
-  // Temporary solution until we upgrade to Play 2.1
-  def json(r: Response): JsValue = Json.parse(fixEncoding(r.body))
 
   lazy val host: String = Play.current.configuration.getString("neo4j.server.host").get
   lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get

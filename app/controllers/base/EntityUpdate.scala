@@ -1,6 +1,6 @@
 package controllers.base
 
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import play.api.mvc.{AsyncResult, Call}
 import models.base.Persistable

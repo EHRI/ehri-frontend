@@ -2,7 +2,7 @@ package rest.gremlin
 
 import play.api.libs.ws.{ WS, Response }
 import com.codahale.jerkson.Json._
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.json.JsValue
 import play.api.libs.json._
@@ -18,6 +18,7 @@ case class GremlinError(
 object GremlinErrorReader {
 
   import play.api.libs.json.Reads._
+  import play.api.libs.functional.syntax._
 
   implicit val gremlinErrorReads: Reads[GremlinError] = (
     (__ \ "message").read[String] and

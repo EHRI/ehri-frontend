@@ -1,7 +1,7 @@
 package controllers.base
 
 import play.api.mvc.{Call,RequestHeader}
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import models.base.Persistable
 import defines._

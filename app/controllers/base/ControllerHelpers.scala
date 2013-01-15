@@ -3,7 +3,7 @@ package controllers.base
 import scala.concurrent.Future
 import play.api.mvc.RequestHeader
 import play.api.mvc.Result
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import rest._
 import play.api.mvc.Controller
 import play.api.mvc.AsyncResult

@@ -4,7 +4,7 @@ import _root_.models.base.Accessor
 import play.api._
 import base.{PermissionItemController, CRUD, PermissionHolderController, VisibilityController}
 import defines.{ ContentType, EntityType, PermissionType }
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import models.forms.GroupF
 import models.Group
 import models.base.Accessor

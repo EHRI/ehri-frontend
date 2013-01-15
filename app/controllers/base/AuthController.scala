@@ -4,7 +4,7 @@ import _root_.models.UserProfile
 import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.Auth
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import defines.EntityType
 import defines.PermissionType
 import defines.ContentType

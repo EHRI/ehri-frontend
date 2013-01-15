@@ -1,6 +1,6 @@
 package rest
 
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
 import acl._
@@ -44,13 +44,12 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
     implicit val entityPageReads = PageReads.pageReads
     WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        println(r.json)
-        json(r).validate[Page[models.Entity]].fold(
+        r.json.validate[Page[models.Entity]].fold(
           valid = { page =>
             Page(page.total, page.offset, page.limit, page.list.map(models.PermissionGrant(_)))
           },
           invalid = { e =>
-            sys.error("Unable to decode paginated list result: %s\n%s".format(e, json(r)))
+            sys.error("Unable to decode paginated list result: %s\n%s".format(e, r.json))
           }
         )
       }

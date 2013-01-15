@@ -33,7 +33,7 @@ object ItemPermissionSet {
   /**
    * Construct an item permission set from a JSON value.
    */
-  def apply[T <: Accessor](accessor: T, contentType: ContentType.Value, json: JsValue) = json.validate[PermDataRaw].fold(
+  def apply[T <: Accessor](accessor: T, contentType: ContentType.Value, json: JsValue) = json.validate[List[Map[String, List[String]]]].fold(
     valid = { pd => new ItemPermissionSet(accessor, contentType, extract(pd)) },
     invalid = { e => sys.error(e.toString) }
   )

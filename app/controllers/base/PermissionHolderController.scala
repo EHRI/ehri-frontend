@@ -9,7 +9,7 @@ import play.api.mvc.RequestHeader
 import defines.PermissionType
 import models.{PermissionGrant, UserProfile}
 
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.

@@ -3,15 +3,10 @@ package rest.cypher
 import scala.concurrent.Future
 import com.codahale.jerkson.Json.generate
 import play.api.PlayException
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Reads
-import play.api.libs.json.Reads.StringReads
-import play.api.libs.json.Reads.functorReads
-import play.api.libs.json.Reads.list
 import play.api.libs.json.__
-import play.api.libs.json.util.functionalCanBuildApplicative
-import play.api.libs.json.util.toFunctionalBuilderOps
 import play.api.libs.ws.Response
 import play.api.libs.ws.WS
 import rest.RestDAO
@@ -25,6 +20,7 @@ case class CypherError(
 object CypherErrorReader {
 
   import play.api.libs.json.Reads._
+  import play.api.libs.functional.syntax._
 
   implicit val cypherErrorReads: Reads[CypherError] = (
     (__ \ "message").read[String] and

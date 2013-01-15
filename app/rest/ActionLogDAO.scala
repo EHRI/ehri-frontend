@@ -1,7 +1,7 @@
 package rest
 
 import models.Entity
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
 import models.UserProfile
@@ -26,7 +26,7 @@ case class ActionLogDAO(val userProfile: UserProfile) extends RestDAO {
     WS.url(enc(requestUrl, "for/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        json(r).validate[Page[models.Entity]].fold(
+        r.json.validate[Page[models.Entity]].fold(
           valid = { page =>
             Page(page.total, page.offset, page.limit, page.list)
           },

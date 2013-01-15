@@ -3,7 +3,7 @@ package controllers
 import defines._
 import models.ActionLog
 import controllers.base.EntityRead
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 
 
 object ActionLogs extends EntityRead[ActionLog] {

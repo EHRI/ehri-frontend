@@ -1,6 +1,6 @@
 package rest
 
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json.{ JsArray, JsValue }
@@ -33,6 +33,7 @@ object PageReads {
   import play.api.libs.json._
   import play.api.libs.json.util._
   import play.api.libs.json.Reads._
+  import play.api.libs.functional.syntax._
 
   implicit def pageReads[T](implicit r: Reads[T]): Reads[Page[T]] = (
     (__ \ "total").read[Long] and
@@ -78,13 +79,13 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
 
   def get(id: Long): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => jsonToEntity(json(r)))
+      checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
   def get(id: String): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => jsonToEntity(json(r)))
+      checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
@@ -92,21 +93,21 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*)
       .withQueryString("key" -> key, "value" -> value)
       .get.map { response =>
-        checkError(response).right.map(r => jsonToEntity(json(r)))
+        checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
   def create(data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl)).withHeaders(authHeaders.toSeq: _*)
       .post(generate(data)).map { response =>
-        checkError(response).right.map(r => jsonToEntity(json(r)))
+        checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
   def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, givenType)).withHeaders(authHeaders.toSeq: _*)
       .post(generate(data)).map { response =>
-        checkError(response).right.map(r => jsonToEntity(json(r)))
+        checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
@@ -114,7 +115,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     println("Sending data: " + generate(data))
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
       .put(generate(data)).map { response =>
-        checkError(response).right.map(r => jsonToEntity(json(r)))
+        checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
@@ -128,9 +129,9 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   def list(offset: Int, limit: Int): Future[Either[RestError, Seq[Entity]]] = {
     WS.url(enc(requestUrl, "list?offset=%d&limit=%d".format(offset, limit))).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        json(r) match {
+        r.json match {
           case JsArray(array) => array.map(js => jsonToEntity(js))
-          case _ => sys.error("Unable to decode list result: " + json(r))
+          case _ => sys.error("Unable to decode list result: " + r.json)
         }
       }
     }
@@ -142,7 +143,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     WS.url(enc(requestUrl, "page?offset=%d&limit=%d".format((page-1)*limit, limit)))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        json(r).validate[Page[models.Entity]].fold(
+        r.json.validate[Page[models.Entity]].fold(
           valid = { page =>
             Page(page.total, page.offset, page.limit, page.list)
           },
