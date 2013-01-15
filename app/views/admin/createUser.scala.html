@@ -1,0 +1,23 @@
+@(f: play.api.data.Form[(String, String, String, String, String, Option[List[String]])], action: Call, user: UserProfile, req: RequestHeader)(implicit lang: Lang)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@main(Messages("admin.createNewUser"))(Some(user), req) {
+
+	<h3>@Messages("admin.createNewUser")</h3>
+
+
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+
+        @helper.inputText(f("email"), '_label -> Messages("users.email"))
+        @helper.inputText(f("username"), '_label -> Messages("users.username"))
+        @helper.inputText(f("name"), '_label -> Messages("users.realname"))
+        @helper.inputPassword(f("password"), '_label -> Messages("users.password"))
+        @helper.inputPassword(f("confirm"), '_label -> Messages("users.passwordConfirm"))
+
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages("submitButton.createUser")</button>
+        </div>
+	}
+}

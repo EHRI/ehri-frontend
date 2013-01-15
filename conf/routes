@@ -15,6 +15,10 @@ GET     /logout                         controllers.Application.logout
 GET     /openid                         controllers.OpenIDLoginHandler.openIDCallback
 POST	/openid							controllers.OpenIDLoginHandler.loginPost
 
+# Admin routes
+GET     /admin/createUser               controllers.Admin.createUser
+POST     /admin/createUser               controllers.Admin.createUserPost
+
 # Mozilla Persona
 POST	/persona						controllers.PersonaLoginHandler.loginPost
 
