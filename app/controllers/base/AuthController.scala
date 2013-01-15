@@ -161,6 +161,22 @@ trait AuthController extends Controller with Auth with Authorizer {
    * Wrap itemPermissionAction to ensure a given permission is present,
    * and return an action with the user in scope.
    */
+  def adminAction(
+    f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
+    userProfileAction { implicit  maybeUser => implicit request =>
+      maybeUser.flatMap { user =>
+        if (user.isAdmin) Some(f(user)(request))
+        else None
+      }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
+    }
+  }
+
+
+
+  /**
+   * Wrap itemPermissionAction to ensure a given permission is present,
+   * and return an action with the user in scope.
+   */
   def withItemPermission(id: String,
     perm: PermissionType.Value, contentType: ContentType.Value)(
       f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
