@@ -31,6 +31,17 @@ case class OpenIDUser(id: Long, email: String, profile_id: String) extends User 
     this
   }
 
+  def setPassword(data: String): OpenIDUser = DB.withConnection{ implicit connection =>
+    val res = SQL(
+      """
+        INSERT INTO user_auth (id, data) VALUES ({id},{data})
+        ON DUPLICATE KEY UPDATE id = {id}
+      """
+    ).on('id -> id, 'data -> data).executeInsert()
+    println("Added password! " + res)
+    this
+  }
+
   def isStaff = false // STUB
 }
 
@@ -50,16 +61,12 @@ object OpenIDUser extends UserDAO {
     ).as(OpenIDUser.simple *)
   }
 
-  def authenticate(id: Long, email: String, profile_id: String): OpenIDUser = DB.withConnection { implicit connection =>
-    SQL(
-      """
-        INSERT INTO openid_user (id,email) VALUES ({id},{email},{profile_id})
-        ON DUPLICATE KEY UPDATE id = {id}
-      """
-    ).on('id -> id, 'email -> email, 'profile_id -> profile_id).executeUpdate()
-    OpenIDUser(id, email, profile_id)
-  }
-
+  /**
+   * Authenticate a user via an openid association.
+   *
+   * @param url
+   * @return
+   */
   def authenticate(url: String): Option[OpenIDUser] = DB.withConnection { implicit connection =>
     SQL(
       """
@@ -68,6 +75,23 @@ object OpenIDUser extends UserDAO {
           WHERE openid_association.openid_url = {url}
       """
     ).on('url -> url).as(OpenIDUser.simple.singleOpt)
+  }
+
+  /**
+   * Authenticate a user via an email and a password stored in the user_auth table.
+   *
+   * @param email
+   * @param data
+   * @return
+   */
+  def authenticate(email: String, data: String) = DB.withConnection{ implicit connection =>
+    SQL(
+      """
+        SELECT * FROM openid_user
+          JOIN user_auth ON user_auth.id = openid_user.id
+          WHERE user.email = {email} AND user_auth.data = {data}
+      """
+    ).on('email -> email, 'data -> data).as(OpenIDUser.simple.singleOpt)
   }
 
   def findById(id: Long): Option[User] = DB.withConnection { implicit connection =>

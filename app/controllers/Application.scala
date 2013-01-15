@@ -3,7 +3,6 @@ package controllers
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.{ Auth, LoginLogout }
 import play.api.Play.current
-
 import base.{Authorizer,AuthController,LoginHandler}
 import play.api.data.Form
 import play.api.data.Forms._
