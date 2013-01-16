@@ -1,7 +1,8 @@
 @(page: rest.Page[ActionLog], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
 
-@main(Messages("actionLogs.heading"))(maybeUser, req) {
+@main(Messages("actions.listActionLogs"))(maybeUser, req) {
 
+    <h2>@Messages("actions.listActionLogs")</h2>
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
   
 	<div id="pagination" class="pagination">

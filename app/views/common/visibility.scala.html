@@ -1,9 +1,7 @@
-@(item: models.base.AccessibleEntity)
+@(item: AccessibleEntity)
 
-
-<hr />
 @if(!item.accessors.isEmpty) {
-	<h4>@Messages("Visibility Restricted to: ")</h4>
+	<h4>@Messages("visibility.visibilityRestrictedTo")</h4>
 	<ul>
 		@item.accessors.map { acc =>
 			@acc match {
@@ -21,5 +19,5 @@
 	}
 	</ul>
 } else {
-	<h4>@Messages("Visible to: Everyone")</h4>  
+	<h4>@Messages("visibility.visibleToEveryone")</h4>
 }

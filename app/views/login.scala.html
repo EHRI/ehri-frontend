@@ -1,4 +1,4 @@
-@(form: Form[(String)], action: Call)(implicit maybeUser: Option[models.sql.User], request: RequestHeader, flash: Flash)
+@(form: Form[(String)], action: Call)(implicit maybeUser: Option[sql.User], request: RequestHeader, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

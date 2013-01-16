@@ -1,9 +1,8 @@
 @(items: rest.Page[Agent], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
 
-@import defines._
+@main(Messages("actions.listAgents"))(maybeUser, req) {
 
-@main("View item")(maybeUser, req) {
-
+    <h2>@Messages("actions.listAgents")</h2>
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
 
     @maybeUser.map { user =>

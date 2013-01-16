@@ -1,6 +1,4 @@
-@(item: models.base.AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call, user: UserProfile, req: RequestHeader)
-
-@import defines._
+@(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call, user: UserProfile, req: RequestHeader)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

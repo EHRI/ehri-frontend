@@ -1,12 +1,10 @@
-@(item: models.base.Accessor, perms: acl.GlobalPermissionSet[models.base.Accessor], action: Call, user: UserProfile, req: RequestHeader)
- 
-@import defines._
+@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call, user: UserProfile, req: RequestHeader)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-  @main("Update Permissions")(Some(user), req) {
+  @main(Messages("actions.updateGlobalPermissions", item.name))(Some(user), req) {
 	
-    <h4>Set Permissions: @item.identifier</h4>
+    <h2>@Messages("actions.updateGlobalPermissions", item.name)</h2>
     
 	@if(!item.groups.isEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;
@@ -51,7 +49,7 @@
 		</fieldset>
 	  			
 		<div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages("Update")</button>
+            <button type="submit" class="btn btn-primary">@Messages("submitButton.updateGlobalPermissions")</button>
         </div>
 	}
 		

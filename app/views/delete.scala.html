@@ -1,15 +1,15 @@
-@(item: models.base.AccessibleEntity, action: Call, cancel: Call, user: UserProfile, request: RequestHeader)
+@(item: AccessibleEntity, action: Call, cancel: Call, user: UserProfile, request: RequestHeader)
 
-@main("Delete item")(Some(user), request) {
+@main(Messages("actions.deleteItem", item.identifier))(Some(user), request) {
 
     <div class="row">
         <div class="span12 columns">
-            <h2>@Messages("Delete Item: ") @item.identifier</h2>
+            <h2>@Messages("actions.deleteItem", item.identifier)</h2>
             
-            <p>This action cannot be reversed!  Are you sure you want to delete this item?</p>
+            <p>@Messages("deleting.deleteConfirmationMessage", item.identifier)</p>
             <form method="POST" action="@action" class="form-actions">
-                <button type="submit" class="btn btn-danger">@Messages("Yes, delete it!")</button>
-                <a href="@cancel.url" class="btn">@Messages("Cancel")</a>
+                <button type="submit" class="btn btn-danger">@Messages("submitButton.deleteItem")</button>
+                <a href="@cancel.url" class="btn">@Messages("actions.cancel")</a>
             </form>
         </div>
     </div>

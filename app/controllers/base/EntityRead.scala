@@ -24,11 +24,11 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
 
   def getJson(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      import com.codahale.jerkson.Json
+      import play.api.libs.json.Json
       AsyncRest {
         rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
           itemOrErr.right.map {
-            item => Ok(Json.generate(item.data))
+            item => Ok(Json.toJson(item.data))
           }
         }
       }

@@ -1,9 +1,8 @@
-@(items: rest.Page[models.UserProfile], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
+@(items: rest.Page[UserProfile], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
 
-@import defines._
+@main(Messages("actions.listUserProfiles"))(maybeUser, req) {
 
-@main("View item")(maybeUser, req) {
-
+    <h2>@Messages("actions.listUserProfiles")</h2>
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
 	@maybeUser.map { user =>
   		@if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {

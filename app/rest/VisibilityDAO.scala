@@ -9,12 +9,12 @@ import scala.concurrent.Future
 import play.api.libs.ws.WS
 import acl.GlobalPermissionSet
 import models.base.Accessor
-import com.codahale.jerkson.Json
 import defines._
 import models.UserProfile
 import models.base.AccessibleEntity
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
+import play.api.libs.json.Json
 
 case class VisibilityDAO[T <: AccessibleEntity](val accessor: UserProfile) extends RestDAO {
 
@@ -26,7 +26,7 @@ case class VisibilityDAO[T <: AccessibleEntity](val accessor: UserProfile) exten
   
   def set(user: T, data: List[String]): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, user.id))
-    	.withHeaders(authHeaders.toSeq: _*).post(Json.generate(data)).map { response =>
+    	.withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
         checkError(response).right.map(r => true)
       }
   }

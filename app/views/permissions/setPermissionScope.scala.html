@@ -1,6 +1,4 @@
-@(item: models.base.AccessibleEntity, accessor: models.base.Accessor, perms: acl.GlobalPermissionSet[models.base.Accessor], contentTypes: Seq[defines.ContentType.Value], action: Call, user: UserProfile, req: RequestHeader)
-
-@import defines._
+@(item: AccessibleEntity, accessor: Accessor, perms: GlobalPermissionSet[Accessor], contentTypes: Seq[ContentType.Value], action: Call, user: UserProfile, req: RequestHeader)
 
 @main(Messages("actions.grantPermissionsInScope", item, accessor))(Some(user), req) {
 	

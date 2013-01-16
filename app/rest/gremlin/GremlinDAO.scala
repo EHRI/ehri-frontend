@@ -1,12 +1,9 @@
 package rest.gremlin
 
 import play.api.libs.ws.{ WS, Response }
-import com.codahale.jerkson.Json._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
-import play.api.libs.json.JsValue
-import play.api.libs.json._
-import play.api.libs.json.util._
+import play.api.libs.json.{Json,JsValue}
 import rest.RestDAO
 import play.api.PlayException
 import play.api.http.HeaderNames
@@ -17,6 +14,7 @@ case class GremlinError(
 
 object GremlinErrorReader {
 
+  import play.api.libs.json._
   import play.api.libs.json.Reads._
   import play.api.libs.functional.syntax._
 
@@ -52,15 +50,15 @@ case class GremlinDAO() extends RestDAO {
     invalid = e => Right(r.json)
   )
 
-  def script(scriptName: String, params: Map[String, Any] = Map()): Future[Either[GremlinError, JsValue]] = {
+  def script(scriptName: String, params: Map[String, JsValue] = Map()): Future[Either[GremlinError, JsValue]] = {
     scripts.loadScript("groovy/gremlin.groovy")
     val scriptBody = scripts.get(scriptName)
-    val data = Map("script" -> scriptBody, "params" -> params)
-    WS.url(requestUrl).withHeaders(headers.toList: _*).post(generate(data)).map(checkGremlinError(_))
+    val data = Json.obj("script" -> scriptBody, "params" -> params)
+    WS.url(requestUrl).withHeaders(headers.toList: _*).post(data).map(checkGremlinError(_))
   }
 
-  def gremlin(scriptBody: String, params: Map[String, Any] = Map()): Future[Either[GremlinError, JsValue]] = {
-    val data = Map("script" -> scriptBody, "params" -> params)
-    WS.url(requestUrl).withHeaders(headers.toList: _*).post(generate(data)).map(checkGremlinError(_))
+  def gremlin(scriptBody: String, params: Map[String, JsValue] = Map()): Future[Either[GremlinError, JsValue]] = {
+    val data = Json.obj("script" -> scriptBody, "params" -> params)
+    WS.url(requestUrl).withHeaders(headers.toList: _*).post(data).map(checkGremlinError(_))
   }
 }

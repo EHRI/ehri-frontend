@@ -1,12 +1,11 @@
-@(item: models.base.AccessibleEntity, users: List[(String,String)], groups: List[(String,String)], action: Call, user: UserProfile, req: RequestHeader)
+@(item: AccessibleEntity, users: List[(String,String)], groups: List[(String,String)], action: Call, user: UserProfile, req: RequestHeader)
 
 
-@main("Set Visibility")(Some(user), req) {
+@main("actions.setVisibility")(Some(user), req) {
 	
   
-	<h2>Set Visibility</h2>
+	<h2>@Messages("actions.setVisibility")</h2>
 	
-	<h4>@Messages("Current Visibility:")</h4>
 	@common.visibility(item)
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
@@ -43,7 +42,7 @@
 		</fieldset>
 	  
 		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">@Messages("Update")</button>
+			<button type="submit" class="btn btn-primary">@Messages("submitButton.setVisibility")</button>
 		</div>
 	}
 }

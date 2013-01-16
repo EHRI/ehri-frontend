@@ -5,10 +5,9 @@ import scala.concurrent.Future
 import play.api.libs.ws.WS
 import acl._
 import models.base.Accessor
-import com.codahale.jerkson.Json
 import defines._
 import models.{Entity, UserProfile}
-import play.api.libs.json.JsArray
+import play.api.libs.json.{Json,JsValue,JsArray}
 
 object PermissionDAO
 
@@ -65,7 +64,7 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
 
   def set(user: T, data: Map[String, List[String]]): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     WS.url(enc(requestUrl, user.id))
-      .withHeaders(authHeaders.toSeq: _*).post(Json.generate(data)).map { response =>
+      .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
       checkError(response).right.map(r => GlobalPermissionSet[T](user, r.json))
     }
   }
@@ -86,7 +85,7 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
 
   def setItem(user: T, contentType: ContentType.Value, id: String, data: List[String]): Future[Either[RestError, ItemPermissionSet[T]]] = {
     WS.url(enc(requestUrl, user.id, id))
-      .withHeaders(authHeaders.toSeq: _*).post(Json.generate(data)).map { response =>
+      .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
       checkError(response).right.map(r => ItemPermissionSet[T](user, contentType, r.json))
     }
   }
@@ -107,7 +106,7 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
 
   def setScope(user: T, id: String, data: Map[String,List[String]]): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     WS.url(enc(requestUrl, user.id, "scope", id))
-      .withHeaders(authHeaders.toSeq: _*).post(Json.generate(data)).map { response =>
+      .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
       checkError(response).right.map(r => GlobalPermissionSet[T](user, r.json))
     }
   }

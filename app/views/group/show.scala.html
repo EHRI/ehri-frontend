@@ -1,7 +1,5 @@
 @(item: Group, maybeUser: Option[UserProfile], req: RequestHeader)
 
-@import defines._
-
 @main(item.name)(maybeUser, req) {
 	
 	<h3>Group: @item.name (@item.identifier)</h3>
@@ -13,7 +11,8 @@
 	    <a href="@routes.Groups.get(group.id)">@group.name</a>
 	  }	  
 	}
-	
+
+    <hr />
 	@common.visibility(item)
 
   	<ul class="item-actions">

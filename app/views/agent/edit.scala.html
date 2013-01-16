@@ -4,11 +4,9 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(item.map(i => Messages("update.heading", i.name)).getOrElse(Messages("create.heading")))(Some(user), req) {
+@main(Messages(item.map(s => "actions.updateAgent").getOrElse("actions.createAgent")))(Some(user), req) {
 
-	<h3>
-		@item.map(i => Messages("update.heading", i.name)).getOrElse(Messages("create.heading"))
-	</h3>
+	<h2>@Messages(item.map(s => "actions.updateAgent").getOrElse("actions.createAgent"))</h2>
 
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
@@ -114,7 +112,7 @@
 			</fieldset>
 
 			<div class="form-actions">
-				<button type="submit" class="btn btn-primary">@Messages(item.map(s => "Update").getOrElse("Create"))</button>
+				<button type="submit" class="btn btn-primary">@Messages(item.map(s => "submitButton.updateAgent").getOrElse("submitButton.createAgent"))</button>
 			</div>
 		}
 	}

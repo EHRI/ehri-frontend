@@ -2,7 +2,7 @@
 contentTypes.group=Groups
 contentTypes.userProfile=Users
 contentTypes.agent=Repositories
-contentTypes.documentaryUnit=Documentary Units
+contentTypes.documentaryUnit=Collections
 contentTypes.action=System Events
 
 # General main page parts
@@ -22,7 +22,21 @@ errors.databaseErrorMessage=I'm afraid it looks like our database server has gon
 # If there are 0 items, says "No items found", one item, "One item found" etc.
 pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
-# ActionLogs
+# Actions
+actions.listActionLogs=Action Logs
+actions.listDocumentaryUnits=Collections
+actions.listAgents=Repositories
+actions.listUserProfiles=Users
+actions.listGroups=Groups
+actions.createDocumentaryUnit=Create Collection
+actions.createAgent=Create Repository
+actions.createUserProfile=Create User
+actions.createGroup=Create Group
+actions.updateDocumentaryUnit=Update Collection
+actions.updateAgent=Update Repository
+actions.updateUserProfile=Update User
+actions.updateGroup=Update Group
+
 actions.backToList=Back to List
 actions.deleteItem=Delete Item
 actions.updateItem=Update Item
@@ -30,8 +44,8 @@ actions.createNewItem=Create New Item
 actions.setVisibility=Set Visibility
 actions.modifyPermissions=Modify Permissions
 actions.listPermissionGrants=View Permissions
-actions.createNewDocUnit=Create New Documentary Unit
-actions.createChildDocUnit=Create Child Documentary Unit
+actions.createNewDocUnit=Create New Collection
+actions.createChildDocUnit=Create Child Collection
 actions.createNewRepository=Create New Repository
 actions.createNewUser=Create New User Profile
 actions.createNewGroup=Create New Group
@@ -50,6 +64,21 @@ actions.grantPermissionsInScope=Manage Permissions in scope {0} for {1}
 actions.grantPermissionsOnItem=Manage Permissions on {0} for {1}
 actions.updatePermissions=Update Permissions
 actions.managePermissions=Manage Permissions
+actions.cancel=Cancel
+
+# Submit buttons
+submitButton.createDocumentaryUnit=Create Collection
+submitButton.createAgent=Create Repository
+submitButton.createUserProfile=Create User
+submitButton.createGroup=Create Group
+submitButton.updateDocumentaryUnit=Update Collection
+submitButton.updateAgent=Update Repository
+submitButton.updateUserProfile=Update User
+submitButton.updateGroup=Update Group
+submitButton.deleteItem=Delete Item
+submitButton.setVisibility=Set Visibility
+
+deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 
 accessor.notInAnyGroups=This user does not belong to any groups.
 accessor.currentGroups=Current Groups
@@ -63,6 +92,9 @@ permissions.inheritedFrom=Inherited From: {0}
 confirmations.itemWasCreated=Item '{0}' was successfully created
 confirmations.itemWasUpdated=Item '{0}' was successfully updated
 confirmations.itemWasDeleted=Item '{0}' was successfully deleted
+
+visibility.visibleToEveryone=Everyone can view this item
+visibility.visibilityRestrictedTo=Visibility restricted to:
 
 #
 # User Profile Field definitions

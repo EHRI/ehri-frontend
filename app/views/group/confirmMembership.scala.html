@@ -1,6 +1,4 @@
-@(group: Group, item: models.base.Accessor, action: Call, user: UserProfile, req: RequestHeader)
- 
-@import defines._
+@(group: Group, item: Accessor, action: Call, user: UserProfile, req: RequestHeader)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

@@ -2,20 +2,16 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(item.map(i => Messages("update.heading", i.name)).getOrElse(Messages("create.heading")))(Some(user), req) {
+@main(Messages(item.map(s => "actions.updateDocumentaryUnit").getOrElse("actions.createDocumentaryUnit")))(Some(user), req) {
 		
   
-	@item.map { v =>
-		<h4>Update @v.identifier</h4>
-	}.getOrElse {
-		<h4>Create</h4>
-	}
+	<h2>@Messages(item.map(s => "actions.updateDocumentaryUnit").getOrElse("actions.createDocumentaryUnit"))</h2>
 		
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@documentaryUnit.renderForm(f)
 	
 		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">@Messages(item.map(s => "Update").getOrElse("Create"))</button>
+            <button type="submit" class="btn btn-primary">@Messages(item.map(s => "submitButton.updateDocumentaryUnit").getOrElse("submitButton.createDocumentaryUnit"))</button>
 		</div>
 	}
 	

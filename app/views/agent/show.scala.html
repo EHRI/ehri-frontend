@@ -1,6 +1,5 @@
 @(item: Agent, maybeUser: Option[UserProfile], req: RequestHeader)
 
-@import defines._
 @import models.forms.Isdiah._
 
 @main(item.name)(maybeUser, req) {
@@ -39,6 +38,8 @@
             }
         }
     }
+
+    <hr />
 	@common.visibility(item)
 
   	<ul class="item-actions">

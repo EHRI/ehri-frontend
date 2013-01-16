@@ -1,10 +1,9 @@
 package rest.cypher
 
 import scala.concurrent.Future
-import com.codahale.jerkson.Json.generate
 import play.api.PlayException
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Json,JsValue}
 import play.api.libs.json.Reads
 import play.api.libs.json.__
 import play.api.libs.ws.Response
@@ -44,8 +43,8 @@ case class CypherDAO() extends RestDAO {
     invalid = e => Right(r.json)
   )
 
-  def cypher(scriptBody: String, params: Map[String,Any] = Map()): Future[Either[CypherError, JsValue]] = {
-    val data = Map("query" -> scriptBody, "params" -> params)
-    WS.url(requestUrl).withHeaders(headers.toList: _*).post(generate(data)).map(checkCypherError(_))
+  def cypher(scriptBody: String, params: Map[String,JsValue] = Map()): Future[Either[CypherError, JsValue]] = {
+    val data = Json.obj("query" -> scriptBody, "params" -> params)
+    WS.url(requestUrl).withHeaders(headers.toList: _*).post(data).map(checkCypherError(_))
   }  
 }

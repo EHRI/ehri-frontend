@@ -1,6 +1,4 @@
-@(item: models.base.AccessibleEntity, itemPage: rest.Page[models.PermissionGrant], scopePage: rest.Page[models.PermissionGrant], itemPermAction: Call, scopePermAction: Call, user: UserProfile, req: RequestHeader)
-
-@import defines._
+@(item: AccessibleEntity, itemPage: rest.Page[PermissionGrant], scopePage: rest.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call, user: UserProfile, req: RequestHeader)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

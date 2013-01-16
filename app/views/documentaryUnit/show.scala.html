@@ -1,6 +1,5 @@
 @(item: DocumentaryUnit, maybeUser: Option[UserProfile], req: RequestHeader)
 
-@import defines._
 @import models.forms.IsadG._
 
 @main(item.identifier)(maybeUser, req) {
@@ -41,6 +40,7 @@
 		}
 	}
 
+    <hr />
 	@common.visibility(item)
 
     <ul class="item-actions">

@@ -1,10 +1,8 @@
-@(group: Group, item: models.base.Accessor, action: Call, user: UserProfile, req: RequestHeader)
- 
-@import defines._
+@(group: Group, item: Accessor, action: Call, user: UserProfile, req: RequestHeader)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("Remove %s from group: %s".format(group.name, item.name)))(Some(user), req) {
+@main(Messages("actions.removeItemFromGroup", group.name, item.name))(Some(user), req) {
 	
     <h2>@Messages("Remove %s from group: %s".format(item.name, group.name))</h2>
     
@@ -12,7 +10,7 @@
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages("Submit")</button>
+            <button type="submit" class="btn btn-primary">@Messages("submitButton.removeItemFromGroup")</button>
         </div>
 	}		
 }
