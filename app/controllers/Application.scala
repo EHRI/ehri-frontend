@@ -6,6 +6,9 @@ import play.api.Play.current
 import base.{Authorizer,AuthController,LoginHandler}
 import play.api.data.Form
 import play.api.data.Forms._
+import models.sql.OpenIDUser
+import play.api.i18n.Messages
+import org.mindrot.jbcrypt.BCrypt
 
 object Application extends Controller with Auth with LoginLogout with Authorizer with AuthController {
 

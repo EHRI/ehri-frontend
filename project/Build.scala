@@ -10,7 +10,6 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     // Add your project dependencies here
     "jp.t2v" % "play20.auth_2.10.0" % "0.4-SNAPSHOT",
-    "com.codahale" % "jerkson_2.9.1" % "0.5.0",
     "com.sun.jersey" % "jersey-core" % "1.9",
     "org.neo4j.app" % "neo4j-server" % "1.8" classifier "static-web" classifier "",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",

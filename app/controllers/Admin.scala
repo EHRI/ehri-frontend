@@ -12,6 +12,7 @@ import defines.{EntityType, PermissionType, ContentType}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
 import models.forms.UserProfileF
+import models.sql.OpenIDUser
 
 object Admin extends Controller with AuthController with ControllerHelpers {
 
@@ -50,18 +51,15 @@ object Admin extends Controller with AuthController with ControllerHelpers {
         values => {
           val (email, username, name, pw, _, groups) = values
           val user = UserProfileF(id=None, identifier=username, name=name,
-            location=None, about=None, languages=Nil)
-          println("Got values: " + values)
+            location=None, about=None, languages=None)
           AsyncRest {
-            println("POSTING: " + user.toData)
-            rest.EntityDAO(EntityType.UserProfile, maybeUser).create(user.toData).map { itemOrErr =>
-              println("ITEM: " + itemOrErr)
+            rest.EntityDAO(EntityType.UserProfile, maybeUser).create(user).map { itemOrErr =>
               itemOrErr.right.map { entity =>
                 models.sql.OpenIDUser.create(email, entity.id).map { user =>
-                  println("SETTING PASSWORD: " + pw)
                   user.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
                   Redirect(routes.UserProfiles.get(entity.id))
                 }.getOrElse {
+                  // FIXME: Handle this
                   BadRequest("creating user account failed!")
                 }
               }
@@ -69,6 +67,55 @@ object Admin extends Controller with AuthController with ControllerHelpers {
           }
         }
       )
+  }
+
+
+  def passwordLogin = Action { implicit request =>
+    val form = Form(
+      tuple(
+        "email" -> email,
+        "password" -> nonEmptyText
+      )
+    )
+    Ok(views.html.pwLogin(form, routes.Admin.passwordLoginPost))
+  }
+
+  def passwordLoginPost = Action { implicit request =>
+    val form = Form(
+      tuple(
+        "email" -> email,
+        "password" -> nonEmptyText
+      )
+    ).bindFromRequest
+    val action = routes.Admin.passwordLoginPost
+
+    form.fold(
+      errorForm => {
+        BadRequest(views.html.pwLogin(errorForm, action))
+      },
+      data => {
+        val (email, pw) = data
+        OpenIDUser.findByEmail(email) match {
+          case Some(acc) => {
+            acc.password match {
+              case Some(hashed) => {
+                if (BCrypt.checkpw(pw, hashed)) {
+                  Application.gotoLoginSucceeded(acc.profile_id)
+                } else {
+                  BadRequest(views.html.pwLogin(form.withError("password", Messages("login.incorrectPassword")), action))
+                }
+              }
+              case None => {
+                BadRequest(views.html.pwLogin(form.withGlobalError(Messages("login.noAccountFound")), action))
+              }
+            }
+          }
+          case None => {
+            BadRequest(views.html.pwLogin(form.withError("email", Messages("login.badUserNameOrPassword")), action))
+          }
+        }
+      }
+    )
   }
 
 }

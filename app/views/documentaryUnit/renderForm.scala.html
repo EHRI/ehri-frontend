@@ -5,7 +5,7 @@
 @defining("isadg") { fieldPrefix =>
 	<fieldset id="identity-area">
 		<legend>@Messages(fieldPrefix + ".identity")</legend>
-		@helper.inputText(f(IDENTIFIER), '_label -> Messages("%s.%s".format(fieldPrefix, IDENTIFIER)))
+		@helper.inputText(f(Entity.IDENTIFIER), '_label -> Messages("%s.%s".format(fieldPrefix, Entity.IDENTIFIER)))
 		@helper.inputText(f(NAME), '_label -> Messages("%s.%s".format(fieldPrefix, NAME)))
 		</fieldset>
 

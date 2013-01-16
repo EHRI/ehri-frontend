@@ -18,12 +18,11 @@ POST	/openid							controllers.OpenIDLoginHandler.loginPost
 # Admin routes
 GET     /admin/createUser               controllers.Admin.createUser
 POST     /admin/createUser               controllers.Admin.createUserPost
+GET     /admin/login                    controllers.Admin.passwordLogin
+POST    /admin/login                    controllers.Admin.passwordLoginPost
 
 # Mozilla Persona
 POST	/persona						controllers.PersonaLoginHandler.loginPost
-
-GET     /logout           controllers.Application.logout
-POST     /logout           controllers.Application.logout
 
 GET		/test			  controllers.Application.test
 
