@@ -1,6 +1,6 @@
 import sbt._
 import Keys._
-import PlayProject._
+import play.Project._
 
 object ApplicationBuild extends Build {
 
@@ -8,6 +8,10 @@ object ApplicationBuild extends Build {
   val appVersion = "1.0-SNAPSHOT"
 
   val appDependencies = Seq(
+    jdbc,
+    anorm,
+    filters,
+
     // Add your project dependencies here
     "jp.t2v" % "play20.auth_2.10.0" % "0.4-SNAPSHOT",
     "com.sun.jersey" % "jersey-core" % "1.9",
@@ -21,7 +25,11 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "")
 
   val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
-    // Add your own project settings here    
+    // Add your own project settings here
+
+    templatesImport ++= Seq("models.base._", "acl._", "defines._"),
+
+
     resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Codahale" at "http://repo.codahale.com"
