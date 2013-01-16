@@ -6,6 +6,8 @@ import play.api.data.Forms._
 import models.base.Persistable
 import org.joda.time.DateTime
 import defines.EntityType
+import play.api.libs.json.Json
+import defines.EnumWriter.enumWrites
 
 
 object DatePeriodF {
@@ -27,6 +29,11 @@ case class DatePeriodF(
   def years: String = {
     List(startDate, endDate).filter(_.isDefined).map(_.get.getYear).distinct.mkString("-")
   }
+
+  def toJson = Json.obj(
+    DatePeriodF.START_DATE -> startDate,
+    DatePeriodF.END_DATE -> endDate
+  )
 }
 
 

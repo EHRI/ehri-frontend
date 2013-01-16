@@ -9,6 +9,7 @@ import models.Entity
 import play.api.libs.json.Json
 import models.UserProfile
 import java.net.ConnectException
+import models.base.Persistable
 
 /**
  * Class representing a page of data.
@@ -68,7 +69,6 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
 
   import EntityDAO._
   import play.api.http.Status._
-  import com.codahale.jerkson.Json.generate
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
@@ -97,24 +97,23 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     }
   }
 
-  def create(data: Map[String, Any]): Future[Either[RestError, Entity]] = {
+  def create(item: Persistable): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl)).withHeaders(authHeaders.toSeq: _*)
-      .post(generate(data)).map { response =>
+      .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def createInContext(givenType: EntityType.Value, id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
+  def createInContext(givenType: EntityType.Value, id: String, doc: Persistable): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, givenType)).withHeaders(authHeaders.toSeq: _*)
-      .post(generate(data)).map { response =>
+      .post(doc.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def update(id: String, data: Map[String, Any]): Future[Either[RestError, Entity]] = {
-    println("Sending data: " + generate(data))
+  def update(id: String, item: Persistable): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
-      .put(generate(data)).map { response =>
+      .put(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }

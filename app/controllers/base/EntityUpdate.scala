@@ -51,7 +51,7 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
         success = doc => {
           AsyncRest {
             rest.EntityDAO(entityType, maybeUser)
-              .update(id, doc.toData).map {
+              .update(id, doc).map {
               itemOrErr =>
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form

@@ -6,6 +6,10 @@ import models._
 import base.{AttributeSet, Persistable}
 
 import defines._
+import play.api.libs.json.{JsString, Writes, Json, JsValue}
+import models.Entity._
+import defines.EnumWriter.enumWrites
+
 
 /**
  * ISDIAH Field definitions
@@ -14,6 +18,8 @@ case object Isdiah {
   val IDENTIFIER = "identifier"
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
+
+  val LANGUAGE_CODE = "languageCode"
 
   // Field set
   val IDENTITY_AREA = "identityArea"
@@ -72,7 +78,6 @@ case object Isdiah {
 }
 
 
-
 object AgentF {
 
   final val DESC_REL = "describes"
@@ -87,37 +92,26 @@ case class AgentF(
   @Annotations.Relation(AgentF.DESC_REL) val descriptions: List[AgentDescriptionF] = Nil
 ) extends Persistable {
   val isA = EntityType.Agent
-}
 
-case class AgentDescriptionF(
-  val id: Option[String],
-  val languageCode: String,
-  val name: Option[String] = None,
-  val otherFormsOfName: Option[List[String]] = None,
-  val parallelFormsOfName: Option[List[String]] = None,
-  @Annotations.Relation(AgentF.ADDRESS_REL) val addresses: List[AddressF] = Nil,
-  val details: AgentDescriptionF.Details,
-  val access: AgentDescriptionF.Access,
-  val services: AgentDescriptionF.Services,
-  val control: AgentDescriptionF.Control
-) extends Persistable {
-  val isA = EntityType.AgentDescription
-}
+  def toJson: JsValue = {
+    import Entity._
+    import IsadG._
+    import AgentF._
 
-case class AddressF(
-  val id: Option[String],
-  val name: String,
-  val contactPerson: Option[String] = None,
-  val streetAddress: Option[String] = None,
-  val city: Option[String] = None,
-  val region: Option[String] = None,
-  val countryCode: Option[String] = None,
-  val email: Option[String] = None,
-  val telephone: Option[String] = None,
-  val fax: Option[String] = None,
-  val url: Option[String] = None
-) extends Persistable {
-  val isA = EntityType.Address
+    Json.obj(
+      ID -> id,
+      TYPE -> isA,
+      DATA -> Json.obj(
+        IDENTIFIER -> identifier,
+        NAME -> name,
+        PUB_STATUS -> publicationStatus
+      ),
+      RELATIONSHIPS -> Json.obj(
+        DESC_REL -> Json.toJson(descriptions.map(_.toJson).toSeq)
+      )
+    )
+  }
+
 }
 
 object AgentDescriptionF {
@@ -157,12 +151,107 @@ object AgentDescriptionF {
     val sources: Option[String] = None,
     val maintenanceNotes: Option[String] = None
   ) extends AttributeSet
+}
+
+case class AgentDescriptionF(
+  val id: Option[String],
+  val languageCode: String,
+  val name: Option[String] = None,
+  val otherFormsOfName: Option[List[String]] = None,
+  val parallelFormsOfName: Option[List[String]] = None,
+  @Annotations.Relation(AgentF.ADDRESS_REL) val addresses: List[AddressF] = Nil,
+  val details: AgentDescriptionF.Details,
+  val access: AgentDescriptionF.Access,
+  val services: AgentDescriptionF.Services,
+  val control: AgentDescriptionF.Control
+) extends Persistable {
+  val isA = EntityType.AgentDescription
+
+  def toJson: JsValue = {
+    import AddressF._
+    import Entity._
+    import Isdiah._
+
+    Json.obj(
+      ID -> id,
+      TYPE -> isA,
+      DATA -> Json.obj(
+        NAME -> name,
+        LANGUAGE_CODE -> languageCode,
+        OTHER_FORMS_OF_NAME -> otherFormsOfName,
+        PARALLEL_FORMS_OF_NAME -> parallelFormsOfName,
+        HISTORY -> details.history,
+        GENERAL_CONTEXT -> details.generalContext,
+        MANDATES -> details.mandates,
+        ADMINISTRATIVE_STRUCTURE -> details.administrativeStructure,
+        RECORDS -> details.records,
+        BUILDINGS -> details.buildings,
+        HOLDINGS -> details.holdings,
+        FINDING_AIDS -> details.findingAids,
+        OPENING_TIMES -> access.openingTimes,
+        CONDITIONS -> access.conditions,
+        ACCESSIBILITY -> access.accessibility,
+        RESEARCH_SERVICES -> services.researchServices,
+        REPROD_SERVICES -> services.reproductionServices,
+        PUBLIC_AREAS -> services.publicAreas,
+        DESCRIPTION_IDENTIFIER -> control.descriptionIdentifier,
+        INSTITUTION_IDENTIFIER -> control.institutionIdentifier,
+        RULES_CONVENTIONS -> control.rulesAndConventions,
+        STATUS -> control.status,
+        LEVEL_OF_DETAIL -> control.levelOfDetail,
+        DATES_CVD -> control.datesCDR,
+        LANGUAGES_USED -> control.languages,
+        SCRIPTS_USED -> control.scripts,
+        MAINTENANCE_NOTES -> control.maintenanceNotes
+      ),
+      RELATIONSHIPS -> Json.obj(
+        AgentF.ADDRESS_REL -> Json.toJson(addresses.map(_.toJson).toSeq)
+      )
+    )
+  }
+}
+
+object AddressF {
 
 }
 
+case class AddressF(
+  val id: Option[String],
+  val name: String,
+  val contactPerson: Option[String] = None,
+  val streetAddress: Option[String] = None,
+  val city: Option[String] = None,
+  val region: Option[String] = None,
+  val countryCode: Option[String] = None,
+  val email: Option[String] = None,
+  val telephone: Option[String] = None,
+  val fax: Option[String] = None,
+  val url: Option[String] = None
+) extends Persistable {
+  val isA = EntityType.Address
+
+  def toJson: JsValue = {
+    import AddressF._
+    import Entity._
+    import Isdiah._
+    import defines.EnumWriter.enumWrites
+
+    Json.obj(
+      ID -> id,
+      TYPE -> isA,
+      DATA -> Json.obj(
+        ADDRESS_NAME -> name,
+        CONTACT_PERSON -> contactPerson,
+        STREET_ADDRESS -> streetAddress,
+        CITY -> city
+      )
+    )
+  }
+}
 
 
 object AgentDescriptionForm {
+
   import AgentDescriptionF._
   import Isdiah._
 

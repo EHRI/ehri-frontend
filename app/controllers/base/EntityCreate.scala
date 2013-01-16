@@ -35,7 +35,7 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
           implicit val maybeUser = Some(user)
           AsyncRest {
             rest.EntityDAO(entityType, maybeUser)
-              .create(doc.toData).map { itemOrErr =>
+              .create(doc).map { itemOrErr =>
                 // If we have an error, check if it's a validation error.
                 // If so, we need to merge those errors back into the form
                 // and redisplay it...

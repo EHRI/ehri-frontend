@@ -39,9 +39,10 @@ case class GremlinDAO() extends RestDAO {
   /*
    * Enum for declaring direction of relationships.
    */
-  object Direction extends Enumeration("inV", "outV") {
+  object Direction extends Enumeration {
     type Direction = Value
-    val In, Out = Value
+    val In = Value("inV")
+    val Out = Value("outV")
   }
 
   import GremlinErrorReader._

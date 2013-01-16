@@ -25,7 +25,7 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
 
   val holder: Option[Agent] = e.relations(HELD_REL).headOption.map(Agent(_))
   val parent: Option[DocumentaryUnit] = e.relations(CHILD_REL).headOption.map(DocumentaryUnit(_))
-  val publicationStatus = e.property(PUB_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
+  val publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt)
   override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
 
   def to: DocumentaryUnitF = new DocumentaryUnitF(
@@ -69,6 +69,11 @@ case class DocumentaryUnitDescription(val e: Entity)
       locationOfCopies = stringProperty(LOCATION_COPIES),
       relatedUnitsOfDescription = stringProperty(RELATED_UNITS),
       publicationNote = stringProperty(PUBLICATION_NOTE)
+    ),
+    control = Control(
+      archivistNote  = stringProperty(ARCHIVIST_NOTE),
+      rulesAndConventions = stringProperty(RULES_CONVENTIONS),
+      datesOfDescriptions = stringProperty(DATES_DESCRIPTIONS)
     )
   )
 }

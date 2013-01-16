@@ -57,7 +57,7 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityCo
         doc => {
           AsyncRest {
             rest.EntityDAO(entityType, maybeUser)
-              .createInContext(childEntityType, id, doc.toData).map { itemOrErr =>
+              .createInContext(childEntityType, id, doc).map { itemOrErr =>
                 // If we have an error, check if it's a validation error.
                 // If so, we need to merge those errors back into the form
                 // and redisplay it...

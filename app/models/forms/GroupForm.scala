@@ -6,6 +6,9 @@ import play.api.data.Forms._
 import models._
 import base.Persistable
 import defines.EntityType
+import play.api.libs.json.Json
+import defines.EnumWriter.enumWrites
+
 
 object GroupF {
 
@@ -17,6 +20,16 @@ case class GroupF(
   val identifier: String,
   val name: String) extends Persistable {
   val isA = EntityType.Group
+
+  import Entity._
+  def toJson = Json.obj(
+    ID -> ID,
+    TYPE -> isA,
+    DATA -> Json.obj(
+      IDENTIFIER -> identifier,
+      "name" -> name
+    )
+  )
 }
 
 
