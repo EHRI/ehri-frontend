@@ -12,7 +12,7 @@
             @item.descriptions.map { desc =>
                 <h5>Language: @desc.languageCode</h5>
 
-                <h5>@Messages(fieldPrefix + "." + ADDRESS_AREA, desc.addresses.size)</h5>
+                <h4>@Messages(fieldPrefix + "." + ADDRESS_AREA, desc.addresses.size)</h4>
                 @desc.addresses.map { address =>
                     @common.stringValue(address, ADDRESS_NAME)
                     @common.stringValue(address, CONTACT_PERSON)
@@ -26,7 +26,7 @@
                     @common.stringValue(address, URL)
                 }
 
-                <h5>@Messages(fieldPrefix + "." + DESCRIPTION_AREA)</h5>
+                <h4>@Messages(fieldPrefix + "." + DESCRIPTION_AREA)</h4>
                 <div class="description-section">
                     @common.stringValue(desc, HISTORY)
                     @common.stringValue(desc, GENERAL_CONTEXT)
@@ -38,21 +38,21 @@
                     @common.stringValue(desc, FINDING_AIDS)
                 </div>
 
-                <h5>@Messages(fieldPrefix + "." + ACCESS_AREA)</h5>
+                <h4>@Messages(fieldPrefix + "." + ACCESS_AREA)</h4>
                 <div class="description-section">
                     @common.stringValue(desc, OPENING_TIMES)
                     @common.stringValue(desc, CONDITIONS)
                     @common.stringValue(desc, ACCESSIBILITY)
                 </div>
 
-                <h5>@Messages(fieldPrefix + "." + SERVICES_AREA)</h5>
+                <h4>@Messages(fieldPrefix + "." + SERVICES_AREA)</h4>
                 <div class="description-section">
                     @common.stringValue(desc, RESEARCH_SERVICES)
                     @common.stringValue(desc, REPROD_SERVICES)
                     @common.stringValue(desc, PUBLIC_AREAS)
                 </div>
 
-                <h5>@Messages(fieldPrefix + "." + CONTROL_AREA)</h5>
+                <h4>@Messages(fieldPrefix + "." + CONTROL_AREA)</h4>
                 <div class="description-section">
                     @common.stringValue(desc, DESCRIPTION_IDENTIFIER)
                     @common.stringValue(desc, INSTITUTION_IDENTIFIER)

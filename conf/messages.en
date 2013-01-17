@@ -192,6 +192,7 @@ isadg.context=Context Area
 isadg.content=Content Area
 isadg.conditions=Conditions Area
 isadg.materials=Materials Area
+isadg.control=Control Area
 
 isadg.name=Name
 isadg.identifier=Identifier
@@ -212,3 +213,6 @@ isadg.locationOfOriginals=Location of Originals
 isadg.locationOfCopies=Location of Copies
 isadg.relatedUnitsOfDescription=Related Units of Description
 isadg.publicationNote=Publication Note
+isadg.archivistNote=Archivist Note
+isadg.rulesAndConventions=Rules and Conventions
+isadg.datesOfDescriptions=Dates of Descriptions
