@@ -4,7 +4,7 @@
 
 @main(item.name)(maybeUser, req) {
 
-    @defining("isdiah") { implicit i18nPrefix =>
+    @defining("isdiah") { implicit fieldPrefix =>
         <h3>@item.name (@item.identifier)</h3>
 
         @if(!item.descriptions.isEmpty) {

@@ -107,6 +107,13 @@ profile.noLanguagesGiven=No languages given
 profile.noBioGiven=No biography given
 
 #
+# Documentary Units
+#
+documentaryUnit.heldBy=Held By
+documentaryUnit.parentItem=Parent Item
+documentaryUnit.availableDescriptions=Available Descriptions
+
+#
 # ISDIAH Field definitions
 #
 
