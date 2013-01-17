@@ -5,15 +5,15 @@
 @main(item.name)(maybeUser, req) {
 
     @defining("isdiah") { implicit fieldPrefix =>
-        <h3>@item.name (@item.identifier)</h3>
+        <h3>@item.name @item.identifier </h3>
 
         @if(!item.descriptions.isEmpty) {
             <h4>@Messages("Available Descriptions")</h4>
             @item.descriptions.map { desc =>
                 <h5>Language: @desc.languageCode</h5>
 
-                <h5>@Messages("isdiah.addresses", desc.addresses.size)</h5>
-                @desc.addresses.map { address=>
+                <h5>@Messages(fieldPrefix + "." + ADDRESS_AREA, desc.addresses.size)</h5>
+                @desc.addresses.map { address =>
                     @common.stringValue(address, ADDRESS_NAME)
                     @common.stringValue(address, CONTACT_PERSON)
                     @common.stringValue(address, STREET_ADDRESS)
@@ -26,15 +26,45 @@
                     @common.stringValue(address, URL)
                 }
 
-                <h5>@Messages("isdiah.descriptionArea")</h5>
-                @common.stringValue(desc, HISTORY)
-                @common.stringValue(desc, GENERAL_CONTEXT)
-                @common.stringValue(desc, MANDATES)
-                @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
-                @common.stringValue(desc, RECORDS)
-                @common.stringValue(desc, BUILDINGS)
-                @common.stringValue(desc, HOLDINGS)
-                @common.stringValue(desc, FINDING_AIDS)
+                <h5>@Messages(fieldPrefix + "." + DESCRIPTION_AREA)</h5>
+                <div class="description-section">
+                    @common.stringValue(desc, HISTORY)
+                    @common.stringValue(desc, GENERAL_CONTEXT)
+                    @common.stringValue(desc, MANDATES)
+                    @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
+                    @common.stringValue(desc, RECORDS)
+                    @common.stringValue(desc, BUILDINGS)
+                    @common.stringValue(desc, HOLDINGS)
+                    @common.stringValue(desc, FINDING_AIDS)
+                </div>
+
+                <h5>@Messages(fieldPrefix + "." + ACCESS_AREA)</h5>
+                <div class="description-section">
+                    @common.stringValue(desc, OPENING_TIMES)
+                    @common.stringValue(desc, CONDITIONS)
+                    @common.stringValue(desc, ACCESSIBILITY)
+                </div>
+
+                <h5>@Messages(fieldPrefix + "." + SERVICES_AREA)</h5>
+                <div class="description-section">
+                    @common.stringValue(desc, RESEARCH_SERVICES)
+                    @common.stringValue(desc, REPROD_SERVICES)
+                    @common.stringValue(desc, PUBLIC_AREAS)
+                </div>
+
+                <h5>@Messages(fieldPrefix + "." + CONTROL_AREA)</h5>
+                <div class="description-section">
+                    @common.stringValue(desc, DESCRIPTION_IDENTIFIER)
+                    @common.stringValue(desc, INSTITUTION_IDENTIFIER)
+                    @common.stringValue(desc, RULES_CONVENTIONS)
+                    @common.stringValue(desc, STATUS)
+                    @common.stringValue(desc, LEVEL_OF_DETAIL)
+                    @common.stringValue(desc, DATES_CVD)
+                    @common.stringValue(desc, LANGUAGES_USED)
+                    @common.stringValue(desc, SCRIPTS_USED)
+                    @common.stringValue(desc, SOURCES)
+                    @common.stringValue(desc, MAINTENANCE_NOTES)
+                </div>
             }
         }
     }

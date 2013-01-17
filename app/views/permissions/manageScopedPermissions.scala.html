@@ -2,9 +2,9 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("actions.manageScopePermissionsForItem", item.identifier))(Some(user), req) {
+@main(Messages("actions.manageScopedPermissionsForItem", item.identifier))(Some(user), req) {
 
-    <h2>@Messages("actions.manageScopePermissionsForItem", item.identifier)</h2>
+    <h2>@Messages("actions.manageScopedPermissionsForItem", item.identifier)</h2>
 
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 
