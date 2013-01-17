@@ -4,7 +4,7 @@
 
 @main(item.name)(maybeUser, req) {
 
-    @defining("isdiah") { i18nPrefix =>
+    @defining("isdiah") { implicit i18nPrefix =>
         <h3>@item.name (@item.identifier)</h3>
 
         @if(!item.descriptions.isEmpty) {
@@ -14,27 +14,27 @@
 
                 <h5>@Messages("isdiah.addresses", desc.addresses.size)</h5>
                 @desc.addresses.map { address=>
-                    @common.stringValue(address, ADDRESS_NAME, i18nPrefix)
-                    @common.stringValue(address, CONTACT_PERSON, i18nPrefix)
-                    @common.stringValue(address, STREET_ADDRESS, i18nPrefix)
-                    @common.stringValue(address, CITY, i18nPrefix)
-                    @common.stringValue(address, REGION, i18nPrefix)
-                    @common.stringValue(address, COUNTRY_CODE, i18nPrefix)
-                    @common.stringValue(address, EMAIL, i18nPrefix)
-                    @common.stringValue(address, TELEPHONE, i18nPrefix)
-                    @common.stringValue(address, FAX, i18nPrefix)
-                    @common.stringValue(address, URL, i18nPrefix)
+                    @common.stringValue(address, ADDRESS_NAME)
+                    @common.stringValue(address, CONTACT_PERSON)
+                    @common.stringValue(address, STREET_ADDRESS)
+                    @common.stringValue(address, CITY)
+                    @common.stringValue(address, REGION)
+                    @common.stringValue(address, COUNTRY_CODE)
+                    @common.stringValue(address, EMAIL)
+                    @common.stringValue(address, TELEPHONE)
+                    @common.stringValue(address, FAX)
+                    @common.stringValue(address, URL)
                 }
 
                 <h5>@Messages("isdiah.descriptionArea")</h5>
-                @common.stringValue(desc, HISTORY, i18nPrefix)
-                @common.stringValue(desc, GENERAL_CONTEXT, i18nPrefix)
-                @common.stringValue(desc, MANDATES, i18nPrefix)
-                @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE, i18nPrefix)
-                @common.stringValue(desc, RECORDS, i18nPrefix)
-                @common.stringValue(desc, BUILDINGS, i18nPrefix)
-                @common.stringValue(desc, HOLDINGS, i18nPrefix)
-                @common.stringValue(desc, FINDING_AIDS, i18nPrefix)
+                @common.stringValue(desc, HISTORY)
+                @common.stringValue(desc, GENERAL_CONTEXT)
+                @common.stringValue(desc, MANDATES)
+                @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
+                @common.stringValue(desc, RECORDS)
+                @common.stringValue(desc, BUILDINGS)
+                @common.stringValue(desc, HOLDINGS)
+                @common.stringValue(desc, FINDING_AIDS)
             }
         }
     }

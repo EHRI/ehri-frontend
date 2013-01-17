@@ -262,7 +262,7 @@ object AgentDescriptionForm {
       NAME -> optional(text),
       OTHER_FORMS_OF_NAME -> optional(list(text)),
       PARALLEL_FORMS_OF_NAME -> optional(list(text)),
-      "addresses" -> list(
+      ADDRESS_AREA -> list(
         mapping(
           Entity.ID -> optional(nonEmptyText),
           ADDRESS_NAME -> nonEmptyText,
@@ -304,8 +304,8 @@ object AgentDescriptionForm {
         STATUS -> optional(text),
         LEVEL_OF_DETAIL -> optional(text),
         DATES_CVD -> optional(text),
-        LANGUAGES_USED -> optional(list(text)),
-        SCRIPTS_USED -> optional(list(text)),
+        LANGUAGES_USED -> optional(list(nonEmptyText)),
+        SCRIPTS_USED -> optional(list(nonEmptyText)),
         SOURCES -> optional(text),
         MAINTENANCE_NOTES -> optional(text)
       )(Control.apply)(Control.unapply)

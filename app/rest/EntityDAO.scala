@@ -112,6 +112,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def update(id: String, item: Persistable): Future[Either[RestError, Entity]] = {
+    println("SENDING: " + item.toJson)
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))

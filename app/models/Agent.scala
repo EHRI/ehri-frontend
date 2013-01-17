@@ -50,7 +50,7 @@ case class AgentDescription(val e: Entity) extends Description with Formable[Age
     details = Details(
       history = e.stringProperty(HISTORY),
       generalContext = e.stringProperty(GENERAL_CONTEXT),
-      mandates = e.stringProperty(HISTORY),
+      mandates = e.stringProperty(MANDATES),
       administrativeStructure = e.stringProperty(ADMINISTRATIVE_STRUCTURE),
       records = e.stringProperty(RECORDS),
       buildings = e.stringProperty(BUILDINGS),

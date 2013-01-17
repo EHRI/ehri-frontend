@@ -1,4 +1,4 @@
-@(desc: models.base.AccessibleEntity, fieldName: String, prefix: String = "")
+@(desc: models.base.AccessibleEntity, fieldName: String)(implicit prefix: String = "")
 
 @defining(desc.stringProperty(fieldName)) { value =>
 	@if(!value.getOrElse("").trim.isEmpty) {
