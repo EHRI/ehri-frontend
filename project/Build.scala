@@ -24,7 +24,7 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-plugin" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "")
 
-  val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
+  val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here
 
     templatesImport ++= Seq("models.base._", "acl._", "defines._"),
