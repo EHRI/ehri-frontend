@@ -20,6 +20,8 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
   val formView: EntityCreate[F, T]#FormViewType
   val form: Form[F]
 
+  val showAction: String => Call
+
   def update(id: String) = withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
     implicit request =>
       implicit val maybeUser = Some(user)

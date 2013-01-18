@@ -15,14 +15,17 @@ GET     /logout                         controllers.Application.logout
 GET     /openid                         controllers.OpenIDLoginHandler.openIDCallback
 POST	/openid							controllers.OpenIDLoginHandler.loginPost
 
+# Mozilla Persona
+POST	/persona						controllers.PersonaLoginHandler.loginPost
+
 # Admin routes
 GET     /admin/createUser               controllers.Admin.createUser
 POST     /admin/createUser               controllers.Admin.createUserPost
 GET     /admin/login                    controllers.Admin.passwordLogin
 POST    /admin/login                    controllers.Admin.passwordLoginPost
 
-# Mozilla Persona
-POST	/persona						controllers.PersonaLoginHandler.loginPost
+# Change locale
+GET     /locale                         controllers.Application.changeLocale
 
 GET		/test			  controllers.Application.test
 

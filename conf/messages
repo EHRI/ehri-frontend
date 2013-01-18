@@ -1,14 +1,14 @@
+# General main page parts
+banner.heading=EHRI Dev Test
+banner.signin=Sign In
+banner.signout=Sign Out
+
 # Friendly names for content types
 contentTypes.group=Groups
 contentTypes.userProfile=Users
 contentTypes.agent=Repositories
 contentTypes.documentaryUnit=Collections
 contentTypes.action=System Events
-
-# General main page parts
-banner.heading=EHRI Dev Test
-banner.signin=Sign In
-banner.signout=Sign Out
 
 # general models.forms
 update.heading=Update {0}

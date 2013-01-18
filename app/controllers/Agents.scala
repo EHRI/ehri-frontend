@@ -35,7 +35,6 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
 
   val entityType = EntityType.Agent
   val contentType = ContentType.Agent
-  val listAction = routes.Agents.list _
   val createAction = routes.Agents.createPost
   val updateAction = routes.Agents.updatePost _
   val cancelAction = routes.Agents.get _
@@ -57,4 +56,16 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   val listView = views.html.agent.list.apply _
   val deleteView = views.html.delete.apply _
   val builder = Agent
+
+  def get(id: String) = getAction(id) { item =>
+    implicit maybeUser =>
+      implicit request =>
+      Ok(views.html.agent.show(Agent(item), maybeUser, request))
+  }
+
+  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+    implicit maybeUser =>
+      implicit request =>
+        Ok(views.html.agent.list(page.copy(list = page.list.map(Agent(_))), maybeUser, request))
+  }
 }

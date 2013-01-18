@@ -22,6 +22,8 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
   val formView: FormViewType
   val form: Form[F]
 
+  val showAction: String => Call
+
   def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
     implicit request =>
       Ok(formView(None, form, createAction, user, request))

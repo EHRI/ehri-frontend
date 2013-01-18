@@ -1,4 +1,4 @@
-@(title: String)(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)
+@(title: String)(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(implicit lang: Lang)
 
 @import defines._
 
@@ -58,6 +58,7 @@
 
 		<h2>@Messages("banner.heading")</h2>
 		<hr />
+        <h1>@lang</h1>
 
 		<div id="entity-types">
 			<ul>

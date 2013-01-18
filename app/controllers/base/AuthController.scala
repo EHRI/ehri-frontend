@@ -3,6 +3,7 @@ package controllers.base
 import _root_.models.UserProfile
 import play.api._
 import play.api.mvc._
+import play.api.i18n.Lang
 import jp.t2v.lab.play20.auth.Auth
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.EntityType
@@ -17,6 +18,36 @@ import rest.ServerError
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
  */
 trait AuthController extends Controller with Auth with Authorizer {
+
+  /**
+   * Provide functionality for changing the current locale.
+   *
+   * This is borrowed from:
+   * https://github.com/julienrf/chooze/blob/master/app/controllers/CookieLang.scala
+   */
+  val localeForm = play.api.data.Form("locale" -> play.api.data.Forms.nonEmptyText)
+  private val LANG = "lang"
+  protected val HOME_URL = "/"
+
+  def changeLocale = Action { implicit request =>
+    val referrer = request.headers.get(REFERER).getOrElse(HOME_URL)
+    localeForm.bindFromRequest.fold(
+      errors => {
+        Logger.logger.debug("The locale can not be change to : " + errors.get)
+        BadRequest(referrer)
+      },
+      locale => {
+        Logger.logger.debug("Change user lang to : " + locale)
+        Redirect(referrer).withCookies(Cookie(LANG, locale))
+      })
+  }
+
+  override implicit def lang(implicit request: RequestHeader) = {
+    request.cookies.get(LANG) match {
+      case None => super.lang(request)
+      case Some(cookie) => Lang(cookie.value)
+    }
+  }
 
   /**
    * WARNING: Remove this function (it's named funnily as a reminder.)

@@ -19,6 +19,8 @@ import play.api.libs.concurrent.Execution.Implicits._
  */
 trait PermissionHolderController[F <: Persistable, T <: Accessor] extends EntityRead[T] {
 
+  val showAction: String => Call
+
   val permsAction: String => Call
   val setPermsAction: String => Call
 

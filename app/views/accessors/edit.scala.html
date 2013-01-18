@@ -1,4 +1,4 @@
-@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call, user: UserProfile, req: RequestHeader)
+@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call, user: UserProfile, req: RequestHeader)(implicit lang: Lang)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

@@ -1,4 +1,4 @@
-@(items: rest.Page[Agent], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
+@(items: rest.Page[Agent], maybeUser: Option[UserProfile], req: RequestHeader)(implicit lang: Lang)
 
 @main(Messages("actions.listAgents"))(maybeUser, req) {
 
@@ -31,7 +31,7 @@
 	<ul>
 	@items.list.map { item =>
 	  	<li>
-			<a href="@showAction(item.id)">@item.name</a>
+			<a href="@routes.Agents.get(item.id)">@item.name</a>
 		</li>
 	}
 	</ul>

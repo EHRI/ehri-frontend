@@ -1,4 +1,4 @@
-@(page: rest.Page[DocumentaryUnit], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
+@(page: rest.Page[DocumentaryUnit], maybeUser: Option[UserProfile], req: RequestHeader)
 
 @main(Messages("actions.listDocumentaryUnits"))(maybeUser, req) {
 
@@ -26,7 +26,7 @@
 	@page.list.map { item =>
 	  	<div class="list-item">
 			<h4>
-				<a href="@showAction(item.id)">@item.name</a>
+				<a href="@routes.DocumentaryUnits.get(item.id)">@item.name</a>
 				@item.dateString.map { d =>
 				  &nbsp;[@d]
 				}

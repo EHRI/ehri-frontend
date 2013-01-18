@@ -1,4 +1,4 @@
-@(items: rest.Page[UserProfile], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
+@(items: rest.Page[UserProfile], maybeUser: Option[UserProfile], req: RequestHeader)
 
 @main(Messages("actions.listUserProfiles"))(maybeUser, req) {
 
@@ -30,7 +30,7 @@
 	<ul>
 	@items.list.map { item =>
 	  	<li>
-			<a href="@showAction(item.id)">@item.name</a>
+			<a href="@routes.UserProfiles.get(item.id)">@item.name</a>
 		</li>
 	}
 	</ul>

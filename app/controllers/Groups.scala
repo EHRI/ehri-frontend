@@ -24,7 +24,6 @@ object Groups extends PermissionHolderController[GroupF, Group]
 
   val entityType = EntityType.Group
   val contentType = ContentType.Group
-  val listAction = routes.Groups.list _
   val createAction = routes.Groups.createPost
   val updateAction = routes.Groups.updatePost _
   val cancelAction = routes.Groups.get _
@@ -45,6 +44,18 @@ object Groups extends PermissionHolderController[GroupF, Group]
   val permView = views.html.accessors.edit.apply _
   val permListView = views.html.accessors.permissionGrantList.apply _
   val builder = Group
+
+  def get(id: String) = getAction(id) { item =>
+    implicit maybeUser =>
+      implicit request =>
+        Ok(views.html.group.show(Group(item), maybeUser, request))
+  }
+
+  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+    implicit maybeUser =>
+      implicit request =>
+        Ok(views.html.group.list(page.copy(list = page.list.map(Group(_))), maybeUser, request))
+  }
 
   /*
    *	Membership

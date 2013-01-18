@@ -15,6 +15,8 @@ import acl.GlobalPermissionSet
  */
 trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemController[T] {
 
+  val showAction: String => Call
+
   val targetContentTypes: Seq[ContentType.Value]
 
   val manageScopedPermissionAction: (String,Int,Int,Int) => Call

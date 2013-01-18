@@ -1,9 +1,9 @@
-@(item: Agent, maybeUser: Option[UserProfile], req: RequestHeader)
+@(item: Agent, maybeUser: Option[UserProfile], req: RequestHeader)(implicit lang: Lang)
 
 @import models.forms.Isdiah._
 
 @main(item.name)(maybeUser, req) {
-
+    <h1>@req.acceptLanguages.map(_.code).mkString(", ")</h1> <h1>@lang</h1>
     @defining("isdiah") { implicit fieldPrefix =>
         <h3>@item.name @item.identifier </h3>
 

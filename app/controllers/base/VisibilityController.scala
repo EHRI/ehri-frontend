@@ -15,6 +15,8 @@ import models.UserProfile
  */
 trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
 
+  val showAction: String => Call
+
   val visibilityAction: String => Call
   val setVisibilityAction: String => Call
 

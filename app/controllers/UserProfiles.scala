@@ -13,6 +13,19 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
 	with CRUD[UserProfileF,UserProfile]
   with PermissionItemController[UserProfile] {
 
+  def get(id: String) = getAction(id) { item =>
+    implicit maybeUser =>
+      implicit request =>
+        Ok(views.html.userProfile.show(UserProfile(item), maybeUser, request))
+  }
+
+  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+    implicit maybeUser =>
+      implicit request =>
+        Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_))), maybeUser, request))
+  }
+
+
   val managePermissionAction = routes.UserProfiles.managePermissions _
   val managePermissionView = views.html.permissions.managePermissions.apply _
   val addItemPermissionAction = routes.UserProfiles.addItemPermissions _
@@ -23,7 +36,6 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
 
   val entityType = EntityType.UserProfile
   val contentType = ContentType.UserProfile
-  val listAction = routes.UserProfiles.list _
   val createAction = routes.UserProfiles.createPost
   val updateAction = routes.UserProfiles.updatePost _
   val cancelAction = routes.UserProfiles.get _

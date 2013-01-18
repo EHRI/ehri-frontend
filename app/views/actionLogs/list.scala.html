@@ -1,4 +1,4 @@
-@(page: rest.Page[ActionLog], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
+@(page: rest.Page[ActionLog], maybeUser: Option[UserProfile], req: RequestHeader)
 
 @main(Messages("actions.listActionLogs"))(maybeUser, req) {
 

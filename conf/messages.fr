@@ -1,0 +1,2 @@
+# General main page parts
+banner.heading=French

@@ -14,6 +14,8 @@ import acl.{ItemPermissionSet, GlobalPermissionSet}
  */
 trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
+  val showAction: String => Call
+
   val managePermissionAction: (String,Int,Int) => Call
   val addItemPermissionAction: String => Call
   val permissionItemAction: (String, String, String) => Call

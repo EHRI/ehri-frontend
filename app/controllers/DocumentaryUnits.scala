@@ -15,6 +15,18 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with EntityDelete[DocumentaryUnit]
   with PermissionScopeController[DocumentaryUnit] {
 
+  def get(id: String) = getAction(id) { item =>
+    implicit maybeUser =>
+      implicit request =>
+        Ok(views.html.documentaryUnit.show(DocumentaryUnit(item), maybeUser, request))
+  }
+
+  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+    implicit maybeUser =>
+      implicit request =>
+        Ok(views.html.documentaryUnit.list(page.copy(list = page.list.map(DocumentaryUnit(_))), maybeUser, request))
+  }
+
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
   val childContentType = ContentType.DocumentaryUnit
   val childEntityType = EntityType.DocumentaryUnit
@@ -37,7 +49,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentType.DocumentaryUnit
-  val listAction = routes.DocumentaryUnits.list _
   val cancelAction = routes.DocumentaryUnits.get _
   val deleteAction = routes.DocumentaryUnits.deletePost _
   val updateAction = routes.DocumentaryUnits.updatePost _
