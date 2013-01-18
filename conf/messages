@@ -77,6 +77,8 @@ submitButton.updateUserProfile=Update User
 submitButton.updateGroup=Update Group
 submitButton.deleteItem=Delete Item
 submitButton.setVisibility=Set Visibility
+submitButton.addItemToGroup=Add Item to Group
+submitButton.removeItemFromGroup=Remove Item from Group
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 

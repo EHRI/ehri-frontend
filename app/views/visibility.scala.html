@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, users: List[(String,String)], groups: List[(String,String)], action: Call, user: UserProfile, req: RequestHeader)
+@(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: Call, user: UserProfile, req: RequestHeader)
 
 
 @main("actions.setVisibility")(Some(user), req) {

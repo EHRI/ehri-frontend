@@ -14,34 +14,10 @@ object Groups extends PermissionHolderController[GroupF, Group]
   with CRUD[GroupF, Group]
   with PermissionItemController[Group] {
 
-  val managePermissionAction = routes.Groups.managePermissions _
-  val managePermissionView = views.html.permissions.managePermissions.apply _
-  val addItemPermissionAction = routes.Groups.addItemPermissions _
-  val addItemPermissionView = views.html.permissions.permissionItem.apply _
-  val permissionItemAction = routes.Groups.permissionItem _
-  val permissionItemView = views.html.permissions.setPermissionItem.apply _
-  val setPermissionItemAction = routes.Groups.permissionItemPost _
-
   val entityType = EntityType.Group
   val contentType = ContentType.Group
-  val createAction = routes.Groups.createPost
-  val cancelAction = routes.Groups.get _
-  val deleteAction = routes.Groups.deletePost _
-  val permsAction = routes.Groups.permissions _
-  val setPermsAction = routes.Groups.permissionsPost _
-
-  val setVisibilityAction = routes.Groups.visibilityPost _
-  val visibilityAction = routes.Groups.visibility _
-  val visibilityView = views.html.visibility.apply _
 
   val form = models.forms.GroupForm.form
-  val showAction = routes.Groups.get _
-  val formView = views.html.group.edit.apply _
-  val showView = views.html.group.show.apply _
-  val listView = views.html.group.list.apply _
-  val deleteView = views.html.delete.apply _
-  val permView = views.html.accessors.edit.apply _
-  val permListView = views.html.accessors.permissionGrantList.apply _
   val builder = Group
 
   def get(id: String) = getAction(id) { item =>
@@ -88,6 +64,72 @@ object Groups extends PermissionHolderController[GroupF, Group]
             .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
         }
   }
+
+  def delete(id: String) = deleteAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.delete(
+        Group(item), routes.Groups.deletePost(id),
+        routes.Groups.get(id), user, request))
+  }
+
+  def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
+    implicit request =>
+      Redirect(routes.Groups.list())
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasDeleted", id))
+  }
+
+  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
+    implicit request =>
+      Ok(views.html.visibility(Group(item), users, groups, routes.Groups.visibilityPost(id), user, request))
+  }
+
+  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
+    implicit request =>
+      Redirect(routes.Groups.list())
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
+    item => perms => implicit user => implicit request =>
+      Ok(views.html.accessors.permissionGrantList(Group(item), perms, user, request))
+  }
+
+  def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
+    item => perms => implicit user => implicit request =>
+      Ok(views.html.accessors.edit(UserProfile(item), perms,
+        routes.Groups.permissionsPost(id), user, request))
+  }
+
+  def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) { item => perms => implicit user =>
+    implicit request =>
+      Redirect(routes.Groups.get(id))
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
+    item => perms => implicit user => implicit request =>
+      Ok(views.html.permissions.managePermissions(UserProfile(item), perms,
+        routes.Groups.addItemPermissions(id), user, request))
+  }
+
+  def addItemPermissions(id: String) = addItemPermissionsAction(id) {
+    item => users => groups => implicit user => implicit request =>
+      Ok(views.html.permissions.permissionItem(Group(item), users, groups,
+        routes.Groups.setItemPermissions _, user, request))
+  }
+
+  def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
+    item => accessor => perms => implicit user => implicit request =>
+      Ok(views.html.permissions.setPermissionItem(Group(item), accessor, perms, contentType,
+        routes.Groups.setItemPermissionsPost(id, userType, userId), user, request))
+  }
+
+  def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
+    bool => implicit user => implicit request =>
+      Redirect(routes.Groups.managePermissions(id))
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+  }
+
 
 
   /*

@@ -16,10 +16,6 @@ import models.{UserProfile, Entity}
  * @tparam T the Entity's built representation
  */
 trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
-  val formView: EntityCreate[F, T]#FormViewType
-  val form: Form[F]
-
-  val showAction: String => Call
 
   def updateAction(id: String)(f: Entity => UserProfile => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { implicit user =>

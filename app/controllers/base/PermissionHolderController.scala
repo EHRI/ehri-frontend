@@ -4,10 +4,9 @@ import defines.ContentType
 import acl.GlobalPermissionSet
 import models.base.Persistable
 import models.base.Accessor
-import play.api.mvc.Call
-import play.api.mvc.RequestHeader
+import play.api.mvc._
 import defines.PermissionType
-import models.{PermissionGrant, UserProfile}
+import models.{Entity, PermissionGrant, UserProfile}
 
 import play.api.libs.concurrent.Execution.Implicits._
 
@@ -19,19 +18,6 @@ import play.api.libs.concurrent.Execution.Implicits._
  */
 trait PermissionHolderController[F <: Persistable, T <: Accessor] extends EntityRead[T] {
 
-  val showAction: String => Call
-
-  val permsAction: String => Call
-  val setPermsAction: String => Call
-
-  // Type and stub for the view function
-  type PermViewType = (Accessor, GlobalPermissionSet[Accessor], Call, UserProfile, RequestHeader) => play.api.templates.Html
-  val permView: PermViewType
-
-  // List view function
-  type PermListViewType = (Accessor, rest.Page[PermissionGrant], UserProfile, RequestHeader) => play.api.templates.Html
-  val permListView: PermListViewType
-
   /**
    * Display a list of permissions that have been granted to the given accessor.
    * @param id
@@ -39,54 +25,60 @@ trait PermissionHolderController[F <: Persistable, T <: Accessor] extends Entity
    * @param limit
    * @return
    */
-  def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        for {
-          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          // NB: to save having to wait we just fake the permission user here.
-          permsOrErr <- rest.PermissionDAO(user).list(builder(models.Entity.fromString(id, entityType)), page, limit)
-        } yield {
-          for { perms <- permsOrErr.right; item <- itemOrErr.right} yield {
-            Ok(permListView(builder(item), perms, user, request))
+  def grantListAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(f: Entity => rest.Page[PermissionGrant] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+      implicit request =>
+        implicit val maybeUser = Some(user)
+        AsyncRest {
+          for {
+            itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+            // NB: to save having to wait we just fake the permission user here.
+            permsOrErr <- rest.PermissionDAO(user).list(builder(models.Entity.fromString(id, entityType)), page, limit)
+          } yield {
+            for { perms <- permsOrErr.right; item <- itemOrErr.right} yield {
+              f(item)(perms)(user)(request)
+            }
           }
         }
-      }
+    }
   }
 
 
-  def permissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        for {
-          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          permsOrErr <- rest.PermissionDAO(user).get(builder(itemOrErr.right.get))
-        } yield {
-          for { perms <- permsOrErr.right; item <- itemOrErr.right} yield {
-            Ok(permView(builder(item), perms, setPermsAction(id), user, request))
+  def setGlobalPermissionsAction(id: String)(f: Entity => GlobalPermissionSet[T] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+      implicit request =>
+        implicit val maybeUser = Some(user)
+        AsyncRest {
+          for {
+            itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+            permsOrErr <- rest.PermissionDAO(user).get(builder(itemOrErr.right.get))
+          } yield {
+            for { perms <- permsOrErr.right; item <- itemOrErr.right} yield {
+              f(item)(perms)(user)(request)
+            }
           }
         }
-      }
+    }
   }
 
-  def permissionsPost(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-      val data = request.body.asFormUrlEncoded.getOrElse(Map())
-      val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
-        (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
-      }.toMap
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        for {
-          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          newpermsOrErr <- rest.PermissionDAO(user).set(builder(itemOrErr.right.get), perms)
-        } yield {
-          newpermsOrErr.right.map { perms =>
-            Redirect(showAction(id))
+  def setGlobalPermissionsPostAction(id: String)(f: Entity => GlobalPermissionSet[T] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+      implicit request =>
+        val data = request.body.asFormUrlEncoded.getOrElse(Map())
+        val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
+          (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
+        }.toMap
+        implicit val maybeUser = Some(user)
+        AsyncRest {
+          for {
+            itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+            newpermsOrErr <- rest.PermissionDAO(user).set(builder(itemOrErr.right.get), perms)
+          } yield {
+            for { perms <- newpermsOrErr.right; item <- itemOrErr.right} yield {
+              f(item)(perms)(user)(request)
+            }
           }
         }
-      }
+    }
   }
 }

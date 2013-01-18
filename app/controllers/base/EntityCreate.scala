@@ -16,11 +16,6 @@ import play.api.i18n.Messages
  * @tparam T the Entity's built representation
  */
 trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
-  type FormViewType = (Option[T], Form[F], Call, UserProfile, RequestHeader) => play.api.templates.Html
-  val createAction: Call
-  val formView: FormViewType
-  val form: Form[F]
-
 
   def createPostAction(form: Form[F])(f: Either[Form[F],Entity] => UserProfile => Request[AnyContent] => Result) = {
     withContentPermission(PermissionType.Create, contentType) { implicit user =>

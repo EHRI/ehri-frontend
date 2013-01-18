@@ -15,6 +15,17 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with EntityDelete[DocumentaryUnit]
   with PermissionScopeController[DocumentaryUnit] {
 
+  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+  val childContentType = ContentType.DocumentaryUnit
+  val childEntityType = EntityType.DocumentaryUnit
+
+  val entityType = EntityType.DocumentaryUnit
+  val contentType = ContentType.DocumentaryUnit
+
+  val form = models.forms.DocumentaryUnitForm.form
+  val childForm = models.forms.DocumentaryUnitForm.form
+  val builder = DocumentaryUnit
+
   def get(id: String) = getAction(id) { item =>
     implicit maybeUser =>
       implicit request =>
@@ -46,47 +57,91 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         }
   }
 
+  def createDoc(id: String) = childCreateAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.documentaryUnit.create(
+        DocumentaryUnit(item), childForm, routes.DocumentaryUnits.createDocPost(id), user, request))
+  }
 
-  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
-  val childContentType = ContentType.DocumentaryUnit
-  val childEntityType = EntityType.DocumentaryUnit
+  def createDocPost(id: String) = childCreatePostAction(id, childForm) { formOrItem =>
+    implicit user =>
+      implicit request =>
+        formOrItem match {
+          case Left(form) => getEntity(id, Some(user)) { item =>
+            BadRequest(views.html.documentaryUnit.create(DocumentaryUnit(item),
+              form, routes.DocumentaryUnits.createDocPost(id), user, request))
+          }
+          case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
+            .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreate", item.id))
+        }
+  }
 
-  val managePermissionAction = routes.DocumentaryUnits.managePermissions _
-  val manageScopedPermissionAction = routes.DocumentaryUnits.manageScopedPermissions _
-  val managePermissionView = views.html.permissions.managePermissions.apply _
-  val manageScopedPermissionView = views.html.permissions.manageScopedPermissions.apply _
-  val addItemPermissionAction = routes.DocumentaryUnits.addItemPermissions _
-  val addItemPermissionView = views.html.permissions.permissionItem.apply _
-  val permissionItemAction = routes.DocumentaryUnits.permissionItem _
-  val permissionItemView = views.html.permissions.setPermissionItem.apply _
-  val setPermissionItemAction = routes.DocumentaryUnits.permissionItemPost _
+  def delete(id: String) = deleteAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.delete(
+        DocumentaryUnit(item), routes.DocumentaryUnits.deletePost(id),
+        routes.DocumentaryUnits.get(id), user, request))
+  }
 
-  val addScopedPermissionAction = routes.DocumentaryUnits.addScopedPermissions _
-  val addScopedPermissionView = views.html.permissions.permissionScope.apply _
-  val permissionScopeAction = routes.DocumentaryUnits.permissionScope _
-  val permissionScopeView = views.html.permissions.setPermissionScope.apply _
-  val setPermissionScopeAction = routes.DocumentaryUnits.permissionScopePost _
+  def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
+    implicit request =>
+      Redirect(routes.DocumentaryUnits.list())
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasDeleted", id))
+  }
 
-  val entityType = EntityType.DocumentaryUnit
-  val contentType = ContentType.DocumentaryUnit
-  val cancelAction = routes.DocumentaryUnits.get _
-  val deleteAction = routes.DocumentaryUnits.deletePost _
+  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
+    implicit request =>
+      Ok(views.html.visibility(DocumentaryUnit(item), users, groups, routes.DocumentaryUnits.visibilityPost(id), user, request))
+  }
 
-  val setVisibilityAction = routes.DocumentaryUnits.visibilityPost _
-  val visibilityAction = routes.DocumentaryUnits.visibility _
-  val visibilityView = views.html.visibility.apply _
+  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
+    implicit request =>
+      Redirect(routes.DocumentaryUnits.list())
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+  }
 
-  val form = models.forms.DocumentaryUnitForm.form
-  val childForm = models.forms.DocumentaryUnitForm.form
-  val showAction = routes.DocumentaryUnits.get _
-  val childShowAction = routes.DocumentaryUnits.get _
-  val childCreateAction = routes.DocumentaryUnits.childCreatePost _
-  val formView = views.html.documentaryUnit.edit.apply _
-  val showView = views.html.documentaryUnit.show.apply _
-  val listView = views.html.documentaryUnit.list.apply _
-  val childFormView = views.html.documentaryUnit.create.apply _
-  val deleteView = views.html.delete.apply _
-  val builder = DocumentaryUnit
+  def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
+    manageScopedPermissionsAction(id, page, spage, limit) {
+    item => perms => sperms => implicit user => implicit request =>
+      Ok(views.html.permissions.manageScopedPermissions(DocumentaryUnit(item), perms, sperms,
+        routes.DocumentaryUnits.addItemPermissions(id), routes.DocumentaryUnits.get(id), user, request))
+  }
+
+  def addItemPermissions(id: String) = addItemPermissionsAction(id) {
+    item => users => groups => implicit user => implicit request =>
+      Ok(views.html.permissions.permissionItem(DocumentaryUnit(item), users, groups,
+        routes.DocumentaryUnits.setItemPermissions _, user, request))
+  }
+
+  def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
+    item => users => groups => implicit user => implicit request =>
+      Ok(views.html.permissions.permissionItem(DocumentaryUnit(item), users, groups,
+        routes.DocumentaryUnits.setScopedPermissions _, user, request))
+  }
+
+  def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
+    item => accessor => perms => implicit user => implicit request =>
+      Ok(views.html.permissions.setPermissionItem(DocumentaryUnit(item), accessor, perms, contentType,
+        routes.DocumentaryUnits.setItemPermissionsPost(id, userType, userId), user, request))
+  }
+
+  def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
+    bool => implicit user => implicit request =>
+      Redirect(routes.DocumentaryUnits.managePermissions(id))
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
+    item => accessor => perms => implicit user => implicit request =>
+      Ok(views.html.permissions.setPermissionScope(DocumentaryUnit(item), accessor, perms, targetContentTypes,
+        routes.DocumentaryUnits.setScopedPermissionsPost(id, userType, userId), user, request))
+  }
+
+  def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
+    perms => implicit user => implicit request =>
+      Redirect(routes.DocumentaryUnits.managePermissions(id))
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+  }
 }
 
 

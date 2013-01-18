@@ -16,7 +16,7 @@ import play.api.http.HeaderNames
 import play.api.http.ContentTypes
 import play.api.libs.json.Json
 
-case class VisibilityDAO[T <: AccessibleEntity](val accessor: UserProfile) extends RestDAO {
+case class VisibilityDAO(val accessor: UserProfile) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/access".format(host, port, mount)
 
@@ -24,9 +24,8 @@ case class VisibilityDAO[T <: AccessibleEntity](val accessor: UserProfile) exten
     AUTH_HEADER_NAME -> accessor.id
   )
   
-  def set(user: T, data: List[String]): Future[Either[RestError, Boolean]] = {
-    WS.url(enc(requestUrl, user.id))
-    	.withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
+  def set(id: String, data: List[String]): Future[Either[RestError, Boolean]] = {
+    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
         checkError(response).right.map(r => true)
       }
   }

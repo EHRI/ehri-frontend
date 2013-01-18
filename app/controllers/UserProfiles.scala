@@ -6,12 +6,24 @@ import defines._
 import base.{PermissionItemController, CRUD, VisibilityController, PermissionHolderController}
 import models.{Group, UserProfile}
 import models.forms.UserProfileF
+import org.bouncycastle.asn1.cms.OtherKeyAttribute
 
 
 object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
 	with VisibilityController[UserProfileF,UserProfile]
 	with CRUD[UserProfileF,UserProfile]
   with PermissionItemController[UserProfile] {
+
+
+
+  val entityType = EntityType.UserProfile
+  val contentType = ContentType.UserProfile
+
+  val form = models.forms.UserProfileForm.form
+
+  // NB: Because the UserProfile class has more optional
+  // parameters we use the companion object apply method here.
+  val builder = UserProfile.apply _
 
   def get(id: String) = getAction(id) { item =>
     implicit maybeUser =>
@@ -59,37 +71,69 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
         }
   }
 
-  val managePermissionAction = routes.UserProfiles.managePermissions _
-  val managePermissionView = views.html.permissions.managePermissions.apply _
-  val addItemPermissionAction = routes.UserProfiles.addItemPermissions _
-  val addItemPermissionView = views.html.permissions.permissionItem.apply _
-  val permissionItemAction = routes.UserProfiles.permissionItem _
-  val permissionItemView = views.html.permissions.setPermissionItem.apply _
-  val setPermissionItemAction = routes.UserProfiles.permissionItemPost _
+  def delete(id: String) = deleteAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.delete(
+        UserProfile(item), routes.UserProfiles.deletePost(id),
+          routes.UserProfiles.get(id), user, request))
+  }
 
-  val entityType = EntityType.UserProfile
-  val contentType = ContentType.UserProfile
-  val createAction = routes.UserProfiles.createPost
-  val cancelAction = routes.UserProfiles.get _
-  val deleteAction = routes.UserProfiles.deletePost _
-  
-  val permsAction = routes.UserProfiles.permissions _
-  val setPermsAction = routes.UserProfiles.permissionsPost _
-  
-  val setVisibilityAction = routes.UserProfiles.visibilityPost _
-  val visibilityAction = routes.UserProfiles.visibility _
-  val visibilityView = views.html.visibility.apply _
-  
-  val form = models.forms.UserProfileForm.form
-  val showAction = routes.UserProfiles.get _
-  val formView = views.html.userProfile.edit.apply _
-  val showView = views.html.userProfile.show.apply _
-  val listView = views.html.userProfile.list.apply _
-  val deleteView = views.html.delete.apply _
-  val permView = views.html.accessors.edit.apply _
-  val permListView = views.html.accessors.permissionGrantList.apply _
-  // NB: Because the UserProfile class has more optional
-  // parameters we use the companion object apply method here.
-  val builder = UserProfile.apply _
+  def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
+    implicit request =>
+      Redirect(routes.UserProfiles.list())
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasDeleted", id))
+  }
+
+  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
+    implicit request =>
+      Ok(views.html.visibility(UserProfile(item), users, groups, routes.UserProfiles.visibilityPost(id), user, request))
+  }
+
+  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
+    implicit request =>
+      Redirect(routes.UserProfiles.list())
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
+      item => perms => implicit user => implicit request =>
+    Ok(views.html.accessors.permissionGrantList(UserProfile(item), perms, user, request))
+  }
+
+  def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
+    item => perms => implicit user => implicit request =>
+      Ok(views.html.accessors.edit(UserProfile(item), perms,
+        routes.UserProfiles.permissionsPost(id), user, request))
+  }
+
+  def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) { item => perms => implicit user =>
+    implicit request =>
+      Redirect(routes.UserProfiles.get(id))
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
+    item => perms => implicit user => implicit request =>
+      Ok(views.html.permissions.managePermissions(Group(item), perms,
+        routes.UserProfiles.addItemPermissions(id), user, request))
+  }
+
+  def addItemPermissions(id: String) = addItemPermissionsAction(id) {
+    item => users => groups => implicit user => implicit request =>
+      Ok(views.html.permissions.permissionItem(UserProfile(item), users, groups,
+        routes.UserProfiles.setItemPermissions _, user, request))
+  }
+
+  def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
+    item => accessor => perms => implicit user => implicit request =>
+      Ok(views.html.permissions.setPermissionItem(UserProfile(item), accessor, perms, contentType,
+        routes.UserProfiles.setItemPermissionsPost(id, userType, userId), user, request))
+  }
+
+  def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
+    perms => implicit user => implicit request =>
+      Redirect(routes.UserProfiles.managePermissions(id))
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+  }
 }
 

@@ -1,10 +1,10 @@
 package controllers.base
 
-import play.api.mvc.{Call,RequestHeader}
+import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import defines._
-import models.UserProfile
+import models.{PermissionGrant, Entity, UserProfile}
 import acl.{ItemPermissionSet, GlobalPermissionSet}
 
 /**
@@ -14,63 +14,49 @@ import acl.{ItemPermissionSet, GlobalPermissionSet}
  */
 trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
-  val showAction: String => Call
+  def manageItemPermissionsAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
+      f: Entity => rest.Page[PermissionGrant] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+      implicit request =>
 
-  val managePermissionAction: (String,Int,Int) => Call
-  val addItemPermissionAction: String => Call
-  val permissionItemAction: (String, String, String) => Call
-  val setPermissionItemAction: (String, String, String) => Call
-
-  type ManagePermissionViewType = (AccessibleEntity, rest.Page[models.PermissionGrant],
-    Call, UserProfile, RequestHeader) => play.api.templates.Html
-  val managePermissionView: ManagePermissionViewType
-
-  type AddItemPermissionViewType = (AccessibleEntity,
-        Seq[(String,String)], Seq[(String,String)],
-        (String,String,String) => Call, UserProfile, RequestHeader) => play.api.templates.Html
-  val addItemPermissionView: AddItemPermissionViewType
-
-  type PermissionItemViewType = (AccessibleEntity, Accessor, ItemPermissionSet[models.base.Accessor],
-        ContentType.Value, Call, UserProfile, RequestHeader) => play.api.templates.Html
-
-  val permissionItemView: PermissionItemViewType
-
-  def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        for {
-          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id, math.max(page, 1), math.max(limit, 1))
-        } yield {
-          for { item <- itemOrErr.right ; permGrants <- permGrantsOrErr.right } yield {
-            Ok(managePermissionView(builder(item), permGrants, addItemPermissionAction(id), user, request))
+        implicit val maybeUser = Some(user)
+        AsyncRest {
+          for {
+            itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+            permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id, math.max(page, 1), math.max(limit, 1))
+          } yield {
+            for { item <- itemOrErr.right ; permGrants <- permGrantsOrErr.right } yield {
+              f(item)(permGrants)(user)(request)
+            }
           }
         }
-      }
+    }
   }
 
-  def addItemPermissions(id: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
+  def addItemPermissionsAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+      implicit request =>
 
-    implicit val maybeUser = Some(user)
-    AsyncRest {
-      for {
-        itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-        users <- rest.RestHelpers.getUserList
-        groups <- rest.RestHelpers.getGroupList
-      } yield {
-        for { item <- itemOrErr.right } yield {
-          Ok(views.html.permissions.permissionItem(builder(item), users, groups, permissionItemAction, user, request))
+        implicit val maybeUser = Some(user)
+        AsyncRest {
+          for {
+            itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+            users <- rest.RestHelpers.getUserList
+            groups <- rest.RestHelpers.getGroupList
+          } yield {
+            for { item <- itemOrErr.right } yield {
+              f(item)(users)(groups)(user)(request)
+            }
+          }
         }
-      }
     }
   }
 
 
-  def permissionItem(id: String, userType: String, userId: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
+  def setItemPermissionsAction(id: String, userType: String, userId: String)(
+      f: Entity => Accessor => acl.ItemPermissionSet[Accessor] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+        implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
         for {
@@ -84,35 +70,37 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
               .getItem(Accessor(models.Entity.fromString(userId, EntityType.withName(userType))), contentType, id)
         } yield {
           for { item <- itemOrErr.right ; accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
-            Ok(permissionItemView(builder(item),  Accessor(accessor), perms.copy(user=Accessor(accessor)), contentType,
-              setPermissionItemAction(id, userType, userId), user, request))
+            f(item)(Accessor(accessor))(perms.copy(user=Accessor(accessor)))(user)(request)
           }
         }
       }
+    }
   }
 
-  def permissionItemPost(id: String, userType: String, userId: String) = withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      val data = request.body.asFormUrlEncoded.getOrElse(Map())
-      val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
+  def setItemPermissionsPostAction(id: String, userType: String, userId: String)(
+      f: acl.ItemPermissionSet[Accessor] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+      implicit request =>
+        implicit val maybeUser = Some(user)
+        val data = request.body.asFormUrlEncoded.getOrElse(Map())
+        val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
 
-      AsyncRest {
-        for {
-          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          accessorOrErr <- rest.EntityDAO(EntityType.withName(userType), maybeUser).get(userId)
-        } yield {
-          for { item <- itemOrErr.right; accessor <- accessorOrErr.right} yield {
-            AsyncRest {
-              rest.PermissionDAO(user).setItem(Accessor(accessor), contentType, item.id, perms).map { boolOrErr =>
-                boolOrErr.right.map { bool =>
-                  Redirect(managePermissionAction(id, 1 , DEFAULT_LIMIT))
+        AsyncRest {
+          for {
+            accessorOrErr <- rest.EntityDAO(EntityType.withName(userType), maybeUser).get(userId)
+          } yield {
+            for { accessor <- accessorOrErr.right} yield {
+              AsyncRest {
+                rest.PermissionDAO(user).setItem(Accessor(accessor), contentType, id, perms).map { permsOrErr =>
+                  permsOrErr.right.map { perms =>
+                    f(perms)(user)(request)
+                  }
                 }
               }
             }
           }
         }
-      }
+    }
   }
 }
 
