@@ -1,4 +1,4 @@
-@(items: rest.Page[UserProfile])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(items: rest.Page[UserProfile])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @main(Messages("actions.listUserProfiles"))(maybeUser, req) {
 

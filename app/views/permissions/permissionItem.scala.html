@@ -1,10 +1,13 @@
-@(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call)(
+    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @main(Messages("actions.manageItemPermissionsForAccessor", item.identifier))(Some(user), req) {
 
     <h2>@Messages("actions.manageItemPermissionsForAccessor", item.identifier)</h2>
+
+    @common.flash(flash)
 
     @if(!groups.isEmpty) {
         <strong>@Messages("contentTypes.group"): </strong>&nbsp;

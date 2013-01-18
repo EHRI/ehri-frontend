@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, action: Call, cancel: Call)(implicit user: UserProfile, request: RequestHeader)
+@(item: AccessibleEntity, action: Call, cancel: Call)(implicit user: UserProfile, request: RequestHeader, flash: Flash)
 
 @main(Messages("actions.deleteItem", item.identifier))(Some(user), request) {
 

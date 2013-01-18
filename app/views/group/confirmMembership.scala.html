@@ -1,12 +1,14 @@
-@(group: Group, item: Accessor, action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(group: Group, item: Accessor, action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-  @main(Messages("Add %s to group: %s".format(group.name, item.name)))(Some(user), req) {
+@main(Messages("Add %s to group: %s".format(group.name, item.name)))(Some(user), req) {
 	
     <h2>@Messages("Add %s to group: %s".format(item.name, group.name))</h2>
-    
-	<hr />
+
+    @common.flash(flash)
+
+    <hr />
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<div class="form-actions">

@@ -1,11 +1,11 @@
-@(f: play.api.data.Form[(String, String, String, String, String, Option[List[String]])], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(f: play.api.data.Form[(String, String, String, String, String, Option[List[String]])], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @main(Messages("admin.createNewUser"))(Some(user), req) {
+	<h2>@Messages("admin.createNewUser")</h2>
 
-	<h3>@Messages("admin.createNewUser")</h3>
-
+    @common.flash(flash)
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 

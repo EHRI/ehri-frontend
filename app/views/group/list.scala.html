@@ -1,6 +1,8 @@
-@(items: rest.Page[Group])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(items: rest.Page[Group])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @main(Messages("actions.listGroups"))(maybeUser, req) {
+
+    @common.flash(flash)
 
     <h2>@Messages("actions.listGroups")</h2>
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>

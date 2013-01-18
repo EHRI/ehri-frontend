@@ -1,11 +1,13 @@
-@(item: Accessor, groups: List[(String,String)])(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(item: Accessor, groups: List[(String,String)])(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @main(Messages("actions.manageGroups"))(Some(user), req) {
 	
     <h2>@Messages("actions.manageGroupsFor", item.name)</h2>
-    
+
+    @common.flash(flash)
+
 	@if(!item.groups.isEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;
 	  @item.groups.map { group =>

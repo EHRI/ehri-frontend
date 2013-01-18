@@ -1,7 +1,10 @@
-@(id: String, page: rest.Page[ActionLog], showAction: String => Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(id: String, page: rest.Page[ActionLog], showAction: String => Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @main(Messages("actionLogs.heading"))(Some(user), req) {
     <h2>@Messages("actions.historyForItem", id)</h2>
+
+    @common.flash(flash)
+
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
   
 	<div id="pagination" class="pagination">

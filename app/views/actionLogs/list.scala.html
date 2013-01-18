@@ -1,8 +1,11 @@
-@(page: rest.Page[ActionLog])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(page: rest.Page[ActionLog])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @main(Messages("actions.listActionLogs"))(maybeUser, req) {
 
     <h2>@Messages("actions.listActionLogs")</h2>
+
+    @common.flash(flash)
+
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
   
 	<div id="pagination" class="pagination">

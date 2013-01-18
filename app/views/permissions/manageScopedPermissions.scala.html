@@ -1,10 +1,13 @@
-@(item: AccessibleEntity, itemPage: rest.Page[PermissionGrant], scopePage: rest.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(item: AccessibleEntity, itemPage: rest.Page[PermissionGrant], scopePage: rest.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(
+    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @main(Messages("actions.manageScopedPermissionsForItem", item.identifier))(Some(user), req) {
 
     <h2>@Messages("actions.manageScopedPermissionsForItem", item.identifier)</h2>
+
+    @common.flash(flash)
 
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 

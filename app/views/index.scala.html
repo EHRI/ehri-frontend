@@ -1,4 +1,4 @@
-@(message: String)(implicit maybeUser: Option[UserProfile] = None, req: RequestHeader, lang: Lang)
+@(message: String)(implicit maybeUser: Option[UserProfile] = None, req: RequestHeader, lang: Lang, flash: Flash)
 
 @main("Stuff")(maybeUser, req) {
 

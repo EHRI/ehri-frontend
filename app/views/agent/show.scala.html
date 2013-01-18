@@ -1,14 +1,16 @@
-@(item: Agent)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: Agent)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.forms.Isdiah._
 
 @main(item.name)(maybeUser, req) {
-    <h1>@req.acceptLanguages.map(_.code).mkString(", ")</h1> <h1>@lang</h1>
+
     @defining("isdiah") { implicit fieldPrefix =>
-        <h3>@item.name @item.identifier </h3>
+        <h2>@item.name @item.identifier </h2>
+
+        @common.flash(flash)
 
         @if(!item.descriptions.isEmpty) {
-            <h4>@Messages("Available Descriptions")</h4>
+            <h3>@Messages("Available Descriptions")</h3>
             @item.descriptions.map { desc =>
                 <h5>Language: @desc.languageCode</h5>
 

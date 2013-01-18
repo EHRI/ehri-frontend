@@ -1,4 +1,4 @@
-@(items: rest.Page[models.UserProfile], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(items: rest.Page[models.UserProfile], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @main("View item")(maybeUser, req) {
 

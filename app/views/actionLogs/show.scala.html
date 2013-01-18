@@ -1,10 +1,13 @@
-@(item: ActionLog)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: ActionLog)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import defines._
 
 @main("Action " + item.identifier)(maybeUser, req) {
 
 	<h2>@item.timeStamp</h2>
+
+    @common.flash(flash)
+
 	@item.actioner.map { accessor =>
 		@accessor match {
 

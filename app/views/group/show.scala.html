@@ -1,10 +1,12 @@
-@(item: Group)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: Group)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @main(item.name)(maybeUser, req) {
-	
-	<h3>Group: @item.name (@item.identifier)</h3>
-		
-	@if(!item.groups.isEmpty) {
+
+	<h2>Group: @item.name (@item.identifier)</h2>
+
+    @common.flash(flash)
+
+    @if(!item.groups.isEmpty) {
 	  <hr />
 	  <strong>Parent Groups: </strong>&nbsp;
 	  @item.groups.map { group =>

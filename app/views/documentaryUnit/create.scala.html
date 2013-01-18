@@ -1,10 +1,12 @@
-@(item: AccessibleEntity, f: play.api.data.Form[models.forms.DocumentaryUnitF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(item: AccessibleEntity, f: play.api.data.Form[models.forms.DocumentaryUnitF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @main(Messages("actions.createDocumentaryUnit"))(Some(user), req) {
 
     <h2>@Messages("actions.createDocumentaryUnit")</h2>
+
+    @common.flash(flash)
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@documentaryUnit.renderForm(f)

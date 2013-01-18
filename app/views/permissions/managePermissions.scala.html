@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, page: rest.Page[PermissionGrant], itemPermAction: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(item: AccessibleEntity, page: rest.Page[PermissionGrant], itemPermAction: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @import defines._
 
@@ -7,6 +7,8 @@
 @main(Messages("actions.manageItemPermissionsForItem", item.identifier))(Some(user), req) {
 
     <h2>@Messages("actions.manageItemPermissionsForItem", item.identifier)</h2>
+
+    @common.flash(flash)
 
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 

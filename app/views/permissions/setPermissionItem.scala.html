@@ -1,9 +1,12 @@
-@(item: AccessibleEntity, accessor: Accessor, perms: ItemPermissionSet[Accessor], contentType: ContentType.Value, action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(item: AccessibleEntity, accessor: Accessor, perms: ItemPermissionSet[Accessor], contentType: ContentType.Value, action: Call)(
+    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @main(Messages("actions.grantPermissionsOnItem", item.identifier, accessor.name))(Some(user), req) {
-	
-  
+
 	<h2>@Messages("actions.grantPermissionsOnItem", item.identifier, accessor.name)</h2>
+
+    @common.flash(flash)
+
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<fieldset id="permissionItem-area">
 

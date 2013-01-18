@@ -1,4 +1,4 @@
-@(page: rest.Page[DocumentaryUnit])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(page: rest.Page[DocumentaryUnit])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @main(Messages("actions.listDocumentaryUnits"))(maybeUser, req) {
 

@@ -1,4 +1,4 @@
-@(item: Option[Agent], f: play.api.data.Form[models.forms.AgentF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(item: Option[Agent], f: play.api.data.Form[models.forms.AgentF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.forms.Isdiah._
 
@@ -8,6 +8,7 @@
 
 	<h2>@Messages(item.map(s => "actions.updateAgent").getOrElse("actions.createAgent"))</h2>
 
+    @common.flash(flash)
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@defining("isdiah") { implicit fieldPrefix =>
