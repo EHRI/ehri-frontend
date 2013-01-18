@@ -14,6 +14,15 @@ import models.{Entity,UserProfile}
 trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   val DEFAULT_LIMIT = 20
 
+  def getEntity(id: String, user: Option[UserProfile])(f: Entity => Result)(implicit request: RequestHeader) = {
+    implicit val maybeUser = user
+    AsyncRest {
+      rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
+        itemOrErr.right.map(f)
+      }
+    }
+  }
+
   def getJson(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       import play.api.libs.json.Json

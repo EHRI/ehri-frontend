@@ -40,6 +40,24 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
     }
   }
 
+  def update(id: String) = updateAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.userProfile.edit(
+        Some(UserProfile(item)), form.fill(UserProfile(item).to), routes.UserProfiles.updatePost(id), user, request))
+  }
+
+  def updatePost(id: String) = updatePostAction(id, form) { formOrItem =>
+    implicit user =>
+      implicit request =>
+        formOrItem match {
+          case Left(errorForm) => getEntity(id, Some(user)) { item =>
+            BadRequest(views.html.userProfile.edit(
+              Some(UserProfile(item)), errorForm, routes.UserProfiles.updatePost(id), user, request))
+          }
+          case Right(item) => Redirect(routes.UserProfiles.get(item.id))
+            .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+        }
+  }
 
   val managePermissionAction = routes.UserProfiles.managePermissions _
   val managePermissionView = views.html.permissions.managePermissions.apply _
@@ -52,7 +70,6 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   val entityType = EntityType.UserProfile
   val contentType = ContentType.UserProfile
   val createAction = routes.UserProfiles.createPost
-  val updateAction = routes.UserProfiles.updatePost _
   val cancelAction = routes.UserProfiles.get _
   val deleteAction = routes.UserProfiles.deletePost _
   

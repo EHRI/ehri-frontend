@@ -38,7 +38,6 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   val entityType = EntityType.Agent
   val contentType = ContentType.Agent
   val createAction = routes.Agents.createPost
-  val updateAction = routes.Agents.updatePost _
   val cancelAction = routes.Agents.get _
   val deleteAction = routes.Agents.deletePost _
   val childShowAction = routes.DocumentaryUnits.get _
@@ -85,4 +84,22 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
     }
   }
+
+  def update(id: String) = updateAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.agent.edit(Some(Agent(item)), form.fill(Agent(item).to), routes.Agents.updatePost(id), user, request))
+  }
+
+  def updatePost(id: String) = updatePostAction(id, form) { formOrItem =>
+    implicit user =>
+      implicit request =>
+        formOrItem match {
+          case Left(form) => getEntity(id, Some(user)) { item =>
+            BadRequest(views.html.agent.edit(Some(Agent(item)), form, routes.Agents.updatePost(id), user, request))
+          }
+          case Right(item) => Redirect(routes.Agents.get(item.id))
+            .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+        }
+  }
+
 }

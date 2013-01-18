@@ -6,7 +6,7 @@ import base.{PermissionItemController, CRUD, PermissionHolderController, Visibil
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.Execution.Implicits._
 import models.forms.GroupF
-import models.Group
+import models.{UserProfile, Group}
 import models.base.Accessor
 
 object Groups extends PermissionHolderController[GroupF, Group]
@@ -25,7 +25,6 @@ object Groups extends PermissionHolderController[GroupF, Group]
   val entityType = EntityType.Group
   val contentType = ContentType.Group
   val createAction = routes.Groups.createPost
-  val updateAction = routes.Groups.updatePost _
   val cancelAction = routes.Groups.get _
   val deleteAction = routes.Groups.deletePost _
   val permsAction = routes.Groups.permissions _
@@ -72,6 +71,23 @@ object Groups extends PermissionHolderController[GroupF, Group]
     }
   }
 
+  def update(id: String) = updateAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.group.edit(
+        Some(Group(item)), form.fill(Group(item).to), routes.Groups.updatePost(id), user, request))
+  }
+
+  def updatePost(id: String) = updatePostAction(id, form) { formOrItem =>
+    implicit user =>
+      implicit request =>
+        formOrItem match {
+          case Left(form) => getEntity(id, Some(user)) { item =>
+            BadRequest(views.html.group.edit(Some(Group(item)), form, routes.Groups.updatePost(id), user, request))
+          }
+          case Right(item) => Redirect(routes.Groups.get(item.id))
+            .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+        }
+  }
 
 
   /*

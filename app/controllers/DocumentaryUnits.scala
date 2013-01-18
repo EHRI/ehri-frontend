@@ -27,6 +27,26 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         Ok(views.html.documentaryUnit.list(page.copy(list = page.list.map(DocumentaryUnit(_))), maybeUser, request))
   }
 
+  def update(id: String) = updateAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.documentaryUnit.edit(
+        Some(DocumentaryUnit(item)), form.fill(DocumentaryUnit(item).to),routes.DocumentaryUnits.updatePost(id), user, request))
+  }
+
+  def updatePost(id: String) = updatePostAction(id, form) { formOrItem =>
+    implicit user =>
+      implicit request =>
+        formOrItem match {
+          case Left(form) => getEntity(id, Some(user)) { item =>
+            BadRequest(views.html.documentaryUnit.edit(
+              Some(DocumentaryUnit(item)), form, routes.DocumentaryUnits.updatePost(id), user, request))
+          }
+          case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
+            .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+        }
+  }
+
+
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
   val childContentType = ContentType.DocumentaryUnit
   val childEntityType = EntityType.DocumentaryUnit
@@ -51,7 +71,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val contentType = ContentType.DocumentaryUnit
   val cancelAction = routes.DocumentaryUnits.get _
   val deleteAction = routes.DocumentaryUnits.deletePost _
-  val updateAction = routes.DocumentaryUnits.updatePost _
 
   val setVisibilityAction = routes.DocumentaryUnits.visibilityPost _
   val visibilityAction = routes.DocumentaryUnits.visibility _
