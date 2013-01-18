@@ -57,6 +57,23 @@ object Groups extends PermissionHolderController[GroupF, Group]
         Ok(views.html.group.list(page.copy(list = page.list.map(Group(_))), maybeUser, request))
   }
 
+  def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
+    implicit request =>
+      Ok(views.html.group.edit(None, form, routes.Groups.createPost, user, request))
+  }
+
+  def createPost = createPostAction(form) { formOrItem =>
+    implicit user =>
+      implicit request =>
+    formOrItem match {
+      case Left(form) => BadRequest(views.html.group.edit(None, form, routes.Groups.createPost, user, request))
+      case Right(item) => Redirect(routes.Groups.get(item.id))
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
+    }
+  }
+
+
+
   /*
    *	Membership
    */

@@ -2,12 +2,11 @@ package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
-import play.api.mvc.RequestHeader
-import play.api.mvc.Call
+import play.api.mvc._
 import models.base.Persistable
 import play.api.data.{ Form, FormError }
 import defines.PermissionType
-import models.UserProfile
+import models.{Entity, UserProfile}
 import play.api.i18n.Messages
 
 /**
@@ -22,41 +21,37 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
   val formView: FormViewType
   val form: Form[F]
 
-  val showAction: String => Call
 
-  def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
-    implicit request =>
-      Ok(formView(None, form, createAction, user, request))
-  }
-
-  def createPost = withContentPermission(PermissionType.Create, contentType) { implicit user =>
-    implicit request =>
-      form.bindFromRequest.fold(
-        errorForm => BadRequest(formView(None, errorForm, createAction, user, request)),
-        doc => {
+  def createPostAction(form: Form[F])(f: Either[Form[F],Entity] => UserProfile => Request[AnyContent] => Result) = {
+    withContentPermission(PermissionType.Create, contentType) { implicit user =>
+      implicit request =>
+        form.bindFromRequest.fold(
+          errorForm => f(Left(errorForm))(user)(request),
+          doc => {
           implicit val maybeUser = Some(user)
           AsyncRest {
             rest.EntityDAO(entityType, maybeUser)
               .create(doc).map { itemOrErr =>
-                // If we have an error, check if it's a validation error.
-                // If so, we need to merge those errors back into the form
-                // and redisplay it...
-                if (itemOrErr.isLeft) {
-                  itemOrErr.left.get match {
-                    case err: rest.ValidationError => {
-                      val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
-                      val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-                      Right(BadRequest(formView(None, filledForm, createAction, user, request)))
-                    }
-                    case e => Left(e)
+            // If we have an error, check if it's a validation error.
+            // If so, we need to merge those errors back into the form
+            // and redisplay it...
+              if (itemOrErr.isLeft) {
+                itemOrErr.left.get match {
+                  case err: rest.ValidationError => {
+                    val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
+                    val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
+                    Right(f(Left(filledForm))(user)(request))
                   }
-                } else itemOrErr.right.map {
-                  item => Redirect(showAction(item.id)).flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+                  case e => Left(e)
                 }
+              } else itemOrErr.right.map {
+                item => f(Right(item))(user)(request)
               }
+            }
           }
         }
       )
+    }
   }
 }
 

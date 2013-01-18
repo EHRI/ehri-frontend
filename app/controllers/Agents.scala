@@ -2,10 +2,12 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import play.api.i18n.Messages
 import defines._
 import base._
 import models.{DocumentaryUnit, Agent}
 import models.forms.{AgentF,DocumentaryUnitF}
+import java.lang.ProcessBuilder.Redirect
 
 
 object Agents extends CreationContext[DocumentaryUnitF,Agent]
@@ -67,5 +69,20 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.agent.list(page.copy(list = page.list.map(Agent(_))), maybeUser, request))
+  }
+
+  def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
+    implicit request =>
+      Ok(views.html.agent.edit(None, form, routes.Agents.createPost, user, request))
+  }
+
+  def createPost = createPostAction(models.forms.AgentForm.form) { formOrItem =>
+    implicit user =>
+      implicit request =>
+    formOrItem match {
+      case Left(form) => BadRequest(views.html.agent.edit(None, form, routes.Agents.createPost, user, request))
+      case Right(item) => Redirect(routes.Agents.get(item.id))
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
+    }
   }
 }

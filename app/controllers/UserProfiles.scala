@@ -25,6 +25,21 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
         Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_))), maybeUser, request))
   }
 
+  def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
+    implicit request =>
+      Ok(views.html.userProfile.edit(None, form, routes.UserProfiles.createPost, user, request))
+  }
+
+  def createPost = createPostAction(form) { formOrItem =>
+    implicit user =>
+      implicit request =>
+    formOrItem match {
+      case Left(form) => BadRequest(views.html.userProfile.edit(None, form, routes.UserProfiles.createPost, user, request))
+      case Right(item) => Redirect(routes.UserProfiles.get(item.id))
+          .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
+    }
+  }
+
 
   val managePermissionAction = routes.UserProfiles.managePermissions _
   val managePermissionView = views.html.permissions.managePermissions.apply _
