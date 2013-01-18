@@ -28,25 +28,25 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   def get(id: String) = getAction(id) { item =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.userProfile.show(UserProfile(item), maybeUser, request))
+        Ok(views.html.userProfile.show(UserProfile(item)))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_))), maybeUser, request))
+        Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_)))))
   }
 
   def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
     implicit request =>
-      Ok(views.html.userProfile.edit(None, form, routes.UserProfiles.createPost, user, request))
+      Ok(views.html.userProfile.edit(None, form, routes.UserProfiles.createPost))
   }
 
   def createPost = createPostAction(form) { formOrItem =>
     implicit user =>
       implicit request =>
     formOrItem match {
-      case Left(form) => BadRequest(views.html.userProfile.edit(None, form, routes.UserProfiles.createPost, user, request))
+      case Left(form) => BadRequest(views.html.userProfile.edit(None, form, routes.UserProfiles.createPost))
       case Right(item) => Redirect(routes.UserProfiles.get(item.id))
           .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
     }
@@ -55,7 +55,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   def update(id: String) = updateAction(id) { item => implicit user =>
     implicit request =>
       Ok(views.html.userProfile.edit(
-        Some(UserProfile(item)), form.fill(UserProfile(item).to), routes.UserProfiles.updatePost(id), user, request))
+        Some(UserProfile(item)), form.fill(UserProfile(item).to), routes.UserProfiles.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) { formOrItem =>
@@ -64,7 +64,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
         formOrItem match {
           case Left(errorForm) => getEntity(id, Some(user)) { item =>
             BadRequest(views.html.userProfile.edit(
-              Some(UserProfile(item)), errorForm, routes.UserProfiles.updatePost(id), user, request))
+              Some(UserProfile(item)), errorForm, routes.UserProfiles.updatePost(id)))
           }
           case Right(item) => Redirect(routes.UserProfiles.get(item.id))
             .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
@@ -75,7 +75,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
     implicit request =>
       Ok(views.html.delete(
         UserProfile(item), routes.UserProfiles.deletePost(id),
-          routes.UserProfiles.get(id), user, request))
+          routes.UserProfiles.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
@@ -86,7 +86,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.visibility(UserProfile(item), users, groups, routes.UserProfiles.visibilityPost(id), user, request))
+      Ok(views.html.visibility(UserProfile(item), users, groups, routes.UserProfiles.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
@@ -97,13 +97,13 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
 
   def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
       item => perms => implicit user => implicit request =>
-    Ok(views.html.accessors.permissionGrantList(UserProfile(item), perms, user, request))
+    Ok(views.html.accessors.permissionGrantList(UserProfile(item), perms))
   }
 
   def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
     item => perms => implicit user => implicit request =>
       Ok(views.html.accessors.edit(UserProfile(item), perms,
-        routes.UserProfiles.permissionsPost(id), user, request))
+        routes.UserProfiles.permissionsPost(id)))
   }
 
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) { item => perms => implicit user =>
@@ -115,19 +115,19 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
     item => perms => implicit user => implicit request =>
       Ok(views.html.permissions.managePermissions(Group(item), perms,
-        routes.UserProfiles.addItemPermissions(id), user, request))
+        routes.UserProfiles.addItemPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
     item => users => groups => implicit user => implicit request =>
       Ok(views.html.permissions.permissionItem(UserProfile(item), users, groups,
-        routes.UserProfiles.setItemPermissions _, user, request))
+        routes.UserProfiles.setItemPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
     item => accessor => perms => implicit user => implicit request =>
       Ok(views.html.permissions.setPermissionItem(UserProfile(item), accessor, perms, contentType,
-        routes.UserProfiles.setItemPermissionsPost(id, userType, userId), user, request))
+        routes.UserProfiles.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {

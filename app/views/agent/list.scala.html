@@ -1,4 +1,4 @@
-@(items: rest.Page[Agent], maybeUser: Option[UserProfile], req: RequestHeader)(implicit lang: Lang)
+@(items: rest.Page[Agent])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @main(Messages("actions.listAgents"))(maybeUser, req) {
 

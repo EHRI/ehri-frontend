@@ -30,25 +30,25 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   def get(id: String) = getAction(id) { item =>
     implicit maybeUser =>
       implicit request =>
-      Ok(views.html.agent.show(Agent(item), maybeUser, request))
+      Ok(views.html.agent.show(Agent(item)))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.agent.list(page.copy(list = page.list.map(Agent(_))), maybeUser, request))
+        Ok(views.html.agent.list(page.copy(list = page.list.map(Agent(_)))))
   }
 
   def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
     implicit request =>
-      Ok(views.html.agent.edit(None, form, routes.Agents.createPost, user, request))
+      Ok(views.html.agent.edit(None, form, routes.Agents.createPost))
   }
 
   def createPost = createPostAction(models.forms.AgentForm.form) { formOrItem =>
     implicit user =>
       implicit request =>
     formOrItem match {
-      case Left(form) => BadRequest(views.html.agent.edit(None, form, routes.Agents.createPost, user, request))
+      case Left(form) => BadRequest(views.html.agent.edit(None, form, routes.Agents.createPost))
       case Right(item) => Redirect(routes.Agents.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
     }
@@ -56,7 +56,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
 
   def update(id: String) = updateAction(id) { item => implicit user =>
     implicit request =>
-      Ok(views.html.agent.edit(Some(Agent(item)), form.fill(Agent(item).to), routes.Agents.updatePost(id), user, request))
+      Ok(views.html.agent.edit(Some(Agent(item)), form.fill(Agent(item).to), routes.Agents.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) { formOrItem =>
@@ -64,7 +64,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
       implicit request =>
         formOrItem match {
           case Left(form) => getEntity(id, Some(user)) { item =>
-            BadRequest(views.html.agent.edit(Some(Agent(item)), form, routes.Agents.updatePost(id), user, request))
+            BadRequest(views.html.agent.edit(Some(Agent(item)), form, routes.Agents.updatePost(id)))
           }
           case Right(item) => Redirect(routes.Agents.get(item.id))
             .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
@@ -74,7 +74,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   def createDoc(id: String) = childCreateAction(id) { item => implicit user =>
     implicit request =>
       Ok(views.html.documentaryUnit.create(
-        Agent(item), childForm, routes.Agents.createDocPost(id), user, request))
+        Agent(item), childForm, routes.Agents.createDocPost(id)))
   }
 
   def createDocPost(id: String) = childCreatePostAction(id, childForm) { formOrItem =>
@@ -83,7 +83,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
         formOrItem match {
           case Left(form) => getEntity(id, Some(user)) { item =>
             BadRequest(views.html.documentaryUnit.create(Agent(item),
-              form, routes.Agents.createDocPost(id), user, request))
+              form, routes.Agents.createDocPost(id)))
           }
           case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
             .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreate", item.id))
@@ -94,7 +94,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
     implicit request =>
       Ok(views.html.delete(
         Agent(item), routes.Agents.deletePost(id),
-        routes.Agents.get(id), user, request))
+        routes.Agents.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
@@ -105,7 +105,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.visibility(Agent(item), users, groups, routes.Agents.visibilityPost(id), user, request))
+      Ok(views.html.visibility(Agent(item), users, groups, routes.Agents.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
@@ -117,25 +117,25 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) = manageScopedPermissionsAction(id, page, spage, limit) {
     item => perms => sperms => implicit user => implicit request =>
       Ok(views.html.permissions.manageScopedPermissions(Agent(item), perms, sperms,
-        routes.Agents.addItemPermissions(id), routes.Agents.addScopedPermissions(id), user, request))
+        routes.Agents.addItemPermissions(id), routes.Agents.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
     item => users => groups => implicit user => implicit request =>
       Ok(views.html.permissions.permissionItem(Agent(item), users, groups,
-        routes.Agents.setItemPermissions _, user, request))
+        routes.Agents.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
     item => users => groups => implicit user => implicit request =>
       Ok(views.html.permissions.permissionItem(Agent(item), users, groups,
-        routes.Agents.setScopedPermissions _, user, request))
+        routes.Agents.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
     item => accessor => perms => implicit user => implicit request =>
       Ok(views.html.permissions.setPermissionItem(Agent(item), accessor, perms, contentType,
-        routes.Agents.setItemPermissionsPost(id, userType, userId), user, request))
+        routes.Agents.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
@@ -147,7 +147,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
     item => accessor => perms => implicit user => implicit request =>
       Ok(views.html.permissions.setPermissionScope(Agent(item), accessor, perms, targetContentTypes,
-        routes.Agents.setScopedPermissionsPost(id, userType, userId), user, request))
+        routes.Agents.setScopedPermissionsPost(id, userType, userId)))
   }
 
   def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {

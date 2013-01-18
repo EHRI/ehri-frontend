@@ -1,4 +1,4 @@
-@(item: Accessor, page: rest.Page[PermissionGrant], user: UserProfile, req: RequestHeader)
+@(item: Accessor, page: rest.Page[PermissionGrant])(implicit user: UserProfile, req: RequestHeader, lang: Lang)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

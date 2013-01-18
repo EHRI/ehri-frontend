@@ -1,4 +1,4 @@
-@(f: play.api.data.Form[(String, String, String, String, String, Option[List[String]])], action: Call, user: UserProfile, req: RequestHeader)(implicit lang: Lang)
+@(f: play.api.data.Form[(String, String, String, String, String, Option[List[String]])], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

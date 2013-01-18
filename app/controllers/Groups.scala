@@ -23,25 +23,25 @@ object Groups extends PermissionHolderController[GroupF, Group]
   def get(id: String) = getAction(id) { item =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.group.show(Group(item), maybeUser, request))
+        Ok(views.html.group.show(Group(item)))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.group.list(page.copy(list = page.list.map(Group(_))), maybeUser, request))
+        Ok(views.html.group.list(page.copy(list = page.list.map(Group(_)))))
   }
 
   def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
     implicit request =>
-      Ok(views.html.group.edit(None, form, routes.Groups.createPost, user, request))
+      Ok(views.html.group.edit(None, form, routes.Groups.createPost))
   }
 
   def createPost = createPostAction(form) { formOrItem =>
     implicit user =>
       implicit request =>
     formOrItem match {
-      case Left(form) => BadRequest(views.html.group.edit(None, form, routes.Groups.createPost, user, request))
+      case Left(form) => BadRequest(views.html.group.edit(None, form, routes.Groups.createPost))
       case Right(item) => Redirect(routes.Groups.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
     }
@@ -50,7 +50,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
   def update(id: String) = updateAction(id) { item => implicit user =>
     implicit request =>
       Ok(views.html.group.edit(
-        Some(Group(item)), form.fill(Group(item).to), routes.Groups.updatePost(id), user, request))
+        Some(Group(item)), form.fill(Group(item).to), routes.Groups.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) { formOrItem =>
@@ -58,7 +58,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
       implicit request =>
         formOrItem match {
           case Left(form) => getEntity(id, Some(user)) { item =>
-            BadRequest(views.html.group.edit(Some(Group(item)), form, routes.Groups.updatePost(id), user, request))
+            BadRequest(views.html.group.edit(Some(Group(item)), form, routes.Groups.updatePost(id)))
           }
           case Right(item) => Redirect(routes.Groups.get(item.id))
             .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
@@ -69,7 +69,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
     implicit request =>
       Ok(views.html.delete(
         Group(item), routes.Groups.deletePost(id),
-        routes.Groups.get(id), user, request))
+        routes.Groups.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
@@ -80,7 +80,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.visibility(Group(item), users, groups, routes.Groups.visibilityPost(id), user, request))
+      Ok(views.html.visibility(Group(item), users, groups, routes.Groups.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
@@ -91,13 +91,13 @@ object Groups extends PermissionHolderController[GroupF, Group]
 
   def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
     item => perms => implicit user => implicit request =>
-      Ok(views.html.accessors.permissionGrantList(Group(item), perms, user, request))
+      Ok(views.html.accessors.permissionGrantList(Group(item), perms))
   }
 
   def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
     item => perms => implicit user => implicit request =>
       Ok(views.html.accessors.edit(UserProfile(item), perms,
-        routes.Groups.permissionsPost(id), user, request))
+        routes.Groups.permissionsPost(id)))
   }
 
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) { item => perms => implicit user =>
@@ -109,19 +109,19 @@ object Groups extends PermissionHolderController[GroupF, Group]
   def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
     item => perms => implicit user => implicit request =>
       Ok(views.html.permissions.managePermissions(UserProfile(item), perms,
-        routes.Groups.addItemPermissions(id), user, request))
+        routes.Groups.addItemPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
     item => users => groups => implicit user => implicit request =>
       Ok(views.html.permissions.permissionItem(Group(item), users, groups,
-        routes.Groups.setItemPermissions _, user, request))
+        routes.Groups.setItemPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
     item => accessor => perms => implicit user => implicit request =>
       Ok(views.html.permissions.setPermissionItem(Group(item), accessor, perms, contentType,
-        routes.Groups.setItemPermissionsPost(id, userType, userId), user, request))
+        routes.Groups.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
@@ -163,7 +163,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
                     user.groups.map(_.id).contains(ident)
                 }
             }
-            Ok(views.html.group.membership(accessor, filteredGroups, user, request))
+            Ok(views.html.group.membership(accessor, filteredGroups))
           }
         }
       }
@@ -183,7 +183,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
           itemOrErr.right.map { item =>
             val group = builder(groupOrErr.right.get)
             Ok(views.html.group.confirmMembership(group, Accessor(itemOrErr.right.get),
-              routes.Groups.addMemberPost(id, userType, userId), user, request))
+              routes.Groups.addMemberPost(id, userType, userId)))
           }
         }
       }
@@ -218,7 +218,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
           itemOrErr.right.map { item =>
             val group = builder(groupOrErr.right.get)
             Ok(views.html.group.removeMembership(group, Accessor(itemOrErr.right.get),
-              routes.Groups.removeMemberPost(id, userType, userId), user, request))
+              routes.Groups.removeMemberPost(id, userType, userId)))
           }
         }
       }

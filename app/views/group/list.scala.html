@@ -1,4 +1,4 @@
-@(items: rest.Page[Group], maybeUser: Option[UserProfile], req: RequestHeader)
+@(items: rest.Page[Group])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @main(Messages("actions.listGroups"))(maybeUser, req) {
 

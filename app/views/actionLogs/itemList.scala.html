@@ -1,4 +1,4 @@
-@(id: String, page: rest.Page[ActionLog], showAction: String => Call, user: UserProfile, req: RequestHeader)
+@(id: String, page: rest.Page[ActionLog], showAction: String => Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
 
 @main(Messages("actionLogs.heading"))(Some(user), req) {
     <h2>@Messages("actions.historyForItem", id)</h2>

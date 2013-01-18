@@ -37,14 +37,14 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
 
   def mailTest = optionalUserAction { implicit maybeUser => implicit request =>
 
-    Ok(views.html.mailTest(emailForm, routes.Application.mailTestPost, maybeUser, request))
+    Ok(views.html.mailTest(emailForm, routes.Application.mailTestPost))
 
   }
 
   def mailTestPost = optionalUserAction { implicit maybeUser => implicit request =>
     emailForm.bindFromRequest.fold(
       hasErrors = { errorForm =>
-        Ok(views.html.mailTest(errorForm, routes.Application.mailTestPost, maybeUser, request))
+        Ok(views.html.mailTest(errorForm, routes.Application.mailTestPost))
       },
       success = { email =>
         Ok("Got email: " + email)

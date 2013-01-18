@@ -103,8 +103,8 @@ trait AuthController extends Controller with Auth with Authorizer {
               } recover {
                 case e: ConnectException => {
                   // We still have to show the user is logged in, so use the fake profile in the error view
-                  val fakeUserProfile = fakeProfile.copy(account=Some(user))
-                  InternalServerError(views.html.errors.serverTimeout()(Some(fakeUserProfile), request))
+                  implicit val fakeUserProfile = Some(fakeProfile.copy(account=Some(user)))
+                  InternalServerError(views.html.errors.serverTimeout())
                 }
               }
             }
@@ -165,8 +165,8 @@ trait AuthController extends Controller with Auth with Authorizer {
               } recover {
                 case e: ConnectException => {
                   // We still have to show the user is logged in, so use the fake profile in the error view
-                  val fakeUserProfile = fakeProfile.copy(account=Some(user))
-                  InternalServerError(views.html.errors.serverTimeout()(Some(fakeUserProfile), request))
+                  implicit val fakeUserProfile = Some(fakeProfile.copy(account=Some(user)))
+                  InternalServerError(views.html.errors.serverTimeout())
                 }
               }
             }

@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call, user: UserProfile, req: RequestHeader)
+@(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

@@ -1,4 +1,4 @@
-@(message: String)(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
+@(message: String)(implicit maybeUser: Option[models.sql.User], req: RequestHeader, lang: Lang)
 
 @main("Testing login!")(None, req) {
 

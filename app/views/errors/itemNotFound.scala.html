@@ -1,4 +1,4 @@
-@()(implicit maybeUser: Option[UserProfile], req: RequestHeader)
+@()(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @main("Item not found!")(maybeUser, req) {
 

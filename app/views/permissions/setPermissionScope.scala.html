@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, accessor: Accessor, perms: GlobalPermissionSet[Accessor], contentTypes: Seq[ContentType.Value], action: Call, user: UserProfile, req: RequestHeader)
+@(item: AccessibleEntity, accessor: Accessor, perms: GlobalPermissionSet[Accessor], contentTypes: Seq[ContentType.Value], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
 
 @main(Messages("actions.grantPermissionsInScope", item, accessor))(Some(user), req) {
 	

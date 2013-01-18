@@ -1,4 +1,4 @@
-@(item: Accessor, groups: List[(String,String)], user: UserProfile, req: RequestHeader)
+@(item: Accessor, groups: List[(String,String)])(implicit user: UserProfile, req: RequestHeader, lang: Lang)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

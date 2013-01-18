@@ -1,4 +1,4 @@
-@(group: Group, item: Accessor, action: Call, user: UserProfile, req: RequestHeader)
+@(group: Group, item: Accessor, action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

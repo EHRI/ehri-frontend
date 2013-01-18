@@ -37,7 +37,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
 
   def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit user =>
     implicit request =>
-      Ok(views.html.admin.createUser(userPasswordForm, routes.Admin.createUserPost, user, request))
+      Ok(views.html.admin.createUser(userPasswordForm, routes.Admin.createUserPost))
   }
 
   def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit user =>
@@ -46,7 +46,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       implicit val maybeUser = Some(user)
       userPasswordForm.bindFromRequest.fold(
         errorForm => {
-          Ok(views.html.admin.createUser(errorForm, routes.Admin.createUserPost, user, request))
+          Ok(views.html.admin.createUser(errorForm, routes.Admin.createUserPost))
         },
         values => {
           val (email, username, name, pw, _, groups) = values

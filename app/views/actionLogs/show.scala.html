@@ -1,4 +1,4 @@
-@(item: ActionLog, maybeUser: Option[UserProfile], req: RequestHeader)
+@(item: ActionLog)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import defines._
 

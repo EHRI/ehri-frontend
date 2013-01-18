@@ -1,4 +1,4 @@
-@(f: play.api.data.Form[String], action: Call, maybeUser: Option[models.sql.User], req: RequestHeader)
+@(f: play.api.data.Form[String], action: Call)(implicit maybeUser: Option[models.sql.User], req: RequestHeader, lang: Lang)
 
 @import helper.twitterBootstrap._
 

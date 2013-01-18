@@ -1,4 +1,4 @@
-@(page: rest.Page[ActionLog], maybeUser: Option[UserProfile], req: RequestHeader)
+@(page: rest.Page[ActionLog])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @main(Messages("actions.listActionLogs"))(maybeUser, req) {
 

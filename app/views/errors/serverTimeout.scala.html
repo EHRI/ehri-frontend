@@ -1,4 +1,4 @@
-@()(maybeUser: Option[UserProfile], req: RequestHeader)
+@()(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @main(Messages("errors.databaseError"))(maybeUser, req) {
 
