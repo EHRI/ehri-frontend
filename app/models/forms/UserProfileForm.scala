@@ -19,8 +19,8 @@ case class UserProfileF(
   val id: Option[String],
   val identifier: String,
   val name: String,
-  val location: Option[String],
-  val about: Option[String],
+  val location: Option[String] = None,
+  val about: Option[String] = None,
   val languages: Option[List[String]] = None) extends Persistable {
   val isA = EntityType.UserProfile
 

@@ -93,7 +93,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(show) must equalTo(OK)
         contentAsString(show) must contain(DocumentaryUnits.update("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.delete("c1").url)
-        contentAsString(show) must contain(DocumentaryUnits.childCreate("c1").url)
+        contentAsString(show) must contain(DocumentaryUnits.createDoc("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.visibility("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.list().url)
       }
@@ -151,7 +151,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
-          controllers.routes.Agents.childCreatePost("r1").url).withHeaders(headers.toSeq: _*), testData).get
+          controllers.routes.Agents.createDocPost("r1").url).withHeaders(headers.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
@@ -248,7 +248,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         // Check we cannot create an item...
         val cr = route(fakeLoggedInRequest(POST,
-          Agents.childCreatePost("r2").url).withHeaders(headers.toSeq: _*), testData).get
+          Agents.createDocPost("r2").url).withHeaders(headers.toSeq: _*), testData).get
         status(cr) must equalTo(UNAUTHORIZED)
       }
 
@@ -258,7 +258,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           DocumentaryUnit.toString -> List("create", "update", "delete")
         )
         val permReq = route(fakeLoggedInRequest(POST,
-          Agents.permissionScopePost(testRepo, ContentType.UserProfile, testOrdinaryUser).url)
+          Agents.setScopedPermissionsPost(testRepo, ContentType.UserProfile, testOrdinaryUser).url)
               .withHeaders(headers.toSeq: _*), permTestData).get
         status(permReq) must equalTo(SEE_OTHER)
       }
@@ -266,7 +266,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         // Check we cannot create an item...
         val cr = route(fakeLoggedInRequest(POST,
-          Agents.childCreatePost(testRepo).url).withHeaders(headers.toSeq: _*), testData).get
+          Agents.createDocPost(testRepo).url).withHeaders(headers.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
         val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(getR) must equalTo(OK)
@@ -300,7 +300,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           DocumentaryUnit.toString -> List("update")
         )
         val permReq = route(fakeLoggedInRequest(POST,
-          DocumentaryUnits.permissionItemPost(testItem, ContentType.UserProfile, testOrdinaryUser).url)
+          DocumentaryUnits.setItemPermissionsPost(testItem, ContentType.UserProfile, testOrdinaryUser).url)
           .withHeaders(headers.toSeq: _*), permTestData).get
         status(permReq) must equalTo(SEE_OTHER)
       }
@@ -365,7 +365,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(show) must equalTo(OK)
         contentAsString(show) must contain(Agents.update("r1").url)
         contentAsString(show) must contain(Agents.delete("r1").url)
-        contentAsString(show) must contain(Agents.childCreate("r1").url)
+        contentAsString(show) must contain(Agents.createDoc("r1").url)
         contentAsString(show) must contain(Agents.visibility("r1").url)
         contentAsString(show) must contain(Agents.list().url)
       }

@@ -19,6 +19,7 @@ import models.UserProfile
 import models.DocumentaryUnit
 import models.DocumentaryUnit
 import models.DocumentaryUnit
+import models.forms.{DocumentaryUnitF, UserProfileF}
 
 /**
  * Add your spec here.
@@ -55,15 +56,15 @@ class DAOSpec extends Specification with BeforeExample {
 
     "create an item" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        await(EntityDAO(entityType, Some(userProfile)).create(data)) must beRight
+        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
+        await(EntityDAO(entityType, Some(userProfile)).create(user)) must beRight
       }
     }
 
     "create an item in (agent) context" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> EntityType.DocumentaryUnit.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val r = await(EntityDAO(EntityType.Agent, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "r1", data))
+        val doc = DocumentaryUnitF(id = None, identifier = "foobar", name = "Foobar")
+        val r = await(EntityDAO(EntityType.Agent, Some(userProfile)).createInContext("r1", doc))
         r must beRight
         DocumentaryUnit(r.right.get).holder must beSome
         DocumentaryUnit(r.right.get).holder.get.identifier must equalTo("r1")
@@ -72,8 +73,8 @@ class DAOSpec extends Specification with BeforeExample {
 
     "create an item in (doc) context" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> EntityType.DocumentaryUnit.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "c1", data))
+        val doc = DocumentaryUnitF(id = None, identifier = "foobar", name = "Foobar")
+        val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext("c1", doc))
         r must beRight
         DocumentaryUnit(r.right.get).parent must beSome
         DocumentaryUnit(r.right.get).parent.get.identifier must equalTo("c1")
@@ -82,9 +83,9 @@ class DAOSpec extends Specification with BeforeExample {
         
     "update an item by id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val entity = await(EntityDAO(entityType, Some(userProfile)).create(data)).right.get
-        val udata = data + ("id" -> entity.id)
+        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
+        val entity = await(EntityDAO(entityType, Some(userProfile)).create(user)).right.get
+        val udata = UserProfile(entity).to.copy(location = Some("London"))
         val res = await(EntityDAO(entityType, Some(userProfile)).update(entity.id, udata))
         res must beRight
       }
@@ -92,8 +93,8 @@ class DAOSpec extends Specification with BeforeExample {
 
     "error when creating without a type" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val err = await(EntityDAO(entityType, Some(userProfile)).create(data))
+        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
+        val err = await(EntityDAO(entityType, Some(userProfile)).create(user))
         err must beLeft
         err.left.get must beAnInstanceOf[DeserializationError]
       }
@@ -101,9 +102,9 @@ class DAOSpec extends Specification with BeforeExample {
 
     "error when creating an item with a non-unique id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> "userProfile", "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        await(EntityDAO(entityType, Some(userProfile)).create(data))
-        val err = await(EntityDAO(entityType, Some(userProfile)).create(data))
+        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
+        await(EntityDAO(entityType, Some(userProfile)).create(user))
+        val err = await(EntityDAO(entityType, Some(userProfile)).create(user))
         err must beLeft
         err.left.get must beAnInstanceOf[ValidationError]
       }
@@ -120,8 +121,8 @@ class DAOSpec extends Specification with BeforeExample {
 
     "delete an item by id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val entity = await(EntityDAO(entityType, Some(userProfile)).create(data)).right.get
+        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
+        val entity = await(EntityDAO(entityType, Some(userProfile)).create(user)).right.get
         await(EntityDAO(entityType, Some(userProfile)).delete(entity.id)) must beRight
       }
     }
@@ -212,7 +213,7 @@ class DAOSpec extends Specification with BeforeExample {
         val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
         DocumentaryUnit(c1a).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike"))
         
-        val set = await(VisibilityDAO(userProfile).set(DocumentaryUnit(c1a), List("mike", "reto", "admin")))
+        val set = await(VisibilityDAO(userProfile).set(c1a.id, List("mike", "reto", "admin")))
         set must beRight
         val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
         DocumentaryUnit(c1b).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike", "reto"))

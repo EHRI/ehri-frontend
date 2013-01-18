@@ -104,8 +104,8 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     }
   }
 
-  def createInContext(givenType: EntityType.Value, id: String, item: Persistable): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, givenType)).withHeaders(authHeaders.toSeq: _*)
+  def createInContext(id: String, item: Persistable): Future[Either[RestError, Entity]] = {
+    WS.url(enc(requestUrl, id, item.isA)).withHeaders(authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }
