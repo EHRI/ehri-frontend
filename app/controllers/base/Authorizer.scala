@@ -80,8 +80,12 @@ trait Authorizer extends Results with AuthConfig {
   /**
    * A redirect target after a failed authentication.
    */
-  def authenticationFailed(request: RequestHeader): PlainResult = 
-    Redirect(controllers.routes.Application.login).withSession("access_uri" -> request.uri)
+  def authenticationFailed(request: RequestHeader): PlainResult = {
+    if (ControllerHelpers.isAjax(request))
+      Unauthorized("authentication failed")
+    else
+      Redirect(controllers.routes.Application.login).withSession("access_uri" -> request.uri)
+  }
 
   /**
    * A redirect target after a failed authorization.

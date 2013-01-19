@@ -9,6 +9,12 @@ import play.api.mvc.Controller
 import play.api.mvc.AsyncResult
 import java.net.ConnectException
 
+object ControllerHelpers {
+  def isAjax(implicit request: RequestHeader): Boolean =
+    request.headers.get("X-REQUESTED-WITH")
+      .map(_.toUpperCase() == "XMLHTTPREQUEST").getOrElse(false)
+}
+
 trait ControllerHelpers {
   this: Controller with AuthController =>
 
