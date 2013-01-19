@@ -1,7 +1,7 @@
 package controllers
 
-import _root_.models.base.Accessor
 import play.api._
+import play.api.i18n.Messages
 import base.{PermissionItemController, CRUD, PermissionHolderController, VisibilityController}
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.Execution.Implicits._
@@ -43,7 +43,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
     formOrItem match {
       case Left(form) => BadRequest(views.html.group.edit(None, form, routes.Groups.createPost))
       case Right(item) => Redirect(routes.Groups.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
     }
   }
 
@@ -61,7 +61,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
             BadRequest(views.html.group.edit(Some(Group(item)), form, routes.Groups.updatePost(id)))
           }
           case Right(item) => Redirect(routes.Groups.get(item.id))
-            .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+            .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
         }
   }
 
@@ -75,7 +75,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
   def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
     implicit request =>
       Redirect(routes.Groups.list())
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
@@ -86,7 +86,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
     implicit request =>
       Redirect(routes.Groups.list())
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
@@ -103,7 +103,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) { item => perms => implicit user =>
     implicit request =>
       Redirect(routes.Groups.get(id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
@@ -127,7 +127,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
     bool => implicit user => implicit request =>
       Redirect(routes.Groups.managePermissions(id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
 
@@ -199,6 +199,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
         rest.PermissionDAO(user).addGroup(id, userId).map { boolOrErr =>
           boolOrErr.right.map { ok =>
             Redirect(routes.Groups.membership(userType, userId))
+              .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
           }
         }
       }
@@ -234,6 +235,7 @@ object Groups extends PermissionHolderController[GroupF, Group]
         rest.PermissionDAO(user).removeGroup(id, userId).map { boolOrErr =>
           boolOrErr.right.map { ok =>
             Redirect(routes.Groups.membership(userType, userId))
+              .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
           }
         }
       }

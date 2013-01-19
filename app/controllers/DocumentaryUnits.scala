@@ -2,10 +2,10 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import play.api.i18n.Messages
 import base._
 import defines.{ ContentType, EntityType }
 import models.forms.DocumentaryUnitF
-import models.DocumentaryUnit
 import models.DocumentaryUnit
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
@@ -16,8 +16,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with PermissionScopeController[DocumentaryUnit] {
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
-  val childContentType = ContentType.DocumentaryUnit
-  val childEntityType = EntityType.DocumentaryUnit
 
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentType.DocumentaryUnit
@@ -48,31 +46,31 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     implicit user =>
       implicit request =>
         formOrItem match {
-          case Left(form) => getEntity(id, Some(user)) { item =>
+          case Left(errorForm) => getEntity(id, Some(user)) { item =>
             BadRequest(views.html.documentaryUnit.edit(
-              Some(DocumentaryUnit(item)), form, routes.DocumentaryUnits.updatePost(id)))
+              Some(DocumentaryUnit(item)), errorForm, routes.DocumentaryUnits.updatePost(id)))
           }
           case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
             .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
         }
   }
 
-  def createDoc(id: String) = childCreateAction(id) { item => implicit user =>
+  def createDoc(id: String) = childCreateAction(id, contentType) { item => implicit user =>
     implicit request =>
       Ok(views.html.documentaryUnit.create(
         DocumentaryUnit(item), childForm, routes.DocumentaryUnits.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction(id, childForm) { formOrItem =>
+  def createDocPost(id: String) = childCreatePostAction(id, childForm, contentType) { formOrItem =>
     implicit user =>
       implicit request =>
         formOrItem match {
-          case Left(form) => getEntity(id, Some(user)) { item =>
+          case Left(errorForm) => getEntity(id, Some(user)) { item =>
             BadRequest(views.html.documentaryUnit.create(DocumentaryUnit(item),
-              form, routes.DocumentaryUnits.createDocPost(id)))
+              errorForm, routes.DocumentaryUnits.createDocPost(id)))
           }
           case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
-            .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreate", item.id))
+            .flashing("success" -> Messages("confirmations.itemWasCreate", item.id))
         }
   }
 
@@ -86,7 +84,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
     implicit request =>
       Redirect(routes.DocumentaryUnits.list())
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
@@ -97,7 +95,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
     implicit request =>
       Redirect(routes.DocumentaryUnits.list())
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
@@ -128,7 +126,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
     bool => implicit user => implicit request =>
       Redirect(routes.DocumentaryUnits.managePermissions(id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -140,7 +138,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
     perms => implicit user => implicit request =>
       Redirect(routes.DocumentaryUnits.managePermissions(id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 }
 

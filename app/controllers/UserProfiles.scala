@@ -2,11 +2,11 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import play.api.i18n.Messages
 import defines._
 import base.{PermissionItemController, CRUD, VisibilityController, PermissionHolderController}
 import models.{Group, UserProfile}
 import models.forms.UserProfileF
-import org.bouncycastle.asn1.cms.OtherKeyAttribute
 
 
 object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
@@ -46,7 +46,8 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
     implicit user =>
       implicit request =>
     formOrItem match {
-      case Left(form) => BadRequest(views.html.userProfile.edit(None, form, routes.UserProfiles.createPost))
+      case Left(errorForm) => BadRequest(views.html.userProfile.edit(
+        None, errorForm, routes.UserProfiles.createPost))
       case Right(item) => Redirect(routes.UserProfiles.get(item.id))
           .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
     }
@@ -67,7 +68,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
               Some(UserProfile(item)), errorForm, routes.UserProfiles.updatePost(id)))
           }
           case Right(item) => Redirect(routes.UserProfiles.get(item.id))
-            .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+            .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
         }
   }
 
@@ -81,7 +82,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
     implicit request =>
       Redirect(routes.UserProfiles.list())
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
@@ -92,7 +93,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
     implicit request =>
       Redirect(routes.UserProfiles.list())
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
@@ -109,7 +110,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) { item => perms => implicit user =>
     implicit request =>
       Redirect(routes.UserProfiles.get(id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
@@ -133,7 +134,7 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
     perms => implicit user => implicit request =>
       Redirect(routes.UserProfiles.managePermissions(id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 }
 

@@ -5,7 +5,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import defines.PermissionType
 import models.{Entity, UserProfile}
-import play.api.i18n.Messages
 
 /**
  * Controller trait for deleting AccessibleEntities.

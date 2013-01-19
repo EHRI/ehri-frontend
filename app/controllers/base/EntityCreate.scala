@@ -7,7 +7,6 @@ import models.base.Persistable
 import play.api.data.{ Form, FormError }
 import defines.PermissionType
 import models.{Entity, UserProfile}
-import play.api.i18n.Messages
 
 /**
  * Controller trait for creating AccessibleEntities.
