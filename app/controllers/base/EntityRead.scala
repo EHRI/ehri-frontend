@@ -36,7 +36,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
       }
   }
 
-  def getAction(id: String)(f: Entity => List[Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def getAction(id: String)(f: Entity => Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
     itemPermissionAction(contentType, id) { implicit maybeUser =>
       implicit request =>
         AsyncRest {

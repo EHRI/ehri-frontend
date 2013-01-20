@@ -28,18 +28,21 @@ case class AnnotationDAO(val userProfile: Option[UserProfile] = None) extends Re
     case None => headers
   }
 
-  def getFor(id: String): Future[Either[RestError, List[Annotation]]] = {
+  def getFor(id: String): Future[Either[RestError, Map[String,List[Annotation]]]] = {
     implicit val entityReads = Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
 
     WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[List[models.Entity]].fold(
+        r.json.validate[Map[String, List[models.Entity]]].fold(
           valid = {
-            lst => lst.map(Annotation)
+            map => map.map { case(s, lst) =>
+              (s, lst.map(Annotation))
+            }
           },
           invalid = { e =>
+            println(r.json)
             sys.error("Unable to decode list result: " + e.toString)
           }
         )
