@@ -3,7 +3,8 @@ package controllers.base
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import play.api.mvc._
-import models.{Entity,UserProfile}
+import models.{Annotation,Entity,UserProfile}
+import rest.Page
 
 /**
  * Controller trait which handles the listing and showing of Entities that
@@ -35,13 +36,16 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
       }
   }
 
-  def getAction(id: String)(f: Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def getAction(id: String)(f: Entity => List[Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     itemPermissionAction(contentType, id) { implicit maybeUser =>
       implicit request =>
         AsyncRest {
-          rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-            itemOrErr.right.map {
-              item => f(item)(maybeUser)(request)
+          val itemReq = rest.EntityDAO(entityType, maybeUser).get(id)
+          // NB: Effectively disable paging here by using a high limit
+          val annsReq = rest.AnnotationDAO(maybeUser).getFor(id)
+          for { itemOrErr <- itemReq ; annOrErr <- annsReq } yield {
+            for { item <- itemOrErr.right ; anns <- annOrErr.right } yield {
+              f(item)(anns)(maybeUser)(request)
             }
           }
         }

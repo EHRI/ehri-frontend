@@ -7,6 +7,7 @@ import defines._
 import base._
 import models.{DocumentaryUnit, Agent}
 import models.forms.{AgentF,DocumentaryUnitF}
+import rest.Page
 
 object Agents extends CreationContext[DocumentaryUnitF,Agent]
 		with VisibilityController[AgentF,Agent]
@@ -22,10 +23,10 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = Agent
 
-  def get(id: String) = getAction(id) { item =>
+  def get(id: String) = getAction(id) { item => annotations =>
     implicit maybeUser =>
       implicit request =>
-      Ok(views.html.agent.show(Agent(item)))
+      Ok(views.html.agent.show(Agent(item), annotations))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>

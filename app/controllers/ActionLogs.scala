@@ -12,7 +12,7 @@ object ActionLogs extends EntityRead[ActionLog] {
 
   val builder = ActionLog
 
-  def get(id: String) = getAction(id) { item =>
+  def get(id: String) = getAction(id) { item => annotations =>
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.actionLogs.show(ActionLog(item)))

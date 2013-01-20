@@ -25,10 +25,10 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
   // parameters we use the companion object apply method here.
   val builder = UserProfile.apply _
 
-  def get(id: String) = getAction(id) { item =>
+  def get(id: String) = getAction(id) { item => annotations =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.userProfile.show(UserProfile(item)))
+        Ok(views.html.userProfile.show(UserProfile(item), annotations))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>

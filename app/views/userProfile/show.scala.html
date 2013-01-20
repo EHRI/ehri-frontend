@@ -1,4 +1,4 @@
-@(item: UserProfile)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: UserProfile, annotations: List[Annotation])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @main(item.name)(maybeUser, req) {
 	

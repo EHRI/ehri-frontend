@@ -24,10 +24,10 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = DocumentaryUnit
 
-  def get(id: String) = getAction(id) { item =>
+  def get(id: String) = getAction(id) { item => annotations =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.documentaryUnit.show(DocumentaryUnit(item)))
+        Ok(views.html.documentaryUnit.show(DocumentaryUnit(item), annotations))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>

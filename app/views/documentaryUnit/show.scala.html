@@ -1,10 +1,12 @@
-@(item: DocumentaryUnit)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, annotations: List[Annotation])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.forms.IsadG._
 
 @main(item.identifier)(maybeUser, req) {
 
 	<h3>@item.name (@item.identifier)</h3>
+
+    <h4>@annotations</h4>
 
 	@item.holder.map { holder =>
 	  <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Agents.get(holder.id)">@holder.name</a></h4>

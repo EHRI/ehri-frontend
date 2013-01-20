@@ -77,12 +77,6 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     case None => headers
   }
 
-  def get(id: Long): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => jsonToEntity(r.json))
-    }
-  }
-
   def get(id: String): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
