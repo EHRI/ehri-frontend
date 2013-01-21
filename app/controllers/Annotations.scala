@@ -31,6 +31,4 @@ object Annotations extends EntityRead[Annotation]
       Redirect(routes.Annotations.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
-
-
 }
