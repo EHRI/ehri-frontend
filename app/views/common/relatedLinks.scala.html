@@ -4,23 +4,6 @@
 *@
 @(item: AccessibleEntity, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader)
 
-@annotationList(annotations: List[Annotation]) = {
-    @if(!annotations.isEmpty) {
-        <ul>
-        @annotations.map { ann =>
-            <li class="annotatable" id="@ann.e.id">
-                @ann.accessor.map { accessor =>
-                    <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a> -
-                }
-                @ann.to.body.map(_.trim)
-                @annotationList(ann.annotations)
-            </li>
-        }
-        </ul
-
-    }
-}
-
 <div class="annotatable" id="@item.id">
     @annotations.get(item.id).map { list =>
         @defining(list.filter(_.to.annotationType == models.forms.AnnotationType.Link)) { alist =>
