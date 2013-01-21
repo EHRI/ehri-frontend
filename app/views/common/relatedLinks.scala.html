@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AccessibleEntity, annotations: Map[String,List[Annotation]])(body: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader)
+@(item: AccessibleEntity, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader)
 
 @annotationList(annotations: List[Annotation]) = {
     @if(!annotations.isEmpty) {
@@ -22,14 +22,19 @@
 }
 
 <div class="annotatable" id="@item.id">
-    @body
     @annotations.get(item.id).map { list =>
-        @defining(list.filter(_.to.annotationType == models.forms.AnnotationType.Comment)) { alist =>
+        @defining(list.filter(_.to.annotationType == models.forms.AnnotationType.Link)) { alist =>
             @if(!alist.isEmpty) {
                 <hr />
-                <div class="item-annotations">
-                    @annotationList(alist)
-                </div>
+                <h3>@Messages("isadg.accessPoints")</h3>
+                <ul class="item-annotation-links">
+                    @alist.map { ann =>
+                        @** Q: What do we do when there is no source??? **@
+                        @ann.source.map { src =>
+                            <li><a href="@views.Helpers.urlFor(src)">@ann.to.body</a></li>
+                        }
+                    }
+                </ul>
             }
         }
     }

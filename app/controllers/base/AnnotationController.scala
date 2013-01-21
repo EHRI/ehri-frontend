@@ -16,13 +16,6 @@ import models.forms.AnnotationF
  */
 trait AnnotationController[T <: AccessibleEntity] extends EntityRead[T] {
 
-  def annotationAction(id: String)(f: Entity => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
-      implicit request =>
-      f(item)(user)(request)
-    }
-  }
-
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => UserProfile => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
       implicit request =>
@@ -31,7 +24,7 @@ trait AnnotationController[T <: AccessibleEntity] extends EntityRead[T] {
           errorForm => f(Left(errorForm))(user)(request),
           ann => {
             AsyncRest {
-              rest.AnnotationDAO(Some(user)).createFor(id, ann).map { annOrErr =>
+              rest.AnnotationDAO(Some(user)).create(id, ann).map { annOrErr =>
                 annOrErr.right.map { ann =>
                   f(Right(ann))(user)(request)
                 }
@@ -41,5 +34,25 @@ trait AnnotationController[T <: AccessibleEntity] extends EntityRead[T] {
         )
     }
   }
+
+  def linkPostAction(id: String, src: String)(f: Either[Form[AnnotationF],Annotation] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
+      implicit request =>
+        implicit val maybeUser = Some(user)
+        models.forms.AnnotationForm.form.bindFromRequest.fold(
+          errorForm => f(Left(errorForm))(user)(request),
+          ann => {
+            AsyncRest {
+              rest.AnnotationDAO(Some(user)).link(id, src, ann).map { annOrErr =>
+                annOrErr.right.map { ann =>
+                  f(Right(ann))(user)(request)
+                }
+              }
+            }
+          }
+        )
+    }
+  }
+
 }
 

@@ -131,7 +131,7 @@ object Groups extends PermissionHolderController[Group]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = annotationAction(id) { item => implicit user =>
+  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
     implicit request =>
       Ok(views.html.annotate(Group(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
   }

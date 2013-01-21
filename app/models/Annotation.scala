@@ -9,12 +9,14 @@ import defines.enum
 object Annotation {
   final val ANNOTATES_REL = "annotates"
   final val ACCESSOR_REL = "hasAnnotation"
+  final val SOURCE_REL = "hasSource"
 }
 
 case class Annotation(val e: Entity) extends AccessibleEntity with Formable[AnnotationF] {
 
   def annotations: List[Annotation] = e.relations(Annotation.ANNOTATES_REL).map(Annotation(_))
   def accessor: Option[Accessor] = e.relations(Annotation.ACCESSOR_REL).headOption.map(Accessor(_))
+  def source: Option[ItemWithId] = e.relations(Annotation.SOURCE_REL).headOption.map(ItemWithId(_))
 
   def to: AnnotationF = new AnnotationF(
     id = Some(e.id),

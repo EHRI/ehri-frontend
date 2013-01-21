@@ -51,8 +51,15 @@ case class AnnotationDAO(val userProfile: Option[UserProfile] = None) extends Re
     }
   }
 
-  def createFor(id: String, ann: AnnotationF): Future[Either[RestError, Annotation]] = {
+  def create(id: String, ann: AnnotationF): Future[Either[RestError, Annotation]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
+      .post(ann.toJson).map { response =>
+      checkError(response).right.map(r => Annotation(jsonToEntity(r.json)))
+    }
+  }
+
+  def link(id: String, src: String, ann: AnnotationF): Future[Either[RestError, Annotation]] = {
+    WS.url(enc(requestUrl, id, src)).withHeaders(authHeaders.toSeq: _*)
       .post(ann.toJson).map { response =>
       checkError(response).right.map(r => Annotation(jsonToEntity(r.json)))
     }

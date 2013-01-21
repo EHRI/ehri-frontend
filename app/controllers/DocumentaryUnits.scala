@@ -1,10 +1,11 @@
 package controllers
 
+import _root_.models.ItemWithId
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import base._
-import defines.{ ContentType, EntityType }
+import defines.{PermissionType, ContentType, EntityType}
 import models.forms.DocumentaryUnitF
 import models.DocumentaryUnit
 
@@ -139,7 +140,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = annotationAction(id) { item => implicit user =>
+  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
     implicit request =>
       Ok(views.html.annotate(DocumentaryUnit(item), models.forms.AnnotationForm.form, routes.DocumentaryUnits.annotatePost(id)))
   }
@@ -157,6 +158,32 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       }
     }
   }
+
+  def linkAnnotate(id: String, src: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
+    implicit request =>
+      getEntity(id, Some(user)) { srcitem =>
+        Ok(views.html.linkAnnotate(DocumentaryUnit(item),
+          ItemWithId(srcitem),
+          models.forms.AnnotationForm.form, routes.DocumentaryUnits.linkAnnotatePost(id, src)))
+      }
+  }
+
+  def linkAnnotatePost(id: String, src: String) = linkPostAction(id, src) { formOrAnnotation => implicit user =>
+    implicit request =>
+      formOrAnnotation match {
+        case Left(errorForm) => getEntity(id, Some(user)) { item =>
+          getEntity(src, Some(user)) { srcitem =>
+            BadRequest(views.html.linkAnnotate(DocumentaryUnit(item), ItemWithId(srcitem),
+              errorForm, routes.DocumentaryUnits.linkAnnotatePost(id, src)))
+          }
+        }
+        case Right(annotation) => {
+          Redirect(routes.DocumentaryUnits.get(id))
+            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        }
+      }
+  }
+
 }
 
 

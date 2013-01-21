@@ -151,7 +151,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = annotationAction(id) { item => implicit user =>
+  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
     implicit request =>
       Ok(views.html.annotate(Agent(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
   }
