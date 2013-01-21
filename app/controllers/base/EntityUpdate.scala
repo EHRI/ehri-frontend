@@ -18,21 +18,19 @@ import models.{UserProfile, Entity}
 trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
 
   def updateAction(id: String)(f: Entity => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
       implicit request =>
-        getEntity(id, Some(user)) { item =>
-          f(item)(user)(request)
-        }
+      f(item)(user)(request)
     }
   }
 
-  def updatePostAction(id: String, form: Form[F])(f: Either[Form[F],Entity] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
+  def updatePostAction(id: String, form: Form[F])(f: Entity => Either[Form[F],Entity] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
       implicit request =>
         implicit val maybeUser = Some(user)
 
         form.bindFromRequest.fold(
-          errorForm => f(Left(errorForm))(user)(request),
+          errorForm => f(item)(Left(errorForm))(user)(request),
           success = doc => {
             AsyncRest {
               rest.EntityDAO(entityType, maybeUser)
@@ -46,11 +44,11 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
                       case err: rest.ValidationError => {
                         val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
                         val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-                        Right(f(Left(filledForm))(user)(request))
+                        Right(f(item)(Left(filledForm))(user)(request))
                       }
                       case e => Left(e)
                     },
-                    item => Right(f(Right(item))(user)(request))
+                    item => Right(f(item)(Right(item))(user)(request))
                   )
               }
             }

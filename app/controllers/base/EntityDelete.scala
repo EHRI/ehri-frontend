@@ -14,16 +14,14 @@ import models.{Entity, UserProfile}
 trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
 
   def deleteAction(id: String)(f: Entity => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Delete, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Delete, contentType) { item => implicit user =>
       implicit request =>
-        getEntity(id, Some(user)) { item =>
-          f(item)(user)(request)
-        }
+      f(item)(user)(request)
     }
   }
 
   def deletePostAction(id: String)(f: Boolean => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Delete, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Delete, contentType) { item => implicit user =>
       implicit request =>
         implicit val maybeUser = Some(user)
         AsyncRest {

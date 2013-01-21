@@ -17,16 +17,14 @@ import models.forms.AnnotationF
 trait AnnotationController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def annotationAction(id: String)(f: Entity => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Annotate, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
       implicit request =>
-        getEntity(id, Some(user)) { item =>
-          f(item)(user)(request)
-        }
+      f(item)(user)(request)
     }
   }
 
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
       implicit request =>
         implicit val maybeUser = Some(user)
         models.forms.AnnotationForm.form.bindFromRequest.fold(

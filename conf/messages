@@ -82,6 +82,7 @@ submitButton.setVisibility=Set Visibility
 submitButton.addItemToGroup=Add Item to Group
 submitButton.removeItemFromGroup=Remove Item from Group
 submitButton.annotate=Annotate Item
+submitButton.updateGlobalPermissions=Update Global Permissions
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 
@@ -121,6 +122,7 @@ documentaryUnit.availableDescriptions=Available Descriptions
 #
 # Permission Grants
 #
+permissionGrant.heading=Permissions for {0}
 permissionGrant.accessor=User/Group
 permissionGrant.targets=Targets
 

@@ -17,22 +17,20 @@ import models.{Entity, UserProfile}
 trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
 
   def childCreateAction(id: String, ct: ContentType.Value)(f: Entity => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Create, ct) { implicit user =>
+    withItemPermission(id, PermissionType.Create, ct) { item => implicit user =>
       implicit request =>
-        getEntity(id, Some(user)) { item =>
-          f(item)(user)(request)
-        }
+      f(item)(user)(request)
     }
   }
 
   def childCreatePostAction[CT<:Persistable](id: String, form: Form[CT], ct: ContentType.Value)(
-        f: Either[Form[CT],Entity] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Create, ct) { implicit user =>
+        f: Entity => Either[Form[CT],Entity] => UserProfile => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Create, ct) { citem => implicit user =>
       implicit request =>
         implicit val maybeUser = Some(user)
 
         form.bindFromRequest.fold(
-          errorForm => f(Left(errorForm))(user)(request),
+          errorForm => f(citem)(Left(errorForm))(user)(request),
           item => {
             AsyncRest {
               rest.EntityDAO(entityType, maybeUser)
@@ -45,12 +43,12 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRe
                     case err: rest.ValidationError => {
                       val serverErrors = item.errorsToForm(err.errorSet)
                       val filledForm = form.fill(item).copy(errors = form.errors ++ serverErrors)
-                      Right(f(Left(filledForm))(user)(request))
+                      Right(f(citem)(Left(filledForm))(user)(request))
                     }
                     case e => Left(e)
                   }
                 } else itemOrErr.right.map {
-                  item => f(Right(item))(user)(request)
+                  item => f(citem)(Right(item))(user)(request)
                 }
               }
             }

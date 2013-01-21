@@ -16,25 +16,21 @@ import models.{Entity,UserProfile}
 trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def visibilityAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
       implicit request =>
-        implicit val maybeUser = Some(user)
-        AsyncRest {
-          for {
-            itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-            users <- rest.RestHelpers.getUserList
-            groups <- rest.RestHelpers.getGroupList
-          } yield {
-            itemOrErr.right.map { item =>
-              f(item)(users)(groups)(user)(request)
-            }
-          }
+      Async {
+        for {
+          users <- rest.RestHelpers.getUserList
+          groups <- rest.RestHelpers.getGroupList
+        } yield {
+          f(item)(users)(groups)(user)(request)
         }
+      }
     }
   }
 
   def visibilityPostAction(id: String)(f: Boolean => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
       implicit request =>
         implicit val maybeUser = Some(user)
         val data = request.body.asFormUrlEncoded.getOrElse(List()).flatMap { case (_, s) => s.toList }

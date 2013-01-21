@@ -47,6 +47,7 @@ package object Helpers {
     case EntityType.Group => routes.Groups.get(e.id)
     case EntityType.UserProfile => routes.UserProfiles.get(e.id)
     case EntityType.Annotation => routes.Annotations.get(e.id)
+    case EntityType.ContentType => "#"
     case i => sys.error("Cannot fetch URL for entity type: " + i)
   }
 }

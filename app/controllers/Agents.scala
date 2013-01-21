@@ -56,13 +56,12 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
       Ok(views.html.agent.edit(Some(Agent(item)), form.fill(Agent(item).to), routes.Agents.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) { formOrItem =>
+  def updatePost(id: String) = updatePostAction(id, form) { item => formOrItem =>
     implicit user =>
       implicit request =>
         formOrItem match {
-          case Left(errorForm) => getEntity(id, Some(user)) { item =>
+          case Left(errorForm) =>
             BadRequest(views.html.agent.edit(Some(Agent(item)), errorForm, routes.Agents.updatePost(id)))
-          }
           case Right(item) => Redirect(routes.Agents.get(item.id))
             .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
         }
@@ -74,14 +73,13 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
         Agent(item), childForm, routes.Agents.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentType.DocumentaryUnit) { formOrItem =>
+  def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentType.DocumentaryUnit) { item => formOrItem =>
     implicit user =>
       implicit request =>
         formOrItem match {
-          case Left(errorForm) => getEntity(id, Some(user)) { item =>
+          case Left(errorForm) =>
             BadRequest(views.html.documentaryUnit.create(Agent(item),
               errorForm, routes.Agents.createDocPost(id)))
-          }
           case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
             .flashing("success" -> Messages("confirmations.itemWasCreate", item.id))
         }

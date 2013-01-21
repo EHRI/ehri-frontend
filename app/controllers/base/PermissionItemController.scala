@@ -16,16 +16,15 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def manageItemPermissionsAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
       f: Entity => rest.Page[PermissionGrant] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user =>
       implicit request =>
 
         implicit val maybeUser = Some(user)
         AsyncRest {
           for {
-            itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
             permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id, math.max(page, 1), math.max(limit, 1))
           } yield {
-            for { item <- itemOrErr.right ; permGrants <- permGrantsOrErr.right } yield {
+            for { permGrants <- permGrantsOrErr.right } yield {
               f(item)(permGrants)(user)(request)
             }
           }
@@ -34,7 +33,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
   }
 
   def addItemPermissionsAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user =>
       implicit request =>
 
         implicit val maybeUser = Some(user)
@@ -55,12 +54,11 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def setItemPermissionsAction(id: String, userType: String, userId: String)(
       f: Entity => Accessor => acl.ItemPermissionSet[Accessor] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user =>
         implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
         for {
-          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
           userOrErr <- rest.EntityDAO(EntityType.withName(userType), maybeUser).get(userId)
           // FIXME: Faking user for fetching perms to avoid blocking.
           // This means that when we have both the perm set and the user
@@ -69,7 +67,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
           permsOrErr <- rest.PermissionDAO(user)
               .getItem(Accessor(models.Entity.fromString(userId, EntityType.withName(userType))), contentType, id)
         } yield {
-          for { item <- itemOrErr.right ; accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
+          for {  accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
             f(item)(Accessor(accessor))(perms.copy(user=Accessor(accessor)))(user)(request)
           }
         }
@@ -79,7 +77,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def setItemPermissionsPostAction(id: String, userType: String, userId: String)(
       f: acl.ItemPermissionSet[Accessor] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { implicit user =>
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user =>
       implicit request =>
         implicit val maybeUser = Some(user)
         val data = request.body.asFormUrlEncoded.getOrElse(Map())

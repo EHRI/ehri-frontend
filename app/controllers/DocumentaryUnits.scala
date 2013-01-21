@@ -43,14 +43,12 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         Some(DocumentaryUnit(item)), form.fill(DocumentaryUnit(item).to),routes.DocumentaryUnits.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) { formOrItem =>
+  def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem =>
     implicit user =>
       implicit request =>
         formOrItem match {
-          case Left(errorForm) => getEntity(id, Some(user)) { item =>
-            BadRequest(views.html.documentaryUnit.edit(
-              Some(DocumentaryUnit(item)), errorForm, routes.DocumentaryUnits.updatePost(id)))
-          }
+          case Left(errorForm) => BadRequest(views.html.documentaryUnit.edit(
+              Some(DocumentaryUnit(olditem)), errorForm, routes.DocumentaryUnits.updatePost(id)))
           case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
             .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
         }
@@ -62,14 +60,13 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         DocumentaryUnit(item), childForm, routes.DocumentaryUnits.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction(id, childForm, contentType) { formOrItem =>
+  def createDocPost(id: String) = childCreatePostAction(id, childForm, contentType) { item => formOrItem =>
     implicit user =>
       implicit request =>
         formOrItem match {
-          case Left(errorForm) => getEntity(id, Some(user)) { item =>
+          case Left(errorForm) =>
             BadRequest(views.html.documentaryUnit.create(DocumentaryUnit(item),
               errorForm, routes.DocumentaryUnits.createDocPost(id)))
-          }
           case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
             .flashing("success" -> Messages("confirmations.itemWasCreate", item.id))
         }

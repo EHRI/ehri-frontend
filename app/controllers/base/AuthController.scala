@@ -17,7 +17,7 @@ import rest.ServerError
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
  */
-trait AuthController extends Controller with Auth with Authorizer {
+trait AuthController extends Controller with ControllerHelpers with Auth with Authorizer {
 
   /**
    * Provide functionality for changing the current locale.
@@ -124,9 +124,11 @@ trait AuthController extends Controller with Auth with Authorizer {
    *  their global perms and user profile, we don't wrap userProfileAction
    *  but duplicate a bunch of code instead ;(
    */
-  def itemPermissionAction(contentType: ContentType.Value, id: String)(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def itemPermissionAction(contentType: ContentType.Value, id: String)(f: models.Entity => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
       implicit request =>
+        // FIXME: Shouldn't need to infer entity type from content type, they should be the same
+        val entityType = EntityType.withName(contentType.toString)
         userOption match {
           case Some(user) => {
 
@@ -149,18 +151,20 @@ trait AuthController extends Controller with Auth with Authorizer {
               // everything in scope for the given item
               val getGlobalPerms = rest.PermissionDAO(fakeProfile).getScope(id)
               val getItemPerms = rest.PermissionDAO(fakeProfile).getItem(contentType, id)
+              val getEntity = rest.EntityDAO(entityType, Some(fakeProfile)).get(id)
               // These requests should execute in parallel...
-              val futureUserOrError = for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms } yield {
-                for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right } yield {
-                  UserProfile(entity, account = Some(user),
+              val futureResultOrError = for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms ; r4 <- getEntity } yield {
+                for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right ; item <- r4.right } yield {
+                  val up = UserProfile(entity, account = Some(user),
                     globalPermissions = Some(gperms), itemPermissions = Some(iperms))
+                  f(item)(Some(up))(request)
                 }
               }
 
-              futureUserOrError.map { userOrError =>
-                userOrError match {
+              futureResultOrError.map { resultOrError =>
+                resultOrError match {
                   case Left(err) => sys.error("Unable to fetch page prerequisites: " + err)
-                  case Right(up) => f(Some(up))(request)
+                  case Right(result) => result
                 }
               } recover {
                 case e: ConnectException => {
@@ -171,7 +175,16 @@ trait AuthController extends Controller with Auth with Authorizer {
               }
             }
           }
-          case None => f(None)(request)
+          case None => {
+            implicit val maybeUser  = None
+            AsyncRest {
+              rest.EntityDAO(entityType, None).get(id).map { itemOrErr =>
+                itemOrErr.right.map { item =>
+                  f(item)(None)(request)
+                }
+              }
+            }
+          }
         }
     }
   }
@@ -210,10 +223,10 @@ trait AuthController extends Controller with Auth with Authorizer {
    */
   def withItemPermission(id: String,
     perm: PermissionType.Value, contentType: ContentType.Value)(
-      f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
-    itemPermissionAction(contentType, id) { implicit maybeUser => implicit request =>
+      f: models.Entity => UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
+    itemPermissionAction(contentType, id) { entity => implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>
-        if (user.hasPermission(contentType, perm)) Some(f(user)(request))
+        if (user.hasPermission(contentType, perm)) Some(f(entity)(user)(request))
         else None
       }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }

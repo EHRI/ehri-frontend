@@ -37,14 +37,13 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   }
 
   def getAction(id: String)(f: Entity => Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    itemPermissionAction(contentType, id) { implicit maybeUser =>
+    itemPermissionAction(contentType, id) { item => implicit maybeUser =>
       implicit request =>
         AsyncRest {
-          val itemReq = rest.EntityDAO(entityType, maybeUser).get(id)
           // NB: Effectively disable paging here by using a high limit
           val annsReq = rest.AnnotationDAO(maybeUser).getFor(id)
-          for { itemOrErr <- itemReq ; annOrErr <- annsReq } yield {
-            for { item <- itemOrErr.right ; anns <- annOrErr.right } yield {
+          for { annOrErr <- annsReq } yield {
+            for { anns <- annOrErr.right } yield {
               f(item)(anns)(maybeUser)(request)
             }
           }

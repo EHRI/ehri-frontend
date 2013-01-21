@@ -2,8 +2,8 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("permissionGrants.heading"))(Some(user), req) {
-    <h2>@Messages("permissionGrants.heading")</h2>
+@main(Messages("permissionGrant.heading", item.name))(Some(user), req) {
+    <h2>@Messages("permissionGrant.heading", item.name)</h2>
     <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 
     <div id="pagination" class="pagination">
