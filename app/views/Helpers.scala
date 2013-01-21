@@ -8,24 +8,6 @@ import models.base.AccessibleEntity
 
 // Pimp my 
 package object Helpers {
-
-  // These classes follow the "pimp my library" pattern, adding
-  // implicit conversions to types one views.Helpers._ is imported
-  // into the current scope...
-  class PimpedInt(int: Int) {
-    def pluralize = if (int == 1) "" else "s"
-  }
-  class PimpedLong(long: Long) {
-    def pluralize = if (long == 1L) "" else "s"
-  }
-  class PimpedTraversable[A](col: Traversable[A]) {
-    def pluralize = if (col.size == 1) "" else "s"
-  }
-  implicit def pimpInt(int: Int) = new PimpedInt(int)
-  implicit def pimpLong(long: Long) = new PimpedLong(long)
-  implicit def pimpTraversable[A](col: Traversable[A]) = new PimpedTraversable(col)
-
-
   /*
    * Helper to provide Digg-style pagination, like:
    *    1, 2 ... 18, 19, 20, 21, 22 ... 55, 56
