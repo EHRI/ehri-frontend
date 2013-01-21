@@ -65,6 +65,8 @@ actions.grantPermissionsOnItem=Manage Permissions on {0} for {1}
 actions.updatePermissions=Update Permissions
 actions.managePermissions=Manage Permissions
 actions.cancel=Cancel
+actions.subjectsForAction=Subjects
+actions.annotate=Annotate {0}
 
 # Submit buttons
 submitButton.createDocumentaryUnit=Create Collection
@@ -79,6 +81,7 @@ submitButton.deleteItem=Delete Item
 submitButton.setVisibility=Set Visibility
 submitButton.addItemToGroup=Add Item to Group
 submitButton.removeItemFromGroup=Remove Item from Group
+submitButton.annotate=Annotate Item
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 
@@ -114,6 +117,12 @@ profile.noBioGiven=No biography given
 documentaryUnit.heldBy=Held By
 documentaryUnit.parentItem=Parent Item
 documentaryUnit.availableDescriptions=Available Descriptions
+
+#
+# Permission Grants
+#
+permissionGrant.accessor=User/Group
+permissionGrant.targets=Targets
 
 #
 # ISDIAH Field definitions

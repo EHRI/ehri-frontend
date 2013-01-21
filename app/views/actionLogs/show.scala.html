@@ -1,6 +1,4 @@
-@(item: ActionLog)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
-
-@import defines._
+@(item: ActionLog, page: rest.Page[ItemWithId])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @main("Action " + item.identifier)(maybeUser, req) {
 
@@ -8,24 +6,21 @@
 
     @common.flash(flash)
 
+    <p>
 	@item.actioner.map { accessor =>
-		@accessor match {
-
-	    case u: UserProfile => {
-	    	<h5><a href="@routes.UserProfiles.get(u.id)">@u.name</a></h5>
-	    }
-	    case g: Group => {
-	    	<h5><a href="@routes.Groups.get(g.id)">@g.name</a></h5>
-	    }
-
-	    case _ => {
-	    }		    
-
-		}
+        <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a>:
 	}
-	<p>@item.logMessage</p>
-  
-	<ul class="item-actions">
+	@item.logMessage
+    </p>
+    <h3>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)}</h3>
+    @common.pagination(page, req)
+    <ul>
+    @page.list.map { item =>
+        <li><a href="@views.Helpers.urlFor(item)">@item.name</a></li>
+    }
+    </ul>
+
+    <ul class="item-actions">
 	    <li><a href="@routes.ActionLogs.list()">@Messages("actions.backToList")</a></li>
     </ul>
 }

@@ -2,9 +2,11 @@
 
 @main(item.name)(maybeUser, req) {
 
-	<h2>Group: @item.name (@item.identifier)</h2>
+    @common.annotated(item, annotations) {
+	    <h2>Group: @item.name (@item.identifier)</h2>
 
-    @common.flash(flash)
+        @common.flash(flash)
+    }
 
     @if(!item.groups.isEmpty) {
 	  <hr />

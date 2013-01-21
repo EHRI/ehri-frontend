@@ -3,6 +3,7 @@ package views
 import java.util.Locale
 
 import views.html.helper.FieldConstructor
+import models.base.AccessibleEntity
 
 
 // Pimp my 
@@ -49,5 +50,21 @@ package object Helpers {
       case lp =>
         List((1 to 2), ((lp - (2 + window)) to lp))
     }
+  }
+
+  import defines.EntityType
+  import controllers.routes
+  import models.Entity
+
+  def urlFor(a: AccessibleEntity) = urlForEntity(a.e)
+
+  def urlForEntity(e: Entity) = e.isA match {
+    case EntityType.ActionLog => routes.ActionLogs.get(e.id)
+    case EntityType.DocumentaryUnit => routes.DocumentaryUnits.get(e.id)
+    case EntityType.Agent => routes.Agents.get(e.id)
+    case EntityType.Group => routes.Groups.get(e.id)
+    case EntityType.UserProfile => routes.UserProfiles.get(e.id)
+    case EntityType.Annotation => routes.Annotations.get(e.id)
+    case i => sys.error("Cannot fetch URL for entity type: " + i)
   }
 }

@@ -9,11 +9,12 @@ import models.forms.DocumentaryUnitF
 import models.DocumentaryUnit
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
-  with VisibilityController[DocumentaryUnitF, DocumentaryUnit]
+  with VisibilityController[DocumentaryUnit]
   with EntityRead[DocumentaryUnit]
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
   with EntityDelete[DocumentaryUnit]
-  with PermissionScopeController[DocumentaryUnit] {
+  with PermissionScopeController[DocumentaryUnit]
+  with AnnotationController[DocumentaryUnit] {
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
@@ -139,6 +140,25 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     perms => implicit user => implicit request =>
       Redirect(routes.DocumentaryUnits.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def annotate(id: String) = annotationAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.annotate(DocumentaryUnit(item), models.forms.AnnotationForm.form, routes.DocumentaryUnits.annotatePost(id)))
+  }
+
+  def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
+    implicit request =>
+    formOrAnnotation match {
+      case Left(errorForm) => getEntity(id, Some(user)) { item =>
+        BadRequest(views.html.annotate(DocumentaryUnit(item),
+            errorForm, routes.DocumentaryUnits.annotatePost(id)))
+      }
+      case Right(annotation) => {
+        Redirect(routes.DocumentaryUnits.get(id))
+          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+      }
+    }
   }
 }
 

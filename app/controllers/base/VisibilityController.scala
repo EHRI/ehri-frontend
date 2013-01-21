@@ -13,7 +13,7 @@ import models.{Entity,UserProfile}
  * @tparam F the entity's formable class
  * @tparam T the entity's build class
  */
-trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
+trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def visibilityAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => UserProfile => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { implicit user =>

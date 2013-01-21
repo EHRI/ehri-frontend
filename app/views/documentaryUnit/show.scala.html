@@ -4,65 +4,65 @@
 
 @main(item.identifier)(maybeUser, req) {
 
-	<h3>@item.name (@item.identifier)</h3>
+    @common.annotated(item, annotations) {
+        <h2>@item.name (@item.identifier)</h2>
 
-    <h4>@annotations</h4>
+        @item.holder.map { holder =>
+            <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Agents.get(holder.id)">@holder.name</a></h4>
+        }
 
-	@item.holder.map { holder =>
-	  <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Agents.get(holder.id)">@holder.name</a></h4>
-	}
+        @item.parent.map { parent =>
+            <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
+        }
 
-	@item.parent.map { parent =>
-	  <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
-	}
+        @item.dateString.map { d =>
+            <h4>@d</h4>
+        }
 
-	@item.dateString.map { d =>
-		<h4>@d</h4>
-	}
+        @defining("isadg") { implicit fieldPrefix =>
+            @if(!item.descriptions.isEmpty) {
+                <h4>@Messages("documentaryUnit.availableDescriptions")</h4>
+                @item.descriptions.map { desc =>
+                    <h5>Language: @desc.languageCode</h5>
 
-    @defining("isadg") { implicit fieldPrefix =>
-        @if(!item.descriptions.isEmpty) {
-            <h4>@Messages("documentaryUnit.availableDescriptions")</h4>
-            @item.descriptions.map { desc =>
-                <h5>Language: @desc.languageCode</h5>
+                    <h4>@Messages(fieldPrefix + "." + CONTEXT_AREA)</h4>
+                    <div class="description-section">
+                        @common.stringValue(desc, ADMIN_BIOG)
+                        @common.stringValue(desc, ARCH_HIST)
+                        @common.stringValue(desc, ACQUISITION)
+                    </div>
 
-                <h4>@Messages(fieldPrefix + "." + CONTEXT_AREA)</h4>
-                <div class="description-section">
-                    @common.stringValue(desc, ADMIN_BIOG)
-                    @common.stringValue(desc, ARCH_HIST)
-                    @common.stringValue(desc, ACQUISITION)
-                </div>
+                    <h4>@Messages(fieldPrefix + "." + CONTENT_AREA)</h4>
+                    <div class="description-section">
+                        @common.stringValue(desc, SCOPE_CONTENT)
+                        @common.stringValue(desc, APPRAISAL)
+                        @common.stringValue(desc, ACCRUALS)
+                        @common.stringValue(desc, SYS_ARR)
+                    </div>
 
-                <h4>@Messages(fieldPrefix + "." + CONTENT_AREA)</h4>
-                <div class="description-section">
-                    @common.stringValue(desc, SCOPE_CONTENT)
-                    @common.stringValue(desc, APPRAISAL)
-                    @common.stringValue(desc, ACCRUALS)
-                    @common.stringValue(desc, SYS_ARR)
-                </div>
+                    <h4>@Messages(fieldPrefix + "." + CONDITIONS_AREA)</h4>
+                    <div class="description-section">
+                        @common.stringValue(desc, ACCESS_COND)
+                        @common.stringValue(desc, REPROD_COND)
+                        @common.stringValue(desc, PHYSICAL_CHARS)
+                        @common.stringValue(desc, FINDING_AIDS)
+                    </div>
 
-                <h4>@Messages(fieldPrefix + "." + CONDITIONS_AREA)</h4>
-                <div class="description-section">
-                    @common.stringValue(desc, ACCESS_COND)
-                    @common.stringValue(desc, REPROD_COND)
-                    @common.stringValue(desc, PHYSICAL_CHARS)
-                    @common.stringValue(desc, FINDING_AIDS)
-                </div>
+                    <h4>@Messages(fieldPrefix + "." + MATERIALS_AREA)</h4>
+                    <div class="description-section">
+                        @common.stringValue(desc, LOCATION_ORIGINALS)
+                        @common.stringValue(desc, LOCATION_COPIES)
+                        @common.stringValue(desc, RELATED_UNITS)
+                        @common.stringValue(desc, PUBLICATION_NOTE)
+                    </div>
 
-                <h4>@Messages(fieldPrefix + "." + MATERIALS_AREA)</h4>
-                <div class="description-section">
-                    @common.stringValue(desc, LOCATION_ORIGINALS)
-                    @common.stringValue(desc, LOCATION_COPIES)
-                    @common.stringValue(desc, RELATED_UNITS)
-                    @common.stringValue(desc, PUBLICATION_NOTE)
-                </div>
-
-                <h4>@Messages(fieldPrefix + "." + CONTROL_AREA)</h4>
-                <div class="description-section">
-                    @common.stringValue(desc, ARCHIVIST_NOTE)
-                    @common.stringValue(desc, RULES_CONVENTIONS)
-                    @common.stringValue(desc, DATES_DESCRIPTIONS)
-                </div>
+                    <h4>@Messages(fieldPrefix + "." + CONTROL_AREA)</h4>
+                    <div class="description-section">
+                        @common.stringValue(desc, ARCHIVIST_NOTE)
+                        @common.stringValue(desc, RULES_CONVENTIONS)
+                        @common.stringValue(desc, DATES_DESCRIPTIONS)
+                    </div>
+                }
             }
         }
     }

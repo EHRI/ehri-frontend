@@ -1,24 +1,10 @@
 @(page: rest.Page[PermissionGrant], pageParamName: String, req: RequestHeader)
 
-@import defines._
-
 <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 
 <div id="pagination" class="pagination">
     <ul>
-    @views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
-        @range.map { cp =>
-            @if(cp == page.page.toInt) {
-                <li class="disabled"><a>@cp</a></li>
-            } else {
-                <li><a href="@utils.joinPath(req.path, req.queryString.updated(pageParamName, Seq(cp.toString)))">@cp</a></li>
-            }
-        }
-        @if(range.last != page.numPages) {
-            <li class="disabled"><a>...</a></li>
-        }
-    }
-    </ul>
+    @common.pagination(page, req)
 </div>
 
 <ul>
@@ -27,13 +13,13 @@
         <h4>@item.permission.map(_.toString).getOrElse(item)</h4>
         <ul>
             @item.accessor.map { accessor =>
-                <li>@Messages("permissionGrant.accessor"): @accessor.name</li>
+                <li>@Messages("permissionGrant.accessor"): <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a></li>
             }
             @item.targets.map { t =>
-                <li>@Messages("permissionGrant.targets"): @t.id</li>
+                <li>@Messages("permissionGrant.targets"): <a href="@views.Helpers.urlFor(t)">@t.name</a></li>
             }
             @item.scope.map { s =>
-                <li>@Messages("permissionGrant.scope"): @s.name</li>
+                <li>@Messages("permissionGrant.scope"): <a href="@views.Helpers.urlFor(s)">@s.name</a></li>
             }
             @item.grantee.map { s =>
                 <li>@Messages("permissionGrant.grantedBy"): @s.name</li>

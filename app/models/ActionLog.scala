@@ -13,7 +13,7 @@ case class ActionLog(val e: Entity) extends AccessibleEntity {
     .getOrElse(sys.error("No timestamp found on action [%s]".format(e.id)))
   val logMessage: String = e.property("logMessage").flatMap(_.asOpt[String]).getOrElse("No log message given.")
   val actioner: Option[Accessor] = e.relations(ACTIONER_REL).headOption.map(Accessor(_))
-  
+
   def time = {
     DateTimeFormat.forPattern("yyyy-MM-dd HH:MM:ss").print(timeStamp)
   }

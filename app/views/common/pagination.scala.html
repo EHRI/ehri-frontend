@@ -1,0 +1,20 @@
+@(page: rest.Page[_], req: RequestHeader)
+
+@if(page.hasMultiplePages) {
+    <div id="pagination" class="pagination">
+        <ul>
+        @views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
+            @range.map { cp =>
+                @if(cp == page.page.toInt) {
+                    <li class="disabled"><a>@cp</a></li>
+                } else {
+                    <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
+                }
+            }
+            @if(range.last != page.numPages) {
+                <li class="disabled"><a>...</a></li>
+            }
+        }
+        </ul>
+    </div>
+}

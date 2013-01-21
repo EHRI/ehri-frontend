@@ -1,0 +1,24 @@
+@(item: AccessibleEntity, form: play.api.data.Form[models.forms.AnnotationF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@main(Messages("actions.annotate", item.identifier))(Some(user), req) {
+	
+	<h2>@Messages("actions.annotate", item.identifier)</h2>
+
+    @common.flash(flash)
+
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+		<fieldset id="annotate-area">
+
+        <legend>@Messages("Identity")</legend>
+        @helper.inputText(form(models.forms.AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
+        @helper.inputText(form(models.forms.AnnotationF.FIELD), '_label -> Messages("annotation.field"))
+        @formHelpers.enumChoiceInput(form(models.forms.AnnotationF.ANNOTATION_TYPE), models.forms.AnnotationType, models.forms.AnnotationF.ANNOTATION_TYPE)
+		</fieldset>
+	  
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">@Messages("submitButton.annotate")</button>
+		</div>
+	}
+}

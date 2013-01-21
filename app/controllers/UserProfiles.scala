@@ -4,15 +4,17 @@ import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
-import base.{PermissionItemController, CRUD, VisibilityController, PermissionHolderController}
+import base._
 import models.{Group, UserProfile}
 import models.forms.UserProfileF
+import scala.Some
 
 
-object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
-	with VisibilityController[UserProfileF,UserProfile]
+object UserProfiles extends PermissionHolderController[UserProfile]
+	with VisibilityController[UserProfile]
 	with CRUD[UserProfileF,UserProfile]
-  with PermissionItemController[UserProfile] {
+  with PermissionItemController[UserProfile]
+  with AnnotationController[UserProfile] {
 
 
 
@@ -135,6 +137,25 @@ object UserProfiles extends PermissionHolderController[UserProfileF,UserProfile]
     perms => implicit user => implicit request =>
       Redirect(routes.UserProfiles.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def annotate(id: String) = annotationAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.annotate(UserProfile(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
+  }
+
+  def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
+    implicit request =>
+      formOrAnnotation match {
+        case Left(errorForm) => getEntity(id, Some(user)) { item =>
+          BadRequest(views.html.annotate(UserProfile(item),
+            errorForm, routes.UserProfiles.annotatePost(id)))
+        }
+        case Right(annotation) => {
+          Redirect(routes.UserProfiles.get(id))
+            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        }
+      }
   }
 }
 

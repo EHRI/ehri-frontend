@@ -52,6 +52,8 @@ POST    /docs/permissions/:id/:userType/:userId    controllers.DocumentaryUnits.
 GET     /docs/scope/:id/add    controllers.DocumentaryUnits.addScopedPermissions(id: String)
 GET     /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /docs/annotate/:id     controllers.DocumentaryUnits.annotate(id: String)
+POST    /docs/annotate/:id     controllers.DocumentaryUnits.annotatePost(id: String)
 
 GET     /users/list           controllers.UserProfiles.list(page: Int ?= 1, limit: Int ?=20)
 GET     /users/show/:id       controllers.UserProfiles.get(id: String)
@@ -71,6 +73,8 @@ GET     /users/permissions/:id/manage    controllers.UserProfiles.managePermissi
 GET     /users/permissions/:id/add    controllers.UserProfiles.addItemPermissions(id: String)
 GET     /users/permissions/:id/:userType/:userId    controllers.UserProfiles.setItemPermissions(id: String, userType: String, userId: String)
 POST    /users/permissions/:id/:userType/:userId    controllers.UserProfiles.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /users/annotate/:id     controllers.UserProfiles.annotate(id: String)
+POST    /users/annotate/:id     controllers.UserProfiles.annotatePost(id: String)
 
 GET     /group/list           controllers.Groups.list(page: Int ?= 1, limit: Int ?=20)
 GET     /group/show/:id       controllers.Groups.get(id: String)
@@ -95,6 +99,8 @@ GET     /group/permissions/:id/manage    controllers.Groups.managePermissions(id
 GET     /group/permissions/:id/add    controllers.Groups.addItemPermissions(id: String)
 GET     /group/permissions/:id/:userType/:userId    controllers.Groups.setItemPermissions(id: String, userType: String, userId: String)
 POST    /group/permissions/:id/:userType/:userId    controllers.Groups.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /group/annotate/:id     controllers.Groups.annotate(id: String)
+POST    /group/annotate/:id     controllers.Groups.annotatePost(id: String)
 
 
 GET     /agent/list           controllers.Agents.list(page: Int ?= 1, limit: Int ?=20)
@@ -117,10 +123,16 @@ POST    /agent/permissions/:id/:userType/:userId    controllers.Agents.setItemPe
 GET     /agent/scope/:id/add    controllers.Agents.addScopedPermissions(id: String)
 GET     /agent/scope/:id/:userType/:userId    controllers.Agents.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /agent/scope/:id/:userType/:userId    controllers.Agents.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /agent/annotate/:id     controllers.Agents.annotate(id: String)
+POST    /agent/annotate/:id     controllers.Agents.annotatePost(id: String)
 
 GET     /action/list           controllers.ActionLogs.list(page: Int ?= 1, limit: Int ?=20)
 GET     /action/show/:id       controllers.ActionLogs.get(id: String)
 GET     /history/:id        controllers.ActionLogs.historyFor(id: String, page: Int ?=1, limit: Int ?=20)
+
+GET     /annotation/show/:id       controllers.Annotations.get(id: String)
+GET     /annotation/visibility/:id     controllers.Annotations.visibility(id: String)
+POST    /annotation/visibility/:id     controllers.Annotations.visibilityPost(id: String)
 
 # API
 GET     /api/*path               controllers.ApiController.get(path: String)

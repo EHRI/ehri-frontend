@@ -1,13 +1,17 @@
 @(item: UserProfile, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @main(item.name)(maybeUser, req) {
-	
-	<h3>User: @item.name (@item.identifier)</h3>
-	
-	@common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse(Messages("profile.noLocationGiven"))), Messages("profile.location"))
-	@* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), Messages("profile.languages")) *@
-	@* @common.descriptionValue(Some(item.about.getOrElse(Messages("profile.noBioGiven"))), Messages("profile.about")) *@
-	
+
+    @common.annotated(item, annotations) {
+
+        <h3>User: @item.name (@item.identifier)</h3>
+
+        @common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse(Messages("profile.noLocationGiven"))), Messages("profile.location"))
+        @* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), Messages("profile.languages")) *@
+        @* @common.descriptionValue(Some(item.about.getOrElse(Messages("profile.noBioGiven"))), Messages("profile.about")) *@
+
+    }
+
 	<hr />
 	@if(item.groups.isEmpty) {
 	  <i>@Messages("accessor.notInAnyGroups")</i>

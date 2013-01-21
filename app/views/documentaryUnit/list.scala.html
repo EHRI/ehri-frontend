@@ -4,23 +4,8 @@
 
     <h2>@Messages("actions.listDocumentaryUnits")</h2>
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
-  
-	<div id="pagination" class="pagination">
-    	<ul>
-		@views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
-			@range.map { cp =>
-	        	@if(cp == page.page.toInt) {
-	                <li class="disabled"><a>@cp</a></li>
-	            } else {
-	                <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
-	            }
-	        }
-	        @if(range.last != page.numPages) {
-	        	<li class="disabled"><a>...</a></li>
-	        }
-		}
-		</ul>
-	</div>
+
+    @common.pagination(page, req)
 	
 	<ul>
 	@page.list.map { item =>

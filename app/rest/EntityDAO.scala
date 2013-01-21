@@ -23,6 +23,8 @@ import models.base.Persistable
 case class Page[+T](val total: Long, val offset: Int, val limit: Int, val list: Seq[T]) {
   def numPages = (total / limit) + (total % limit).min(1)
   def page = (offset / limit) + 1
+
+  def hasMultiplePages = total > limit
 }
 
 /**

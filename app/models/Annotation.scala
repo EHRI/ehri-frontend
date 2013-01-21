@@ -1,12 +1,21 @@
 package models
 
-import models.base.Formable
+import base.{AccessibleEntity, Accessor, Formable}
 import org.joda.time.DateTime
 
 import models.forms.{AnnotationType,AnnotationF}
 import defines.enum
 
-case class Annotation(val e: Entity) extends Formable[AnnotationF] {
+object Annotation {
+  final val ANNOTATES_REL = "annotates"
+  final val ACCESSOR_REL = "hasAnnotation"
+}
+
+case class Annotation(val e: Entity) extends AccessibleEntity with Formable[AnnotationF] {
+
+  def annotations: List[Annotation] = e.relations(Annotation.ANNOTATES_REL).map(Annotation(_))
+  def accessor: Option[Accessor] = e.relations(Annotation.ACCESSOR_REL).headOption.map(Accessor(_))
+
   def to: AnnotationF = new AnnotationF(
     id = Some(e.id),
     // NB: For the time being, annotations with no 'type' default to being a comment

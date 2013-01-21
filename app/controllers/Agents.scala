@@ -10,9 +10,10 @@ import models.forms.{AgentF,DocumentaryUnitF}
 import rest.Page
 
 object Agents extends CreationContext[DocumentaryUnitF,Agent]
-		with VisibilityController[AgentF,Agent]
-		with CRUD[AgentF,Agent]
-    with PermissionScopeController[Agent] {
+	with VisibilityController[Agent]
+	with CRUD[AgentF,Agent]
+  with PermissionScopeController[Agent]
+  with AnnotationController[Agent] {
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
@@ -150,5 +151,24 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
     perms => implicit user => implicit request =>
       Redirect(routes.Agents.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def annotate(id: String) = annotationAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.annotate(Agent(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
+  }
+
+  def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
+    implicit request =>
+      formOrAnnotation match {
+        case Left(errorForm) => getEntity(id, Some(user)) { item =>
+          BadRequest(views.html.annotate(Agent(item),
+            errorForm, routes.Agents.annotatePost(id)))
+        }
+        case Right(annotation) => {
+          Redirect(routes.Agents.get(id))
+            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        }
+      }
   }
 }

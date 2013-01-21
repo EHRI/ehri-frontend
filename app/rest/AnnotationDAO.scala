@@ -9,6 +9,7 @@ import models.{Annotation, Entity, UserProfile}
 import play.api.libs.json.Json
 import java.net.ConnectException
 import models.base.Persistable
+import models.forms.AnnotationF
 
 
 /**
@@ -18,6 +19,8 @@ import models.base.Persistable
  */
 case class AnnotationDAO(val userProfile: Option[UserProfile] = None) extends RestDAO {
 
+  implicit val entityReads = Entity.entityReads
+  implicit val entityPageReads = PageReads.pageReads
   import EntityDAO._
   import play.api.http.Status._
 
@@ -29,8 +32,6 @@ case class AnnotationDAO(val userProfile: Option[UserProfile] = None) extends Re
   }
 
   def getFor(id: String): Future[Either[RestError, Map[String,List[Annotation]]]] = {
-    implicit val entityReads = Entity.entityReads
-    implicit val entityPageReads = PageReads.pageReads
 
     WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
@@ -38,7 +39,7 @@ case class AnnotationDAO(val userProfile: Option[UserProfile] = None) extends Re
         r.json.validate[Map[String, List[models.Entity]]].fold(
           valid = {
             map => map.map { case(s, lst) =>
-              (s, lst.map(Annotation))
+              (s, lst.map(Annotation(_)))
             }
           },
           invalid = { e =>
@@ -47,6 +48,13 @@ case class AnnotationDAO(val userProfile: Option[UserProfile] = None) extends Re
           }
         )
       }
+    }
+  }
+
+  def createFor(id: String, ann: AnnotationF): Future[Either[RestError, Annotation]] = {
+    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
+      .post(ann.toJson).map { response =>
+      checkError(response).right.map(r => Annotation(jsonToEntity(r.json)))
     }
   }
 }

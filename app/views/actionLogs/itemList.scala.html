@@ -1,6 +1,8 @@
-@(id: String, page: rest.Page[ActionLog], showAction: String => Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+@(id: String, page: rest.Page[ActionLog], showAction: String => Call)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@main(Messages("actionLogs.heading"))(Some(user), req) {
+@import views.Helpers
+
+@main(Messages("actionLogs.heading"))(maybeUser, req) {
     <h2>@Messages("actions.historyForItem", id)</h2>
 
     @common.flash(flash)
@@ -29,19 +31,7 @@
 	  	<div class="list-item">
 			<h4><a href="@routes.ActionLogs.get(item.id)">@item.time</a>
 			@item.actioner.map { accessor =>
-				@accessor match {
-	
-			    case u: UserProfile => {
-			    	- <a href="@routes.UserProfiles.get(u.id)">@u.name</a>
-			    }
-			    case g: Group => {
-			    	- <a href="@routes.Groups.get(g.id)">@g.name</a>
-			    }
-		
-			    case _ => {
-			    }		    
-	
-				}
+                - <a href="@Helpers.urlFor(accessor)">@accessor.name</a>
 			}
 			</h4>
 			<p>@item.logMessage</p>

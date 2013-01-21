@@ -13,10 +13,9 @@ import play.api.libs.concurrent.Execution.Implicits._
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.
  *
- * @tparam F
  * @tparam T
  */
-trait PermissionHolderController[F <: Persistable, T <: Accessor] extends EntityRead[T] {
+trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
 
   /**
    * Display a list of permissions that have been granted to the given accessor.

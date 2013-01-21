@@ -2,17 +2,19 @@ package controllers
 
 import play.api._
 import play.api.i18n.Messages
-import base.{PermissionItemController, CRUD, PermissionHolderController, VisibilityController}
+import base._
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.Execution.Implicits._
 import models.forms.GroupF
 import models.{UserProfile, Group}
 import models.base.Accessor
+import scala.Some
 
-object Groups extends PermissionHolderController[GroupF, Group]
-  with VisibilityController[GroupF, Group]
+object Groups extends PermissionHolderController[Group]
+  with VisibilityController[Group]
   with CRUD[GroupF, Group]
-  with PermissionItemController[Group] {
+  with PermissionItemController[Group]
+  with AnnotationController[Group] {
 
   val entityType = EntityType.Group
   val contentType = ContentType.Group
@@ -130,6 +132,24 @@ object Groups extends PermissionHolderController[GroupF, Group]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
+  def annotate(id: String) = annotationAction(id) { item => implicit user =>
+    implicit request =>
+      Ok(views.html.annotate(Group(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
+  }
+
+  def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
+    implicit request =>
+      formOrAnnotation match {
+        case Left(errorForm) => getEntity(id, Some(user)) { item =>
+          BadRequest(views.html.annotate(Group(item),
+            errorForm, routes.Groups.annotatePost(id)))
+        }
+        case Right(annotation) => {
+          Redirect(routes.Groups.get(id))
+            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        }
+      }
+  }
 
 
   /*
