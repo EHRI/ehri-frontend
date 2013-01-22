@@ -2,7 +2,7 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("actions.createDocumentaryUnit"))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.createDocumentaryUnit"), Some(user), req) {
 
     <h2>@Messages("actions.createDocumentaryUnit")</h2>
 
@@ -15,4 +15,6 @@
 			<button type="submit" class="btn btn-primary">@Messages("submitButton.createDocumentaryUnit")</button>
 		</div>
 	}
+} {
+
 }

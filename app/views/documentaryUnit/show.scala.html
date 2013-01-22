@@ -2,11 +2,9 @@
 
 @import models.forms.IsadG._
 
-@main(item.identifier)(maybeUser, req) {
+@rightSidebarLayout(item.name, maybeUser, req) {
 
     @common.annotated(item, annotations) {
-        <h2>@item.name (@item.identifier)</h2>
-
         @item.holder.map { holder =>
             <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Agents.get(holder.id)">@holder.name</a></h4>
         }
@@ -69,28 +67,28 @@
 
     @common.relatedLinks(item, annotations)
 
-    <hr />
-	@common.visibility(item)
+} {
+    @common.visibility(item)
 
     <ul class="item-actions">
-	    <li><a href="@routes.DocumentaryUnits.list()">@Messages("actions.backToList")</a></li>
+    <li><a href="@routes.DocumentaryUnits.list()">@Messages("actions.backToList")</a></li>
         @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
-              <li><a href="@routes.DocumentaryUnits.createDoc(item.id)">@Messages("actions.createChildDocUnit")</a></li>
+        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
+            <li><a href="@routes.DocumentaryUnits.createDoc(item.id)">@Messages("actions.createChildDocUnit")</a></li>
             }
-            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
-              <li><a href="@routes.DocumentaryUnits.update(item.id)">@Messages("actions.updateItem")</a></li>
+        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
+            <li><a href="@routes.DocumentaryUnits.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
-              <li><a href="@routes.DocumentaryUnits.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
+        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
+            <li><a href="@routes.DocumentaryUnits.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
             }
-            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Delete)) {
-              <li><a href="@routes.DocumentaryUnits.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Delete)) {
+            <li><a href="@routes.DocumentaryUnits.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Grant)) {
-                <li><a href="@routes.DocumentaryUnits.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Grant)) {
+            <li><a href="@routes.DocumentaryUnits.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-            <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+        <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

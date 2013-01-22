@@ -1,22 +1,18 @@
 @(item: Annotation, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@main(item.identifier)(maybeUser, req) {
+@rightSidebarLayout(item.identifier, maybeUser, req) {
 
     @common.annotated(item, annotations) {
-	    <h2>Annotation: @item.identifier</h2>
-
-        @common.flash(flash)
     }
+} {
+    @common.visibility(item)
 
-    <hr />
-	@common.visibility(item)
-
-  	<ul class="item-actions">
-        @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.Annotation, PermissionType.Update)) {
-              <li><a href="@routes.Annotations.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
+    <ul class="item-actions">
+    @maybeUser.map { user =>
+        @if(user.hasPermission(ContentType.Annotation, PermissionType.Update)) {
+            <li><a href="@routes.Annotations.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
             }
-            <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+        <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

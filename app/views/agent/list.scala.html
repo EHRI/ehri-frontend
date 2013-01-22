@@ -1,18 +1,8 @@
 @(items: rest.Page[Agent])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@main(Messages("actions.listAgents"))(maybeUser, req) {
-
-    <h2>@Messages("actions.listAgents")</h2>
-
-    @common.flash(flash)
+@rightSidebarLayout(Messages("actions.listAgents"), maybeUser, req) {
 
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
-
-    @maybeUser.map { user =>
-        @if(user.hasPermission(ContentType.Agent, PermissionType.Create)) {
-            <a href="@routes.Agents.create">@Messages("actions.createNewRepository")</a>
-        }
-    }
 
 	@common.pagination(items, req)
 	
@@ -24,4 +14,10 @@
 	}
 	</ul>
     
+} {
+    @maybeUser.map { user =>
+        @if(user.hasPermission(ContentType.Agent, PermissionType.Create)) {
+            <a href="@routes.Agents.create">@Messages("actions.createNewRepository")</a>
+        }
+    }
 }

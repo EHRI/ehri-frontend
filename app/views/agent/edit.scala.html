@@ -4,12 +4,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages(item.map(s => "actions.updateAgent").getOrElse("actions.createAgent")))(Some(user), req) {
-
-	<h2>@Messages(item.map(s => "actions.updateAgent").getOrElse("actions.createAgent"))</h2>
-
-    @common.flash(flash)
-
+@rightSidebarLayout(Messages(item.map(s => "actions.updateAgent").getOrElse("actions.createAgent")), Some(user), req) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@defining("isdiah") { implicit fieldPrefix =>
 			<fieldset id="identity-area">
@@ -117,4 +112,6 @@
 			</div>
 		}
 	}
+} {
+
 }

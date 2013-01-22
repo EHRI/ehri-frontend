@@ -2,10 +2,7 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages(item.map(s => "actions.updateDocumentaryUnit").getOrElse("actions.createDocumentaryUnit")))(Some(user), req) {
-		
-  
-	<h2>@Messages(item.map(s => "actions.updateDocumentaryUnit").getOrElse("actions.createDocumentaryUnit"))</h2>
+@rightSidebarLayout(Messages(item.map(s => "actions.updateDocumentaryUnit").getOrElse("actions.createDocumentaryUnit")), Some(user), req) {
 		
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@documentaryUnit.renderForm(f)
@@ -14,5 +11,6 @@
             <button type="submit" class="btn btn-primary">@Messages(item.map(s => "submitButton.updateDocumentaryUnit").getOrElse("submitButton.createDocumentaryUnit"))</button>
 		</div>
 	}
-	
+} {
+
 }

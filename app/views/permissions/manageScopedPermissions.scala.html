@@ -3,11 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("actions.manageScopedPermissionsForItem", item.identifier))(Some(user), req) {
-
-    <h2>@Messages("actions.manageScopedPermissionsForItem", item.identifier)</h2>
-
-    @common.flash(flash)
+@rightSidebarLayout(Messages("actions.manageScopedPermissionsForItem", item.identifier), Some(user), req) {
 
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 
@@ -15,10 +11,12 @@
 
     <hr />
 
-    <h2>@Messages("permissions.scopedPermissionsForItem", item.identifier)</h2>
+    <h1>@Messages("permissions.scopedPermissionsForItem", item.identifier)</h1>
 
     <a href="@scopePermAction">@Messages("actions.manageScopedPermissions")</a>
 
     @permissions._permissionList(scopePage, "spage", req)
+
+} {
 
 }

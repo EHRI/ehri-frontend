@@ -1,10 +1,5 @@
-@()(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@()(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@main(Messages("errors.databaseError"))(maybeUser, req) {
-
-	<h2>@Messages("errors.genericProblem")</h2>
-
-	<p>
-		@Messages("errors.databaseErrorMessage")
-	</p>
+@noSidebarLayout(Messages("errors.databaseError"), maybeUser, req) {
+	<p class="text-error">@Messages("errors.databaseErrorExplanation")</p>
 }

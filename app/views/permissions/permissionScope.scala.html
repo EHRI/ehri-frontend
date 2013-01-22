@@ -3,11 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("actions.manageScopedPermissionsForAccessor", item.identifier))(Some(user), req) {
-
-    <h2>@Messages("actions.manageScopedPermissionsForAccessor", item.identifier)</h2>
-
-    @common.flash(flash)
+@rightSidebarLayout(Messages("actions.manageScopedPermissionsForAccessor", item.identifier), Some(user), req) {
 
     @if(!groups.isEmpty) {
         <strong>@Messages("contentTypes.group"): </strong>&nbsp;
@@ -31,4 +27,6 @@
         }
         </ul>
     }
+} {
+
 }

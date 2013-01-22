@@ -1,12 +1,8 @@
 @(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 
-@main("actions.setVisibility")(Some(user), req) {
+@rightSidebarLayout(Messages("actions.setVisibility"), Some(user), req) {
 	
-	<h2>@Messages("actions.setVisibility")</h2>
-
-    @common.flash(flash)
-
 	@common.visibility(item)
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
@@ -46,4 +42,6 @@
 			<button type="submit" class="btn btn-primary">@Messages("submitButton.setVisibility")</button>
 		</div>
 	}
+} {
+
 }

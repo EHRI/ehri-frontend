@@ -1,6 +1,6 @@
 @(message: String)(implicit maybeUser: Option[UserProfile] = None, req: RequestHeader, lang: Lang, flash: Flash)
 
-@main("Stuff")(maybeUser, req) {
+@noSidebarLayout("Stuff", maybeUser, req) {
 
     This is the landing page. There's not much here yet. Move along...
     

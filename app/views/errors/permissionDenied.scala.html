@@ -1,7 +1,6 @@
-@()(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+@()(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@main("Permission Denied")(maybeUser, req) {
+@noSidebarLayout(Messages("errors.permissionDenied"), maybeUser, req) {
 
-	<h1>Permission Denied</h1>
-    
+	<p class="text-error">@Messages("errors.permissionDeniedExplanation")</p>
 }

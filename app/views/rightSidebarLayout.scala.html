@@ -1,0 +1,19 @@
+@(title: String, maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(sidebar: Html)(implicit flash: Flash, lang: Lang))
+
+@main(title)(maybeUser, req) {
+
+    <div class="container page-content">
+        <div class="row-fluid">
+            <div class="span9">
+                <h2>@title</h2>
+
+                @common.flash(flash)
+
+                @content
+            </div>
+            <div class="span3">
+                @sidebar
+            </div>
+        </div>
+    </div>
+}

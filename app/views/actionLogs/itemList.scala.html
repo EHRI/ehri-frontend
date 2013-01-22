@@ -2,11 +2,7 @@
 
 @import views.Helpers
 
-@main(Messages("actionLogs.heading"))(maybeUser, req) {
-    <h2>@Messages("actions.historyForItem", id)</h2>
-
-    @common.flash(flash)
-
+@noSidebarLayout(Messages("actions.historyForItem", id), maybeUser, req) {
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
   
 	<div id="pagination" class="pagination">
