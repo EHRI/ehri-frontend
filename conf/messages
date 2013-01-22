@@ -248,3 +248,7 @@ isadg.archivistNote=Archivist Note
 isadg.rulesAndConventions=Rules and Conventions
 isadg.datesOfDescriptions=Dates of Descriptions
 isadg.accessPoints=Access Points
+
+# isad(g) dates
+isadg.startDate=Start Date
+isadg.endDate=End Date

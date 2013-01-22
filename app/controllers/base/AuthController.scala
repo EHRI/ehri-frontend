@@ -70,38 +70,37 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
   def userProfileAction(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
       implicit request =>
-        userOption match {
-          case Some(user) => {
+        userOption.map { user =>
 
-            // Since we know the user's profile_id we can get the real
-            // details by using a fake profile to access their profile as them...
-            val fakeProfile = UserProfile(models.Entity.fromString(user.profile_id, EntityType.UserProfile))
-            implicit val maybeUser = Some(fakeProfile)
+          // Since we know the user's profile_id we can get the real
+          // details by using a fake profile to access their profile as them...
+          val fakeProfile = UserProfile(models.Entity.fromString(user.profile_id, EntityType.UserProfile))
+          implicit val maybeUser = Some(fakeProfile)
 
 
-            // FIXME: This is a DELIBERATE BACKDOOR
-            val currentUser = USER_BACKDOOR__(user, request)
+          // FIXME: This is a DELIBERATE BACKDOOR
+          val currentUser = USER_BACKDOOR__(user, request)
 
-            AsyncRest {
-              // TODO: For the permissions to be properly initialized they must
-              // recieve a completely-constructed instance of the UserProfile
-              // object, complete with the groups it belongs to. Since this isn't
-              // available initially, and we don't want to block for it to become
-              // available, we should probably add the user to the permissions when
-              // we have both items from the server.
-              val fakeProfile = UserProfile(models.Entity.fromString(currentUser, EntityType.UserProfile))
-              val getProf = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
-              val getGlobalPerms = rest.PermissionDAO(fakeProfile).get
-              // These requests should execute in parallel...
-              for { r1 <- getProf; r2 <- getGlobalPerms } yield {
-                for { entity <- r1.right; gperms <- r2.right } yield {
-                  val up = UserProfile(entity, account = Some(user), globalPermissions = Some(gperms))
-                  f(Some(up))(request)
-                }
+          AsyncRest {
+            // TODO: For the permissions to be properly initialized they must
+            // recieve a completely-constructed instance of the UserProfile
+            // object, complete with the groups it belongs to. Since this isn't
+            // available initially, and we don't want to block for it to become
+            // available, we should probably add the user to the permissions when
+            // we have both items from the server.
+            val fakeProfile = UserProfile(models.Entity.fromString(currentUser, EntityType.UserProfile))
+            val getProf = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
+            val getGlobalPerms = rest.PermissionDAO(fakeProfile).get
+            // These requests should execute in parallel...
+            for { r1 <- getProf; r2 <- getGlobalPerms } yield {
+              for { entity <- r1.right; gperms <- r2.right } yield {
+                val up = UserProfile(entity, account = Some(user), globalPermissions = Some(gperms))
+                f(Some(up))(request)
               }
             }
           }
-          case None => f(None)(request)
+        } getOrElse {
+          f(None)(request)
         }
     }
   }
@@ -119,46 +118,43 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
   def itemPermissionAction(contentType: ContentType.Value, id: String)(f: models.Entity => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit userOption =>
       implicit request =>
-        // FIXME: Shouldn't need to infer entity type from content type, they should be the same
-        val entityType = EntityType.withName(contentType.toString)
-        userOption match {
-          case Some(user) => {
+      // FIXME: Shouldn't need to infer entity type from content type, they should be the same
+      val entityType = EntityType.withName(contentType.toString)
+      userOption.map { user =>
 
-            // FIXME: This is a DELIBERATE BACKDOOR
-            val currentUser = USER_BACKDOOR__(user, request)
+        // FIXME: This is a DELIBERATE BACKDOOR
+        val currentUser = USER_BACKDOOR__(user, request)
 
-            val fakeProfile = UserProfile(models.Entity.fromString(user.profile_id, EntityType.UserProfile))
-            implicit val maybeUser = Some(fakeProfile)
+        val fakeProfile = UserProfile(models.Entity.fromString(user.profile_id, EntityType.UserProfile))
+        implicit val maybeUser = Some(fakeProfile)
 
-            AsyncRest {
-              val getProf = rest.EntityDAO(
-                EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
-              // NB: Instead of getting *just* global perms here we also fetch
-              // everything in scope for the given item
-              val getGlobalPerms = rest.PermissionDAO(fakeProfile).getScope(id)
-              val getItemPerms = rest.PermissionDAO(fakeProfile).getItem(contentType, id)
-              val getEntity = rest.EntityDAO(entityType, Some(fakeProfile)).get(id)
-              // These requests should execute in parallel...
-              for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms ; r4 <- getEntity } yield {
-                for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right ; item <- r4.right } yield {
-                  val up = UserProfile(entity, account = Some(user),
-                    globalPermissions = Some(gperms), itemPermissions = Some(iperms))
-                  f(item)(Some(up))(request)
-                }
-              }
-            }
-          }
-          case None => {
-            implicit val maybeUser  = None
-            AsyncRest {
-              rest.EntityDAO(entityType, None).get(id).map { itemOrErr =>
-                itemOrErr.right.map { item =>
-                  f(item)(None)(request)
-                }
-              }
+        AsyncRest {
+          val getProf = rest.EntityDAO(
+            EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
+          // NB: Instead of getting *just* global perms here we also fetch
+          // everything in scope for the given item
+          val getGlobalPerms = rest.PermissionDAO(fakeProfile).getScope(id)
+          val getItemPerms = rest.PermissionDAO(fakeProfile).getItem(contentType, id)
+          val getEntity = rest.EntityDAO(entityType, Some(fakeProfile)).get(id)
+          // These requests should execute in parallel...
+          for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms ; r4 <- getEntity } yield {
+            for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right ; item <- r4.right } yield {
+              val up = UserProfile(entity, account = Some(user),
+                globalPermissions = Some(gperms), itemPermissions = Some(iperms))
+              f(item)(Some(up))(request)
             }
           }
         }
+      } getOrElse {
+        implicit val maybeUser  = None
+        AsyncRest {
+          rest.EntityDAO(entityType, None).get(id).map { itemOrErr =>
+            itemOrErr.right.map { item =>
+              f(item)(None)(request)
+            }
+          }
+        }
+      }
     }
   }
 
@@ -187,8 +183,6 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
       }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }
   }
-
-
 
   /**
    * Wrap itemPermissionAction to ensure a given permission is present,

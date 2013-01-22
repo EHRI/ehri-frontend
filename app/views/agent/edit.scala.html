@@ -16,24 +16,20 @@
 			@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
 				<fieldset id="identity-area">
 					<legend>@Messages(fieldPrefix + "." + IDENTITY_AREA)</legend>
-					@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
-	  					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
-					}
+                    @formHelpers.hiddenInput(desc(Entity.ID))
 					@helper.inputText(desc("languageCode"), '_label -> "Language Code")
 					@helper.inputText(desc(NAME), '_label -> "Authorized Form of Name")
-					@helper.repeat(desc(OTHER_FORMS_OF_NAME), min = item.flatMap(_.listProperty(OTHER_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { onField =>
-						@helper.inputText(onField)
+					@helper.repeat(desc(OTHER_FORMS_OF_NAME), min = item.flatMap(_.listProperty(OTHER_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { field =>
+                        @formHelpers.lineInput(field, OTHER_FORMS_OF_NAME)
 					}
-					@helper.repeat(desc(PARALLEL_FORMS_OF_NAME), min = item.flatMap(_.listProperty(PARALLEL_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { pnField =>
-						@helper.inputText(pnField)
+					@helper.repeat(desc(PARALLEL_FORMS_OF_NAME), min = item.flatMap(_.listProperty(PARALLEL_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { field =>
+                        @formHelpers.lineInput(field, PARALLEL_FORMS_OF_NAME)
 					}
 				</fieldset>
 				<fieldset id="contact-area">
 					<legend>@Messages(fieldPrefix + "." + ADDRESS_AREA)</legend>
 					@helper.repeat(desc(ADDRESS_AREA), min=math.max(desc(ADDRESS_AREA).indexes.length, 1)) { desc =>
-						@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
-		  					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
-						}
+                        @formHelpers.hiddenInput(desc(Entity.ID))
 						@formHelpers.lineInput(desc, ADDRESS_NAME)
 						@formHelpers.lineInput(desc, CONTACT_PERSON)
 						@formHelpers.lineInput(desc, STREET_ADDRESS)
@@ -89,11 +85,11 @@
 						@formHelpers.textInput(desc, LEVEL_OF_DETAIL)
 						@formHelpers.textInput(desc, DATES_CVD)
 						@* TODO: Make scripts a dropdown... *@
-						@helper.repeat(desc(LANGUAGES_USED), min = item.flatMap(_.listProperty(LANGUAGES_USED).map(_.length)).getOrElse(0) + 1) { pnField =>
-							@helper.inputText(pnField)
+						@helper.repeat(desc(LANGUAGES_USED), min = item.flatMap(_.listProperty(LANGUAGES_USED).map(_.length)).getOrElse(0) + 1) { field =>
+                            @formHelpers.lineInput(field, LANGUAGES_USED)
 						}
-						@helper.repeat(desc(SCRIPTS_USED), min = item.flatMap(_.listProperty(SCRIPTS_USED).map(_.length)).getOrElse(0) + 1) { pnField =>
-							@helper.inputText(pnField)
+						@helper.repeat(desc(SCRIPTS_USED), min = item.flatMap(_.listProperty(SCRIPTS_USED).map(_.length)).getOrElse(0) + 1) { field =>
+                            @formHelpers.lineInput(field, SCRIPTS_USED)
 						}
 						@formHelpers.textInput(desc, SOURCES)
 						@formHelpers.textInput(desc, MAINTENANCE_NOTES)

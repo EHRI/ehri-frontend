@@ -1,6 +1,10 @@
 @(f: play.api.data.Form[models.forms.DocumentaryUnitF])
+@import models.base.TemporalEntity
 
 @import models.forms.IsadG._
+@import models.forms.DatePeriodF._
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @defining("isadg") { implicit fieldPrefix =>
 	<fieldset id="identity-area">
@@ -11,20 +15,15 @@
 
         @helper.repeat(f("dates"), min=math.max(f("dates").indexes.length, 1)) { desc =>
 
-            @helper.input(desc(Entity.ID)) { (id, name, value, args) =>
-                <input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
-            }
-            @helper.inputText(desc("startDate"), '_label -> Messages("dates.startDate"))
-            @helper.inputText(desc("endDate"), '_label -> Messages("dates.endDate"))
-
+            @formHelpers.hiddenInput(desc(Entity.ID))
+            @formHelpers.lineInput(desc, START_DATE)
+            @formHelpers.lineInput(desc, END_DATE)
         }
 
 		@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
 			<fieldset id="identity-area">
 			<legend>@Messages("Description")</legend>
-			@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
-					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
-			}
+            @formHelpers.hiddenInput(desc(Entity.ID))
 			@helper.inputText(desc("languageCode"), '_label -> "Language Code")
 			@formHelpers.lineInput(desc, TITLE)
 		</fieldset>

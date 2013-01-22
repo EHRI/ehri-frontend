@@ -1,3 +1,5 @@
 @(desc: play.api.data.Field, fieldName: String)(implicit prefix: String = "")
 
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
 @helper.textarea(desc(fieldName), '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
