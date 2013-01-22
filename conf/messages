@@ -24,6 +24,21 @@ errors.databaseErrorMessage=I'm afraid it looks like our database server has gon
 # If there are 0 items, says "No items found", one item, "One item found" etc.
 pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
+#
+# Admin
+#
+admin.createNewUser=Create New User
+
+#
+# Users
+#
+users.email=Email
+users.username=Username
+users.realname=Full Name
+users.password=Password
+users.passwordConfirm=Confirm Password
+
+
 # Actions
 actions.listActionLogs=Action Logs
 actions.listDocumentaryUnits=Collections
@@ -85,6 +100,7 @@ submitButton.addItemToGroup=Add Item to Group
 submitButton.removeItemFromGroup=Remove Item from Group
 submitButton.annotate=Annotate Item
 submitButton.updateGlobalPermissions=Update Global Permissions
+submitButton.createUser=Create User
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 

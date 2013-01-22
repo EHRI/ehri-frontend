@@ -48,6 +48,7 @@ case class ActionLogDAO(val userProfile: Option[UserProfile]) extends RestDAO {
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
           valid = { page =>
+            println(s"page ${page.offset}, ${page.limit}")
             Page(page.total, page.offset, page.limit, page.list.map(ItemWithId(_)))
           },
           invalid = { e =>

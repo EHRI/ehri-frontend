@@ -73,12 +73,16 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
         userOption match {
           case Some(user) => {
 
+            // Since we know the user's profile_id we can get the real
+            // details by using a fake profile to access their profile as them...
+            val fakeProfile = UserProfile(models.Entity.fromString(user.profile_id, EntityType.UserProfile))
+            implicit val maybeUser = Some(fakeProfile)
+
+
             // FIXME: This is a DELIBERATE BACKDOOR
             val currentUser = USER_BACKDOOR__(user, request)
 
-            Async {
-              // Since we know the user's profile_id we can get the real
-              // details by using a fake profile to access their profile as them...
+            AsyncRest {
               // TODO: For the permissions to be properly initialized they must
               // recieve a completely-constructed instance of the UserProfile
               // object, complete with the groups it belongs to. Since this isn't
@@ -89,22 +93,10 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
               val getProf = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
               val getGlobalPerms = rest.PermissionDAO(fakeProfile).get
               // These requests should execute in parallel...
-              val futureUserOrError = for { r1 <- getProf; r2 <- getGlobalPerms } yield {
+              for { r1 <- getProf; r2 <- getGlobalPerms } yield {
                 for { entity <- r1.right; gperms <- r2.right } yield {
-                  UserProfile(entity, account = Some(user), globalPermissions = Some(gperms))
-                }
-              }
-
-              futureUserOrError.map { userOrError =>
-                userOrError match {
-                  case Left(err) => sys.error("Unable to fetch page prerequisites: " + err)
-                  case Right(up) => f(Some(up))(request)
-                }
-              } recover {
-                case e: ConnectException => {
-                  // We still have to show the user is logged in, so use the fake profile in the error view
-                  implicit val fakeUserProfile = Some(fakeProfile.copy(account=Some(user)))
-                  InternalServerError(views.html.errors.serverTimeout())
+                  val up = UserProfile(entity, account = Some(user), globalPermissions = Some(gperms))
+                  f(Some(up))(request)
                 }
               }
             }
@@ -135,16 +127,10 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
             // FIXME: This is a DELIBERATE BACKDOOR
             val currentUser = USER_BACKDOOR__(user, request)
 
-            Async {
-              // Since we know the user's profile_id we can get the real
-              // details by using a fake profile to access their profile as them...
-              // TODO: For the permissions to be properly initialized they must
-              // recieve a completely-constructed instance of the UserProfile
-              // object, complete with the groups it belongs to. Since this isn't
-              // available initially, and we don't want to block for it to become
-              // available, we should probably add the user to the permissions when
-              // we have both items from the server.
-              val fakeProfile = UserProfile(models.Entity.fromString(user.profile_id, EntityType.UserProfile))
+            val fakeProfile = UserProfile(models.Entity.fromString(user.profile_id, EntityType.UserProfile))
+            implicit val maybeUser = Some(fakeProfile)
+
+            AsyncRest {
               val getProf = rest.EntityDAO(
                 EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
               // NB: Instead of getting *just* global perms here we also fetch
@@ -153,24 +139,11 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
               val getItemPerms = rest.PermissionDAO(fakeProfile).getItem(contentType, id)
               val getEntity = rest.EntityDAO(entityType, Some(fakeProfile)).get(id)
               // These requests should execute in parallel...
-              val futureResultOrError = for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms ; r4 <- getEntity } yield {
+              for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms ; r4 <- getEntity } yield {
                 for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right ; item <- r4.right } yield {
                   val up = UserProfile(entity, account = Some(user),
                     globalPermissions = Some(gperms), itemPermissions = Some(iperms))
                   f(item)(Some(up))(request)
-                }
-              }
-
-              futureResultOrError.map { resultOrError =>
-                resultOrError match {
-                  case Left(err) => sys.error("Unable to fetch page prerequisites: " + err)
-                  case Right(result) => result
-                }
-              } recover {
-                case e: ConnectException => {
-                  // We still have to show the user is logged in, so use the fake profile in the error view
-                  implicit val fakeUserProfile = Some(fakeProfile.copy(account=Some(user)))
-                  InternalServerError(views.html.errors.serverTimeout())
                 }
               }
             }

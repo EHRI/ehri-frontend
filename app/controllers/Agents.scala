@@ -153,14 +153,14 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
     implicit request =>
-      Ok(views.html.annotate(Agent(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
+      Ok(views.html.annotation.annotate(Agent(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
     implicit request =>
       formOrAnnotation match {
         case Left(errorForm) => getEntity(id, Some(user)) { item =>
-          BadRequest(views.html.annotate(Agent(item),
+          BadRequest(views.html.annotation.annotate(Agent(item),
             errorForm, routes.Agents.annotatePost(id)))
         }
         case Right(annotation) => {

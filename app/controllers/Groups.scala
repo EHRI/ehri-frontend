@@ -43,7 +43,7 @@ object Groups extends PermissionHolderController[Group]
     implicit user =>
       implicit request =>
     formOrItem match {
-      case Left(form) => BadRequest(views.html.group.edit(None, form, routes.Groups.createPost))
+      case Left(errorForm) => BadRequest(views.html.group.edit(None, errorForm, routes.Groups.createPost))
       case Right(item) => Redirect(routes.Groups.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
     }
@@ -59,8 +59,8 @@ object Groups extends PermissionHolderController[Group]
     implicit user =>
       implicit request =>
         formOrItem match {
-          case Left(form) =>
-            BadRequest(views.html.group.edit(Some(Group(item)), form, routes.Groups.updatePost(id)))
+          case Left(errorForm) =>
+            BadRequest(views.html.group.edit(Some(Group(item)), errorForm, routes.Groups.updatePost(id)))
           case Right(item) => Redirect(routes.Groups.get(item.id))
             .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
         }
@@ -133,14 +133,14 @@ object Groups extends PermissionHolderController[Group]
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
     implicit request =>
-      Ok(views.html.annotate(Group(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
+      Ok(views.html.annotation.annotate(Group(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
     implicit request =>
       formOrAnnotation match {
         case Left(errorForm) => getEntity(id, Some(user)) { item =>
-          BadRequest(views.html.annotate(Group(item),
+          BadRequest(views.html.annotation.annotate(Group(item),
             errorForm, routes.Groups.annotatePost(id)))
         }
         case Right(annotation) => {

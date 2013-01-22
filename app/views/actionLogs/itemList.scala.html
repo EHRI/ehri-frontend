@@ -1,4 +1,4 @@
-@(id: String, page: rest.Page[ActionLog], showAction: String => Call)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(id: String, page: rest.Page[ActionLog], showAction: (String,Int,Int) => Call)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import views.Helpers
 

@@ -12,7 +12,8 @@ case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with A
   def to: GroupF = new GroupF(
     id = Some(e.id),
     identifier = identifier,
-    name = e.property("name").flatMap(_.asOpt[String]).getOrElse(UserProfileF.PLACEHOLDER_TITLE)
+    name = e.stringProperty(GroupF.NAME).getOrElse(UserProfileF.PLACEHOLDER_TITLE),
+    description = e.stringProperty(GroupF.DESCRIPTION)
   )
 }
 

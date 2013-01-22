@@ -1,5 +1,7 @@
 @(item: Option[Group], f: play.api.data.Form[models.forms.GroupF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
- 
+
+@import models.forms.GroupF
+
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @main(Messages(item.map(s => "actions.updateGroup").getOrElse("actions.createGroup")))(Some(user), req) {
@@ -11,8 +13,9 @@
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 	    <fieldset id="identity-area">
 			<legend>@Messages("Identity")</legend>
-			@helper.inputText(f("identifier"), '_label -> "Identifier")
-			@helper.inputText(f("name"), '_label -> "Name")
+            @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+            @formHelpers.lineInput(f(""), GroupF.NAME)
+            @formHelpers.textInput(f(""), GroupF.DESCRIPTION)
 		</fieldset>
 		  			
 		<div class="form-actions">

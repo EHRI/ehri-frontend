@@ -140,14 +140,14 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
     implicit request =>
-      Ok(views.html.annotate(UserProfile(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
+      Ok(views.html.annotation.annotate(UserProfile(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
     implicit request =>
       formOrAnnotation match {
         case Left(errorForm) => getEntity(id, Some(user)) { item =>
-          BadRequest(views.html.annotate(UserProfile(item),
+          BadRequest(views.html.annotation.annotate(UserProfile(item),
             errorForm, routes.UserProfiles.annotatePost(id)))
         }
         case Right(annotation) => {

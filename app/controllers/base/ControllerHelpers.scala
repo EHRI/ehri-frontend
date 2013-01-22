@@ -43,7 +43,7 @@ trait ControllerHelpers {
           resp => resp
         )
       } recover {
-        case e: ConnectException => InternalServerError("Connection problems")
+        case e: ConnectException => InternalServerError(views.html.errors.serverTimeout())
       }
     }
   }

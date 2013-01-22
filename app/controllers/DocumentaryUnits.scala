@@ -142,14 +142,14 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
     implicit request =>
-      Ok(views.html.annotate(DocumentaryUnit(item), models.forms.AnnotationForm.form, routes.DocumentaryUnits.annotatePost(id)))
+      Ok(views.html.annotation.annotate(DocumentaryUnit(item), models.forms.AnnotationForm.form, routes.DocumentaryUnits.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
     implicit request =>
     formOrAnnotation match {
       case Left(errorForm) => getEntity(id, Some(user)) { item =>
-        BadRequest(views.html.annotate(DocumentaryUnit(item),
+        BadRequest(views.html.annotation.annotate(DocumentaryUnit(item),
             errorForm, routes.DocumentaryUnits.annotatePost(id)))
       }
       case Right(annotation) => {
@@ -162,7 +162,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def linkAnnotate(id: String, src: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
     implicit request =>
       getEntity(id, Some(user)) { srcitem =>
-        Ok(views.html.linkAnnotate(DocumentaryUnit(item),
+        Ok(views.html.annotation.linkAnnotate(DocumentaryUnit(item),
           ItemWithId(srcitem),
           models.forms.AnnotationForm.form, routes.DocumentaryUnits.linkAnnotatePost(id, src)))
       }
@@ -173,7 +173,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       formOrAnnotation match {
         case Left(errorForm) => getEntity(id, Some(user)) { item =>
           getEntity(src, Some(user)) { srcitem =>
-            BadRequest(views.html.linkAnnotate(DocumentaryUnit(item), ItemWithId(srcitem),
+            BadRequest(views.html.annotation.linkAnnotate(DocumentaryUnit(item), ItemWithId(srcitem),
               errorForm, routes.DocumentaryUnits.linkAnnotatePost(id, src)))
           }
         }

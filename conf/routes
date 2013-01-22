@@ -129,7 +129,7 @@ GET     /agent/annotate/:id     controllers.Agents.annotate(id: String)
 POST    /agent/annotate/:id     controllers.Agents.annotatePost(id: String)
 
 GET     /action/list           controllers.ActionLogs.list(page: Int ?= 1, limit: Int ?=20)
-GET     /action/show/:id       controllers.ActionLogs.get(id: String)
+GET     /action/show/:id       controllers.ActionLogs.get(id: String, page: Int ?= 1, limit: Int ?=20)
 GET     /history/:id        controllers.ActionLogs.historyFor(id: String, page: Int ?=1, limit: Int ?=20)
 
 GET     /annotation/show/:id       controllers.Annotations.get(id: String)

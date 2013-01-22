@@ -1,2 +1,2 @@
 # General main page parts
-banner.heading=French
+banner.heading=Je voudrais un kilo de pomme de terre

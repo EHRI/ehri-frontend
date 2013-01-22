@@ -3,9 +3,11 @@
 @main(item.name)(maybeUser, req) {
 
     @common.annotated(item, annotations) {
-	    <h2>Group: @item.name (@item.identifier)</h2>
+	    <h2>@item.name (@item.identifier)</h2>
 
         @common.flash(flash)
+
+        <p>@item.stringProperty(models.forms.GroupF.DESCRIPTION)</p>
     }
 
     @if(!item.groups.isEmpty) {
