@@ -101,7 +101,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     manageScopedPermissionsAction(id, page, spage, limit) {
     item => perms => sperms => implicit user => implicit request =>
       Ok(views.html.permissions.manageScopedPermissions(DocumentaryUnit(item), perms, sperms,
-        routes.DocumentaryUnits.addItemPermissions(id), routes.DocumentaryUnits.get(id)))
+        routes.DocumentaryUnits.addItemPermissions(id), routes.DocumentaryUnits.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
