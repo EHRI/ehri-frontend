@@ -25,9 +25,11 @@ contentTypes.action=System Events
 update.heading=Update {0}
 create.heading=Create New Item
 
+errors.itemNotFound=Item Not Found
+errors.itemNotFoundExplanation=That item couldn't be found on the system
 errors.genericProblem=We're very sorry, but there's a problem loading that page
 errors.databaseError=Database Error
-errors.databaseErrorMessage=I'm afraid it looks like our database server has gone down. There's not much we can do without it, so please try again later.
+errors.databaseErrorExplanation=I'm afraid it looks like our database server has gone down. There's not much we can do without it, so please try again later.
 
 # Pagination display. Should say something like "Displaying items 1 to 20 of 25.
 # If there are 0 items, says "No items found", one item, "One item found" etc.
