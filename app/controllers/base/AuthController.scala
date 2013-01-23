@@ -56,11 +56,13 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * id. Obviously, this is a big (albeit deliberate) security hole.
    */
   def USER_BACKDOOR__(user: models.sql.User, request: Request[AnyContent]): String = {
-    request.getQueryString("asUser").map { name =>
-      println("CURRENT USER: " + name)
-      println("WARNING: Running with user override backdoor for testing on: ?as=name")
-      name
-    }.getOrElse(user.profile_id)
+    if (request.method == "GET") {
+      request.getQueryString("asUser").map { name =>
+        println("CURRENT USER: " + name)
+        println("WARNING: Running with user override backdoor for testing on: ?as=name")
+        name
+      }.getOrElse(user.profile_id)
+    } else user.profile_id
   }
   
   /**

@@ -4,7 +4,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages(item.map(s => "actions.updateAgent").getOrElse("actions.createAgent")), Some(user), req) {
+@rightSidebarLayout(Messages(item.map(s => "actions.updateAgent").getOrElse("actions.createAgent")))(Some(user), req) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@defining("isdiah") { implicit fieldPrefix =>
 			<fieldset id="identity-area">

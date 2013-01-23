@@ -1,6 +1,6 @@
 @(item: ActionLog, page: rest.Page[ItemWithId])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actionLogs.itemAtTime", item.timeStamp), maybeUser, req) {
+@rightSidebarLayout(Messages("actionLogs.itemAtTime", item.time))(maybeUser, req) {
 
     <p>
 	@item.actioner.map { accessor =>
@@ -9,16 +9,13 @@
 	@item.logMessage
     </p>
     <h3>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)}</h3>
-    @common.pagination(page, req)
-    <ul>
+    @common.pagination(page)
+    <ul class="unstyled">
     @page.list.map { item =>
         <li><a href="@views.Helpers.urlFor(item)">@item.name</a></li>
     }
     </ul>
 
-    <ul class="item-actions">
-	    <li><a href="@routes.ActionLogs.list()">@Messages("actions.backToList")</a></li>
-    </ul>
 } {
 
 }

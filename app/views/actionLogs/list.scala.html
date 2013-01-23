@@ -1,19 +1,19 @@
 @(page: rest.Page[ActionLog])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listActionLogs"), maybeUser, req) {
+@rightSidebarLayout(Messages("actions.listActionLogs"))(maybeUser, req) {
 
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 
-    @common.pagination(page, req)
+    @common.pagination(page)
 
-	<ul>
+	<ul class="unstyled">
 	@page.list.map { item =>
 	  	<div class="list-item">
-			<h4><a href="@routes.ActionLogs.get(item.id)">@item.time</a>
+			<h5><a href="@routes.ActionLogs.get(item.id)">@item.time</a>
 			@item.actioner.map { accessor =>
                 - <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a>
 			}
-			</h4>
+			</h5>
 			<p>@item.logMessage</p>
 		</div>
 	}

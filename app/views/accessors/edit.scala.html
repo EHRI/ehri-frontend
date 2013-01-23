@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.updateGlobalPermissions", item.name), Some(user), req) {
+@rightSidebarLayout(Messages("actions.updateGlobalPermissions", item.name))(Some(user), req) {
 	
 	@if(!item.groups.isEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;

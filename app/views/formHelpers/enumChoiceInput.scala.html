@@ -6,6 +6,6 @@
   field = f,
   options = (if(blank) List("" -> "---") else Nil) ::: enum.values.map(m => (m.toString,
         m.toString)).toList.sorted,
-  args = '_label -> label
+  args = '_label -> label, 'class -> "span8"
 )
 

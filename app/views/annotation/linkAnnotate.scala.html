@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.linkAnnotate", item.identifier, src.name), Some(user), req) {
+@rightSidebarLayout(Messages("actions.linkAnnotate", item.identifier, src.name))(Some(user), req) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<fieldset id="annotate-area">

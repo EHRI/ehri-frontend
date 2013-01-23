@@ -1,8 +1,8 @@
-@(title: String, maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(sidebar: Html)(implicit flash: Flash, lang: Lang)
+@(title: String, scripts: Html = Html(""), styles: Html = Html(""))(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(sidebar: Html)(implicit flash: Flash, lang: Lang)
 
-@main(title)(maybeUser, req) {
+@main(title, scripts, styles)(maybeUser, req) {
 
-    <div class="container page-content">
+    <div class="container">
         <div class="row-fluid">
             <div class="span9">
                 <h2>@title</h2>
@@ -11,7 +11,7 @@
 
                 @content
             </div>
-            <div class="span3">
+            <div class="right-sidebar span3">
                 @sidebar
             </div>
         </div>

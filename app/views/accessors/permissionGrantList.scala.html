@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("permissionGrant.heading", item.name), Some(user), req) {
+@rightSidebarLayout(Messages("permissionGrant.heading", item.name))(Some(user), req) {
     <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 
     <div id="pagination" class="pagination">

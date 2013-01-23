@@ -1,9 +1,9 @@
 @(items: rest.Page[UserProfile])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listUserProfiles"), maybeUser, req) {
+@rightSidebarLayout(Messages("actions.listUserProfiles"))(maybeUser, req) {
 
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
-    @common.pagination(items, req)
+    @common.pagination(items)
 	
 	<ul>
 	@items.list.map { item =>
@@ -14,9 +14,11 @@
 	</ul>
     
 } {
-    @maybeUser.map { user =>
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {
-            <a href="@routes.UserProfiles.create">@Messages("Create New User")</a>
+    @common.sidebarSection(None) {
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@routes.UserProfiles.create">@Messages("Create New User")</a>
+            }
         }
     }
 }

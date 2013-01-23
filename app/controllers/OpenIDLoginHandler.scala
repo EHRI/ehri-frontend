@@ -1,9 +1,12 @@
 package controllers
 
+import _root_.models.sql.OpenIDAssociation
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
+import concurrent.Future
+import play.api.i18n.Messages
 
 /**
  * Default object instantiation
@@ -69,7 +72,13 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
             }
           // TODO: Check error condition?
         }
-      })
+      } recoverWith {
+        case e: Throwable => Future.successful {
+          Redirect(routes.Application.login())
+            .flashing("error" -> Messages("openid.openIdError", e.getMessage))
+        }
+      }
+    )
   }
 
   private def extractEmail(attrs: Map[String, String]): Option[String] = {

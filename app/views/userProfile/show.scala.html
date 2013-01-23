@@ -1,6 +1,6 @@
 @(item: UserProfile, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.name, maybeUser, req) {
+@rightSidebarLayout(item.name)(maybeUser, req) {
 
     @common.annotated(item, annotations) {
 
@@ -22,7 +22,7 @@
     <hr />
     @common.visibility(item)
 
-    <ul class="item-actions">
+    <ul class="item-actions nav nav-tabs nav-stacked affix">
     <li><a href="@routes.UserProfiles.list()">@Messages("Back to List")</a></li>
         @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {

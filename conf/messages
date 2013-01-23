@@ -3,7 +3,16 @@ banner.heading=EHRI Dev Test
 banner.signin=Sign In
 banner.signout=Sign Out
 
+footer.footerText=This is a development version of the EHRI data entry interface.
+
+login.login=Sign In
+login.adminLoginMessage=Note: only EHRI partners are given passwords. To sign up normally, please use the ''Sign In'' link at the top of the page and login with your OpenID account.
 login.linkToPasswordLogin=Click here if you have been given a password.
+login.email=Email
+login.password=Password
+login.badUsernameOrPassword=Incorrect username or password
+
+openid.openIdError=There was a problem logging you in with OpenID. This may because your provider does not support attribute exchange. The error messages was: {0}
 
 # Friendly names for content types
 contentTypes.group=Groups
@@ -38,6 +47,10 @@ users.realname=Full Name
 users.password=Password
 users.passwordConfirm=Confirm Password
 
+#
+# Action logs
+#
+actionLogs.itemAtTime=Action at {0}
 
 # Actions
 actions.listActionLogs=Action Logs
@@ -104,6 +117,8 @@ submitButton.removeItemFromGroup=Remove Item from Group
 submitButton.annotate=Annotate Item
 submitButton.updateGlobalPermissions=Update Global Permissions
 submitButton.createUser=Create User
+submitButton.loginWithPassword=Sign In
+submitButton.loginWithOpenid=Sign In With OpenID
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 
@@ -222,11 +237,13 @@ isdiah.maintenanceNotes=Maintenance Notes
 
 # Form sections
 isadg.identity=Identity Area
-isadg.context=Context Area
-isadg.content=Content Area
-isadg.conditions=Conditions Area
-isadg.materials=Materials Area
-isadg.control=Control Area
+isadg.descriptionsArea=Descriptions
+isadg.administrationArea=Administration
+isadg.contextArea=Context Area
+isadg.contentArea=Content Area
+isadg.conditionsArea=Conditions Area
+isadg.materialsArea=Materials Area
+isadg.controlArea=Control Area
 
 isadg.name=Name
 isadg.identifier=Identifier

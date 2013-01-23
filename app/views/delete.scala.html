@@ -1,6 +1,6 @@
 @(item: AccessibleEntity, action: Call, cancel: Call)(implicit user: UserProfile, request: RequestHeader, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.deleteItem", item.identifier), Some(user), request) {
+@rightSidebarLayout(Messages("actions.deleteItem", item.identifier))(Some(user), request) {
 
     <p>@Messages("deleting.deleteConfirmationMessage", item.identifier)</p>
     <form method="POST" action="@action" class="form-actions">

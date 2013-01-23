@@ -95,24 +95,16 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       },
       data => {
         val (email, pw) = data
-        OpenIDUser.findByEmail(email) match {
-          case Some(acc) => {
-            acc.password match {
-              case Some(hashed) => {
-                if (BCrypt.checkpw(pw, hashed)) {
-                  Application.gotoLoginSucceeded(acc.profile_id)
-                } else {
-                  BadRequest(views.html.pwLogin(form.withError("password", Messages("login.incorrectPassword")), action))
-                }
-              }
-              case None => {
-                BadRequest(views.html.pwLogin(form.withGlobalError(Messages("login.noAccountFound")), action))
-              }
+        OpenIDUser.findByEmail(email).flatMap { acc =>
+          acc.password.flatMap { hashed =>
+            if (BCrypt.checkpw(pw, hashed)) {
+              Some(Application.gotoLoginSucceeded(acc.profile_id))
+            } else {
+              None
             }
           }
-          case None => {
-            BadRequest(views.html.pwLogin(form.withError("email", Messages("login.badUserNameOrPassword")), action))
-          }
+        } getOrElse {
+          Redirect(routes.Admin.passwordLogin).flashing("error" -> Messages("login.badUsernameOrPassword"))
         }
       }
     )

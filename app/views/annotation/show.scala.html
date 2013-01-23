@@ -1,6 +1,6 @@
 @(item: Annotation, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.identifier, maybeUser, req) {
+@rightSidebarLayout(item.identifier)(maybeUser, req) {
 
     @common.annotated(item, annotations) {
     }

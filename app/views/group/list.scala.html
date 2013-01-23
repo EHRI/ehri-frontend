@@ -1,11 +1,11 @@
 @(items: rest.Page[Group])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listGroups"), maybeUser, req) {
+@rightSidebarLayout(Messages("actions.listGroups"))(maybeUser, req) {
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
 
-    @common.pagination(items, req)
+    @common.pagination(items)
 	
-	<ul>
+	<ul class="unstyled">
 	@items.list.map { item =>
 	  	<li>
 			<a href="@routes.Groups.get(item.id)">@item.name</a>
@@ -14,9 +14,11 @@
 	</ul>
     
 } {
-    @maybeUser.map { user =>
-        @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
-            <a href="@routes.Groups.create">@Messages("Create New Group")</a>
+    @common.sidebarSection(None) {
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@routes.Groups.create">@Messages("Create New Group")</a>
+            }
         }
     }
 }

@@ -94,7 +94,7 @@ trait RestDAO {
   lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
 
   protected def checkError(response: Response): Either[RestError, Response] = {
-    println("RESPONSE: " + response.body)
+    //println("RESPONSE: " + response.body)
     response.status match {
       case OK | CREATED => Right(response)
       case e => e match {

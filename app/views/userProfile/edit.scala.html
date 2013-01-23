@@ -2,7 +2,7 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages(item.map(s => "actions.updateUserProfile").getOrElse("actions.createUserProfile")), Some(user), req) {
+@rightSidebarLayout(Messages(item.map(s => "actions.updateUserProfile").getOrElse("actions.createUserProfile")))(Some(user), req) {
 
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @helper.inputText(f("identifier"), '_label -> "Identifier")

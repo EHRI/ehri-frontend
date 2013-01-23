@@ -2,9 +2,8 @@
 
 <div class="control-group @if(elements.hasErrors) {error}">
     <label class="control-label" for="@elements.id">@elements.label</label>
-    <div class="controls">
+    <div class="controls controls-row">
         @elements.input
-        <span class="help-inline errors">@elements.errors.mkString(", ")</span>
-        <span class="help-block">@elements.infos.mkString(", ")</span>
+        <span class="help-inline errors">@elements.infos.mkString(", ") @elements.errors.mkString(", ")</span>
     </div>
 </div>

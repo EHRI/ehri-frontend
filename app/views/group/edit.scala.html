@@ -4,7 +4,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages(item.map(s => "actions.updateGroup").getOrElse("actions.createGroup")), Some(user), req) {
+@rightSidebarLayout(Messages(item.map(s => "actions.updateGroup").getOrElse("actions.createGroup")))(Some(user), req) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
         @formHelpers.lineInput(f(""), GroupF.NAME)

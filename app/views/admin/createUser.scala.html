@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("admin.createNewUser"), Some(user), req) {
+@rightSidebarLayout(Messages("admin.createNewUser"))(Some(user), req) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 
         @helper.inputText(f("email"), '_label -> Messages("users.email"))

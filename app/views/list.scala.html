@@ -1,6 +1,6 @@
 @(items: rest.Page[models.UserProfile], showAction: String => Call)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@noSidebarLayout("View item", maybeUser, req) {
+@noSidebarLayout("View item")(maybeUser, req) {
 
 	<h3>Items:</h3>
   

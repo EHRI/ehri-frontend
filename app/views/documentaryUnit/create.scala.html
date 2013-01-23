@@ -2,7 +2,7 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.createDocumentaryUnit"), Some(user), req) {
+@rightSidebarLayout(Messages("actions.createDocumentaryUnit"))(Some(user), req) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@documentaryUnit.renderForm(f)
@@ -12,5 +12,5 @@
 		</div>
 	}
 } {
-
+   @documentaryUnit.formNav();
 }

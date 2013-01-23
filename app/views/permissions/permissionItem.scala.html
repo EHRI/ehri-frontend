@@ -3,7 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageItemPermissionsForAccessor", item.identifier), Some(user), req) {
+@rightSidebarLayout(Messages("actions.manageItemPermissionsForAccessor", item.identifier))(Some(user), req) {
 
     @if(!groups.isEmpty) {
         <strong>@Messages("contentTypes.group"): </strong>&nbsp;

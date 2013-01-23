@@ -2,7 +2,7 @@
 
 @import models.forms.IsadG._
 
-@rightSidebarLayout(item.name, maybeUser, req) {
+@rightSidebarLayout(item.name)(maybeUser, req) {
 
     @common.annotated(item, annotations) {
         @item.holder.map { holder =>
@@ -70,7 +70,7 @@
 } {
     @common.visibility(item)
 
-    <ul class="item-actions">
+    <ul class="item-actions nav nav-tabs nav-stacked affix">
     <li><a href="@routes.DocumentaryUnits.list()">@Messages("actions.backToList")</a></li>
         @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {

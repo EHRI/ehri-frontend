@@ -2,22 +2,18 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@noSidebarLayout(Messages("login.login"), None, request) {
-
+@openIdJquery = {
     <script type="application/javascript">
-         jQuery(function($) {
-             // Openid
-             $("form.openid").openid();
+        jQuery(function($) {
+        // Openid
+        $("form.openid").openid();
 
         });
     </script>
+}
 
-    <div class="row">
-        <div class="span12 columns">
+@noSidebarLayout(Messages("login.login"), scripts=openIdJquery)(None, request) {
 
-            @flash.get("error").map { message =>
-            <p class="alert alert-error">@Messages(message)</p>
-            }
 
             @helper.form(action = action, 'class -> "openid login-form form-horizontal") {
             <div>
@@ -93,10 +89,8 @@
                 <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithOpenid")" />
             </div>
             }
-        </div>
 
         <hr />
         <p><a href="@routes.Admin.passwordLogin()">@Messages("login.linkToPasswordLogin")</a></p>
-    </div>
 }
 

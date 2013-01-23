@@ -1,30 +1,27 @@
-@(page: rest.Page[PermissionGrant], pageParamName: String, req: RequestHeader)
+@(page: rest.Page[PermissionGrant], pageParamName: String)(implicit req: RequestHeader)
 
-<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
+    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 
-<div id="pagination" class="pagination">
-    <ul>
-    @common.pagination(page, req)
-</div>
+    @common.pagination(page)
 
-<ul>
-@page.list.map { item =>
-    <div class="list-item">
-        <h4>@item.permission.map(_.toString).getOrElse(item)</h4>
-        <ul>
-            @item.accessor.map { accessor =>
-                <li>@Messages("permissionGrant.accessor"): <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a></li>
-            }
-            @item.targets.map { t =>
-                <li>@Messages("permissionGrant.targets"): <a href="@views.Helpers.urlFor(t)">@t.name</a></li>
-            }
-            @item.scope.map { s =>
-                <li>@Messages("permissionGrant.scope"): <a href="@views.Helpers.urlFor(s)">@s.name</a></li>
-            }
-            @item.grantee.map { s =>
-                <li>@Messages("permissionGrant.grantedBy"): @s.name</li>
-            }
-        </ul>
-    </div>
-}
-</ul>
+    <ul class="unstyled">
+    @page.list.map { item =>
+        <li class="list-item">
+            <h5>@item.permission.map(_.toString).getOrElse(item)</h5>
+            <ul>
+                @item.accessor.map { accessor =>
+                    <li>@Messages("permissionGrant.accessor"): <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a></li>
+                }
+                @item.targets.map { t =>
+                    <li>@Messages("permissionGrant.targets"): <a href="@views.Helpers.urlFor(t)">@t.name</a></li>
+                }
+                @item.scope.map { s =>
+                    <li>@Messages("permissionGrant.scope"): <a href="@views.Helpers.urlFor(s)">@s.name</a></li>
+                }
+                @item.grantee.map { s =>
+                    <li>@Messages("permissionGrant.grantedBy"): @s.name</li>
+                }
+            </ul>
+        </li>
+    }
+    </ul>

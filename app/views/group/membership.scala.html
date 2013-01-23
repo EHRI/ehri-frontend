@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageGroups"), Some(user), req) {
+@rightSidebarLayout(Messages("actions.manageGroups"))(Some(user), req) {
 	
 	@if(!item.groups.isEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;

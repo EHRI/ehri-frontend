@@ -1,16 +1,9 @@
-@(title: String, scripts: Html = Html(""), styles: Html = Html(""))(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(implicit lang: Lang)
-
-@import defines._
-
+@(title: String, scripts: Html = Html(""), styles: Html = Html(""))(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)
 <!DOCTYPE html>
 
 <html>
     <head>
         <title>@title</title>
-        <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
-		<script src="@routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
-        <script src="@routes.Assets.at("stylesheets/bootstrap/js/bootstrap.js")"></script>
-        @scripts
 
         <!--<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">-->
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
@@ -21,38 +14,113 @@
         <style>
             .page-content {
                 padding-top: 40px;
+                padding-bottom: 40px;
+            }
+
+            .left-sidebar, .right-sidebar {
+                padding-top: 40px;
+            }
+
+            #form-nav-sidebar {
+                top: 80px;
+            }
+
+            #head-signin {
+                padding: 10px 15px 10px;
+                color: #f5f5f5;
+            }
+
+            #footer {
+                text-align: center;
+             /*   padding: 20px 20px;*/
+                border-top: 1px solid #e5e5e5;
+                background-color: #f5f5f5;
             }
         </style>
+
+        <style type="text/css">
+
+            /* Sticky footer styles
+            -------------------------------------------------- */
+
+            html,
+            body {
+            height: 100%;
+            /* The html and body elements cannot have any padding or margin. */
+            }
+
+            /* Wrapper for page content to push down footer */
+            #wrap {
+            min-height: 100%;
+            height: auto !important;
+            height: 100%;
+            /* Negative indent footer by it's height */
+            margin: 0 auto -100px;
+            }
+
+            /* Set the fixed height of the footer here */
+            #push,
+            #footer {
+                height: 99px;
+            }
+            #footer .container {
+                margin-top: 20px;
+            }
+            #footer {
+            background-color: #f5f5f5;
+            }
+
+            #footer {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+        </style>
     </head>
-    <body>
+    <body data-spy="scroll" data-target="#form-nav-sidebar">
 
         @activeIfCurrent(call: Call, text: String) = {
             <li class="@{if(req.path.startsWith(call.toString)) "active" else ""}"><a href="@call">@text</a></li>
         }
 
-		<div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="brand" href="/">@Messages("banner.heading")</a>
-                     <div id="head-section" class="pull-right">
-                         @maybeUser.flatMap(_.account).map { account =>
-                     <span>@account.email (<a href="/logout" id="signout">@Messages("banner.signout")</a>)</span>
-                     }.getOrElse {
-                     <a href="/login" id="signin">@Messages("banner.signin")</a>
-                         }
-                     </div>
-                    <div class="nav-collapse collapse">
-                        <ul class="nav">
-                            @activeIfCurrent(routes.DocumentaryUnits.list(1, 20), Messages("contentTypes." + EntityType.DocumentaryUnit))
-                            @activeIfCurrent(routes.Agents.list(1, 20), Messages("contentTypes." + EntityType.Agent))
-                            @activeIfCurrent(routes.UserProfiles.list(1, 20), Messages("contentTypes." + EntityType.UserProfile))
-                            @activeIfCurrent(routes.Groups.list(1, 20), Messages("contentTypes." + EntityType.Group))
-                            @activeIfCurrent(routes.ActionLogs.list(1, 20), Messages("contentTypes." + EntityType.ActionLog))
-                        </ul>
+        <div id="wrap">
+            <div class="navbar navbar-inverse navbar-fixed-top">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <a class="brand" href="/">@Messages("banner.heading")</a>
+                         <div id="head-signin" class="pull-right">
+                             @maybeUser.flatMap(_.account).map { account =>
+                                <span>@account.email <a href="/logout" id="signout">@Messages("banner.signout")</a></span>
+                            }.getOrElse {
+                                <a href="/login" id="signin">@Messages("banner.signin")</a>
+                             }
+                         </div>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav">
+                                @activeIfCurrent(routes.DocumentaryUnits.list(1, 20), Messages("contentTypes." + EntityType.DocumentaryUnit))
+                                @activeIfCurrent(routes.Agents.list(1, 20), Messages("contentTypes." + EntityType.Agent))
+                                @activeIfCurrent(routes.UserProfiles.list(1, 20), Messages("contentTypes." + EntityType.UserProfile))
+                                @activeIfCurrent(routes.Groups.list(1, 20), Messages("contentTypes." + EntityType.Group))
+                                @activeIfCurrent(routes.ActionLogs.list(1, 20), Messages("contentTypes." + EntityType.ActionLog))
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-		</div>
-        @content
+            <div class="page-content">
+                @content
+                <div id="push"></div>
+            </div>
+        </div>
+        <div id="footer">
+            <div class="container">
+                <p class="muted">@Messages("footer.footerText")</p>
+            </div>
+        </div>
+
+        <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
+        <script src="@routes.Assets.at("stylesheets/bootstrap/js/bootstrap.js")"></script>
+        @scripts
     </body>
 </html>

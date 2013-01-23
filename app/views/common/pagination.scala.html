@@ -1,4 +1,4 @@
-@(page: rest.Page[_], req: RequestHeader)
+@(page: rest.Page[_])(implicit req: RequestHeader)
 
 @if(page.hasMultiplePages) {
     <div id="pagination" class="pagination">

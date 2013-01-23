@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.annotate", item.identifier), Some(user), req) {
+@rightSidebarLayout(Messages("actions.annotate", item.identifier))(Some(user), req) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @helper.inputText(form(models.forms.AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
         @helper.inputText(form(models.forms.AnnotationF.FIELD), '_label -> Messages("annotation.field"))
