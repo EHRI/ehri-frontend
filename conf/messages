@@ -71,6 +71,7 @@ actions.manageGroupsFor=Manage Groups: {0}
 actions.historyForItem=Change history for item: {0}
 actions.showHistory=Item History
 actions.addNewGroup=Add New Group
+actions.addUserToGroup=Add {0} to group ''{1}''
 actions.manageScopedPermissions=Managed Scoped Permissions
 actions.manageScopedPermissionsForAccessor=Manage Scoped Permissions for {0}
 actions.manageScopedPermissionsForItem=Manage Scoped Permissions for {0}
@@ -84,6 +85,7 @@ actions.managePermissions=Manage Permissions
 actions.cancel=Cancel
 actions.subjectsForAction=Subjects
 actions.annotate=Annotate {0}
+actions.manageGroups=Manage Groups
 
 # Submit buttons
 submitButton.createDocumentaryUnit=Create Collection
