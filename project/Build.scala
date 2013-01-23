@@ -15,10 +15,10 @@ object ApplicationBuild extends Build {
     // Add your project dependencies here
     "jp.t2v" % "play20.auth_2.10.0" % "0.4-SNAPSHOT",
     "com.sun.jersey" % "jersey-core" % "1.9",
-    "org.neo4j.app" % "neo4j-server" % "1.8" classifier "static-web" classifier "",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
+    "org.codehaus.groovy" % "groovy-all" % "2.0.6",
     //"com.typesafe" % "play-plugins-mailer_2.10" % "2.1-SNAPSHOT",
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
     "ehri-project" % "ehri-plugin" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
