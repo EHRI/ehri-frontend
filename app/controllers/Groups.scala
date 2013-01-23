@@ -86,7 +86,7 @@ object Groups extends PermissionHolderController[Group]
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
     implicit request =>
-      Redirect(routes.Groups.list())
+      Redirect(routes.Groups.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 

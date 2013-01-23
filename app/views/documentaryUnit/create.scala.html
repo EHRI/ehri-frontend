@@ -4,10 +4,6 @@
 
 @rightSidebarLayout(Messages("actions.createDocumentaryUnit"), Some(user), req) {
 
-    <h2>@Messages("actions.createDocumentaryUnit")</h2>
-
-    @common.flash(flash)
-
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@documentaryUnit.renderForm(f)
 	

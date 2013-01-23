@@ -36,7 +36,7 @@ object ErrorSet {
   implicit val errorReads: Reads[ErrorSet] = (
     (__ \ "errors").lazyRead(map[List[String]]) and
     (__ \ Entity.RELATIONSHIPS).lazyRead(
-      map[List[Option[ErrorSet]]](list(optionWithNull(errorReads)))))(ErrorSet.apply _)
+      map[List[Option[ErrorSet]]](list(optionNoError(errorReads)))))(ErrorSet.apply _)
 
 
   def fromJson(json: JsValue): ErrorSet = json.validate[ErrorSet].fold(

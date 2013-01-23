@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json.{ JsArray, JsValue }
-import defines.EntityType
+import defines.{EntityType,ContentType}
 import models.Entity
 import play.api.libs.json.Json
 import models.UserProfile
@@ -100,8 +100,8 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     }
   }
 
-  def createInContext(id: String, item: Persistable): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, item.isA)).withHeaders(authHeaders.toSeq: _*)
+  def createInContext(id: String, contentType: ContentType.Value, item: Persistable): Future[Either[RestError, Entity]] = {
+    WS.url(enc(requestUrl, id, contentType)).withHeaders(authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }

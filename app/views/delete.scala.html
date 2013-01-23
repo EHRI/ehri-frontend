@@ -1,17 +1,13 @@
 @(item: AccessibleEntity, action: Call, cancel: Call)(implicit user: UserProfile, request: RequestHeader, flash: Flash)
 
-@main(Messages("actions.deleteItem", item.identifier))(Some(user), request) {
+@rightSidebarLayout(Messages("actions.deleteItem", item.identifier), Some(user), request) {
 
-    <div class="row">
-        <div class="span12 columns">
-            <h2>@Messages("actions.deleteItem", item.identifier)</h2>
-            
-            <p>@Messages("deleting.deleteConfirmationMessage", item.identifier)</p>
-            <form method="POST" action="@action" class="form-actions">
-                <button type="submit" class="btn btn-danger">@Messages("submitButton.deleteItem")</button>
-                <a href="@cancel.url" class="btn">@Messages("actions.cancel")</a>
-            </form>
-        </div>
-    </div>
+    <p>@Messages("deleting.deleteConfirmationMessage", item.identifier)</p>
+    <form method="POST" action="@action" class="form-actions">
+        <button type="submit" class="btn btn-danger">@Messages("submitButton.deleteItem")</button>
+        <a href="@cancel.url" class="btn">@Messages("actions.cancel")</a>
+    </form>
+} {
+
 }
 

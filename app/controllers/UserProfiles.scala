@@ -93,7 +93,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
     implicit request =>
-      Redirect(routes.UserProfiles.list())
+      Redirect(routes.UserProfiles.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 

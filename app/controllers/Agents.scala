@@ -80,8 +80,8 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
           case Left(errorForm) =>
             BadRequest(views.html.documentaryUnit.create(Agent(item),
               errorForm, routes.Agents.createDocPost(id)))
-          case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
-            .flashing("success" -> Messages("confirmations.itemWasCreate", item.id))
+          case Right(citem) => Redirect(routes.DocumentaryUnits.get(citem.id))
+            .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
         }
   }
 
@@ -105,7 +105,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
     implicit request =>
-      Redirect(routes.Agents.list())
+      Redirect(routes.Agents.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
