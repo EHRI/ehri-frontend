@@ -189,11 +189,11 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * and return an action with the user in scope.
    */
   def withItemPermission(id: String,
-    perm: PermissionType.Value, contentType: ContentType.Value)(
+    perm: PermissionType.Value, contentType: ContentType.Value, permContentType: Option[ContentType.Value] = None)(
       f: models.Entity => UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
     itemPermissionAction(contentType, id) { entity => implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>
-        if (user.hasPermission(contentType, perm)) Some(f(entity)(user)(request))
+        if (user.hasPermission(permContentType.getOrElse(contentType), perm)) Some(f(entity)(user)(request))
         else None
       }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }
