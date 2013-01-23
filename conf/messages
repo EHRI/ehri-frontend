@@ -72,6 +72,7 @@ actions.historyForItem=Change history for item: {0}
 actions.showHistory=Item History
 actions.addNewGroup=Add New Group
 actions.addUserToGroup=Add {0} to group ''{1}''
+actions.updateGlobalPermissions=Update Global Permissions
 actions.manageScopedPermissions=Managed Scoped Permissions
 actions.manageScopedPermissionsForAccessor=Manage Scoped Permissions for {0}
 actions.manageScopedPermissionsForItem=Manage Scoped Permissions for {0}

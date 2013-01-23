@@ -1,11 +1,9 @@
-@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang)
+@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-  @main(Messages("actions.updateGlobalPermissions", item.name))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.updateGlobalPermissions", item.name), Some(user), req) {
 	
-    <h2>@Messages("actions.updateGlobalPermissions", item.name)</h2>
-    
 	@if(!item.groups.isEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;
 	  @item.groups.map { group =>
@@ -52,5 +50,6 @@
             <button type="submit" class="btn btn-primary">@Messages("submitButton.updateGlobalPermissions")</button>
         </div>
 	}
-		
+} {
+
 }
