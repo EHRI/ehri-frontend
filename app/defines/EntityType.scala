@@ -17,4 +17,7 @@ object EntityType extends Enumeration() {
   val PermissionGrant = Value("permissionGrant")
   val Permission = Value("permission")
   val Annotation = Value("annotation")
+  val Concept = Value("cvocConcept")
+  val ConceptDescription = Value("cvocConceptDescription")
+  val Vocabulary = Value("cvocVocabulary")
 }
