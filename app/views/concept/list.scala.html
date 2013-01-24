@@ -1,0 +1,31 @@
+@(page: rest.Page[Concept])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@noSidebarLayout(Messages("actions.listConcepts"))(maybeUser, req) {
+
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
+
+    @common.pagination(page)
+	
+	<ul class="unstyled">
+	@page.list.map { item =>
+	  	<div class="list-item">
+			<h5><a href="@routes.Concepts.get(item.id)">@item.identifier</a></h5>
+			@item.descriptions.headOption.map { desc =>
+              @defining(desc.to) { d =>
+                  <p>
+                  @d.prefLabel.map { sc =>
+                      @sc <br />
+                  }
+                  @d.definition.map { sc =>
+                      @sc <br />
+                  }
+                  @d.scopeNote.map { sc =>
+                      @sc <br />
+                  }
+                  </p>
+              }
+			}
+		</div>
+	}
+	</ul>
+}

@@ -70,7 +70,7 @@
 } {
     @common.visibility(item)
 
-    <ul class="item-actions nav nav-tabs nav-stacked affix">
+    <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
             <li><a href="@routes.DocumentaryUnits.createDoc(item.id)">@Messages("actions.createChildDocUnit")</a></li>

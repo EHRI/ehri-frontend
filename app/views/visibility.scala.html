@@ -9,13 +9,13 @@
 		<fieldset id="visibility-area">
 
 			<div class="control-group">
-              <label class="control-label" for="visibility_groups">@Messages("Groups")</label>
+              <label class="control-label" for="visibility_groups">@Messages("contentTypes.group")</label>
               <div class="controls input">
-                  <select class="chzn-select" placeholder="@Messages("Choose Groups")" multiple
+                  <select class="chzn-select" placeholder="@Messages("visibility.chooseGroups")" multiple
                       id="visibility_groups"
                       name="@defines.EntityType.Group">
                     @groups.map{t =>
-                        <option value="@t._1" @(if(item.accessors.map(_.identifier).contains(t._1))
+                        <option value="@t._1" @(if(item.accessors.map(_.id).contains(t._1))
                         "selected" else "")>@t._2</option>
                     }
                   </select>
@@ -23,13 +23,13 @@
           </div>
 
           <div class="control-group">
-              <label class="control-label" for="visibility_users">@Messages("Users")</label>
+              <label class="control-label" for="visibility_users">@Messages("contentTypes.userProfile")</label>
               <div class="controls input">
-                  <select class="chzn-select" placeholder="@Messages("Choose Users")" multiple
+                  <select class="chzn-select" placeholder="@Messages("visibility.chooseUsers")" multiple
                       id="visibility_users"
                       name="@defines.EntityType.UserProfile">
                     @users.map{t =>
-                        <option value="@t._1" @(if(item.accessors.map(_.identifier).contains(t._1))
+                        <option value="@t._1" @(if(item.accessors.map(_.id).contains(t._1))
                         "selected" else "")>@t._2</option>
                     }
                   </select>

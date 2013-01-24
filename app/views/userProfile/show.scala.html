@@ -22,7 +22,7 @@
     <hr />
     @common.visibility(item)
 
-    <ul class="item-actions nav nav-tabs nav-stacked affix">
+    <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
             <li><a href="@routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a></li>

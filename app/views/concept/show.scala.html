@@ -1,0 +1,34 @@
+@(item: Concept, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(item.identifier)(maybeUser, req) {
+
+    @common.annotated(item, annotations) {
+        TODO
+    }
+
+    @common.relatedLinks(item, annotations)
+
+} {
+    @common.visibility(item)
+
+    <ul class="item-actions nav nav-tabs nav-stacked affix">
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.Concept, PermissionType.Create)) {
+                <li><a href="@routes.Concepts.createConcept(item.id)">@Messages("actions.createNarrowerConcept")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Concept, PermissionType.Update)) {
+                <li><a href="@routes.Concepts.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Concept, PermissionType.Update)) {
+                <li><a href="@routes.Concepts.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Concept, PermissionType.Delete)) {
+                <li><a href="@routes.Concepts.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Concept, PermissionType.Grant)) {
+                <li><a href="@routes.Concepts.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+            }
+            <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+        }
+    </ul>
+}

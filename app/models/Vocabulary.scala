@@ -12,9 +12,16 @@ object Vocabulary {
  * User: mike
  * Date: 24/01/13
  */
-case class Vocabulary(val e: Entity)
-  extends AccessibleEntity
+case class Vocabulary(e: Entity)
+  extends NamedEntity
+  with AccessibleEntity
   with Formable[VocabularyF] {
 
-  def to: VocabularyF = new VocabularyF(Some(e.id), identifier)
+  import VocabularyF._
+  def to: VocabularyF = new VocabularyF(
+      Some(e.id),
+      identifier,
+      e.stringProperty(NAME),
+      e.stringProperty(DESCRIPTION)
+  )
 }

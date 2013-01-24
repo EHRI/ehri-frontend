@@ -20,10 +20,10 @@
 					@helper.inputText(desc("languageCode"), '_label -> "Language Code")
 					@helper.inputText(desc(NAME), '_label -> "Authorized Form of Name")
 					@helper.repeat(desc(OTHER_FORMS_OF_NAME), min = item.flatMap(_.listProperty(OTHER_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { field =>
-                        @formHelpers.lineInput(field, OTHER_FORMS_OF_NAME)
+                        @helper.inputText(field, '_label -> Messages(OTHER_FORMS_OF_NAME))
 					}
 					@helper.repeat(desc(PARALLEL_FORMS_OF_NAME), min = item.flatMap(_.listProperty(PARALLEL_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { field =>
-                        @formHelpers.lineInput(field, PARALLEL_FORMS_OF_NAME)
+                        @helper.inputText(field, '_label -> Messages(PARALLEL_FORMS_OF_NAME))
 					}
 				</fieldset>
 				<fieldset id="contact-area">

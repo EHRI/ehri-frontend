@@ -17,7 +17,7 @@
 
     @common.visibility(item)
 
-    <ul class="item-actions nav nav-tabs nav-stacked affix">
+    <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
             <li><a href="@routes.Groups.create">@Messages("actions.createNewGroup")</a></li>
