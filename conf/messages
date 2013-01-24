@@ -163,6 +163,7 @@ documentaryUnit.availableDescriptions=Available Descriptions
 permissionGrant.heading=Permissions for {0}
 permissionGrant.accessor=User/Group
 permissionGrant.targets=Targets
+permissionGrant.scope=Scope
 
 #
 # ISDIAH Field definitions
