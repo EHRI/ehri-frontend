@@ -31,13 +31,14 @@ trait ControllerHelpers {
             // TODO: Rethink whether we want to redirect here?  All our
             // actions should already be permission-secure, so it's really
             // an error if the server denies permission for something.
-            case e: PermissionDenied => maybeUser match {
-              case Some(user) => Unauthorized(views.html.errors.permissionDenied())
-              case None => authenticationFailed(request)
+            case e: PermissionDenied => maybeUser.map { user =>
+              Unauthorized(views.html.errors.permissionDenied())
+            } getOrElse {
+              authenticationFailed(request)
             }
             case e: ItemNotFound => NotFound(views.html.errors.itemNotFound())
             case e: ValidationError => BadRequest(err.toString())
-            case e: ServerError => InternalServerError("Sorry, but the server appears to be down right now.")
+            case e: ServerError => InternalServerError(views.html.errors.serverTimeout())
             case e => BadRequest(e.toString())
           },
           resp => resp
