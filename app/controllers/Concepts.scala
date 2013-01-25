@@ -1,5 +1,6 @@
 package controllers
 
+import play.api.libs.concurrent.Execution.Implicits._
 import models.{ItemWithId,Concept}
 import models.forms.{ConceptF,VisibilityForm}
 import play.api._
@@ -24,10 +25,18 @@ object Concepts extends CreationContext[ConceptF, Concept]
   val childForm = models.forms.ConceptForm.form
   val builder = Concept.apply _
 
-  def get(id: String) = getAction(id) { item => annotations =>
+  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getAction(id) { item => annotations =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.concept.show(Concept(item), annotations))
+    // In addition to the item itself, we also want to fetch it's concepts
+    AsyncRest {
+      rest.EntityDAO(entityType, maybeUser).pageChildren(id, math.max(page, 1), math.max(limit, 1)).map { pageOrErr =>
+        pageOrErr.right.map { page =>
+          Ok(views.html.concept.show(Concept(item),
+            page.copy(list=page.list.map(Concept(_))), annotations))
+        }
+      }
+    }
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>

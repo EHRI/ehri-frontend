@@ -129,7 +129,7 @@ GET     /agent/annotate/:id     controllers.Agents.annotate(id: String)
 POST    /agent/annotate/:id     controllers.Agents.annotatePost(id: String)
 
 GET     /vocabs                controllers.Vocabularies.list(page: Int ?= 1, limit: Int ?=20)
-GET     /vocabs/show/:id       controllers.Vocabularies.get(id: String)
+GET     /vocabs/show/:id       controllers.Vocabularies.get(id: String, page: Int ?= 1, limit: Int ?=20)
 GET     /vocabs/json/:id       controllers.Vocabularies.getJson(id: String)
 GET     /vocabs/create          controllers.Vocabularies.create
 POST    /vocabs/create          controllers.Vocabularies.createPost
@@ -154,7 +154,7 @@ GET     /vocabs/link/:id/:src     controllers.Vocabularies.linkAnnotate(id: Stri
 POST    /vocabs/link/:id/:src     controllers.Vocabularies.linkAnnotatePost(id: String, src: String)
 
 GET     /concepts                controllers.Concepts.list(page: Int ?= 1, limit: Int ?=20)
-GET     /concepts/show/:id       controllers.Concepts.get(id: String)
+GET     /concepts/show/:id       controllers.Concepts.get(id: String, page: Int ?= 1, limit: Int ?=20)
 GET     /concepts/json/:id       controllers.Concepts.getJson(id: String)
 GET     /concepts/delete/:id     controllers.Concepts.delete(id: String)
 POST    /concepts/delete/:id     controllers.Concepts.deletePost(id: String)

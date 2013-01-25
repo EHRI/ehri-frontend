@@ -1,4 +1,4 @@
-@(item: Concept, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Concept, page: rest.Page[Concept], annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item.identifier)(maybeUser, req) {
 
@@ -7,6 +7,22 @@
     }
 
     @common.relatedLinks(item, annotations)
+
+    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
+
+    @common.pagination(page)
+
+    <ul class="unstyled">
+    @page.list.map { item =>
+        <div class="list-item">
+        <h5>
+        <a href="@routes.Concepts.get(item.id)">
+            @item.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+        </a>
+        </h5>
+        </div>
+    }
+    </ul>
 
 } {
     @common.visibility(item)

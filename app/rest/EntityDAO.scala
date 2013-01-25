@@ -153,4 +153,33 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
       }
     }
   }
+
+  def listChildren(id: String, offset: Int, limit: Int): Future[Either[RestError, Seq[Entity]]] = {
+    WS.url(enc(requestUrl, id, "list?offset=%d&limit=%d".format(offset, limit))).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkError(response).right.map { r =>
+        r.json match {
+          case JsArray(array) => array.map(js => jsonToEntity(js))
+          case _ => sys.error("Unable to decode list result: " + r.json)
+        }
+      }
+    }
+  }
+
+  def pageChildren(id: String, page: Int, limit: Int): Future[Either[RestError, Page[Entity]]] = {
+    import Entity.entityReads
+    implicit val entityPageReads = PageReads.pageReads
+    WS.url(enc(requestUrl, id, "page?offset=%d&limit=%d".format((page-1)*limit, limit)))
+      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkError(response).right.map { r =>
+        r.json.validate[Page[models.Entity]].fold(
+          valid = { page =>
+            Page(page.total, page.offset, page.limit, page.list)
+          },
+          invalid = { e =>
+            sys.error("Unable to decode paginated list result: " + e.toString)
+          }
+        )
+      }
+    }
+  }
 }
