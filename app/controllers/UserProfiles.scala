@@ -99,12 +99,12 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
       item => perms => implicit user => implicit request =>
-    Ok(views.html.accessors.permissionGrantList(UserProfile(item), perms))
+    Ok(views.html.permissions.permissionGrantList(UserProfile(item), perms))
   }
 
   def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
     item => perms => implicit user => implicit request =>
-      Ok(views.html.accessors.edit(UserProfile(item), perms,
+      Ok(views.html.permissions.editGlobalPermissions(UserProfile(item), perms,
         routes.UserProfiles.permissionsPost(id)))
   }
 
