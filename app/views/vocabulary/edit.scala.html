@@ -1,0 +1,17 @@
+@(item: Option[Vocabulary], f: play.api.data.Form[models.forms.VocabularyF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@rightSidebarLayout(Messages(item.map(s => "actions.updateVocabulary").getOrElse("actions.createVocabulary")))(Some(user), req) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+        @formHelpers.lineInput(f(""), models.forms.VocabularyF.NAME)
+        @formHelpers.textInput(f(""), models.forms.VocabularyF.DESCRIPTION)
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages(item.map(s => "submitButton.updateVocabulary").getOrElse("submitButton.createVocabulary"))</button>
+        </div>
+	}
+} {
+
+}
