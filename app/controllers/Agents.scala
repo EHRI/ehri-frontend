@@ -6,7 +6,7 @@ import play.api.i18n.Messages
 import defines._
 import base._
 import models.{DocumentaryUnit, Agent}
-import models.forms.{AgentF,DocumentaryUnitF}
+import models.forms.{AgentF,DocumentaryUnitF,VisibilityForm}
 import rest.Page
 
 object Agents extends CreationContext[DocumentaryUnitF,Agent]
@@ -36,16 +36,19 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
         Ok(views.html.agent.list(page.copy(list = page.list.map(Agent(_)))))
   }
 
-  def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
+  def create = createAction { users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.agent.edit(None, form, routes.Agents.createPost))
+      Ok(views.html.agent.create(form,
+        VisibilityForm.form, users, groups, routes.Agents.createPost))
   }
 
-  def createPost = createPostAction(models.forms.AgentForm.form) { formOrItem =>
+  def createPost = createPostAction(models.forms.AgentForm.form) { formsOrItem =>
     implicit user =>
       implicit request =>
-    formOrItem match {
-      case Left(form) => BadRequest(views.html.agent.edit(None, form, routes.Agents.createPost))
+    formsOrItem match {
+      case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
+        BadRequest(views.html.agent.create(errorForm, accForm, users, groups, routes.Agents.createPost))
+      }
       case Right(item) => Redirect(routes.Agents.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
     }
@@ -67,19 +70,20 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
         }
   }
 
-  def createDoc(id: String) = childCreateAction(id, ContentType.DocumentaryUnit) { item => implicit user =>
+  def createDoc(id: String) = childCreateAction(id, ContentType.DocumentaryUnit) { item => users => groups => implicit user =>
     implicit request =>
       Ok(views.html.documentaryUnit.create(
-        Agent(item), childForm, routes.Agents.createDocPost(id)))
+        Agent(item), childForm, VisibilityForm.form, users, groups, routes.Agents.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentType.DocumentaryUnit) { item => formOrItem =>
+  def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentType.DocumentaryUnit) { item => formsOrItem =>
     implicit user =>
       implicit request =>
-        formOrItem match {
-          case Left(errorForm) =>
+        formsOrItem match {
+          case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
             BadRequest(views.html.documentaryUnit.create(Agent(item),
-              errorForm, routes.Agents.createDocPost(id)))
+              errorForm, accForm, users, groups, routes.Agents.createDocPost(id)))
+          }
           case Right(citem) => Redirect(routes.DocumentaryUnits.get(citem.id))
             .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
         }
@@ -100,7 +104,9 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.visibility(Agent(item), users, groups, routes.Agents.visibilityPost(id)))
+      Ok(views.html.permissions.visibility(Agent(item),
+        VisibilityForm.form.fill(Agent(item).accessors.map(_.id)),
+        users, groups, routes.Agents.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>

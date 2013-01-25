@@ -2,17 +2,18 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AccessibleEntity, annotations: Map[String,List[Annotation]])(body: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader)
+@(item: AccessibleEntity, annotations: Map[String,List[Annotation]], url: Call)(body: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader)
 
 @annotationList(annotations: List[Annotation]) = {
     @if(!annotations.isEmpty) {
         <ul>
         @annotations.map { ann =>
-            <li class="annotatable" id="@ann.e.id">
+            <li class="annotatable" id="@ann.id">
                 @ann.accessor.map { accessor =>
                     <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a> -
                 }
                 @ann.to.body.map(_.trim)
+                <a href="@routes.Annotations.annotate(ann.id)">+</a>
                 @annotationList(ann.annotations)
             </li>
         }
@@ -22,6 +23,7 @@
 }
 
 <div class="annotatable" id="@item.id">
+    <a href="@url">+@Messages("actions.annotateThisItem")</a>
     @body
     @annotations.get(item.id).map { list =>
         @defining(list.filter(_.to.annotationType == models.forms.AnnotationType.Comment)) { alist =>

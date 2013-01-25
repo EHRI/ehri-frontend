@@ -1,4 +1,5 @@
-@(item: AccessibleEntity, f: play.api.data.Form[models.forms.DocumentaryUnitF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AccessibleEntity, f: Form[models.forms.DocumentaryUnitF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -6,6 +7,8 @@
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@documentaryUnit.renderForm(f)
+
+        @permissions.renderVisibilityForm(vf, users, groups)
 	
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">@Messages("submitButton.createDocumentaryUnit")</button>

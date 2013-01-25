@@ -24,6 +24,19 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
+  def getGroups(user: Option[UserProfile])(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit request: RequestHeader) = {
+    implicit val maybeUser = user
+    // TODO: Handle REST errors
+    Async {
+      for {
+        users <- rest.RestHelpers.getUserList
+        groups <- rest.RestHelpers.getGroupList
+      } yield {
+        f(users)(groups)
+      }
+    }
+  }
+
   def getJson(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       import play.api.libs.json.Json

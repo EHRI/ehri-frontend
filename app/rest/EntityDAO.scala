@@ -72,6 +72,8 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   import EntityDAO._
   import play.api.http.Status._
 
+  final val ACCESSOR_PARAM = "accessibleTo"
+
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
   def authHeaders: Map[String, String] = userProfile match {
@@ -93,22 +95,23 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     }
   }
 
-  def create(item: Persistable): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl)).withHeaders(authHeaders.toSeq: _*)
+  def create(item: Persistable, accessors: List[String] = Nil): Future[Either[RestError, Entity]] = {
+    WS.url(enc(requestUrl, "?%s".format(accessors.map(a => s"${ACCESSOR_PARAM}=${a}").mkString("&"))))
+        .withHeaders(authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def createInContext(id: String, contentType: ContentType.Value, item: Persistable): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, contentType)).withHeaders(authHeaders.toSeq: _*)
+  def createInContext(id: String, contentType: ContentType.Value, item: Persistable, accessors: List[String] = Nil): Future[Either[RestError, Entity]] = {
+    WS.url(enc(requestUrl, id, contentType, "?%s".format(accessors.map(a => s"${ACCESSOR_PARAM}=${a}").mkString("&"))))
+        .withHeaders(authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
   def update(id: String, item: Persistable): Future[Either[RestError, Entity]] = {
-    println("SENDING: " + item.toJson)
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))

@@ -1,0 +1,24 @@
+@(f: Form[models.forms.AgentF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@rightSidebarLayout(Messages("actions.createAgent"))(Some(user), req) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+
+        @agent.renderForm(None, f)
+
+        <fieldset id="admin-area">
+            <legend>@Messages("Administration")</legend>
+            @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
+
+            @permissions.renderVisibilityForm(vf, users, groups)
+        </fieldset>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages("submitButton.createAgent")</button>
+        </div>
+	}
+} {
+
+}

@@ -184,6 +184,8 @@ GET     /history/:id        controllers.ActionLogs.historyFor(id: String, page: 
 GET     /annotation/show/:id       controllers.Annotations.get(id: String)
 GET     /annotation/visibility/:id     controllers.Annotations.visibility(id: String)
 POST    /annotation/visibility/:id     controllers.Annotations.visibilityPost(id: String)
+GET     /annotation/annotate/:id     controllers.Annotations.annotate(id: String)
+POST    /annotation/annotate/:id     controllers.Annotations.annotatePost(id: String)
 
 # API
 GET     /api/*path               controllers.ApiController.get(path: String)

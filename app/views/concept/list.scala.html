@@ -13,9 +13,7 @@
 			@item.descriptions.headOption.map { desc =>
               @defining(desc.to) { d =>
                   <p>
-                  @d.prefLabel.map { sc =>
-                      @sc <br />
-                  }
+                  @d.prefLabel<br />
                   @d.definition.map { sc =>
                       @sc <br />
                   }

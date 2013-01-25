@@ -3,6 +3,8 @@ banner.heading=EHRI Dev Test
 banner.signin=Sign In
 banner.signout=Sign Out
 
+home=Home
+
 footer.footerText=This is a development version of the EHRI data entry interface.
 
 login.login=Sign In
@@ -20,6 +22,8 @@ contentTypes.userProfile=Users
 contentTypes.agent=Repositories
 contentTypes.documentaryUnit=Collections
 contentTypes.action=System Events
+contentTypes.cvocVocabulary=CVocs
+contentTypes.cvocConcept=Concepts
 
 # general models.forms
 update.heading=Update {0}
@@ -107,6 +111,7 @@ actions.managePermissions=Manage Permissions
 actions.cancel=Cancel
 actions.subjectsForAction=Subjects
 actions.annotate=Annotate {0}
+actions.annotateThisItem=Annotate Item
 actions.manageGroups=Manage Groups
 
 # Submit buttons

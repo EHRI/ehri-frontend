@@ -2,7 +2,7 @@
 
 @rightSidebarLayout(item.name)(maybeUser, req) {
 
-    @common.annotated(item, annotations) {
+    @common.annotated(item, annotations, routes.Groups.annotate(item.id)) {
         <p>@item.stringProperty(models.forms.GroupF.DESCRIPTION)</p>
     }
 

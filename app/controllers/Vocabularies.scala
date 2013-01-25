@@ -1,7 +1,7 @@
 package controllers
 
 import models.{ItemWithId,Concept,Vocabulary}
-import models.forms.{ConceptF,VocabularyF}
+import _root_.models.forms.{VisibilityForm, ConceptF, VocabularyF}
 import play.api._
 import play.api.i18n.Messages
 import base._
@@ -37,16 +37,18 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
         Ok(views.html.vocabulary.list(page.copy(list = page.list.map(Vocabulary(_)))))
   }
 
-  def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
+  def create = createAction { users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.vocabulary.edit(None, form, routes.Vocabularies.createPost))
+      Ok(views.html.vocabulary.create(form, VisibilityForm.form, users, groups, routes.Vocabularies.createPost))
   }
 
-  def createPost = createPostAction(models.forms.VocabularyForm.form) { formOrItem =>
+  def createPost = createPostAction(models.forms.VocabularyForm.form) { formsOrItem =>
     implicit user =>
       implicit request =>
-        formOrItem match {
-          case Left(form) => BadRequest(views.html.vocabulary.edit(None, form, routes.Vocabularies.createPost))
+        formsOrItem match {
+          case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
+            BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, routes.Vocabularies.createPost))
+          }
           case Right(item) => Redirect(routes.Vocabularies.get(item.id))
             .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
         }
@@ -69,19 +71,20 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
         }
   }
 
-  def createConcept(id: String) = childCreateAction(id, ContentType.Concept) { item => implicit user =>
+  def createConcept(id: String) = childCreateAction(id, ContentType.Concept) { item => users => groups => implicit user =>
     implicit request =>
       Ok(views.html.concept.create(
-        Vocabulary(item), childForm, routes.Vocabularies.createConceptPost(id)))
+        Vocabulary(item), childForm, VisibilityForm.form, users, groups, routes.Vocabularies.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) { item => formOrItem =>
+  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) { item => formsOrItem =>
     implicit user =>
       implicit request =>
-        formOrItem match {
-          case Left(errorForm) =>
+        formsOrItem match {
+          case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
             BadRequest(views.html.concept.create(Vocabulary(item),
-              errorForm, routes.Vocabularies.createConceptPost(id)))
+              errorForm, accForm, users, groups, routes.Vocabularies.createConceptPost(id)))
+          }
           case Right(citem) => Redirect(routes.Concepts.get(citem.id))
             .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
         }
@@ -102,7 +105,9 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.visibility(Vocabulary(item), users, groups, routes.Vocabularies.visibilityPost(id)))
+      Ok(views.html.permissions.visibility(Vocabulary(item),
+        models.forms.VisibilityForm.form.fill(Vocabulary(item).accessors.map(_.id)),
+        users, groups, routes.Vocabularies.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>

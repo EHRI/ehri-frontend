@@ -4,6 +4,7 @@ import java.util.Locale
 
 import views.html.helper.FieldConstructor
 import models.base.AccessibleEntity
+import play.api.mvc.Call
 
 
 // Pimp my 
@@ -40,14 +41,16 @@ package object Helpers {
 
   def urlFor(a: AccessibleEntity) = urlForEntity(a.e)
 
-  def urlForEntity(e: Entity) = e.isA match {
+  def urlForEntity(e: Entity): Call = e.isA match {
     case EntityType.ActionLog => routes.ActionLogs.get(e.id)
     case EntityType.DocumentaryUnit => routes.DocumentaryUnits.get(e.id)
     case EntityType.Agent => routes.Agents.get(e.id)
     case EntityType.Group => routes.Groups.get(e.id)
     case EntityType.UserProfile => routes.UserProfiles.get(e.id)
     case EntityType.Annotation => routes.Annotations.get(e.id)
-    case EntityType.ContentType => "#"
+    case EntityType.Vocabulary => routes.Vocabularies.get(e.id)
+    case EntityType.Concept => routes.Concepts.get(e.id)
+    case EntityType.ContentType => Call("GET", "#")
     case i => sys.error("Cannot fetch URL for entity type: " + i)
   }
 }

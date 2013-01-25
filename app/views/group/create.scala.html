@@ -1,0 +1,18 @@
+@(f: Form[models.forms.GroupF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@rightSidebarLayout(Messages("actions.createGroup"))(Some(user), req) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+
+        @group.renderForm(None, f)
+        @permissions.renderVisibilityForm(vf, users, groups)
+
+		<div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages("submitButton.createGroup")</button>
+        </div>
+	}
+} {
+
+}

@@ -2,7 +2,7 @@
 
 @rightSidebarLayout(item.identifier)(maybeUser, req) {
 
-    @common.annotated(item, annotations) {
+    @common.annotated(item, annotations, routes.Concepts.annotate(item.id)) {
         TODO
     }
 

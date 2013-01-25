@@ -1,12 +1,13 @@
 package controllers
 
+import _root_.models.forms.VisibilityForm
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
 import base._
 import models.{Group, UserProfile}
-import models.forms.UserProfileF
+import models.forms.{UserProfileF,VisibilityForm}
 import scala.Some
 
 
@@ -39,17 +40,19 @@ object UserProfiles extends PermissionHolderController[UserProfile]
         Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_)))))
   }
 
-  def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
+  def create = createAction { users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.userProfile.edit(None, form, routes.UserProfiles.createPost))
+      Ok(views.html.userProfile.create(form, VisibilityForm.form, users, groups, routes.UserProfiles.createPost))
   }
 
-  def createPost = createPostAction(form) { formOrItem =>
+  def createPost = createPostAction(form) { formsOrItem =>
     implicit user =>
       implicit request =>
-    formOrItem match {
-      case Left(errorForm) => BadRequest(views.html.userProfile.edit(
-        None, errorForm, routes.UserProfiles.createPost))
+    formsOrItem match {
+      case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
+        BadRequest(views.html.userProfile.create(
+          errorForm, accForm, users, groups, routes.UserProfiles.createPost))
+      }
       case Right(item) => Redirect(routes.UserProfiles.get(item.id))
           .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
     }
@@ -88,7 +91,9 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.visibility(UserProfile(item), users, groups, routes.UserProfiles.visibilityPost(id)))
+      Ok(views.html.permissions.visibility(UserProfile(item),
+        models.forms.VisibilityForm.form.fill(UserProfile(item).accessors.map(_.id)),
+        users, groups, routes.UserProfiles.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>

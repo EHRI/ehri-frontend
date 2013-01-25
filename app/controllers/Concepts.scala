@@ -1,7 +1,7 @@
 package controllers
 
 import models.{ItemWithId,Concept}
-import models.forms.ConceptF
+import models.forms.{ConceptF,VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import base._
@@ -53,19 +53,20 @@ object Concepts extends CreationContext[ConceptF, Concept]
         }
   }
 
-  def createConcept(id: String) = childCreateAction(id, ContentType.Concept) { item => implicit user =>
+  def createConcept(id: String) = childCreateAction(id, ContentType.Concept) { item => users => groups => implicit user =>
     implicit request =>
       Ok(views.html.concept.create(
-        Concept(item), childForm, routes.Concepts.createConceptPost(id)))
+        Concept(item), childForm, VisibilityForm.form, users, groups, routes.Concepts.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) { item => formOrItem =>
+  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) { item => formsOrItem =>
     implicit user =>
       implicit request =>
-        formOrItem match {
-          case Left(errorForm) =>println(errorForm);
+        formsOrItem match {
+          case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
             BadRequest(views.html.concept.create(Concept(item),
-              errorForm, routes.Concepts.createConceptPost(id)))
+              errorForm, accForm, users, groups, routes.Concepts.createConceptPost(id)))
+          }
           case Right(citem) => Redirect(routes.Concepts.get(citem.id))
             .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
         }
@@ -86,7 +87,9 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.visibility(Concept(item), users, groups, routes.Concepts.visibilityPost(id)))
+      Ok(views.html.permissions.visibility(Concept(item),
+        models.forms.VisibilityForm.form.fill(Concept(item).accessors.map(_.id)),
+        users, groups, routes.Concepts.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>

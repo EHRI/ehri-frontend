@@ -6,7 +6,7 @@ import play.api.mvc._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
-import models.forms.DocumentaryUnitF
+import models.forms.{DocumentaryUnitF,VisibilityForm}
 import models.DocumentaryUnit
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
@@ -55,19 +55,20 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         }
   }
 
-  def createDoc(id: String) = childCreateAction(id, contentType) { item => implicit user =>
+  def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit user =>
     implicit request =>
       Ok(views.html.documentaryUnit.create(
-        DocumentaryUnit(item), childForm, routes.DocumentaryUnits.createDocPost(id)))
+        DocumentaryUnit(item), childForm, VisibilityForm.form, users, groups, routes.DocumentaryUnits.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction(id, childForm, contentType) { item => formOrItem =>
+  def createDocPost(id: String) = childCreatePostAction(id, childForm, contentType) { item => formsOrItem =>
     implicit user =>
       implicit request =>
-        formOrItem match {
-          case Left(errorForm) =>
+        formsOrItem match {
+          case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
             BadRequest(views.html.documentaryUnit.create(DocumentaryUnit(item),
-              errorForm, routes.DocumentaryUnits.createDocPost(id)))
+              errorForm, accForm, users, groups, routes.DocumentaryUnits.createDocPost(id)))
+          }
           case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
             .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
         }
@@ -88,7 +89,9 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.visibility(DocumentaryUnit(item), users, groups, routes.DocumentaryUnits.visibilityPost(id)))
+      Ok(views.html.permissions.visibility(DocumentaryUnit(item),
+        models.forms.VisibilityForm.form.fill(DocumentaryUnit(item).accessors.map(_.id)),
+        users, groups, routes.DocumentaryUnits.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
@@ -142,7 +145,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
     implicit request =>
-      Ok(views.html.annotation.annotate(DocumentaryUnit(item), models.forms.AnnotationForm.form, routes.DocumentaryUnits.annotatePost(id)))
+      Ok(views.html.annotation.annotate(DocumentaryUnit(item),
+        models.forms.AnnotationForm.form, routes.DocumentaryUnits.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>

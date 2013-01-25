@@ -5,7 +5,7 @@ import play.api.i18n.Messages
 import base._
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.Execution.Implicits._
-import models.forms.GroupF
+import models.forms.{GroupF,VisibilityForm}
 import models.{UserProfile, Group}
 import models.base.Accessor
 import scala.Some
@@ -34,16 +34,18 @@ object Groups extends PermissionHolderController[Group]
         Ok(views.html.group.list(page.copy(list = page.list.map(Group(_)))))
   }
 
-  def create = withContentPermission(PermissionType.Create, contentType) { implicit user =>
+  def create = createAction { users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.group.edit(None, form, routes.Groups.createPost))
+      Ok(views.html.group.create(form, VisibilityForm.form, users, groups, routes.Groups.createPost))
   }
 
-  def createPost = createPostAction(form) { formOrItem =>
+  def createPost = createPostAction(form) { formsOrItem =>
     implicit user =>
       implicit request =>
-    formOrItem match {
-      case Left(errorForm) => BadRequest(views.html.group.edit(None, errorForm, routes.Groups.createPost))
+    formsOrItem match {
+      case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
+        BadRequest(views.html.group.create(errorForm, accForm, users, groups, routes.Groups.createPost))
+      }
       case Right(item) => Redirect(routes.Groups.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
     }
@@ -81,7 +83,9 @@ object Groups extends PermissionHolderController[Group]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.visibility(Group(item), users, groups, routes.Groups.visibilityPost(id)))
+      Ok(views.html.permissions.visibility(Group(item),
+        models.forms.VisibilityForm.form.fill(Group(item).accessors.map(_.id)),
+        users, groups, routes.Groups.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>

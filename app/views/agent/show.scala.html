@@ -4,7 +4,7 @@
 
 @rightSidebarLayout(item.name)(maybeUser, req) {
 
-    @common.annotated(item, annotations) {
+    @common.annotated(item, annotations, routes.Agents.annotate(item.id)) {
         @defining("isdiah") { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
                 <h3>@Messages("Available Descriptions")</h3>

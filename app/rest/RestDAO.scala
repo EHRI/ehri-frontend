@@ -118,7 +118,7 @@ trait RestDAO {
         case NOT_FOUND => Left(ItemNotFound())
         case _ => {
           println(response.body)
-          sys.error("Unexpected response: %d: %s".format(response.status, response.body))
+          sys.error("Unexpected response for %s: %d: %s".format(response.getAHCResponse.getHeaders, response.status, response.body))
         }
       }
     }

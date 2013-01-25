@@ -7,10 +7,23 @@ import models.base.Persistable
 import defines._
 import models.{Entity,UserProfile}
 
+object VisibilityController {
+  /**
+   * Extract a list of accessors from the request params.
+   * @param d
+   * @return
+   */
+  def extractAccessors(d: Option[Map[String,Seq[String]]]): List[String] = {
+    d.getOrElse(Map()).flatMap {
+      case (k, s) if k == s"accessor_${EntityType.Group}" || k == s"accessor_${EntityType.UserProfile}" => s.toList
+      case (_, s) => Nil
+    }.toList
+  }
+}
+
 /**
  * Trait for setting visibility on any AccessibleEntity.
  *
- * @tparam F the entity's formable class
  * @tparam T the entity's build class
  */
 trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
@@ -18,13 +31,8 @@ trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
   def visibilityAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => UserProfile => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
       implicit request =>
-      Async {
-        for {
-          users <- rest.RestHelpers.getUserList
-          groups <- rest.RestHelpers.getGroupList
-        } yield {
-          f(item)(users)(groups)(user)(request)
-        }
+    getGroups(Some(user)) { users => groups =>
+        f(item)(users)(groups)(user)(request)
       }
     }
   }
@@ -33,9 +41,10 @@ trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
       implicit request =>
         implicit val maybeUser = Some(user)
-        val data = request.body.asFormUrlEncoded.getOrElse(List()).flatMap { case (_, s) => s.toList }
+        val data = models.forms.VisibilityForm.form
+          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, Seq("accessor"))).get
         AsyncRest {
-          rest.VisibilityDAO(user).set(id, data.toList).map { boolOrErr =>
+          rest.VisibilityDAO(user).set(id, data).map { boolOrErr =>
             boolOrErr.right.map { bool =>
               f(bool)(user)(request)
             }

@@ -2,7 +2,7 @@
 
 @rightSidebarLayout(item.name)(maybeUser, req) {
 
-    @common.annotated(item, annotations) {
+    @common.annotated(item, annotations, routes.UserProfiles.annotate(item.id)) {
 
         @common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse(Messages("profile.noLocationGiven"))), Messages("profile.location"))
         @* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), Messages("profile.languages")) *@

@@ -2,7 +2,7 @@
 
 @rightSidebarLayout(item.identifier)(maybeUser, req) {
 
-    @common.annotated(item, annotations) {
+    @common.annotated(item, annotations, routes.Vocabularies.annotate(item.id)) {
         @common.stringValue(item, models.forms.VocabularyF.NAME)
         @common.stringValue(item, models.forms.VocabularyF.DESCRIPTION)
     }
