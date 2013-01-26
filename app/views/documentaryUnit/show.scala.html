@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, page: rest.Page[DocumentaryUnit], annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.forms.IsadG._
 
@@ -66,6 +66,21 @@
     }
 
     @common.relatedLinks(item, annotations)
+
+    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
+
+    @common.pagination(page)
+
+    <ul class="unstyled">
+    @page.list.map { item =>
+        <div class="list-item">
+        <h5>
+        <a href="@routes.DocumentaryUnits.get(item.id)">@item.name</a>
+        </h5>
+        </div>
+    }
+    </ul>
+
 
 } {
     @common.visibility(item)

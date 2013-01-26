@@ -26,18 +26,9 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
   val childForm = models.forms.ConceptForm.form
   val builder = Vocabulary.apply _
 
-  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getAction(id) { item => annotations =>
-    implicit maybeUser =>
-      implicit request =>
-      // In addition to the item itself, we also want to fetch it's concepts
-    AsyncRest {
-      rest.EntityDAO(entityType, maybeUser).pageChildren(id, math.max(page, 1), math.max(limit, 1)).map { pageOrErr =>
-        pageOrErr.right.map { page =>
-          Ok(views.html.vocabulary.show(Vocabulary(item),
-            page.copy(list=page.list.map(Concept(_))), annotations))
-        }
-      }
-    }
+  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getWithChildrenAction(id, Concept.apply _, page, limit) { item => page => annotations =>
+    implicit maybeUser => implicit request =>
+      Ok(views.html.vocabulary.show(Vocabulary(item), page, annotations))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>

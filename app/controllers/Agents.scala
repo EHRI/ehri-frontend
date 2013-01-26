@@ -1,5 +1,7 @@
 package controllers
 
+import _root_.models.DocumentaryUnit
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
@@ -24,10 +26,9 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = Agent
 
-  def get(id: String) = getAction(id) { item => annotations =>
-    implicit maybeUser =>
-      implicit request =>
-      Ok(views.html.agent.show(Agent(item), annotations))
+  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getWithChildrenAction(id, DocumentaryUnit.apply _, page, limit) { item => page => annotations =>
+    implicit maybeUser => implicit request =>
+    Ok(views.html.agent.show(Agent(item), page, annotations))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>

@@ -35,7 +35,7 @@ POST     /mailTest           controllers.Application.mailTestPost
 # Home page
 GET     /                           controllers.Application.index
 GET     /docs                controllers.DocumentaryUnits.list(page: Int ?= 1, limit: Int ?=20)
-GET     /docs/show/:id       controllers.DocumentaryUnits.get(id: String)
+GET     /docs/show/:id       controllers.DocumentaryUnits.get(id: String, page: Int ?= 1, limit: Int ?=20)
 GET     /docs/json/:id       controllers.DocumentaryUnits.getJson(id: String)
 GET     /docs/delete/:id     controllers.DocumentaryUnits.delete(id: String)
 POST    /docs/delete/:id     controllers.DocumentaryUnits.deletePost(id: String)
@@ -106,7 +106,7 @@ POST    /group/annotate/:id     controllers.Groups.annotatePost(id: String)
 
 
 GET     /agent                controllers.Agents.list(page: Int ?= 1, limit: Int ?=20)
-GET     /agent/show/:id       controllers.Agents.get(id: String)
+GET     /agent/show/:id       controllers.Agents.get(id: String, page: Int ?= 1, limit: Int ?=20)
 GET     /agent/json/:id       controllers.Agents.getJson(id: String)
 GET     /agent/create         controllers.Agents.create
 POST    /agent/create         controllers.Agents.createPost
