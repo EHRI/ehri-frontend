@@ -23,9 +23,10 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   }
 
 
-  def index = userProfileAction { implicit maybeUser =>
-    implicit request =>
+  def index = userProfileAction { implicit maybeUser => implicit request =>
+    Secured {
       Ok(views.html.index("Your new application is ready."))
+    }
   }
 
   def test = optionalUserAction { implicit maybeUser =>

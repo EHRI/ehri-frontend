@@ -18,6 +18,10 @@ object ControllerHelpers {
 trait ControllerHelpers {
   this: Controller with AuthController =>
 
+  def Secured(res: Result)(implicit maybeUser: Option[models.UserProfile], request: RequestHeader): Result = {
+    maybeUser.map(u => res).getOrElse(authenticationFailed(request))
+  }
+
    /**
    * Wrapper function which takes a promise of either a result
    * or a throwable. If the throwable exists it is handled in

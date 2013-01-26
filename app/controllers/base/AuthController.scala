@@ -215,4 +215,15 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
       }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }
   }
+
+  /**
+   * Wrap userProfileAction to ensure we have a user, or
+   * access is denied, but don't change the incoming parameters.
+   */
+  def secured(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+    userProfileAction { implicit  maybeUser => implicit request =>
+      if (maybeUser.isDefined) f(maybeUser)(request)
+      else authenticationFailed(request)
+    }
+  }
 }

@@ -52,6 +52,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   def getAction(id: String)(f: Entity => Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
     itemPermissionAction(contentType, id) { item => implicit maybeUser =>
       implicit request =>
+      Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
           val annsReq = rest.AnnotationDAO(maybeUser).getFor(id)
@@ -61,6 +62,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
             }
           }
         }
+      }
     }
   }
 
@@ -68,6 +70,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
       f: Entity => rest.Page[C] => Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
     itemPermissionAction(contentType, id) { item => implicit maybeUser =>
       implicit request =>
+      Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
           val annsReq = rest.AnnotationDAO(maybeUser).getFor(id)
@@ -78,12 +81,14 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
             }
           }
         }
+      }
     }
   }
 
   def listAction(page: Int = 1, limit: Int = DEFAULT_LIMIT)(f: rest.Page[Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction { implicit maybeUser =>
       implicit request =>
+      Secured {
         AsyncRest {
           rest.EntityDAO(entityType, maybeUser)
             .page(math.max(page, 1), math.max(limit, 1)).map { itemOrErr =>
@@ -92,6 +97,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
             }
           }
         }
+      }
     }
   }
 
