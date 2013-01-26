@@ -1,13 +1,8 @@
 package models
 
 import defines._
-import models.base.HierarchicalEntity
-import models.base.AccessibleEntity
-import models.base.NamedEntity
-import models.base.Description
-import models.base.DescribedEntity
-import models.base.Formable
-import models.base.TemporalEntity
+import models.base._
+
 
 import forms.{DocumentaryUnitF,DocumentaryUnitDescriptionF}
 
@@ -22,6 +17,8 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
   import DocumentaryUnitF._
   import DescribedEntity._
   import forms.IsadG._
+
+  val hierarchyRelationName = CHILD_REL
 
   val holder: Option[Agent] = e.relations(HELD_REL).headOption.map(Agent(_))
   val parent: Option[DocumentaryUnit] = e.relations(CHILD_REL).headOption.map(DocumentaryUnit(_))

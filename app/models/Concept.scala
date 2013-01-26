@@ -16,8 +16,13 @@ case class Concept(val e: Entity)
   extends NamedEntity
   with AccessibleEntity
   with DescribedEntity
+  with HierarchicalEntity
   with Formable[ConceptF] {
+
+  val hierarchyRelationName = Concept.NT_REL
+
   override def descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ConceptDescription(_))
+  val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
   val broader: Option[Concept] = e.relations(Concept.NT_REL).headOption.map(Concept(_))
 
   def to: ConceptF = new ConceptF(Some(e.id), identifier, descriptions.map(_.to))
