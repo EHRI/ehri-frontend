@@ -4,6 +4,14 @@ import play.Project._
 
 object ApplicationBuild extends Build {
 
+  ivyXML :=
+    <dependencies>
+      <exclude module="org.slf4j.slf4j-log4j12"/>
+    </dependencies>
+
+  parallelExecution := false
+  logBuffered := false
+
   val appName = "docview"
   val appVersion = "1.0-SNAPSHOT"
 
@@ -16,13 +24,15 @@ object ApplicationBuild extends Build {
     "jp.t2v" % "play20.auth_2.10.0" % "0.4-SNAPSHOT",
     "com.sun.jersey" % "jersey-core" % "1.9",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
+    "ch.qos.logback" % "logback-core" % "1.0.3" force(),
+    "ch.qos.logback" % "logback-classic" % "1.0.3" force(),
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",
     //"com.typesafe" % "play-plugins-mailer_2.10" % "2.1-SNAPSHOT",
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
-    "ehri-project" % "ehri-plugin" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
-    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "")
+    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
+  )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here

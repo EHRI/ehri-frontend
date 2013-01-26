@@ -1,11 +1,9 @@
 package test
 
-import org.junit.runner.RunWith
 import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
 import org.specs2.specification.BeforeExample
-import eu.ehri.plugin.test.utils.ServerRunner
+import eu.ehri.extension.test.utils.ServerRunner
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import helpers.TestLoginHelper
 import play.api.test.FakeApplication
@@ -22,12 +20,6 @@ import models.UserProfile
 import models.Entity
 import models.base.Accessor
 
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
-@RunWith(classOf[JUnitRunner])
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
   sequential
 
@@ -64,8 +56,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     import controllers.routes.{DocumentaryUnits,Agents}
 
     "list should get some (world-readable) items" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        val list = route(FakeRequest(GET, DocumentaryUnits.list(1, 20).url)).get
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        val list = route(fakeLoggedInRequest(GET, DocumentaryUnits.list(1, 20).url)).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain("One item found")
 
@@ -124,13 +116,13 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
 
-    "allow access to c4 by default" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        val show = route(FakeRequest(GET, DocumentaryUnits.get("c4").url)).get
-        status(show) must equalTo(OK)
-        contentAsString(show) must contain("c4")
-      }
-    }
+//    "allow access to c4 by default" in {
+//      running(FakeApplication(additionalConfiguration = config)) {
+//        val show = route(FakeRequest(GET, DocumentaryUnits.get("c4").url)).get
+//        status(show) must equalTo(OK)
+//        contentAsString(show) must contain("c4")
+//      }
+//    }
 
     "allow deleting c4 when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
@@ -146,7 +138,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "name" -> Seq("Hello Kitty"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Hello Kitty"),
-          "descriptions[0].content.scopeAndContent" -> Seq("Some content"),
+          "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
           "publicationStatus" -> Seq("Published")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
@@ -157,7 +149,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("Some content")
-        contentAsString(show) must contain("Held by")
+        contentAsString(show) must contain("Held By")
       }
     }
 
@@ -168,8 +160,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "name" -> Seq("Collection 1"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Collection 1"),
-          "descriptions[0].content.scopeAndContent" -> Seq("New Content for c1"),
-          "descriptions[0].context.acquistition" -> Seq("Acquisistion info"),
+          "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c1"),
+          "descriptions[0].contextArea.acquistition" -> Seq("Acquisistion info"),
           "publicationStatus" -> Seq("Draft")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
@@ -190,7 +182,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "name" -> Seq("Collection 4"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Collection 4"),
-          "descriptions[0].content.scopeAndContent" -> Seq("New Content for c4"),
+          "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c4"),
           "publicationStatus" -> Seq("Draft")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
@@ -221,12 +213,11 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
 
-
     "show history when logged in as privileged user" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
 
         val show = route(fakeLoggedInRequest(GET,
-            controllers.routes.ActionLogs.historyFor("c1", 0, 20).url)).get
+            controllers.routes.ActionLogs.historyFor("c1").url)).get
         status(show) must equalTo(OK)
       }
     }
@@ -240,7 +231,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         "name" -> Seq("Test Item"),
         "descriptions[0].languageCode" -> Seq("en"),
         "descriptions[0].title" -> Seq("Test Item"),
-        "descriptions[0].content.scopeAndContent" -> Seq("A test"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
       )
 
@@ -282,7 +273,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         "name" -> Seq("Changed Name"),
         "descriptions[0].languageCode" -> Seq("en"),
         "descriptions[0].title" -> Seq("Changed Name"),
-        "descriptions[0].content.scopeAndContent" -> Seq("A test"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
       )
 
@@ -314,20 +305,27 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(getR) must equalTo(OK)
       }
     }
+
+    /*
+
+
+
+    */
   }
+
+
 
   "Agent views" should {
 
     import controllers.routes.Agents
 
-    "list should get some (world-readable) items" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        val list = route(FakeRequest(GET, Agents.list(1, 20).url)).get
+    "list should get some items" in {
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        val list = route(fakeLoggedInRequest(GET, Agents.list().url)).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain(multipleItemsHeader)
         contentAsString(list) must contain("r1")
         contentAsString(list) must contain("r2")
-
       }
     }
 
@@ -342,7 +340,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
           "descriptions[0].descriptionArea.history" -> Seq("Some history"),
           "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
-          "descriptions[0].addresses[0].name" -> Seq("An Address"),
+          "descriptions[0].addressArea[0].name" -> Seq("An Address"),
           "publicationStatus" -> Seq("Published")
         )
         val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
@@ -489,17 +487,17 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     import models.Group
 
     val subjectUser = Group(Entity.fromString("kcl", EntityType.Group))
-    val id = subjectUser.identifier
+    val rid = "kcl"
 
     "detail when logged in should link to other privileged actions" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, Groups.get(id).url)).get
+        val show = route(fakeLoggedInRequest(GET, Groups.get(rid).url)).get
         status(show) must equalTo(OK)
-        contentAsString(show) must contain(Groups.update(id).url)
-        contentAsString(show) must contain(Groups.delete(id).url)
-        contentAsString(show) must contain(Groups.permissions(id).url)
-        contentAsString(show) must contain(Groups.membership(EntityType.Group.toString, id).url)
-        contentAsString(show) must contain(Groups.visibility(id).url)
+        contentAsString(show) must contain(Groups.update(rid).url)
+        contentAsString(show) must contain(Groups.delete(rid).url)
+        contentAsString(show) must contain(Groups.permissions(rid).url)
+        contentAsString(show) must contain(Groups.membership(EntityType.Group.toString, rid).url)
+        contentAsString(show) must contain(Groups.visibility(rid).url)
         contentAsString(show) must contain(Groups.list().url)
       }
     }
@@ -508,7 +506,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Add KCL to Admin
         val add = route(fakeLoggedInRequest(POST,
-          Groups.addMemberPost("admin", EntityType.UserProfile.toString, id).url)).get
+          Groups.addMemberPost("admin", EntityType.Group.toString, rid).url)).get
         status(add) must equalTo(SEE_OTHER)
 
         // TODO: Check group is actually part of other group?
@@ -519,7 +517,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Remove NIOD from Admin
         val rem = route(fakeLoggedInRequest(POST,
-          Groups.removeMemberPost("admin", EntityType.UserProfile.toString, "niod").url)).get
+          Groups.removeMemberPost("admin", EntityType.Group.toString, "niod").url)).get
         status(rem) must equalTo(SEE_OTHER)
       }
     }

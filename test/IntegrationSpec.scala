@@ -4,21 +4,22 @@ import org.specs2.mutable._
 
 import play.api.test._
 import play.api.test.Helpers._
+import play.api.i18n.Messages
 
-/**
- * add your integration spec here.
- * An integration test will fire up a whole play application in a real (or headless) browser
- */
 class IntegrationSpec extends Specification {
 
   "Application" should {
 
+    val app = FakeApplication(
+      additionalPlugins = Seq("mocks.MockUserDAO", "mocks.MockLoginHandler")
+    )
+
     "work from within a browser" in {
-      running(TestServer(3333), HTMLUNIT) { browser =>
+      running(TestServer(3333, application = app), HTMLUNIT) { browser =>
 
         browser.goTo("http://localhost:3333/")
-
-        browser.pageSource must contain("This is the landing page.")
+        // NB: This tests the Mock login form.
+        browser.pageSource must contain("test login")
 
       }
     }

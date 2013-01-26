@@ -3,10 +3,8 @@ package test
 import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
-import eu.ehri.plugin.test.utils.ServerRunner
 import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import eu.ehri.extension.test.utils.ServerRunner
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import com.typesafe.config.ConfigFactory
 import rest._
@@ -21,12 +19,6 @@ import models.DocumentaryUnit
 import models.DocumentaryUnit
 import models.forms.{DocumentaryUnitF, UserProfileF}
 
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
-@RunWith(classOf[JUnitRunner])
 class DAOSpec extends Specification with BeforeExample {
   sequential
 
@@ -88,15 +80,6 @@ class DAOSpec extends Specification with BeforeExample {
         val udata = UserProfile(entity).to.copy(location = Some("London"))
         val res = await(EntityDAO(entityType, Some(userProfile)).update(entity.id, udata))
         res must beRight
-      }
-    }
-
-    "error when creating without a type" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
-        val err = await(EntityDAO(entityType, Some(userProfile)).create(user))
-        err must beLeft
-        err.left.get must beAnInstanceOf[DeserializationError]
       }
     }
 
@@ -220,7 +203,7 @@ class DAOSpec extends Specification with BeforeExample {
       }
     }
   }
-  
+
 /*  "CypherDAO" should {
     "get a JsValue for a graph item" in {
       running(FakeApplication(additionalConfiguration = config)) {

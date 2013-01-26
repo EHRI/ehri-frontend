@@ -29,7 +29,6 @@ class ApplicationSpec extends Specification with TestLoginHelper {
         val home = route(fakeLoggedInRequest(GET, "/")).get
         status(home) must equalTo(OK)
         contentType(home) must beSome.which(_ == "text/html")
-        contentAsString(home) must contain("This is the landing page.")
 
         contentAsString(home) must contain(mocks.MOCK_USER.email)
       }
@@ -39,9 +38,7 @@ class ApplicationSpec extends Specification with TestLoginHelper {
       running(FakeApplication()) {
         val home = route(FakeRequest(GET, "/")).get
 
-        status(home) must equalTo(OK)
-        contentType(home) must beSome.which(_ == "text/html")
-        contentAsString(home) must contain("This is the landing page.")
+        status(home) must equalTo(SEE_OTHER)
       }
     }
   }
