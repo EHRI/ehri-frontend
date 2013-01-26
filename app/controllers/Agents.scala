@@ -1,14 +1,13 @@
 package controllers
 
-import _root_.models.DocumentaryUnit
+import models.{Agent, DocumentaryUnit}
+import models.forms.{DocumentaryUnitF, AgentF, VisibilityForm}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
 import base._
-import models.{DocumentaryUnit, Agent}
-import models.forms.{AgentF,DocumentaryUnitF,VisibilityForm}
 import rest.Page
 
 object Agents extends CreationContext[DocumentaryUnitF,Agent]
@@ -26,8 +25,8 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = Agent
 
-  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getWithChildrenAction(id, DocumentaryUnit.apply _, page, limit) { item => page => annotations =>
-    implicit maybeUser => implicit request =>
+  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getWithChildrenAction(
+      id, DocumentaryUnit.apply _, page, limit) { item => page => annotations => implicit maybeUser => implicit request =>
     Ok(views.html.agent.show(Agent(item), page, annotations))
   }
 
@@ -63,51 +62,48 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   def updatePost(id: String) = updatePostAction(id, form) { item => formOrItem =>
     implicit user =>
       implicit request =>
-        formOrItem match {
-          case Left(errorForm) =>
-            BadRequest(views.html.agent.edit(Some(Agent(item)), errorForm, routes.Agents.updatePost(id)))
-          case Right(item) => Redirect(routes.Agents.get(item.id))
-            .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
-        }
+    formOrItem match {
+      case Left(errorForm) =>
+        BadRequest(views.html.agent.edit(Some(Agent(item)), errorForm, routes.Agents.updatePost(id)))
+      case Right(item) => Redirect(routes.Agents.get(item.id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
+    }
   }
 
   def createDoc(id: String) = childCreateAction(id, ContentType.DocumentaryUnit) { item => users => groups => implicit user =>
     implicit request =>
-      Ok(views.html.documentaryUnit.create(
-        Agent(item), childForm, VisibilityForm.form, users, groups, routes.Agents.createDocPost(id)))
+      Ok(views.html.documentaryUnit.create(Agent(item), childForm,
+        VisibilityForm.form, users, groups, routes.Agents.createDocPost(id)))
   }
 
   def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentType.DocumentaryUnit) { item => formsOrItem =>
     implicit user =>
       implicit request =>
-        formsOrItem match {
-          case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
-            BadRequest(views.html.documentaryUnit.create(Agent(item),
-              errorForm, accForm, users, groups, routes.Agents.createDocPost(id)))
-          }
-          case Right(citem) => Redirect(routes.DocumentaryUnits.get(citem.id))
-            .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
-        }
+    formsOrItem match {
+      case Left((errorForm,accForm)) => getGroups(Some(user)) { users => groups =>
+        BadRequest(views.html.documentaryUnit.create(Agent(item),
+          errorForm, accForm, users, groups, routes.Agents.createDocPost(id)))
+      }
+      case Right(citem) => Redirect(routes.DocumentaryUnits.get(citem.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
+    }
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit user =>
     implicit request =>
-      Ok(views.html.delete(
-        Agent(item), routes.Agents.deletePost(id),
+      Ok(views.html.delete(Agent(item), routes.Agents.deletePost(id),
         routes.Agents.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { ok => implicit user =>
-    implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { ok => implicit user => implicit request =>
       Redirect(routes.Agents.list())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
-  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
-    implicit request =>
-      Ok(views.html.permissions.visibility(Agent(item),
-        VisibilityForm.form.fill(Agent(item).accessors.map(_.id)),
-        users, groups, routes.Agents.visibilityPost(id)))
+  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user => implicit request =>
+    Ok(views.html.permissions.visibility(Agent(item),
+      VisibilityForm.form.fill(Agent(item).accessors.map(_.id)),
+      users, groups, routes.Agents.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>

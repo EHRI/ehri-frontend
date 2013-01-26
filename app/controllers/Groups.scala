@@ -1,12 +1,13 @@
 package controllers
 
+import models.base.Accessor
+import models.{UserProfile, Group}
+import models.forms.{GroupF, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.Execution.Implicits._
-import models.forms.{GroupF,VisibilityForm}
-import models.{UserProfile, Group}
 import models.base.Accessor
 import scala.Some
 

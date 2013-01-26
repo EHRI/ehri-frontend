@@ -1,14 +1,13 @@
 package controllers
 
+import models.{DocumentaryUnit, ItemWithId}
+import models.forms.{DocumentaryUnitF, VisibilityForm}
 import play.api.libs.concurrent.Execution.Implicits._
-import _root_.models.{DocumentaryUnit, ItemWithId}
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
-import models.forms.{DocumentaryUnitF,VisibilityForm}
-import models.DocumentaryUnit
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
   with VisibilityController[DocumentaryUnit]
