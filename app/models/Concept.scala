@@ -21,6 +21,8 @@ case class Concept(val e: Entity)
 
   val hierarchyRelationName = Concept.NT_REL
 
+  override val nameProperty = ConceptF.PREFLABEL
+
   override def descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ConceptDescription(_))
   val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
   val broader: Option[Concept] = e.relations(Concept.NT_REL).headOption.map(Concept(_))
