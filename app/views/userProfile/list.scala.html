@@ -8,7 +8,7 @@
 	<ul>
 	@items.list.map { item =>
 	  	<li>
-			<a href="@routes.UserProfiles.get(item.id)">@item.name</a>
+			<a href="@routes.UserProfiles.get(item.id)">@item</a>
 		</li>
 	}
 	</ul>

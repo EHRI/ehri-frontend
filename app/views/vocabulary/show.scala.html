@@ -1,6 +1,6 @@
 @(item: Vocabulary, page: rest.Page[Concept], annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.identifier)(maybeUser, req) {
+@rightSidebarLayout(item.toString)(maybeUser, req) {
 
     @common.annotated(item, annotations, routes.Vocabularies.annotate(item.id)) {
         @common.stringValue(item, models.forms.VocabularyF.NAME)

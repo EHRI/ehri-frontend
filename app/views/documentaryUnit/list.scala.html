@@ -10,7 +10,7 @@
 	@page.list.map { item =>
 	  	<div class="list-item">
 			<h5>
-				<a href="@routes.DocumentaryUnits.get(item.id)">@item.name</a>
+				<a href="@routes.DocumentaryUnits.get(item.id)">@item</a>
 				@item.dateString.map { d =>
 				  &nbsp;[@d]
 				}

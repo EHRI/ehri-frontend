@@ -4,17 +4,21 @@ banner.signin=Sign In
 banner.signout=Sign Out
 
 home=Home
+home.message=This is a development version of the EHRI data management interface.\
+  It's not done yet, but don't let that put you off.
 
 footer.footerText=This is a development version of the EHRI data entry interface.
 
 login.login=Sign In
-login.adminLoginMessage=Note: only EHRI partners are given passwords. To sign up normally, please use the ''Sign In'' link at the top of the page and login with your OpenID account.
+login.adminLoginMessage=Note: only EHRI partners are given passwords.\
+   To sign up normally, please use the ''Sign In'' link at the top of the page and login with your OpenID account.
 login.linkToPasswordLogin=Click here if you have been given a password.
 login.email=Email
 login.password=Password
 login.badUsernameOrPassword=Incorrect username or password
 
-openid.openIdError=There was a problem logging you in with OpenID. This may because your provider does not support attribute exchange. The error messages was: {0}
+openid.openIdError=There was a problem logging you in with OpenID.\
+  This may because your provider does not support attribute exchange. The error messages was: {0}
 
 # Friendly names for content types
 contentTypes.group=Groups
@@ -33,7 +37,8 @@ errors.itemNotFound=Item Not Found
 errors.itemNotFoundExplanation=That item couldn't be found on the system
 errors.genericProblem=We're very sorry, but there's a problem loading that page
 errors.databaseError=Database Error
-errors.databaseErrorExplanation=I'm afraid it looks like our database server has gone down. There's not much we can do without it, so please try again later.
+errors.databaseErrorExplanation=I'm afraid it looks like our database server has gone down.     \
+  There's not much we can do without it, so please try again later.
 
 # Pagination display. Should say something like "Displaying items 1 to 20 of 25.
 # If there are 0 items, says "No items found", one item, "One item found" etc.
