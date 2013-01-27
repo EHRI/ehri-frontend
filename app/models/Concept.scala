@@ -25,16 +25,17 @@ case class Concept(val e: Entity)
 
   override def descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ConceptDescription(_))
   val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
-  val broader: Option[Concept] = e.relations(Concept.NT_REL).headOption.map(Concept(_))
+  val broaderTerms: List[Concept] = e.relations(Concept.NT_REL).map(Concept(_))
 
   def to: ConceptF = new ConceptF(Some(e.id), identifier, descriptions.map(_.to))
+
+  // Because we (currently) have no 'name' property on Concept, get the first available preflabel
+  override def toString = descriptions.headOption.flatMap(_.stringProperty(ConceptF.PREFLABEL)).getOrElse(identifier)
 }
 
 case class ConceptDescription(val e: Entity)
   extends Description
   with Formable[ConceptDescriptionF] {
-  def broader: Option[Concept] = e.relations(Concept.NT_REL).headOption.map(Concept(_))
-
 
   import ConceptF._
 
