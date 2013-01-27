@@ -2,7 +2,7 @@
 
 @rightSidebarLayout(Messages("actions.deleteItem", item.identifier))(Some(user), request) {
 
-    <p>@Messages("deleting.deleteConfirmationMessage", item.identifier)</p>
+    <p>@Messages("deleting.deleteConfirmationMessage", item.toString)</p>
     <form method="POST" action="@action" class="form-actions">
         <button type="submit" class="btn btn-danger">@Messages("submitButton.deleteItem")</button>
         <a href="@cancel.url" class="btn">@Messages("actions.cancel")</a>

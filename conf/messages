@@ -45,6 +45,20 @@ errors.databaseErrorExplanation=I'm afraid it looks like our database server has
 pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 #
+# Concepts
+#
+concept.inVocabulary=Vocabulary
+concept.broaderTerms=Broader Terms
+concept.narrowerTerms=Narrower Terms
+
+#
+# Annotations
+#
+annotation.bodyText=Text
+annotation.field=Field
+annotation.annotationType=Type
+
+#
 # Admin
 #
 admin.createNewUser=Create New User

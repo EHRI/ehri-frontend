@@ -6,7 +6,7 @@
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @helper.inputText(form(models.forms.AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
         @helper.inputText(form(models.forms.AnnotationF.FIELD), '_label -> Messages("annotation.field"))
-        @formHelpers.enumChoiceInput(form(models.forms.AnnotationF.ANNOTATION_TYPE), models.forms.AnnotationType, models.forms.AnnotationF.ANNOTATION_TYPE)
+        @formHelpers.enumChoiceInput(form(models.forms.AnnotationF.ANNOTATION_TYPE), models.forms.AnnotationType, Messages("annotation." + models.forms.AnnotationF.ANNOTATION_TYPE))
 
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">@Messages("submitButton.annotate")</button>
