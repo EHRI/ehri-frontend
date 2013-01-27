@@ -8,6 +8,23 @@
 
     @common.relatedLinks(item, annotations)
 
+    @item.vocabulary.map { v =>
+        <h3>@Messages("concept.inVocabulary")</h3>
+        <p><a href="@routes.Vocabularies.get(v.id)">@v</a>
+    }
+
+    @if(!item.broaderTerms.isEmpty) {
+        <h3>@Messages("concept.broaderTerms")</h3>
+        <ul class="unstyled">
+        @item.broaderTerms.map { t =>
+            <a href="@routes.Concepts.get(t.id)">
+                @t.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+            </a>
+        }
+        </ul>
+    }
+
+
     <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 
     @common.pagination(page)
