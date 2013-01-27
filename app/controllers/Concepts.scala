@@ -67,7 +67,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
             BadRequest(views.html.concept.create(Concept(item),
               errorForm, accForm, users, groups, routes.Concepts.createConceptPost(id)))
           }
-          case Right(citem) => Redirect(routes.Concepts.get(citem.id))
+          case Right(citem) => Redirect(routes.Concepts.get(id))
             .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
         }
   }

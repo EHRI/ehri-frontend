@@ -85,7 +85,7 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
             BadRequest(views.html.concept.create(Vocabulary(item),
               errorForm, accForm, users, groups, routes.Vocabularies.createConceptPost(id)))
           }
-          case Right(citem) => Redirect(routes.Concepts.get(citem.id))
+          case Right(citem) => Redirect(routes.Vocabularies.get(id))
             .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
         }
   }
