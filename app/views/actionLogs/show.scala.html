@@ -1,6 +1,6 @@
 @(item: ActionLog, page: rest.Page[ItemWithId])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actionLogs.itemAtTime", item.time))(maybeUser, req) {
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)))(maybeUser, req) {
 
     <p>
 	@item.actioner.map { accessor =>

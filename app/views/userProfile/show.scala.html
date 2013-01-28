@@ -1,12 +1,11 @@
 @(item: UserProfile, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.name)(maybeUser, req) {
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)))(maybeUser, req) {
 
     @common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse(Messages("profile.noLocationGiven"))), Messages("profile.location"))
     @* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), Messages("profile.languages")) *@
     @* @common.descriptionValue(Some(item.about.getOrElse(Messages("profile.noBioGiven"))), Messages("profile.about")) *@
 
-} {
     @if(item.groups.isEmpty) {
         <i>@Messages("accessor.notInAnyGroups")</i>
     } else {
@@ -15,7 +14,7 @@
             <a href="@routes.Groups.get(group.id)">@group.name</a>
         }
     }
-
+} {
     <hr />
     @common.latestAction(item, routes.UserProfiles.history(item.id))
     @common.visibility(item)

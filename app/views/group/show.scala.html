@@ -1,10 +1,9 @@
 @(item: Group, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.name)(maybeUser, req) {
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)))(maybeUser, req) {
 
     <p>@item.stringProperty(models.forms.GroupF.DESCRIPTION)</p>
 
-} {
     @if(!item.groups.isEmpty) {
         <hr />
         <strong>Parent Groups: </strong>&nbsp;
@@ -12,7 +11,7 @@
             <a href="@routes.Groups.get(group.id)">@group.name</a>
         }
     }
-
+} {
     @common.latestAction(item, routes.Groups.history(item.id))
     @common.visibility(item)
 

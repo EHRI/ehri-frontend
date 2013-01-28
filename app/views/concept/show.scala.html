@@ -1,6 +1,6 @@
 @(item: Concept, page: rest.Page[Concept], annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.toString, breadcrumbs = common.breadcrumbs(item.vocabulary.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(Concept(_)) ::: List(item)))(maybeUser, req) {
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.vocabulary.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(Concept(_)) ::: List(item)))(maybeUser, req) {
 
     @common.annotated(item, annotations, routes.Concepts.annotate(item.id)) {
         TODO

@@ -4,6 +4,7 @@ import models.base.AccessibleEntity
 import models.base.Accessor
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
+import play.api.i18n.Messages
 
 case class ActionLog(val e: Entity) extends AccessibleEntity {
 
@@ -17,5 +18,7 @@ case class ActionLog(val e: Entity) extends AccessibleEntity {
   def time = {
     DateTimeFormat.forPattern("yyyy-MM-dd HH:MM:ss").print(timeStamp)
   }
+
+  override def toString = Messages("actionLogs.itemAtTime", time)
 }
 

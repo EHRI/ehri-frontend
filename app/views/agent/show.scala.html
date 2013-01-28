@@ -2,7 +2,7 @@
 
 @import models.forms.Isdiah._
 
-@rightSidebarLayout(item.name)(maybeUser, req) {
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)))(maybeUser, req) {
 
     @common.annotated(item, annotations, routes.Agents.annotate(item.id)) {
         @defining("isdiah") { implicit fieldPrefix =>

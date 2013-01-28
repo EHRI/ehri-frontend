@@ -1,4 +1,4 @@
-@(title: String, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = common.breadcrumbs())(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(implicit flash: Flash, lang: Lang)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = common.breadcrumbs())(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(implicit flash: Flash, lang: Lang)
 
 @main(title, scripts, styles)(maybeUser, req) {
 
