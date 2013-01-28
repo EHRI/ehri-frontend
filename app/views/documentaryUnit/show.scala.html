@@ -84,6 +84,8 @@
 
 
 } {
+
+    @common.latestAction(item, routes.DocumentaryUnits.history(item.id))
     @common.visibility(item)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
@@ -103,7 +105,7 @@
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Grant)) {
             <li><a href="@routes.DocumentaryUnits.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-        <li><a href="@routes.DocumentaryUnits.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
+
 }

@@ -7,7 +7,8 @@ object ContentType extends Enumeration() {
   type Type = Value
   val DocumentaryUnit = Value("documentaryUnit")
   val Agent = Value("agent")
-  val ActionLog = Value("action")
+  val ActionLog = Value("actionEvent")
+  val UserAction = Value("action")
   val Authority = Value("authority")
   val UserProfile = Value("userProfile")
   val Group = Value("group")

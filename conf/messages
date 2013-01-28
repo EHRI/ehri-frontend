@@ -78,6 +78,7 @@ users.passwordConfirm=Confirm Password
 actionLogs.itemAtTime=Action at {0}
 
 # Actions
+actions.history=History
 actions.listActionLogs=Action Logs
 actions.listDocumentaryUnits=Collections
 actions.listAgents=Repositories
