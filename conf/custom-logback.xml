@@ -6,6 +6,7 @@
     console, which is highly annoying.
 
 -->
+        <!--
 <included>
 
     <logger name="neo4j.diagnostics" level="debug">
@@ -29,3 +30,15 @@
     <root level="warn">
   </root>
 </included>
+-->
+
+    <included>
+        <logger name="eu.mypackage" level="info">
+        </logger>
+
+        <logger name="org.neo4j" level="warn">
+        </logger>
+
+    <root level="warn">
+    </root>
+    </included>

@@ -25,7 +25,8 @@ contentTypes.group=Groups
 contentTypes.userProfile=Users
 contentTypes.agent=Repositories
 contentTypes.documentaryUnit=Collections
-contentTypes.action=System Events
+contentTypes.action=User Events
+contentTypes.actionEvent=System Events
 contentTypes.cvocVocabulary=CVocs
 contentTypes.cvocConcept=Concepts
 
