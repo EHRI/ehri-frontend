@@ -1,6 +1,7 @@
 package controllers
 
-import _root_.models.forms.VisibilityForm
+import models.forms.VisibilityForm
+import models.UserProfile
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
@@ -12,10 +13,7 @@ import scala.Some
 
 
 object UserProfiles extends PermissionHolderController[UserProfile]
-	with VisibilityController[UserProfile]
-	with CRUD[UserProfileF,UserProfile]
-  with PermissionItemController[UserProfile]
-  with AnnotationController[UserProfile] {
+	with CRUD[UserProfileF,UserProfile] {
 
 
 
@@ -32,6 +30,11 @@ object UserProfiles extends PermissionHolderController[UserProfile]
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.userProfile.show(UserProfile(item), annotations))
+  }
+
+  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
+    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+    Ok(views.html.actionLogs.itemList(UserProfile(item), page))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
@@ -89,19 +92,6 @@ object UserProfiles extends PermissionHolderController[UserProfile]
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
-  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
-    implicit request =>
-      Ok(views.html.permissions.visibility(UserProfile(item),
-        models.forms.VisibilityForm.form.fill(UserProfile(item).accessors.map(_.id)),
-        users, groups, routes.UserProfiles.visibilityPost(id)))
-  }
-
-  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
-    implicit request =>
-      Redirect(routes.UserProfiles.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-  }
-
   def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
       item => perms => implicit user => implicit request =>
     Ok(views.html.permissions.permissionGrantList(UserProfile(item), perms))
@@ -117,49 +107,6 @@ object UserProfiles extends PermissionHolderController[UserProfile]
     implicit request =>
       Redirect(routes.UserProfiles.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-  }
-
-  def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
-    item => perms => implicit user => implicit request =>
-      Ok(views.html.permissions.managePermissions(Group(item), perms,
-        routes.UserProfiles.addItemPermissions(id)))
-  }
-
-  def addItemPermissions(id: String) = addItemPermissionsAction(id) {
-    item => users => groups => implicit user => implicit request =>
-      Ok(views.html.permissions.permissionItem(UserProfile(item), users, groups,
-        routes.UserProfiles.setItemPermissions _))
-  }
-
-  def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
-    item => accessor => perms => implicit user => implicit request =>
-      Ok(views.html.permissions.setPermissionItem(UserProfile(item), accessor, perms, contentType,
-        routes.UserProfiles.setItemPermissionsPost(id, userType, userId)))
-  }
-
-  def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
-    perms => implicit user => implicit request =>
-      Redirect(routes.UserProfiles.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-  }
-
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
-    implicit request =>
-      Ok(views.html.annotation.annotate(UserProfile(item), models.forms.AnnotationForm.form, routes.Agents.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
-    implicit request =>
-      formOrAnnotation match {
-        case Left(errorForm) => getEntity(id, Some(user)) { item =>
-          BadRequest(views.html.annotation.annotate(UserProfile(item),
-            errorForm, routes.UserProfiles.annotatePost(id)))
-        }
-        case Right(annotation) => {
-          Redirect(routes.UserProfiles.get(id))
-            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-        }
-      }
   }
 }
 

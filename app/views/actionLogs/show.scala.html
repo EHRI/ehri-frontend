@@ -12,7 +12,7 @@
     @common.pagination(page)
     <ul class="unstyled">
     @page.list.map { item =>
-        <li><a href="@views.Helpers.urlFor(item)">@item.name</a></li>
+        <li><a href="@views.Helpers.urlFor(item)">@item</a></li>
     }
     </ul>
 

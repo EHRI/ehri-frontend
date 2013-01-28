@@ -105,7 +105,7 @@
         @if(user.hasPermission(ContentType.Agent, PermissionType.Grant)) {
             <li><a href="@routes.Agents.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-        <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+        <li><a href="@routes.Agents.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

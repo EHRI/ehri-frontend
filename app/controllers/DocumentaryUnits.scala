@@ -31,6 +31,11 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       Ok(views.html.documentaryUnit.show(DocumentaryUnit(item), page, annotations))
   }
 
+  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
+    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+    Ok(views.html.actionLogs.itemList(DocumentaryUnit(item), page))
+  }
+
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
     implicit maybeUser =>
       implicit request =>

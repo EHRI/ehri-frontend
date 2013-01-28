@@ -1,7 +1,8 @@
-@(title: String, scripts: Html = Html(""), styles: Html = Html(""))(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(sidebar: Html)(implicit flash: Flash, lang: Lang)
+@(title: String, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = common.breadcrumbs())(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(sidebar: Html)(implicit flash: Flash, lang: Lang)
 
 @main(title, scripts, styles)(maybeUser, req) {
 
+    @breadcrumbs
     <div class="container">
         <div class="row-fluid">
             <div class="span9">

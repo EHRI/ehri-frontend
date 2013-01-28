@@ -13,7 +13,7 @@
         @if(user.hasPermission(ContentType.Annotation, PermissionType.Update)) {
             <li><a href="@routes.Annotations.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
             }
-        <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+        <li><a href="@routes.Annotations.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

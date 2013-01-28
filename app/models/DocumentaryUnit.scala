@@ -9,7 +9,7 @@ import forms.{DocumentaryUnitF,DocumentaryUnitDescriptionF}
 
 case class DocumentaryUnit(val e: Entity) extends NamedEntity
   with AccessibleEntity
-  with HierarchicalEntity
+  with HierarchicalEntity[DocumentaryUnit]
   with DescribedEntity
   with TemporalEntity
   with Formable[DocumentaryUnitF] {

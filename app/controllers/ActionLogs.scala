@@ -30,18 +30,4 @@ object ActionLogs extends EntityRead[ActionLog] {
       implicit request =>
         Ok(views.html.actionLogs.list(page.copy(list = page.list.map(ActionLog(_)))))
   }
-
-  def historyFor(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = userProfileAction {
-    implicit maybeUser =>
-    implicit request =>
-    AsyncRest {
-      rest.ActionLogDAO(maybeUser)
-        .history(id, math.max(page, 1), math.max(limit, 1)).map { itemOrErr =>
-        itemOrErr.right.map {
-          lst => Ok(views.html.actionLogs.itemList(id, lst.copy(list = lst.list.map(builder(_))),
-              routes.ActionLogs.get))
-        }
-      }
-    }
-  }
 }

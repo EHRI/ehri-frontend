@@ -2,9 +2,10 @@
 
 @import models.forms.IsadG._
 
-@rightSidebarLayout(item.name)(maybeUser, req) {
+@rightSidebarLayout(item.name, breadcrumbs = common.breadcrumbs(item.holder.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(DocumentaryUnit(_)) ::: List(item)))(maybeUser, req) {
 
     @common.annotated(item, annotations, routes.DocumentaryUnits.annotate(item.id)) {
+
         @item.holder.map { holder =>
             <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Agents.get(holder.id)">@holder.name</a></h4>
         }
@@ -102,7 +103,7 @@
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Grant)) {
             <li><a href="@routes.DocumentaryUnits.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-        <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+        <li><a href="@routes.DocumentaryUnits.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

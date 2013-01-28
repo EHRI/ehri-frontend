@@ -31,6 +31,11 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
       Ok(views.html.vocabulary.show(Vocabulary(item), page, annotations))
   }
 
+  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
+    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+    Ok(views.html.actionLogs.itemList(Vocabulary(item), page))
+  }
+
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
     implicit maybeUser =>
       implicit request =>

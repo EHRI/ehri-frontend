@@ -12,11 +12,11 @@ object Concept {
  * User: mike
  * Date: 24/01/13
  */
-case class Concept(val e: Entity)
+case class Concept(e: Entity)
   extends NamedEntity
   with AccessibleEntity
   with DescribedEntity
-  with HierarchicalEntity
+  with HierarchicalEntity[Concept]
   with Formable[ConceptF] {
 
   val hierarchyRelationName = Concept.NT_REL

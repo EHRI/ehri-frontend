@@ -1,6 +1,6 @@
 @(item: Concept, page: rest.Page[Concept], annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.toString)(maybeUser, req) {
+@rightSidebarLayout(item.toString, breadcrumbs = common.breadcrumbs(item.vocabulary.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(Concept(_)) ::: List(item)))(maybeUser, req) {
 
     @common.annotated(item, annotations, routes.Concepts.annotate(item.id)) {
         TODO
@@ -62,7 +62,7 @@
             @if(user.hasPermission(ContentType.Concept, PermissionType.Grant)) {
                 <li><a href="@routes.Concepts.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-            <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+            <li><a href="@routes.Concepts.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

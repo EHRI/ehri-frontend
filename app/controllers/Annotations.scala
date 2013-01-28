@@ -22,6 +22,11 @@ object Annotations extends EntityRead[Annotation]
       Ok(views.html.annotation.show(Annotation(item), annotations))
   }
 
+  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
+    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+    Ok(views.html.actionLogs.itemList(Annotation(item), page))
+  }
+
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
     implicit request =>
       Ok(views.html.permissions.visibility(Annotation(item),

@@ -2,13 +2,10 @@
 
 @rightSidebarLayout(item.name)(maybeUser, req) {
 
-    @common.annotated(item, annotations, routes.UserProfiles.annotate(item.id)) {
+    @common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse(Messages("profile.noLocationGiven"))), Messages("profile.location"))
+    @* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), Messages("profile.languages")) *@
+    @* @common.descriptionValue(Some(item.about.getOrElse(Messages("profile.noBioGiven"))), Messages("profile.about")) *@
 
-        @common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse(Messages("profile.noLocationGiven"))), Messages("profile.location"))
-        @* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), Messages("profile.languages")) *@
-        @* @common.descriptionValue(Some(item.about.getOrElse(Messages("profile.noBioGiven"))), Messages("profile.about")) *@
-
-    }
 } {
     @if(item.groups.isEmpty) {
         <i>@Messages("accessor.notInAnyGroups")</i>
@@ -26,24 +23,18 @@
         @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
             <li><a href="@routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a></li>
-            }
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
-            <li><a href="@routes.UserProfiles.visibility(item.id)">@Messages("Set Visibility")</a></li>
-            }
+        }
         @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
-            <li><a href="@routes.UserProfiles.permissions(item.id)">@Messages("Modify Permissions")</a></li>
+            <li><a href="@routes.UserProfiles.permissions(item.id)">@Messages("actions.manageGlobalPermissions")</a></li>
               <li><a href="@routes.UserProfiles.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
         }
         @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
-            <li><a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("Add/Remove Parent Groups")</a></li>
+            <li><a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>
         }
         @if(user.hasPermission(ContentType.UserProfile, PermissionType.Delete)) {
-            <li><a href="@routes.UserProfiles.delete(item.id)">@Messages("Delete User")</a></li>
-            }
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
-            <li><a href="@routes.UserProfiles.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
-            }
-        <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+            <li><a href="@routes.UserProfiles.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+        }
+        <li><a href="@routes.UserProfiles.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }
