@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
     filters,
 
     // Add your project dependencies here
-    "jp.t2v" % "play20.auth_2.10.0" % "0.4-SNAPSHOT",
+    "jp.t2v" %% "play21.auth" % "0.6",
     "com.sun.jersey" % "jersey-core" % "1.9",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "ch.qos.logback" % "logback-core" % "1.0.3" force(),

@@ -9,7 +9,6 @@ import models.base.DescribedEntity
 import defines.EntityType
 import play.api.libs.json.Json
 import defines.EnumWriter.enumWrites
-import org.mockito.exceptions.misusing.NotAMockException
 
 object VocabularyType extends Enumeration {
   type Type = Value
