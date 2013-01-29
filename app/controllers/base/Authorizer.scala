@@ -29,6 +29,9 @@ trait Authorizer extends Results with AuthConfig {
   
   type Id = String
 
+
+  override lazy val idContainer: IdContainer[Id] = new CookieIdContainer[Id]
+
   /**
    * Whether use the secure option or not use it in the cookie.
    * However default is false, I strongly recommend using true in a production.
