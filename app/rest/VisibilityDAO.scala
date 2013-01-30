@@ -17,7 +17,7 @@ case class VisibilityDAO(val accessor: UserProfile) extends RestDAO {
   )
   
   def set(id: String, data: List[String]): Future[Either[RestError, Boolean]] = {
-    val params = "?" + data.map(p => "%s=%s".format(EntityDAO.ACCESSOR_PARAM, p))
+    val params = "?" + data.map(p => "%s=%s".format(EntityDAO.ACCESSOR_PARAM, p)).mkString("&")
     WS.url(enc(requestUrl, id, params)).withHeaders(authHeaders.toSeq: _*).post("").map { response =>
         checkError(response).right.map(r => true)
       }
