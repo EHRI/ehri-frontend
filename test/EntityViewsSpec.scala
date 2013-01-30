@@ -87,7 +87,6 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         contentAsString(show) must contain(DocumentaryUnits.delete("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.createDoc("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.visibility("c1").url)
-        contentAsString(show) must contain(DocumentaryUnits.history("c1").url)
         contentAsString(show) must contain(DocumentaryUnits.list().url)
       }
     }
@@ -141,8 +140,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(show) must equalTo(OK)
+
         contentAsString(show) must contain("Some content")
         contentAsString(show) must contain("Held By")
+        // After having created an item it should contain a 'history' pane
+        // on the show page
+        contentAsString(show) must contain(DocumentaryUnits.history("r1-hello-kitty").url)
       }
     }
 
