@@ -6,7 +6,7 @@
     <label class="control-label" for="visibility_groups">@Messages("contentTypes.group")</label>
     <div class="controls input">
         <select class="chzn-select" placeholder="@Messages("visibility.chooseGroups")" multiple
-        name="accessor">
+        name="@rest.EntityDAO.ACCESSOR_PARAM">
         @groups.map{t =>
             <option value="@t._1" @(if(f.value.map(_.contains(t._1)).getOrElse(false))
                         "selected" else "")>@t._2</option>
@@ -19,7 +19,7 @@
     <label class="control-label" for="visibility_users">@Messages("contentTypes.userProfile")</label>
     <div class="controls input">
         <select class="chzn-select" placeholder="@Messages("visibility.chooseUsers")" multiple
-        name="accessor">
+        name="@rest.EntityDAO.ACCESSOR_PARAM">
             @{println(s"Form data: ${f.data}")}
         @users.map{t =>
             <option value="@t._1" @(if(f.value.map(_.contains(t._1)).getOrElse(false))

@@ -16,14 +16,13 @@ object Annotations extends EntityRead[Annotation]
 
   val builder = Annotation.apply _
 
-  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getAction(id) { item => annotations =>
+  def get(id: String) = getAction(id) { item => annotations =>
     implicit maybeUser =>
       implicit request =>
       Ok(views.html.annotation.show(Annotation(item), annotations))
   }
 
-  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
-    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+  def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
     Ok(views.html.systemEvents.itemList(Annotation(item), page))
   }
 

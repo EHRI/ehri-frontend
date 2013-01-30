@@ -8,6 +8,7 @@ import models.base.{Formable, Persistable, AccessibleEntity}
 import defines.PermissionType
 import models.{Entity, UserProfile}
 import models.forms.VisibilityForm
+import rest.EntityDAO
 
 /**
  * Controller trait for extending Entity classes which server as
@@ -31,7 +32,7 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRe
       implicit request =>
         implicit val maybeUser = Some(user)
         val accessorForm = VisibilityForm.form
-          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, Seq("accessor")))
+          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, EntityDAO.ACCESSOR_PARAM))
         val accessors = accessorForm.value.getOrElse(List())
         form.bindFromRequest.fold(
           errorForm => f(item)(Left((errorForm,accessorForm)))(user)(request),

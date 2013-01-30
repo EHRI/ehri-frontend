@@ -12,12 +12,12 @@ object SystemEvents extends EntityRead[SystemEvent] {
 
   val builder = SystemEvent
 
-  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getAction(id) { item => annotations =>
+  def get(id: String) = getAction(id) { item => annotations =>
     implicit maybeUser =>
       implicit request =>
       // In addition to the item itself, we also want to fetch the subjects associated with it.
       AsyncRest {
-        rest.SystemEventDAO(maybeUser).subjectsFor(id, math.max(page, 1), math.max(limit, 1)).map { pageOrErr =>
+        rest.SystemEventDAO(maybeUser).subjectsFor(id, pageParams).map { pageOrErr =>
           pageOrErr.right.map { page =>
             Ok(views.html.systemEvents.show(SystemEvent(item), page))
           }
@@ -25,7 +25,7 @@ object SystemEvents extends EntityRead[SystemEvent] {
       }
   }
 
-  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+  def list = listAction { page =>
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.systemEvents.list(page.copy(list = page.list.map(SystemEvent(_)))))

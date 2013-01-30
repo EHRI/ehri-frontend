@@ -32,12 +32,11 @@ object UserProfiles extends PermissionHolderController[UserProfile]
         Ok(views.html.userProfile.show(UserProfile(item), annotations))
   }
 
-  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
-    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+  def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
     Ok(views.html.systemEvents.itemList(UserProfile(item), page))
   }
 
-  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+  def list = listAction { page =>
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_)))))

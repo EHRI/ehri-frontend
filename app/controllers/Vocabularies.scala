@@ -26,17 +26,16 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
   val childForm = models.forms.ConceptForm.form
   val builder = Vocabulary.apply _
 
-  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getWithChildrenAction(id, Concept.apply _, page, limit) { item => page => annotations =>
+  def get(id: String) = getWithChildrenAction(id, Concept.apply _) { item => page => annotations =>
     implicit maybeUser => implicit request =>
       Ok(views.html.vocabulary.show(Vocabulary(item), page, annotations))
   }
 
-  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
-    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+  def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
     Ok(views.html.systemEvents.itemList(Vocabulary(item), page))
   }
 
-  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+  def list = listAction { page =>
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.vocabulary.list(page.copy(list = page.list.map(Vocabulary(_)))))

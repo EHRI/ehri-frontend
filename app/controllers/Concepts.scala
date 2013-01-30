@@ -25,17 +25,16 @@ object Concepts extends CreationContext[ConceptF, Concept]
   val childForm = models.forms.ConceptForm.form
   val builder = Concept.apply _
 
-  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getWithChildrenAction(id, builder, page, limit) { item => page => annotations =>
+  def get(id: String) = getWithChildrenAction(id, builder) { item => page => annotations =>
     implicit maybeUser => implicit request =>
       Ok(views.html.concept.show(Concept(item), page, annotations))
   }
 
-  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
-    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+  def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
     Ok(views.html.systemEvents.itemList(Concept(item), page))
   }
 
-  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+  def list = listAction { page =>
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.concept.list(page.copy(list = page.list.map(Concept(_)))))

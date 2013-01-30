@@ -25,17 +25,15 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = Agent
 
-  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getWithChildrenAction(
-      id, DocumentaryUnit.apply _, page, limit) { item => page => annotations => implicit maybeUser => implicit request =>
+  def get(id: String) = getWithChildrenAction(id, DocumentaryUnit.apply _) { item => page => annotations => implicit maybeUser => implicit request =>
     Ok(views.html.agent.show(Agent(item), page, annotations))
   }
 
-  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
-    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+  def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
     Ok(views.html.systemEvents.itemList(Agent(item), page))
   }
 
-  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+  def list = listAction { page =>
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.agent.list(page.copy(list = page.list.map(Agent(_)))))

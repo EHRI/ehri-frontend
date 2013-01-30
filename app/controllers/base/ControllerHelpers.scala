@@ -59,11 +59,11 @@ trait ControllerHelpers {
    *  key -> Seq(va1, val2, val3) to:
    *  key[0] -> Seq(val1), key[1] -> Seq(val2), key[2] -> Seq(val3)
    */
-  def fixMultiSelects(formData: Option[Map[String,Seq[String]]], multies: Seq[String]) = {
+  def fixMultiSelects(formData: Option[Map[String,Seq[String]]], multi: String*) = {
     formData.map(b => {
       b.flatMap { (t: (String,Seq[String])) =>
         t match {
-          case (n, s) if multies.contains(n) => {
+          case (n, s) if multi.contains(n) => {
             s.zipWithIndex.map(t => n + "[" + t._2 + "]" -> List(t._1))
           }
           case other => List(other)

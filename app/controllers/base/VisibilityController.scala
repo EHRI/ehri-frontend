@@ -6,6 +6,7 @@ import models.base._
 import models.base.Persistable
 import defines._
 import models.{Entity,UserProfile}
+import rest.EntityDAO
 
 object VisibilityController {
   /**
@@ -42,7 +43,7 @@ trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
       implicit request =>
         implicit val maybeUser = Some(user)
         val data = models.forms.VisibilityForm.form
-          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, Seq("accessor"))).get
+          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, EntityDAO.ACCESSOR_PARAM)).get
         AsyncRest {
           rest.VisibilityDAO(user).set(id, data).map { boolOrErr =>
             boolOrErr.right.map { bool =>

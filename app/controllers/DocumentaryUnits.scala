@@ -8,6 +8,7 @@ import play.api.mvc._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
+import rest.EntityDAO.PageData
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
   with VisibilityController[DocumentaryUnit]
@@ -16,6 +17,9 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with EntityDelete[DocumentaryUnit]
   with PermissionScopeController[DocumentaryUnit]
   with AnnotationController[DocumentaryUnit] {
+
+  // Sort by name by default
+  override val defaultPage = PageData(sort=List("name"))
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
@@ -26,17 +30,16 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = DocumentaryUnit
 
-  def get(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = getWithChildrenAction(id, builder, page, limit) { item => page => annotations =>
+  def get(id: String) = getWithChildrenAction(id, builder) { item => page => annotations =>
     implicit maybeUser => implicit request =>
       Ok(views.html.documentaryUnit.show(DocumentaryUnit(item), page, annotations))
   }
 
-  def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
-    id, page, limit) { item => page => implicit maybeUser => implicit request =>
+  def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
     Ok(views.html.systemEvents.itemList(DocumentaryUnit(item), page))
   }
 
-  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>
+  def list = listAction { page =>
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.documentaryUnit.list(page.copy(list = page.list.map(DocumentaryUnit(_)))))
