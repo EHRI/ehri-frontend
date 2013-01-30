@@ -18,6 +18,7 @@ import models.DocumentaryUnit
 import models.DocumentaryUnit
 import models.DocumentaryUnit
 import models.forms.{DocumentaryUnitF, UserProfileF}
+import rest.EntityDAO.{ListData, PageData}
 
 class DAOSpec extends Specification with BeforeExample {
   sequential
@@ -112,13 +113,13 @@ class DAOSpec extends Specification with BeforeExample {
 
     "list items" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        await(EntityDAO(entityType, Some(userProfile)).list(0, 20)) must beRight
+        await(EntityDAO(entityType, Some(userProfile)).list(ListData())) must beRight
       }
     }
     
     "page items" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        await(EntityDAO(entityType, Some(userProfile)).page(1, 20)) must beRight
+        await(EntityDAO(entityType, Some(userProfile)).page(PageData())) must beRight
       }
     }    
   }

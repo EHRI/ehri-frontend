@@ -24,7 +24,7 @@ case class SystemEventDAO(val userProfile: Option[UserProfile]) extends RestDAO 
     implicit val entityReads = Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
 
-    WS.url(enc(requestUrl, "for", id, params.toString))
+    WS.url(enc(requestUrl, "for", id) + params.toString)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
@@ -43,7 +43,7 @@ case class SystemEventDAO(val userProfile: Option[UserProfile]) extends RestDAO 
     implicit val entityReads = Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
 
-    WS.url(enc(requestUrl, id, "subjects", params.toString))
+    WS.url(enc(requestUrl, id, "subjects") + params.toString)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(

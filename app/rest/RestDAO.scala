@@ -2,7 +2,7 @@ package rest
 
 import models.Entity
 import play.api.libs.json._
-import play.api.Play
+import play.api.{Logger, Play}
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
 import scala.Left
@@ -94,7 +94,7 @@ trait RestDAO {
   lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
 
   protected def checkError(response: Response): Either[RestError, Response] = {
-    //println("RESPONSE: " + response.body)
+    Logger.logger.debug("Response body ! : {}", response.body)
     response.status match {
       case OK | CREATED => Right(response)
       case e => e match {
@@ -102,20 +102,21 @@ trait RestDAO {
         case UNAUTHORIZED => Left(PermissionDenied())
         case BAD_REQUEST => response.json.validate[ErrorSet].fold(
           valid = { errorSet =>
+            Logger.logger.error("ValidationError ! : {}", response.json)
             Left(ValidationError(errorSet))
           },
           invalid = { e =>
             // Temporary approach to handling random Deserialization errors.
             // In practice this should happen
             if ((response.json \ "error").asOpt[String] == Some("DeserializationError")) {
-              println("GOT DESERIALIZATION ERROR: " + response.json)
+              Logger.logger.error("Derialization error! : {}", response.json)
               Left(DeserializationError())
             } else {
-              throw sys.error("Unexpected BAD REQUEST: %s \n%s".format(e, response.body))
+              throw sys.error(s"Unexpected BAD REQUEST: ${e} \n${response.body}")
             }
           }
         )
-        case NOT_FOUND => Left(ItemNotFound())
+        case NOT_FOUND => Logger.logger.error("404: {}", response.body); Left(ItemNotFound())
         case _ => {
           println(response.body)
           sys.error("Unexpected response for %s: %d: %s".format(response.getAHCResponse.getHeaders, response.status, response.body))
