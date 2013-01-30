@@ -28,16 +28,16 @@
             <h4>@item.permission.toString</h4>
             <ul>
                 @item.accessor.map { accessor =>
-                    <li>@Messages("permissionGrant.accessor"): @accessor.name</li>
+                    <li>@Messages("permissionGrant.accessor"): @accessor</li>
                 }
                 @item.targets.map { t =>
-                    <li>@Messages("permissionGrant.targets"): @t.id</li>
+                    <li>@Messages("permissionGrant.targets"): @t</li>
                 }
                 @item.scope.map { s =>
-                    <li>@Messages("permissionGrant.scope"): @s.name</li>
+                    <li>@Messages("permissionGrant.scope"): @s</li>
                 }
                 @item.grantee.map { s =>
-                    <li>@Messages("permissionGrant.grantedBy"): @s.name</li>
+                    <li>@Messages("permissionGrant.grantedBy"): @s</li>
                 }
             </ul>
         </div>

@@ -1,6 +1,6 @@
 @(page: rest.Page[SystemEvent])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listActionLogs"))(maybeUser, req) {
+@rightSidebarLayout(Messages("actions.listSystemEvents"))(maybeUser, req) {
 
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 

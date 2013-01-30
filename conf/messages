@@ -40,6 +40,9 @@ errors.genericProblem=We're very sorry, but there's a problem loading that page
 errors.databaseError=Database Error
 errors.databaseErrorExplanation=I'm afraid it looks like our database server has gone down.     \
   There's not much we can do without it, so please try again later.
+errors.permissionDenied=Permission Denied
+errors.permissionDeniedExplanation=It looks like you can't do whatever it is you were attempted \
+  to do. This is probably an error on our part. We'll try and fix that ASAP.
 
 # Pagination display. Should say something like "Displaying items 1 to 20 of 25.
 # If there are 0 items, says "No items found", one item, "One item found" etc.
@@ -80,7 +83,7 @@ systemEvents.itemAtTime=Action at {0}
 
 # Actions
 actions.history=History
-actions.listActionLogs=Action Logs
+actions.listSystemEvents=System Events
 actions.listDocumentaryUnits=Collections
 actions.listAgents=Repositories
 actions.listUserProfiles=Users

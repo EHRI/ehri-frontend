@@ -4,7 +4,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageItemPermissionsForItem", item.identifier))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.manageItemPermissionsForItem", item))(Some(user), req) {
 
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 

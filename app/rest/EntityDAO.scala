@@ -49,6 +49,8 @@ object PageReads {
 object EntityDAO {
   implicit val entityReads = Entity.entityReads
 
+  final val ACCESSOR_PARAM = "accessibleTo"
+
   def jsonToEntity(js: JsValue): Entity = {
     js.validate.fold(
       valid = { item =>
@@ -72,8 +74,6 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   import EntityDAO._
   import play.api.http.Status._
 
-  final val ACCESSOR_PARAM = "accessibleTo"
-
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
   def authHeaders: Map[String, String] = userProfile match {
@@ -96,7 +96,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def create(item: Persistable, accessors: List[String] = Nil): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, "?%s".format(accessors.map(a => s"${ACCESSOR_PARAM}=${a}").mkString("&"))))
+    WS.url(enc(requestUrl, "?%s".format(accessors.map(a => s"${EntityDAO.ACCESSOR_PARAM}=${a}").mkString("&"))))
         .withHeaders(authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
@@ -104,7 +104,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def createInContext(id: String, contentType: ContentType.Value, item: Persistable, accessors: List[String] = Nil): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, contentType, "?%s".format(accessors.map(a => s"${ACCESSOR_PARAM}=${a}").mkString("&"))))
+    WS.url(enc(requestUrl, id, contentType, "?%s".format(accessors.map(a => s"${EntityDAO.ACCESSOR_PARAM}=${a}").mkString("&"))))
         .withHeaders(authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
