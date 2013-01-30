@@ -167,8 +167,8 @@ GET     /concepts/link/:id/:src     controllers.Concepts.linkAnnotate(id: String
 POST    /concepts/link/:id/:src     controllers.Concepts.linkAnnotatePost(id: String, src: String)
 
 
-GET     /action                controllers.ActionLogs.list(page: Int ?= 1, limit: Int ?=20)
-GET     /action/show/:id       controllers.ActionLogs.get(id: String, page: Int ?= 1, limit: Int ?=20)
+GET     /action                controllers.SystemEvents.list(page: Int ?= 1, limit: Int ?=20)
+GET     /action/show/:id       controllers.SystemEvents.get(id: String, page: Int ?= 1, limit: Int ?=20)
 
 GET     /annotation/show/:id       controllers.Annotations.get(id: String)
 GET     /annotation/history/:id       controllers.Annotations.history(id: String, page: Int ?= 1, limit: Int ?=20)

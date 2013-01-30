@@ -1,7 +1,7 @@
 package controllers
 
 import defines._
-import models.{Annotation, ActionLog}
+import models.{Annotation, SystemEvent}
 import base.{AnnotationController, VisibilityController, EntityRead}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.i18n.Messages
@@ -24,7 +24,7 @@ object Annotations extends EntityRead[Annotation]
 
   def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
     id, page, limit) { item => page => implicit maybeUser => implicit request =>
-    Ok(views.html.actionLogs.itemList(Annotation(item), page))
+    Ok(views.html.systemEvents.itemList(Annotation(item), page))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>

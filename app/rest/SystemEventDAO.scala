@@ -10,10 +10,10 @@ import models.base.AccessibleEntity
 /**
  * Data Access Object for Action-related requests.
  */
-case class ActionLogDAO(val userProfile: Option[UserProfile]) extends RestDAO {
+case class SystemEventDAO(val userProfile: Option[UserProfile]) extends RestDAO {
 
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
-  def requestUrl = "%s/action".format(baseUrl)
+  def requestUrl = "%s/systemEvent".format(baseUrl)
 
   def authHeaders: Map[String, String] = userProfile match {
     case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))

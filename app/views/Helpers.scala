@@ -42,7 +42,7 @@ package object Helpers {
   def urlFor(a: AccessibleEntity) = urlForEntity(a.e)
 
   def urlForEntity(e: Entity): Call = e.isA match {
-    case EntityType.ActionLog => routes.ActionLogs.get(e.id)
+    case EntityType.SystemEvent => routes.SystemEvents.get(e.id)
     case EntityType.DocumentaryUnit => routes.DocumentaryUnits.get(e.id)
     case EntityType.Agent => routes.Agents.get(e.id)
     case EntityType.Group => routes.Groups.get(e.id)

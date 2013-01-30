@@ -32,7 +32,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   def history(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = historyAction(
     id, page, limit) { item => page => implicit maybeUser => implicit request =>
-    Ok(views.html.actionLogs.itemList(Concept(item), page))
+    Ok(views.html.systemEvents.itemList(Concept(item), page))
   }
 
   def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = listAction(page, limit) { page =>

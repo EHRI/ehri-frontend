@@ -3,7 +3,7 @@ package controllers.base
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import play.api.mvc._
-import models.{ActionLog, Annotation, Entity, UserProfile}
+import models.{SystemEvent, Annotation, Entity, UserProfile}
 import rest.Page
 
 /**
@@ -103,15 +103,15 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
 
 
   def historyAction[C <: AccessibleEntity](id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
-      f: Entity => rest.Page[ActionLog] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Entity => rest.Page[SystemEvent] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction { implicit maybeUser => implicit request =>
       Secured {
         AsyncRest {
           val itemReq = rest.EntityDAO(entityType, maybeUser).get(id)
-          val alReq = rest.ActionLogDAO(maybeUser).history(id, math.max(page, 1), math.max(limit, 1))
+          val alReq = rest.SystemEventDAO(maybeUser).history(id, math.max(page, 1), math.max(limit, 1))
           for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
             for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {
-              f(item)(al.copy(list = al.list.map(ActionLog(_))))(maybeUser)(request)
+              f(item)(al.copy(list = al.list.map(SystemEvent(_))))(maybeUser)(request)
             }
           }
         }

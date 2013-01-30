@@ -1,6 +1,6 @@
 package models.base
 
-import models.{ActionLog, Entity}
+import models.{SystemEvent, Entity}
 
 object AccessibleEntity {
   val IDENTIFIER = "identifier"
@@ -18,7 +18,7 @@ trait AccessibleEntity extends WrappedEntity {
   
   def identifier = e.property(IDENTIFIER).flatMap(_.asOpt[String]).getOrElse(sys.error("No 'identifier' property found."))
   def accessors = e.relations(ACCESS_REL).map(Accessor(_))
-  def latestEvent: Option[ActionLog] = e.relations(EVENT_REL).headOption.map(ActionLog(_))
+  def latestEvent: Option[SystemEvent] = e.relations(EVENT_REL).headOption.map(SystemEvent(_))
 
   override def toString = e.stringProperty(nameProperty).getOrElse(identifier)
 

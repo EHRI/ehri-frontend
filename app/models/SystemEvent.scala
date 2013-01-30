@@ -6,7 +6,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.i18n.Messages
 
-case class ActionLog(val e: Entity) extends AccessibleEntity {
+case class SystemEvent(val e: Entity) extends AccessibleEntity {
 
   val ACTIONER_REL = "hasActioner"
 
@@ -19,6 +19,6 @@ case class ActionLog(val e: Entity) extends AccessibleEntity {
     DateTimeFormat.forPattern("yyyy-MM-dd HH:MM:ss").print(timeStamp)
   }
 
-  override def toString = Messages("actionLogs.itemAtTime", time)
+  override def toString = Messages("systemEvents.itemAtTime", time)
 }
 

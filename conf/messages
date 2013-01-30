@@ -26,7 +26,7 @@ contentTypes.userProfile=Users
 contentTypes.agent=Repositories
 contentTypes.documentaryUnit=Collections
 contentTypes.action=User Events
-contentTypes.actionEvent=System Events
+contentTypes.systemEvent=System Events
 contentTypes.cvocVocabulary=CVocs
 contentTypes.cvocConcept=Concepts
 
@@ -74,9 +74,9 @@ users.password=Password
 users.passwordConfirm=Confirm Password
 
 #
-# Action logs
+# System Events
 #
-actionLogs.itemAtTime=Action at {0}
+systemEvents.itemAtTime=Action at {0}
 
 # Actions
 actions.history=History

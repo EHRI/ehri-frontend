@@ -1,7 +1,7 @@
-@(item: ActionLog)
+@(item: SystemEvent)
 
 <li class="list-item">
-    <h5><a href="@routes.ActionLogs.get(item.id)">@item.time</a>
+    <h5><a href="@routes.SystemEvents.get(item.id)">@item.time</a>
         @item.actioner.map { accessor =>
             - <a href="@views.Helpers.urlFor(accessor)">@accessor</a>
         }

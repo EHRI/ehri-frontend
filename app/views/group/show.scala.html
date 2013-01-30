@@ -17,23 +17,23 @@
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
-        @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
-            <li><a href="@routes.Groups.create">@Messages("actions.createNewGroup")</a></li>
-        }
-        @if(user.hasPermission(ContentType.Group, PermissionType.Update)) {
-            <li><a href="@routes.Groups.update(item.id)">@Messages("actions.updateItem")</a></li>
-        }
-        @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
-            <li><a href="@routes.Groups.permissions(item.id)">@Messages("actions.manageGlobalPermissions")</a></li>
-              <li><a href="@routes.Groups.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
-        }
-        @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
-            <li><a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>
-        }
-        @if(user.hasPermission(ContentType.Group, PermissionType.Delete)) {
-            <li><a href="@routes.Groups.delete(item.id)">@Messages("actions.deleteItem")</a></li>
-        }
-        <li><a href="@routes.Groups.history(item.id)">@Messages("actions.showHistory")</a></li>
+            @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
+                <li><a href="@routes.Groups.create">@Messages("actions.createNewGroup")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Update)) {
+                <li><a href="@routes.Groups.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
+                <li><a href="@routes.Groups.permissions(item.id)">@Messages("actions.manageGlobalPermissions")</a></li>
+                  <li><a href="@routes.Groups.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
+                <li><a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Delete)) {
+                <li><a href="@routes.Groups.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+            <li><a href="@routes.Groups.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

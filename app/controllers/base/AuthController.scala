@@ -66,7 +66,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
   }
   
   /**
-   * ActionLog composition that adds extra context to regular requests. Namely,
+   * SystemEvent composition that adds extra context to regular requests. Namely,
    * the profile of the user requesting the page, and her permissions.
    */
   def userProfileAction(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
