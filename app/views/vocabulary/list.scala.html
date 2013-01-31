@@ -1,4 +1,4 @@
-@(page: rest.Page[Vocabulary])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[Vocabulary], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listVocabularies"))(maybeUser, req) {
 

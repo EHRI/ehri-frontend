@@ -17,17 +17,19 @@ object SystemEvents extends EntityRead[SystemEvent] {
       implicit request =>
       // In addition to the item itself, we also want to fetch the subjects associated with it.
       AsyncRest {
-        rest.SystemEventDAO(maybeUser).subjectsFor(id, pageParams).map { pageOrErr =>
+        val params = ListParams.bind(request)
+        rest.SystemEventDAO(maybeUser).subjectsFor(id, processParams(params)).map { pageOrErr =>
           pageOrErr.right.map { page =>
-            Ok(views.html.systemEvents.show(SystemEvent(item), page))
+            // TODO: Create list params for subjects
+            Ok(views.html.systemEvents.show(SystemEvent(item), page, ListParams()))
           }
         }
       }
   }
 
-  def list = listAction { page =>
+  def list = listAction { page => params =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.systemEvents.list(page.copy(list = page.list.map(SystemEvent(_)))))
+        Ok(views.html.systemEvents.list(page.copy(list = page.list.map(SystemEvent(_))), params))
   }
 }

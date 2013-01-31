@@ -1,31 +1,7 @@
-@(page: rest.Page[DocumentaryUnit])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[DocumentaryUnit], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @noSidebarLayout(Messages("actions.listDocumentaryUnits"))(maybeUser, req) {
-
-	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
-
-    @common.pagination(page)
-	
-	<ul class="unstyled">
-	@page.list.map { item =>
-	  	<div class="list-item">
-			<h5>
-				<a href="@routes.DocumentaryUnits.get(item.id)">@item</a>
-				@item.dateString.map { d =>
-				  &nbsp;[@d]
-				}
-				@item.holder.map { holder =>
-					<strong> - <a href="@controllers.routes.Agents.get(holder.id)">@holder.name</a></strong>
-				}
-			</h5>
-			@item.descriptions.headOption.map { desc =>
-			  @desc.property("scopeAndContent").flatMap(_.asOpt[String]).map { sc =>
-			    <p>@sc</p>
-			  }
-			  
-			}
-		</div>
-	}
-	</ul>
-
+    @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
+        @documentaryUnit.itemList(page)
+    }
 }

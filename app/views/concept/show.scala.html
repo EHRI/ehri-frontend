@@ -1,17 +1,16 @@
-@(item: Concept, page: rest.Page[Concept], annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Concept, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.vocabulary.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(Concept(_)) ::: List(item)))(maybeUser, req) {
+    @item.vocabulary.map { v =>
+        <p class="muted"><small><a href="@routes.Vocabularies.get(v.id)">@v</a></small></p>
+    }
+
 
     @common.annotated(item, annotations, routes.Concepts.annotate(item.id)) {
         TODO
     }
 
     @common.relatedLinks(item, annotations)
-
-    @item.vocabulary.map { v =>
-    <h3 xmlns="http://www.w3.org/1999/html">@Messages("concept.inVocabulary")</h3>
-        <p><a href="@routes.Vocabularies.get(v.id)">@v</a>
-    }
 
     @if(!item.broaderTerms.isEmpty) {
         <h3>@Messages("concept.broaderTerms")</h3>
@@ -25,28 +24,25 @@
         </ul>
     }
 
-
-    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
-
-    @common.pagination(page)
-
-    <ul>
-    @page.list.map { item =>
-        <div class="list-item">
-        <h5>
-        <a href="@routes.Concepts.get(item.id)">
-            @item.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
-        </a>
-        </h5>
-        </div>
+    @common.filterableList("concept.narrowerTermsPageHeader", page, params, Concepts.listFilterMappings.keys, Concepts.orderMappings.keys) {
+        <ul>
+            @page.list.map { item =>
+                <div class="list-item">
+                    <h5>
+                        <a href="@routes.Concepts.get(item.id)">
+                        @item.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+                        </a>
+                    </h5>
+                </div>
+            }
+        </ul>
     }
-    </ul>
 
 } {
     @common.latestAction(item, routes.Concepts.history(item.id))
     @common.visibility(item)
 
-    <ul class="item-actions nav nav-tabs nav-stacked affix">
+    <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
             @if(user.hasPermission(ContentType.Concept, PermissionType.Create)) {
                 <li><a href="@routes.Concepts.createConcept(item.id)">@Messages("actions.createNarrowerConcept")</a></li>

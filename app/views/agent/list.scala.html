@@ -1,4 +1,4 @@
-@(items: rest.Page[Agent])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(items: rest.Page[Agent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listAgents"))(maybeUser, req) {
 

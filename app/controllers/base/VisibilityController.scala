@@ -43,7 +43,7 @@ trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
       implicit request =>
         implicit val maybeUser = Some(user)
         val data = models.forms.VisibilityForm.form
-          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, EntityDAO.ACCESSOR_PARAM)).get
+          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM)).get
         AsyncRest {
           rest.VisibilityDAO(user).set(id, data).map { boolOrErr =>
             boolOrErr.right.map { bool =>

@@ -33,13 +33,13 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
-    Ok(views.html.systemEvents.itemList(UserProfile(item), page))
+    Ok(views.html.systemEvents.itemList(UserProfile(item), page, ListParams()))
   }
 
-  def list = listAction { page =>
+  def list = listAction { page => params =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_)))))
+        Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_))), params))
   }
 
   def create = createAction { users => groups => implicit user =>

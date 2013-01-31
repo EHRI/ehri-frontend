@@ -46,9 +46,7 @@ object PageReads {
   )(Page[T] _)
 }
 
-object EntityDAO {
-  implicit val entityReads = Entity.entityReads
-
+object RestPageParams {
   final val ACCESSOR_PARAM = "accessibleTo"
   final val ORDER_PARAM = "sort"
   final val FILTER_PARAM = "filter"
@@ -57,46 +55,46 @@ object EntityDAO {
   final val PAGE_PARAM = "page"
 
   final val DEFAULT_LIST_LIMIT = 20
+}
 
-  /**
-   * Class for handling page parameter data
-   * @param page
-   * @param limit
-   * @param filters
-   * @param sort
-   */
-  case class PageData(page: Option[Int] = None, limit: Option[Int] = None, filters: List[String] = Nil, sort: List[String] = Nil) {
-    override def toString = {
-      val offset = (page.getOrElse(1) - 1) * limit.getOrElse(DEFAULT_LIST_LIMIT)
-      "?" + List(
-        s"${EntityDAO.OFFSET_PARAM}=${offset}",
-        s"${EntityDAO.LIMIT_PARAM}=${limit.getOrElse(DEFAULT_LIST_LIMIT)}",
-        multiParam(FILTER_PARAM, filters),
-        multiParam(ORDER_PARAM, sort)
-      ).filterNot(_.trim.isEmpty).mkString("&")
-    }
-  }
+/**
+ * Class for handling page parameter data
+ * @param page
+ * @param limit
+ * @param filters
+ * @param sort
+ */
+case class RestPageParams(page: Option[Int] = None, limit: Option[Int] = None, filters: List[String] = Nil, sort: List[String] = Nil) {
 
-  /**
-   * Class for handling list parameter data
-   * @param offset
-   * @param limit
-   * @param filters
-   * @param sort
-   */
-  case class ListData(offset: Option[Int] = None, limit: Option[Int] = None, filters: List[String] = Nil, sort: List[String] = Nil) {
-    override def toString = {
-      "?" + List(
-        s"${OFFSET_PARAM}=${offset.getOrElse(0)}",
-        s"${LIMIT_PARAM}=${limit.getOrElse(DEFAULT_LIST_LIMIT)}",
-        multiParam(FILTER_PARAM, filters),
-        multiParam(ORDER_PARAM, sort)
-      ).mkString("&")
-    }
+  import RestPageParams._
+
+  def mergeWith(default: RestPageParams): RestPageParams = RestPageParams(
+    page = page.orElse(default.page),
+    limit = limit.orElse(default.limit),
+    filters = if (filters.isEmpty) default.filters else filters,
+    sort = if (sort.isEmpty) default.sort else sort
+  )
+
+  override def toString = {
+    val offset = (page.getOrElse(1) - 1) * limit.getOrElse(DEFAULT_LIST_LIMIT)
+    "?" + List(
+      s"${OFFSET_PARAM}=${offset}",
+      s"${LIMIT_PARAM}=${limit.getOrElse(DEFAULT_LIST_LIMIT)}",
+      multiParam(FILTER_PARAM, filters),
+      multiParam(ORDER_PARAM, sort)
+    ).filterNot(_.trim.isEmpty).mkString("&")
   }
 
   private def multiParam(key: String, values: List[String]) = values.map(s => s"${key}=${s}").mkString("&")
 
+}
+
+
+
+
+
+object EntityDAO {
+  implicit val entityReads = Entity.entityReads
 
   def jsonToEntity(js: JsValue): Entity = {
     js.validate.fold(
@@ -143,7 +141,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def create(item: Persistable, accessors: List[String] = Nil): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, "?%s".format(accessors.map(a => s"${EntityDAO.ACCESSOR_PARAM}=${a}").mkString("&"))))
+    WS.url(enc(requestUrl, "?%s".format(accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&"))))
         .withHeaders(authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
@@ -151,7 +149,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def createInContext(id: String, contentType: ContentType.Value, item: Persistable, accessors: List[String] = Nil): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, contentType, "?%s".format(accessors.map(a => s"${EntityDAO.ACCESSOR_PARAM}=${a}").mkString("&"))))
+    WS.url(enc(requestUrl, id, contentType, "?%s".format(accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&"))))
         .withHeaders(authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
@@ -172,28 +170,14 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     }
   }
 
-  def list(params: ListData): Future[Either[RestError, Seq[Entity]]] = {
-    WS.url(enc(requestUrl, "list", params.toString))
-        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json match {
-          case JsArray(array) => array.map(js => jsonToEntity(js))
-          case _ => sys.error("Unable to decode list result: " + r.json)
-        }
-      }
-    }
-  }
-
-  def page(params: PageData): Future[Either[RestError, Page[Entity]]] = {
+  def page(params: RestPageParams): Future[Either[RestError, Page[Entity]]] = {
     import Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
     WS.url(enc(requestUrl, "page", params.toString))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
-          valid = { page =>
-            Page(page.total, page.offset, page.limit, page.list)
-          },
+          valid = { page => page },
           invalid = { e =>
             sys.error("Unable to decode paginated list result: " + e.toString)
           }
@@ -202,28 +186,14 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
     }
   }
 
-  def listChildren(id: String, params: ListData): Future[Either[RestError, Seq[Entity]]] = {
-    WS.url(enc(requestUrl, id, "list", params.toString))
-        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json match {
-          case JsArray(array) => array.map(js => jsonToEntity(js))
-          case _ => sys.error("Unable to decode list result: " + r.json)
-        }
-      }
-    }
-  }
-
-  def pageChildren(id: String, params: PageData): Future[Either[RestError, Page[Entity]]] = {
+  def pageChildren(id: String, params: RestPageParams): Future[Either[RestError, Page[Entity]]] = {
     import Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
     WS.url(enc(requestUrl, id, "page", params.toString))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
-          valid = { page =>
-            Page(page.total, page.offset, page.limit, page.list)
-          },
+          valid = { page => page },
           invalid = { e =>
             sys.error("Unable to decode paginated list result: " + e.toString)
           }

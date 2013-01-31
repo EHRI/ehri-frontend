@@ -1,4 +1,4 @@
-@(item: Agent, page: rest.Page[DocumentaryUnit], annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Agent, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.forms.Isdiah._
 
@@ -71,19 +71,9 @@
 
     @common.relatedLinks(item, annotations)
 
-    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
-
-    @common.pagination(page)
-
-    <ul class="unstyled">
-    @page.list.map { item =>
-        <div class="list-item">
-        <h5>
-        <a href="@routes.DocumentaryUnits.get(item.id)">@item.name</a>
-        </h5>
-        </div>
+    @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
+        @documentaryUnit.itemList(page)
     }
-    </ul>
 
 } {
     @common.latestAction(item, routes.Agents.history(item.id))

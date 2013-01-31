@@ -6,7 +6,10 @@ import play.api.mvc._
 import models.{SystemEvent, Annotation, Entity, UserProfile}
 import rest.{EntityDAO, Page}
 import play.api.data.Form
-import rest.EntityDAO.PageData
+import rest.RestPageParams
+import play.api.Logger
+import controllers.ListParams
+
 
 /**
  * Controller trait which handles the listing and showing of Entities that
@@ -17,7 +20,8 @@ import rest.EntityDAO.PageData
 trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   val DEFAULT_LIMIT = 20
 
-  val defaultPage: PageData = new PageData()
+  val defaultPage: RestPageParams = new RestPageParams()
+  val defaultChildPage: RestPageParams = new RestPageParams()
 
   def getEntity(id: String, user: Option[UserProfile])(f: Entity => Result)(implicit request: RequestHeader) = {
     implicit val maybeUser = user
@@ -71,17 +75,18 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   }
 
   def getWithChildrenAction[C <: AccessibleEntity](id: String, builder: Entity => C)(
-      f: Entity => rest.Page[C] => Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Entity => rest.Page[C] => ListParams =>  Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
     itemPermissionAction(contentType, id) { item => implicit maybeUser =>
       implicit request =>
       Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
+          val params = ListParams.bind(request)
           val annsReq = rest.AnnotationDAO(maybeUser).getFor(id)
-          val cReq = rest.EntityDAO(entityType, maybeUser).pageChildren(id, pageParams)
+          val cReq = rest.EntityDAO(entityType, maybeUser).pageChildren(id, processChildParams(params))
           for { annOrErr <- annsReq ; cOrErr <- cReq } yield {
             for { anns <- annOrErr.right ; children <- cOrErr.right } yield {
-              f(item)(children.copy(list = children.list.map(builder(_))))(anns)(maybeUser)(request)
+              f(item)(children.copy(list = children.list.map(builder(_))))(params)(anns)(maybeUser)(request)
             }
           }
         }
@@ -89,14 +94,15 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def listAction(f: rest.Page[Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def listAction(f: rest.Page[Entity] => ListParams => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction { implicit maybeUser =>
       implicit request =>
       Secured {
         AsyncRest {
-          rest.EntityDAO(entityType, maybeUser).page(pageParams).map { itemOrErr =>
+          val params = ListParams.bind(request)
+          rest.EntityDAO(entityType, maybeUser).page(processParams(params)).map { itemOrErr =>
             itemOrErr.right.map {
-              lst => f(lst)(maybeUser)(request)
+              page => f(page)(params)(maybeUser)(request)
             }
           }
         }
@@ -111,7 +117,9 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
       Secured {
         AsyncRest {
           val itemReq = rest.EntityDAO(entityType, maybeUser).get(id)
-          val alReq = rest.SystemEventDAO(maybeUser).history(id, pageParams)
+          // NOTE: we do not use the controller's RestPageParams here because
+          // they won't apply to Event items...???
+          val alReq = rest.SystemEventDAO(maybeUser).history(id, RestPageParams())
           for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
             for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {
               f(item)(al.copy(list = al.list.map(SystemEvent(_))))(maybeUser)(request)
@@ -122,19 +130,22 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def pageParams(implicit request: Request[AnyContent]): EntityDAO.PageData = {
-    // parse the form for list parameters
-    import play.api.data.Forms._
-    val params = Form(
-      mapping(
-        EntityDAO.PAGE_PARAM -> optional(number(min=1)),
-        EntityDAO.LIMIT_PARAM -> optional(number(min=1)),
-        EntityDAO.FILTER_PARAM -> list(nonEmptyText),
-        EntityDAO.ORDER_PARAM -> list(nonEmptyText)
-      )(EntityDAO.PageData.apply)(EntityDAO.PageData.unapply)
-    ).bindFromRequest
-    println("DEFAULT:" + defaultPage)
-    println("PARAMS: " + params.value)
-    params.value.getOrElse(defaultPage)
+  /**
+   * Process parameters for the main list form.
+   * @param listParams
+   * @return
+   */
+  def processParams(listParams: ListParams): RestPageParams = {
+    // don't do anything by default except for copy the page and limit
+    // Inheriting controllers can override this to handle translating
+    // filter values to the internal REST format.
+    RestPageParams(listParams.page, listParams.limit)
   }
+
+  /**
+   * Process parameters for the child form.
+   * @param listParams
+   * @return
+   */
+  def processChildParams(listParams: ListParams): RestPageParams = processParams(listParams)
 }

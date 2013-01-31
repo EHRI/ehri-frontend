@@ -4,7 +4,6 @@ import models.{ItemWithId, Entity, UserProfile}
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.base.AccessibleEntity
 
 
 /**
@@ -20,7 +19,7 @@ case class SystemEventDAO(val userProfile: Option[UserProfile]) extends RestDAO 
     case None => headers
   }
 
-  def history(id: String, params: EntityDAO.PageData): Future[Either[RestError, Page[Entity]]] = {
+  def history(id: String, params: RestPageParams): Future[Either[RestError, Page[Entity]]] = {
     implicit val entityReads = Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
 
@@ -39,7 +38,7 @@ case class SystemEventDAO(val userProfile: Option[UserProfile]) extends RestDAO 
     }
   }
 
-  def subjectsFor(id: String, params: EntityDAO.PageData): Future[Either[RestError, Page[ItemWithId]]] = {
+  def subjectsFor(id: String, params: RestPageParams): Future[Either[RestError, Page[ItemWithId]]] = {
     implicit val entityReads = Entity.entityReads
     implicit val entityPageReads = PageReads.pageReads
 

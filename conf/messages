@@ -7,6 +7,11 @@ home=Home
 home.message=This is a development version of the EHRI data management interface.\
   It's not done yet, but don't let that put you off.
 
+search.filterItems=Filter Items
+search.sortItems=Sort Items
+search.sortReversed=(Descending)
+search.noItemsFound=No Items Found
+
 footer.footerText=This is a development version of the EHRI data entry interface.
 
 login.login=Sign In
@@ -51,9 +56,14 @@ pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Display
 #
 # Concepts
 #
+concept.prefLabel=Label
+concept.altLabel=Alternative Label(s)
+concept.scopeNode=Scope Note
 concept.inVocabulary=Vocabulary
 concept.broaderTerms=Broader Terms
 concept.narrowerTerms=Narrower Terms
+concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 #
 # Annotations

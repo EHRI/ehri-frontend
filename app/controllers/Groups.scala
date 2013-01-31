@@ -28,13 +28,13 @@ object Groups extends PermissionHolderController[Group]
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
-    Ok(views.html.systemEvents.itemList(Group(item), page))
+    Ok(views.html.systemEvents.itemList(Group(item), page, ListParams()))
   }
 
-  def list = listAction { page =>
+  def list = listAction { page => params =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.group.list(page.copy(list = page.list.map(Group(_)))))
+        Ok(views.html.group.list(page.copy(list = page.list.map(Group(_))), params))
   }
 
   def create = createAction { users => groups => implicit user =>

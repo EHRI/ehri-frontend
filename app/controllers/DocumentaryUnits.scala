@@ -1,14 +1,16 @@
 package controllers
 
-import models.{DocumentaryUnit, ItemWithId}
-import models.forms.{DocumentaryUnitF, VisibilityForm}
+import _root_.models.base.AccessibleEntity
+import _root_.models.{Entity, DocumentaryUnit, ItemWithId}
+import _root_.models.forms.{DatePeriodF, IsadG, DocumentaryUnitF, VisibilityForm}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
-import rest.EntityDAO.PageData
+import rest.RestPageParams
+
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
   with VisibilityController[DocumentaryUnit]
@@ -18,8 +20,37 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with PermissionScopeController[DocumentaryUnit]
   with AnnotationController[DocumentaryUnit] {
 
-  // Sort by name by default
-  override val defaultPage = PageData(sort=List("name"))
+  val DEFAULT_SORT = AccessibleEntity.NAME
+
+  /**
+   * Mapping between incoming list filter parameters
+   * and the data values accessed via the server.
+   */
+  val listFilterMappings: Map[String,String] = Map(
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    IsadG.ARCH_HIST -> s"<-describes.${IsadG.ARCH_HIST}",
+    IsadG.SCOPE_CONTENT -> s"<-describes.${IsadG.SCOPE_CONTENT}",
+    "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
+  )
+
+  val orderMappings: Map[String,String] = Map(
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
+  )
+
+
+  override def processParams(params: ListParams): rest.RestPageParams = {
+    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
+  }
+
+  /**
+   * Child list forms are handled the same as the main one
+   * @param params
+   * @return
+   */
+  override def processChildParams(params: ListParams) = processParams(params)
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
@@ -30,42 +61,37 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = DocumentaryUnit
 
-  def get(id: String) = getWithChildrenAction(id, builder) { item => page => annotations =>
+  def get(id: String) = getWithChildrenAction(id, builder) { item => page => params => annotations =>
     implicit maybeUser => implicit request =>
-      Ok(views.html.documentaryUnit.show(DocumentaryUnit(item), page, annotations))
+      Ok(views.html.documentaryUnit.show(DocumentaryUnit(item), page, params, annotations))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
-    Ok(views.html.systemEvents.itemList(DocumentaryUnit(item), page))
+    Ok(views.html.systemEvents.itemList(DocumentaryUnit(item), page, ListParams()))
   }
 
-  def list = listAction { page =>
-    implicit maybeUser =>
-      implicit request =>
-        Ok(views.html.documentaryUnit.list(page.copy(list = page.list.map(DocumentaryUnit(_)))))
+  def list = listAction { page => params => implicit maybeUser => implicit request =>
+    Ok(views.html.documentaryUnit.list(
+      page.copy(list = page.list.map(DocumentaryUnit(_))), params))
   }
 
-  def update(id: String) = updateAction(id) { item => implicit user =>
-    implicit request =>
-      Ok(views.html.documentaryUnit.edit(
+  def update(id: String) = updateAction(id) { item => implicit user => implicit request =>
+    Ok(views.html.documentaryUnit.edit(
         Some(DocumentaryUnit(item)), form.fill(DocumentaryUnit(item).to),routes.DocumentaryUnits.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem =>
-    implicit user =>
-      implicit request =>
-        formOrItem match {
-          case Left(errorForm) => BadRequest(views.html.documentaryUnit.edit(
-              Some(DocumentaryUnit(olditem)), errorForm, routes.DocumentaryUnits.updatePost(id)))
-          case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
-            .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
-        }
+  def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit user => implicit request =>
+    formOrItem match {
+      case Left(errorForm) => BadRequest(views.html.documentaryUnit.edit(
+          Some(DocumentaryUnit(olditem)), errorForm, routes.DocumentaryUnits.updatePost(id)))
+      case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
+        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+    }
   }
 
-  def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit user =>
-    implicit request =>
-      Ok(views.html.documentaryUnit.create(
-        DocumentaryUnit(item), childForm, VisibilityForm.form, users, groups, routes.DocumentaryUnits.createDocPost(id)))
+  def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit user => implicit request =>
+    Ok(views.html.documentaryUnit.create(
+      DocumentaryUnit(item), childForm, VisibilityForm.form, users, groups, routes.DocumentaryUnits.createDocPost(id)))
   }
 
   def createDocPost(id: String) = childCreatePostAction(id, childForm, contentType) { item => formsOrItem =>

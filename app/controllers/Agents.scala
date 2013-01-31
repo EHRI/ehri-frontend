@@ -16,6 +16,16 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   with PermissionScopeController[Agent]
   with AnnotationController[Agent] {
 
+  val listFilterMappings = Map[String,String]()
+  val orderMappings = Map[String,String]()
+  val DEFAULT_SORT = "name"
+
+  override def processParams(params: ListParams): rest.RestPageParams = {
+    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
+  }
+  override def processChildParams(params: ListParams) = DocumentaryUnits.processChildParams(params)
+
+
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
   val entityType = EntityType.Agent
@@ -25,18 +35,20 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = Agent
 
-  def get(id: String) = getWithChildrenAction(id, DocumentaryUnit.apply _) { item => page => annotations => implicit maybeUser => implicit request =>
-    Ok(views.html.agent.show(Agent(item), page, annotations))
+  def get(id: String) = getWithChildrenAction(id, DocumentaryUnit.apply _) {
+      item => page => params => annotations => implicit maybeUser => implicit request =>
+    Ok(views.html.agent.show(Agent(item), page, params, annotations))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
-    Ok(views.html.systemEvents.itemList(Agent(item), page))
+    // TODO: Add relevant params
+    Ok(views.html.systemEvents.itemList(Agent(item), page, ListParams()))
   }
 
-  def list = listAction { page =>
+  def list = listAction { page => params =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.agent.list(page.copy(list = page.list.map(Agent(_)))))
+        Ok(views.html.agent.list(page.copy(list = page.list.map(Agent(_))), params))
   }
 
   def create = createAction { users => groups => implicit user =>

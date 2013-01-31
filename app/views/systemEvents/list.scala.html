@@ -1,4 +1,4 @@
-@(page: rest.Page[SystemEvent])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[SystemEvent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listSystemEvents"))(maybeUser, req) {
 

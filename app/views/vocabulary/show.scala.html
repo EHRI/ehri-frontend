@@ -1,4 +1,4 @@
-@(item: Vocabulary, page: rest.Page[Concept], annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Vocabulary, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)))(maybeUser, req) {
 
@@ -9,22 +9,19 @@
 
     @common.relatedLinks(item, annotations)
 
-    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
-
-    @common.pagination(page)
-
-    <ul class="unstyled">
-    @page.list.map { item =>
-        <div class="list-item">
+    @common.filterableList("vocabulary.toplevelTermsPageHeader", page, params, Concepts.listFilterMappings.keys, Concepts.orderMappings.keys) {
+        <ul>
+        @page.list.map { item =>
+            <div class="list-item">
             <h5>
-                <a href="@routes.Concepts.get(item.id)">
-                    @item.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
-                </a>
+            <a href="@routes.Concepts.get(item.id)">
+                @item.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+            </a>
             </h5>
-        </div>
+            </div>
+        }
+        </ul>
     }
-    </ul>
-
 
 } {
     @common.latestAction(item, routes.Vocabularies.history(item.id))

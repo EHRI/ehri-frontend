@@ -1,4 +1,4 @@
-@(page: rest.Page[Concept])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[Concept], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @noSidebarLayout(Messages("actions.listConcepts"))(maybeUser, req) {
 

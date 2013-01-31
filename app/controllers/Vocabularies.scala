@@ -7,6 +7,7 @@ import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
+import rest.RestPageParams
 
 object Vocabularies extends CreationContext[ConceptF, Vocabulary]
   with VisibilityController[Vocabulary]
@@ -19,6 +20,12 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
 
   val targetContentTypes = Seq(ContentType.Concept)
 
+  override def processParams(params: ListParams): rest.RestPageParams = {
+    params.toRestParams(Concepts.listFilterMappings, Concepts.orderMappings, Some(Concepts.DEFAULT_SORT))
+  }
+  override def processChildParams(params: ListParams) = Concepts.processParams(params)
+
+
   val entityType = EntityType.Vocabulary
   val contentType = ContentType.Vocabulary
 
@@ -26,19 +33,19 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
   val childForm = models.forms.ConceptForm.form
   val builder = Vocabulary.apply _
 
-  def get(id: String) = getWithChildrenAction(id, Concept.apply _) { item => page => annotations =>
+  def get(id: String) = getWithChildrenAction(id, Concept.apply _) { item => page => params => annotations =>
     implicit maybeUser => implicit request =>
-      Ok(views.html.vocabulary.show(Vocabulary(item), page, annotations))
+      Ok(views.html.vocabulary.show(Vocabulary(item), page, params, annotations))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
-    Ok(views.html.systemEvents.itemList(Vocabulary(item), page))
+    Ok(views.html.systemEvents.itemList(Vocabulary(item), page, ListParams()))
   }
 
-  def list = listAction { page =>
+  def list = listAction { page => params =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.vocabulary.list(page.copy(list = page.list.map(Vocabulary(_)))))
+        Ok(views.html.vocabulary.list(page.copy(list = page.list.map(Vocabulary(_))), params))
   }
 
   def create = createAction { users => groups => implicit user =>

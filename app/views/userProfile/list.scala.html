@@ -1,4 +1,4 @@
-@(items: rest.Page[UserProfile])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(items: rest.Page[UserProfile], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listUserProfiles"))(maybeUser, req) {
 

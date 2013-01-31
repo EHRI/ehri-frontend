@@ -41,7 +41,7 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
       // Play's forms do not yet support extracting multiselect
       // values properly withsome some unfortunately massaging.
         val accessorForm = VisibilityForm.form
-          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, EntityDAO.ACCESSOR_PARAM))
+          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM))
         val accessors = accessorForm.value.getOrElse(List())
         form.bindFromRequest.fold(
           errorForm => f(Left((errorForm,accessorForm)))(user)(request),

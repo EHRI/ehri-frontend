@@ -32,7 +32,7 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRe
       implicit request =>
         implicit val maybeUser = Some(user)
         val accessorForm = VisibilityForm.form
-          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, EntityDAO.ACCESSOR_PARAM))
+          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM))
         val accessors = accessorForm.value.getOrElse(List())
         form.bindFromRequest.fold(
           errorForm => f(item)(Left((errorForm,accessorForm)))(user)(request),

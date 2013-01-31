@@ -1,12 +1,14 @@
 package controllers
 
+import _root_.models.base.AccessibleEntity
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{ItemWithId,Concept}
+import models.{ItemWithId,Concept,Entity}
 import models.forms.{ConceptF,VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
+import rest.RestPageParams
 
 object Concepts extends CreationContext[ConceptF, Concept]
   with VisibilityController[Concept]
@@ -18,6 +20,29 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   val targetContentTypes = Seq(ContentType.Concept)
 
+  val DEFAULT_SORT = ConceptF.PREFLABEL
+
+  /**
+   * Mapping between incoming list filter parameters
+   * and the data values accessed via the server.
+   */
+  val listFilterMappings: Map[String,String] = Map(
+    ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}",
+    ConceptF.SCOPENOTE -> s"<-describes.${ConceptF.SCOPENOTE}L",
+    ConceptF.DEFINITION -> s"<-describes.${ConceptF.DEFINITION}"
+  )
+
+  val orderMappings: Map[String,String] = Map(
+    ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}"
+  )
+
+
+  override def processParams(params: ListParams): rest.RestPageParams = {
+    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
+  }
+  override def processChildParams(params: ListParams) = processParams(params)
+
+
   val entityType = EntityType.Concept
   val contentType = ContentType.Concept
 
@@ -25,19 +50,19 @@ object Concepts extends CreationContext[ConceptF, Concept]
   val childForm = models.forms.ConceptForm.form
   val builder = Concept.apply _
 
-  def get(id: String) = getWithChildrenAction(id, builder) { item => page => annotations =>
+  def get(id: String) = getWithChildrenAction(id, builder) { item => page => params => annotations =>
     implicit maybeUser => implicit request =>
-      Ok(views.html.concept.show(Concept(item), page, annotations))
+      Ok(views.html.concept.show(Concept(item), page, params, annotations))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
-    Ok(views.html.systemEvents.itemList(Concept(item), page))
+    Ok(views.html.systemEvents.itemList(Concept(item), page, ListParams()))
   }
 
-  def list = listAction { page =>
+  def list = listAction { page => params =>
     implicit maybeUser =>
       implicit request =>
-        Ok(views.html.concept.list(page.copy(list = page.list.map(Concept(_)))))
+        Ok(views.html.concept.list(page.copy(list = page.list.map(Concept(_))), params))
   }
 
   def update(id: String) = updateAction(id) { item => implicit user =>
