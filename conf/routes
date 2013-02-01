@@ -55,8 +55,8 @@ GET     /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setSco
 POST    /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: String, userId: String)
 GET     /docs/annotate/:id     controllers.DocumentaryUnits.annotate(id: String)
 POST    /docs/annotate/:id     controllers.DocumentaryUnits.annotatePost(id: String)
-GET     /docs/link/:id/:src     controllers.DocumentaryUnits.linkAnnotate(id: String, src: String)
-POST    /docs/link/:id/:src     controllers.DocumentaryUnits.linkAnnotatePost(id: String, src: String)
+GET     /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotate(id: String, toType: String, to: String)
+POST    /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotatePost(id: String, toType: String, to: String)
 
 GET     /users                controllers.UserProfiles.list
 GET     /users/show/:id       controllers.UserProfiles.get(id: String)
@@ -139,8 +139,6 @@ GET     /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScope
 POST    /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScopedPermissionsPost(id: String, userType: String, userId: String)
 GET     /vocabs/annotate/:id     controllers.Vocabularies.annotate(id: String)
 POST    /vocabs/annotate/:id     controllers.Vocabularies.annotatePost(id: String)
-GET     /vocabs/link/:id/:src     controllers.Vocabularies.linkAnnotate(id: String, src: String)
-POST    /vocabs/link/:id/:src     controllers.Vocabularies.linkAnnotatePost(id: String, src: String)
 
 GET     /concepts                controllers.Concepts.list
 GET     /concepts/show/:id       controllers.Concepts.get(id: String)
@@ -163,8 +161,8 @@ GET     /concepts/scope/:id/:userType/:userId    controllers.Concepts.setScopedP
 POST    /concepts/scope/:id/:userType/:userId    controllers.Concepts.setScopedPermissionsPost(id: String, userType: String, userId: String)
 GET     /concepts/annotate/:id     controllers.Concepts.annotate(id: String)
 POST    /concepts/annotate/:id     controllers.Concepts.annotatePost(id: String)
-GET     /concepts/link/:id/:src     controllers.Concepts.linkAnnotate(id: String, src: String)
-POST    /concepts/link/:id/:src     controllers.Concepts.linkAnnotatePost(id: String, src: String)
+GET     /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotate(id: String, toType: String, to: String)
+POST    /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotatePost(id: String, toType: String, to: String)
 
 
 GET     /action                controllers.SystemEvents.list

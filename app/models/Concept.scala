@@ -15,6 +15,7 @@ object Concept {
 case class Concept(e: Entity)
   extends NamedEntity
   with AccessibleEntity
+  with AnnotatableEntity
   with DescribedEntity
   with HierarchicalEntity[Concept]
   with Formable[ConceptF] {

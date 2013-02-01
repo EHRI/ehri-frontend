@@ -16,7 +16,7 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
   with EntityUpdate[VocabularyF, Vocabulary]
   with EntityDelete[Vocabulary]
   with PermissionScopeController[Vocabulary]
-  with AnnotationController[Vocabulary] {
+  with EntityAnnotate[Vocabulary] {
 
   val targetContentTypes = Seq(ContentType.Concept)
 
@@ -188,32 +188,6 @@ object Vocabularies extends CreationContext[ConceptF, Vocabulary]
       }
     }
   }
-
-  def linkAnnotate(id: String, src: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
-    implicit request =>
-      getEntity(id, Some(user)) { srcitem =>
-        Ok(views.html.annotation.linkAnnotate(Vocabulary(item),
-          ItemWithId(srcitem),
-          models.forms.AnnotationForm.form, routes.Vocabularies.linkAnnotatePost(id, src)))
-      }
-  }
-
-  def linkAnnotatePost(id: String, src: String) = linkPostAction(id, src) { formOrAnnotation => implicit user =>
-    implicit request =>
-      formOrAnnotation match {
-        case Left(errorForm) => getEntity(id, Some(user)) { item =>
-          getEntity(src, Some(user)) { srcitem =>
-            BadRequest(views.html.annotation.linkAnnotate(Vocabulary(item), ItemWithId(srcitem),
-              errorForm, routes.Vocabularies.linkAnnotatePost(id, src)))
-          }
-        }
-        case Right(annotation) => {
-          Redirect(routes.Vocabularies.get(id))
-            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-        }
-      }
-  }
-
 }
 
 

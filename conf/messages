@@ -75,6 +75,7 @@ vocabulary.description=Description
 annotation.bodyText=Text
 annotation.field=Field
 annotation.annotationType=Type
+annotation.emptyBodyText=[Missing Annotation Text]
 
 #
 # Admin
@@ -159,6 +160,7 @@ actions.managePermissions=Manage Permissions
 actions.cancel=Cancel
 actions.subjectsForAction=Subjects
 actions.annotate=Annotate {0}
+actions.linkAnnotate=Link ''{0}'' to ''{1}''
 actions.annotateThisItem=Annotate Item
 actions.manageGroups=Manage Groups
 
@@ -176,6 +178,7 @@ submitButton.setVisibility=Set Visibility
 submitButton.addItemToGroup=Add Item to Group
 submitButton.removeItemFromGroup=Remove Item from Group
 submitButton.annotate=Annotate Item
+submitButton.linkAnnotate=Link Items
 submitButton.updateGlobalPermissions=Update Global Permissions
 submitButton.createUser=Create User
 submitButton.createVocabulary=Create Vocabulary

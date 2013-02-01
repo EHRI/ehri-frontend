@@ -32,6 +32,15 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
+  def getEntity(otherType: defines.EntityType.Type, id: String, user: Option[UserProfile])(f: Entity => Result)(implicit request: RequestHeader) = {
+    implicit val maybeUser = user
+    AsyncRest {
+      rest.EntityDAO(otherType, maybeUser).get(id).map { itemOrErr =>
+        itemOrErr.right.map(f)
+      }
+    }
+  }
+
   def getGroups(user: Option[UserProfile])(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit request: RequestHeader) = {
     implicit val maybeUser = user
     // TODO: Handle REST errors

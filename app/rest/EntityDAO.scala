@@ -10,6 +10,7 @@ import play.api.libs.json.Json
 import models.UserProfile
 import java.net.ConnectException
 import models.base.Persistable
+import play.api.Logger
 
 /**
  * Class representing a page of data.
@@ -127,6 +128,7 @@ case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[Us
   }
 
   def get(id: String): Future[Either[RestError, Entity]] = {
+    Logger.logger.debug(enc(requestUrl, id))
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }

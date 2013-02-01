@@ -28,7 +28,7 @@ object AnnotationF {
 case class AnnotationF(
   val id: Option[String],
   val annotationType: AnnotationType.Type,
-  val body: Option[String],
+  val body: String,
   val field: Option[String] = None,
   val comment: Option[String] = None
 ) extends Persistable {
@@ -59,7 +59,7 @@ object AnnotationForm {
   val form = Form(mapping(
     Entity.ID -> optional(nonEmptyText),
     ANNOTATION_TYPE -> enum(AnnotationType),
-    BODY -> optional(nonEmptyText),
+    BODY -> nonEmptyText, // TODO: Validate this server side
     FIELD -> optional(nonEmptyText),
     COMMENT -> optional(nonEmptyText)
   )(AnnotationF.apply)(AnnotationF.unapply))

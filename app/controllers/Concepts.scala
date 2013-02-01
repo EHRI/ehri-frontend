@@ -1,6 +1,6 @@
 package controllers
 
-import _root_.models.base.AccessibleEntity
+import _root_.models.base.{AnnotatableEntity, AccessibleEntity}
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{ItemWithId,Concept,Entity}
 import models.forms.{ConceptF,VisibilityForm}
@@ -16,7 +16,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   with EntityUpdate[ConceptF, Concept]
   with EntityDelete[Concept]
   with PermissionScopeController[Concept]
-  with AnnotationController[Concept] {
+  with EntityAnnotate[Concept] {
 
   val targetContentTypes = Seq(ContentType.Concept)
 
@@ -189,23 +189,18 @@ object Concepts extends CreationContext[ConceptF, Concept]
     }
   }
 
-  def linkAnnotate(id: String, src: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
-    implicit request =>
-      getEntity(id, Some(user)) { srcitem =>
-        Ok(views.html.annotation.linkAnnotate(Concept(item),
-          ItemWithId(srcitem),
-          models.forms.AnnotationForm.form, routes.Concepts.linkAnnotatePost(id, src)))
-      }
+  def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
+        target => source => implicit user => implicit request =>
+      Ok(views.html.annotation.linkAnnotate(target, source,
+            models.forms.AnnotationForm.form, routes.Concepts.linkAnnotatePost(id, toType, to)))
   }
 
-  def linkAnnotatePost(id: String, src: String) = linkPostAction(id, src) { formOrAnnotation => implicit user =>
+  def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) { formOrAnnotation => implicit user =>
     implicit request =>
       formOrAnnotation match {
-        case Left(errorForm) => getEntity(id, Some(user)) { item =>
-          getEntity(src, Some(user)) { srcitem =>
-            BadRequest(views.html.annotation.linkAnnotate(Concept(item), ItemWithId(srcitem),
-              errorForm, routes.Concepts.linkAnnotatePost(id, src)))
-          }
+        case Left((target,source,errorForm)) => {
+            BadRequest(views.html.annotation.linkAnnotate(target, source,
+                errorForm, routes.Concepts.linkAnnotatePost(id, toType, to)))
         }
         case Right(annotation) => {
           Redirect(routes.Concepts.get(id))
@@ -213,7 +208,6 @@ object Concepts extends CreationContext[ConceptF, Concept]
         }
       }
   }
-
 }
 
 

@@ -12,7 +12,7 @@
                 @ann.accessor.map { accessor =>
                     <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a> -
                 }
-                @ann.to.body.map(_.trim)
+                @ann.to.body.trim
                 <a href="@routes.Annotations.annotate(ann.id)">+</a>
                 @annotationList(ann.annotations)
             </li>

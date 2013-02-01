@@ -14,7 +14,7 @@ object Agents extends CreationContext[DocumentaryUnitF,Agent]
 	with VisibilityController[Agent]
 	with CRUD[AgentF,Agent]
   with PermissionScopeController[Agent]
-  with AnnotationController[Agent] {
+  with EntityAnnotate[Agent] {
 
   val listFilterMappings = Map[String,String]()
   val orderMappings = Map[String,String]()

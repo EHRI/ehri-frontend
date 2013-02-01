@@ -5,19 +5,17 @@ package models
  */
 import defines.PublicationStatus
 import defines.enum
-import models.base.AccessibleEntity
-import models.base.DescribedEntity
-import models.base.Description
-import models.base.Formable
-import models.base.NamedEntity
+import base._
 
 import models.forms.Isdiah._
 import models.forms.{AgentF,AgentDescriptionF,AddressF}
+import scala.Some
 
 
 case class Agent(val e: Entity)
   extends NamedEntity
   with AccessibleEntity
+  with AnnotatableEntity
   with DescribedEntity
   with Formable[AgentF] {
   override def descriptions: List[AgentDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescription(_))

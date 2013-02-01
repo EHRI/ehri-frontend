@@ -1,5 +1,6 @@
 package models
 
+import base.AccessibleEntity
 import defines._
 import play.api.libs.json._
 

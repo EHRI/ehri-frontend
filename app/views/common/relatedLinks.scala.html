@@ -14,7 +14,7 @@
                     @alist.map { ann =>
                         @** Q: What do we do when there is no source??? **@
                         @ann.source.map { src =>
-                            <li><a href="@views.Helpers.urlFor(src)">@ann.to.body</a></li>
+                            <li><a title="@ann.formatted" href="@views.Helpers.urlFor(src)">@src</a></li>
                         }
                     }
                 </ul>
