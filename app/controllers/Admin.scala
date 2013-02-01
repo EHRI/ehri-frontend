@@ -53,9 +53,9 @@ object Admin extends Controller with AuthController with ControllerHelpers {
         values => {
           val (email, username, name, pw, _, groups) = values
           // check if the email is already registered...
-          models.sql.OpenIDUser.findByEmail(email).map { existingUser =>
+          models.sql.OpenIDUser.findByEmail(email).map { account =>
             val errForm = userPasswordForm.bindFromRequest
-              .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", existingUser.profile_id)))
+              .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.profile_id)))
             BadRequest(views.html.admin.createUser(errForm, routes.Admin.createUserPost))
           } getOrElse {
             // Okay to proceed...
@@ -64,11 +64,12 @@ object Admin extends Controller with AuthController with ControllerHelpers {
             AsyncRest {
               rest.EntityDAO(EntityType.UserProfile, maybeUser).create(user).map { itemOrErr =>
                 itemOrErr.right.map { entity =>
-                  models.sql.OpenIDUser.create(email, entity.id).map { user =>
-                    user.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
+                  models.sql.OpenIDUser.create(email, entity.id).map { account =>
+                    account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
                     Redirect(routes.UserProfiles.get(entity.id))
                   }.getOrElse {
-                    // FIXME: Handle this
+                    // FIXME: Handle this - probably by throwing a global error.
+                    // If it fails it'll probably die anyway...
                     BadRequest("creating user account failed!")
                   }
                 }
