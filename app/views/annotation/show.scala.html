@@ -6,15 +6,6 @@
         TODO
     }
 } {
+    @common.visibility(item, routes.Annotations.visibility(item.id), ContentType.Annotation)
     @common.latestAction(item, routes.Annotations.history(item.id))
-    @common.visibility(item)
-
-    <ul class="item-actions">
-    @maybeUser.map { user =>
-        @if(user.hasPermission(ContentType.Annotation, PermissionType.Update)) {
-            <li><a href="@routes.Annotations.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
-            }
-        <li><a href="@routes.Annotations.history(item.id)">@Messages("actions.showHistory")</a></li>
-        }
-    </ul>
 }

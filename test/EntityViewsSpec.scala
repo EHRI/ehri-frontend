@@ -19,6 +19,7 @@ import play.api.http.HeaderNames
 import models.UserProfile
 import models.Entity
 import models.base.Accessor
+import controllers.ListParams
 
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
   sequential
@@ -76,6 +77,16 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         contentAsString(list) must contain("c2")
         contentAsString(list) must contain("c3")
         contentAsString(list) must contain("c4")
+      }
+    }
+
+    "list when logged with identifier filter in should get one" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val params = s"${ListParams.PROPERTY_NAME}[0]=identifier&${ListParams.PROPERTY_VALUE}[0]=c3"
+        val list = route(fakeLoggedInRequest(GET, DocumentaryUnits.list.url + s"?$params")).get
+        status(list) must equalTo(OK)
+        contentAsString(list) must contain(oneItemHeader)
+        contentAsString(list) must contain("c3")
       }
     }
 

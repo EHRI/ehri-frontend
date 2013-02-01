@@ -1,7 +1,5 @@
 @(item: Option[Vocabulary], f: play.api.data.Form[models.forms.VocabularyF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
-
 @rightSidebarLayout(Messages("actions.updateVocabulary"))(Some(user), req) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @vocabulary.renderForm(item, f)

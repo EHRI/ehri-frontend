@@ -3,8 +3,9 @@
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)))(maybeUser, req) {
 
     @common.annotated(item, annotations, routes.Vocabularies.annotate(item.id)) {
-        @common.stringValue(item, models.forms.VocabularyF.NAME)
-        @common.stringValue(item, models.forms.VocabularyF.DESCRIPTION)
+        @defining("vocabulary") { implicit  prefix =>
+            @common.stringValue(item, models.forms.VocabularyF.DESCRIPTION)
+        }
     }
 
     @common.relatedLinks(item, annotations)
@@ -24,8 +25,8 @@
     }
 
 } {
+    @common.visibility(item, routes.Vocabularies.visibility(item.id), ContentType.Vocabulary)
     @common.latestAction(item, routes.Vocabularies.history(item.id))
-    @common.visibility(item)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
@@ -34,9 +35,6 @@
             }
             @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Update)) {
                 <li><a href="@routes.Vocabularies.update(item.id)">@Messages("actions.updateItem")</a></li>
-            }
-            @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Update)) {
-                <li><a href="@routes.Vocabularies.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
             }
             @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Delete)) {
                 <li><a href="@routes.Vocabularies.delete(item.id)">@Messages("actions.deleteItem")</a></li>

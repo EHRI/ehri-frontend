@@ -2,7 +2,9 @@
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)))(maybeUser, req) {
 
-    <p>@item.stringProperty(models.forms.GroupF.DESCRIPTION)</p>
+    @defining("group") { implicit prefix =>
+        @common.stringValue(item, models.forms.GroupF.DESCRIPTION)
+    }
 
     @if(!item.groups.isEmpty) {
         <hr />
@@ -13,7 +15,6 @@
     }
 } {
     @common.latestAction(item, routes.Groups.history(item.id))
-    @common.visibility(item)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>

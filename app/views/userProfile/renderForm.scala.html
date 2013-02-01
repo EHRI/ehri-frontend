@@ -1,5 +1,7 @@
 @(item: Option[UserProfile], f: Form[models.forms.UserProfileF])
 
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
 @helper.inputText(f("identifier"), '_label -> "Identifier")
 @helper.inputText(f("name"), '_label -> "Name")
 @helper.inputText(f("location"), '_label -> "Location")

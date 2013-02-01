@@ -2,8 +2,6 @@
 
 @import models.forms.GroupF
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
-
 @rightSidebarLayout(Messages("actions.updateGroup"))(Some(user), req) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @group.renderForm(item, f)

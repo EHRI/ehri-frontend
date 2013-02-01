@@ -77,15 +77,12 @@
 
 } {
     @common.latestAction(item, routes.Agents.history(item.id))
-    @common.visibility(item)
+    @common.visibility(item, routes.Agents.visibility(item.id), ContentType.Agent)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
             <li><a href="@routes.Agents.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
-            }
-        @if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
-            <li><a href="@routes.Agents.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
             }
         @if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
             <li><a href="@routes.Agents.update(item.id)">@Messages("actions.updateItem")</a></li>

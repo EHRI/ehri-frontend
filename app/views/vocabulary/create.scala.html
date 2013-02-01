@@ -1,7 +1,5 @@
 @(f: Form[models.forms.VocabularyF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
-
 @rightSidebarLayout(Messages("actions.createVocabulary"))(Some(user), req) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @vocabulary.renderForm(None, f)

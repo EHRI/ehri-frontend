@@ -76,8 +76,8 @@
 
 } {
 
+    @common.visibility(item, routes.DocumentaryUnits.visibility(item.id), ContentType.DocumentaryUnit)
     @common.latestAction(item, routes.DocumentaryUnits.history(item.id))
-    @common.visibility(item)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>

@@ -7,6 +7,8 @@ home=Home
 home.message=This is a development version of the EHRI data management interface.\
   It's not done yet, but don't let that put you off.
 
+forms.adminArea=Administration Area
+
 search.filterItems=Filter Items
 search.sortItems=Sort Items
 search.sortReversed=(Descending)
@@ -58,12 +60,14 @@ pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Display
 #
 concept.prefLabel=Label
 concept.altLabel=Alternative Label(s)
-concept.scopeNode=Scope Note
+concept.scopeNote=Scope Note
+concept.definition=Definition
 concept.inVocabulary=Vocabulary
 concept.broaderTerms=Broader Terms
 concept.narrowerTerms=Narrower Terms
 concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+vocabulary.description=Description
 
 #
 # Annotations
@@ -85,6 +89,13 @@ users.username=Username
 users.realname=Full Name
 users.password=Password
 users.passwordConfirm=Confirm Password
+
+#
+# Groups
+#
+group.identifier=Group Identifier
+group.name=Group Name
+group.description=Group Description
 
 #
 # System Events
@@ -189,7 +200,10 @@ confirmations.itemWasCreated=Item successfully created
 confirmations.itemWasUpdated=Item successfully updated
 confirmations.itemWasDeleted=Item successfully deleted
 
-visibility.visibleToEveryone=Everyone can view this item
+visibility.visibleToEveryone=Unrestricted visibility
+visibility.visibleToEveryoneMessage=This item currently has no visibility restrictions and is therefore accessible to everyone.
+visibility.restrictedVisibility=Restricted Visibility
+visibility.restrictedVisibilityMessage=This item is currently visible to the following groups/users:
 visibility.visibilityRestrictedTo=Visibility restricted to:
 
 #

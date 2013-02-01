@@ -1,0 +1,23 @@
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = common.breadcrumbs())(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)(sidebar1: Html)(sidebar2: Html)(implicit flash: Flash, lang: Lang)
+
+@main(title, scripts, styles)(maybeUser, req) {
+
+    @breadcrumbs
+    <div class="container">
+        <div class="row-fluid">
+            <div class="span6">
+                <h2>@title</h2>
+
+                @common.flash(flash)
+
+                @content
+            </div>
+            <div class="right-sidebar span3">
+                @sidebar1
+            </div>
+            <div class="right-sidebar span3">
+                @sidebar2
+            </div>
+        </div>
+    </div>
+}

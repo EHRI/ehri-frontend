@@ -2,6 +2,10 @@
 
 @import models.forms.GroupF
 
-@formHelpers.lineInput(f(""), Entity.IDENTIFIER)
-@formHelpers.lineInput(f(""), GroupF.NAME)
-@formHelpers.textInput(f(""), GroupF.DESCRIPTION)
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@defining("group") { implicit prefix =>
+    @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+    @formHelpers.lineInput(f(""), GroupF.NAME)
+    @formHelpers.textInput(f(""), GroupF.DESCRIPTION)
+}
