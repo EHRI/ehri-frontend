@@ -6,26 +6,22 @@ import org.specs2.specification.BeforeExample
 import eu.ehri.extension.test.utils.ServerRunner
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import helpers.TestLoginHelper
-import play.api.test.FakeApplication
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import play.api.test.Helpers.contentAsString
-import play.api.test.Helpers.route
-import play.api.test.Helpers.running
-import play.api.test.Helpers.status
 import play.api.http.HeaderNames
 import models.UserProfile
 import models.Entity
 import models.base.Accessor
-import controllers.{Agents, DocumentaryUnits, ListParams,Groups,UserProfiles}
-import controllers.routes
+import controllers.ListParams
 import models.forms.{AnnotationType, AnnotationF}
+import controllers.routes
+import play.api.test._
+import play.api.test.Helpers._
+import defines._
+
+
 
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
-  sequential
+  sequential // Needed to avoid concurrency issues with Neo4j databases.
 
-  import defines._
-  //import play.api.http.HeaderNames
 
   val testPrivilegedUser = "mike"
   val testOrdinaryUser = "reto"
@@ -35,6 +31,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
 
+  // Set up Neo4j server config
   val runner: ServerRunner = new ServerRunner(classOf[ApplicationSpec].getName, testPort)
   runner.getConfigurator
     .getThirdpartyJaxRsClasses()
@@ -46,7 +43,10 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
   val oneItemHeader = "One item found"
   val noItemsHeader = "No items found"
 
-  val postHeaders: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
+  // Headers for post operations
+  val postHeaders: Map[String, String] = Map(
+    HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded"
+  )
 
 
   def before = {
@@ -60,7 +60,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         val list = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.list.url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain("One item found")
+        contentAsString(list) must contain(oneItemHeader)
 
         contentAsString(list) must not contain ("c1")
         contentAsString(list) must contain("c4")
@@ -323,8 +323,6 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
 
   "Agent views" should {
-
-    import controllers.routes.Agents
 
     "list should get some items" in {
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
