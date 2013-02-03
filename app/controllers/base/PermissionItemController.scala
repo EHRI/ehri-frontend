@@ -16,46 +16,42 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def manageItemPermissionsAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
       f: Entity => rest.Page[PermissionGrant] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user =>
-      implicit request =>
-
-        implicit val maybeUser = Some(user)
-        AsyncRest {
-          for {
-            permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id, math.max(page, 1), math.max(limit, 1))
-          } yield {
-            for { permGrants <- permGrantsOrErr.right } yield {
-              f(item)(permGrants)(user)(request)
-            }
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user => implicit request =>
+      implicit val maybeUser = Some(user)
+      AsyncRest {
+        for {
+          permGrantsOrErr <- rest.PermissionDAO(user).listForItem(id, math.max(page, 1), math.max(limit, 1))
+        } yield {
+          for { permGrants <- permGrantsOrErr.right } yield {
+            f(item)(permGrants)(user)(request)
           }
         }
+      }
     }
   }
 
   def addItemPermissionsAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user =>
-      implicit request =>
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user => implicit request =>
 
-        implicit val maybeUser = Some(user)
-        AsyncRest {
-          for {
-            itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-            users <- rest.RestHelpers.getUserList
-            groups <- rest.RestHelpers.getGroupList
-          } yield {
-            for { item <- itemOrErr.right } yield {
-              f(item)(users)(groups)(user)(request)
-            }
+      implicit val maybeUser = Some(user)
+      AsyncRest {
+        for {
+          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
+          users <- rest.RestHelpers.getUserList
+          groups <- rest.RestHelpers.getGroupList
+        } yield {
+          for { item <- itemOrErr.right } yield {
+            f(item)(users)(groups)(user)(request)
           }
         }
+      }
     }
   }
 
 
   def setItemPermissionsAction(id: String, userType: String, userId: String)(
       f: Entity => Accessor => acl.ItemPermissionSet[Accessor] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user =>
-        implicit request =>
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user => implicit request =>
       implicit val maybeUser = Some(user)
       AsyncRest {
         for {
@@ -77,27 +73,19 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def setItemPermissionsPostAction(id: String, userType: String, userId: String)(
       f: acl.ItemPermissionSet[Accessor] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user =>
-      implicit request =>
-        implicit val maybeUser = Some(user)
-        val data = request.body.asFormUrlEncoded.getOrElse(Map())
-        val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
-
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit user => implicit request =>
+      implicit val maybeUser = Some(user)
+      val data = request.body.asFormUrlEncoded.getOrElse(Map())
+      val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
+      getEntity(EntityType.withName(userType), userId, maybeUser) { accessor =>
         AsyncRest {
-          for {
-            accessorOrErr <- rest.EntityDAO(EntityType.withName(userType), maybeUser).get(userId)
-          } yield {
-            for { accessor <- accessorOrErr.right} yield {
-              AsyncRest {
-                rest.PermissionDAO(user).setItem(Accessor(accessor), contentType, id, perms).map { permsOrErr =>
-                  permsOrErr.right.map { perms =>
-                    f(perms)(user)(request)
-                  }
-                }
-              }
+          rest.PermissionDAO(user).setItem(Accessor(accessor), contentType, id, perms).map { permsOrErr =>
+            permsOrErr.right.map { perms =>
+              f(perms)(user)(request)
             }
           }
         }
+      }
     }
   }
 }
