@@ -212,6 +212,8 @@ visibility.visibleToEveryoneMessage=This item currently has no visibility restri
 visibility.restrictedVisibility=Restricted Visibility
 visibility.restrictedVisibilityMessage=This item is currently visible to the following groups/users:
 visibility.visibilityRestrictedTo=Visibility restricted to:
+visibility.chooseUsers=Choose Users
+visibility.chooseGroups=Choose Groups
 
 #
 # User Profile Field definitions
