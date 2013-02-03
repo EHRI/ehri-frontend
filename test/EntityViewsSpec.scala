@@ -478,6 +478,10 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val rem = route(fakeLoggedInRequest(POST,
           routes.Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)).get
         status(rem) must equalTo(SEE_OTHER)
+
+        val userFetch = await(EntityDAO(EntityType.UserProfile, Some(userProfile)).get(id))
+        userFetch must beRight
+        UserProfile(userFetch.right.get).groups.map(_.id) must not contain("kcl")
       }
     }
   }
@@ -521,6 +525,10 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val rem = route(fakeLoggedInRequest(POST,
           routes.Groups.removeMemberPost("admin", EntityType.Group.toString, "niod").url)).get
         status(rem) must equalTo(SEE_OTHER)
+
+        val groupFetch = await(EntityDAO(EntityType.Group, Some(userProfile)).get("niod"))
+        groupFetch must beRight
+        Group(groupFetch.right.get).groups.map(_.id) must not contain("admin")
       }
     }
   }
