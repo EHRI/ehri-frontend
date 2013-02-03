@@ -16,7 +16,7 @@ import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
 import defines._
-
+import rest.{RestError, EntityDAO}
 
 
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
@@ -466,7 +466,9 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           routes.Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)).get
         status(add) must equalTo(SEE_OTHER)
 
-        // TODO: Check user is actually part of other group?
+        val userFetch = await(EntityDAO(EntityType.UserProfile, Some(userProfile)).get(id))
+        userFetch must beRight
+        UserProfile(userFetch.right.get).groups.map(_.id) must contain("niod")
       }
     }
 
@@ -507,7 +509,9 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           routes.Groups.addMemberPost("admin", EntityType.Group.toString, id).url)).get
         status(add) must equalTo(SEE_OTHER)
 
-        // TODO: Check group is actually part of other group?
+        val groupFetch = await(EntityDAO(EntityType.Group, Some(userProfile)).get(id))
+        groupFetch must beRight
+        Group(groupFetch.right.get).groups.map(_.id) must contain("admin")
       }
     }
 
