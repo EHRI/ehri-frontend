@@ -14,7 +14,7 @@ object Vocabulary {
  */
 case class Vocabulary(e: Entity)
   extends NamedEntity
-  with AccessibleEntity
+  with AnnotatableEntity
   with Formable[VocabularyF] {
 
   import VocabularyF._

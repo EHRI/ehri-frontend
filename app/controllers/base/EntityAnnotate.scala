@@ -14,7 +14,7 @@ import models.forms.AnnotationF
  *
  * @tparam T the entity's build class
  */
-trait EntityAnnotate[T <: AccessibleEntity] extends EntityRead[T] {
+trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
 
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
