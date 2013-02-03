@@ -10,9 +10,9 @@ import defines._
 import base._
 import rest.Page
 
-object Agents extends CreationContext[DocumentaryUnitF,Agent]
+object Agents extends CRUD[AgentF,Agent]
+  with CreationContext[DocumentaryUnitF,Agent]
 	with VisibilityController[Agent]
-	with CRUD[AgentF,Agent]
   with PermissionScopeController[Agent]
   with EntityAnnotate[Agent] {
 

@@ -9,12 +9,9 @@ import base._
 import defines.{PermissionType, ContentType, EntityType}
 import rest.RestPageParams
 
-object Vocabularies extends CreationContext[ConceptF, Vocabulary]
+object Vocabularies extends CRUD[VocabularyF,Vocabulary]
+  with CreationContext[ConceptF, Vocabulary]
   with VisibilityController[Vocabulary]
-  with EntityRead[Vocabulary]
-  with EntityCreate[VocabularyF,Vocabulary]
-  with EntityUpdate[VocabularyF, Vocabulary]
-  with EntityDelete[Vocabulary]
   with PermissionScopeController[Vocabulary]
   with EntityAnnotate[Vocabulary] {
 
