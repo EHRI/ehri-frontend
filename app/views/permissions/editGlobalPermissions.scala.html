@@ -1,8 +1,8 @@
-@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.updateGlobalPermissions", item.name))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.updateGlobalPermissions", item.name)) {
 	
 	@if(!item.groups.isEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;

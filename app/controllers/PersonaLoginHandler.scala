@@ -35,7 +35,7 @@ class PersonaLoginHandler(app: play.api.Application) extends base.LoginHandler {
               case Some(user) => gotoLoginSucceeded(email)
               case None => {
                 Async {
-                  rest.AdminDAO().createNewUserProfile.map {
+                  rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                     case Right(entity) => {
                       models.sql.PersonaUser.create(entity.property("identifier").map(_.as[String]).get, email).map { user =>
                         gotoLoginSucceeded(user.profile_id)

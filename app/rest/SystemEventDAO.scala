@@ -9,15 +9,10 @@ import play.api.libs.ws.WS
 /**
  * Data Access Object for Action-related requests.
  */
-case class SystemEventDAO(val userProfile: Option[UserProfile]) extends RestDAO {
+case class SystemEventDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/systemEvent".format(baseUrl)
-
-  def authHeaders: Map[String, String] = userProfile match {
-    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
-    case None => headers
-  }
 
   def history(id: String, params: RestPageParams): Future[Either[RestError, Page[Entity]]] = {
     implicit val entityReads = Entity.entityReads

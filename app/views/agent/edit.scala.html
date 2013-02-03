@@ -1,9 +1,9 @@
 @(item: Option[Agent], f: play.api.data.Form[models.forms.AgentF], action: Call)(
-implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.updateAgent"))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.updateAgent")) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
 
         @agent.renderForm(item, f)

@@ -115,17 +115,12 @@ object EntityDAO {
  * @param entityType
  * @param userProfile
  */
-case class EntityDAO(val entityType: EntityType.Type, val userProfile: Option[UserProfile] = None) extends RestDAO {
+case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
 
   import EntityDAO._
   import play.api.http.Status._
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
-
-  def authHeaders: Map[String, String] = userProfile match {
-    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
-    case None => headers
-  }
 
   def get(id: String): Future[Either[RestError, Entity]] = {
     Logger.logger.debug(enc(requestUrl, id))

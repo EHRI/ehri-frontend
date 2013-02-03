@@ -16,37 +16,37 @@ object Annotations extends EntityRead[Annotation]
 
   val builder = Annotation.apply _
 
-  def get(id: String) = getAction(id) { item => annotations => implicit maybeUser => implicit request =>
+  def get(id: String) = getAction(id) { item => annotations => implicit userOpt => implicit request =>
     Ok(views.html.annotation.show(Annotation(item), annotations))
   }
 
-  def history(id: String) = historyAction(id) { item => page => implicit maybeUser => implicit request =>
+  def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
     Ok(views.html.systemEvents.itemList(Annotation(item), page, ListParams()))
   }
 
-  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit user =>
+  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt =>
     implicit request =>
       Ok(views.html.permissions.visibility(Annotation(item),
         models.forms.VisibilityForm.form.fill(Annotation(item).accessors.map(_.id)),
         users, groups, routes.Annotations.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit user =>
+  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt =>
     implicit request =>
       Redirect(routes.Annotations.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit user =>
+  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt =>
     implicit request =>
       Ok(views.html.annotation.annotate(Annotation(item),
         models.forms.AnnotationForm.form, routes.Annotations.annotatePost(id)))
   }
 
-  def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit user =>
+  def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit userOpt =>
     implicit request =>
       formOrAnnotation match {
-        case Left(errorForm) => getEntity(id, Some(user)) { item =>
+        case Left(errorForm) => getEntity(id, userOpt) { item =>
           BadRequest(views.html.annotation.annotate(Annotation(item),
             errorForm, routes.Annotations.annotatePost(id)))
         }

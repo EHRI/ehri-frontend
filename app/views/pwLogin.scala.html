@@ -1,8 +1,8 @@
-@(form: Form[(String,String)], action: Call)(implicit request: RequestHeader, flash: Flash)
+@(form: Form[(String,String)], action: Call)(implicit request: RequestHeader, flash: Flash, lang: Lang)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@noSidebarLayout(Messages("login.login"))(None, request) {
+@noSidebarLayout(Messages("login.login")) {
 
     <div class="alert alert-info">
         @Messages("login.adminLoginMessage")
@@ -22,5 +22,5 @@
             <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
         </div>
     }
-}
+}(None, request, flash, lang)
 

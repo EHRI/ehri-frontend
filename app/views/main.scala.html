@@ -1,4 +1,4 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader)
 <!DOCTYPE html>
 
 <html>
@@ -83,7 +83,7 @@
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
                      <div id="head-signin" class="pull-right">
-                         @maybeUser.flatMap(_.account).map { account =>
+                         @userOpt.flatMap(_.account).map { account =>
                             <span>@account.email <a href="/logout" id="signout">@Messages("banner.signout")</a></span>
                         }.getOrElse {
                             <a href="/login" id="signin">@Messages("banner.signin")</a>

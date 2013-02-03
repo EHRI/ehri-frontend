@@ -8,6 +8,7 @@ import rest.RestDAO
 import play.api.PlayException
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
+import models.UserProfile
 
 case class GremlinError(
   val message: String, val exception: String, val stacktrace: List[String]) extends PlayException("Gremlin Script Error: %s".format(exception), message)
@@ -25,7 +26,7 @@ object GremlinErrorReader {
   )(GremlinError)
 }
 
-case class GremlinDAO() extends RestDAO {
+case class GremlinDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/db/data/ext/GremlinPlugin/graphdb/execute_script".format(host, port)
 

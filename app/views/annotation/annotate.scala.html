@@ -1,8 +1,8 @@
-@(item: AccessibleEntity, form: play.api.data.Form[models.forms.AnnotationF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AccessibleEntity, form: play.api.data.Form[models.forms.AnnotationF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.annotate", item.identifier))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.annotate", item.identifier)) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @helper.inputText(form(models.forms.AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
         @helper.inputText(form(models.forms.AnnotationF.FIELD), '_label -> Messages("annotation.field"))

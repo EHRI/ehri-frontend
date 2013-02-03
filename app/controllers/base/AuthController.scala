@@ -91,8 +91,8 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
             // available, we should probably add the account to the permissions when
             // we have both items from the server.
             val fakeProfile = UserProfile(models.Entity.fromString(currentUser, EntityType.UserProfile))
-            val getProf = rest.EntityDAO(EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
-            val getGlobalPerms = rest.PermissionDAO(fakeProfile).get
+            val getProf = rest.EntityDAO(EntityType.UserProfile, maybeUser).get(currentUser)
+            val getGlobalPerms = rest.PermissionDAO(maybeUser).get
             // These requests should execute in parallel...
             for { r1 <- getProf; r2 <- getGlobalPerms } yield {
               for { entity <- r1.right; gperms <- r2.right } yield {
@@ -135,9 +135,9 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
             EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
           // NB: Instead of getting *just* global perms here we also fetch
           // everything in scope for the given item
-          val getGlobalPerms = rest.PermissionDAO(fakeProfile).getScope(id)
-          val getItemPerms = rest.PermissionDAO(fakeProfile).getItem(contentType, id)
-          val getEntity = rest.EntityDAO(entityType, Some(fakeProfile)).get(id)
+          val getGlobalPerms = rest.PermissionDAO(maybeUser).getScope(id)
+          val getItemPerms = rest.PermissionDAO(maybeUser).getItem(contentType, id)
+          val getEntity = rest.EntityDAO(entityType, maybeUser).get(id)
           // These requests should execute in parallel...
           for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms ; r4 <- getEntity } yield {
             for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right ; item <- r4.right } yield {
@@ -164,10 +164,10 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * Wrap userProfileAction to ensure we have a user, or
    * access is denied
    */
-  def withUserAction(f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
+  def withUserAction(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit  maybeUser => implicit request =>
       maybeUser.map { user =>
-        f(user)(request)
+        f(maybeUser)(request)
       }.getOrElse(authenticationFailed(request))
     }
   }
@@ -177,10 +177,10 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * and return an action with the user in scope.
    */
   def adminAction(
-    f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
+    f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit  maybeUser => implicit request =>
       maybeUser.flatMap { user =>
-        if (user.isAdmin) Some(f(user)(request))
+        if (user.isAdmin) Some(f(maybeUser)(request))
         else None
       }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }
@@ -192,10 +192,10 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    */
   def withItemPermission(id: String,
     perm: PermissionType.Value, contentType: ContentType.Value, permContentType: Option[ContentType.Value] = None)(
-      f: models.Entity => UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: models.Entity => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     itemPermissionAction(contentType, id) { entity => implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>
-        if (user.hasPermission(permContentType.getOrElse(contentType), perm)) Some(f(entity)(user)(request))
+        if (user.hasPermission(permContentType.getOrElse(contentType), perm)) Some(f(entity)(maybeUser)(request))
         else None
       }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }
@@ -207,10 +207,10 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    */
   def withContentPermission(
     perm: PermissionType.Value, contentType: ContentType.Value)(
-      f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>
-        if (user.hasPermission(contentType, perm)) Some(f(user)(request))
+        if (user.hasPermission(contentType, perm)) Some(f(maybeUser)(request))
         else None
       }.getOrElse(Unauthorized(views.html.errors.permissionDenied()))
     }

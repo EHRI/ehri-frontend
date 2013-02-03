@@ -3,10 +3,10 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.Entity
+import models.{UserProfile, Entity}
 
 
-case class AdminDAO() extends RestDAO {
+case class AdminDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/admin".format(host, port, mount)
 

@@ -436,7 +436,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         status(cr) must equalTo(SEE_OTHER)
 
         // Now check we can read back the same permissions.
-        val permCall = await(PermissionDAO[UserProfile](userProfile).get(subjectUser))
+        val permCall = await(PermissionDAO[UserProfile](Some(userProfile)).get(subjectUser))
         permCall must beRight
         val perms = permCall.right.get
         perms.get(ContentType.Agent, PermissionType.Create) must beSome

@@ -1,6 +1,6 @@
-@(message: String)(implicit maybeUser: Option[UserProfile] = None, req: RequestHeader, lang: Lang, flash: Flash)
+@(message: String)(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, lang: Lang, flash: Flash)
 
-@noSidebarLayout("Hello")(maybeUser, req) {
+@noSidebarLayout("Hello") {
 
     @Messages("home.message")
     

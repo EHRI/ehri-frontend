@@ -1,6 +1,6 @@
 @(page: rest.Page[Vocabulary], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listVocabularies"))(maybeUser, req) {
+@rightSidebarLayout(Messages("actions.listVocabularies")) {
 
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 

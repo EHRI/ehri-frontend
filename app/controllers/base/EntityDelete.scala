@@ -13,24 +13,21 @@ import models.{Entity, UserProfile}
  */
 trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
 
-  def deleteAction(id: String)(f: Entity => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Delete, contentType) { item => implicit user =>
-      implicit request =>
-      f(item)(user)(request)
+  def deleteAction(id: String)(f: Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
+      f(item)(userOpt)(request)
     }
   }
 
-  def deletePostAction(id: String)(f: Boolean => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Delete, contentType) { item => implicit user =>
-      implicit request =>
-        implicit val maybeUser = Some(user)
-        AsyncRest {
-          rest.EntityDAO(entityType, maybeUser).delete(id).map { boolOrErr =>
-            boolOrErr.right.map { ok =>
-              f(ok)(user)(request)
-            }
+  def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
+      AsyncRest {
+        rest.EntityDAO(entityType, userOpt).delete(id).map { boolOrErr =>
+          boolOrErr.right.map { ok =>
+            f(ok)(userOpt)(request)
           }
         }
+      }
     }
   }
 }

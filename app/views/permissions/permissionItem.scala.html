@@ -1,9 +1,9 @@
 @(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call)(
-    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageItemPermissionsForAccessor", item.identifier))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.manageItemPermissionsForAccessor", item.identifier)) {
 
     @if(!groups.isEmpty) {
         <strong>@Messages("contentTypes.group"): </strong>&nbsp;

@@ -1,6 +1,6 @@
 @(items: rest.Page[UserProfile], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listUserProfiles"))(maybeUser, req) {
+@rightSidebarLayout(Messages("actions.listUserProfiles")) {
 
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
     @common.pagination(items)

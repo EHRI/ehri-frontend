@@ -17,7 +17,7 @@ import models.forms.AnnotationF
  *
  * @param userProfile
  */
-case class AnnotationDAO(val userProfile: Option[UserProfile] = None) extends RestDAO {
+case class AnnotationDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
 
   implicit val entityReads = Entity.entityReads
   implicit val entityPageReads = PageReads.pageReads
@@ -25,11 +25,6 @@ case class AnnotationDAO(val userProfile: Option[UserProfile] = None) extends Re
   import play.api.http.Status._
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
-
-  def authHeaders: Map[String, String] = userProfile match {
-    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
-    case None => headers
-  }
 
   def getFor(id: String): Future[Either[RestError, Map[String,List[Annotation]]]] = {
 

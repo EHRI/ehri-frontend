@@ -1,7 +1,7 @@
 @(f: play.api.data.Form[models.forms.UserProfileF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
-    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.createUserProfile"))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.createUserProfile")) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
 
         @userProfile.renderForm(None, f)

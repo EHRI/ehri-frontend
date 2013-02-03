@@ -1,9 +1,9 @@
 @(item: AccessibleEntity, itemPage: rest.Page[PermissionGrant], scopePage: rest.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(
-    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageScopedPermissionsForItem", item))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.manageScopedPermissionsForItem", item)) {
 
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 

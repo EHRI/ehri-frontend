@@ -2,7 +2,7 @@
 
 @import views.Helpers
 
-@noSidebarLayout(Messages("actions.historyForItem", item))(maybeUser, req) {
+@noSidebarLayout(Messages("actions.historyForItem", item)) {
     <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 
     @common.pagination(page)

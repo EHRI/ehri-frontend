@@ -11,6 +11,7 @@ import play.api.libs.ws.WS
 import rest.RestDAO
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
+import models.UserProfile
 
 case class CypherError(
   val message: String, val exception: String, val stacktrace: List[String]  
@@ -32,7 +33,7 @@ object CypherDAO {
   
 }
 
-case class CypherDAO() extends RestDAO {
+case class CypherDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/db/data/cypher".format(host, port)
 

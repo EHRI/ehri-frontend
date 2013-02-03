@@ -23,7 +23,7 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   }
 
 
-  def index = userProfileAction { implicit maybeUser => implicit request =>
+  def index = userProfileAction { implicit userOpt => implicit request =>
     Secured {
       Ok(views.html.index("Your new application is ready."))
     }
@@ -35,34 +35,6 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   }
 
   val emailForm = Form(single("email" -> email))
-
-  def mailTest = optionalUserAction { implicit maybeUser => implicit request =>
-
-    Ok(views.html.mailTest(emailForm, routes.Application.mailTestPost))
-
-  }
-
-  def mailTestPost = optionalUserAction { implicit maybeUser => implicit request =>
-    emailForm.bindFromRequest.fold(
-      hasErrors = { errorForm =>
-        Ok(views.html.mailTest(errorForm, routes.Application.mailTestPost))
-      },
-      success = { email =>
-        Ok("Got email: " + email)
-
-        /*import play.api.Play.current
-        import com.typesafe.plugin._
-        val mail = use[MailerPlugin].email
-        mail.setSubject("Testing the mailer")
-        mail.addRecipient("Mike B <noreply@email.com>",email)
-        mail.addFrom("Testing <noreply@email.com>")
-        //sends both text and html
-        mail.send( "Hello, mike!", "<html>Hello, mike!</html>")*/
-        Ok("mail sent")
-
-      }
-    )
-  }
 
   def login = loginHandler.login
   def loginPost = loginHandler.loginPost

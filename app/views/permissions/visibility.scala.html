@@ -1,7 +1,7 @@
-@(item: AccessibleEntity, f: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AccessibleEntity, f: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 
-@rightSidebarLayout(Messages("actions.setVisibility"))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.setVisibility")) {
 	
 	@if(item.accessors.isEmpty) {
         <h3>@Messages("visibility.visibleToEveryone")</h3>
