@@ -31,11 +31,24 @@ openid.openIdError=There was a problem logging you in with OpenID.\
 contentTypes.group=Groups
 contentTypes.userProfile=Users
 contentTypes.agent=Repositories
+contentTypes.authority=Authorities
 contentTypes.documentaryUnit=Collections
 contentTypes.action=User Events
 contentTypes.systemEvent=System Events
 contentTypes.cvocVocabulary=CVocs
 contentTypes.cvocConcept=Concepts
+contentTypes.annotation=Annotations
+
+#
+# Permission Types
+#
+permissionTypes.create=Create
+permissionTypes.update=Update
+permissionTypes.delete=Delete
+permissionTypes.grant=Grant
+permissionTypes.annotate=Annotate
+permissionTypes.owner=Owner
+
 
 # general models.forms
 update.heading=Update {0}
@@ -48,7 +61,7 @@ errors.itemNotFound=Item Not Found
 errors.itemNotFoundExplanation=That item couldn't be found on the system
 errors.genericProblem=We're very sorry, but there's a problem loading that page
 errors.databaseError=Database Error
-errors.databaseErrorExplanation=I'm afraid it looks like our database server has gone down.     \
+errors.databaseErrorExplanation=I''m afraid it looks like our database server has gone down.     \
   There's not much we can do without it, so please try again later.
 errors.permissionDenied=Permission Denied
 errors.permissionDeniedExplanation=It looks like you can't do whatever it is you were attempted \
@@ -239,6 +252,7 @@ permissionGrant.heading=Permissions for {0}
 permissionGrant.accessor=User/Group
 permissionGrant.targets=Targets
 permissionGrant.scope=Scope
+permissionGrant.grantedBy=Granted By
 
 #
 # ISDIAH Field definitions

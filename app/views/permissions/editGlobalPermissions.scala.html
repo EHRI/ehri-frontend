@@ -10,36 +10,37 @@
 	    <a href="@routes.Groups.get(group.identifier)">@group.name</a>
 	  }	  
 	}
-    
-	<hr />
-	
+
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<fieldset id="permissions-area">
-			<legend>@Messages("Permissions")</legend>
 
-			<table class="permissions-matrix">
+			<table class="table table-bordered permissions-matrix">
 				<tr>
 					<th></th>
 					@PermissionType.values.toList.map { perm =>
-					  <th>@perm.toString</th>					  
+                      @if(perm != PermissionType.Owner) {
+					    <th>@Messages("permissionTypes." + perm.toString)</th>
+                      }
 					}
 				</tr>
 				@ContentType.values.toList.map { entity =>
 				  	<tr>
-						<td>@entity.toString</td>
+						<td>@Messages("contentTypes." + entity.toString)</td>
 						@PermissionType.values.toList.map { perm =>
-							<td>
-								@defining(perms.get(entity, perm)) { permOpt =>
-									<input type="checkbox" name="@entity" value="@perm"
-											@if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
-												checked
-											} />
-									@permOpt.flatMap(_.inheritedFrom).map { user =>
-										<span title="@Messages("Inherited from " + user)">*</span>
-									}								  
-								}
-							</td>					  						    
-						}						
+                            @if(perm != PermissionType.Owner) {
+                                <td>
+                                @defining(perms.get(entity, perm)) { permOpt =>
+                                    <input type="checkbox" name="@entity" value="@perm"
+                                    @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
+                                        checked
+                                    } />
+                                    @permOpt.flatMap(_.inheritedFrom).map { user =>
+                                        <span title="@Messages("Inherited from " + user)">*</span>
+                                    }
+                                }
+                                </td>
+                            }
+						}
 					</tr>				  
 				}
 			</table>

@@ -6,10 +6,10 @@
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<fieldset id="permissionItem-area">
 
-        <table class="permissions-matrix">
+        <table class="table table-bordered permissions-matrix">
         <tr>
         @PermissionType.values.toList.map { perm =>
-            <th>@perm</th>
+            <th>@Messages("permissionTypes." + perm.toString)</th>
         }
         </tr>
         <tr>
