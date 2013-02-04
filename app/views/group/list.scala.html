@@ -5,10 +5,16 @@
 
     @common.pagination(items)
 	
-	<ul class="unstyled">
+	<ulls>
 	@items.list.map { item =>
 	  	<li>
-			<a href="@routes.Groups.get(item.id)">@item</a>
+            <div class="list-item">
+              <h4><a href="@routes.Groups.get(item.id)">@item</a></h4>
+                <p>@item.to.description.map { d =>
+                    @d
+                }
+                </p>
+            </div>
 		</li>
 	}
 	</ul>
@@ -19,6 +25,7 @@
             @{println(user.globalPermissions)}
             @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
                 <a class="btn btn-primary" href="@routes.Groups.create">@Messages("Create New Group")</a>
+
             }
         }
     }

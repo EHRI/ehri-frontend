@@ -5,10 +5,17 @@
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
     @common.pagination(items)
 	
-	<ul class="unstyled">
+	<ul>
 	@items.list.map { item =>
 	  	<li>
-			<a href="@routes.UserProfiles.get(item.id)">@item</a>
+            <div class="list-item">
+                <h4><a href="@routes.UserProfiles.get(item.id)">@item</a></h4>
+                <p>
+                    @item.to.about.map { d =>
+                        @d
+                    }
+                </p>
+            </div>
 		</li>
 	}
 	</ul>
