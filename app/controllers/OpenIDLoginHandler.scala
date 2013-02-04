@@ -63,6 +63,7 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
                   models.sql.OpenIDUser.create(email, entity.id).map { user =>
                     user.addAssociation(info.id)
                     gotoLoginSucceeded(user.profile_id)
+                        .withSession("access_uri" -> routes.UserProfiles.update(user.profile_id).url)
                   }.getOrElse(BadRequest("Creation of user db failed!"))
                 }
                 case Left(err) => {

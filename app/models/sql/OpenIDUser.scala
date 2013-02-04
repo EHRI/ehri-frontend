@@ -44,8 +44,13 @@ case class OpenIDUser(id: Long, email: String, profile_id: String) extends User 
         INSERT INTO user_auth (id, data) VALUES ({id},{data})
       """
     ).on('id -> id, 'data -> data).executeInsert()
-    println("Added password! " + res)
     this
+  }
+
+  def delete(): Boolean = DB.withConnection { implicit connection =>
+    val res: Int = SQL(
+      """DELETE FROM openid_user WHERE id = {id}""").on('id -> id).executeUpdate()
+    res == 1
   }
 
   def isStaff = false // STUB

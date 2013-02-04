@@ -85,9 +85,10 @@ object UserProfiles extends PermissionHolderController[UserProfile]
           routes.UserProfiles.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt =>
-    implicit request =>
-      Redirect(routes.UserProfiles.list())
+  def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
+    // For the users we need to clean up by deleting their profile id, if any...
+    userFinder.findByProfileId(id).map(_.delete())
+    Redirect(routes.UserProfiles.list())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 

@@ -9,7 +9,13 @@ import anorm.SqlParser._
 
 // -- Users
 
-case class PersonaUser(profile_id: String, email: String) extends User
+case class PersonaUser(profile_id: String, email: String) extends User {
+  def delete(): Boolean = DB.withConnection { implicit connection =>
+    val res: Int = SQL(
+      """DELETE FROM users WHERE profile_id = {profile_id}""").on('profile_id -> profile_id).executeUpdate()
+    res == 1
+  }
+}
 
 object PersonaUser extends UserDAO {
 
