@@ -71,7 +71,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
-      getEntity(EntityType.withName(userType), userId, userOpt) { accessor =>
+      getEntity(EntityType.withName(userType), userId) { accessor =>
         AsyncRest {
           rest.PermissionDAO(userOpt).setItem(Accessor(accessor), contentType, id, perms).map { permsOrErr =>
             permsOrErr.right.map { perms =>

@@ -23,26 +23,23 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   val defaultPage: RestPageParams = new RestPageParams()
   val defaultChildPage: RestPageParams = new RestPageParams()
 
-  def getEntity(id: String, user: Option[UserProfile])(f: Entity => Result)(implicit request: RequestHeader) = {
-    implicit val maybeUser = user
+  def getEntity(id: String, user: Option[UserProfile])(f: Entity => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     AsyncRest {
-      rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
+      rest.EntityDAO(entityType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
   }
 
-  def getEntity(otherType: defines.EntityType.Type, id: String, user: Option[UserProfile])(f: Entity => Result)(implicit request: RequestHeader) = {
-    implicit val maybeUser = user
+  def getEntity(otherType: defines.EntityType.Type, id: String)(f: Entity => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     AsyncRest {
-      rest.EntityDAO(otherType, maybeUser).get(id).map { itemOrErr =>
+      rest.EntityDAO(otherType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
   }
 
-  def getGroups(user: Option[UserProfile])(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit request: RequestHeader) = {
-    implicit val maybeUser = user
+  def getGroups(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     // TODO: Handle REST errors
     Async {
       for {

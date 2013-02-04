@@ -35,7 +35,7 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
 
   def linkAction(id: String, toType: String, to: String)(f: AnnotatableEntity => AnnotatableEntity => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
-      getEntity(EntityType.withName(toType), to, userOpt) { srcitem =>
+      getEntity(EntityType.withName(toType), to) { srcitem =>
         // If neither items are annotatable throw a 404
         val res: Option[Result] = for {
           target <- AnnotatableEntity.fromEntity(item)
@@ -53,7 +53,7 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       models.forms.AnnotationForm.form.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
-          getEntity(EntityType.withName(toType), to, userOpt) { srcitem =>
+          getEntity(EntityType.withName(toType), to) { srcitem =>
           // If neither items are annotatable throw a 404
             val res: Option[Result] = for {
               target <- AnnotatableEntity.fromEntity(item)

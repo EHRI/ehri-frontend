@@ -18,9 +18,8 @@ import rest.EntityDAO
 trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
 
   def childCreateAction(id: String, ct: ContentType.Value)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt =>
-      implicit request =>
-      getGroups(userOpt) { users => groups =>
+    withItemPermission(id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
+      getGroups { users => groups =>
         f(item)(users)(groups)(userOpt)(request)
       }
     }

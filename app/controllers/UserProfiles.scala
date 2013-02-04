@@ -51,7 +51,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
     implicit userOpt =>
       implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups(userOpt) { users => groups =>
+      case Left((errorForm,accForm)) => getGroups { users => groups =>
         BadRequest(views.html.userProfile.create(
           errorForm, accForm, users, groups, routes.UserProfiles.createPost))
       }

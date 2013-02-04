@@ -57,11 +57,9 @@ object Agents extends CRUD[AgentF,Agent]
         VisibilityForm.form, users, groups, routes.Agents.createPost))
   }
 
-  def createPost = createPostAction(models.forms.AgentForm.form) { formsOrItem =>
-    implicit userOpt =>
-      implicit request =>
+  def createPost = createPostAction(models.forms.AgentForm.form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups(userOpt) { users => groups =>
+      case Left((errorForm,accForm)) => getGroups { users => groups =>
         BadRequest(views.html.agent.create(errorForm, accForm, users, groups, routes.Agents.createPost))
       }
       case Right(item) => Redirect(routes.Agents.get(item.id))
@@ -95,7 +93,7 @@ object Agents extends CRUD[AgentF,Agent]
     implicit userOpt =>
       implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups(userOpt) { users => groups =>
+      case Left((errorForm,accForm)) => getGroups { users => groups =>
         BadRequest(views.html.documentaryUnit.create(Agent(item),
           errorForm, accForm, users, groups, routes.Agents.createDocPost(id)))
       }

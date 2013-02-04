@@ -88,17 +88,16 @@ object Concepts extends CreationContext[ConceptF, Concept]
         Concept(item), childForm, VisibilityForm.form, users, groups, routes.Concepts.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) { item => formsOrItem =>
-    implicit userOpt =>
-      implicit request =>
-        formsOrItem match {
-          case Left((errorForm,accForm)) => getGroups(userOpt) { users => groups =>
-            BadRequest(views.html.concept.create(Concept(item),
-              errorForm, accForm, users, groups, routes.Concepts.createConceptPost(id)))
-          }
-          case Right(citem) => Redirect(routes.Concepts.get(id))
-            .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
-        }
+  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) {
+      item => formsOrItem => implicit userOpt => implicit request =>
+    formsOrItem match {
+      case Left((errorForm,accForm)) => getGroups { users => groups =>
+        BadRequest(views.html.concept.create(Concept(item),
+          errorForm, accForm, users, groups, routes.Concepts.createConceptPost(id)))
+      }
+      case Right(citem) => Redirect(routes.Concepts.get(id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
+    }
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt =>
