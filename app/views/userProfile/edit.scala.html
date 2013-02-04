@@ -1,6 +1,6 @@
-@(item: Option[UserProfile], f: play.api.data.Form[models.forms.UserProfileF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Option[UserProfile], f: play.api.data.Form[models.forms.UserProfileF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages(item.map(s => "actions.updateUserProfile").getOrElse("actions.createUserProfile")))(Some(user), req) {
+@rightSidebarLayout(Messages(item.map(s => "actions.updateUserProfile").getOrElse("actions.createUserProfile"))) {
 
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @userProfile.renderForm(item, f)

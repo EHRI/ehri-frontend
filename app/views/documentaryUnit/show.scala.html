@@ -2,7 +2,7 @@
 
 @import models.forms.IsadG._
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.holder.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(DocumentaryUnit(_)) ::: List(item)))(maybeUser, req) {
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.holder.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(DocumentaryUnit(_)) ::: List(item))) {
 
     @common.annotated(item, annotations, routes.DocumentaryUnits.annotate(item.id)) {
 

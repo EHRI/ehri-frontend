@@ -6,7 +6,7 @@
     <div class="control-group">
         <label class="control-label" for="visibility_groups">@Messages("contentTypes.group")</label>
         <div class="controls input">
-            <select class="chzn-select" placeholder="@Messages("visibility.chooseGroups")" multiple
+            <select class="chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" multiple
             name="@rest.RestPageParams.ACCESSOR_PARAM">
             @groups.map{t =>
                 <option value="@t._1" @(if(f.value.map(_.contains(t._1)).getOrElse(false))
@@ -19,7 +19,7 @@
     <div class="control-group">
         <label class="control-label" for="visibility_users">@Messages("contentTypes.userProfile")</label>
         <div class="controls input">
-            <select class="chzn-select" placeholder="@Messages("visibility.chooseUsers")" multiple
+            <select class="chzn-select" data-placeholder="@Messages("visibility.chooseUsers")" multiple
             name="@rest.RestPageParams.ACCESSOR_PARAM">
                 @{println(s"Form data: ${f.data}")}
             @users.map{t =>
@@ -29,5 +29,4 @@
             </select>
         </div>
     </div>
-
 </fieldset>

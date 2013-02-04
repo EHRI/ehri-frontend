@@ -1,9 +1,9 @@
 @(item: AccessibleEntity, f: Form[models.forms.DocumentaryUnitF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
-    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.createDocumentaryUnit"))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.createDocumentaryUnit")) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		@documentaryUnit.renderForm(f)

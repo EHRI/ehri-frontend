@@ -11,20 +11,21 @@ import play.api.libs.json.{Json,JsValue,JsArray}
 
 object PermissionDAO
 
-case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestDAO {
+case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extends RestDAO {
 
   import play.api.http.Status._
 
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/permission".format(baseUrl)
 
-  private val authHeaders: Map[String, String] = headers + (
-    AUTH_HEADER_NAME -> accessor.id
-  )
-
   def get: Future[Either[RestError, GlobalPermissionSet[UserProfile]]] = {
-    WS.url(enc(requestUrl)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => GlobalPermissionSet(accessor, r.json))
+    userProfile.map { up =>
+        WS.url(enc(requestUrl)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+          checkError(response).right.map(r => GlobalPermissionSet(up, r.json))
+        }
+      } getOrElse {
+      // If we don't have a user we can't get our own profile, so just return PermissionDenied
+        Future.successful(Left(PermissionDenied()))
     }
   }
 
@@ -70,9 +71,13 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
   }
 
   def getItem(contentType: ContentType.Value, id: String): Future[Either[RestError, ItemPermissionSet[UserProfile]]] = {
-    WS.url(enc(requestUrl, accessor.id, id))
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => ItemPermissionSet[UserProfile](accessor, contentType, r.json))
+    userProfile.map { up =>
+      WS.url(enc(requestUrl, up.id, id))
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        checkError(response).right.map(r => ItemPermissionSet[UserProfile](up, contentType, r.json))
+      }
+    } getOrElse {
+      Future.successful(Left(PermissionDenied()))
     }
   }
 
@@ -91,9 +96,13 @@ case class PermissionDAO[T <: Accessor](val accessor: UserProfile) extends RestD
   }
 
   def getScope(id: String): Future[Either[RestError, GlobalPermissionSet[UserProfile]]] = {
-    WS.url(enc(requestUrl, accessor.id, "scope", id))
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => GlobalPermissionSet[UserProfile](accessor, r.json))
+    userProfile.map { up =>
+      WS.url(enc(requestUrl, up.id, "scope", id))
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        checkError(response).right.map(r => GlobalPermissionSet[UserProfile](up, r.json))
+      }
+    } getOrElse {
+      Future.successful(Left(PermissionDenied()))
     }
   }
 

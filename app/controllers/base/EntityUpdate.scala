@@ -17,43 +17,40 @@ import models.{UserProfile, Entity}
  */
 trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
 
-  def updateAction(id: String)(f: Entity => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
-      implicit request =>
-      f(item)(user)(request)
+  def updateAction(id: String)(f: Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+      f(item)(userOpt)(request)
     }
   }
 
-  def updatePostAction(id: String, form: Form[F])(f: Entity => Either[Form[F],Entity] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
-      implicit request =>
-        implicit val maybeUser = Some(user)
+  def updatePostAction(id: String, form: Form[F])(f: Entity => Either[Form[F],Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
 
-        form.bindFromRequest.fold(
-          errorForm => f(item)(Left(errorForm))(user)(request),
-          success = doc => {
-            AsyncRest {
-              rest.EntityDAO(entityType, maybeUser)
-                .update(id, doc).map {
-                itemOrErr =>
-                // If we have an error, check if it's a validation error.
-                // If so, we need to merge those errors back into the form
-                // and redisplay it...
-                  itemOrErr.fold(
-                    err => err match {
-                      case err: rest.ValidationError => {
-                        val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
-                        val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-                        Right(f(item)(Left(filledForm))(user)(request))
-                      }
-                      case e => Left(e)
-                    },
-                    item => Right(f(item)(Right(item))(user)(request))
-                  )
-              }
+      form.bindFromRequest.fold(
+        errorForm => f(item)(Left(errorForm))(userOpt)(request),
+        success = doc => {
+          AsyncRest {
+            rest.EntityDAO(entityType, userOpt)
+              .update(id, doc).map {
+              itemOrErr =>
+              // If we have an error, check if it's a validation error.
+              // If so, we need to merge those errors back into the form
+              // and redisplay it...
+                itemOrErr.fold(
+                  err => err match {
+                    case err: rest.ValidationError => {
+                      val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
+                      val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
+                      Right(f(item)(Left(filledForm))(userOpt)(request))
+                    }
+                    case e => Left(e)
+                  },
+                  item => Right(f(item)(Right(item))(userOpt)(request))
+                )
             }
           }
-        )
+        }
+      )
     }
   }
 }

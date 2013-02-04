@@ -121,7 +121,7 @@ class DAOSpec extends Specification with BeforeExample {
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val perms = await(PermissionDAO[UserProfile](userProfile).get)
+        val perms = await(PermissionDAO[UserProfile](Some(userProfile)).get)
         perms must beRight
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
       }
@@ -131,12 +131,12 @@ class DAOSpec extends Specification with BeforeExample {
       running(FakeApplication(additionalConfiguration = config)) {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         val data = Map("agent" -> List("create", "update", "delete"), "documentaryUnit" -> List("create", "update","delete"))
-        val perms = await(PermissionDAO(userProfile).get(user))
+        val perms = await(PermissionDAO(Some(userProfile)).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
         perms.right.get.get(ContentType.Agent, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.Agent, PermissionType.Update) must beNone
-        val permset = await(PermissionDAO(userProfile).set(user, data))
+        val permset = await(PermissionDAO(Some(userProfile)).set(user, data))
         permset must beRight
         val newperms = permset.right.get
         newperms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
@@ -150,14 +150,14 @@ class DAOSpec extends Specification with BeforeExample {
       running(FakeApplication(additionalConfiguration = config)) {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         val data = Map(ContentType.DocumentaryUnit.toString -> List("create", "update","delete"))
-        val perms = await(PermissionDAO(userProfile).get(user))
+        val perms = await(PermissionDAO(Some(userProfile)).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
         perms.right.get.get(ContentType.Agent, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.Agent, PermissionType.Update) must beNone
-        await(PermissionDAO(userProfile).setScope(user, "r1", data))
+        await(PermissionDAO(Some(userProfile)).setScope(user, "r1", data))
         // Since c1 is held by r1, we should now have permissions to update and delete c1.
-        val permset = await(PermissionDAO(userProfile).getItem(user, ContentType.DocumentaryUnit, "c1"))
+        val permset = await(PermissionDAO(Some(userProfile)).getItem(user, ContentType.DocumentaryUnit, "c1"))
         permset must beRight
         val newItemPerms = permset.right.get
         newItemPerms.get(PermissionType.Create) must beSome
@@ -171,10 +171,10 @@ class DAOSpec extends Specification with BeforeExample {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         // NB: Currently, there's already a test permission grant for Reto-create on c1...
         val data = List("update","delete")
-        val perms = await(PermissionDAO(userProfile).getItem(user, ContentType.DocumentaryUnit, "c1"))
+        val perms = await(PermissionDAO(Some(userProfile)).getItem(user, ContentType.DocumentaryUnit, "c1"))
         perms.right.get.get(PermissionType.Update) must beNone
         perms.right.get.get(PermissionType.Delete) must beNone
-        val permReq = await(PermissionDAO(userProfile).setItem(user, ContentType.DocumentaryUnit, "c1", data))
+        val permReq = await(PermissionDAO(Some(userProfile)).setItem(user, ContentType.DocumentaryUnit, "c1", data))
         permReq must beRight
         val newItemPerms = permReq.right.get
         newItemPerms.get(PermissionType.Update) must beSome
@@ -191,7 +191,7 @@ class DAOSpec extends Specification with BeforeExample {
         val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
         DocumentaryUnit(c1a).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike"))
         
-        val set = await(VisibilityDAO(userProfile).set(c1a.id, List("mike", "reto", "admin")))
+        val set = await(VisibilityDAO(Some(userProfile)).set(c1a.id, List("mike", "reto", "admin")))
         set must beRight
         val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
         DocumentaryUnit(c1b).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike", "reto"))

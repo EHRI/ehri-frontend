@@ -1,6 +1,6 @@
 @(page: rest.Page[Concept], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@noSidebarLayout(Messages("actions.listConcepts"))(maybeUser, req) {
+@noSidebarLayout(Messages("actions.listConcepts")) {
 
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
 

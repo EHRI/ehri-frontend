@@ -5,7 +5,7 @@
     <div class="control-group">
         <input class="input-large search-query" placeholder="@Messages("search.filterItems")" type="text" name="@{s"${ListParams.PROPERTY_VALUE}[${index}]"}" value="@propertyValue" />
         <select name="@{s"${ListParams.PROPERTY_NAME}[${index}]"}">
-        @fieldOptions.map { option =>
+        @fieldOptions.toList.sorted.map { option =>
             <option @{if (propertyName == option) "selected" else ""} value="@option">@Messages(option)</option>
         }
         </select>
@@ -24,7 +24,7 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                @orderNames.map { sortKey =>
+                @orderNames.toList.sorted.map { sortKey =>
                     <li>
                         <a href="@utils.joinPath(req.path, req.queryString.updated(ListParams.ORDER, Seq(sortKey)))">
                             @Messages(sortKey)

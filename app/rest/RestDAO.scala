@@ -1,6 +1,6 @@
 package rest
 
-import models.Entity
+import models.{UserProfile, Entity}
 import play.api.libs.json._
 import play.api.{Logger, Play}
 import play.api.http.HeaderNames
@@ -19,7 +19,6 @@ case class IntegrityError() extends RestError
 case class ItemNotFound() extends RestError
 case class ServerError() extends RestError
 
-object RestDAO extends RestDAO
 
 /**
  * Structure that holds a set of errors for an entity and its
@@ -77,8 +76,20 @@ trait RestDAO {
   val headers = Map(
     HeaderNames.ACCEPT -> ContentTypes.JSON,
     HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
-  )  
-  
+  )
+
+  // Abstract value for the user accessing a resource...
+  val userProfile: Option[UserProfile]
+
+  /**
+   * Headers to add to outgoing request...
+   * @return
+   */
+  def authHeaders: Map[String, String] = userProfile match {
+    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
+    case None => headers
+  }
+
   import play.api.http.Status._
 
   import java.net.URI

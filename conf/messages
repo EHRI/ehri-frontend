@@ -41,6 +41,9 @@ contentTypes.cvocConcept=Concepts
 update.heading=Update {0}
 create.heading=Create New Item
 
+#
+# Custom page error reporting
+#
 errors.itemNotFound=Item Not Found
 errors.itemNotFoundExplanation=That item couldn't be found on the system
 errors.genericProblem=We're very sorry, but there's a problem loading that page
@@ -81,6 +84,7 @@ annotation.emptyBodyText=[Missing Annotation Text]
 # Admin
 #
 admin.createNewUser=Create New User
+admin.userEmailAlreadyRegistered=A user with that email is already registered: {0}
 
 #
 # Users
@@ -208,6 +212,8 @@ visibility.visibleToEveryoneMessage=This item currently has no visibility restri
 visibility.restrictedVisibility=Restricted Visibility
 visibility.restrictedVisibilityMessage=This item is currently visible to the following groups/users:
 visibility.visibilityRestrictedTo=Visibility restricted to:
+visibility.chooseUsers=Choose Users
+visibility.chooseGroups=Choose Groups
 
 #
 # User Profile Field definitions

@@ -1,7 +1,7 @@
 @(item: AccessibleEntity, accessor: Accessor, perms: GlobalPermissionSet[Accessor], contentTypes: Seq[ContentType.Value], action: Call)(
-    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.grantPermissionsInScope", item.identifier, accessor.name))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.grantPermissionsInScope", item.identifier, accessor.name)) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<fieldset id="permissionScope-area">

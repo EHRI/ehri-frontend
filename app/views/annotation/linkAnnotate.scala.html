@@ -1,8 +1,8 @@
-@(item: AnnotatableEntity, src: AnnotatableEntity, form: play.api.data.Form[models.forms.AnnotationF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AnnotatableEntity, src: AnnotatableEntity, form: play.api.data.Form[models.forms.AnnotationF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.linkAnnotate", item, src))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.linkAnnotate", item, src)) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<fieldset id="annotate-area">

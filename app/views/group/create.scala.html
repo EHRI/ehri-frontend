@@ -1,7 +1,7 @@
 @(f: Form[models.forms.GroupF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
-    implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.createGroup"))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.createGroup")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 
         @group.renderForm(None, f)

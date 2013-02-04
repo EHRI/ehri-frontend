@@ -1,6 +1,6 @@
 @(item: Vocabulary, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)))(maybeUser, req) {
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations, routes.Vocabularies.annotate(item.id)) {
         @defining("vocabulary") { implicit  prefix =>

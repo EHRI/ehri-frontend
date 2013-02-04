@@ -29,9 +29,6 @@ GET     /locale                         controllers.Application.changeLocale
 
 GET		/test			  controllers.Application.test
 
-GET     /mailTest           controllers.Application.mailTest
-POST     /mailTest           controllers.Application.mailTestPost
-
 # Home page
 GET     /                           controllers.Application.index
 GET     /docs                controllers.DocumentaryUnits.list

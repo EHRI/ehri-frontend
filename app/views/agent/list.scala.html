@@ -1,6 +1,6 @@
 @(items: rest.Page[Agent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listAgents"))(maybeUser, req) {
+@rightSidebarLayout(Messages("actions.listAgents")) {
 
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
 

@@ -29,28 +29,25 @@ object VisibilityController {
  */
 trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
 
-  def visibilityAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
-      implicit request =>
-    getGroups(Some(user)) { users => groups =>
-        f(item)(users)(groups)(user)(request)
+  def visibilityAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+      getGroups { users => groups =>
+        f(item)(users)(groups)(userOpt)(request)
       }
     }
   }
 
-  def visibilityPostAction(id: String)(f: Boolean => UserProfile => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { item => implicit user =>
-      implicit request =>
-        implicit val maybeUser = Some(user)
-        val data = models.forms.VisibilityForm.form
-          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM)).get
-        AsyncRest {
-          rest.VisibilityDAO(user).set(id, data).map { boolOrErr =>
-            boolOrErr.right.map { bool =>
-              f(bool)(user)(request)
-            }
+  def visibilityPostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+      val data = models.forms.VisibilityForm.form
+        .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM)).get
+      AsyncRest {
+        rest.VisibilityDAO(userOpt).set(id, data).map { boolOrErr =>
+          boolOrErr.right.map { bool =>
+            f(bool)(userOpt)(request)
           }
         }
+      }
     }
   }
 }

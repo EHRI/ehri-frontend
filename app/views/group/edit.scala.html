@@ -1,8 +1,8 @@
-@(item: Option[Group], f: play.api.data.Form[models.forms.GroupF], action: Call)(implicit user: UserProfile, req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Option[Group], f: play.api.data.Form[models.forms.GroupF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.forms.GroupF
 
-@rightSidebarLayout(Messages("actions.updateGroup"))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.updateGroup")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @group.renderForm(item, f)
 

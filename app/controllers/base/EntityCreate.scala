@@ -25,17 +25,16 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
    * @param f
    * @return
    */
-  def createAction(f: Seq[(String,String)] => Seq[(String,String)] => UserProfile => Request[AnyContent] => Result) = {
-    withContentPermission(PermissionType.Create, contentType) { implicit user =>
-      implicit request =>
-      getGroups(Some(user)) { users => groups =>
-        f(users)(groups)(user)(request)
+  def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
+      getGroups { users => groups =>
+        f(users)(groups)(userOpt)(request)
       }
     }
   }
 
-  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),Entity] => UserProfile => Request[AnyContent] => Result) = {
-    withContentPermission(PermissionType.Create, contentType) { implicit user =>
+  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withContentPermission(PermissionType.Create, contentType) { implicit userOpt =>
       implicit request =>
       // FIXME: This is really gross, but it's necessary because
       // Play's forms do not yet support extracting multiselect
@@ -44,11 +43,10 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
           .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM))
         val accessors = accessorForm.value.getOrElse(List())
         form.bindFromRequest.fold(
-          errorForm => f(Left((errorForm,accessorForm)))(user)(request),
+          errorForm => f(Left((errorForm,accessorForm)))(userOpt)(request),
           doc => {
-          implicit val maybeUser = Some(user)
             AsyncRest {
-            rest.EntityDAO(entityType, maybeUser)
+            rest.EntityDAO(entityType, userOpt)
               .create(doc, accessors).map { itemOrErr =>
             // If we have an error, check if it's a validation error.
             // If so, we need to merge those errors back into the form
@@ -58,12 +56,12 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
                   case err: rest.ValidationError => {
                     val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
                     val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-                    Right(f(Left((filledForm,accessorForm)))(user)(request))
+                    Right(f(Left((filledForm,accessorForm)))(userOpt)(request))
                   }
                   case e => Left(e)
                 }
               } else itemOrErr.right.map {
-                item => f(Right(item))(user)(request)
+                item => f(Right(item))(userOpt)(request)
               }
             }
           }

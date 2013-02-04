@@ -6,13 +6,14 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
 
 import base.{ControllerHelpers, Authorizer, AuthController, LoginHandler}
-import play.api.data.Form
+import play.api.data.{FormError, Form}
 import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentType}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
 import models.forms.UserProfileF
 import models.sql.OpenIDUser
+import models.UserProfile
 
 object Admin extends Controller with AuthController with ControllerHelpers {
 
@@ -35,40 +36,45 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       Ok("todo")
   }
 
-  def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit user =>
-    implicit request =>
-      Ok(views.html.admin.createUser(userPasswordForm, routes.Admin.createUserPost))
+  def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
+    Ok(views.html.admin.createUser(userPasswordForm, routes.Admin.createUserPost))
   }
 
-  def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit user =>
-    implicit request =>
-
-      implicit val maybeUser = Some(user)
-      userPasswordForm.bindFromRequest.fold(
-        errorForm => {
-          Ok(views.html.admin.createUser(errorForm, routes.Admin.createUserPost))
-        },
-        values => {
-          val (email, username, name, pw, _, groups) = values
+  def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
+    // TODO: Refactor to make this logic clearer...
+    userPasswordForm.bindFromRequest.fold(
+      errorForm => {
+        Ok(views.html.admin.createUser(errorForm, routes.Admin.createUserPost))
+      },
+      values => {
+        val (email, username, name, pw, _, groups) = values
+        // check if the email is already registered...
+        models.sql.OpenIDUser.findByEmail(email).map { account =>
+          val errForm = userPasswordForm.bindFromRequest
+            .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.profile_id)))
+          BadRequest(views.html.admin.createUser(errForm, routes.Admin.createUserPost))
+        } getOrElse {
+          // Okay to proceed...
           val user = UserProfileF(id=None, identifier=username, name=name,
             location=None, about=None, languages=None)
           AsyncRest {
-            rest.EntityDAO(EntityType.UserProfile, maybeUser).create(user).map { itemOrErr =>
+            rest.EntityDAO(EntityType.UserProfile, userOpt).create(user).map { itemOrErr =>
               itemOrErr.right.map { entity =>
-                models.sql.OpenIDUser.create(email, entity.id).map { user =>
-                  user.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
+                models.sql.OpenIDUser.create(email, entity.id).map { account =>
+                  account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
                   Redirect(routes.UserProfiles.get(entity.id))
                 }.getOrElse {
-                  // FIXME: Handle this
+                  // FIXME: Handle this - probably by throwing a global error.
+                  // If it fails it'll probably die anyway...
                   BadRequest("creating user account failed!")
                 }
               }
             }
           }
         }
-      )
+      }
+    )
   }
-
 
   def passwordLogin = Action { implicit request =>
     val form = Form(

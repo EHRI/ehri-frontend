@@ -23,26 +23,23 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   val defaultPage: RestPageParams = new RestPageParams()
   val defaultChildPage: RestPageParams = new RestPageParams()
 
-  def getEntity(id: String, user: Option[UserProfile])(f: Entity => Result)(implicit request: RequestHeader) = {
-    implicit val maybeUser = user
+  def getEntity(id: String, user: Option[UserProfile])(f: Entity => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     AsyncRest {
-      rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
+      rest.EntityDAO(entityType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
   }
 
-  def getEntity(otherType: defines.EntityType.Type, id: String, user: Option[UserProfile])(f: Entity => Result)(implicit request: RequestHeader) = {
-    implicit val maybeUser = user
+  def getEntity(otherType: defines.EntityType.Type, id: String)(f: Entity => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     AsyncRest {
-      rest.EntityDAO(otherType, maybeUser).get(id).map { itemOrErr =>
+      rest.EntityDAO(otherType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
   }
 
-  def getGroups(user: Option[UserProfile])(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit request: RequestHeader) = {
-    implicit val maybeUser = user
+  def getGroups(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     // TODO: Handle REST errors
     Async {
       for {
@@ -85,17 +82,17 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
 
   def getWithChildrenAction[C <: AccessibleEntity](id: String, builder: Entity => C)(
       f: Entity => rest.Page[C] => ListParams =>  Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    itemPermissionAction(contentType, id) { item => implicit maybeUser =>
+    itemPermissionAction(contentType, id) { item => implicit userOpt =>
       implicit request =>
       Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
           val params = ListParams.bind(request)
-          val annsReq = rest.AnnotationDAO(maybeUser).getFor(id)
-          val cReq = rest.EntityDAO(entityType, maybeUser).pageChildren(id, processChildParams(params))
+          val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
+          val cReq = rest.EntityDAO(entityType, userOpt).pageChildren(id, processChildParams(params))
           for { annOrErr <- annsReq ; cOrErr <- cReq } yield {
             for { anns <- annOrErr.right ; children <- cOrErr.right } yield {
-              f(item)(children.copy(list = children.list.map(builder(_))))(params)(anns)(maybeUser)(request)
+              f(item)(children.copy(list = children.list.map(builder(_))))(params)(anns)(userOpt)(request)
             }
           }
         }
@@ -104,14 +101,14 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   }
 
   def listAction(f: rest.Page[Entity] => ListParams => Option[UserProfile] => Request[AnyContent] => Result) = {
-    userProfileAction { implicit maybeUser =>
+    userProfileAction { implicit userOpt =>
       implicit request =>
       Secured {
         AsyncRest {
           val params = ListParams.bind(request)
-          rest.EntityDAO(entityType, maybeUser).page(processParams(params)).map { itemOrErr =>
+          rest.EntityDAO(entityType, userOpt).page(processParams(params)).map { itemOrErr =>
             itemOrErr.right.map {
-              page => f(page)(params)(maybeUser)(request)
+              page => f(page)(params)(userOpt)(request)
             }
           }
         }
@@ -122,16 +119,16 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
 
   def historyAction[C <: AccessibleEntity](id: String)(
       f: Entity => rest.Page[SystemEvent] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    userProfileAction { implicit maybeUser => implicit request =>
+    userProfileAction { implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
-          val itemReq = rest.EntityDAO(entityType, maybeUser).get(id)
+          val itemReq = rest.EntityDAO(entityType, userOpt).get(id)
           // NOTE: we do not use the controller's RestPageParams here because
           // they won't apply to Event items...???
-          val alReq = rest.SystemEventDAO(maybeUser).history(id, RestPageParams())
+          val alReq = rest.SystemEventDAO(userOpt).history(id, RestPageParams())
           for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
             for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {
-              f(item)(al.copy(list = al.list.map(SystemEvent(_))))(maybeUser)(request)
+              f(item)(al.copy(list = al.list.map(SystemEvent(_))))(userOpt)(request)
             }
           }
         }
