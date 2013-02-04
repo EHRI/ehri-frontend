@@ -1,50 +1,103 @@
 package controllers
 
-import _root_.models.base.Accessor
-import play.api._
-import base.{PermissionItemController, CRUD, PermissionHolderController, VisibilityController}
-import defines.{ ContentType, EntityType, PermissionType }
-import play.api.libs.concurrent.execution.defaultContext
-import models.forms.GroupF
-import models.Group
 import models.base.Accessor
+import models.{UserProfile, Group}
+import models.forms.{GroupF, VisibilityForm}
+import play.api._
+import play.api.i18n.Messages
+import base._
+import defines.{ ContentType, EntityType, PermissionType }
+import play.api.libs.concurrent.Execution.Implicits._
+import models.base.Accessor
+import scala.Some
 
-object Groups extends PermissionHolderController[GroupF, Group]
-  with VisibilityController[GroupF, Group]
-  with CRUD[GroupF, Group]
-  with PermissionItemController[Group] {
-
-  val managePermissionAction = routes.Groups.managePermissions _
-  val managePermissionView = views.html.permissions.managePermissions.apply _
-  val addItemPermissionAction = routes.Groups.addItemPermissions _
-  val addItemPermissionView = views.html.permissions.permissionItem.apply _
-  val permissionItemAction = routes.Groups.permissionItem _
-  val permissionItemView = views.html.permissions.setPermissionItem.apply _
-  val setPermissionItemAction = routes.Groups.permissionItemPost _
+object Groups extends PermissionHolderController[Group]
+  with VisibilityController[Group]
+  with CRUD[GroupF, Group] {
 
   val entityType = EntityType.Group
   val contentType = ContentType.Group
-  val listAction = routes.Groups.list _
-  val createAction = routes.Groups.createPost
-  val updateAction = routes.Groups.updatePost _
-  val cancelAction = routes.Groups.get _
-  val deleteAction = routes.Groups.deletePost _
-  val permsAction = routes.Groups.permissions _
-  val setPermsAction = routes.Groups.permissionsPost _
-
-  val setVisibilityAction = routes.Groups.visibilityPost _
-  val visibilityAction = routes.Groups.visibility _
-  val visibilityView = views.html.visibility.apply _
 
   val form = models.forms.GroupForm.form
-  val showAction = routes.Groups.get _
-  val formView = views.html.group.edit.apply _
-  val showView = views.html.group.show.apply _
-  val listView = views.html.group.list.apply _
-  val deleteView = views.html.delete.apply _
-  val permView = views.html.accessors.edit.apply _
-  val permListView = views.html.accessors.permissionGrantList.apply _
   val builder = Group
+
+  def get(id: String) = getAction(id) { item => annotations =>
+    implicit maybeUser =>
+      implicit request =>
+        Ok(views.html.group.show(Group(item), annotations))
+  }
+
+  def history(id: String) = historyAction(id) {
+      item => page => implicit userOptOpt => implicit request =>
+    Ok(views.html.systemEvents.itemList(Group(item), page, ListParams()))
+  }
+
+  def list = listAction {
+      page => params => implicit maybeUser => implicit request =>
+    Ok(views.html.group.list(page.copy(list = page.list.map(Group(_))), params))
+  }
+
+  def create = createAction {
+      users => groups => implicit userOpt => implicit request =>
+    Ok(views.html.group.create(form, VisibilityForm.form, users, groups, routes.Groups.createPost))
+  }
+
+  def createPost = createPostAction(form) {
+      formsOrItem => implicit userOpt => implicit request =>
+    formsOrItem match {
+      case Left((errorForm,accForm)) => getGroups { users => groups =>
+        BadRequest(views.html.group.create(errorForm, accForm, users, groups, routes.Groups.createPost))
+      }
+      case Right(item) => Redirect(routes.Groups.get(item.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+    }
+  }
+
+  def update(id: String) = updateAction(id) {
+      item => implicit userOpt => implicit request =>
+    Ok(views.html.group.edit(
+        Some(Group(item)), form.fill(Group(item).to), routes.Groups.updatePost(id)))
+  }
+
+  def updatePost(id: String) = updatePostAction(id, form) {
+      item => formOrItem => implicit userOpt => implicit request =>
+    formOrItem match {
+      case Left(errorForm) =>
+        BadRequest(views.html.group.edit(Some(Group(item)), errorForm, routes.Groups.updatePost(id)))
+      case Right(item) => Redirect(routes.Groups.get(item.id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
+    }
+  }
+
+  def delete(id: String) = deleteAction(id) {
+      item => implicit userOpt => implicit request =>
+    Ok(views.html.delete(
+        Group(item), routes.Groups.deletePost(id), routes.Groups.get(id)))
+  }
+
+  def deletePost(id: String) = deletePostAction(id) {
+      ok => implicit userOpt => implicit request =>
+    Redirect(routes.Groups.list())
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+  }
+
+  def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
+      item => perms => implicit userOpt => implicit request =>
+    Ok(views.html.permissions.permissionGrantList(Group(item), perms))
+  }
+
+  def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
+      item => perms => implicit userOpt => implicit request =>
+    Ok(views.html.permissions.editGlobalPermissions(UserProfile(item), perms,
+        routes.Groups.permissionsPost(id)))
+  }
+
+  def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) {
+      item => perms => implicit userOpt => implicit request =>
+    Redirect(routes.Groups.get(id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+  }
+
 
   /*
    *	Membership
@@ -53,103 +106,93 @@ object Groups extends PermissionHolderController[GroupF, Group]
   /**
    * Present a list of groups to which the current user can be added.
    */
-  def membership(userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        for {
-          itemOrErr <- rest.EntityDAO(EntityType.withName(userType), maybeUser).get(userId)
-          groups <- rest.RestHelpers.getGroupList
-        } yield {
-          itemOrErr.right.map { item =>
-            // filter out the groups the user already belongs to
-            val accessor = Accessor(item)
-            val filteredGroups = groups.filter(t => t._1 != accessor.id).filter {
-              case (ident, name) =>
-                // if the user is admin, they can add the user to ANY group
-                if (user.isAdmin) {
-                  !accessor.groups.map(_.id).contains(ident)
-                } else {
-                  // if not, they can add the user to groups they belong to
-                  // TODO: Enforce these policies with the permission system!
-                  // TODO: WRITE TESTS FOR THESE WEIRD BEHAVIOURS!!!
-                  (!accessor.groups.map(_.id).contains(ident)) &&
-                    user.groups.map(_.id).contains(ident)
-                }
+  def membership(userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+      item => implicit userOpt => implicit request =>
+    Async {
+      for {
+        groups <- rest.RestHelpers.getGroupList
+      } yield {
+        // filter out the groups the user already belongs to
+        val accessor = Accessor(item)
+        val filteredGroups = groups.filter(t => t._1 != accessor.id).filter {
+          case (ident, name) =>
+            // if the user is admin, they can add the user to ANY group
+            if (userOpt.get.isAdmin) {
+              !accessor.groups.map(_.id).contains(ident)
+            } else {
+              // if not, they can add the user to groups they belong to
+              // TODO: Enforce these policies with the permission system!
+              // TODO: WRITE TESTS FOR THESE WEIRD BEHAVIOURS!!!
+              (!accessor.groups.map(_.id).contains(ident)) &&
+                userOpt.get.groups.map(_.id).contains(ident)
             }
-            Ok(views.html.group.membership(accessor, filteredGroups, user, request))
-          }
         }
+        Ok(views.html.group.membership(accessor, filteredGroups))
       }
+    }
   }
 
   /**
    * Confirm adding the given user to the specified group.
    */
-  def addMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        for {
-          groupOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          itemOrErr <- rest.EntityDAO(EntityType.withName(userType), maybeUser).get(userId)
-        } yield {
-          itemOrErr.right.map { item =>
-            val group = builder(groupOrErr.right.get)
-            Ok(views.html.group.confirmMembership(group, Accessor(itemOrErr.right.get),
-              routes.Groups.addMemberPost(id, userType, userId), user, request))
-          }
+  def addMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+      item => implicit userOpt => implicit request =>
+    AsyncRest {
+      for {
+        groupOrErr <- rest.EntityDAO(entityType, userOpt).get(id)
+      } yield {
+        groupOrErr.right.map { group =>
+          Ok(views.html.group.confirmMembership(builder(group), Accessor(item),
+            routes.Groups.addMemberPost(id, userType, userId)))
         }
       }
+    }
   }
 
   /**
    * Add the user to the group and redirect to the show view.
    */
-  def addMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        rest.PermissionDAO(user).addGroup(id, userId).map { boolOrErr =>
-          boolOrErr.right.map { ok =>
-            Redirect(routes.Groups.membership(userType, userId))
-          }
+  def addMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+      item => implicit userOpt => implicit request =>
+    AsyncRest {
+      rest.PermissionDAO(userOpt).addGroup(id, userId).map { boolOrErr =>
+        boolOrErr.right.map { ok =>
+          Redirect(routes.Groups.membership(userType, userId))
+            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
         }
       }
+    }
   }
 
   /**
    * Confirm adding the given user to the specified group.
    */
-  def removeMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        for {
-          groupOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          itemOrErr <- rest.EntityDAO(EntityType.withName(userType), maybeUser).get(userId)
-        } yield {
-          itemOrErr.right.map { item =>
-            val group = builder(groupOrErr.right.get)
-            Ok(views.html.group.removeMembership(group, Accessor(itemOrErr.right.get),
-              routes.Groups.removeMemberPost(id, userType, userId), user, request))
-          }
+  def removeMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+      item => implicit userOpt => implicit request =>
+    AsyncRest {
+      for {
+        groupOrErr <- rest.EntityDAO(entityType, userOpt).get(id)
+      } yield {
+        groupOrErr.right.map { group =>
+          Ok(views.html.group.removeMembership(builder(group), Accessor(item),
+            routes.Groups.removeMemberPost(id, userType, userId)))
         }
       }
+    }
   }
 
   /**
    * Add the user to the group and redirect to the show view.
    */
-  def removeMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        rest.PermissionDAO(user).removeGroup(id, userId).map { boolOrErr =>
-          boolOrErr.right.map { ok =>
-            Redirect(routes.Groups.membership(userType, userId))
-          }
+  def removeMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+      item => implicit userOpt => implicit request =>
+    AsyncRest {
+      rest.PermissionDAO(userOpt).removeGroup(id, userId).map { boolOrErr =>
+        boolOrErr.right.map { ok =>
+          Redirect(routes.Groups.membership(userType, userId))
+            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
         }
       }
+    }
   }
 }

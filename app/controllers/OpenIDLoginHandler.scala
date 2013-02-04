@@ -1,9 +1,12 @@
 package controllers
 
+import _root_.models.sql.OpenIDAssociation
 import play.api.libs.openid._
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
+import concurrent.Future
+import play.api.i18n.Messages
 
 /**
  * Default object instantiation
@@ -55,7 +58,7 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
           case None =>
             val email = extractEmail(info.attributes).getOrElse(sys.error("No openid email"))
             Async {
-              rest.AdminDAO().createNewUserProfile.map {
+              rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                 case Right(entity) => {
                   models.sql.OpenIDUser.create(email, entity.id).map { user =>
                     user.addAssociation(info.id)
@@ -69,7 +72,13 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
             }
           // TODO: Check error condition?
         }
-      })
+      } recoverWith {
+        case e: Throwable => Future.successful {
+          Redirect(routes.Application.login())
+            .flashing("error" -> Messages("openid.openIdError", e.getMessage))
+        }
+      }
+    )
   }
 
   private def extractEmail(attrs: Map[String, String]): Option[String] = {

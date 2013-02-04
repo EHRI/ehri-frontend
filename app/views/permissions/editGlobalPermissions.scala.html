@@ -1,0 +1,56 @@
+@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@rightSidebarLayout(Messages("actions.updateGlobalPermissions", item.name)) {
+	
+	@if(!item.groups.isEmpty) {
+	  <strong>Parent Groups: </strong>&nbsp;
+	  @item.groups.map { group =>
+	    <a href="@routes.Groups.get(group.identifier)">@group.name</a>
+	  }	  
+	}
+
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+		<fieldset id="permissions-area">
+
+			<table class="table table-bordered permissions-matrix">
+				<tr>
+					<th></th>
+					@PermissionType.values.toList.map { perm =>
+                      @if(perm != PermissionType.Owner) {
+					    <th>@Messages("permissionTypes." + perm.toString)</th>
+                      }
+					}
+				</tr>
+				@ContentType.values.toList.map { entity =>
+				  	<tr>
+						<td>@Messages("contentTypes." + entity.toString)</td>
+						@PermissionType.values.toList.map { perm =>
+                            @if(perm != PermissionType.Owner) {
+                                <td>
+                                @defining(perms.get(entity, perm)) { permOpt =>
+                                    <input type="checkbox" name="@entity" value="@perm"
+                                    @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
+                                        checked
+                                    } />
+                                    @permOpt.flatMap(_.inheritedFrom).map { user =>
+                                        <span title="@Messages("Inherited from " + user)">*</span>
+                                    }
+                                }
+                                </td>
+                            }
+						}
+					</tr>				  
+				}
+			</table>
+
+		</fieldset>
+	  			
+		<div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages("submitButton.updateGlobalPermissions")</button>
+        </div>
+	}
+} {
+
+}

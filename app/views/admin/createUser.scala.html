@@ -1,12 +1,8 @@
-@(f: play.api.data.Form[(String, String, String, String, String, Option[List[String]])], action: Call, user: UserProfile, req: RequestHeader)(implicit lang: Lang)
+@(f: play.api.data.Form[(String, String, String, String, String, Option[List[String]])], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("admin.createNewUser"))(Some(user), req) {
-
-	<h3>@Messages("admin.createNewUser")</h3>
-
-
+@rightSidebarLayout(Messages("admin.createNewUser")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 
         @helper.inputText(f("email"), '_label -> Messages("users.email"))
@@ -20,4 +16,6 @@
             <button type="submit" class="btn btn-primary">@Messages("submitButton.createUser")</button>
         </div>
 	}
+} {
+
 }

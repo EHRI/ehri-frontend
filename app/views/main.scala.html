@@ -1,75 +1,138 @@
-@(title: String)(maybeUser: Option[UserProfile], req: RequestHeader)(content: Html)
-
-@import defines._
-
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader)
 <!DOCTYPE html>
 
 <html>
     <head>
         <title>@title</title>
-     <!--   <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">-->
+
+        <!--<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">-->
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-		<link href="@routes.Assets.at("jquery-openid/openid.css")" rel="stylesheet">
-        <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
-		<script src="@routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
-		<style>
-			body {
-				font-family: monospace;
-			}
+        <link href="@routes.Assets.at("stylesheets/bootstrap/css/bootstrap.css")" rel="stylesheet">
+        <link href="@routes.Assets.at("jquery-openid/openid.css")" rel="stylesheet">
+        <link href="@routes.Assets.at("chosen/chosen.css")" rel="stylesheet">
+        @styles
 
-			#head-section {
-			  float: right;
-			}
-			
-			#entity-types ul, .pagination ul {
-			    padding-left: 0px;
-			}
-			
-			#entity-types li, .pagination li {
-			  display: inline;
-			  padding-right: 20px;
-			}
-			
-			legend {
-			  font-weight: bold;
-			}
+        <style>
+            #signin, #signout {
+                color: #999999;
+            }
 
-             ul.item-actions {
-                :before
-                 padding-left: 0px;
-             }
+            #signin:hover, #signout:hover {
+                color: #ffffff;
+                text-decoration: none;
+            }
 
-            ul.item-actions li {
-                display: inline;
+            .page-content {
+                padding-top: 40px;
+                padding-bottom: 40px;
+            }
+
+            #form-nav-sidebar {
+                top: 80px;
+            }
+
+            #head-signin {
+                padding: 10px 15px 10px;
+                color: #f5f5f5;
+            }
+
+            #footer {
+                text-align: center;
+             /*   padding: 20px 20px;*/
+                border-top: 1px solid #e5e5e5;
+                background-color: #f5f5f5;
+            }
+        </style>
+
+        <style type="text/css">
+
+            /* Sticky footer styles
+            -------------------------------------------------- */
+
+            html,
+            body {
+            height: 100%;
+            /* The html and body elements cannot have any padding or margin. */
+            }
+
+            /* Wrapper for page content to push down footer */
+            #wrap {
+            min-height: 100%;
+            height: auto !important;
+            height: 100%;
+            /* Negative indent footer by it's height */
+            margin: 0 auto -100px;
+            }
+
+            /* Set the fixed height of the footer here */
+            #push,
+            #footer {
+                height: 99px;
+            }
+            #footer .container {
+                margin-top: 20px;
+            }
+            #footer {
+            background-color: #f5f5f5;
+            }
+
+            #footer {
+                padding-left: 20px;
                 padding-right: 20px;
             }
-		</style>
 
+        </style>
     </head>
-    <body>
+    <body data-spy="scroll" data-target="#form-nav-sidebar">
 
-	    <div id="head-section">
-			@maybeUser.flatMap(_.account).map { account =>
-			  <span>@account.email (<a href="/logout" id="signout">@Messages("banner.signout")</a>)</span>
-			}.getOrElse {
-			  <a href="/login" id="signin">@Messages("banner.signin")</a>
-			}
-		</div>
+        @activeIfCurrent(call: Call, text: String) = {
+            <li class="@{if(req.path.startsWith(call.toString)) "active" else ""}"><a href="@call">@text</a></li>
+        }
 
-		<h2>@Messages("banner.heading")</h2>
-		<hr />
+        <div id="wrap">
+            <div class="navbar navbar-inverse navbar-fixed-top">
+                <div class="navbar-inner">
+                     <div id="head-signin" class="pull-right">
+                        @userOpt.flatMap(_.account).map { account =>
+                            <span>@account.email | <a href="/logout" id="signout">@Messages("banner.signout")</a></span>
+                        }.getOrElse {
+                            <a href="/login" id="signin">@Messages("banner.signin")</a>
+                        }
+                     </div>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li class="@{if(req.path == "/") "active" else ""}"><a href="/">@Messages("home")</a></li>
+                            @activeIfCurrent(routes.DocumentaryUnits.list(), Messages("contentTypes." + EntityType.DocumentaryUnit))
+                            @activeIfCurrent(routes.Agents.list(), Messages("contentTypes." + EntityType.Agent))
+                            @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
+                            @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
+                            @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
+                            @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="page-content">
+                @content
+                <div id="push"></div>
+            </div>
+        </div>
+        <div id="footer">
+            <div class="container">
+                <p class="muted">@Messages("footer.footerText")</p>
+            </div>
+        </div>
 
-		<div id="entity-types">
-			<ul>
-				<li><a href="@routes.DocumentaryUnits.list(1, 20)">@Messages("contentTypes." + EntityType.DocumentaryUnit)</a></li>
-				<li><a href="@routes.Agents.list(1, 20)">@Messages("contentTypes." + EntityType.Agent)</a></li>
-				<li><a href="@routes.UserProfiles.list(1, 20)">@Messages("contentTypes." + EntityType.UserProfile)</a></li>
-				<li><a href="@routes.Groups.list(1, 20)">@Messages("contentTypes." + EntityType.Group)</a></li>
-				<li><a href="@routes.ActionLogs.list(1, 20)">@Messages("contentTypes." + EntityType.ActionLog)</a></li>
-			</ul>
-			<hr />
-		</div>
-
-        @content
+        <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
+        <script src="@routes.Assets.at("stylesheets/bootstrap/js/bootstrap.js")"></script>
+        <script src="@routes.Assets.at("chosen/chosen.jquery.min.js")"></script>
+        <script type="application/javascript">
+            jQuery(function($) {
+                // Chosen selects - makes multi-select pretty
+                $(".chzn-select").chosen();
+            });
+        </script>
+        @scripts
     </body>
 </html>

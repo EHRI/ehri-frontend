@@ -39,6 +39,6 @@ case class UserProfile(
     name = e.property("name").flatMap(_.asOpt[String]).getOrElse(UserProfileF.PLACEHOLDER_TITLE),
     location = e.property("location").flatMap(_.asOpt[String]),
     about = e.property("about").flatMap(_.asOpt[String]),
-    languages = e.property("languages").flatMap(_.asOpt[List[String]]).getOrElse(List())
+    languages = e.property("languages").flatMap(_.asOpt[List[String]])
   )
 }

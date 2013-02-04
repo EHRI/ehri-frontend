@@ -1,46 +1,7 @@
-@(page: rest.Page[DocumentaryUnit], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
+@(page: rest.Page[DocumentaryUnit], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@main("View item")(maybeUser, req) {
-
-	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
-  
-	<div id="pagination" class="pagination">
-    	<ul>
-		@views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
-			@range.map { cp =>
-	        	@if(cp == page.page.toInt) {
-	                <li class="disabled"><a>@cp</a></li>
-	            } else {
-	                <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
-	            }
-	        }
-	        @if(range.last != page.numPages) {
-	        	<li class="disabled"><a>...</a></li>
-	        }
-		}
-		</ul>
-	</div>
-	
-	<ul>
-	@page.list.map { item =>
-	  	<div class="list-item">
-			<h4>
-				<a href="@showAction(item.id)">@item.name</a>
-				@item.dateString.map { d =>
-				  &nbsp;[@d]
-				}
-				@item.holder.map { holder =>
-					<strong> - <a href="@controllers.routes.Agents.get(holder.id)">@holder.name</a></strong>
-				}
-			</h4>
-			@item.descriptions.headOption.map { desc =>
-			  @desc.property("scopeAndContent").flatMap(_.asOpt[String]).map { sc =>
-			    <p>@sc</p>
-			  }
-			  
-			}
-		</div>
-	}
-	</ul>
-    
+@noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
+    @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
+        @documentaryUnit.itemList(page)
+    }
 }

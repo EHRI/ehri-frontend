@@ -1,10 +1,15 @@
 package controllers.base
 
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
-import play.api.mvc.RequestHeader
-import play.api.mvc.Call
-import models.UserProfile
+import play.api.mvc._
+import models.{SystemEvent, Annotation, Entity, UserProfile}
+import rest.{EntityDAO, Page}
+import play.api.data.Form
+import rest.RestPageParams
+import play.api.Logger
+import controllers.ListParams
+
 
 /**
  * Controller trait which handles the listing and showing of Entities that
@@ -15,45 +20,138 @@ import models.UserProfile
 trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   val DEFAULT_LIMIT = 20
 
-  type ShowViewType = (T, Option[UserProfile], RequestHeader) => play.api.templates.Html
-  type ListViewType = (rest.Page[T], String => Call, Option[UserProfile], RequestHeader) => play.api.templates.Html
-  val listView: ListViewType
-  val listAction: (Int, Int) => Call
-  val showAction: String => Call
-  val showView: ShowViewType
+  val defaultPage: RestPageParams = new RestPageParams()
+  val defaultChildPage: RestPageParams = new RestPageParams()
+
+  def getEntity(id: String, user: Option[UserProfile])(f: Entity => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+    AsyncRest {
+      rest.EntityDAO(entityType, userOpt).get(id).map { itemOrErr =>
+        itemOrErr.right.map(f)
+      }
+    }
+  }
+
+  def getEntity(otherType: defines.EntityType.Type, id: String)(f: Entity => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+    AsyncRest {
+      rest.EntityDAO(otherType, userOpt).get(id).map { itemOrErr =>
+        itemOrErr.right.map(f)
+      }
+    }
+  }
+
+  def getGroups(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+    // TODO: Handle REST errors
+    Async {
+      for {
+        users <- rest.RestHelpers.getUserList
+        groups <- rest.RestHelpers.getGroupList
+      } yield {
+        f(users)(groups)
+      }
+    }
+  }
 
   def getJson(id: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
-      import com.codahale.jerkson.Json
+      import play.api.libs.json.Json
       AsyncRest {
         rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
           itemOrErr.right.map {
-            item => Ok(Json.generate(item.data))
+            item => Ok(Json.toJson(item.data))
           }
         }
       }
   }
 
-  def get(id: String) = itemPermissionAction(contentType, id) { implicit maybeUser =>
-    implicit request =>
-      AsyncRest {
-        rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-          itemOrErr.right.map {
-            item => Ok(showView(builder(item), maybeUser, request))
+  def getAction(id: String)(f: Entity => Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    itemPermissionAction(contentType, id) { item => implicit maybeUser =>
+      implicit request =>
+      Secured {
+        AsyncRest {
+          // NB: Effectively disable paging here by using a high limit
+          val annsReq = rest.AnnotationDAO(maybeUser).getFor(id)
+          for { annOrErr <- annsReq } yield {
+            for { anns <- annOrErr.right } yield {
+              f(item)(anns)(maybeUser)(request)
+            }
           }
         }
       }
+    }
   }
 
-  def list(page: Int = 1, limit: Int = DEFAULT_LIMIT) = userProfileAction { implicit maybeUser =>
-    implicit request =>
-      AsyncRest {
-        rest.EntityDAO(entityType, maybeUser)
-          .page(math.max(page, 1), math.max(limit, 1)).map { itemOrErr =>
-          itemOrErr.right.map {
-            lst => Ok(listView(lst.copy(list = lst.list.map(builder(_))), showAction, maybeUser, request))
+  def getWithChildrenAction[C <: AccessibleEntity](id: String, builder: Entity => C)(
+      f: Entity => rest.Page[C] => ListParams =>  Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    itemPermissionAction(contentType, id) { item => implicit userOpt =>
+      implicit request =>
+      Secured {
+        AsyncRest {
+          // NB: Effectively disable paging here by using a high limit
+          val params = ListParams.bind(request)
+          val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
+          val cReq = rest.EntityDAO(entityType, userOpt).pageChildren(id, processChildParams(params))
+          for { annOrErr <- annsReq ; cOrErr <- cReq } yield {
+            for { anns <- annOrErr.right ; children <- cOrErr.right } yield {
+              f(item)(children.copy(list = children.list.map(builder(_))))(params)(anns)(userOpt)(request)
+            }
           }
         }
       }
+    }
   }
+
+  def listAction(f: rest.Page[Entity] => ListParams => Option[UserProfile] => Request[AnyContent] => Result) = {
+    userProfileAction { implicit userOpt =>
+      implicit request =>
+      Secured {
+        AsyncRest {
+          val params = ListParams.bind(request)
+          rest.EntityDAO(entityType, userOpt).page(processParams(params)).map { itemOrErr =>
+            itemOrErr.right.map {
+              page => f(page)(params)(userOpt)(request)
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  def historyAction[C <: AccessibleEntity](id: String)(
+      f: Entity => rest.Page[SystemEvent] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    userProfileAction { implicit userOpt => implicit request =>
+      Secured {
+        AsyncRest {
+          val itemReq = rest.EntityDAO(entityType, userOpt).get(id)
+          // NOTE: we do not use the controller's RestPageParams here because
+          // they won't apply to Event items...???
+          val alReq = rest.SystemEventDAO(userOpt).history(id, RestPageParams())
+          for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
+            for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {
+              f(item)(al.copy(list = al.list.map(SystemEvent(_))))(userOpt)(request)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Process parameters for the main list form.
+   * @param listParams
+   * @return
+   */
+  def processParams(listParams: ListParams): RestPageParams = {
+    // don't do anything by default except for copy the page and limit
+    // Inheriting controllers can override this to handle translating
+    // filter values to the internal REST format.
+    RestPageParams(listParams.page, listParams.limit)
+  }
+
+  /**
+   * Process parameters for the child form.
+   * @param listParams
+   * @return
+   */
+  def processChildParams(listParams: ListParams): RestPageParams = processParams(listParams)
 }

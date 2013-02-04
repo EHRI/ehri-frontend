@@ -1,0 +1,44 @@
+<!--
+
+   This file is included to make Neo4j logback happy. If it is
+    not present, Logback, for reasons that need to be established
+    complains and goes on to print all its internal config to the
+    console, which is highly annoying.
+
+-->
+        <!--
+<included>
+
+    <logger name="neo4j.diagnostics" level="debug">
+    </logger>
+
+    <logger name="org.neo4j.cluster" level="debug">
+    </logger>
+
+    <logger name="org.neo4j.cluster.NetworkMock" level="warn">
+    </logger>
+
+    <logger name="org.neo4j.kernel.ha" level="debug">
+    </logger>
+
+    <logger name="org.neo4j.kernel.info.DiagnosticsManager" level="warn">
+    </logger>
+
+    <logger name="eu.ehri" level="info">
+    </logger>
+
+    <root level="warn">
+  </root>
+</included>
+-->
+
+    <included>
+        <logger name="eu.mypackage" level="info">
+        </logger>
+
+        <logger name="org.neo4j" level="warn">
+        </logger>
+
+    <root level="warn">
+    </root>
+    </included>

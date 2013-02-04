@@ -1,0 +1,48 @@
+@(item: Accessor, page: rest.Page[PermissionGrant])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@rightSidebarLayout(Messages("permissionGrant.heading", item.name)) {
+    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
+
+    <div id="pagination" class="pagination">
+        <ul>
+        @views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
+            @range.map { cp =>
+                @if(cp == page.page.toInt) {
+                    <li class="disabled"><a>@cp</a></li>
+                } else {
+                    <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
+                }
+            }
+            @if(range.last != page.numPages) {
+                <li class="disabled"><a>...</a></li>
+            }
+        }
+        </ul>
+    </div>
+
+    <ul>
+    @page.list.map { item =>
+        <div class="list-item">
+            <h4>@item.permission.toString</h4>
+            <ul>
+                @item.accessor.map { accessor =>
+                    <li>@Messages("permissionGrant.accessor"): @accessor</li>
+                }
+                @item.targets.map { t =>
+                    <li>@Messages("permissionGrant.targets"): @t</li>
+                }
+                @item.scope.map { s =>
+                    <li>@Messages("permissionGrant.scope"): @s</li>
+                }
+                @item.grantee.map { s =>
+                    <li>@Messages("permissionGrant.grantedBy"): @s</li>
+                }
+            </ul>
+        </div>
+    }
+    </ul>
+} {
+
+}

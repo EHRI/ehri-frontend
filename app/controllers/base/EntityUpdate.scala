@@ -1,13 +1,13 @@
 package controllers.base
 
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
-import play.api.mvc.{AsyncResult, Call}
+import play.api.mvc._
 import models.base.Persistable
 import play.api.data.{ Form, FormError }
 import models.base.Formable
 import defines.PermissionType
-import play.api.i18n.Messages
+import models.{UserProfile, Entity}
 
 /**
  * Controller trait which updates an AccessibleEntity.
@@ -16,42 +16,22 @@ import play.api.i18n.Messages
  * @tparam T the Entity's built representation
  */
 trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
-  val updateAction: String => Call
-  val formView: EntityCreate[F, T]#FormViewType
-  val form: Form[F]
 
-  def update(id: String) = withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item =>
-            val doc: T = builder(item)
-            Ok(formView(Some(doc), form.fill(doc.to), updateAction(id), user, request))
-          }
-        }
-      }
+  def updateAction(id: String)(f: Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+      f(item)(userOpt)(request)
+    }
   }
 
-  def updatePost(id: String) = withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-
-      def renderForm(form: Form[F]): AsyncResult = AsyncRest {
-        rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item =>
-            val doc: T = builder(item)
-            BadRequest(formView(Some(doc), form, updateAction(id), user, request))
-          }
-        }
-      }
+  def updatePostAction(id: String, form: Form[F])(f: Entity => Either[Form[F],Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
 
       form.bindFromRequest.fold(
-        errorForm => renderForm(errorForm),
+        errorForm => f(item)(Left(errorForm))(userOpt)(request),
         success = doc => {
           AsyncRest {
-            rest.EntityDAO(entityType, maybeUser)
-              .update(id, doc.toData).map {
+            rest.EntityDAO(entityType, userOpt)
+              .update(id, doc).map {
               itemOrErr =>
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
@@ -61,15 +41,16 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
                     case err: rest.ValidationError => {
                       val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
                       val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-                      Right(renderForm(filledForm))
+                      Right(f(item)(Left(filledForm))(userOpt)(request))
                     }
                     case e => Left(e)
                   },
-                  item => Right(Redirect(showAction(item.id)).flashing("success" -> Messages("confirmations.itemWasUpdated", item.id)))
+                  item => Right(f(item)(Right(item))(userOpt)(request))
                 )
             }
           }
         }
       )
+    }
   }
 }

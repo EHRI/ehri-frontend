@@ -18,11 +18,16 @@ package object defines {
         try {
           JsSuccess(enum.withName(s))
         } catch {
-          case _ => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
+          case _: NoSuchElementException => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
         }
       }
       case _ => JsError("String value expected")
     }
+  }
+
+  object EnumFormat {
+    import play.api.libs.json.Format
+    implicit def enumFormat[E <: Enumeration](enum: E): Format[E#Value] = Format(EnumReader.enumReads(enum), EnumWriter.enumWrites)
   }
 
   object EnumReader {
@@ -32,7 +37,7 @@ package object defines {
           try {
             JsSuccess(enum.withName(s))
           } catch {
-            case _ => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
+            case _: NoSuchElementException => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
           }
         }
         case _ => JsError("String value expected")

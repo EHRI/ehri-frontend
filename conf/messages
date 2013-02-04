@@ -1,0 +1,366 @@
+# General main page parts
+banner.heading=EHRI Dev Test
+banner.signin=Sign In
+banner.signout=Sign Out
+
+home=Home
+home.message=This is a development version of the EHRI data management interface.\
+  It's not done yet, but don't let that put you off.
+
+forms.adminArea=Administration Area
+
+search.filterItems=Filter Items
+search.sortItems=Sort Items
+search.sortReversed=(Descending)
+search.noItemsFound=No Items Found
+
+footer.footerText=This is a development version of the EHRI data entry interface.
+
+login.login=Sign In
+login.adminLoginMessage=Note: only EHRI partners are given passwords.\
+   To sign up normally, please use the ''Sign In'' link at the top of the page and login with your OpenID account.
+login.linkToPasswordLogin=Click here if you have been given a password.
+login.email=Email
+login.password=Password
+login.badUsernameOrPassword=Incorrect username or password
+
+openid.openIdError=There was a problem logging you in with OpenID.\
+  This may because your provider does not support attribute exchange. The error messages was: {0}
+
+# Friendly names for content types
+contentTypes.group=Groups
+contentTypes.userProfile=Users
+contentTypes.agent=Repositories
+contentTypes.authority=Authorities
+contentTypes.documentaryUnit=Collections
+contentTypes.action=User Events
+contentTypes.systemEvent=System Events
+contentTypes.cvocVocabulary=CVocs
+contentTypes.cvocConcept=Concepts
+contentTypes.annotation=Annotations
+
+#
+# Permission Types
+#
+permissionTypes.create=Create
+permissionTypes.update=Update
+permissionTypes.delete=Delete
+permissionTypes.grant=Grant
+permissionTypes.annotate=Annotate
+permissionTypes.owner=Owner
+
+
+# general models.forms
+update.heading=Update {0}
+create.heading=Create New Item
+
+#
+# Custom page error reporting
+#
+errors.itemNotFound=Item Not Found
+errors.itemNotFoundExplanation=That item couldn't be found on the system
+errors.genericProblem=We're very sorry, but there's a problem loading that page
+errors.databaseError=Database Error
+errors.databaseErrorExplanation=I''m afraid it looks like our database server has gone down.     \
+  There's not much we can do without it, so please try again later.
+errors.permissionDenied=Permission Denied
+errors.permissionDeniedExplanation=It looks like you can't do whatever it is you were attempted \
+  to do. This is probably an error on our part. We'll try and fix that ASAP.
+
+# Pagination display. Should say something like "Displaying items 1 to 20 of 25.
+# If there are 0 items, says "No items found", one item, "One item found" etc.
+pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
+
+#
+# Concepts
+#
+concept.prefLabel=Label
+concept.altLabel=Alternative Label(s)
+concept.scopeNote=Scope Note
+concept.definition=Definition
+concept.inVocabulary=Vocabulary
+concept.broaderTerms=Broader Terms
+concept.narrowerTerms=Narrower Terms
+concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+vocabulary.description=Description
+
+#
+# Annotations
+#
+annotation.bodyText=Text
+annotation.field=Field
+annotation.annotationType=Type
+annotation.emptyBodyText=[Missing Annotation Text]
+
+#
+# Admin
+#
+admin.createNewUser=Create New User
+admin.userEmailAlreadyRegistered=A user with that email is already registered: {0}
+
+#
+# Users
+#
+users.email=Email
+users.username=Username
+users.realname=Full Name
+users.password=Password
+users.passwordConfirm=Confirm Password
+
+#
+# Groups
+#
+group.identifier=Group Identifier
+group.name=Group Name
+group.description=Group Description
+
+#
+# System Events
+#
+systemEvents.itemAtTime=Action at {0}
+
+# Actions
+actions.history=History
+actions.listSystemEvents=System Events
+actions.listDocumentaryUnits=Collections
+actions.listAgents=Repositories
+actions.listUserProfiles=Users
+actions.listGroups=Groups
+actions.listConcepts=Concepts
+actions.listVocabularies=Vocabularies
+actions.createDocumentaryUnit=Create Collection
+actions.createAgent=Create Repository
+actions.createUserProfile=Create User
+actions.createGroup=Create Group
+actions.updateDocumentaryUnit=Update Collection
+actions.updateAgent=Update Repository
+actions.updateUserProfile=Update User
+actions.updateGroup=Update Group
+actions.updateConcept=Update Concept
+actions.updateVocabulary=Update Vocabulary
+
+actions.backToList=Back to List
+actions.deleteItem=Delete Item
+actions.updateItem=Update Item
+actions.createNewItem=Create New Item
+actions.setVisibility=Set Visibility
+actions.modifyPermissions=Modify Permissions
+actions.listPermissionGrants=Show Per-Item Permissions
+actions.createNewDocUnit=Create New Collection
+actions.createChildDocUnit=Create Child Collection
+actions.createNewRepository=Create New Repository
+actions.createNewUser=Create New User Profile
+actions.createNewGroup=Create New Group
+actions.createConcept=Create New Concept
+actions.createVocabulary=Create New Vocabulary
+actions.createTopLevelConcept=Create Top-level Concept
+actions.createNarrowerConcept=Create Narrower Concept
+actions.modifyGroups=Add/Remove Parent Groups
+actions.manageGroupsFor=Manage Groups: {0}
+actions.historyForItem=Change history for item: {0}
+actions.showHistory=Item History
+actions.addNewGroup=Add New Group
+actions.addUserToGroup=Add {0} to group ''{1}''
+actions.updateGlobalPermissions=Update Global Permissions
+actions.manageScopedPermissions=Managed Scoped Permissions
+actions.manageScopedPermissionsForAccessor=Manage Scoped Permissions for {0}
+actions.manageScopedPermissionsForItem=Manage Scoped Permissions for {0}
+actions.manageItemPermissions=Manage Item Permissions
+actions.manageItemPermissionsForAccessor=Manage Item Permissions for {0}
+actions.manageItemPermissionsForItem=Manage Item Permissions for {0}
+actions.grantPermissionsInScope=Manage Permissions in scope {0} for {1}
+actions.grantPermissionsOnItem=Manage Permissions on {0} for {1}
+actions.updatePermissions=Update Permissions
+actions.manageGlobalPermissions=Manage Global Permissions
+actions.managePermissions=Manage Permissions
+actions.cancel=Cancel
+actions.subjectsForAction=Subjects
+actions.annotate=Annotate {0}
+actions.linkAnnotate=Link ''{0}'' to ''{1}''
+actions.annotateThisItem=Annotate Item
+actions.manageGroups=Manage Groups
+
+# Submit buttons
+submitButton.createDocumentaryUnit=Create Collection
+submitButton.createAgent=Create Repository
+submitButton.createUserProfile=Create User
+submitButton.createGroup=Create Group
+submitButton.updateDocumentaryUnit=Update Collection
+submitButton.updateAgent=Update Repository
+submitButton.updateUserProfile=Update User
+submitButton.updateGroup=Update Group
+submitButton.deleteItem=Delete Item
+submitButton.setVisibility=Set Visibility
+submitButton.addItemToGroup=Add Item to Group
+submitButton.removeItemFromGroup=Remove Item from Group
+submitButton.annotate=Annotate Item
+submitButton.linkAnnotate=Link Items
+submitButton.updateGlobalPermissions=Update Global Permissions
+submitButton.createUser=Create User
+submitButton.createVocabulary=Create Vocabulary
+submitButton.createConcept=Create Concept
+submitButton.loginWithPassword=Sign In
+submitButton.loginWithOpenid=Sign In With OpenID
+submitButton.updateConcept=Update Concept
+submitButton.updateVocabulary=Update Vocabulary
+
+deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
+
+accessor.notInAnyGroups=This user does not belong to any groups.
+accessor.currentGroups=Current Groups
+accessor.removeGroup=Remove
+accessor.itemCannotBeAddedToAdditionalGroup=This {0} cannot be added to additional groups
+
+permissions.itemPermissionsForItem=Item-level Permissions for {0}
+permissions.scopedPermissionsForItem=Scoped Permissions for {0}
+permissions.inheritedFrom=Inherited From: {0}
+
+confirmations.itemWasCreated=Item successfully created
+confirmations.itemWasUpdated=Item successfully updated
+confirmations.itemWasDeleted=Item successfully deleted
+
+visibility.visibleToEveryone=Unrestricted visibility
+visibility.visibleToEveryoneMessage=This item currently has no visibility restrictions and is therefore accessible to everyone.
+visibility.restrictedVisibility=Restricted Visibility
+visibility.restrictedVisibilityMessage=This item is currently visible to the following groups/users:
+visibility.visibilityRestrictedTo=Visibility restricted to:
+visibility.chooseUsers=Choose Users
+visibility.chooseGroups=Choose Groups
+
+#
+# User Profile Field definitions
+#
+profile.about=About
+profile.languages=Languages
+profile.location=Location
+profile.noLocationGiven=No location given
+profile.noLanguagesGiven=No languages given
+profile.noBioGiven=No biography given
+
+#
+# Documentary Units
+#
+documentaryUnit.heldBy=Held By
+documentaryUnit.parentItem=Parent Item
+documentaryUnit.availableDescriptions=Available Descriptions
+
+#
+# Permission Grants
+#
+permissionGrant.heading=Permissions for {0}
+permissionGrant.accessor=User/Group
+permissionGrant.targets=Targets
+permissionGrant.scope=Scope
+permissionGrant.grantedBy=Granted By
+
+#
+# ISDIAH Field definitions
+#
+
+# Form sections
+isdiah.descriptionArea=Description Area
+isdiah.identity=Identity Area
+isdiah.contact=Contact Area
+isdiah.addresses=Address Area
+isdiah.access=Access Area
+isdiah.services=Services Area
+
+# Identity Section
+isdiah.identityArea=Identity Area
+isdiah.identifier=Identifier
+isdiah.authorizedFormOfName=Authorized Form Of Name
+isdiah.otherFormsOfName=Other Form(s) of Name
+isdiah.parallelFormsOfName=Parallel Form(s) of Name
+isdiah.institutionType=Institution Type
+
+# AddressF
+isdiah.addressArea=Address Area
+isdiah.name=Address Name
+isdiah.contactPerson=Contact Person
+isdiah.streetAddress=Street Address
+isdiah.city=City
+isdiah.region=Region
+isdiah.countryCode=Country Code
+isdiah.email=Email
+isdiah.telephone=Telephone
+isdiah.fax=Fax
+isdiah.url=Website Address
+
+# Description
+isdiah.history=History
+isdiah.generalContext=General Context
+isdiah.mandates=Mandates
+isdiah.administrativeStructure=Administrative Structure
+isdiah.records=Records
+isdiah.buildings=Buildings
+isdiah.holdings=Holdings
+isdiah.findingAids=Finding Aids
+
+# Access
+isdiah.accessArea=Access Area
+isdiah.openingTimes=Opening Times
+isdiah.conditions=Conditions of Access
+isdiah.accessibility=Accessibility
+
+# Services
+isdiah.servicesArea=Services Area
+isdiah.researchServices=Research Services
+isdiah.reproductionServices=Reproduction Services
+isdiah.publicAreas=Public Areas
+
+# Control
+isdiah.controlArea=Control Area
+isdiah.descriptionIdentifier=Description Identifier
+isdiah.institutionIdentifier=Institution Identifier
+isdiah.rulesAndConventions=Rules and Conventions
+isdiah.status=Status
+isdiah.levelOfDetail=Level of Detail
+isdiah.datesCVD=Dates of Creation and Deletion
+isdiah.languages=Languages
+isdiah.scripts=Scripts
+isdiah.sources=Sources
+isdiah.maintenanceNotes=Maintenance Notes
+
+
+#
+# ISAD(G)-based field set
+#
+
+# Form sections
+isadg.identity=Identity Area
+isadg.descriptionsArea=Descriptions
+isadg.administrationArea=Administration
+isadg.contextArea=Context Area
+isadg.contentArea=Content Area
+isadg.conditionsArea=Conditions Area
+isadg.materialsArea=Materials Area
+isadg.controlArea=Control Area
+
+isadg.name=Name
+isadg.identifier=Identifier
+isadg.title=Title
+isadg.adminBiogHist=Administrative and Biographical History
+isadg.archivalHistory=Archival History
+isadg.acquisition=Acquisition
+isadg.scopeAndContent=Scope and Content
+isadg.appraisal=Appraisal
+isadg.accruals=Accruals
+isadg.systemOfArrangement=System of Arrangement
+isadg.publicationStatus=Publication Status
+isadg.conditionsOfAccess=Conditions of Access
+isadg.conditionsOfReproduction=Conditions of Reproduction
+isadg.physicalCharacteristics=Physical Characteristics
+isadg.findingAids=Finding Aids
+isadg.locationOfOriginals=Location of Originals
+isadg.locationOfCopies=Location of Copies
+isadg.relatedUnitsOfDescription=Related Units of Description
+isadg.publicationNote=Publication Note
+isadg.archivistNote=Archivist Note
+isadg.rulesAndConventions=Rules and Conventions
+isadg.datesOfDescriptions=Dates of Descriptions
+isadg.accessPoints=Access Points
+
+# isad(g) dates
+isadg.startDate=Start Date
+isadg.endDate=End Date

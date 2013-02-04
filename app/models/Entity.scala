@@ -1,5 +1,6 @@
 package models
 
+import base.AccessibleEntity
 import defines._
 import play.api.libs.json._
 
@@ -18,9 +19,10 @@ object Entity {
   }
 
 
-  import play.api.libs.json.Writes._
+  import play.api.libs.json.Writes.{map => _, list => _, _}
   import play.api.libs.json.Reads._
   import play.api.libs.json.util._
+  import play.api.libs.functional.syntax._
   import defines.EnumReader
 
   implicit val entityWrites: Writes[Entity] = (

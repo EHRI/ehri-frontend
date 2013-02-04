@@ -47,7 +47,7 @@ object GlobalPermissionSet {
   /**
    * Construct a new global permission set from a JSON value.
    */
-  def apply[T <: Accessor](accessor: T, json: JsValue): GlobalPermissionSet[T] = json.validate[PermDataRaw].fold(
+  def apply[T <: Accessor](accessor: T, json: JsValue): GlobalPermissionSet[T] = json.validate[List[Map[String, Map[String, List[String]]]]].fold(
     valid = { pd => new GlobalPermissionSet(accessor, extract(pd)) },
     invalid = { e => sys.error(e.toString) }
   )
@@ -70,7 +70,7 @@ case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPerm
    * Get the permission grant for a given permission (if any), which contains
    * the accessor to whom the permission was granted.
    */
-  def get(contentType: ContentType.Value, permission: PermissionType.Value): Option[PermissionGrant[T]] = {
+  def get(contentType: ContentType.Value, permission: PermissionType.Value): Option[Permission[T]] = {
     val accessors = data.flatMap {
       case (user, perms) =>
         perms.get(contentType).flatMap { permSet =>
@@ -83,12 +83,12 @@ case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPerm
     // to determine the accessor who was granted the permissions.
     accessors.headOption.map {
       case (userId, perm) =>
-        if (user.id == userId) PermissionGrant(perm)
+        if (user.id == userId) Permission(perm)
         else {
           user.getAccessor(user.groups, userId) match {
-            case Some(u) if u.id == user.id => PermissionGrant(perm)
-            case s @ Some(u) => PermissionGrant(perm, s)
-            case x => PermissionGrant(perm)
+            case Some(u) if u.id == user.id => Permission(perm)
+            case s @ Some(u) => Permission(perm, s)
+            case x => Permission(perm)
           }
         }
     }

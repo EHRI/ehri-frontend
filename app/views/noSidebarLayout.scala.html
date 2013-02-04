@@ -1,0 +1,17 @@
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = common.breadcrumbs())(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, flash: Flash, lang: Lang)
+
+@main(title, scripts, styles) {
+
+    @breadcrumbs
+    <div class="container">
+        <div class="row-fluid">
+            <div class="span12">
+                <h2>@title</h2>
+
+                @common.flash(flash)
+
+                @content
+            </div>
+        </div>
+    </div>
+}

@@ -33,7 +33,7 @@ object ItemPermissionSet {
   /**
    * Construct an item permission set from a JSON value.
    */
-  def apply[T <: Accessor](accessor: T, contentType: ContentType.Value, json: JsValue) = json.validate[PermDataRaw].fold(
+  def apply[T <: Accessor](accessor: T, contentType: ContentType.Value, json: JsValue) = json.validate[List[Map[String, List[String]]]].fold(
     valid = { pd => new ItemPermissionSet(accessor, contentType, extract(pd)) },
     invalid = { e => sys.error(e.toString) }
   )
@@ -55,18 +55,18 @@ case class ItemPermissionSet[+T <: Accessor](user: T, contentType: ContentType.V
    * Get the permission grant for a given permission (if any), which contains
    * the accessor to whom the permission was granted.
    */  
-  def get(permission: PermissionType.Value): Option[PermissionGrant[T]] = {
+  def get(permission: PermissionType.Value): Option[Permission[T]] = {
     val accessors = data.flatMap { case (uid, perms) =>
         if (expandOwnerPerms(perms).contains(permission)) Some((uid, permission))
         else None
     }
     accessors.headOption.map {
       case (userId, perm) =>
-        if (user.id == userId) PermissionGrant(perm)
+        if (user.id == userId) Permission(perm)
         else user.getAccessor(user.groups, userId) match {
-          case Some(u) if u.id == user.id => PermissionGrant(perm)
-          case s @ Some(u) => PermissionGrant(perm, s)
-          case x => PermissionGrant(perm)
+          case Some(u) if u.id == user.id => Permission(perm)
+          case s @ Some(u) => Permission(perm, s)
+          case x => Permission(perm)
         }
     }
   }

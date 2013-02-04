@@ -1,81 +1,61 @@
 package controllers.base
 
-import defines.{EntityType,ContentType}
-import models.forms.DocumentaryUnitF
-import models.base.Persistable
-import models.base.AccessibleEntity
+import play.api.mvc._
 import play.api.data.Form
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
+import defines.ContentType
+import models.base.{Formable, Persistable, AccessibleEntity}
 import defines.PermissionType
-import models.UserProfile
-import play.api.mvc.AsyncResult
-import play.api.i18n.Messages
+import models.{Entity, UserProfile}
+import models.forms.VisibilityForm
+import rest.EntityDAO
 
 /**
  * Controller trait for extending Entity classes which server as
  * context for the creation of DocumentaryUnits, i.e. Agent and
  * DocumentaryUnit itself.
  */
-trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityController[T] {
+trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
 
-  import play.api.mvc.Call
-  import play.api.mvc.RequestHeader
-
-  val childContentType: ContentType.Value
-  val childEntityType: EntityType.Value
-
-  type ChildFormViewType = (T, Form[CF], Call, UserProfile, RequestHeader) => play.api.templates.Html
-  val childFormView: ChildFormViewType
-  val childForm: Form[CF]
-  val childShowAction: String => Call
-  val childCreateAction: String => Call
-
-  def childCreate(id: String) = withItemPermission(id, PermissionType.Create, childContentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item => Ok(childFormView(builder(item), childForm, childCreateAction(id), user, request)) }
-        }
+  def childCreateAction(id: String, ct: ContentType.Value)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
+      getGroups { users => groups =>
+        f(item)(users)(groups)(userOpt)(request)
       }
+    }
   }
 
-  def childCreatePost(id: String) = withItemPermission(id, PermissionType.Create, childContentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-
-      def renderForm(form: Form[CF]): AsyncResult = AsyncRest {
-        rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item =>
-            BadRequest(childFormView(builder(item), form, childCreateAction(id), user, request))
-          }
-        }
-      }
-
-      childForm.bindFromRequest.fold(
-        errorForm => renderForm(errorForm),
-        doc => {
+  def childCreatePostAction[CT<:Persistable](id: String, form: Form[CT], ct: ContentType.Value)(
+        f: Entity => Either[(Form[CT],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
+      val accessorForm = VisibilityForm.form
+        .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM))
+      val accessors = accessorForm.value.getOrElse(List())
+      form.bindFromRequest.fold(
+        errorForm => f(item)(Left((errorForm,accessorForm)))(userOpt)(request),
+        citem => {
           AsyncRest {
-            rest.EntityDAO(entityType, maybeUser)
-              .createInContext(childEntityType, id, doc.toData).map { itemOrErr =>
-                // If we have an error, check if it's a validation error.
-                // If so, we need to merge those errors back into the form
-                // and redisplay it...
-                if (itemOrErr.isLeft) {
-                  itemOrErr.left.get match {
-                    case err: rest.ValidationError => {
-                      val serverErrors = doc.errorsToForm(err.errorSet)
-                      val filledForm = childForm.fill(doc).copy(errors = childForm.errors ++ serverErrors)
-                      Right(renderForm(filledForm))
-                    }
-                    case e => Left(e)
+            rest.EntityDAO(entityType, userOpt)
+              .createInContext(id, ct, citem, accessors).map { itemOrErr =>
+            // If we have an error, check if it's a validation error.
+            // If so, we need to merge those errors back into the form
+            // and redisplay it...
+              if (itemOrErr.isLeft) {
+                itemOrErr.left.get match {
+                  case err: rest.ValidationError => {
+                    val serverErrors = citem.errorsToForm(err.errorSet)
+                    val filledForm = form.fill(citem).copy(errors = form.errors ++ serverErrors)
+                    Right(f(item)(Left((filledForm,accessorForm)))(userOpt)(request))
                   }
-                } else itemOrErr.right.map {
-                  item => Redirect(childShowAction(item.id)).flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+                  case e => Left(e)
                 }
+              } else itemOrErr.right.map {
+                citem => f(item)(Right(citem))(userOpt)(request)
               }
+            }
           }
         }
       )
+    }
   }
 }

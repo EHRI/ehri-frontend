@@ -1,4 +1,4 @@
-@(item: models.base.AccessibleEntity, maybeUser: Option[UserProfile], req: RequestHeader)
+@(item: models.base.AccessibleEntity)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @accView(item: models.base.AccessibleEntity) = {
 	<table>
@@ -24,7 +24,7 @@
 	</table>  
 }
 
-@main("View item")(maybeUser, req) {
+@noSidebarLayout("View item") {
 	
   
 	<h4>Properties</h4>

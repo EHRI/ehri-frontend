@@ -1,7 +1,7 @@
-@(message: String)(implicit maybeUser: Option[models.sql.User], req: RequestHeader)
+@(message: String)(implicit maybeUser: Option[models.sql.User], req: RequestHeader, flash: Flash, lang: Lang)
 
-@main("Testing login!")(None, req) {
+@main("Testing login!") {
 
 <h1>Hello, world...</h1>
     
-}
+}(None, req)

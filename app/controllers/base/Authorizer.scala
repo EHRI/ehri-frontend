@@ -6,6 +6,8 @@ import jp.t2v.lab.play20.auth._
 import play.api._
 import play.api.mvc._
 
+import scala.reflect.classTag
+
 
 import play.api.Play.current
 
@@ -27,8 +29,15 @@ trait Authorizer extends Results with AuthConfig {
   
   type Id = String
 
-  override def resolver(implicit request: RequestHeader): RelationResolver[Id] = 
-      new CookieRelationResolver[Id](request)
+
+  override lazy val idContainer: IdContainer[Id] = new CookieIdContainer[Id]
+
+  /**
+   * Whether use the secure option or not use it in the cookie.
+   * However default is false, I strongly recommend using true in a production.
+   */
+  override lazy val cookieSecureOption: Boolean = play.api.Play.current.configuration
+      .getBoolean("auth.cookie.secure").getOrElse(false)
 
   /** 
    * A type that represents a user in your application.
@@ -50,7 +59,7 @@ trait Authorizer extends Results with AuthConfig {
    * A `ClassManifest` is used to get an id from the Cache API.
    * Basically use the same setting as the following.
    */
-  val idManifest: ClassManifest[Id] = classManifest[Id]
+  val idManifest = classTag[Id]
 
   /**
    * A duration of the session timeout in seconds
@@ -80,8 +89,12 @@ trait Authorizer extends Results with AuthConfig {
   /**
    * A redirect target after a failed authentication.
    */
-  def authenticationFailed(request: RequestHeader): PlainResult = 
-    Redirect(controllers.routes.Application.login).withSession("access_uri" -> request.uri)
+  def authenticationFailed(request: RequestHeader): PlainResult = {
+    if (ControllerHelpers.isAjax(request))
+      Unauthorized("authentication failed")
+    else
+      Redirect(controllers.routes.Application.login).withSession("access_uri" -> request.uri)
+  }
 
   /**
    * A redirect target after a failed authorization.

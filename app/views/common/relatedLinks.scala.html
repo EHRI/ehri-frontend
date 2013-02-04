@@ -1,0 +1,24 @@
+@**
+* Render annotation comments around some HTML content
+*
+*@
+@(item: AccessibleEntity, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader)
+
+<div class="annotatable" id="@item.id">
+    @annotations.get(item.id).map { list =>
+        @defining(list.filter(_.to.annotationType == models.forms.AnnotationType.Link)) { alist =>
+            @if(!alist.isEmpty) {
+                <hr />
+                <h3>@Messages("isadg.accessPoints")</h3>
+                <ul class="item-annotation-links">
+                    @alist.map { ann =>
+                        @** Q: What do we do when there is no source??? **@
+                        @ann.source.map { src =>
+                            <li><a title="@ann.formatted" href="@views.Helpers.urlFor(src)">@src</a></li>
+                        }
+                    }
+                </ul>
+            }
+        }
+    }
+</div>

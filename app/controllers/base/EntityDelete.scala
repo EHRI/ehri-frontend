@@ -1,12 +1,10 @@
 package controllers.base
 
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.mvc._
+import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
-import play.api.mvc.RequestHeader
-import play.api.mvc.Call
 import defines.PermissionType
-import models.UserProfile
-import play.api.i18n.Messages
+import models.{Entity, UserProfile}
 
 /**
  * Controller trait for deleting AccessibleEntities.
@@ -15,33 +13,21 @@ import play.api.i18n.Messages
  */
 trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
 
-  type DeleteViewType = (T, Call, Call, UserProfile, RequestHeader) => play.api.templates.Html
-  val deleteAction: String => Call
-  val deleteView: DeleteViewType
-  val cancelAction: String => Call
-
-  def delete(id: String) = withItemPermission(id, PermissionType.Delete, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item =>
-            val doc: T = builder(item)
-            Ok(deleteView(doc, deleteAction(id), cancelAction(id), user, request))
-          }
-        }
-      }
+  def deleteAction(id: String)(f: Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
+      f(item)(userOpt)(request)
+    }
   }
 
-  def deletePost(id: String) = withItemPermission(id, PermissionType.Delete, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
+  def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
-        rest.EntityDAO(entityType, maybeUser).delete(id).map { boolOrErr =>
-          boolOrErr.right.map {
-            ok => Redirect(listAction(0, DEFAULT_LIMIT)).flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        rest.EntityDAO(entityType, userOpt).delete(id).map { boolOrErr =>
+          boolOrErr.right.map { ok =>
+            f(ok)(userOpt)(request)
           }
         }
       }
+    }
   }
 }

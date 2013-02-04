@@ -1,0 +1,22 @@
+@(page: rest.Page[DocumentaryUnit])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+<ul class="unstyled">
+@page.list.map { item =>
+    <div class="list-item">
+        <h5>
+            <a href="@routes.DocumentaryUnits.get(item.id)">@item</a>
+            @item.dateString.map { d =>
+                &nbsp;[@d]
+            }
+            @item.holder.map { holder =>
+                <strong> - <a href="@controllers.routes.Agents.get(holder.id)">@holder.name</a></strong>
+            }
+        </h5>
+        @item.descriptions.headOption.map { desc =>
+            @desc.property("scopeAndContent").flatMap(_.asOpt[String]).map { sc =>
+                <p>@sc</p>
+            }
+        }
+    </div>
+}
+</ul>

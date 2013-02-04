@@ -1,32 +1,20 @@
 package rest
 
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.Entity
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import acl.GlobalPermissionSet
-import models.base.Accessor
-import com.codahale.jerkson.Json
-import defines._
 import models.UserProfile
-import models.base.AccessibleEntity
-import play.api.http.HeaderNames
-import play.api.http.ContentTypes
 
-case class VisibilityDAO[T <: AccessibleEntity](val accessor: UserProfile) extends RestDAO {
+case class VisibilityDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/access".format(host, port, mount)
 
-  private val authHeaders: Map[String, String] = headers + (
-    AUTH_HEADER_NAME -> accessor.id
-  )
-  
-  def set(user: T, data: List[String]): Future[Either[RestError, Boolean]] = {
-    WS.url(enc(requestUrl, user.id))
-    	.withHeaders(authHeaders.toSeq: _*).post(Json.generate(data)).map { response =>
+  def set(id: String, data: List[String]): Future[Either[RestError, Boolean]] = {
+    val params = "?" + data.map(p => "%s=%s".format(RestPageParams.ACCESSOR_PARAM, p)).mkString("&")
+    WS.url(enc(requestUrl, id, params)).withHeaders(authHeaders.toSeq: _*).post("").map { response =>
         checkError(response).right.map(r => true)
       }
   }

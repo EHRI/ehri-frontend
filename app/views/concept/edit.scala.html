@@ -1,0 +1,16 @@
+@(item: Option[Concept], f: play.api.data.Form[models.forms.ConceptF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+ 
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@rightSidebarLayout(Messages(item.map(s => "actions.updateConcept").getOrElse("actions.createConcept"))) {
+		
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+		@concept.renderForm(item, f)
+	
+		<div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages(item.map(s => "submitButton.updateConcept").getOrElse("submitButton.createConcept"))</button>
+		</div>
+	}
+} {
+
+}

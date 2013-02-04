@@ -1,74 +1,80 @@
 @(f: play.api.data.Form[models.forms.DocumentaryUnitF])
+@import models.base.TemporalEntity
 
 @import models.forms.IsadG._
+@import models.forms.DatePeriodF._
 
-@defining("isadg") { fieldPrefix =>
-	<fieldset id="identity-area">
-		<legend>@Messages(fieldPrefix + ".identity")</legend>
-		@helper.inputText(f(IDENTIFIER), '_label -> Messages("%s.%s".format(fieldPrefix, IDENTIFIER)))
-		@helper.inputText(f(NAME), '_label -> Messages("%s.%s".format(fieldPrefix, NAME)))
-		</fieldset>
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+    @defining("isadg") { implicit fieldPrefix =>
+
+        <fieldset id="identity-area">
+            <legend>@Messages(fieldPrefix + ".identity")</legend>
+            @helper.inputText(f(Entity.IDENTIFIER), '_label -> Messages("%s.%s".format(fieldPrefix, Entity.IDENTIFIER)))
+            @helper.inputText(f(NAME), '_label -> Messages("%s.%s".format(fieldPrefix, NAME)))
+        </fieldset>
 
         @helper.repeat(f("dates"), min=math.max(f("dates").indexes.length, 1)) { desc =>
 
-            @helper.input(desc(Entity.ID)) { (id, name, value, args) =>
-                <input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
-            }
-            @helper.inputText(desc("startDate"), '_label -> Messages("dates.startDate"))
-            @helper.inputText(desc("endDate"), '_label -> Messages("dates.endDate"))
-
+            @formHelpers.hiddenInput(desc(Entity.ID))
+            @formHelpers.lineInput(desc, START_DATE)
+            @formHelpers.lineInput(desc, END_DATE)
         }
 
-		@helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-			<fieldset id="identity-area">
-			<legend>@Messages("Description")</legend>
-			@helper.input(desc(Entity.ID)) { (id, name, value, args) =>
-					<input type="hidden" name="@name" value="@value" id="@id" @toHtmlArgs(args)>
-			}
-			@helper.inputText(desc("languageCode"), '_label -> "Language Code")
-			@formHelpers.lineInput(desc, TITLE, fieldPrefix)
-		</fieldset>
-			<fieldset id="context-area">
-			<legend>@Messages(fieldPrefix + ".context")</legend>
-			@defining(desc("context")) { desc =>
-					@formHelpers.textInput(desc, ADMIN_BIOG, fieldPrefix)
-					@formHelpers.textInput(desc, ARCH_HIST, fieldPrefix)
-					@formHelpers.textInput(desc, ACQUISITION, fieldPrefix)
-				}
-		</fieldset>
-		  	<fieldset id="content-area">
-			<legend>@Messages(fieldPrefix + ".content")</legend>
-			@defining(desc("content")) { desc =>
-					@formHelpers.textInput(desc, SCOPE_CONTENT, fieldPrefix)
-					@formHelpers.textInput(desc, APPRAISAL, fieldPrefix)
-					@formHelpers.textInput(desc, ACCRUALS, fieldPrefix)
-					@formHelpers.textInput(desc, SYS_ARR, fieldPrefix)
-				}
-		</fieldset>
-		  	<fieldset id="conditions-area">
-					<legend>@Messages(fieldPrefix + ".conditions")</legend>
-			@defining(desc("conditions")) { desc =>
-					@formHelpers.textInput(desc, ACCESS_COND, fieldPrefix)
-					@formHelpers.textInput(desc, REPROD_COND, fieldPrefix)
-					@formHelpers.textInput(desc, PHYSICAL_CHARS, fieldPrefix)
-					@formHelpers.textInput(desc, FINDING_AIDS, fieldPrefix)
-				}
-		</fieldset>
-		  	<fieldset id="materials-area">
-			<legend>@Messages(fieldPrefix + ".materials")</legend>
-			@defining(desc("materials")) { desc =>
-					@formHelpers.textInput(desc, LOCATION_ORIGINALS, fieldPrefix)
-					@formHelpers.textInput(desc, LOCATION_COPIES, fieldPrefix)
-					@formHelpers.textInput(desc, RELATED_UNITS, fieldPrefix)
-					@formHelpers.textInput(desc, PUBLICATION_NOTE, fieldPrefix)
-				}
-			</fieldset>
-		}
-
-	<fieldset id="admin-area">
-		<legend>@Messages("Administration")</legend>
-		@formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
-	</fieldset>
-
+        @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+        <fieldset id="descriptions-area">
+            <legend>@Messages(fieldPrefix + "." + DESCRIPTIONS_AREA)</legend>
+            @formHelpers.hiddenInput(desc(Entity.ID))
+            @helper.inputText(desc("languageCode"), '_label -> "Language Code")
+            @formHelpers.lineInput(desc, TITLE)
+        </fieldset>
+        <fieldset id="context-area">
+            <legend>@Messages(fieldPrefix + "." + CONTEXT_AREA)</legend>
+            @defining(desc(CONTEXT_AREA)) { desc =>
+                @formHelpers.textInput(desc, ADMIN_BIOG)
+                @formHelpers.textInput(desc, ARCH_HIST)
+                @formHelpers.textInput(desc, ACQUISITION)
+            }
+        </fieldset>
+        <fieldset id="content-area">
+        <legend>@Messages(fieldPrefix + "." + CONTENT_AREA)</legend>
+            @defining(desc(CONTENT_AREA)) { desc =>
+                @formHelpers.textInput(desc, SCOPE_CONTENT)
+                @formHelpers.textInput(desc, APPRAISAL)
+                @formHelpers.textInput(desc, ACCRUALS)
+                @formHelpers.textInput(desc, SYS_ARR)
+            }
+        </fieldset>
+        <fieldset id="conditions-area">
+                <legend>@Messages(fieldPrefix + "." + CONDITIONS_AREA)</legend>
+        @defining(desc(CONDITIONS_AREA)) { desc =>
+                @formHelpers.textInput(desc, ACCESS_COND)
+                @formHelpers.textInput(desc, REPROD_COND)
+                @formHelpers.textInput(desc, PHYSICAL_CHARS)
+                @formHelpers.textInput(desc, FINDING_AIDS)
+            }
+        </fieldset>
+        <fieldset id="materials-area">
+            <legend>@Messages(fieldPrefix + "." + MATERIALS_AREA)</legend>
+            @defining(desc(MATERIALS_AREA)) { desc =>
+                @formHelpers.textInput(desc, LOCATION_ORIGINALS)
+                @formHelpers.textInput(desc, LOCATION_COPIES)
+                @formHelpers.textInput(desc, RELATED_UNITS)
+                @formHelpers.textInput(desc, PUBLICATION_NOTE)
+            }
+        </fieldset>
+        <fieldset id="control-area">
+            <legend>@Messages(fieldPrefix + "." + CONTROL_AREA)</legend>
+            @defining(desc(CONTROL_AREA)) { desc =>
+                @formHelpers.textInput(desc, ARCHIVIST_NOTE)
+                @formHelpers.textInput(desc, RULES_CONVENTIONS)
+                @formHelpers.textInput(desc, DATES_DESCRIPTIONS)
+            }
+        </fieldset>
+    }
 }
 
+<fieldset id="admin-area">
+    <legend>@Messages("forms.adminArea")</legend>
+    @formHelpers.enumChoiceInput(f("forms.publicationStatus"), defines.PublicationStatus, "Publication Status")
+</fieldset>

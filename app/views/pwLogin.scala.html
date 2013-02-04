@@ -1,0 +1,26 @@
+@(form: Form[(String,String)], action: Call)(implicit request: RequestHeader, flash: Flash, lang: Lang)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@noSidebarLayout(Messages("login.login")) {
+
+    <div class="alert alert-info">
+        @Messages("login.adminLoginMessage")
+    </div>
+
+    @helper.form(action = action, 'class -> "login-form form-horizontal") {
+
+        @helper.input(form("email")) { (id, name, value, args) =>
+            <input type="text" name="@name" id="@id" placeholder="@Messages("login.email")" @toHtmlArgs(args)>
+        }
+
+        @helper.input(form("password")) { (id, name, value, args) =>
+            <input type="text" name="@name" id="@id" placeholder="@Messages("login.password")" @toHtmlArgs(args)>
+        }
+
+        <div>
+            <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
+        </div>
+    }
+}(None, request, flash, lang)
+

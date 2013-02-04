@@ -1,12 +1,9 @@
-@(item: models.base.AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call, user: UserProfile, req: RequestHeader)
-
-@import defines._
+@(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("actions.manageScopedPermissionsForAccessor", item.identifier))(Some(user), req) {
-
-    <h2>@Messages("actions.manageScopedPermissionsForAccessor", item.identifier)</h2>
+@rightSidebarLayout(Messages("actions.manageScopedPermissionsForAccessor", item.identifier)) {
 
     @if(!groups.isEmpty) {
         <strong>@Messages("contentTypes.group"): </strong>&nbsp;
@@ -30,4 +27,6 @@
         }
         </ul>
     }
+} {
+
 }

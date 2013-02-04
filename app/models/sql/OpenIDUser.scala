@@ -31,11 +31,17 @@ case class OpenIDUser(id: Long, email: String, profile_id: String) extends User 
     this
   }
 
+  override def password: Option[String] = DB.withConnection { implicit connection =>
+    SQL(
+      """SELECT data FROM user_auth WHERE user_auth.id = {id} LIMIT 1"""
+    ).on('id -> id).as(str("data").singleOpt)
+
+  }
+
   def setPassword(data: String): OpenIDUser = DB.withConnection{ implicit connection =>
     val res = SQL(
       """
         INSERT INTO user_auth (id, data) VALUES ({id},{data})
-        ON DUPLICATE KEY UPDATE id = {id}
       """
     ).on('id -> id, 'data -> data).executeInsert()
     println("Added password! " + res)
@@ -89,7 +95,7 @@ object OpenIDUser extends UserDAO {
       """
         SELECT * FROM openid_user
           JOIN user_auth ON user_auth.id = openid_user.id
-          WHERE user.email = {email} AND user_auth.data = {data}
+          WHERE openid_user.email = {email} AND user_auth.data = {data}
       """
     ).on('email -> email, 'data -> data).as(OpenIDUser.simple.singleOpt)
   }

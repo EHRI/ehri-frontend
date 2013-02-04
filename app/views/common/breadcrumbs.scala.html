@@ -1,0 +1,14 @@
+@(items: List[AccessibleEntity] = Nil)
+
+<ul class="breadcrumb">
+    @if(!items.isEmpty) {
+        @items.init.map { i =>
+            <li><a href="@views.Helpers.urlFor(i)">@i</a> <span class="divider">/</span></li>
+        }
+
+        <!-- TODO: Decide whether to show the last time -->
+        <li class="muted"><em>@items.last</em></li>
+    } else {
+        <li></li>
+    }
+</ul>

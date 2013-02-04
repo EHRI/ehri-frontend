@@ -3,28 +3,12 @@ package views
 import java.util.Locale
 
 import views.html.helper.FieldConstructor
+import models.base.AccessibleEntity
+import play.api.mvc.Call
 
 
 // Pimp my 
 package object Helpers {
-
-  // These classes follow the "pimp my library" pattern, adding
-  // implicit conversions to types one views.Helpers._ is imported
-  // into the current scope...
-  class PimpedInt(int: Int) {
-    def pluralize = if (int == 1) "" else "s"
-  }
-  class PimpedLong(long: Long) {
-    def pluralize = if (long == 1L) "" else "s"
-  }
-  class PimpedTraversable[A](col: Traversable[A]) {
-    def pluralize = if (col.size == 1) "" else "s"
-  }
-  implicit def pimpInt(int: Int) = new PimpedInt(int)
-  implicit def pimpLong(long: Long) = new PimpedLong(long)
-  implicit def pimpTraversable[A](col: Traversable[A]) = new PimpedTraversable(col)
-
-
   /*
    * Helper to provide Digg-style pagination, like:
    *    1, 2 ... 18, 19, 20, 21, 22 ... 55, 56
@@ -49,5 +33,24 @@ package object Helpers {
       case lp =>
         List((1 to 2), ((lp - (2 + window)) to lp))
     }
+  }
+
+  import defines.EntityType
+  import controllers.routes
+  import models.Entity
+
+  def urlFor(a: AccessibleEntity) = urlForEntity(a.e)
+
+  def urlForEntity(e: Entity): Call = e.isA match {
+    case EntityType.SystemEvent => routes.SystemEvents.get(e.id)
+    case EntityType.DocumentaryUnit => routes.DocumentaryUnits.get(e.id)
+    case EntityType.Agent => routes.Agents.get(e.id)
+    case EntityType.Group => routes.Groups.get(e.id)
+    case EntityType.UserProfile => routes.UserProfiles.get(e.id)
+    case EntityType.Annotation => routes.Annotations.get(e.id)
+    case EntityType.Vocabulary => routes.Vocabularies.get(e.id)
+    case EntityType.Concept => routes.Concepts.get(e.id)
+    case EntityType.ContentType => Call("GET", "#")
+    case i => sys.error("Cannot fetch URL for entity type: " + i)
   }
 }

@@ -1,13 +1,9 @@
-@(item: models.base.Accessor, groups: List[(String,String)], user: UserProfile, req: RequestHeader)
- 
-@import defines._
+@(item: Accessor, groups: List[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@main(Messages("actions.manageGroups"))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.manageGroups")) {
 	
-    <h2>@Messages("actions.manageGroupsFor", item.name)</h2>
-    
 	@if(!item.groups.isEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;
 	  @item.groups.map { group =>
@@ -29,4 +25,6 @@
 	  }	  
 	  </ul>
 	}	
+} {
+
 }

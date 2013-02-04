@@ -1,0 +1,24 @@
+@(page: rest.Page[SystemEvent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("actions.listSystemEvents")) {
+
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
+
+    @common.pagination(page)
+
+	<ul class="unstyled">
+	@page.list.map { item =>
+	  	<div class="list-item">
+			<h5><a href="@routes.SystemEvents.get(item.id)">@item.time</a>
+			@item.actioner.map { accessor =>
+                - <a href="@views.Helpers.urlFor(accessor)">@accessor</a>
+			}
+			</h5>
+			<p>@item.logMessage</p>
+		</div>
+	}
+	</ul>
+
+} {
+
+}

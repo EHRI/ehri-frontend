@@ -3,14 +3,12 @@ package test
 import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
-import eu.ehri.plugin.test.utils.ServerRunner
 import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import eu.ehri.extension.test.utils.ServerRunner
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import com.typesafe.config.ConfigFactory
 import rest._
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 import models.Entity
 import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample
@@ -19,13 +17,9 @@ import models.UserProfile
 import models.DocumentaryUnit
 import models.DocumentaryUnit
 import models.DocumentaryUnit
+import models.forms.{DocumentaryUnitF, UserProfileF}
+import rest.RestPageParams
 
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
-@RunWith(classOf[JUnitRunner])
 class DAOSpec extends Specification with BeforeExample {
   sequential
 
@@ -55,15 +49,15 @@ class DAOSpec extends Specification with BeforeExample {
 
     "create an item" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        await(EntityDAO(entityType, Some(userProfile)).create(data)) must beRight
+        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
+        await(EntityDAO(entityType, Some(userProfile)).create(user)) must beRight
       }
     }
 
     "create an item in (agent) context" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> EntityType.DocumentaryUnit.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val r = await(EntityDAO(EntityType.Agent, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "r1", data))
+        val doc = DocumentaryUnitF(id = None, identifier = "foobar", name = "Foobar")
+        val r = await(EntityDAO(EntityType.Agent, Some(userProfile)).createInContext("r1", ContentType.DocumentaryUnit, doc))
         r must beRight
         DocumentaryUnit(r.right.get).holder must beSome
         DocumentaryUnit(r.right.get).holder.get.identifier must equalTo("r1")
@@ -72,8 +66,8 @@ class DAOSpec extends Specification with BeforeExample {
 
     "create an item in (doc) context" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> EntityType.DocumentaryUnit.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext(EntityType.DocumentaryUnit, "c1", data))
+        val doc = DocumentaryUnitF(id = None, identifier = "foobar", name = "Foobar")
+        val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext("c1", ContentType.DocumentaryUnit, doc))
         r must beRight
         DocumentaryUnit(r.right.get).parent must beSome
         DocumentaryUnit(r.right.get).parent.get.identifier must equalTo("c1")
@@ -82,28 +76,19 @@ class DAOSpec extends Specification with BeforeExample {
         
     "update an item by id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val entity = await(EntityDAO(entityType, Some(userProfile)).create(data)).right.get
-        val udata = data + ("id" -> entity.id)
+        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
+        val entity = await(EntityDAO(entityType, Some(userProfile)).create(user)).right.get
+        val udata = UserProfile(entity).to.copy(location = Some("London"))
         val res = await(EntityDAO(entityType, Some(userProfile)).update(entity.id, udata))
         res must beRight
       }
     }
 
-    "error when creating without a type" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val err = await(EntityDAO(entityType, Some(userProfile)).create(data))
-        err must beLeft
-        err.left.get must beAnInstanceOf[DeserializationError]
-      }
-    }
-
     "error when creating an item with a non-unique id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> "userProfile", "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        await(EntityDAO(entityType, Some(userProfile)).create(data))
-        val err = await(EntityDAO(entityType, Some(userProfile)).create(data))
+        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
+        await(EntityDAO(entityType, Some(userProfile)).create(user))
+        val err = await(EntityDAO(entityType, Some(userProfile)).create(user))
         err must beLeft
         err.left.get must beAnInstanceOf[ValidationError]
       }
@@ -120,21 +105,15 @@ class DAOSpec extends Specification with BeforeExample {
 
     "delete an item by id" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val data = Map("id" -> None, "type" -> entityType.toString, "data" -> Map("identifier" -> "foobar", "name" -> "Foobar"))
-        val entity = await(EntityDAO(entityType, Some(userProfile)).create(data)).right.get
+        val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
+        val entity = await(EntityDAO(entityType, Some(userProfile)).create(user)).right.get
         await(EntityDAO(entityType, Some(userProfile)).delete(entity.id)) must beRight
       }
     }
 
-    "list items" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        await(EntityDAO(entityType, Some(userProfile)).list(0, 20)) must beRight
-      }
-    }
-    
     "page items" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        await(EntityDAO(entityType, Some(userProfile)).page(1, 20)) must beRight
+        await(EntityDAO(entityType, Some(userProfile)).page(RestPageParams())) must beRight
       }
     }    
   }
@@ -142,7 +121,7 @@ class DAOSpec extends Specification with BeforeExample {
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val perms = await(PermissionDAO[UserProfile](userProfile).get)
+        val perms = await(PermissionDAO[UserProfile](Some(userProfile)).get)
         perms must beRight
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
       }
@@ -152,12 +131,12 @@ class DAOSpec extends Specification with BeforeExample {
       running(FakeApplication(additionalConfiguration = config)) {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         val data = Map("agent" -> List("create", "update", "delete"), "documentaryUnit" -> List("create", "update","delete"))
-        val perms = await(PermissionDAO(userProfile).get(user))
+        val perms = await(PermissionDAO(Some(userProfile)).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
         perms.right.get.get(ContentType.Agent, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.Agent, PermissionType.Update) must beNone
-        val permset = await(PermissionDAO(userProfile).set(user, data))
+        val permset = await(PermissionDAO(Some(userProfile)).set(user, data))
         permset must beRight
         val newperms = permset.right.get
         newperms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
@@ -171,14 +150,14 @@ class DAOSpec extends Specification with BeforeExample {
       running(FakeApplication(additionalConfiguration = config)) {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         val data = Map(ContentType.DocumentaryUnit.toString -> List("create", "update","delete"))
-        val perms = await(PermissionDAO(userProfile).get(user))
+        val perms = await(PermissionDAO(Some(userProfile)).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
         perms.right.get.get(ContentType.Agent, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.Agent, PermissionType.Update) must beNone
-        await(PermissionDAO(userProfile).setScope(user, "r1", data))
+        await(PermissionDAO(Some(userProfile)).setScope(user, "r1", data))
         // Since c1 is held by r1, we should now have permissions to update and delete c1.
-        val permset = await(PermissionDAO(userProfile).getItem(user, ContentType.DocumentaryUnit, "c1"))
+        val permset = await(PermissionDAO(Some(userProfile)).getItem(user, ContentType.DocumentaryUnit, "c1"))
         permset must beRight
         val newItemPerms = permset.right.get
         newItemPerms.get(PermissionType.Create) must beSome
@@ -192,10 +171,10 @@ class DAOSpec extends Specification with BeforeExample {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         // NB: Currently, there's already a test permission grant for Reto-create on c1...
         val data = List("update","delete")
-        val perms = await(PermissionDAO(userProfile).getItem(user, ContentType.DocumentaryUnit, "c1"))
+        val perms = await(PermissionDAO(Some(userProfile)).getItem(user, ContentType.DocumentaryUnit, "c1"))
         perms.right.get.get(PermissionType.Update) must beNone
         perms.right.get.get(PermissionType.Delete) must beNone
-        val permReq = await(PermissionDAO(userProfile).setItem(user, ContentType.DocumentaryUnit, "c1", data))
+        val permReq = await(PermissionDAO(Some(userProfile)).setItem(user, ContentType.DocumentaryUnit, "c1", data))
         permReq must beRight
         val newItemPerms = permReq.right.get
         newItemPerms.get(PermissionType.Update) must beSome
@@ -212,14 +191,14 @@ class DAOSpec extends Specification with BeforeExample {
         val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
         DocumentaryUnit(c1a).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike"))
         
-        val set = await(VisibilityDAO(userProfile).set(DocumentaryUnit(c1a), List("mike", "reto", "admin")))
+        val set = await(VisibilityDAO(Some(userProfile)).set(c1a.id, List("mike", "reto", "admin")))
         set must beRight
         val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
         DocumentaryUnit(c1b).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike", "reto"))
       }
     }
   }
-  
+
 /*  "CypherDAO" should {
     "get a JsValue for a graph item" in {
       running(FakeApplication(additionalConfiguration = config)) {

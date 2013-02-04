@@ -1,0 +1,11 @@
+@(item: Option[Group], f: Form[models.forms.GroupF])
+
+@import models.forms.GroupF
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@defining("group") { implicit prefix =>
+    @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+    @formHelpers.lineInput(f(""), GroupF.NAME)
+    @formHelpers.textInput(f(""), GroupF.DESCRIPTION)
+}

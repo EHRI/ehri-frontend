@@ -6,7 +6,7 @@ import controllers.base.ControllerHelpers
 import play.api.mvc.SimpleResult
 import play.api.mvc.ResponseHeader
 import play.api.libs.iteratee.Enumerator
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.libs.concurrent.Execution.Implicits._
 
 object ApiController extends Controller with AuthController with ControllerHelpers {
 

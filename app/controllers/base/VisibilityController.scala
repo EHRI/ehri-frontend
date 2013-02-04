@@ -1,67 +1,54 @@
 package controllers.base
 
-import play.api.mvc.{Call,RequestHeader}
-import play.api.libs.concurrent.execution.defaultContext
+import play.api.mvc._
+import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import models.base.Persistable
 import defines._
-import models.UserProfile
+import models.{Entity,UserProfile}
+import rest.EntityDAO
+
+object VisibilityController {
+  /**
+   * Extract a list of accessors from the request params.
+   * @param d
+   * @return
+   */
+  def extractAccessors(d: Option[Map[String,Seq[String]]]): List[String] = {
+    d.getOrElse(Map()).flatMap {
+      case (k, s) if k == s"accessor_${EntityType.Group}" || k == s"accessor_${EntityType.UserProfile}" => s.toList
+      case (_, s) => Nil
+    }.toList
+  }
+}
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
  *
- * @tparam F the entity's formable class
  * @tparam T the entity's build class
  */
-trait VisibilityController[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
+trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
 
-  val visibilityAction: String => Call
-  val setVisibilityAction: String => Call
-
-  /**
-   * The visibility view takes an Accessor object, a list of id->name groups tuples,
-   * a list of id->name user tuples, an action to redirect to when complete, a
-   * UserProfile, and a request.
-   */
-  type VisibilityViewType = (Accessor, List[(String, String)], List[(String, String)], Call, UserProfile, RequestHeader) => play.api.templates.Html
-
-  val visibilityView: VisibilityViewType
-
-  def visibility(id: String) = withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      AsyncRest {
-        for {
-          itemOrErr <- rest.EntityDAO(entityType, maybeUser).get(id)
-          users <- rest.RestHelpers.getUserList
-          groups <- rest.RestHelpers.getGroupList
-        } yield {
-          itemOrErr.right.map { item =>
-            // TODO: Allow overriding the view here?
-            Ok(views.html.visibility(builder(item), users, groups, setVisibilityAction(id), user, request))
-          }
-        }
+  def visibilityAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+      getGroups { users => groups =>
+        f(item)(users)(groups)(userOpt)(request)
       }
+    }
   }
 
-  def visibilityPost(id: String) = withItemPermission(id, PermissionType.Update, contentType) { implicit user =>
-    implicit request =>
-      implicit val maybeUser = Some(user)
-      val data = request.body.asFormUrlEncoded.getOrElse(List()).flatMap { case (_, s) => s.toList }
+  def visibilityPostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+      val data = models.forms.VisibilityForm.form
+        .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM)).get
       AsyncRest {
-        rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-          itemOrErr.right.map { item =>
-            val model = builder(item)
-            AsyncRest {
-              rest.VisibilityDAO(user).set(model, data.toList).map { boolOrErr =>
-                boolOrErr.right.map { bool =>
-                  Redirect(showAction(id))
-                }
-              }
-            }
+        rest.VisibilityDAO(userOpt).set(id, data).map { boolOrErr =>
+          boolOrErr.right.map { bool =>
+            f(bool)(userOpt)(request)
           }
         }
       }
+    }
   }
 }
 

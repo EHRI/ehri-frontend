@@ -1,66 +1,99 @@
-@(item: Agent, maybeUser: Option[UserProfile], req: RequestHeader)
+@(item: Agent, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@import defines._
 @import models.forms.Isdiah._
 
-@main(item.name)(maybeUser, req) {
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
-    @defining("isdiah") { i18nPrefix =>
-        <h3>@item.name (@item.identifier)</h3>
+    @common.annotated(item, annotations, routes.Agents.annotate(item.id)) {
+        @defining("isdiah") { implicit fieldPrefix =>
+            @if(!item.descriptions.isEmpty) {
+                <h3>@Messages("Available Descriptions")</h3>
+                @item.descriptions.map { desc =>
+                    <h5>Language: @desc.languageCode</h5>
 
-        @if(!item.descriptions.isEmpty) {
-            <h4>@Messages("Available Descriptions")</h4>
-            @item.descriptions.map { desc =>
-                <h5>Language: @desc.languageCode</h5>
+                    <h4>@Messages(fieldPrefix + "." + ADDRESS_AREA, desc.addresses.size)</h4>
+                    @desc.addresses.map { address =>
+                        @common.stringValue(address, ADDRESS_NAME)
+                        @common.stringValue(address, CONTACT_PERSON)
+                        @common.stringValue(address, STREET_ADDRESS)
+                        @common.stringValue(address, CITY)
+                        @common.stringValue(address, REGION)
+                        @common.stringValue(address, COUNTRY_CODE)
+                        @common.stringValue(address, EMAIL)
+                        @common.stringValue(address, TELEPHONE)
+                        @common.stringValue(address, FAX)
+                        @common.stringValue(address, URL)
+                    }
 
-                <h5>@Messages("isdiah.addresses", desc.addresses.size)</h5>
-                @desc.addresses.map { address=>
-                    @common.stringValue(address, ADDRESS_NAME, i18nPrefix)
-                    @common.stringValue(address, CONTACT_PERSON, i18nPrefix)
-                    @common.stringValue(address, STREET_ADDRESS, i18nPrefix)
-                    @common.stringValue(address, CITY, i18nPrefix)
-                    @common.stringValue(address, REGION, i18nPrefix)
-                    @common.stringValue(address, COUNTRY_CODE, i18nPrefix)
-                    @common.stringValue(address, EMAIL, i18nPrefix)
-                    @common.stringValue(address, TELEPHONE, i18nPrefix)
-                    @common.stringValue(address, FAX, i18nPrefix)
-                    @common.stringValue(address, URL, i18nPrefix)
+                    <h4>@Messages(fieldPrefix + "." + DESCRIPTION_AREA)</h4>
+                    <div class="description-section">
+                        @common.stringValue(desc, HISTORY)
+                        @common.stringValue(desc, GENERAL_CONTEXT)
+                        @common.stringValue(desc, MANDATES)
+                        @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
+                        @common.stringValue(desc, RECORDS)
+                        @common.stringValue(desc, BUILDINGS)
+                        @common.stringValue(desc, HOLDINGS)
+                        @common.stringValue(desc, FINDING_AIDS)
+                    </div>
+
+                    <h4>@Messages(fieldPrefix + "." + ACCESS_AREA)</h4>
+                    <div class="description-section">
+                        @common.stringValue(desc, OPENING_TIMES)
+                        @common.stringValue(desc, CONDITIONS)
+                        @common.stringValue(desc, ACCESSIBILITY)
+                    </div>
+
+                    <h4>@Messages(fieldPrefix + "." + SERVICES_AREA)</h4>
+                    <div class="description-section">
+                        @common.stringValue(desc, RESEARCH_SERVICES)
+                        @common.stringValue(desc, REPROD_SERVICES)
+                        @common.stringValue(desc, PUBLIC_AREAS)
+                    </div>
+
+                    <h4>@Messages(fieldPrefix + "." + CONTROL_AREA)</h4>
+                    <div class="description-section">
+                        @common.stringValue(desc, DESCRIPTION_IDENTIFIER)
+                        @common.stringValue(desc, INSTITUTION_IDENTIFIER)
+                        @common.stringValue(desc, RULES_CONVENTIONS)
+                        @common.stringValue(desc, STATUS)
+                        @common.stringValue(desc, LEVEL_OF_DETAIL)
+                        @common.stringValue(desc, DATES_CVD)
+                        @common.stringValue(desc, LANGUAGES_USED)
+                        @common.stringValue(desc, SCRIPTS_USED)
+                        @common.stringValue(desc, SOURCES)
+                        @common.stringValue(desc, MAINTENANCE_NOTES)
+                    </div>
                 }
-
-                <h5>@Messages("isdiah.descriptionArea")</h5>
-                @common.stringValue(desc, HISTORY, i18nPrefix)
-                @common.stringValue(desc, GENERAL_CONTEXT, i18nPrefix)
-                @common.stringValue(desc, MANDATES, i18nPrefix)
-                @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE, i18nPrefix)
-                @common.stringValue(desc, RECORDS, i18nPrefix)
-                @common.stringValue(desc, BUILDINGS, i18nPrefix)
-                @common.stringValue(desc, HOLDINGS, i18nPrefix)
-                @common.stringValue(desc, FINDING_AIDS, i18nPrefix)
             }
         }
     }
-	@common.visibility(item)
 
-  	<ul class="item-actions">
-        <li><a href="@routes.Agents.list(1, 20)">@Messages("actions.backToList")</a></li>
+    @common.relatedLinks(item, annotations)
+
+    @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
+        @documentaryUnit.itemList(page)
+    }
+
+} {
+    @common.latestAction(item, routes.Agents.history(item.id))
+    @common.visibility(item, routes.Agents.visibility(item.id), ContentType.Agent)
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
-                <li><a href="@routes.Agents.childCreate(item.id)">@Messages("actions.createNewDocUnit")</a></li>
+        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
+            <li><a href="@routes.Agents.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
             }
-            @if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
-                <li><a href="@routes.Agents.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
+        @if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
+            <li><a href="@routes.Agents.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
-                <li><a href="@routes.Agents.update(item.id)">@Messages("actions.updateItem")</a></li>
+        @if(user.hasPermission(ContentType.Agent, PermissionType.Delete)) {
+            <li><a href="@routes.Agents.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.Agent, PermissionType.Delete)) {
-                <li><a href="@routes.Agents.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+        @if(user.hasPermission(ContentType.Agent, PermissionType.Grant)) {
+            <li><a href="@routes.Agents.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-            @if(user.hasPermission(ContentType.Agent, PermissionType.Grant)) {
-                <li><a href="@routes.Agents.manageScopedPermissions(item.id)">@Messages("actions.managePermissions")</a></li>
-            }
-            <li><a href="@routes.ActionLogs.historyFor(item.id)">@Messages("actions.showHistory")</a></li>
+        <li><a href="@routes.Agents.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
-
 }

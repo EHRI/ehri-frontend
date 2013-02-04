@@ -1,0 +1,94 @@
+@(item: Concept, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@import models.forms.ConceptF._
+
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.vocabulary.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(Concept(_)) ::: List(item))) {
+    <div class="row-fluid">
+        <div class="span8">
+
+            @defining("concept") { implicit prefix =>
+                @item.descriptions.map { desc =>
+                    <div class="description-section">
+                        @desc.to.altLabels.map { altLabels =>
+                            @if(!altLabels.isEmpty) {
+                                <h4>@Messages(prefix + "." + ALTLABEL)</h4>
+                                <ul>
+                                    @altLabels.map { label =>
+                                        <li>@label</li>
+                                    }
+                                </ul>
+                            }
+                        }
+                        @common.stringValue(desc, SCOPENOTE)
+                        @common.stringValue(desc, DEFINITION)
+                    </div>
+                }
+            }
+
+            @common.annotated(item, annotations, routes.Concepts.annotate(item.id)) {
+                TODO
+            }
+
+            @common.relatedLinks(item, annotations)
+
+        </div>
+        <div class="span4">
+            @if(!item.broaderTerms.isEmpty || item.vocabulary.isDefined) {
+                <div class="well well-small">
+                @item.vocabulary.map { v =>
+                    <h5>@Messages("concept.inVocabulary")</h5>
+                    <p class="muted"><a href="@routes.Vocabularies.get(v.id)">@v</a></p>
+                }
+                @if(!item.broaderTerms.isEmpty) {
+                    <hr />
+                    <h5>@Messages("concept.broaderTerms")</h5>
+                    <ul>
+                    @item.broaderTerms.sortBy(_.toString).map { t =>
+                        <li><a href="@routes.Concepts.get(t.id)">
+                            @t.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+                        </a>
+                        </li>
+                    }
+                    </ul>
+                }
+                </div>
+            }
+        </div>
+    </div>
+
+    @common.filterableList("concept.narrowerTermsPageHeader", page, params, Concepts.listFilterMappings.keys, Concepts.orderMappings.keys) {
+        <ul>
+            @page.list.map { item =>
+                <div class="list-item">
+                    <h5>
+                        <a href="@routes.Concepts.get(item.id)">
+                        @item.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+                        </a>
+                    </h5>
+                </div>
+            }
+        </ul>
+    }
+} {
+
+    @common.visibility(item, routes.Concepts.visibility(item.id), ContentType.Concept)
+    @common.latestAction(item, routes.Concepts.history(item.id))
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.Concept, PermissionType.Create)) {
+                <li><a href="@routes.Concepts.createConcept(item.id)">@Messages("actions.createNarrowerConcept")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Concept, PermissionType.Update)) {
+                <li><a href="@routes.Concepts.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Concept, PermissionType.Delete)) {
+                <li><a href="@routes.Concepts.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Concept, PermissionType.Grant)) {
+                <li><a href="@routes.Concepts.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+            }
+            <li><a href="@routes.Concepts.history(item.id)">@Messages("actions.showHistory")</a></li>
+        }
+    </ul>
+}

@@ -1,38 +1,27 @@
 package test
 
-import org.junit.runner.RunWith
 import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
 import org.specs2.specification.BeforeExample
-import eu.ehri.plugin.test.utils.ServerRunner
+import eu.ehri.extension.test.utils.ServerRunner
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import helpers.TestLoginHelper
-import play.api.test.FakeApplication
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import play.api.test.Helpers.contentAsString
-import play.api.test.Helpers.route
-import play.api.test.Helpers.running
-import play.api.test.Helpers.status
-import play.api.test.FakeHeaders
-import play.api.mvc.AnyContentAsFormUrlEncoded
 import play.api.http.HeaderNames
 import models.UserProfile
 import models.Entity
 import models.base.Accessor
+import controllers.ListParams
+import models.forms.{AnnotationType, AnnotationF}
+import controllers.routes
+import play.api.test._
+import play.api.test.Helpers._
+import defines._
+import rest.{RestError, EntityDAO}
 
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
-@RunWith(classOf[JUnitRunner])
+
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
-  sequential
+  sequential // Needed to avoid concurrency issues with Neo4j databases.
 
-  import defines._
-  //import play.api.http.HeaderNames
 
   val testPrivilegedUser = "mike"
   val testOrdinaryUser = "reto"
@@ -42,6 +31,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
 
+  // Set up Neo4j server config
   val runner: ServerRunner = new ServerRunner(classOf[ApplicationSpec].getName, testPort)
   runner.getConfigurator
     .getThirdpartyJaxRsClasses()
@@ -53,6 +43,11 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
   val oneItemHeader = "One item found"
   val noItemsHeader = "No items found"
 
+  // Headers for post operations
+  val postHeaders: Map[String, String] = Map(
+    HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded"
+  )
+
 
   def before = {
     runner.tearDown
@@ -61,13 +56,11 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
   "DocumentaryUnit views" should {
 
-    import controllers.routes.{DocumentaryUnits,Agents}
-
     "list should get some (world-readable) items" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        val list = route(FakeRequest(GET, DocumentaryUnits.list(1, 20).url)).get
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        val list = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.list.url)).get
         status(list) must equalTo(OK)
-        contentAsString(list) must contain("One item found")
+        contentAsString(list) must contain(oneItemHeader)
 
         contentAsString(list) must not contain ("c1")
         contentAsString(list) must contain("c4")
@@ -77,7 +70,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "list when logged in should get more items" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val list = route(fakeLoggedInRequest(GET, DocumentaryUnits.list(1, 20).url)).get
+        val list = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.list.url)).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain(multipleItemsHeader)
         contentAsString(list) must contain("c1")
@@ -87,30 +80,40 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
 
+    "list when logged with identifier filter in should get one" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val params = s"${ListParams.PROPERTY_NAME}[0]=identifier&${ListParams.PROPERTY_VALUE}[0]=c3"
+        val list = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.list.url + s"?$params")).get
+        status(list) must equalTo(OK)
+        contentAsString(list) must contain(oneItemHeader)
+        contentAsString(list) must contain("c3")
+      }
+    }
+
     "link to other privileged actions when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c1").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c1").url)).get
         status(show) must equalTo(OK)
-        contentAsString(show) must contain(DocumentaryUnits.update("c1").url)
-        contentAsString(show) must contain(DocumentaryUnits.delete("c1").url)
-        contentAsString(show) must contain(DocumentaryUnits.childCreate("c1").url)
-        contentAsString(show) must contain(DocumentaryUnits.visibility("c1").url)
-        contentAsString(show) must contain(DocumentaryUnits.list().url)
+        contentAsString(show) must contain(routes.DocumentaryUnits.update("c1").url)
+        contentAsString(show) must contain(routes.DocumentaryUnits.delete("c1").url)
+        contentAsString(show) must contain(routes.DocumentaryUnits.createDoc("c1").url)
+        contentAsString(show) must contain(routes.DocumentaryUnits.visibility("c1").url)
+        contentAsString(show) must contain(routes.DocumentaryUnits.list().url)
       }
     }
 
     "link to holder" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c1").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c1").url)).get
         status(show) must equalTo(OK)
 
-        contentAsString(show) must contain(Agents.get("r1").url)
+        contentAsString(show) must contain(routes.Agents.get("r1").url)
       }
     }
 
     "give access to c1 when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c1").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c1").url)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("c1")
       }
@@ -118,23 +121,15 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "deny access to c1 when logged in as an ordinary user" in {
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c2").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c2").url)).get
         status(show) must equalTo(UNAUTHORIZED)
         contentAsString(show) must not contain ("c2")
       }
     }
 
-    "allow access to c4 by default" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        val show = route(FakeRequest(GET, DocumentaryUnits.get("c4").url)).get
-        status(show) must equalTo(OK)
-        contentAsString(show) must contain("c4")
-      }
-    }
-
     "allow deleting c4 when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val del = route(fakeLoggedInRequest(POST, DocumentaryUnits.deletePost("c4").url)).get
+        val del = route(fakeLoggedInRequest(POST, routes.DocumentaryUnits.deletePost("c4").url)).get
         status(del) must equalTo(SEE_OTHER)
       }
     }
@@ -146,18 +141,21 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "name" -> Seq("Hello Kitty"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Hello Kitty"),
-          "descriptions[0].content.scopeAndContent" -> Seq("Some content"),
+          "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
           "publicationStatus" -> Seq("Published")
         )
-        val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
-          controllers.routes.Agents.childCreatePost("r1").url).withHeaders(headers.toSeq: _*), testData).get
+          controllers.routes.Agents.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(show) must equalTo(OK)
+
         contentAsString(show) must contain("Some content")
-        contentAsString(show) must contain("Held by")
+        contentAsString(show) must contain("Held By")
+        // After having created an item it should contain a 'history' pane
+        // on the show page
+        contentAsString(show) must contain(routes.DocumentaryUnits.history("r1-hello-kitty").url)
       }
     }
 
@@ -168,16 +166,15 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "name" -> Seq("Collection 1"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Collection 1"),
-          "descriptions[0].content.scopeAndContent" -> Seq("New Content for c1"),
-          "descriptions[0].context.acquistition" -> Seq("Acquisistion info"),
+          "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c1"),
+          "descriptions[0].contextArea.acquistition" -> Seq("Acquisistion info"),
           "publicationStatus" -> Seq("Draft")
         )
-        val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
-          DocumentaryUnits.updatePost("c1").url).withHeaders(headers.toSeq: _*), testData).get
+          routes.DocumentaryUnits.updatePost("c1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
-        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c1").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c1").url)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("New Content for c1")
       }
@@ -190,16 +187,16 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "name" -> Seq("Collection 4"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Collection 4"),
-          "descriptions[0].content.scopeAndContent" -> Seq("New Content for c4"),
+          "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c4"),
           "publicationStatus" -> Seq("Draft")
         )
-        val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
+
         val cr = route(fakeLoggedInRequest(POST,
-          DocumentaryUnits.updatePost("c4").url).withHeaders(headers.toSeq: _*), testData).get
+          routes.DocumentaryUnits.updatePost("c4").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(UNAUTHORIZED)
 
         // We can view the item when not logged in...
-        val show = route(fakeLoggedInRequest(GET, DocumentaryUnits.get("c4").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c4").url)).get
         status(show) must equalTo(OK)
         contentAsString(show) must not contain ("New Content for c4")
       }
@@ -207,26 +204,16 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "should redirect to login page when permission denied when not logged in" in {
       running(FakeApplication(additionalConfiguration = config)) {
-        val show = route(FakeRequest(GET, DocumentaryUnits.get("c1").url)).get
+        val show = route(FakeRequest(GET, routes.DocumentaryUnits.get("c1").url)).get
         status(show) must equalTo(SEE_OTHER)
       }
     }
-
-    "not show history when not logged in as a privileged user" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-
-        val show = route(fakeLoggedInRequest(GET,
-            controllers.routes.ActionLogs.historyFor("c1", 0, 20).url)).get
-        status(show) must equalTo(SEE_OTHER)
-      }
-    }
-
 
     "show history when logged in as privileged user" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
 
         val show = route(fakeLoggedInRequest(GET,
-            controllers.routes.ActionLogs.historyFor("c1", 0, 20).url)).get
+            routes.DocumentaryUnits.history("c1").url)).get
         status(show) must equalTo(OK)
       }
     }
@@ -234,13 +221,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     "allow granting permissions to create a doc within the scope of r2" in {
       import ContentType._
       val testRepo = "r2"
-      val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("test"),
         "name" -> Seq("Test Item"),
         "descriptions[0].languageCode" -> Seq("en"),
         "descriptions[0].title" -> Seq("Test Item"),
-        "descriptions[0].content.scopeAndContent" -> Seq("A test"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
       )
 
@@ -248,7 +234,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         // Check we cannot create an item...
         val cr = route(fakeLoggedInRequest(POST,
-          Agents.childCreatePost("r2").url).withHeaders(headers.toSeq: _*), testData).get
+          routes.Agents.createDocPost("r2").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(UNAUTHORIZED)
       }
 
@@ -258,15 +244,15 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           DocumentaryUnit.toString -> List("create", "update", "delete")
         )
         val permReq = route(fakeLoggedInRequest(POST,
-          Agents.permissionScopePost(testRepo, ContentType.UserProfile, testOrdinaryUser).url)
-              .withHeaders(headers.toSeq: _*), permTestData).get
+          routes.Agents.setScopedPermissionsPost(testRepo, ContentType.UserProfile, testOrdinaryUser).url)
+              .withHeaders(postHeaders.toSeq: _*), permTestData).get
         status(permReq) must equalTo(SEE_OTHER)
       }
       // Now try again and create the item... it should succeed.
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         // Check we cannot create an item...
         val cr = route(fakeLoggedInRequest(POST,
-          Agents.childCreatePost(testRepo).url).withHeaders(headers.toSeq: _*), testData).get
+          routes.Agents.createDocPost(testRepo).url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
         val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(getR) must equalTo(OK)
@@ -276,13 +262,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     "allow granting permissions on a specific item" in {
       import ContentType._
       val testItem = "c4"
-      val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq(testItem),
         "name" -> Seq("Changed Name"),
         "descriptions[0].languageCode" -> Seq("en"),
         "descriptions[0].title" -> Seq("Changed Name"),
-        "descriptions[0].content.scopeAndContent" -> Seq("A test"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
       )
 
@@ -290,7 +275,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         // Check we cannot create an item...
         val cr = route(fakeLoggedInRequest(POST,
-          DocumentaryUnits.updatePost(testItem).url).withHeaders(headers.toSeq: _*), testData).get
+          routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(UNAUTHORIZED)
       }
 
@@ -300,34 +285,52 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           DocumentaryUnit.toString -> List("update")
         )
         val permReq = route(fakeLoggedInRequest(POST,
-          DocumentaryUnits.permissionItemPost(testItem, ContentType.UserProfile, testOrdinaryUser).url)
-          .withHeaders(headers.toSeq: _*), permTestData).get
+          routes.DocumentaryUnits.setItemPermissionsPost(testItem, ContentType.UserProfile, testOrdinaryUser).url)
+          .withHeaders(postHeaders.toSeq: _*), permTestData).get
         status(permReq) must equalTo(SEE_OTHER)
       }
       // Now try again to update the item, which should succeed
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         // Check we can update the item
         val cr = route(fakeLoggedInRequest(POST,
-          DocumentaryUnits.updatePost(testItem).url).withHeaders(headers.toSeq: _*), testData).get
+          routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
         val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(getR) must equalTo(OK)
       }
     }
+
+    "allow commenting via annotations" in {
+      val testItem = "c1"
+      val body = "This is a neat annotation"
+      val testData: Map[String,Seq[String]] = Map(
+        AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationType.Comment.toString),
+        AnnotationF.BODY -> Seq(body)
+      )
+      // Now try again to update the item, which should succeed
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        // Check we can update the item
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.DocumentaryUnits.annotatePost(testItem).url).withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+        val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(getR) must equalTo(OK)
+        contentAsString(getR) must contain(body)
+      }
+    }
   }
+
+
 
   "Agent views" should {
 
-    import controllers.routes.Agents
-
-    "list should get some (world-readable) items" in {
-      running(FakeApplication(additionalConfiguration = config)) {
-        val list = route(FakeRequest(GET, Agents.list(1, 20).url)).get
+    "list should get some items" in {
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        val list = route(fakeLoggedInRequest(GET, routes.Agents.list().url)).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain(multipleItemsHeader)
         contentAsString(list) must contain("r1")
         contentAsString(list) must contain("r2")
-
       }
     }
 
@@ -342,12 +345,11 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
           "descriptions[0].descriptionArea.history" -> Seq("Some history"),
           "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
-          "descriptions[0].addresses[0].name" -> Seq("An Address"),
+          "descriptions[0].addressArea[0].name" -> Seq("An Address"),
           "publicationStatus" -> Seq("Published")
         )
-        val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
-          Agents.createPost.url).withHeaders(headers.toSeq: _*), testData).get
+          routes.Agents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         // FIXME: This route will change when a property ID mapping scheme is devised
@@ -361,13 +363,13 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "link to other privileged actions when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, Agents.get("r1").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.Agents.get("r1").url)).get
         status(show) must equalTo(OK)
-        contentAsString(show) must contain(Agents.update("r1").url)
-        contentAsString(show) must contain(Agents.delete("r1").url)
-        contentAsString(show) must contain(Agents.childCreate("r1").url)
-        contentAsString(show) must contain(Agents.visibility("r1").url)
-        contentAsString(show) must contain(Agents.list().url)
+        contentAsString(show) must contain(routes.Agents.update("r1").url)
+        contentAsString(show) must contain(routes.Agents.delete("r1").url)
+        contentAsString(show) must contain(routes.Agents.createDoc("r1").url)
+        contentAsString(show) must contain(routes.Agents.visibility("r1").url)
+        contentAsString(show) must contain(routes.Agents.list().url)
       }
     }
 
@@ -384,9 +386,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].descriptionArea.generalContext" -> Seq("New Content for r1"),
           "publicationStatus" -> Seq("Draft")
         )
-        val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
-          Agents.updatePost("r1").url).withHeaders(headers.toSeq: _*), testData).get
+          routes.Agents.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
@@ -405,13 +406,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].descriptionArea.generalContext" -> Seq("New Content for r1"),
           "publicationStatus" -> Seq("Draft")
         )
-        val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
-          Agents.updatePost("r1").url).withHeaders(headers.toSeq: _*), testData).get
+          routes.Agents.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(UNAUTHORIZED)
 
         // We can view the item when not logged in...
-        val show = route(fakeLoggedInRequest(GET, Agents.get("r1").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.Agents.get("r1").url)).get
         status(show) must equalTo(OK)
         contentAsString(show) must not contain ("New Content for r1")
       }
@@ -420,7 +420,6 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
   "UserProfile views" should {
 
-    import controllers.routes.{ UserProfiles, Groups }
     import rest.PermissionDAO
 
     val subjectUser = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
@@ -432,13 +431,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           ContentType.Agent.toString -> List(PermissionType.Create.toString),
           ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
         )
-        val headers: Map[String, String] = Map(HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded")
         val cr = route(fakeLoggedInRequest(POST,
-          UserProfiles.permissionsPost(subjectUser.identifier).url).withHeaders(headers.toSeq: _*), testData).get
+          routes.UserProfiles.permissionsPost(subjectUser.identifier).url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         // Now check we can read back the same permissions.
-        val permCall = await(PermissionDAO[UserProfile](userProfile).get(subjectUser))
+        val permCall = await(PermissionDAO[UserProfile](Some(userProfile)).get(subjectUser))
         permCall must beRight
         val perms = permCall.right.get
         perms.get(ContentType.Agent, PermissionType.Create) must beSome
@@ -450,14 +448,14 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "link to other privileged actions when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, UserProfiles.get(id).url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.UserProfiles.get(id).url)).get
         status(show) must equalTo(OK)
-        contentAsString(show) must contain(UserProfiles.update(id).url)
-        contentAsString(show) must contain(UserProfiles.delete(id).url)
-        contentAsString(show) must contain(UserProfiles.permissions(id).url)
-        contentAsString(show) must contain(UserProfiles.visibility(id).url)
-        contentAsString(show) must contain(UserProfiles.list().url)
-        contentAsString(show) must contain(Groups.membership(EntityType.UserProfile.toString, id).url)
+        contentAsString(show) must contain(routes.UserProfiles.update(id).url)
+        contentAsString(show) must contain(routes.UserProfiles.delete(id).url)
+        contentAsString(show) must contain(routes.UserProfiles.permissions(id).url)
+        contentAsString(show) must contain(routes.UserProfiles.grantList(id).url)
+        contentAsString(show) must contain(routes.UserProfiles.list().url)
+        contentAsString(show) must contain(routes.Groups.membership(EntityType.UserProfile.toString, id).url)
       }
     }
 
@@ -465,10 +463,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Going to add user Reto to group Niod
         val add = route(fakeLoggedInRequest(POST,
-          Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)).get
+          routes.Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)).get
         status(add) must equalTo(SEE_OTHER)
 
-        // TODO: Check user is actually part of other group?
+        val userFetch = await(EntityDAO(EntityType.UserProfile, Some(userProfile)).get(id))
+        userFetch must beRight
+        UserProfile(userFetch.right.get).groups.map(_.id) must contain("niod")
       }
     }
 
@@ -476,31 +476,33 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Going to add remove Reto from group KCL
         val rem = route(fakeLoggedInRequest(POST,
-          Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)).get
+          routes.Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)).get
         status(rem) must equalTo(SEE_OTHER)
+
+        val userFetch = await(EntityDAO(EntityType.UserProfile, Some(userProfile)).get(id))
+        userFetch must beRight
+        UserProfile(userFetch.right.get).groups.map(_.id) must not contain("kcl")
       }
     }
   }
 
   "Group views" should {
 
-    import controllers.routes.Groups
-    import rest.PermissionDAO
     import models.Group
 
     val subjectUser = Group(Entity.fromString("kcl", EntityType.Group))
-    val id = subjectUser.identifier
+    val id = "kcl"
 
     "detail when logged in should link to other privileged actions" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, Groups.get(id).url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.Groups.get(id).url)).get
         status(show) must equalTo(OK)
-        contentAsString(show) must contain(Groups.update(id).url)
-        contentAsString(show) must contain(Groups.delete(id).url)
-        contentAsString(show) must contain(Groups.permissions(id).url)
-        contentAsString(show) must contain(Groups.membership(EntityType.Group.toString, id).url)
-        contentAsString(show) must contain(Groups.visibility(id).url)
-        contentAsString(show) must contain(Groups.list().url)
+        contentAsString(show) must contain(routes.Groups.update(id).url)
+        contentAsString(show) must contain(routes.Groups.delete(id).url)
+        contentAsString(show) must contain(routes.Groups.permissions(id).url)
+        contentAsString(show) must contain(routes.Groups.grantList(id).url)
+        contentAsString(show) must contain(routes.Groups.membership(EntityType.Group.toString, id).url)
+        contentAsString(show) must contain(routes.Groups.list().url)
       }
     }
 
@@ -508,10 +510,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Add KCL to Admin
         val add = route(fakeLoggedInRequest(POST,
-          Groups.addMemberPost("admin", EntityType.UserProfile.toString, id).url)).get
+          routes.Groups.addMemberPost("admin", EntityType.Group.toString, id).url)).get
         status(add) must equalTo(SEE_OTHER)
 
-        // TODO: Check group is actually part of other group?
+        val groupFetch = await(EntityDAO(EntityType.Group, Some(userProfile)).get(id))
+        groupFetch must beRight
+        Group(groupFetch.right.get).groups.map(_.id) must contain("admin")
       }
     }
 
@@ -519,8 +523,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Remove NIOD from Admin
         val rem = route(fakeLoggedInRequest(POST,
-          Groups.removeMemberPost("admin", EntityType.UserProfile.toString, "niod").url)).get
+          routes.Groups.removeMemberPost("admin", EntityType.Group.toString, "niod").url)).get
         status(rem) must equalTo(SEE_OTHER)
+
+        val groupFetch = await(EntityDAO(EntityType.Group, Some(userProfile)).get("niod"))
+        groupFetch must beRight
+        Group(groupFetch.right.get).groups.map(_.id) must not contain("admin")
       }
     }
   }

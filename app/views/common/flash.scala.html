@@ -1,0 +1,8 @@
+@(flash: Flash)(implicit lang: Lang)
+
+@flash.data.map { case (key, msg) =>
+    <div class="alert alert-@{key}">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        @Messages(msg)
+    </div>
+}

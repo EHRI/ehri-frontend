@@ -1,26 +1,15 @@
-@(doc: Option[Group], f: play.api.data.Form[models.forms.GroupF], action: Call, user: UserProfile, req: RequestHeader)
- 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@(item: Option[Group], f: play.api.data.Form[models.forms.GroupF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-  @main(doc.map(i => Messages("update.heading", i.name)).getOrElse("create.heading"))(Some(user), req) {
-	
-		@doc.map { v =>
-			<h4>Update @v.identifier</h4>
-		}.getOrElse {
-			<h4>Create</h4>
-		}
-		
-	
-		@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-			<fieldset id="identity-area">
-				<legend>@Messages("Identity")</legend>
-				@helper.inputText(f("identifier"), '_label -> "Identifier")
-				@helper.inputText(f("name"), '_label -> "Name")
-			</fieldset>
-		  			
-			<div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages(doc.map(s => "Update").getOrElse("Create"))</button>
+@import models.forms.GroupF
+
+@rightSidebarLayout(Messages("actions.updateGroup")) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @group.renderForm(item, f)
+
+		<div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages("submitButton.updateGroup")</button>
         </div>
 	}
-		
+} {
+
 }

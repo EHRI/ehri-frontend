@@ -1,0 +1,21 @@
+@(item: SystemEvent, page: rest.Page[ItemWithId], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+
+    <p>
+	@item.actioner.map { accessor =>
+        <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a>:
+	}
+	@item.logMessage
+    </p>
+    <h3>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)}</h3>
+    @common.pagination(page)
+    <ul class="unstyled">
+    @page.list.map { item =>
+        <li><a href="@views.Helpers.urlFor(item)">@item</a></li>
+    }
+    </ul>
+
+} {
+
+}

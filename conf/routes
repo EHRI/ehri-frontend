@@ -22,38 +22,46 @@ POST     /admin/createUser               controllers.Admin.createUserPost
 # Mozilla Persona
 POST	/persona						controllers.PersonaLoginHandler.loginPost
 
-GET     /logout           controllers.Application.logout
-POST     /logout           controllers.Application.logout
+# Admin routes
+GET     /admin/createUser               controllers.Admin.createUser
+POST     /admin/createUser               controllers.Admin.createUserPost
+GET     /admin/login                    controllers.Admin.passwordLogin
+POST    /admin/login                    controllers.Admin.passwordLoginPost
+
+# Change locale
+GET     /locale                         controllers.Application.changeLocale
 
 GET		/test			  controllers.Application.test
 
-GET     /mailTest           controllers.Application.mailTest
-POST     /mailTest           controllers.Application.mailTestPost
-
 # Home page
 GET     /                           controllers.Application.index
-GET     /docs/list           controllers.DocumentaryUnits.list(page: Int ?= 1, limit: Int ?=20)
+GET     /docs                controllers.DocumentaryUnits.list
 GET     /docs/show/:id       controllers.DocumentaryUnits.get(id: String)
+GET     /docs/history/:id    controllers.DocumentaryUnits.history(id: String)
 GET     /docs/json/:id       controllers.DocumentaryUnits.getJson(id: String)
 GET     /docs/delete/:id     controllers.DocumentaryUnits.delete(id: String)
 POST    /docs/delete/:id     controllers.DocumentaryUnits.deletePost(id: String)
 GET     /docs/update/:id     controllers.DocumentaryUnits.update(id: String)
 POST    /docs/update/:id     controllers.DocumentaryUnits.updatePost(id: String)
-GET     /docs/create/:id     controllers.DocumentaryUnits.childCreate(id: String)
-POST    /docs/create/:id     controllers.DocumentaryUnits.childCreatePost(id: String)
+GET     /docs/create/:id     controllers.DocumentaryUnits.createDoc(id: String)
+POST    /docs/create/:id     controllers.DocumentaryUnits.createDocPost(id: String)
 GET     /docs/visibility/:id     controllers.DocumentaryUnits.visibility(id: String)
 POST    /docs/visibility/:id     controllers.DocumentaryUnits.visibilityPost(id: String)
-GET     /docs/permissions/:id/manage_    controllers.DocumentaryUnits.managePermissions(id: String, page: Int ?= 1, limit: Int ?=20)
-GET     /docs/permissions/:id/manage    controllers.DocumentaryUnits.manageScopedPermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     /docs/permissions/:id/manage    controllers.DocumentaryUnits.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
 GET     /docs/permissions/:id/add    controllers.DocumentaryUnits.addItemPermissions(id: String)
-GET     /docs/permissions/:id/:userType/:userId    controllers.DocumentaryUnits.permissionItem(id: String, userType: String, userId: String)
-POST    /docs/permissions/:id/:userType/:userId    controllers.DocumentaryUnits.permissionItemPost(id: String, userType: String, userId: String)
+GET     /docs/permissions/:id/:userType/:userId    controllers.DocumentaryUnits.setItemPermissions(id: String, userType: String, userId: String)
+POST    /docs/permissions/:id/:userType/:userId    controllers.DocumentaryUnits.setItemPermissionsPost(id: String, userType: String, userId: String)
 GET     /docs/scope/:id/add    controllers.DocumentaryUnits.addScopedPermissions(id: String)
-GET     /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.permissionScope(id: String, userType: String, userId: String)
-POST    /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.permissionScopePost(id: String, userType: String, userId: String)
+GET     /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setScopedPermissions(id: String, userType: String, userId: String)
+POST    /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /docs/annotate/:id     controllers.DocumentaryUnits.annotate(id: String)
+POST    /docs/annotate/:id     controllers.DocumentaryUnits.annotatePost(id: String)
+GET     /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotate(id: String, toType: String, to: String)
+POST    /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotatePost(id: String, toType: String, to: String)
 
-GET     /users/list           controllers.UserProfiles.list(page: Int ?= 1, limit: Int ?=20)
+GET     /users                controllers.UserProfiles.list
 GET     /users/show/:id       controllers.UserProfiles.get(id: String)
+GET     /users/history/:id    controllers.UserProfiles.history(id: String)
 GET     /users/json/:id       controllers.UserProfiles.getJson(id: String)
 GET     /users/create         controllers.UserProfiles.create
 POST    /users/create         controllers.UserProfiles.createPost
@@ -63,16 +71,11 @@ GET     /users/update/:id     controllers.UserProfiles.update(id: String)
 POST    /users/update/:id     controllers.UserProfiles.updatePost(id: String)
 GET     /users/permissions/:id     controllers.UserProfiles.permissions(id: String)
 POST    /users/permissions/:id     controllers.UserProfiles.permissionsPost(id: String)
-GET     /users/permissions/:id/list     controllers.UserProfiles.grantList(id: String, page: Int ?= 1, limit: Int ?=20)
-GET     /users/visibility/:id     controllers.UserProfiles.visibility(id: String)
-POST    /users/visibility/:id     controllers.UserProfiles.visibilityPost(id: String)
-GET     /users/permissions/:id/manage    controllers.UserProfiles.managePermissions(id: String, page: Int ?= 1, limit: Int ?=20)
-GET     /users/permissions/:id/add    controllers.UserProfiles.addItemPermissions(id: String)
-GET     /users/permissions/:id/:userType/:userId    controllers.UserProfiles.permissionItem(id: String, userType: String, userId: String)
-POST    /users/permissions/:id/:userType/:userId    controllers.UserProfiles.permissionItemPost(id: String, userType: String, userId: String)
+GET     /users/permissions/:id/list     controllers.UserProfiles.grantList(id: String)
 
-GET     /group/list           controllers.Groups.list(page: Int ?= 1, limit: Int ?=20)
+GET     /group                controllers.Groups.list
 GET     /group/show/:id       controllers.Groups.get(id: String)
+GET     /group/history/:id    controllers.Groups.history(id: String)
 GET     /group/json/:id       controllers.Groups.getJson(id: String)
 GET     /group/create         controllers.Groups.create
 POST    /group/create         controllers.Groups.createPost
@@ -82,22 +85,17 @@ GET     /group/update/:id     controllers.Groups.update(id: String)
 POST    /group/update/:id     controllers.Groups.updatePost(id: String)
 GET     /group/permissions/:id     controllers.Groups.permissions(id: String)
 POST    /group/permissions/:id     controllers.Groups.permissionsPost(id: String)
-GET     /group/permissions/:id/list     controllers.Groups.grantList(id: String, page: Int ?= 1, limit: Int ?=20)
-GET     /group/visibility/:id     controllers.Groups.visibility(id: String)
-POST    /group/visibility/:id     controllers.Groups.visibilityPost(id: String)
+GET     /group/permissions/:id/list     controllers.Groups.grantList(id: String)
 GET		/group/members/:userType/:userId	controllers.Groups.membership(userType: String, userId: String)
 GET		/group/add/:id/:userType/:userId	controllers.Groups.addMember(id: String, userType: String, userId: String)
 POST	/group/add/:id/:userType/:userId	controllers.Groups.addMemberPost(id: String, userType: String, userId: String)
 GET		/group/remove/:id/:userType/:userId	controllers.Groups.removeMember(id: String, userType: String, userId: String)
 POST	/group/remove/:id/:userType/:userId	controllers.Groups.removeMemberPost(id: String, userType: String, userId: String)
-GET     /group/permissions/:id/manage    controllers.Groups.managePermissions(id: String, page: Int ?= 1, limit: Int ?=20)
-GET     /group/permissions/:id/add    controllers.Groups.addItemPermissions(id: String)
-GET     /group/permissions/:id/:userType/:userId    controllers.Groups.permissionItem(id: String, userType: String, userId: String)
-POST    /group/permissions/:id/:userType/:userId    controllers.Groups.permissionItemPost(id: String, userType: String, userId: String)
 
 
-GET     /agent/list           controllers.Agents.list(page: Int ?= 1, limit: Int ?=20)
+GET     /agent                controllers.Agents.list
 GET     /agent/show/:id       controllers.Agents.get(id: String)
+GET     /agent/history/:id    controllers.Agents.history(id: String)
 GET     /agent/json/:id       controllers.Agents.getJson(id: String)
 GET     /agent/create         controllers.Agents.create
 POST    /agent/create         controllers.Agents.createPost
@@ -105,22 +103,78 @@ GET     /agent/delete/:id     controllers.Agents.delete(id: String)
 POST    /agent/delete/:id     controllers.Agents.deletePost(id: String)
 GET     /agent/update/:id     controllers.Agents.update(id: String)
 POST    /agent/update/:id     controllers.Agents.updatePost(id: String)
-GET     /agent/create/:id     controllers.Agents.childCreate(id: String)
-POST    /agent/create/:id     controllers.Agents.childCreatePost(id: String)
+GET     /agent/create/:id     controllers.Agents.createDoc(id: String)
+POST    /agent/create/:id     controllers.Agents.createDocPost(id: String)
 GET     /agent/visibility/:id     controllers.Agents.visibility(id: String)
 POST    /agent/visibility/:id     controllers.Agents.visibilityPost(id: String)
-GET     /agent/permissions/:id/manage_    controllers.Agents.managePermissions(id: String, spage: Int ?= 1, limit: Int ?=20)
-GET     /agent/permissions/:id/manage    controllers.Agents.manageScopedPermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     /agent/permissions/:id/manage    controllers.Agents.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
 GET     /agent/permissions/:id/add    controllers.Agents.addItemPermissions(id: String)
-GET     /agent/permissions/:id/:userType/:userId    controllers.Agents.permissionItem(id: String, userType: String, userId: String)
-POST    /agent/permissions/:id/:userType/:userId    controllers.Agents.permissionItemPost(id: String, userType: String, userId: String)
+GET     /agent/permissions/:id/:userType/:userId    controllers.Agents.setItemPermissions(id: String, userType: String, userId: String)
+POST    /agent/permissions/:id/:userType/:userId    controllers.Agents.setItemPermissionsPost(id: String, userType: String, userId: String)
 GET     /agent/scope/:id/add    controllers.Agents.addScopedPermissions(id: String)
-GET     /agent/scope/:id/:userType/:userId    controllers.Agents.permissionScope(id: String, userType: String, userId: String)
-POST    /agent/scope/:id/:userType/:userId    controllers.Agents.permissionScopePost(id: String, userType: String, userId: String)
+GET     /agent/scope/:id/:userType/:userId    controllers.Agents.setScopedPermissions(id: String, userType: String, userId: String)
+POST    /agent/scope/:id/:userType/:userId    controllers.Agents.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /agent/annotate/:id     controllers.Agents.annotate(id: String)
+POST    /agent/annotate/:id     controllers.Agents.annotatePost(id: String)
 
-GET     /action/list           controllers.ActionLogs.list(page: Int ?= 1, limit: Int ?=20)
-GET     /action/show/:id       controllers.ActionLogs.get(id: String)
-GET     /history/:id        controllers.ActionLogs.historyFor(id: String, page: Int ?=1, limit: Int ?=20)
+GET     /vocabs                controllers.Vocabularies.list
+GET     /vocabs/show/:id       controllers.Vocabularies.get(id: String)
+GET     /vocabs/history/:id    controllers.Vocabularies.history(id: String)
+GET     /vocabs/json/:id       controllers.Vocabularies.getJson(id: String)
+GET     /vocabs/create          controllers.Vocabularies.create
+POST    /vocabs/create          controllers.Vocabularies.createPost
+GET     /vocabs/delete/:id     controllers.Vocabularies.delete(id: String)
+POST    /vocabs/delete/:id     controllers.Vocabularies.deletePost(id: String)
+GET     /vocabs/update/:id     controllers.Vocabularies.update(id: String)
+POST    /vocabs/update/:id     controllers.Vocabularies.updatePost(id: String)
+GET     /vocabs/create/:id     controllers.Vocabularies.createConcept(id: String)
+POST    /vocabs/create/:id     controllers.Vocabularies.createConceptPost(id: String)
+GET     /vocabs/visibility/:id     controllers.Vocabularies.visibility(id: String)
+POST    /vocabs/visibility/:id     controllers.Vocabularies.visibilityPost(id: String)
+GET     /vocabs/permissions/:id/manage    controllers.Vocabularies.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     /vocabs/permissions/:id/add    controllers.Vocabularies.addItemPermissions(id: String)
+GET     /vocabs/permissions/:id/:userType/:userId    controllers.Vocabularies.setItemPermissions(id: String, userType: String, userId: String)
+POST    /vocabs/permissions/:id/:userType/:userId    controllers.Vocabularies.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /vocabs/scope/:id/add    controllers.Vocabularies.addScopedPermissions(id: String)
+GET     /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScopedPermissions(id: String, userType: String, userId: String)
+POST    /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /vocabs/annotate/:id     controllers.Vocabularies.annotate(id: String)
+POST    /vocabs/annotate/:id     controllers.Vocabularies.annotatePost(id: String)
+
+GET     /concepts                controllers.Concepts.list
+GET     /concepts/show/:id       controllers.Concepts.get(id: String)
+GET     /concepts/history/:id    controllers.Concepts.history(id: String)
+GET     /concepts/json/:id       controllers.Concepts.getJson(id: String)
+GET     /concepts/delete/:id     controllers.Concepts.delete(id: String)
+POST    /concepts/delete/:id     controllers.Concepts.deletePost(id: String)
+GET     /concepts/update/:id     controllers.Concepts.update(id: String)
+POST    /concepts/update/:id     controllers.Concepts.updatePost(id: String)
+GET     /concepts/create/:id     controllers.Concepts.createConcept(id: String)
+POST    /concepts/create/:id     controllers.Concepts.createConceptPost(id: String)
+GET     /concepts/visibility/:id     controllers.Concepts.visibility(id: String)
+POST    /concepts/visibility/:id     controllers.Concepts.visibilityPost(id: String)
+GET     /concepts/permissions/:id/manage    controllers.Concepts.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     /concepts/permissions/:id/add    controllers.Concepts.addItemPermissions(id: String)
+GET     /concepts/permissions/:id/:userType/:userId    controllers.Concepts.setItemPermissions(id: String, userType: String, userId: String)
+POST    /concepts/permissions/:id/:userType/:userId    controllers.Concepts.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /concepts/scope/:id/add    controllers.Concepts.addScopedPermissions(id: String)
+GET     /concepts/scope/:id/:userType/:userId    controllers.Concepts.setScopedPermissions(id: String, userType: String, userId: String)
+POST    /concepts/scope/:id/:userType/:userId    controllers.Concepts.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /concepts/annotate/:id     controllers.Concepts.annotate(id: String)
+POST    /concepts/annotate/:id     controllers.Concepts.annotatePost(id: String)
+GET     /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotate(id: String, toType: String, to: String)
+POST    /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotatePost(id: String, toType: String, to: String)
+
+
+GET     /action                controllers.SystemEvents.list
+GET     /action/show/:id       controllers.SystemEvents.get(id: String)
+
+GET     /annotation/show/:id       controllers.Annotations.get(id: String)
+GET     /annotation/history/:id       controllers.Annotations.history(id: String)
+GET     /annotation/visibility/:id     controllers.Annotations.visibility(id: String)
+POST    /annotation/visibility/:id     controllers.Annotations.visibilityPost(id: String)
+GET     /annotation/annotate/:id     controllers.Annotations.annotate(id: String)
+POST    /annotation/annotate/:id     controllers.Annotations.annotatePost(id: String)
 
 # API
 GET     /api/*path               controllers.ApiController.get(path: String)

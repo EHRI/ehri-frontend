@@ -1,28 +1,45 @@
 import sbt._
 import Keys._
-import PlayProject._
+import play.Project._
 
 object ApplicationBuild extends Build {
+
+  ivyXML :=
+    <dependencies>
+      <exclude module="org.slf4j.slf4j-log4j12"/>
+    </dependencies>
+
+  parallelExecution := false
+  logBuffered := false
 
   val appName = "docview"
   val appVersion = "1.0-SNAPSHOT"
 
   val appDependencies = Seq(
+    jdbc,
+    anorm,
+    filters,
+
     // Add your project dependencies here
-    "jp.t2v" %% "play20.auth" % "0.4-SNAPSHOT",
-    "com.codahale" % "jerkson_2.9.1" % "0.5.0",
+    "jp.t2v" %% "play21.auth" % "0.6",
     "com.sun.jersey" % "jersey-core" % "1.9",
-    "org.neo4j.app" % "neo4j-server" % "1.8" classifier "static-web" classifier "",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
+    "ch.qos.logback" % "logback-core" % "1.0.3" force(),
+    "ch.qos.logback" % "logback-classic" % "1.0.3" force(),
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
+    "org.codehaus.groovy" % "groovy-all" % "2.0.6",
     //"com.typesafe" % "play-plugins-mailer_2.10" % "2.1-SNAPSHOT",
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
-    "ehri-project" % "ehri-plugin" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
-    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "")
+    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
+  )
 
-  val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
-    // Add your own project settings here    
+  val main = play.Project(appName, appVersion, appDependencies).settings(
+    // Add your own project settings here
+
+    templatesImport ++= Seq("models.base._", "acl._", "defines._"),
+
+
     resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Codahale" at "http://repo.codahale.com"

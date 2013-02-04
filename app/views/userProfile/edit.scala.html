@@ -1,31 +1,15 @@
-@(doc: Option[UserProfile], f: play.api.data.Form[models.forms.UserProfileF], action: Call, user: UserProfile, req: RequestHeader)
- 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@(item: Option[UserProfile], f: play.api.data.Form[models.forms.UserProfileF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-  @main(doc.map(i => Messages("update.heading", i.name)).getOrElse("create.heading"))(Some(user), req) {
-	
-		@doc.map { v =>
-			<h4>Update @v.identifier</h4>
-		}.getOrElse {
-			<h4>Create</h4>
-		}
-		
-	
-		@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-			<fieldset id="identity-area">
-				<legend>@Messages("Identity")</legend>
-				@helper.inputText(f("identifier"), '_label -> "Identifier")
-				@helper.inputText(f("name"), '_label -> "Name")
-				@helper.inputText(f("location"), '_label -> "Location")
-				@helper.repeat(f("languages"), min=math.max(f("languages").indexes.length, 1)) { fl =>
-				  @helper.inputText(fl, '_label -> "Languages")
-				}				
-				@helper.textarea(f("about"), '_label -> "About")
-			</fieldset>
-		  			
-			<div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages(doc.map(s => "Update").getOrElse("Create"))</button>
+@rightSidebarLayout(Messages(item.map(s => "actions.updateUserProfile").getOrElse("actions.createUserProfile"))) {
+
+    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @userProfile.renderForm(item, f)
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages(item.map(s => "submitButton.updateUserProfile").getOrElse("submitButton.createUserProfile"))</button>
         </div>
 	}
 		
+} {
+
 }

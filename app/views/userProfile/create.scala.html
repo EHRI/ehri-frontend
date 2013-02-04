@@ -1,0 +1,15 @@
+@(f: play.api.data.Form[models.forms.UserProfileF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("actions.createUserProfile")) {
+    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+
+        @userProfile.renderForm(None, f)
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">@Messages("submitButton.createUserProfile")</button>
+        </div>
+	}
+} {
+
+}

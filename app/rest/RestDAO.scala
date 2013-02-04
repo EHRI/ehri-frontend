@@ -1,8 +1,8 @@
 package rest
 
-import models.Entity
+import models.{UserProfile, Entity}
 import play.api.libs.json._
-import play.api.Play
+import play.api.{Logger, Play}
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
 import scala.Left
@@ -19,7 +19,6 @@ case class IntegrityError() extends RestError
 case class ItemNotFound() extends RestError
 case class ServerError() extends RestError
 
-object RestDAO extends RestDAO
 
 /**
  * Structure that holds a set of errors for an entity and its
@@ -31,11 +30,12 @@ object ErrorSet {
   import play.api.libs.json.Reads._
   import play.api.libs.json.util._
   import play.api.libs.json._
+  import play.api.libs.functional.syntax._
 
   implicit val errorReads: Reads[ErrorSet] = (
     (__ \ "errors").lazyRead(map[List[String]]) and
     (__ \ Entity.RELATIONSHIPS).lazyRead(
-      map[List[Option[ErrorSet]]](list(optional(errorReads)))))(ErrorSet.apply _)
+      map[List[Option[ErrorSet]]](list(optionNoError(errorReads)))))(ErrorSet.apply _)
 
 
   def fromJson(json: JsValue): ErrorSet = json.validate[ErrorSet].fold(
@@ -76,8 +76,20 @@ trait RestDAO {
   val headers = Map(
     HeaderNames.ACCEPT -> ContentTypes.JSON,
     HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
-  )  
-  
+  )
+
+  // Abstract value for the user accessing a resource...
+  val userProfile: Option[UserProfile]
+
+  /**
+   * Headers to add to outgoing request...
+   * @return
+   */
+  def authHeaders: Map[String, String] = userProfile match {
+    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
+    case None => headers
+  }
+
   import play.api.http.Status._
 
   import java.net.URI
@@ -88,23 +100,12 @@ trait RestDAO {
     uri.toString
   }
 
-  /**
-   *  For as-yet-undetermined reasons that data coming back from Neo4j seems
-   *  to be encoded as ISO-8859-1, so we need to convert it to UTF-8. Obvs.
-   *  this problem should eventually be fixed at the source, rather than here.
-   *  NB: Fixed in Play 2.1 RC1
-   */
-  def fixEncoding(s: String) = new String(s.getBytes("ISO-8859-1"), "UTF-8")
-
-  // Temporary solution until we upgrade to Play 2.1
-  def json(r: Response): JsValue = Json.parse(fixEncoding(r.body))
-
   lazy val host: String = Play.current.configuration.getString("neo4j.server.host").get
   lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get
   lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
 
   protected def checkError(response: Response): Either[RestError, Response] = {
-    //println("RESPONSE: " + response.body)
+    Logger.logger.trace("Response body ! : {}", response.body)
     response.status match {
       case OK | CREATED => Right(response)
       case e => e match {
@@ -112,23 +113,24 @@ trait RestDAO {
         case UNAUTHORIZED => Left(PermissionDenied())
         case BAD_REQUEST => response.json.validate[ErrorSet].fold(
           valid = { errorSet =>
+            Logger.logger.error("ValidationError ! : {}", response.json)
             Left(ValidationError(errorSet))
           },
           invalid = { e =>
             // Temporary approach to handling random Deserialization errors.
             // In practice this should happen
             if ((response.json \ "error").asOpt[String] == Some("DeserializationError")) {
-              println("GOT DESERIALIZATION ERROR: " + response.json)
+              Logger.logger.error("Derialization error! : {}", response.json)
               Left(DeserializationError())
             } else {
-              throw sys.error("Unexpected BAD REQUEST: %s \n%s".format(e, response.body))
+              throw sys.error(s"Unexpected BAD REQUEST: ${e} \n${response.body}")
             }
           }
         )
-        case NOT_FOUND => Left(ItemNotFound())
+        case NOT_FOUND => Logger.logger.error("404: {}", response.body); Left(ItemNotFound())
         case _ => {
           println(response.body)
-          sys.error("Unexpected response: %d: %s".format(response.status, response.body))
+          sys.error("Unexpected response for %s: %d: %s".format(response.getAHCResponse.getHeaders, response.status, response.body))
         }
       }
     }

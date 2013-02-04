@@ -1,39 +1,31 @@
-@(items: rest.Page[models.UserProfile], showAction: String => Call, maybeUser: Option[UserProfile], req: RequestHeader)
+@(items: rest.Page[UserProfile], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@import defines._
-
-@main("View item")(maybeUser, req) {
+@rightSidebarLayout(Messages("actions.listUserProfiles")) {
 
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
-	@maybeUser.map { user =>
-  		@if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {
-  		  <a href="@routes.UserProfiles.create">@Messages("Create New User")</a>
-  		}
-	}
-  
-	<div id="pagination" class="pagination">
-    	<ul>
-		@views.Helpers.paginationRanges(items.page.toInt + 1, items.numPages.toInt).map { range =>
-			@range.map { cp =>
-	        	@if(cp == items.page.toInt) {
-	                <li class="disabled"><a>@cp</a></li>
-	            } else {
-	                <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
-	            }
-	        }
-	        @if(range.last != items.numPages) {
-	        	<li class="disabled"><a>...</a></li>
-	        }
-		}
-		</ul>
-	</div>
+    @common.pagination(items)
 	
 	<ul>
 	@items.list.map { item =>
 	  	<li>
-			<a href="@showAction(item.id)">@item.name</a>
+            <div class="list-item">
+                <h4><a href="@routes.UserProfiles.get(item.id)">@item</a></h4>
+                <p>
+                    @item.to.about.map { d =>
+                        @d
+                    }
+                </p>
+            </div>
 		</li>
 	}
 	</ul>
     
+} {
+    @common.sidebarSection(None) {
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@routes.UserProfiles.create">@Messages("Create New User")</a>
+            }
+        }
+    }
 }

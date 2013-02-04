@@ -1,8 +1,8 @@
-@(desc: models.base.AccessibleEntity, fieldName: String, prefix: String = "")
+@(desc: models.base.AccessibleEntity, fieldName: String)(implicit prefix: String = "")
 
 @defining(desc.stringProperty(fieldName)) { value =>
 	@if(!value.getOrElse("").trim.isEmpty) {
-		<h4>@Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName))</h4>
+		<h5>@Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName))</h5>
 		<p>@value</p>
 	}
 }

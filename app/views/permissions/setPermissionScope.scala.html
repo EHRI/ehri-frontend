@@ -1,36 +1,38 @@
-@(item: models.base.AccessibleEntity, accessor: models.base.Accessor, perms: acl.GlobalPermissionSet[models.base.Accessor], contentTypes: Seq[defines.ContentType.Value], action: Call, user: UserProfile, req: RequestHeader)
+@(item: AccessibleEntity, accessor: Accessor, perms: GlobalPermissionSet[Accessor], contentTypes: Seq[ContentType.Value], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@import defines.PermissionType
 
-@import defines._
-
-@main(Messages("actions.grantPermissionsInScope", item, accessor))(Some(user), req) {
+@rightSidebarLayout(Messages("actions.grantPermissionsInScope", item.identifier, accessor.name)) {
 	
-  
-	<h2>@Messages("actions.grantPermissionsInScope", item.identifier, accessor.name)</h2>
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 		<fieldset id="permissionScope-area">
 
-        <table class="permissions-matrix">
+        <table class="table table-bordered permissions-matrix">
         <tr>
         <th></th>
         @PermissionType.values.toList.map { perm =>
-            <th>@perm.toString</th>
+            @if(perm != PermissionType.Owner) {
+                <th>@Messages("permissionTypes." + perm.toString)</th>
+            }
         }
         </tr>
         @contentTypes.map { ct =>
             <tr>
                 <td>@Messages("contentTypes." + ct)</td>
                 @PermissionType.values.toList.map { perm =>
-                    <td>
-                    @defining(perms.get(ct, perm)) { permOpt =>
-                        <input type="checkbox" name="@ct" value="@perm"
-                        @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
-                            checked
-                        } />
-                        @permOpt.flatMap(_.inheritedFrom).map { user =>
-                            <span title="@Messages("permissions.inheritedFrom", user.name)">*</span>
+                    @if(perm != PermissionType.Owner) {
+                        <td>
+                        @defining(perms.get(ct, perm)) { permOpt =>
+                            <input type="checkbox" name="@ct" value="@perm"
+                            @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
+                                checked
+                            } />
+                            @permOpt.flatMap(_.inheritedFrom).map { user =>
+                                <span title="@Messages("permissions.inheritedFrom", user)">*</span>
+                            }
                         }
+                        </td>
                     }
-                    </td>
                 }
             </tr>
         }
@@ -43,4 +45,6 @@
 			<button type="submit" class="btn btn-primary">@Messages("actions.updatePermissions")</button>
 		</div>
 	}
+} {
+
 }

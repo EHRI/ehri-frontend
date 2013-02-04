@@ -1,0 +1,48 @@
+@(item: Vocabulary, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+
+    @common.annotated(item, annotations, routes.Vocabularies.annotate(item.id)) {
+        @defining("vocabulary") { implicit  prefix =>
+            @common.stringValue(item, models.forms.VocabularyF.DESCRIPTION)
+        }
+    }
+
+    @common.relatedLinks(item, annotations)
+
+    @common.filterableList("vocabulary.toplevelTermsPageHeader", page, params, Concepts.listFilterMappings.keys, Concepts.orderMappings.keys) {
+        <ul>
+        @page.list.map { item =>
+            <div class="list-item">
+            <h5>
+            <a href="@routes.Concepts.get(item.id)">
+                @item.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+            </a>
+            </h5>
+            </div>
+        }
+        </ul>
+    }
+
+} {
+    @common.visibility(item, routes.Vocabularies.visibility(item.id), ContentType.Vocabulary)
+    @common.latestAction(item, routes.Vocabularies.history(item.id))
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Create)) {
+                <li><a href="@routes.Vocabularies.createConcept(item.id)">@Messages("actions.createTopLevelConcept")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Update)) {
+                <li><a href="@routes.Vocabularies.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Delete)) {
+                <li><a href="@routes.Vocabularies.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Grant)) {
+                <li><a href="@routes.Vocabularies.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+            }
+            <li><a href="@routes.Vocabularies.history(item.id)">@Messages("actions.showHistory")</a></li>
+        }
+    </ul>
+}

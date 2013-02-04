@@ -1,7 +1,6 @@
-@()(implicit maybeUser: Option[UserProfile], req: RequestHeader)
+@()(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@main("Item not found!")(maybeUser, req) {
+@noSidebarLayout(Messages("errors.itemNotFound")) {
 
-	<h1>Not found!</h1>
-    
+    <p class="text-error">@Messages("errors.itemNotFoundExplanation")</p>
 }
