@@ -9,8 +9,15 @@
 	@items.list.map { item =>
 	  	<li>
             <div class="list-item">
-                <h4><a href="@routes.UserProfiles.get(item.id)">@item</a></h4>
+                <h4>
+                    <a href="@routes.UserProfiles.get(item.id)">@item</a>
+                </h4>
                 <p>
+                    <div>
+                    @item.groups.sortBy(_.toString).map { g =>
+                        <a class="badge" href="@routes.Groups.get(g.id)">@g</a>
+                    }
+                    </div>
                     @item.to.about.map { d =>
                         @d
                     }

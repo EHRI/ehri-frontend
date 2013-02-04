@@ -11,7 +11,7 @@
     } else {
         <strong>Groups: </strong>&nbsp;
         @item.groups.map { group =>
-            <a href="@routes.Groups.get(group.id)">@group.name</a>
+            <a class="badge" href="@routes.Groups.get(group.id)">@group.name</a>
         }
     }
 } {

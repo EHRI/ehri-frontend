@@ -16,7 +16,7 @@ object Accessor {
 }
 
 trait Accessor extends AccessibleEntity with NamedEntity {
-    val groups: List[Accessor] = e.relations(Accessor.BELONGS_REL).map(Accessor(_))
+    val groups: List[Group] = e.relations(Accessor.BELONGS_REL).map(Group(_))
 
 
   def isAdmin = getAccessor(groups, "admin").isDefined
