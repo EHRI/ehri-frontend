@@ -111,6 +111,15 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
 
+    "link to holder when a child item" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c2").url)).get
+        status(show) must equalTo(OK)
+
+        contentAsString(show) must contain(routes.Agents.get("r1").url)
+      }
+    }
+
     "give access to c1 when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c1").url)).get
