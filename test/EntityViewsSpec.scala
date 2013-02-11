@@ -328,6 +328,26 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
 
+    "allow linking to items via annotation" in {
+      val testItem = "c1"
+      val linkSrc = "cvocc1"
+      val body = "This is a link"
+      val testData: Map[String,Seq[String]] = Map(
+        AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationType.Link.toString),
+        AnnotationF.BODY -> Seq(body)
+      )
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.DocumentaryUnits.linkAnnotatePost(testItem, EntityType.Concept.toString, linkSrc).url)
+          .withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+        val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(getR) must equalTo(OK)
+        contentAsString(getR) must contain(linkSrc)
+        contentAsString(getR) must contain(body)
+      }
+    }
+
     "allow adding extra descriptions" in {
       val testItem = "c1"
       val testData: Map[String, Seq[String]] = Map(
