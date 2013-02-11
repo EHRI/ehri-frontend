@@ -9,6 +9,7 @@ import play.api.mvc._
 import play.api.i18n.Messages
 import base._
 import defines._
+import rest.EntityDAO
 
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
@@ -103,6 +104,35 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
     }
+  }
+
+  def createDescription(id: String) = withItemPermission(id, PermissionType.Update, contentType) {
+      item => implicit userOpt => implicit request =>
+    Ok(views.html.documentaryUnit.createDescription(DocumentaryUnit(item),
+      models.forms.DocumentaryUnitDescriptionForm.form, routes.DocumentaryUnits.createDescriptionPost(id)))
+  }
+
+  def createDescriptionPost(id: String) = withItemPermission(id, PermissionType.Update, contentType) {
+      item => implicit userOpt => implicit request =>
+    models.forms.DocumentaryUnitDescriptionForm.form.bindFromRequest.fold({ ef =>
+      getEntity(id, userOpt) { item =>
+        Ok(views.html.documentaryUnit.createDescription(DocumentaryUnit(item),
+          ef, routes.DocumentaryUnits.createDescriptionPost(id)))
+      }
+    },
+    { desc =>
+      getEntity(id, userOpt) { item =>
+        val doc = DocumentaryUnit(item).to.replaceDescription(desc)
+        AsyncRest {
+          EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
+            itemOrErr.right.map { updated =>
+              Redirect(routes.DocumentaryUnits.get(id))
+                .flashing("success" -> Messages("confirmations.itemWasCreated", updated.id))
+            }
+          }
+        }
+      }
+    })
   }
 
   def delete(id: String) = deleteAction(id) {

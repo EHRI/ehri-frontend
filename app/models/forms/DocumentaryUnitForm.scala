@@ -74,6 +74,22 @@ case class DocumentaryUnitF(
 
   def withDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = copy(descriptions = descriptions ++ List(d))
 
+  /**
+   * Replace an existing description with the same id as this one, or add
+   * this one to the end of the list of descriptions.
+   * @param d
+   * @return
+   */
+  def replaceDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = d.id.map { did =>
+  // If the description has an id, replace the existing one with that id
+    val newDescriptions = descriptions.map { dm =>
+      if (dm.id.isDefined && dm.id.get == did) d else dm
+    }
+    copy (descriptions = newDescriptions)
+  } getOrElse {
+    withDescription(d)
+  }
+
   def toJson: JsValue = {
     import Entity._
     import IsadG._
@@ -178,6 +194,45 @@ object DocumentaryUnitDescriptionF {
 
 }
 
+object DocumentaryUnitDescriptionForm {
+  import DocumentaryUnitDescriptionF._
+  import IsadG._
+  val form = Form(
+    mapping(
+      "id" -> optional(nonEmptyText),
+      "languageCode" -> nonEmptyText,
+      TITLE -> optional(nonEmptyText),
+      CONTEXT_AREA -> mapping(
+        ADMIN_BIOG -> optional(text),
+        ARCH_HIST -> optional(text),
+        ACQUISITION -> optional(text)
+      )(Context.apply)(Context.unapply),
+      CONTENT_AREA -> mapping(
+        SCOPE_CONTENT -> optional(text),
+        APPRAISAL -> optional(text),
+        ACCRUALS -> optional(text),
+        SYS_ARR -> optional(text)
+      )(Content.apply)(Content.unapply),
+      CONDITIONS_AREA -> mapping(
+        ACCESS_COND -> optional(text),
+        REPROD_COND -> optional(text),
+        PHYSICAL_CHARS -> optional(text),
+        FINDING_AIDS -> optional(text)
+      )(Conditions.apply)(Conditions.unapply),
+      MATERIALS_AREA -> mapping(
+        LOCATION_ORIGINALS -> optional(text),
+        LOCATION_COPIES -> optional(text),
+        RELATED_UNITS -> optional(text),
+        PUBLICATION_NOTE -> optional(text)
+      )(Materials.apply)(Materials.unapply),
+      CONTROL_AREA -> mapping(
+        ARCHIVIST_NOTE -> optional(text),
+        RULES_CONVENTIONS -> optional(text),
+        DATES_DESCRIPTIONS -> optional(text)
+      )(Control.apply)(Control.unapply)
+    )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
+  )
+}
 
 object DocumentaryUnitForm {
 
@@ -191,41 +246,7 @@ object DocumentaryUnitForm {
       NAME -> nonEmptyText,
       "publicationStatus" -> optional(enum(defines.PublicationStatus)),
       "dates" -> list(DatePeriodForm.form.mapping),
-      "descriptions" -> list(
-        mapping(
-          "id" -> optional(nonEmptyText),
-          "languageCode" -> nonEmptyText,
-          TITLE -> optional(nonEmptyText),
-          CONTEXT_AREA -> mapping(
-            ADMIN_BIOG -> optional(text),
-            ARCH_HIST -> optional(text),
-            ACQUISITION -> optional(text)
-          )(Context.apply)(Context.unapply),
-          CONTENT_AREA -> mapping(
-            SCOPE_CONTENT -> optional(text),
-            APPRAISAL -> optional(text),
-            ACCRUALS -> optional(text),
-            SYS_ARR -> optional(text)
-          )(Content.apply)(Content.unapply),
-          CONDITIONS_AREA -> mapping(
-            ACCESS_COND -> optional(text),
-            REPROD_COND -> optional(text),
-            PHYSICAL_CHARS -> optional(text),
-            FINDING_AIDS -> optional(text)
-          )(Conditions.apply)(Conditions.unapply),
-          MATERIALS_AREA -> mapping(
-            LOCATION_ORIGINALS -> optional(text),
-            LOCATION_COPIES -> optional(text),
-            RELATED_UNITS -> optional(text),
-            PUBLICATION_NOTE -> optional(text)
-          )(Materials.apply)(Materials.unapply),
-          CONTROL_AREA -> mapping(
-            ARCHIVIST_NOTE -> optional(text),
-            RULES_CONVENTIONS -> optional(text),
-            DATES_DESCRIPTIONS -> optional(text)
-          )(Control.apply)(Control.unapply)
-        )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
-      )
+      "descriptions" -> list(DocumentaryUnitDescriptionForm.form.mapping)
     )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
   )
 }
