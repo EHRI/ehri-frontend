@@ -8,8 +8,6 @@ import play.api.i18n.Messages
 import base._
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.Accessor
-import scala.Some
 
 object Groups extends PermissionHolderController[Group]
   with VisibilityController[Group]

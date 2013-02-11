@@ -1,13 +1,12 @@
 package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{ItemWithId,Concept,Vocabulary}
+import models.{Concept,Vocabulary}
 import models.forms.{VisibilityForm, ConceptF, VocabularyF}
 import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
-import rest.RestPageParams
 
 object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   with CreationContext[ConceptF, Vocabulary]

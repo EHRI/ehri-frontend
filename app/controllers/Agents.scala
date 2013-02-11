@@ -8,7 +8,6 @@ import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
 import base._
-import rest.Page
 
 object Agents extends CRUD[AgentF,Agent]
   with CreationContext[DocumentaryUnitF,Agent]

@@ -1,14 +1,12 @@
 package controllers
 
-import _root_.models.base.{AnnotatableEntity, AccessibleEntity}
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{ItemWithId,Concept,Entity}
+import models.Concept
 import models.forms.{ConceptF,VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
-import rest.RestPageParams
 
 object Concepts extends CreationContext[ConceptF, Concept]
   with VisibilityController[Concept]
@@ -70,10 +68,10 @@ object Concepts extends CreationContext[ConceptF, Concept]
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
-      olditem => formOrItem => implicit userOpt => implicit request =>
+      oldItem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => println(errorForm.errors);BadRequest(views.html.concept.edit(
-          Some(Concept(olditem)), errorForm, routes.Concepts.updatePost(id)))
+          Some(Concept(oldItem)), errorForm, routes.Concepts.updatePost(id)))
       case Right(item) => Redirect(routes.Concepts.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }

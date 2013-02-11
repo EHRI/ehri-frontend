@@ -1,15 +1,14 @@
 package controllers
 
-import _root_.models.base.AccessibleEntity
-import _root_.models.{Entity, DocumentaryUnit, ItemWithId}
-import _root_.models.forms.{DatePeriodF, IsadG, DocumentaryUnitF, VisibilityForm}
+import models.base.AccessibleEntity
+import models.{Entity, DocumentaryUnit}
+import models.forms.{DatePeriodF, IsadG, DocumentaryUnitF, VisibilityForm}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import base._
-import defines.{PermissionType, ContentType, EntityType}
-import rest.RestPageParams
+import defines._
 
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]

@@ -1,15 +1,12 @@
 package controllers
 
-import _root_.models.forms.{UserProfileF, VisibilityForm}
+import models.forms.{UserProfileF, VisibilityForm}
 import models.UserProfile
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
 import base._
-import models.{Group, UserProfile}
-import models.forms.{UserProfileF,VisibilityForm}
-import scala.Some
 
 
 object UserProfiles extends PermissionHolderController[UserProfile]

@@ -1,11 +1,9 @@
 package controllers
 
 import play.api.mvc._
-import jp.t2v.lab.play20.auth.{ Auth, LoginLogout }
-import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
 
-import base.{ControllerHelpers, Authorizer, AuthController, LoginHandler}
+import base.{ControllerHelpers, AuthController}
 import play.api.data.{FormError, Form}
 import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentType}

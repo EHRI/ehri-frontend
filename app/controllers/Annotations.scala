@@ -1,7 +1,7 @@
 package controllers
 
 import defines._
-import models.{Annotation, SystemEvent}
+import models.Annotation
 import base.{EntityAnnotate, VisibilityController, EntityRead}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.i18n.Messages
