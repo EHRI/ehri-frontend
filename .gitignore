@@ -12,3 +12,10 @@ tmp
 bin
 dist
 *.sublime-workspace
+
+# Intellij stuff
+*.iml
+fonts
+.fonts
+.idea
+.idea_modules
