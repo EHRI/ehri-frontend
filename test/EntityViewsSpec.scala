@@ -168,6 +168,28 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
 
+    "give a form error when creating items with the same id as existing ones" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("c1"),
+          "name" -> Seq("Dup Item"),
+          "publicationStatus" -> Seq("Published")
+        )
+        // Since the item id is derived from the identifier field,
+        // a form error should result from using the same identifier
+        // twice within the given scope (in this case, r1)
+        val call = fakeLoggedInRequest(POST,
+            routes.Agents.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*)
+        val cr1 = route(call, testData).get
+        status(cr1) must equalTo(SEE_OTHER) // okay the first time
+        val cr2 = route(call, testData).get
+        status(cr2) must equalTo(BAD_REQUEST)
+        // NB: This error string comes from the server, so might
+        // not match if changed there - single quotes surround the value
+        contentAsString(cr2) must contain("exists and must be unique")
+      }
+    }
+
     "allow updating items when logged in as privileged user" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
