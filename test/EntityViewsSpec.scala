@@ -469,6 +469,18 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
 
+    "give a form error when creating items with an existing identifier" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("r1")
+        )
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.Agents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(BAD_REQUEST)
+      }
+    }
+
+
     "link to other privileged actions when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val show = route(fakeLoggedInRequest(GET, routes.Agents.get("r1").url)).get
