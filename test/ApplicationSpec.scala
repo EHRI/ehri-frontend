@@ -23,18 +23,7 @@ class ApplicationSpec extends Specification with TestLoginHelper {
       }
     }
 
-    "should display user email on login" in {
-      running(fakeLoginApplication("mike")) {
-
-        val home = route(fakeLoggedInRequest(GET, "/")).get
-        status(home) must equalTo(OK)
-        contentType(home) must beSome.which(_ == "text/html")
-
-        contentAsString(home) must contain(mocks.MOCK_USER.email)
-      }
-    }
-
-    "render the index page" in {
+    "redirect to login page when called afresh" in {
       running(FakeApplication()) {
         val home = route(FakeRequest(GET, "/")).get
 
