@@ -129,7 +129,6 @@ trait RestDAO {
         )
         case NOT_FOUND => Logger.logger.error("404: {}", response.body); Left(ItemNotFound())
         case _ => {
-          println(response.body)
           sys.error("Unexpected response for %s: %d: %s".format(response.getAHCResponse.getHeaders, response.status, response.body))
         }
       }
