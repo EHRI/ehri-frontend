@@ -22,6 +22,14 @@
             @if(!item.descriptions.isEmpty) {
                 <h4>@Messages("documentaryUnit.availableDescriptions")</h4>
                 @item.descriptions.map { desc =>
+                    <h3>
+                        @desc.stringProperty(TITLE).getOrElse("Untitled Description: FIXME I18N")
+                        @maybeUser.map { user =>
+                            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
+                                (<a href="@routes.DocumentaryUnits.updateDescription(item.id, desc.id)">@Messages("actions.edit"))</a>
+                            }
+                        }
+                    </h3>
                     <h5>Language: @desc.languageCode</h5>
 
                     <h4>@Messages(fieldPrefix + "." + CONTEXT_AREA)</h4>

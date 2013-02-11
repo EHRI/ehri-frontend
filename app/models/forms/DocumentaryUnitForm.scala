@@ -75,6 +75,13 @@ case class DocumentaryUnitF(
   def withDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = copy(descriptions = descriptions ++ List(d))
 
   /**
+   * Get a description with a given id.
+   * @param did
+   * @return
+   */
+  def description(did: String): Option[DocumentaryUnitDescriptionF] = descriptions.find(d => d.id.isDefined && d.id.get == did)
+
+  /**
    * Replace an existing description with the same id as this one, or add
    * this one to the end of the list of descriptions.
    * @param d

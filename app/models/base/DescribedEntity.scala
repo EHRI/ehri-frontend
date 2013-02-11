@@ -5,9 +5,8 @@ object DescribedEntity {
 }
 
 trait DescribedEntity {
-  
+
 	this: AccessibleEntity =>
 	  
 	def descriptions: List[Description]
-  
 }

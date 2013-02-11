@@ -1,8 +1,8 @@
 package controllers
 
+import _root_.models.{DocumentaryUnitDescription, DocumentaryUnit, Entity}
 import models.base.AccessibleEntity
-import models.{Entity, DocumentaryUnit}
-import models.forms.{DatePeriodF, IsadG, DocumentaryUnitF, VisibilityForm}
+import _root_.models.forms._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
@@ -10,6 +10,7 @@ import play.api.i18n.Messages
 import base._
 import defines._
 import rest.EntityDAO
+import scala.Some
 
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
@@ -18,7 +19,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
   with EntityDelete[DocumentaryUnit]
   with PermissionScopeController[DocumentaryUnit]
-  with EntityAnnotate[DocumentaryUnit] {
+  with EntityAnnotate[DocumentaryUnit]
+  with DescriptionCRUD[DocumentaryUnit, DocumentaryUnitF, DocumentaryUnitDescription, DocumentaryUnitDescriptionF] {
 
   val DEFAULT_SORT = AccessibleEntity.NAME
 
@@ -108,7 +110,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def createDescription(id: String) = withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.createDescription(DocumentaryUnit(item),
+    Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
       models.forms.DocumentaryUnitDescriptionForm.form, routes.DocumentaryUnits.createDescriptionPost(id)))
   }
 
@@ -116,12 +118,39 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       item => implicit userOpt => implicit request =>
     models.forms.DocumentaryUnitDescriptionForm.form.bindFromRequest.fold({ ef =>
       getEntity(id, userOpt) { item =>
-        Ok(views.html.documentaryUnit.createDescription(DocumentaryUnit(item),
+        Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
           ef, routes.DocumentaryUnits.createDescriptionPost(id)))
       }
     },
     { desc =>
-      getEntity(id, userOpt) { item =>
+      val doc = DocumentaryUnit(item).to.replaceDescription(desc)
+      AsyncRest {
+        EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
+          itemOrErr.right.map { updated =>
+            Redirect(routes.DocumentaryUnits.get(id))
+              .flashing("success" -> Messages("confirmations.itemWasCreated", updated.id))
+          }
+        }
+      }
+    })
+  }
+
+  def updateDescription(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
+    item => implicit userOpt => implicit request =>
+      val desc = DocumentaryUnit(item).to.description(did).getOrElse(sys.error("Description not found: " + did))
+      Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
+        models.forms.DocumentaryUnitDescriptionForm.form.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
+  }
+
+  def updateDescriptionPost(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
+    item => implicit userOpt => implicit request =>
+      models.forms.DocumentaryUnitDescriptionForm.form.bindFromRequest.fold({ ef =>
+        getEntity(id, userOpt) { item =>
+          Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
+            ef, routes.DocumentaryUnits.updateDescriptionPost(id, did)))
+        }
+      },
+      { desc =>
         val doc = DocumentaryUnit(item).to.replaceDescription(desc)
         AsyncRest {
           EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
@@ -131,8 +160,31 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
             }
           }
         }
+      })
+  }
+
+  def deleteDescription(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
+      item => implicit userOpt => implicit request =>
+    // TODO: Make nicer
+    if (DocumentaryUnit(item).descriptions.find(_.id == did).isDefined)
+      Ok(views.html.delete(
+            DocumentaryUnit(item), routes.DocumentaryUnits.deleteDescriptionPost(id, did),
+            routes.DocumentaryUnits.get(id)))
+    else NotFound
+  }
+
+  def deleteDescriptionPost(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
+      item => implicit userOpt => implicit request =>
+    val before = DocumentaryUnit(item).to
+    val doc = before.copy(descriptions = before.descriptions.filterNot(d => d.id.isDefined && d.id.get == did))
+    AsyncRest {
+      EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
+        itemOrErr.right.map { updated =>
+          Redirect(routes.DocumentaryUnits.get(id))
+            .flashing("success" -> Messages("confirmations.itemWasDeleted", updated.id))
+        }
       }
-    })
+    }
   }
 
   def delete(id: String) = deleteAction(id) {

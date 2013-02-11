@@ -327,6 +327,63 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         contentAsString(getR) must contain(body)
       }
     }
+
+    "allow adding extra descriptions" in {
+      val testItem = "c1"
+      val testData: Map[String, Seq[String]] = Map(
+        "languageCode" -> Seq("en"),
+        "title" -> Seq("A Second Description"),
+        "contentArea.scopeAndContent" -> Seq("This is a second description")
+      )
+      // Now try again to update the item, which should succeed
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        // Check we can update the item
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.DocumentaryUnits.createDescriptionPost(testItem).url)
+          .withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+        val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(getR) must equalTo(OK)
+        contentAsString(getR) must contain("This is a second description")
+      }
+    }
+
+    "allow updating individual descriptions" in {
+      val testItem = "c1"
+      val testItemDesc = "cd1"
+      val testData: Map[String, Seq[String]] = Map(
+        "languageCode" -> Seq("en"),
+        "title" -> Seq("A Second Description"),
+        "contentArea.scopeAndContent" -> Seq("This is an updated description")
+      )
+      // Now try again to update the item, which should succeed
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        // Check we can update the item
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.DocumentaryUnits.updateDescriptionPost(testItem, testItemDesc).url)
+          .withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+        val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(getR) must equalTo(OK)
+        contentAsString(getR) must contain("This is an updated description")
+      }
+    }
+
+    "allow deleting individual descriptions" in {
+      val testItem = "c1"
+      val testItemDesc = "cd1-2"
+      // Now try again to update the item, which should succeed
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        // Check we can update the item
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.DocumentaryUnits.deleteDescriptionPost(testItem, testItemDesc).url)
+          .withHeaders(postHeaders.toSeq: _*)).get
+        status(cr) must equalTo(SEE_OTHER)
+        val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(getR) must equalTo(OK)
+        contentAsString(getR) must not contain("Some alternate description text for c1")
+      }
+    }
   }
 
 
