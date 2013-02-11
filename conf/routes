@@ -15,10 +15,6 @@ GET     /logout                         controllers.Application.logout
 GET     /openid                         controllers.OpenIDLoginHandler.openIDCallback
 POST	/openid							controllers.OpenIDLoginHandler.loginPost
 
-# Admin routes
-GET     /admin/createUser               controllers.Admin.createUser
-POST     /admin/createUser               controllers.Admin.createUserPost
-
 # Mozilla Persona
 POST	/persona						controllers.PersonaLoginHandler.loginPost
 
@@ -27,6 +23,8 @@ GET     /admin/createUser               controllers.Admin.createUser
 POST     /admin/createUser               controllers.Admin.createUserPost
 GET     /admin/login                    controllers.Admin.passwordLogin
 POST    /admin/login                    controllers.Admin.passwordLoginPost
+GET     /admin/changePassword           controllers.Admin.changePassword
+POST    /admin/changePassword           controllers.Admin.changePasswordPost
 
 # Change locale
 GET     /locale                         controllers.Application.changeLocale

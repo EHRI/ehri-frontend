@@ -112,4 +112,11 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       }
     )
   }
+
+  //
+  // Allow a logged-in user to change their account password.
+  //
+  def changePassword = TODO
+
+  def changePasswordPost = TODO
 }
