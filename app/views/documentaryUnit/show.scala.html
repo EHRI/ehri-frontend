@@ -20,8 +20,6 @@
 
         @defining("isadg") { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
-                <h4>@Messages("documentaryUnit.availableDescriptions")</h4>
-
                 <div class="tabbable">
                     <ul class="nav nav-tabs">
                          @item.descriptions.headOption.map { desc =>
@@ -48,6 +46,8 @@
                         }
                     </div>
                 </div>
+            } else {
+                <p class="muted">@Messages("documentaryUnit.noDescriptions")</p>
             }
         }
     }
@@ -72,7 +72,7 @@
             }
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
             <li><a href="@routes.DocumentaryUnits.update(item.id)">@Messages("actions.updateItem")</a></li>
-            }
+        }
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
             <li><a href="@routes.DocumentaryUnits.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
             }

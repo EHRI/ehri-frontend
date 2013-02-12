@@ -5,6 +5,7 @@ import java.util.Locale
 import views.html.helper.FieldConstructor
 import models.base.AccessibleEntity
 import play.api.mvc.Call
+import play.api.i18n.Lang
 
 
 // Pimp my 
@@ -53,4 +54,12 @@ package object Helpers {
     case EntityType.ContentType => Call("GET", "#")
     case i => sys.error("Cannot fetch URL for entity type: " + i)
   }
+
+  /**
+   * Get the display language of the given code in the current locale.
+   * @param code
+   * @param lang
+   * @return
+   */
+  def displayLanguage(code: String)(implicit lang: Lang) = new java.util.Locale(code).getDisplayLanguage(lang.toLocale)
 }

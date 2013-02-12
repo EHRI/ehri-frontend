@@ -121,7 +121,10 @@ group.description=Group Description
 systemEvents.itemAtTime=Action at {0}
 
 # Actions
+actions.edit=Edit
+actions.delete=Delete
 actions.history=History
+actions.createDescription=Add Description
 actions.listSystemEvents=System Events
 actions.listDocumentaryUnits=Collections
 actions.listAgents=Repositories
@@ -244,6 +247,7 @@ profile.noBioGiven=No biography given
 documentaryUnit.heldBy=Held By
 documentaryUnit.parentItem=Parent Item
 documentaryUnit.availableDescriptions=Available Descriptions
+documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD(G) description info.
 
 #
 # Permission Grants
@@ -340,6 +344,7 @@ isadg.controlArea=Control Area
 isadg.name=Name
 isadg.identifier=Identifier
 isadg.title=Title
+isadg.languageCode=Language
 isadg.adminBiogHist=Administrative and Biographical History
 isadg.archivalHistory=Archival History
 isadg.acquisition=Acquisition

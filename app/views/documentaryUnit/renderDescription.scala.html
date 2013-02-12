@@ -1,16 +1,20 @@
-@(item: DocumentaryUnit, desc: models.base.Description)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader)
-
-<h5>Language: @desc.languageCode</h5>
+@(item: DocumentaryUnit, desc: models.base.Description)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import defines._
 @import models.forms.IsadG._
 
 @userOpt.map { user =>
+    <div class="description-actions pull-right">
     @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
-        (<a href="@routes.DocumentaryUnits.updateDescription(item.id, desc.id)">@Messages("actions.edit"))</a>
+
+        <a class="btn btn-mini" href="@routes.DocumentaryUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
+        <a class="btn btn-mini" href="@routes.DocumentaryUnits.updateDescription(item.id, desc.id)">@Messages("actions.edit")</a>
+        <a class="btn btn-mini btn-danger" href="@routes.DocumentaryUnits.deleteDescription(item.id, desc.id)">@Messages("actions.delete")</a>
     }
+    </div>
 }
 
+<h5>@Messages("isadg.languageCode"): @views.Helpers.displayLanguage(desc.languageCode)</h5>
 
 <h4>@Messages(fieldPrefix + "." + CONTEXT_AREA)</h4>
 <div class="description-section">
