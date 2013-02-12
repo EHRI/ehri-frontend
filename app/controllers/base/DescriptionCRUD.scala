@@ -22,7 +22,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity with Formable[F
 
   // NB: The 'builder' param is a function which takes an entity and a form representation
   // of the description and builds a new formable representation of the object T, i.e. the F
-  def createDescriptionPostAction(id: String, builder: (Entity, FD) => F, form: Form[FD])(
+  def updateDescriptionPostAction(id: String, builder: (Entity, FD) => F, form: Form[FD])(
       f: Entity => Either[Form[FD],Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
