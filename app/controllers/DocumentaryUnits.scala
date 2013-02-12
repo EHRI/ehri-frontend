@@ -61,7 +61,10 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   val form = models.forms.DocumentaryUnitForm.form
   val childForm = models.forms.DocumentaryUnitForm.form
+  val descForm = models.forms.DocumentaryUnitDescriptionForm.form
   val builder = DocumentaryUnit
+  def descBuilder(item: Entity, d: DocumentaryUnitDescriptionF): DocumentaryUnitF = DocumentaryUnit(item).to.replaceDescription(d)
+
 
   def get(id: String) = getWithChildrenAction(id, builder) {
       item => page => params => annotations => implicit userOpt => implicit request =>
@@ -114,25 +117,16 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       models.forms.DocumentaryUnitDescriptionForm.form, routes.DocumentaryUnits.createDescriptionPost(id)))
   }
 
-  def createDescriptionPost(id: String) = withItemPermission(id, PermissionType.Update, contentType) {
-      item => implicit userOpt => implicit request =>
-    models.forms.DocumentaryUnitDescriptionForm.form.bindFromRequest.fold({ ef =>
-      getEntity(id, userOpt) { item =>
+  def createDescriptionPost(id: String) = createDescriptionPostAction(id, descBuilder, descForm) {
+      item => formOrItem => implicit userOpt => implicit request =>
+    formOrItem match {
+      case Left(errorForm) => {
         Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-          ef, routes.DocumentaryUnits.createDescriptionPost(id)))
+          errorForm, routes.DocumentaryUnits.createDescriptionPost(id)))
       }
-    },
-    { desc =>
-      val doc = DocumentaryUnit(item).to.replaceDescription(desc)
-      AsyncRest {
-        EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
-          itemOrErr.right.map { updated =>
-            Redirect(routes.DocumentaryUnits.get(id))
-              .flashing("success" -> Messages("confirmations.itemWasCreated", updated.id))
-          }
-        }
-      }
-    })
+      case Right(updated) => Redirect(routes.DocumentaryUnits.get(item.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+    }
   }
 
   def updateDescription(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {

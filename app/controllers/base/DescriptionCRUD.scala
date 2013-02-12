@@ -20,7 +20,9 @@ import play.api.i18n.Messages
  */
 trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity with Formable[F], F <: Persistable, TD <: Formable[FD] with Description, FD <: Persistable] extends EntityRead[T] {
 
-  /*def createDescriptionPostAction(id: String, builder: Entity => DescribedEntity with Formable[T], form: Form[FD])(
+  // NB: The 'builder' param is a function which takes an entity and a form representation
+  // of the description and builds a new formable representation of the object T, i.e. the F
+  def createDescriptionPostAction(id: String, builder: (Entity, FD) => F, form: Form[FD])(
       f: Entity => Either[Form[FD],Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
@@ -28,17 +30,16 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity with Formable[F
             f(item)(Left(ef))(userOpt)(request)
         },
         { desc =>
-          val doc = builder(item).to.replaceDescription(desc)
+          val doc = builder(item, desc)
           AsyncRest {
             EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
               itemOrErr.right.map { updated =>
-                Redirect(routes.DocumentaryUnits.get(id))
-                  .flashing("success" -> Messages("confirmations.itemWasCreated", updated.id))
+                f(item)(Right(updated))(userOpt)(request)
               }
             }
           }
         })
     }
-  }*/
+  }
 }
 
