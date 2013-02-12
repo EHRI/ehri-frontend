@@ -395,7 +395,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       val testItemDesc = "cd1"
       val testData: Map[String, Seq[String]] = Map(
         "languageCode" -> Seq("en"),
-        "title" -> Seq("A Second Description"),
+        "id" -> Seq("cd1"),
+        "title" -> Seq("An Updated Description"),
         "contentArea.scopeAndContent" -> Seq("This is an updated description")
       )
       // Now try again to update the item, which should succeed
@@ -408,6 +409,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(getR) must equalTo(OK)
         contentAsString(getR) must contain("This is an updated description")
+        contentAsString(getR) must not contain("Some description text for c1")
       }
     }
 
