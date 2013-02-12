@@ -130,31 +130,29 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   }
 
   def updateDescription(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
-    item => implicit userOpt => implicit request =>
-      val desc = DocumentaryUnit(item).to.description(did).getOrElse(sys.error("Description not found: " + did))
-      Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-        models.forms.DocumentaryUnitDescriptionForm.form.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
+      item => implicit userOpt => implicit request =>
+    val desc = DocumentaryUnit(item).to.description(did).getOrElse(sys.error("Description not found: " + did))
+    Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
+      models.forms.DocumentaryUnitDescriptionForm.form.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
   }
 
   def updateDescriptionPost(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
-    item => implicit userOpt => implicit request =>
-      models.forms.DocumentaryUnitDescriptionForm.form.bindFromRequest.fold({ ef =>
-        getEntity(id, userOpt) { item =>
-          Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-            ef, routes.DocumentaryUnits.updateDescriptionPost(id, did)))
-        }
-      },
-      { desc =>
-        val doc = DocumentaryUnit(item).to.replaceDescription(desc)
-        AsyncRest {
-          EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
-            itemOrErr.right.map { updated =>
-              Redirect(routes.DocumentaryUnits.get(id))
-                .flashing("success" -> Messages("confirmations.itemWasUpdated", updated.id))
-            }
+      item => implicit userOpt => implicit request =>
+    models.forms.DocumentaryUnitDescriptionForm.form.bindFromRequest.fold({ ef =>
+      Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
+        ef, routes.DocumentaryUnits.updateDescriptionPost(id, did)))
+    },
+    { desc =>
+      val doc = DocumentaryUnit(item).to.replaceDescription(desc)
+      AsyncRest {
+        EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
+          itemOrErr.right.map { updated =>
+            Redirect(routes.DocumentaryUnits.get(id))
+              .flashing("success" -> Messages("confirmations.itemWasUpdated", updated.id))
           }
         }
-      })
+      }
+    })
   }
 
   def deleteDescription(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
