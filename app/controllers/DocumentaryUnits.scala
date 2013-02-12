@@ -150,7 +150,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
           EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
             itemOrErr.right.map { updated =>
               Redirect(routes.DocumentaryUnits.get(id))
-                .flashing("success" -> Messages("confirmations.itemWasCreated", updated.id))
+                .flashing("success" -> Messages("confirmations.itemWasUpdated", updated.id))
             }
           }
         }
