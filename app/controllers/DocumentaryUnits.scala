@@ -117,10 +117,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       models.forms.DocumentaryUnitDescriptionForm.form, routes.DocumentaryUnits.createDescriptionPost(id)))
   }
 
-  // NB: Uses 'updateDescriptionPostAction', since the descBuilder function we give it
-  // uses an updateOrCreate method that either adds an extra description if there
-  // is one with the given id, or adds it if not.
-  def createDescriptionPost(id: String) = updateDescriptionPostAction(id, descBuilder, descForm) {
+  def createDescriptionPost(id: String) = createDescriptionPostAction(id, descBuilder, descForm) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => {
@@ -139,16 +136,25 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         models.forms.DocumentaryUnitDescriptionForm.form.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
   }
 
-  def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, descBuilder, descForm) {
-    item => formOrItem => implicit userOpt => implicit request =>
-      formOrItem match {
-        case Left(errorForm) => {
+  def updateDescriptionPost(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
+    item => implicit userOpt => implicit request =>
+      models.forms.DocumentaryUnitDescriptionForm.form.bindFromRequest.fold({ ef =>
+        getEntity(id, userOpt) { item =>
           Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-            errorForm, routes.DocumentaryUnits.updateDescriptionPost(id, did)))
+            ef, routes.DocumentaryUnits.updateDescriptionPost(id, did)))
         }
-        case Right(updated) => Redirect(routes.DocumentaryUnits.get(item.id))
-          .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
-      }
+      },
+      { desc =>
+        val doc = DocumentaryUnit(item).to.replaceDescription(desc)
+        AsyncRest {
+          EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
+            itemOrErr.right.map { updated =>
+              Redirect(routes.DocumentaryUnits.get(id))
+                .flashing("success" -> Messages("confirmations.itemWasCreated", updated.id))
+            }
+          }
+        }
+      })
   }
 
   def deleteDescription(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
