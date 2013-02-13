@@ -61,9 +61,16 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   val form = models.forms.DocumentaryUnitForm.form
   val childForm = models.forms.DocumentaryUnitForm.form
-  val descForm = models.forms.DocumentaryUnitDescriptionForm.form
+  val descriptionForm = models.forms.DocumentaryUnitDescriptionForm.form
   val builder = DocumentaryUnit
-  def descBuilder(item: Entity, d: DocumentaryUnitDescriptionF): DocumentaryUnitF = DocumentaryUnit(item).to.replaceDescription(d)
+
+  /**
+   * Ad-hoc function to create or update an item with a particular description.
+   * @param item
+   * @param d
+   * @return
+   */
+  private def descriptionBuilder(item: Entity, d: DocumentaryUnitDescriptionF): DocumentaryUnitF = DocumentaryUnit(item).to.replaceDescription(d)
 
 
   def get(id: String) = getWithChildrenAction(id, builder) {
@@ -117,7 +124,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       models.forms.DocumentaryUnitDescriptionForm.form, routes.DocumentaryUnits.createDescriptionPost(id)))
   }
 
-  def createDescriptionPost(id: String) = createDescriptionPostAction(id, descBuilder, descForm) {
+  def createDescriptionPost(id: String) = createDescriptionPostAction(id, descriptionBuilder, descriptionForm) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => {
