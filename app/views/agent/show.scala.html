@@ -11,19 +11,25 @@
                 @item.descriptions.map { desc =>
                     <h5>Language: @desc.languageCode</h5>
 
-                    <h4>@Messages(fieldPrefix + "." + ADDRESS_AREA, desc.addresses.size)</h4>
                     @desc.addresses.map { address =>
-                        @common.stringValue(address, ADDRESS_NAME)
-                        @common.stringValue(address, CONTACT_PERSON)
-                        @common.stringValue(address, STREET_ADDRESS)
-                        @common.stringValue(address, CITY)
-                        @common.stringValue(address, REGION)
-                        @common.stringValue(address, COUNTRY_CODE)
-                        @common.stringValue(address, EMAIL)
-                        @common.stringValue(address, TELEPHONE)
-                        @common.stringValue(address, FAX)
-                        @common.stringValue(address, URL)
+                        <address title="@address.stringProperty(ADDRESS_NAME)">
+                        @List(CONTACT_PERSON, STREET_ADDRESS,CITY,REGION).map { addressPart =>
+                            @address.stringProperty(addressPart).map { addressPartValue =>
+                                @addressPartValue<br />
+                            }
+                        }
+                        @address.stringProperty(COUNTRY_CODE).map { cc =>
+                            @* TODO: Map country code to name *@
+                            @cc<br />
+                        }
+                        @List(EMAIL, TELEPHONE, FAX, URL).map { addressPart =>
+                            @address.stringProperty(addressPart).map { addressPartValue =>
+                                @addressPartValue<br />
+                            }
+                        }
+                        </address>
                     }
+
 
                     <h4>@Messages(fieldPrefix + "." + DESCRIPTION_AREA)</h4>
                     <div class="description-section">
