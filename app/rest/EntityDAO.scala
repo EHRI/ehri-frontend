@@ -154,6 +154,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   }
 
   def update(id: String, item: Persistable): Future[Either[RestError, Entity]] = {
+    Logger.logger.debug("Posting update: {}", item)
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
