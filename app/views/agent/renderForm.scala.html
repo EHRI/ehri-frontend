@@ -2,6 +2,8 @@
 
 @import models.forms.Isdiah._
 
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
 @defining("isdiah") { implicit fieldPrefix =>
     <fieldset id="identity-area">
         <legend>@Messages("Identity")</legend>
@@ -83,10 +85,10 @@
                 @formHelpers.textInput(desc, DATES_CVD)
                 @* TODO: Make scripts a dropdown... *@
                 @helper.repeat(desc(LANGUAGES_USED), min = item.flatMap(_.listProperty(LANGUAGES_USED).map(_.length)).getOrElse(0) + 1) { field =>
-                    @formHelpers.lineInput(field, LANGUAGES_USED)
+                    @helper.inputText(field, 'class -> "span8", '_label -> Messages("%s.%s".format(fieldPrefix, LANGUAGES_USED)))
                 }
                 @helper.repeat(desc(SCRIPTS_USED), min = item.flatMap(_.listProperty(SCRIPTS_USED).map(_.length)).getOrElse(0) + 1) { field =>
-                    @formHelpers.lineInput(field, SCRIPTS_USED)
+                    @helper.inputText(field, 'class -> "span8", '_label -> Messages("%s.%s".format(fieldPrefix, SCRIPTS_USED)))
                 }
                 @formHelpers.textInput(desc, SOURCES)
                 @formHelpers.textInput(desc, MAINTENANCE_NOTES)

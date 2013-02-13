@@ -344,6 +344,7 @@ isadg.controlArea=Control Area
 isadg.name=Name
 isadg.identifier=Identifier
 isadg.title=Title
+isadg.dates=Dates
 isadg.languageCode=Language
 isadg.adminBiogHist=Administrative and Biographical History
 isadg.archivalHistory=Archival History

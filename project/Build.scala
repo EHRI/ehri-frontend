@@ -24,8 +24,10 @@ object ApplicationBuild extends Build {
     "jp.t2v" %% "play21.auth" % "0.6",
     "com.sun.jersey" % "jersey-core" % "1.9",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
+    // Forced logback to older version due to conflict with Neo4j
     "ch.qos.logback" % "logback-core" % "1.0.3" force(),
     "ch.qos.logback" % "logback-classic" % "1.0.3" force(),
+    "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4",
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",

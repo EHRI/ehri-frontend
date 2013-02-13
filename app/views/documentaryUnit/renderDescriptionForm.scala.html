@@ -1,6 +1,7 @@
 @(desc: Field)(implicit fieldPrefix: String)
 
 @import models.forms.IsadG._
+@import models.forms.DatePeriodF._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -9,6 +10,13 @@
 @formHelpers.hiddenInput(desc(Entity.ID))
 @helper.inputText(desc("languageCode"), '_label -> "Language Code")
 @formHelpers.lineInput(desc, TITLE)
+
+@helper.repeat(desc(DATES), min=math.max(desc(DATES).indexes.length, 1)) { desc =>
+    @formHelpers.hiddenInput(desc(Entity.ID))
+    @formHelpers.lineInput(desc, START_DATE)
+    @formHelpers.lineInput(desc, END_DATE)
+}
+
 </fieldset>
 <fieldset id="context-area">
 <legend>@Messages(fieldPrefix + "." + CONTEXT_AREA)</legend>

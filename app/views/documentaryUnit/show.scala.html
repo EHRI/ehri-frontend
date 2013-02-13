@@ -14,10 +14,6 @@
             <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
         }
 
-        @item.dateString.map { d =>
-            <h4>@d</h4>
-        }
-
         @defining("isadg") { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
                 <div class="tabbable">

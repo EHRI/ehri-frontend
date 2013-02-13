@@ -7,9 +7,16 @@ import models.base.AccessibleEntity
 import play.api.mvc.Call
 import play.api.i18n.Lang
 
+import com.petebevin.markdown.MarkdownProcessor
 
-// Pimp my 
+
 package object Helpers {
+
+  // Initialize Markdown processor for rendering markdown
+  private val markdownProcessor = new MarkdownProcessor
+
+  def renderMarkdown(text: String) = markdownProcessor.markdown(text)
+
   /*
    * Helper to provide Digg-style pagination, like:
    *    1, 2 ... 18, 19, 20, 21, 22 ... 55, 56

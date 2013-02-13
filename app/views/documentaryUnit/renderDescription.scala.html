@@ -16,6 +16,11 @@
 
 <h5>@Messages("isadg.languageCode"): @views.Helpers.displayLanguage(desc.languageCode)</h5>
 
+<h4>@Messages("isadg.dates")</h4>
+@desc.dateString.map { d =>
+    <h4>@d</h4>
+}
+
 <h4>@Messages(fieldPrefix + "." + CONTEXT_AREA)</h4>
 <div class="description-section">
     @common.stringValue(desc, ADMIN_BIOG)

@@ -1,8 +1,10 @@
 @(desc: models.base.AccessibleEntity, fieldName: String)(implicit prefix: String = "")
 
 @defining(desc.stringProperty(fieldName)) { value =>
-	@if(!value.getOrElse("").trim.isEmpty) {
-		<h5>@Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName))</h5>
-		<p>@value</p>
-	}
+    @value.map { str =>
+        @if(!str.trim.isEmpty) {
+            <h5>@Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName))</h5>
+            <p>@Html(views.Helpers.renderMarkdown(str))</p>
+        }
+    }
 }
