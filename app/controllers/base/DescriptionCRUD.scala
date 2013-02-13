@@ -33,6 +33,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity with Formable[F
           val doc = builder(item, desc)
           AsyncRest {
             EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
+              // TODO: Work out how to handle a validation error here...
               itemOrErr.right.map { updated =>
                 f(item)(Right(updated))(userOpt)(request)
               }
