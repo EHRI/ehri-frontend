@@ -14,6 +14,7 @@ case object IsadG {
   /* ISAD(G)-based field set */
   val NAME = "name"
   val TITLE = "title"
+  val DATES = "dates"
   val PUB_STATUS = "publicationStatus"
   val LANG_CODE = "languageCode"
 
@@ -65,8 +66,6 @@ case class DocumentaryUnitF(
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
 
-  @Annotations.Relation(TemporalEntity.DATE_REL)
-  val dates: List[DatePeriodF] = Nil,
   @Annotations.Relation(DocumentaryUnitF.DESC_REL)
   val descriptions: List[DocumentaryUnitDescriptionF] = Nil
 ) extends Persistable {
@@ -111,7 +110,6 @@ case class DocumentaryUnitF(
         PUB_STATUS -> publicationStatus
       ),
       RELATIONSHIPS -> Json.obj(
-        TemporalEntity.DATE_REL -> Json.toJson(dates.map(_.toJson).toSeq),
         DESC_REL -> Json.toJson(descriptions.map(_.toJson).toSeq)
       )
     )
@@ -122,6 +120,8 @@ case class DocumentaryUnitDescriptionF(
   val id: Option[String],
   val languageCode: String,
   val title: Option[String] = None,
+  @Annotations.Relation(TemporalEntity.DATE_REL)
+  val dates: List[DatePeriodF] = Nil,
   val context: DocumentaryUnitDescriptionF.Context,
   val content: DocumentaryUnitDescriptionF.Content,
   val conditions: DocumentaryUnitDescriptionF.Conditions,
@@ -159,6 +159,9 @@ case class DocumentaryUnitDescriptionF(
         ARCHIVIST_NOTE -> control.archivistNote,
         RULES_CONVENTIONS -> control.rulesAndConventions,
         DATES_DESCRIPTIONS -> control.datesOfDescriptions
+      ),
+      RELATIONSHIPS -> Json.obj(
+        TemporalEntity.DATE_REL -> Json.toJson(dates.map(_.toJson).toSeq)
       )
     )
   }
@@ -209,6 +212,7 @@ object DocumentaryUnitDescriptionForm {
       "id" -> optional(nonEmptyText),
       "languageCode" -> nonEmptyText,
       TITLE -> optional(nonEmptyText),
+      DATES -> list(DatePeriodForm.form.mapping),
       CONTEXT_AREA -> mapping(
         ADMIN_BIOG -> optional(text),
         ARCH_HIST -> optional(text),
@@ -252,7 +256,6 @@ object DocumentaryUnitForm {
       "identifier" -> nonEmptyText,
       NAME -> nonEmptyText,
       "publicationStatus" -> optional(enum(defines.PublicationStatus)),
-      "dates" -> list(DatePeriodForm.form.mapping),
       "descriptions" -> list(DocumentaryUnitDescriptionForm.form.mapping)
     )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
   )

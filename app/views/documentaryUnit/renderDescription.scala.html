@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: models.base.Description)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescription)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader)
 
 <h5>Language: @desc.languageCode</h5>
 
@@ -11,6 +11,9 @@
     }
 }
 
+@desc.dateString.map { d =>
+    <h4>@d</h4>
+}
 
 <h4>@Messages(fieldPrefix + "." + CONTEXT_AREA)</h4>
 <div class="description-section">

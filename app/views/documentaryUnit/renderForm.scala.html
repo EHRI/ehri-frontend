@@ -1,7 +1,6 @@
 @(f: play.api.data.Form[models.forms.DocumentaryUnitF])
 @import models.base.TemporalEntity
 
-@import models.forms.DatePeriodF._
 @import models.forms.IsadG._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
@@ -13,13 +12,6 @@
             @helper.inputText(f(Entity.IDENTIFIER), '_label -> Messages("%s.%s".format(fieldPrefix, Entity.IDENTIFIER)))
             @helper.inputText(f(NAME), '_label -> Messages("%s.%s".format(fieldPrefix, NAME)))
         </fieldset>
-
-        @helper.repeat(f("dates"), min=math.max(f("dates").indexes.length, 1)) { desc =>
-
-            @formHelpers.hiddenInput(desc(Entity.ID))
-            @formHelpers.lineInput(desc, START_DATE)
-            @formHelpers.lineInput(desc, END_DATE)
-        }
 
         @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
             @documentaryUnit.renderDescriptionForm(desc)

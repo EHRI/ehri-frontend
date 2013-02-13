@@ -12,7 +12,6 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
   with AnnotatableEntity
   with HierarchicalEntity[DocumentaryUnit]
   with DescribedEntity
-  with TemporalEntity
   with Formable[DocumentaryUnitF] {
 
   import DocumentaryUnitF._
@@ -31,13 +30,13 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
     identifier = identifier,
     name = name,
     publicationStatus = publicationStatus,
-    dates = dates.map(_.to),
     descriptions = descriptions.map(_.to)
   )
 }
 
 case class DocumentaryUnitDescription(val e: Entity)
   extends Description
+  with TemporalEntity
   with Formable[DocumentaryUnitDescriptionF] {
   import models.forms.IsadG._
   import DocumentaryUnitDescriptionF._
@@ -45,6 +44,7 @@ case class DocumentaryUnitDescription(val e: Entity)
     id = Some(e.id),
     languageCode = languageCode,
     title = e.property(TITLE).flatMap(_.asOpt[String]),
+    dates = dates.map(_.to),
     context = Context(
       adminBiogHist = stringProperty(ADMIN_BIOG),
       archivalHistory = stringProperty(ARCH_HIST),
