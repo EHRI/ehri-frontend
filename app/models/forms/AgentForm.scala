@@ -243,7 +243,13 @@ case class AddressF(
         ADDRESS_NAME -> name,
         CONTACT_PERSON -> contactPerson,
         STREET_ADDRESS -> streetAddress,
-        CITY -> city
+        CITY -> city,
+        REGION -> region,
+        COUNTRY_CODE -> countryCode,
+        EMAIL -> email,
+        TELEPHONE -> telephone,
+        FAX -> fax,
+        URL -> url
       )
     )
   }
@@ -304,8 +310,8 @@ object AgentDescriptionForm {
         STATUS -> optional(text),
         LEVEL_OF_DETAIL -> optional(text),
         DATES_CVD -> optional(text),
-        LANGUAGES_USED -> optional(list(nonEmptyText)),
-        SCRIPTS_USED -> optional(list(nonEmptyText)),
+        LANGUAGES_USED -> optional(list(text)),
+        SCRIPTS_USED -> optional(list(text)),
         SOURCES -> optional(text),
         MAINTENANCE_NOTES -> optional(text)
       )(Control.apply)(Control.unapply)
