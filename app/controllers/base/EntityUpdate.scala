@@ -8,6 +8,7 @@ import play.api.data.{ Form, FormError }
 import models.base.Formable
 import defines.PermissionType
 import models.{UserProfile, Entity}
+import play.api.Logger
 
 /**
  * Controller trait which updates an AccessibleEntity.
@@ -27,7 +28,10 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
 
       form.bindFromRequest.fold(
-        errorForm => f(item)(Left(errorForm))(userOpt)(request),
+        errorForm => {
+          Logger.logger.debug("Form errors: {}", errorForm.errors)
+          f(item)(Left(errorForm))(userOpt)(request)
+        },
         success = doc => {
           AsyncRest {
             rest.EntityDAO(entityType, userOpt)
