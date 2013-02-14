@@ -1,4 +1,4 @@
-@(item: Option[Concept], f: play.api.data.Form[models.forms.ConceptF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Option[Concept], f: play.api.data.Form[models.ConceptF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

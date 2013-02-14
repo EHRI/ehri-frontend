@@ -4,7 +4,7 @@
 
     @common.annotated(item, annotations, routes.Vocabularies.annotate(item.id)) {
         @defining("vocabulary") { implicit  prefix =>
-            @common.stringValue(item, models.forms.VocabularyF.DESCRIPTION)
+            @common.stringValue(item, models.VocabularyF.DESCRIPTION)
         }
     }
 
@@ -16,7 +16,7 @@
             <div class="list-item">
             <h5>
             <a href="@routes.Concepts.get(item.id)">
-                @item.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+                @item.descriptions.headOption.map(_.stringProperty(models.ConceptF.PREFLABEL))
             </a>
             </h5>
             </div>

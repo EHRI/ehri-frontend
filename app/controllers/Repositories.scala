@@ -164,7 +164,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Repository(item), models.forms.AnnotationForm.form, routes.Repositories.annotatePost(id)))
+    Ok(views.html.annotation.annotate(Repository(item), models.AnnotationForm.form, routes.Repositories.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) {

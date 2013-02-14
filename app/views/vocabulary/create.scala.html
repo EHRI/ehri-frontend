@@ -1,4 +1,4 @@
-@(f: Form[models.forms.VocabularyF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(f: Form[models.VocabularyF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.createVocabulary")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {

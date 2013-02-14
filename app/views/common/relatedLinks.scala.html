@@ -6,7 +6,7 @@
 
 <div class="annotatable" id="@item.id">
     @annotations.get(item.id).map { list =>
-        @defining(list.filter(_.to.annotationType == models.forms.AnnotationType.Link)) { alist =>
+        @defining(list.filter(_.to.annotationType == AnnotationType.Link)) { alist =>
             @if(!alist.isEmpty) {
                 <hr />
                 <h3>@Messages("isadg.accessPoints")</h3>

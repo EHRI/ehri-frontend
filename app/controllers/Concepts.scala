@@ -1,8 +1,8 @@
 package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.Concept
-import models.forms.{ConceptF,VisibilityForm}
+import models.{Concept,ConceptF}
+import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
 import base._
@@ -44,8 +44,8 @@ object Concepts extends CreationContext[ConceptF, Concept]
   val entityType = EntityType.Concept
   val contentType = ContentType.Concept
 
-  val form = models.forms.ConceptForm.form
-  val childForm = models.forms.ConceptForm.form
+  val form = models.ConceptForm.form
+  val childForm = models.ConceptForm.form
   val builder = Concept.apply _
 
   def get(id: String) = getWithChildrenAction(id, builder) { item => page => params => annotations =>
@@ -164,7 +164,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Concept(item), models.forms.AnnotationForm.form, routes.Concepts.annotatePost(id)))
+    Ok(views.html.annotation.annotate(Concept(item), models.AnnotationForm.form, routes.Concepts.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) {
@@ -184,7 +184,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.annotation.linkAnnotate(target, source,
-            models.forms.AnnotationForm.form, routes.Concepts.linkAnnotatePost(id, toType, to)))
+            models.AnnotationForm.form, routes.Concepts.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {

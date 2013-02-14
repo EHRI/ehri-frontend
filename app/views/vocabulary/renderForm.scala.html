@@ -1,5 +1,5 @@
-@(item: Option[Vocabulary], f: Form[models.forms.VocabularyF])
+@(item: Option[Vocabulary], f: Form[models.VocabularyF])
 
 @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
-@formHelpers.lineInput(f(""), models.forms.VocabularyF.NAME)
-@formHelpers.textInput(f(""), models.forms.VocabularyF.DESCRIPTION)
+@formHelpers.lineInput(f(""), models.VocabularyF.NAME)
+@formHelpers.textInput(f(""), models.VocabularyF.DESCRIPTION)

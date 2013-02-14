@@ -1,8 +1,8 @@
-@(item: AccessibleEntity, f: play.api.data.Form[models.forms.ConceptF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AccessibleEntity, f: play.api.data.Form[models.ConceptF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@import models.forms.ConceptF._
+@import models.ConceptF._
 
 @rightSidebarLayout(Messages("actions.createConcept")) {
 

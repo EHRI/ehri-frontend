@@ -26,7 +26,7 @@
     <a href="@url">+@Messages("actions.annotateThisItem")</a>
     @body
     @annotations.get(item.id).map { list =>
-        @defining(list.filter(_.to.annotationType == models.forms.AnnotationType.Comment)) { alist =>
+        @defining(list.filter(_.to.annotationType == AnnotationType.Comment)) { alist =>
             @if(!alist.isEmpty) {
                 <hr />
                 <div class="item-annotations">

@@ -11,7 +11,7 @@ import models.UserProfile
 import models.Entity
 import models.base.Accessor
 import controllers.ListParams
-import models.forms.{AnnotationType, AnnotationF}
+import models.{AnnotationType, AnnotationF}
 import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._

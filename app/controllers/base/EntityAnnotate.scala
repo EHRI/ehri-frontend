@@ -7,7 +7,7 @@ import models.base.Persistable
 import defines._
 import models.{Annotation, Entity, UserProfile}
 import play.api.data.Form
-import models.forms.AnnotationF
+import models.AnnotationF
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
@@ -18,7 +18,7 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
 
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      models.forms.AnnotationForm.form.bindFromRequest.fold(
+      models.AnnotationForm.form.bindFromRequest.fold(
         errorForm => f(Left(errorForm))(userOpt)(request),
         ann => {
           AsyncRest {
@@ -51,7 +51,7 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
   def linkPostAction(id: String, toType: String, to: String)(
       f: Either[(AnnotatableEntity,AnnotatableEntity,Form[AnnotationF]),Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      models.forms.AnnotationForm.form.bindFromRequest.fold(
+      models.AnnotationForm.form.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
           getEntity(EntityType.withName(toType), to) { srcitem =>
           // If neither items are annotatable throw a 404

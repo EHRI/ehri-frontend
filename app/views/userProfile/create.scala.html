@@ -1,4 +1,4 @@
-@(f: play.api.data.Form[models.forms.UserProfileF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+@(f: play.api.data.Form[UserProfileF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.createUserProfile")) {

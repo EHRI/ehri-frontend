@@ -1,4 +1,4 @@
-@(item: AnnotatableEntity, src: AnnotatableEntity, form: play.api.data.Form[models.forms.AnnotationF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AnnotatableEntity, src: AnnotatableEntity, form: play.api.data.Form[AnnotationF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -8,8 +8,8 @@
 		<fieldset id="annotate-area">
 
         <legend>@Messages("Identity")</legend>
-            @helper.inputText(form(models.forms.AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
-            <input type="hidden" value="@models.forms.AnnotationType.Link" name="@form(models.forms.AnnotationF.ANNOTATION_TYPE).name" />
+            @helper.inputText(form(AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
+            <input type="hidden" value="@AnnotationType.Link" name="@form(AnnotationF.ANNOTATION_TYPE).name" />
 		</fieldset>
 	  
 		<div class="form-actions">

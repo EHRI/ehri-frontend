@@ -1,8 +1,8 @@
 package controllers
 
 import models.base.Accessor
-import models.{UserProfile, Group}
-import models.forms.{GroupF, VisibilityForm}
+import models.{UserProfile, Group,GroupF}
+import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
 import base._
@@ -16,7 +16,7 @@ object Groups extends PermissionHolderController[Group]
   val entityType = EntityType.Group
   val contentType = ContentType.Group
 
-  val form = models.forms.GroupForm.form
+  val form = models.GroupForm.form
   val builder = Group
 
   def get(id: String) = getAction(id) { item => annotations =>

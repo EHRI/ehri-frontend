@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentType}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
-import models.forms.UserProfileF
+import models.UserProfileF
 import models.sql.OpenIDUser
 
 

@@ -3,7 +3,7 @@
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @defining("group") { implicit prefix =>
-        @common.stringValue(item, models.forms.GroupF.DESCRIPTION)
+        @common.stringValue(item, models.GroupF.DESCRIPTION)
     }
 
     @if(!item.groups.isEmpty) {

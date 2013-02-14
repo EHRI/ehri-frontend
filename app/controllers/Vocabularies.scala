@@ -1,8 +1,8 @@
 package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{Concept,Vocabulary}
-import models.forms.{VisibilityForm, ConceptF, VocabularyF}
+import models.{Concept,Vocabulary,VocabularyF,ConceptF}
+import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
 import base._
@@ -25,8 +25,8 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   val entityType = EntityType.Vocabulary
   val contentType = ContentType.Vocabulary
 
-  val form = models.forms.VocabularyForm.form
-  val childForm = models.forms.ConceptForm.form
+  val form = models.VocabularyForm.form
+  val childForm = models.ConceptForm.form
   val builder = Vocabulary.apply _
 
   def get(id: String) = getWithChildrenAction(id, Concept.apply _) {
@@ -46,7 +46,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
     Ok(views.html.vocabulary.create(form, VisibilityForm.form, users, groups, routes.Vocabularies.createPost))
   }
 
-  def createPost = createPostAction(models.forms.VocabularyForm.form) { formsOrItem => implicit userOpt => implicit request =>
+  def createPost = createPostAction(models.VocabularyForm.form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getGroups { users => groups =>
         BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, routes.Vocabularies.createPost))
@@ -156,7 +156,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Vocabulary(item), models.forms.AnnotationForm.form, routes.Vocabularies.annotatePost(id)))
+    Ok(views.html.annotation.annotate(Vocabulary(item), models.AnnotationForm.form, routes.Vocabularies.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) {

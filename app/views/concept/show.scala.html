@@ -1,6 +1,6 @@
 @(item: Concept, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@import models.forms.ConceptF._
+@import models.ConceptF._
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.vocabulary.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(Concept(_)) ::: List(item))) {
     <div class="row-fluid">
@@ -45,7 +45,7 @@
                     <ul>
                     @item.broaderTerms.sortBy(_.toString).map { t =>
                         <li><a href="@routes.Concepts.get(t.id)">
-                            @t.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+                            @t.descriptions.headOption.map(_.stringProperty(models.ConceptF.PREFLABEL))
                         </a>
                         </li>
                     }
@@ -62,7 +62,7 @@
                 <div class="list-item">
                     <h5>
                         <a href="@routes.Concepts.get(item.id)">
-                        @item.descriptions.headOption.map(_.stringProperty(models.forms.ConceptF.PREFLABEL))
+                        @item.descriptions.headOption.map(_.stringProperty(models.ConceptF.PREFLABEL))
                         </a>
                     </h5>
                 </div>

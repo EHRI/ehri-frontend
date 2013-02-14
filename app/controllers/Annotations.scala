@@ -40,7 +40,7 @@ object Annotations extends EntityRead[Annotation]
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt =>
     implicit request =>
       Ok(views.html.annotation.annotate(Annotation(item),
-        models.forms.AnnotationForm.form, routes.Annotations.annotatePost(id)))
+        models.AnnotationForm.form, routes.Annotations.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit userOpt =>

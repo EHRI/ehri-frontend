@@ -9,7 +9,7 @@ import models.{Annotation, Entity, UserProfile}
 import play.api.libs.json.Json
 import java.net.ConnectException
 import models.base.Persistable
-import models.forms.AnnotationF
+import models.AnnotationF
 
 
 /**

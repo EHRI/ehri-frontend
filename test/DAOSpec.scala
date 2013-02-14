@@ -14,8 +14,7 @@ import play.api.libs.json.JsString
 import org.specs2.specification.BeforeExample
 import defines.{EntityType,ContentType,PermissionType}
 import models.UserProfile
-import models.{DocumentaryUnit,DocumentaryUnitF}
-import models.forms.{UserProfileF}
+import models.{DocumentaryUnit,DocumentaryUnitF,UserProfileF}
 import rest.RestPageParams
 
 class DAOSpec extends Specification with BeforeExample {
