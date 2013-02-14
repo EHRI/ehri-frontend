@@ -8,7 +8,7 @@
         @defining("isdiah") { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
                 @item.descriptions.map { desc =>
-                    <h5>@Messages(fieldPrefix + "." + LANG_CODE): @views.Helpers.displayLanguage(desc.languageCode)</h5>
+                    <h5>@Messages(fieldPrefix + ".languageCode"): @views.Helpers.displayLanguage(desc.languageCode)</h5>
 
                     @desc.addresses.map { address =>
                         <address title="@address.stringProperty(ADDRESS_NAME)">
