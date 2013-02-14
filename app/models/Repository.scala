@@ -21,7 +21,7 @@ case object Isdiah {
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
 
-  val LANGUAGE_CODE = "languageCode"
+  val LANG_CODE = "languageCode"
 
   // Field set
   val IDENTITY_AREA = "identityArea"
@@ -32,7 +32,7 @@ case object Isdiah {
 
   // AddressF
   val ADDRESS_AREA = "addressArea"
-  val ADDRESS_NAME = "name"
+  val ADDRESS_NAME = "addressName"
   val CONTACT_PERSON = "contactPerson"
   val STREET_ADDRESS = "streetAddress"
   val CITY = "city"
@@ -179,7 +179,7 @@ case class RepositoryDescriptionF(
       TYPE -> isA,
       DATA -> Json.obj(
         NAME -> name,
-        LANGUAGE_CODE -> languageCode,
+        LANG_CODE -> languageCode,
         OTHER_FORMS_OF_NAME -> otherFormsOfName,
         PARALLEL_FORMS_OF_NAME -> parallelFormsOfName,
         HISTORY -> details.history,
@@ -264,7 +264,7 @@ object RepositoryDescriptionForm {
   val form = Form(
     mapping(
       Entity.ID -> optional(nonEmptyText),
-      LANGUAGE_CODE -> nonEmptyText,
+      LANG_CODE -> nonEmptyText,
       NAME -> optional(text),
       OTHER_FORMS_OF_NAME -> optional(list(text)),
       PARALLEL_FORMS_OF_NAME -> optional(list(text)),
@@ -327,7 +327,7 @@ object RepositoryForm {
       Entity.IDENTIFIER -> nonEmptyText,
       Isdiah.NAME -> nonEmptyText,
       Isdiah.PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
-      "descriptions" -> list(RepositoryDescriptionForm.form.mapping)
+      DescribedEntity.DESCRIPTIONS -> list(RepositoryDescriptionForm.form.mapping)
     )(RepositoryF.apply)(RepositoryF.unapply)
   )
 }

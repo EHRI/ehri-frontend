@@ -213,11 +213,12 @@ object DocumentaryUnitDescriptionForm {
 
   import DocumentaryUnitDescriptionF._
   import IsadG._
+  import Entity._
 
   val form = Form(
     mapping(
-      "id" -> optional(nonEmptyText),
-      "languageCode" -> nonEmptyText,
+      ID -> optional(nonEmptyText),
+      LANG_CODE -> nonEmptyText,
       TITLE -> optional(nonEmptyText),
       DATES -> list(DatePeriodForm.form.mapping),
       CONTEXT_AREA -> mapping(
@@ -254,16 +255,16 @@ object DocumentaryUnitDescriptionForm {
 
 object DocumentaryUnitForm {
 
-  import DocumentaryUnitDescriptionF._
+  import Entity._
   import IsadG._
 
   val form = Form(
     mapping(
-      "id" -> optional(nonEmptyText),
-      "identifier" -> nonEmptyText,
+      ID -> optional(nonEmptyText),
+      IDENTIFIER -> nonEmptyText,
       NAME -> nonEmptyText,
-      "publicationStatus" -> optional(models.forms.enum(defines.PublicationStatus)),
-      "descriptions" -> list(DocumentaryUnitDescriptionForm.form.mapping)
+      PUB_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
+      DescribedEntity.DESCRIPTIONS -> list(DocumentaryUnitDescriptionForm.form.mapping)
     )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
   )
 }
@@ -278,13 +279,12 @@ with Formable[DocumentaryUnitF] {
 
   import DocumentaryUnitF._
   import DescribedEntity._
-  import IsadG._
 
   val hierarchyRelationName = CHILD_REL
 
   val holder: Option[Repository] = e.relations(HELD_REL).headOption.map(Repository(_))
   val parent: Option[DocumentaryUnit] = e.relations(CHILD_REL).headOption.map(DocumentaryUnit(_))
-  val publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt)
+  val publicationStatus = e.property(IsadG.PUB_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
 
   override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
 
@@ -308,7 +308,7 @@ case class DocumentaryUnitDescription(val e: Entity)
   def formable = new DocumentaryUnitDescriptionF(
     id = Some(e.id),
     languageCode = languageCode,
-    title = e.property(TITLE).flatMap(_.asOpt[String]),
+    title = stringProperty(TITLE),
     dates = dates.map(_.formable),
     context = Context(
       adminBiogHistory = stringProperty(ADMIN_BIOG),

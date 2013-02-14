@@ -1,27 +1,25 @@
 @(item: Option[Repository], f: Form[RepositoryF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@import models.base.DescribedEntity
 
 @import Isdiah._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @defining("isdiah") { implicit fieldPrefix =>
-    <fieldset id="identity-area">
-        <legend>@Messages("Identity")</legend>
         @helper.inputText(f("identifier"), '_label -> "Identifier")
-        @helper.inputText(f("name"), '_label -> "Name")
-    </fieldset>
+        @helper.inputText(f("name"), '_label -> Messages(fieldPrefix + ".authorizedFormOfName"))
 
-    @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+    @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
+        @formHelpers.lineInput(desc, LANG_CODE)
+
         <fieldset id="identity-area">
             <legend>@Messages(fieldPrefix + "." + IDENTITY_AREA)</legend>
             @formHelpers.hiddenInput(desc(Entity.ID))
-            @helper.inputText(desc("languageCode"), '_label -> "Language Code")
-            @helper.inputText(desc(NAME), '_label -> "Authorized Form of Name")
             @helper.repeat(desc(OTHER_FORMS_OF_NAME), min = item.flatMap(_.listProperty(OTHER_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { field =>
-                @helper.inputText(field, '_label -> Messages(OTHER_FORMS_OF_NAME))
+                @helper.inputText(field, 'class -> "span8", '_label -> Messages(fieldPrefix + "." + OTHER_FORMS_OF_NAME))
             }
             @helper.repeat(desc(PARALLEL_FORMS_OF_NAME), min = item.flatMap(_.listProperty(PARALLEL_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { field =>
-                @helper.inputText(field, '_label -> Messages(PARALLEL_FORMS_OF_NAME))
+                @helper.inputText(field, 'class -> "span8", '_label -> Messages(fieldPrefix + "." + PARALLEL_FORMS_OF_NAME))
             }
         </fieldset>
 
@@ -94,6 +92,5 @@
                 @formHelpers.textInput(desc, MAINTENANCE_NOTES)
             }
         </fieldset>
-
     }
 }

@@ -1,4 +1,5 @@
 @(f: play.api.data.Form[DocumentaryUnitF])
+@import models.base.DescribedEntity
 @import models.base.TemporalEntity
 
 @import models.IsadG._
@@ -13,12 +14,12 @@
             @helper.inputText(f(NAME), '_label -> Messages("%s.%s".format(fieldPrefix, NAME)))
         </fieldset>
 
-        @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+        @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
             @documentaryUnit.renderDescriptionForm(desc)
         }
-    }
+        <fieldset id="admin-area">
+            <legend>@Messages("forms.adminArea")</legend>
+            @formHelpers.enumChoiceInput(f(fieldPrefix + "." + PUB_STATUS), defines.PublicationStatus, Messages(fieldPrefix + "." + PUB_STATUS))
+        </fieldset>
 
-<fieldset id="admin-area">
-    <legend>@Messages("forms.adminArea")</legend>
-    @formHelpers.enumChoiceInput(f("forms.publicationStatus"), defines.PublicationStatus, "Publication Status")
-</fieldset>
+    }

@@ -6,56 +6,56 @@
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 <fieldset id="descriptions-area">
-<legend>@Messages(fieldPrefix + "." + DESCRIPTIONS_AREA)</legend>
-@formHelpers.hiddenInput(desc(Entity.ID))
-@helper.inputText(desc("languageCode"), '_label -> "Language Code")
-@formHelpers.lineInput(desc, TITLE)
-
-@helper.repeat(desc(DATES), min=math.max(desc(DATES).indexes.length, 1)) { desc =>
+    <legend>@Messages(fieldPrefix + "." + DESCRIPTIONS_AREA)</legend>
     @formHelpers.hiddenInput(desc(Entity.ID))
-    @formHelpers.lineInput(desc, START_DATE)
-    @formHelpers.lineInput(desc, END_DATE)
-}
+    @helper.inputText(desc(LANG_CODE), '_label -> Messages(fieldPrefix + "." + LANG_CODE))
+    @formHelpers.lineInput(desc, TITLE)
 
+    @helper.repeat(desc(DATES), min=math.max(desc(DATES).indexes.length, 1)) { desc =>
+        @formHelpers.hiddenInput(desc(Entity.ID))
+        @formHelpers.lineInput(desc, START_DATE)
+        @formHelpers.lineInput(desc, END_DATE)
+    }
 </fieldset>
+
 <fieldset id="context-area">
-<legend>@Messages(fieldPrefix + "." + CONTEXT_AREA)</legend>
-@defining(desc(CONTEXT_AREA)) { desc =>
-        @formHelpers.textInput(desc, ADMIN_BIOG)
-        @formHelpers.textInput(desc, ARCH_HIST)
-        @formHelpers.textInput(desc, ACQUISITION)
-}
+    <legend>@Messages(fieldPrefix + "." + CONTEXT_AREA)</legend>
+    @defining(desc(CONTEXT_AREA)) { desc =>
+            @formHelpers.textInput(desc, ADMIN_BIOG)
+            @formHelpers.textInput(desc, ARCH_HIST)
+            @formHelpers.textInput(desc, ACQUISITION)
+    }
 </fieldset>
 <fieldset id="content-area">
-<legend>@Messages(fieldPrefix + "." + CONTENT_AREA)</legend>
-@defining(desc(CONTENT_AREA)) { desc =>
-        @formHelpers.textInput(desc, SCOPE_CONTENT)
-        @formHelpers.textInput(desc, APPRAISAL)
-        @formHelpers.textInput(desc, ACCRUALS)
-        @formHelpers.textInput(desc, SYS_ARR)
-}
+    <legend>@Messages(fieldPrefix + "." + CONTENT_AREA)</legend>
+    @defining(desc(CONTENT_AREA)) { desc =>
+            @formHelpers.textInput(desc, SCOPE_CONTENT)
+            @formHelpers.textInput(desc, APPRAISAL)
+            @formHelpers.textInput(desc, ACCRUALS)
+            @formHelpers.textInput(desc, SYS_ARR)
+    }
 </fieldset>
 <fieldset id="conditions-area">
-<legend>@Messages(fieldPrefix + "." + CONDITIONS_AREA)</legend>
-@defining(desc(CONDITIONS_AREA)) { desc =>
-        @formHelpers.textInput(desc, ACCESS_COND)
-        @formHelpers.textInput(desc, REPROD_COND)
-        @formHelpers.textInput(desc, PHYSICAL_CHARS)
-        @formHelpers.textInput(desc, FINDING_AIDS)
-}
+    <legend>@Messages(fieldPrefix + "." + CONDITIONS_AREA)</legend>
+    @defining(desc(CONDITIONS_AREA)) { desc =>
+            @formHelpers.textInput(desc, ACCESS_COND)
+            @formHelpers.textInput(desc, REPROD_COND)
+            @formHelpers.textInput(desc, PHYSICAL_CHARS)
+            @formHelpers.textInput(desc, FINDING_AIDS)
+    }
 </fieldset>
 <fieldset id="materials-area">
-<legend>@Messages(fieldPrefix + "." + MATERIALS_AREA)</legend>
-@defining(desc(MATERIALS_AREA)) { desc =>
-        @formHelpers.textInput(desc, LOCATION_ORIGINALS)
-        @formHelpers.textInput(desc, LOCATION_COPIES)
-        @formHelpers.textInput(desc, RELATED_UNITS)
-        @formHelpers.textInput(desc, PUBLICATION_NOTE)
-}
+    <legend>@Messages(fieldPrefix + "." + MATERIALS_AREA)</legend>
+    @defining(desc(MATERIALS_AREA)) { desc =>
+            @formHelpers.textInput(desc, LOCATION_ORIGINALS)
+            @formHelpers.textInput(desc, LOCATION_COPIES)
+            @formHelpers.textInput(desc, RELATED_UNITS)
+            @formHelpers.textInput(desc, PUBLICATION_NOTE)
+    }
 </fieldset>
 <fieldset id="control-area">
-            <legend>@Messages(fieldPrefix + "." + CONTROL_AREA)</legend>
-            @defining(desc(CONTROL_AREA)) { desc =>
+    <legend>@Messages(fieldPrefix + "." + CONTROL_AREA)</legend>
+        @defining(desc(CONTROL_AREA)) { desc =>
         @formHelpers.textInput(desc, ARCHIVIST_NOTE)
         @formHelpers.textInput(desc, RULES_CONVENTIONS)
         @formHelpers.textInput(desc, DATES_DESCRIPTIONS)
