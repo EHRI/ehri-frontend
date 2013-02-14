@@ -6,7 +6,7 @@
 @rightSidebarLayout(Messages("actions.createAgent")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 
-        .renderForm(None, f)
+        @repository.renderForm(None, f)
 
         <fieldset id="admin-area">
             <legend>@Messages("Administration")</legend>

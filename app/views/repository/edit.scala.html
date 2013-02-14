@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 @rightSidebarLayout(Messages("actions.updateAgent")) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
 
-        .renderForm(item, f)
+        @repository.renderForm(item, f)
 
         <fieldset id="admin-area">
         <legend>@Messages("Administration")</legend>
