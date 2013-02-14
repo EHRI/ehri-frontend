@@ -18,7 +18,7 @@ package object defines {
         try {
           JsSuccess(enum.withName(s))
         } catch {
-          case _: NoSuchElementException => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
+          case _: NoSuchElementException => JsError("Enumeration expected of type: '%s', but it does not appear formable contain the value: '%s'".format(enum.getClass, s))
         }
       }
       case _ => JsError("String value expected")
@@ -37,7 +37,7 @@ package object defines {
           try {
             JsSuccess(enum.withName(s))
           } catch {
-            case _: NoSuchElementException => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
+            case _: NoSuchElementException => JsError("Enumeration expected of type: '%s', but it does not appear formable contain the value: '%s'".format(enum.getClass, s))
           }
         }
         case _ => JsError("String value expected")

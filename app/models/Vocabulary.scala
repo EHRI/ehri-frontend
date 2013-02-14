@@ -67,7 +67,7 @@ case class Vocabulary(e: Entity)
   with Formable[VocabularyF] {
 
   import VocabularyF._
-  def to: VocabularyF = new VocabularyF(
+  def formable: VocabularyF = new VocabularyF(
       Some(e.id),
       identifier,
       e.stringProperty(NAME),

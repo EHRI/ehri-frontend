@@ -64,7 +64,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.concept.edit(
-        Some(Concept(item)), form.fill(Concept(item).to),routes.Concepts.updatePost(id)))
+        Some(Concept(item)), form.fill(Concept(item).formable),routes.Concepts.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {

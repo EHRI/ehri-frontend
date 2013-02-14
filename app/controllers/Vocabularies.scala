@@ -58,7 +58,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.vocabulary.edit(
-      Some(Vocabulary(item)), form.fill(Vocabulary(item).to),routes.Vocabularies.updatePost(id)))
+      Some(Vocabulary(item)), form.fill(Vocabulary(item).formable),routes.Vocabularies.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {

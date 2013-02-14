@@ -26,7 +26,7 @@ case object IsadG {
   val ADMINISTRATION_AREA = "administrationArea"
 
   val CONTEXT_AREA = "contextArea"
-  val ADMIN_BIOG = "adminBiogHist"
+  val ADMIN_BIOG = "adminBiogHistory"
   val ARCH_HIST = "archivalHistory"
   val ACQUISITION = "acquisition"
 
@@ -147,7 +147,7 @@ case class DocumentaryUnitDescriptionF(
       DATA -> Json.obj(
         TITLE -> title,
         LANG_CODE -> languageCode,
-        ADMIN_BIOG -> context.adminBiogHist,
+        ADMIN_BIOG -> context.adminBiogHistory,
         ARCH_HIST -> context.archivalHistory,
         ACQUISITION -> context.acquisition,
         SCOPE_CONTENT -> content.scopeAndContent,
@@ -176,7 +176,7 @@ case class DocumentaryUnitDescriptionF(
 object DocumentaryUnitDescriptionF {
 
   case class Context(
-    val adminBiogHist: Option[String] = None,
+    val adminBiogHistory: Option[String] = None,
     val archivalHistory: Option[String] = None,
     val acquisition: Option[String] = None
   ) extends AttributeSet
@@ -288,12 +288,12 @@ with Formable[DocumentaryUnitF] {
 
   override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
 
-  def to: DocumentaryUnitF = new DocumentaryUnitF(
+  def formable: DocumentaryUnitF = new DocumentaryUnitF(
     id = Some(e.id),
     identifier = identifier,
     name = name,
     publicationStatus = publicationStatus,
-    descriptions = descriptions.map(_.to)
+    descriptions = descriptions.map(_.formable)
   )
 }
 
@@ -305,13 +305,13 @@ case class DocumentaryUnitDescription(val e: Entity)
   import models.IsadG._
   import DocumentaryUnitDescriptionF._
 
-  def to = new DocumentaryUnitDescriptionF(
+  def formable = new DocumentaryUnitDescriptionF(
     id = Some(e.id),
     languageCode = languageCode,
     title = e.property(TITLE).flatMap(_.asOpt[String]),
-    dates = dates.map(_.to),
+    dates = dates.map(_.formable),
     context = Context(
-      adminBiogHist = stringProperty(ADMIN_BIOG),
+      adminBiogHistory = stringProperty(ADMIN_BIOG),
       archivalHistory = stringProperty(ARCH_HIST),
       acquisition = stringProperty(ACQUISITION)
     ),

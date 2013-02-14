@@ -10,7 +10,7 @@
 	  	<li>
             <div class="list-item">
               <h4><a href="@routes.Groups.get(item.id)">@item</a></h4>
-                <p>@item.to.description.map { d =>
+                <p>@item.formable.description.map { d =>
                     @d
                 }
                 </p>

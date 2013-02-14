@@ -56,7 +56,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.userProfile.edit(
-        Some(UserProfile(item)), form.fill(UserProfile(item).to), routes.UserProfiles.updatePost(id)))
+        Some(UserProfile(item)), form.fill(UserProfile(item).formable), routes.UserProfiles.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {

@@ -9,7 +9,7 @@
             @defining("concept") { implicit prefix =>
                 @item.descriptions.map { desc =>
                     <div class="description-section">
-                        @desc.to.altLabels.map { altLabels =>
+                        @desc.formable.altLabels.map { altLabels =>
                             @if(!altLabels.isEmpty) {
                                 <h4>@Messages(prefix + "." + ALTLABEL)</h4>
                                 <ul>

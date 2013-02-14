@@ -11,7 +11,7 @@
 	  	<div class="list-item">
 			<h5><a href="@routes.Concepts.get(item.id)">@item.identifier</a></h5>
 			@item.descriptions.headOption.map { desc =>
-              @defining(desc.to) { d =>
+              @defining(desc.formable) { d =>
                   <p>
                   @d.prefLabel<br />
                   @d.definition.map { sc =>

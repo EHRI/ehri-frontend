@@ -125,7 +125,7 @@ case class Concept(e: Entity)
   val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
   val broaderTerms: List[Concept] = e.relations(Concept.NT_REL).map(Concept(_))
 
-  def to: ConceptF = new ConceptF(Some(e.id), identifier, descriptions.map(_.to))
+  def formable: ConceptF = new ConceptF(Some(e.id), identifier, descriptions.map(_.formable))
 
   // Because we (currently) have no 'name' property on Concept, get the first available preflabel
   override def toString = descriptions.headOption.flatMap(_.stringProperty(ConceptF.PREFLABEL)).getOrElse(identifier)
@@ -137,7 +137,7 @@ case class ConceptDescription(val e: Entity)
 
   import ConceptF._
 
-  def to: ConceptDescriptionF = new ConceptDescriptionF(
+  def formable: ConceptDescriptionF = new ConceptDescriptionF(
     id = Some(e.id),
     languageCode = e.stringProperty(LANGUAGE).getOrElse(sys.error(s"No language code found on concept data: ${e}")),
     prefLabel = e.stringProperty(PREFLABEL).getOrElse(sys.error(s"No prefLabel found on concept data: ${e}")),

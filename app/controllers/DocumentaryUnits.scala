@@ -70,7 +70,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
    * @param d
    * @return
    */
-  private def descriptionBuilder(item: Entity, d: DocumentaryUnitDescriptionF): DocumentaryUnitF = DocumentaryUnit(item).to.replaceDescription(d)
+  private def descriptionBuilder(item: Entity, d: DocumentaryUnitDescriptionF): DocumentaryUnitF = DocumentaryUnit(item).formable.replaceDescription(d)
 
 
   def get(id: String) = getWithChildrenAction(id, builder) {
@@ -89,7 +89,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.edit(
-        Some(DocumentaryUnit(item)), form.fill(DocumentaryUnit(item).to),routes.DocumentaryUnits.updatePost(id)))
+        Some(DocumentaryUnit(item)), form.fill(DocumentaryUnit(item).formable),routes.DocumentaryUnits.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
@@ -138,7 +138,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def updateDescription(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
-    val desc = DocumentaryUnit(item).to.description(did).getOrElse(sys.error("Description not found: " + did))
+    val desc = DocumentaryUnit(item).formable.description(did).getOrElse(sys.error("Description not found: " + did))
     Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
       models.DocumentaryUnitDescriptionForm.form.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
   }
@@ -150,7 +150,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         ef, routes.DocumentaryUnits.updateDescriptionPost(id, did)))
     },
     { desc =>
-      val doc = DocumentaryUnit(item).to.replaceDescription(desc)
+      val doc = DocumentaryUnit(item).formable.replaceDescription(desc)
       AsyncRest {
         EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
           itemOrErr.right.map { updated =>
@@ -174,7 +174,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def deleteDescriptionPost(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
-    val before = DocumentaryUnit(item).to
+    val before = DocumentaryUnit(item).formable
     val doc = before.copy(descriptions = before.descriptions.filterNot(d => d.id.isDefined && d.id.get == did))
     AsyncRest {
       EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>

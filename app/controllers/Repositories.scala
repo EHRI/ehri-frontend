@@ -66,7 +66,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.repository.edit(Some(Repository(item)), form.fill(Repository(item).to), routes.Repositories.updatePost(id)))
+    Ok(views.html.repository.edit(Some(Repository(item)), form.fill(Repository(item).formable), routes.Repositories.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {

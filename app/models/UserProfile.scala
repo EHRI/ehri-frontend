@@ -82,7 +82,7 @@ case class UserProfile(
     }.getOrElse(false)
   }
 
-  def to: UserProfileF = new UserProfileF(
+  def formable: UserProfileF = new UserProfileF(
     id = Some(e.id),
     identifier = identifier,
     name = e.property("name").flatMap(_.asOpt[String]).getOrElse(UserProfileF.PLACEHOLDER_TITLE),

@@ -90,12 +90,12 @@ case class Annotation(val e: Entity) extends AccessibleEntity
   def formatted: String = {
     "%s%s%s".format(
       accessor.map(a => s"${a}\n\n").getOrElse(""),
-      to.body,
-      to.comment.map(c => s"$c\n\n").getOrElse("")
+      formable.body,
+      formable.comment.map(c => s"$c\n\n").getOrElse("")
     )
   }
 
-  def to: AnnotationF = new AnnotationF(
+  def formable: AnnotationF = new AnnotationF(
     id = Some(e.id),
     // NB: For the time being, annotations with no 'type' default to being a comment
     annotationType = e.property(AnnotationF.ANNOTATION_TYPE).flatMap(enum(AnnotationType).reads(_).asOpt).getOrElse(AnnotationType.Comment),

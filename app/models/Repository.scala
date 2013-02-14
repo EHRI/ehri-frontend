@@ -343,12 +343,12 @@ case class Repository(val e: Entity)
 
   val publicationStatus = e.property(Isdiah.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
 
-  def to: RepositoryF = new RepositoryF(
+  def formable: RepositoryF = new RepositoryF(
     id = Some(e.id),
     identifier = identifier,
     name = name,
     publicationStatus = publicationStatus,
-    descriptions = descriptions.map(_.to)
+    descriptions = descriptions.map(_.formable)
   )
 }
 
@@ -359,13 +359,13 @@ case class RepositoryDescription(val e: Entity) extends Description with Formabl
 
   def addresses: List[Address] = e.relations(RepositoryF.ADDRESS_REL).map(Address(_))
 
-  def to: RepositoryDescriptionF = new RepositoryDescriptionF(
+  def formable: RepositoryDescriptionF = new RepositoryDescriptionF(
     id = Some(e.id),
     languageCode = languageCode,
     name = e.stringProperty(NAME),
     otherFormsOfName = e.listProperty(OTHER_FORMS_OF_NAME),
     parallelFormsOfName = e.listProperty(PARALLEL_FORMS_OF_NAME),
-    addresses = addresses.map(_.to),
+    addresses = addresses.map(_.formable),
     details = Details(
       history = e.stringProperty(HISTORY),
       generalContext = e.stringProperty(GENERAL_CONTEXT),
@@ -405,7 +405,7 @@ case class Address(val e: Entity) extends AccessibleEntity with Formable[Address
 
   import Isdiah._
 
-  def to: AddressF = new AddressF(
+  def formable: AddressF = new AddressF(
     id = Some(e.id),
     name = e.stringProperty(ADDRESS_NAME).getOrElse("Unnamed Address"),
     contactPerson = e.stringProperty(CONTACT_PERSON),
