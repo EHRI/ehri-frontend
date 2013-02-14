@@ -5,10 +5,7 @@ import play.api.libs.json._
 import play.api.{Logger, Play}
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
-import scala.Left
 import play.api.libs.ws.Response
-import scala.Right
-import scala.Some
 
 
 sealed trait RestError extends Throwable
