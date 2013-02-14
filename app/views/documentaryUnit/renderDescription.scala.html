@@ -1,7 +1,7 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescription)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import defines._
-@import models.forms.IsadG._
+@import models.IsadG._
 
 @userOpt.map { user =>
     <div class="description-actions pull-right">

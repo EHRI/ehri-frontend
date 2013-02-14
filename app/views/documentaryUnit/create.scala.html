@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, f: Form[models.forms.DocumentaryUnitF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+@(item: AccessibleEntity, f: Form[DocumentaryUnitF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }

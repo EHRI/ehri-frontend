@@ -1,6 +1,6 @@
 @(item: DocumentaryUnit, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@import models.forms.IsadG._
+@import models.IsadG._
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.holder.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(DocumentaryUnit(_)) ::: List(item))) {
 

@@ -1,8 +1,8 @@
 package controllers
 
-import _root_.models.{DocumentaryUnitDescription, DocumentaryUnit, Entity}
+import models.{DocumentaryUnitDescription, DocumentaryUnit, DocumentaryUnitF, DocumentaryUnitDescriptionF, Entity, IsadG}
+import _root_.models.forms.{VisibilityForm, DatePeriodF}
 import models.base.AccessibleEntity
-import _root_.models.forms._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
@@ -59,9 +59,9 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentType.DocumentaryUnit
 
-  val form = models.forms.DocumentaryUnitForm.form
-  val childForm = models.forms.DocumentaryUnitForm.form
-  val descriptionForm = models.forms.DocumentaryUnitDescriptionForm.form
+  val form = models.DocumentaryUnitForm.form
+  val childForm = models.DocumentaryUnitForm.form
+  val descriptionForm = models.DocumentaryUnitDescriptionForm.form
   val builder = DocumentaryUnit
 
   /**
@@ -121,7 +121,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def createDescription(id: String) = withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-      models.forms.DocumentaryUnitDescriptionForm.form, routes.DocumentaryUnits.createDescriptionPost(id)))
+      models.DocumentaryUnitDescriptionForm.form, routes.DocumentaryUnits.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, descriptionBuilder, descriptionForm) {
@@ -140,12 +140,12 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       item => implicit userOpt => implicit request =>
     val desc = DocumentaryUnit(item).to.description(did).getOrElse(sys.error("Description not found: " + did))
     Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-      models.forms.DocumentaryUnitDescriptionForm.form.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
+      models.DocumentaryUnitDescriptionForm.form.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
   }
 
   def updateDescriptionPost(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
-    models.forms.DocumentaryUnitDescriptionForm.form.bindFromRequest.fold({ ef =>
+    models.DocumentaryUnitDescriptionForm.form.bindFromRequest.fold({ ef =>
       Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
         ef, routes.DocumentaryUnits.updateDescriptionPost(id, did)))
     },

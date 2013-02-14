@@ -1,7 +1,7 @@
 package controllers
 
-import models.{Agent, DocumentaryUnit}
-import models.forms.{DocumentaryUnitF, AgentF, VisibilityForm}
+import models.{Agent, AgentF, DocumentaryUnit,DocumentaryUnitF}
+import models.forms.VisibilityForm
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
@@ -30,8 +30,8 @@ object Agents extends CRUD[AgentF,Agent]
   val entityType = EntityType.Agent
   val contentType = ContentType.Agent
 
-  val form = models.forms.AgentForm.form
-  val childForm = models.forms.DocumentaryUnitForm.form
+  val form = models.AgentForm.form
+  val childForm = models.DocumentaryUnitForm.form
   val builder = Agent
 
   def get(id: String) = getWithChildrenAction(id, DocumentaryUnit.apply _) {
@@ -54,7 +54,7 @@ object Agents extends CRUD[AgentF,Agent]
         VisibilityForm.form, users, groups, routes.Agents.createPost))
   }
 
-  def createPost = createPostAction(models.forms.AgentForm.form) { formsOrItem => implicit userOpt => implicit request =>
+  def createPost = createPostAction(models.AgentForm.form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getGroups { users => groups =>
         BadRequest(views.html.agent.create(errorForm, accForm, users, groups, routes.Agents.createPost))

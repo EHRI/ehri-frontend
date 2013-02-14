@@ -1,5 +1,4 @@
 @(page: rest.Page[DocumentaryUnit])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
-@import forms.IsadG
 
 <ul class="unstyled">
 @page.list.map { item =>

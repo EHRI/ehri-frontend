@@ -276,6 +276,7 @@ isdiah.identifier=Identifier
 isdiah.authorizedFormOfName=Authorized Form Of Name
 isdiah.otherFormsOfName=Other Form(s) of Name
 isdiah.parallelFormsOfName=Parallel Form(s) of Name
+isdiah.languageCode=Language
 isdiah.institutionType=Institution Type
 
 # AddressF

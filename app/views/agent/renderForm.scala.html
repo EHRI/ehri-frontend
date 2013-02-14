@@ -1,6 +1,6 @@
-@(item: Option[Agent], f: Form[models.forms.AgentF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Option[Agent], f: Form[AgentF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@import models.forms.Isdiah._
+@import Isdiah._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
