@@ -107,7 +107,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c1").url)).get
         status(show) must equalTo(OK)
 
-        contentAsString(show) must contain(routes.Agents.get("r1").url)
+        contentAsString(show) must contain(routes.Repositories.get("r1").url)
       }
     }
 
@@ -116,7 +116,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c2").url)).get
         status(show) must equalTo(OK)
 
-        contentAsString(show) must contain(routes.Agents.get("r1").url)
+        contentAsString(show) must contain(routes.Repositories.get("r1").url)
       }
     }
 
@@ -154,7 +154,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "publicationStatus" -> Seq("Published")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          controllers.routes.Agents.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+          controllers.routes.Repositories.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
@@ -179,7 +179,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         // a form error should result from using the same identifier
         // twice within the given scope (in this case, r1)
         val call = fakeLoggedInRequest(POST,
-            routes.Agents.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*)
+            routes.Repositories.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*)
         val cr1 = route(call, testData).get
         status(cr1) must equalTo(SEE_OTHER) // okay the first time
         val cr2 = route(call, testData).get
@@ -265,7 +265,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         // Check we cannot create an item...
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Agents.createDocPost("r2").url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.Repositories.createDocPost("r2").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(UNAUTHORIZED)
       }
 
@@ -275,7 +275,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           DocumentaryUnit.toString -> List("create", "update", "delete")
         )
         val permReq = route(fakeLoggedInRequest(POST,
-          routes.Agents.setScopedPermissionsPost(testRepo, ContentType.UserProfile, testOrdinaryUser).url)
+          routes.Repositories.setScopedPermissionsPost(testRepo, ContentType.UserProfile, testOrdinaryUser).url)
               .withHeaders(postHeaders.toSeq: _*), permTestData).get
         status(permReq) must equalTo(SEE_OTHER)
       }
@@ -283,7 +283,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         // Check we cannot create an item...
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Agents.createDocPost(testRepo).url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.Repositories.createDocPost(testRepo).url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
         val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(getR) must equalTo(OK)
@@ -432,11 +432,11 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
 
 
-  "Agent views" should {
+  "Repository views" should {
 
     "list should get some items" in {
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
-        val list = route(fakeLoggedInRequest(GET, routes.Agents.list().url)).get
+        val list = route(fakeLoggedInRequest(GET, routes.Repositories.list().url)).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain(multipleItemsHeader)
         contentAsString(list) must contain("r1")
@@ -459,7 +459,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "publicationStatus" -> Seq("Published")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Agents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.Repositories.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         // FIXME: This route will change when a property ID mapping scheme is devised
@@ -477,7 +477,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "identifier" -> Seq("r1")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Agents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.Repositories.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(BAD_REQUEST)
       }
     }
@@ -485,13 +485,13 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "link to other privileged actions when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, routes.Agents.get("r1").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.Repositories.get("r1").url)).get
         status(show) must equalTo(OK)
-        contentAsString(show) must contain(routes.Agents.update("r1").url)
-        contentAsString(show) must contain(routes.Agents.delete("r1").url)
-        contentAsString(show) must contain(routes.Agents.createDoc("r1").url)
-        contentAsString(show) must contain(routes.Agents.visibility("r1").url)
-        contentAsString(show) must contain(routes.Agents.list().url)
+        contentAsString(show) must contain(routes.Repositories.update("r1").url)
+        contentAsString(show) must contain(routes.Repositories.delete("r1").url)
+        contentAsString(show) must contain(routes.Repositories.createDoc("r1").url)
+        contentAsString(show) must contain(routes.Repositories.visibility("r1").url)
+        contentAsString(show) must contain(routes.Repositories.list().url)
       }
     }
 
@@ -509,7 +509,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "publicationStatus" -> Seq("Draft")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Agents.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.Repositories.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
@@ -529,11 +529,11 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "publicationStatus" -> Seq("Draft")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Agents.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.Repositories.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(UNAUTHORIZED)
 
         // We can view the item when not logged in...
-        val show = route(fakeLoggedInRequest(GET, routes.Agents.get("r1").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.Repositories.get("r1").url)).get
         status(show) must equalTo(OK)
         contentAsString(show) must not contain ("New Content for r1")
       }

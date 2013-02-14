@@ -1,4 +1,4 @@
-@(item: Option[Agent], f: play.api.data.Form[AgentF], action: Call)(
+@(item: Option[Repository], f: play.api.data.Form[RepositoryF], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 @rightSidebarLayout(Messages("actions.updateAgent")) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
 
-        @agent.renderForm(item, f)
+        .renderForm(item, f)
 
         <fieldset id="admin-area">
         <legend>@Messages("Administration")</legend>

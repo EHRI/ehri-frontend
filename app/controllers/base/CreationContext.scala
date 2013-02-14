@@ -12,7 +12,7 @@ import rest.EntityDAO
 
 /**
  * Controller trait for extending Entity classes which server as
- * context for the creation of DocumentaryUnits, i.e. Agent and
+ * context for the creation of DocumentaryUnits, i.e. Repository and
  * DocumentaryUnit itself.
  */
 trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {

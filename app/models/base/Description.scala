@@ -3,12 +3,12 @@ package models.base
 import models.Entity
 import defines.EntityType
 import models.DocumentaryUnitDescription
-import models.AgentDescription
+import models.RepositoryDescription
 
 object Description {
   def apply(e: Entity): Description = e.isA match {
     case EntityType.DocumentaryUnitDescription => DocumentaryUnitDescription(e)
-    case EntityType.AgentDescription => AgentDescription(e)
+    case EntityType.AgentDescription => RepositoryDescription(e)
     case _ => sys.error("Unknown description type: " + e.isA.toString())
   }
 }

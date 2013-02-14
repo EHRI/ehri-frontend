@@ -80,23 +80,23 @@ case object Isdiah {
 }
 
 
-object AgentF {
+object RepositoryF {
 
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
 }
 
-case class AgentF(
+case class RepositoryF(
   val id: Option[String],
   val identifier: String,
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
-  @Annotations.Relation(AgentF.DESC_REL) val descriptions: List[AgentDescriptionF] = Nil
+  @Annotations.Relation(RepositoryF.DESC_REL) val descriptions: List[RepositoryDescriptionF] = Nil
 ) extends Persistable {
   val isA = EntityType.Agent
 
   def toJson: JsValue = {
-    import AgentF._
+    import RepositoryF._
     import Isdiah._
 
     Json.obj(
@@ -115,7 +115,7 @@ case class AgentF(
 
 }
 
-object AgentDescriptionF {
+object RepositoryDescriptionF {
 
   case class Details(
     val history: Option[String] = None,
@@ -155,17 +155,17 @@ object AgentDescriptionF {
 
 }
 
-case class AgentDescriptionF(
+case class RepositoryDescriptionF(
   val id: Option[String],
   val languageCode: String,
   val name: Option[String] = None,
   val otherFormsOfName: Option[List[String]] = None,
   val parallelFormsOfName: Option[List[String]] = None,
-  @Annotations.Relation(AgentF.ADDRESS_REL) val addresses: List[AddressF] = Nil,
-  val details: AgentDescriptionF.Details,
-  val access: AgentDescriptionF.Access,
-  val services: AgentDescriptionF.Services,
-  val control: AgentDescriptionF.Control
+  @Annotations.Relation(RepositoryF.ADDRESS_REL) val addresses: List[AddressF] = Nil,
+  val details: RepositoryDescriptionF.Details,
+  val access: RepositoryDescriptionF.Access,
+  val services: RepositoryDescriptionF.Services,
+  val control: RepositoryDescriptionF.Control
 ) extends Persistable {
   val isA = EntityType.AgentDescription
 
@@ -207,7 +207,7 @@ case class AgentDescriptionF(
         MAINTENANCE_NOTES -> control.maintenanceNotes
       ),
       RELATIONSHIPS -> Json.obj(
-        AgentF.ADDRESS_REL -> Json.toJson(addresses.map(_.toJson).toSeq)
+        RepositoryF.ADDRESS_REL -> Json.toJson(addresses.map(_.toJson).toSeq)
       )
     )
   }
@@ -256,9 +256,9 @@ case class AddressF(
 }
 
 
-object AgentDescriptionForm {
+object RepositoryDescriptionForm {
 
-  import AgentDescriptionF._
+  import RepositoryDescriptionF._
   import Isdiah._
 
   val form = Form(
@@ -315,11 +315,11 @@ object AgentDescriptionForm {
         SOURCES -> optional(text),
         MAINTENANCE_NOTES -> optional(text)
       )(Control.apply)(Control.unapply)
-    )(AgentDescriptionF.apply)(AgentDescriptionF.unapply)
+    )(RepositoryDescriptionF.apply)(RepositoryDescriptionF.unapply)
   )
 }
 
-object AgentForm {
+object RepositoryForm {
 
   val form = Form(
     mapping(
@@ -327,23 +327,23 @@ object AgentForm {
       Entity.IDENTIFIER -> nonEmptyText,
       Isdiah.NAME -> nonEmptyText,
       Isdiah.PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
-      "descriptions" -> list(AgentDescriptionForm.form.mapping)
-    )(AgentF.apply)(AgentF.unapply)
+      "descriptions" -> list(RepositoryDescriptionForm.form.mapping)
+    )(RepositoryF.apply)(RepositoryF.unapply)
   )
 }
 
 
-case class Agent(val e: Entity)
+case class Repository(val e: Entity)
   extends NamedEntity
   with AccessibleEntity
   with AnnotatableEntity
   with DescribedEntity
-  with Formable[AgentF] {
-  override def descriptions: List[AgentDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(AgentDescription(_))
+  with Formable[RepositoryF] {
+  override def descriptions: List[RepositoryDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(RepositoryDescription(_))
 
   val publicationStatus = e.property(Isdiah.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
 
-  def to: AgentF = new AgentF(
+  def to: RepositoryF = new RepositoryF(
     id = Some(e.id),
     identifier = identifier,
     name = name,
@@ -352,14 +352,14 @@ case class Agent(val e: Entity)
   )
 }
 
-case class AgentDescription(val e: Entity) extends Description with Formable[AgentDescriptionF] {
+case class RepositoryDescription(val e: Entity) extends Description with Formable[RepositoryDescriptionF] {
 
-  import AgentDescriptionF._
+  import RepositoryDescriptionF._
   import Isdiah._
 
-  def addresses: List[Address] = e.relations(AgentF.ADDRESS_REL).map(Address(_))
+  def addresses: List[Address] = e.relations(RepositoryF.ADDRESS_REL).map(Address(_))
 
-  def to: AgentDescriptionF = new AgentDescriptionF(
+  def to: RepositoryDescriptionF = new RepositoryDescriptionF(
     id = Some(e.id),
     languageCode = languageCode,
     name = e.stringProperty(NAME),

@@ -282,7 +282,7 @@ with Formable[DocumentaryUnitF] {
 
   val hierarchyRelationName = CHILD_REL
 
-  val holder: Option[Agent] = e.relations(HELD_REL).headOption.map(Agent(_))
+  val holder: Option[Repository] = e.relations(HELD_REL).headOption.map(Repository(_))
   val parent: Option[DocumentaryUnit] = e.relations(CHILD_REL).headOption.map(DocumentaryUnit(_))
   val publicationStatus = e.property("publicationStatus").flatMap(enum(PublicationStatus).reads(_).asOpt)
 

@@ -1,4 +1,4 @@
-@(items: rest.Page[Agent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(items: rest.Page[Repository], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listAgents")) {
 
@@ -9,7 +9,7 @@
 	<ul class="unstyled">
 	@items.list.map { item =>
 	  	<li>
-			<a href="@routes.Agents.get(item.id)">@item</a>
+			<a href="@routes.Repositories.get(item.id)">@item</a>
 		</li>
 	}
 	</ul>
@@ -19,7 +19,7 @@
     @common.sidebarSection(None) {
         @maybeUser.map { user =>
             @if(user.hasPermission(ContentType.Agent, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@routes.Agents.create">@Messages("actions.createNewRepository")</a>
+                <a class="btn btn-primary" href="@routes.Repositories.create">@Messages("actions.createNewRepository")</a>
             }
         }
     }

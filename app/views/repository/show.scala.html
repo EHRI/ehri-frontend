@@ -1,10 +1,10 @@
-@(item: Agent, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Repository, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import Isdiah._
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
-    @common.annotated(item, annotations, routes.Agents.annotate(item.id)) {
+    @common.annotated(item, annotations, routes.Repositories.annotate(item.id)) {
         @defining("isdiah") { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
                 <h3>@Messages("Available Descriptions")</h3>
@@ -82,24 +82,24 @@
     }
 
 } {
-    @common.latestAction(item, routes.Agents.history(item.id))
-    @common.visibility(item, routes.Agents.visibility(item.id), ContentType.Agent)
+    @common.latestAction(item, routes.Repositories.history(item.id))
+    @common.visibility(item, routes.Repositories.visibility(item.id), ContentType.Agent)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
-            <li><a href="@routes.Agents.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
+            <li><a href="@routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
             }
         @if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
-            <li><a href="@routes.Agents.update(item.id)">@Messages("actions.updateItem")</a></li>
+            <li><a href="@routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
         @if(user.hasPermission(ContentType.Agent, PermissionType.Delete)) {
-            <li><a href="@routes.Agents.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            <li><a href="@routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
         @if(user.hasPermission(ContentType.Agent, PermissionType.Grant)) {
-            <li><a href="@routes.Agents.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+            <li><a href="@routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-        <li><a href="@routes.Agents.history(item.id)">@Messages("actions.showHistory")</a></li>
+        <li><a href="@routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

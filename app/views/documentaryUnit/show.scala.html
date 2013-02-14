@@ -7,7 +7,7 @@
     @common.annotated(item, annotations, routes.DocumentaryUnits.annotate(item.id)) {
 
         @item.holder.map { holder =>
-            <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Agents.get(holder.id)">@holder.name</a></h4>
+            <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Repositories.get(holder.id)">@holder.name</a></h4>
         }
 
         @item.parent.map { parent =>

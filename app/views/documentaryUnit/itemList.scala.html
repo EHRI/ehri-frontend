@@ -9,7 +9,7 @@
                 &nbsp;[@d]
             }
             @item.holder.map { holder =>
-                <strong> - <a href="@controllers.routes.Agents.get(holder.id)">@holder.name</a></strong>
+                <strong> - <a href="@controllers.routes.Repositories.get(holder.id)">@holder.name</a></strong>
             }
         </h5>
         @item.descriptions.headOption.map { desc =>

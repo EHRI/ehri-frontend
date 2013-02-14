@@ -1,4 +1,4 @@
-@(f: Form[AgentF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+@(f: Form[RepositoryF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
@@ -6,7 +6,7 @@
 @rightSidebarLayout(Messages("actions.createAgent")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 
-        @agent.renderForm(None, f)
+        .renderForm(None, f)
 
         <fieldset id="admin-area">
             <legend>@Messages("Administration")</legend>
