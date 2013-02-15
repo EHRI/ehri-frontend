@@ -12,13 +12,21 @@ import play.api.libs.json.Json
 import defines.EnumWriter.enumWrites
 
 
+object DatePeriodType extends Enumeration {
+  type Type = Value
+  val Creation = Value("creation")
+}
+
+
 object DatePeriodF {
+  val TYPE = "type"
   val START_DATE = "startDate"
   val END_DATE = "endDate"
 }
 
 case class DatePeriodF(
   val id: Option[String],
+  val `type`: Option[DatePeriodType.Type],
   val startDate: Option[DateTime],
   val endDate: Option[DateTime] = None
 ) extends Persistable {
@@ -39,6 +47,7 @@ case class DatePeriodF(
       Entity.ID -> id,
       Entity.TYPE -> isA,
       Entity.DATA -> Json.obj(
+        DatePeriodF.TYPE -> `type`,
         DatePeriodF.START_DATE -> startDate,
         DatePeriodF.END_DATE -> endDate
       )
@@ -52,6 +61,7 @@ object DatePeriodForm {
 
   val form = Form(mapping(
     Entity.ID -> optional(nonEmptyText),
+    TYPE -> optional(models.forms.enum(DatePeriodType)),
     START_DATE -> optional(jodaDate("yyyy-MM-dd")),
     END_DATE -> optional(jodaDate("yyyy-MM-dd"))
   )(DatePeriodF.apply)(DatePeriodF.unapply))
@@ -60,6 +70,7 @@ object DatePeriodForm {
 case class DatePeriod(val e: Entity) extends Formable[DatePeriodF] {
   def formable: DatePeriodF = new DatePeriodF(
     id = Some(e.id),
+    `type` = e.property(DatePeriodF.TYPE).flatMap(defines.enum(DatePeriodType).reads(_).asOpt),
     startDate = e.stringProperty(DatePeriodF.START_DATE).map(new DateTime(_)),
     endDate = e.stringProperty(DatePeriodF.END_DATE).map(new DateTime(_))
   )

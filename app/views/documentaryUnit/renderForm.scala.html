@@ -1,25 +1,23 @@
-@(f: play.api.data.Form[DocumentaryUnitF])
-@import models.base.DescribedEntity
-@import models.base.TemporalEntity
+@(f: play.api.data.Form[DocumentaryUnitF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import models.IsadG._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-    @defining("isadg") { implicit fieldPrefix =>
+@defining("isadg") { implicit fieldPrefix =>
 
-        <fieldset id="identity-area">
-            <legend>@Messages(fieldPrefix + ".identity")</legend>
-            @helper.inputText(f(Entity.IDENTIFIER), '_label -> Messages("%s.%s".format(fieldPrefix, Entity.IDENTIFIER)))
-            @helper.inputText(f(NAME), '_label -> Messages("%s.%s".format(fieldPrefix, NAME)))
-        </fieldset>
+    <fieldset id="identity-area">
+        <legend>@Messages(fieldPrefix + ".identity")</legend>
+        @helper.inputText(f(Entity.IDENTIFIER), '_label -> Messages("%s.%s".format(fieldPrefix, Entity.IDENTIFIER)))
+        @helper.inputText(f(NAME), '_label -> Messages("%s.%s".format(fieldPrefix, NAME)))
+    </fieldset>
 
-        @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
-            @documentaryUnit.renderDescriptionForm(desc)
-        }
-        <fieldset id="admin-area">
-            <legend>@Messages("forms.adminArea")</legend>
-            @formHelpers.enumChoiceInput(f(fieldPrefix + "." + PUB_STATUS), defines.PublicationStatus, Messages(fieldPrefix + "." + PUB_STATUS))
-        </fieldset>
-
+    @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
+        @documentaryUnit.renderDescriptionForm(desc)
     }
+    <fieldset id="admin-area">
+        <legend>@Messages("forms.adminArea")</legend>
+        @formHelpers.enumChoiceInput(f(fieldPrefix + "." + PUB_STATUS), defines.PublicationStatus, Messages(fieldPrefix + "." + PUB_STATUS))
+    </fieldset>
+
+}

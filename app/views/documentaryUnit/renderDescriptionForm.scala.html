@@ -1,7 +1,6 @@
-@(desc: Field)(implicit fieldPrefix: String)
+@(desc: Field)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import models.IsadG._
-@import DatePeriodF._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -12,9 +11,7 @@
     @formHelpers.lineInput(desc, TITLE)
 
     @helper.repeat(desc(DATES), min=math.max(desc(DATES).indexes.length, 1)) { desc =>
-        @formHelpers.hiddenInput(desc(Entity.ID))
-        @formHelpers.lineInput(desc, START_DATE)
-        @formHelpers.lineInput(desc, END_DATE)
+        @documentaryUnit.renderDateRow(desc)
     }
 </fieldset>
 

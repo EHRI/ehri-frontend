@@ -1,0 +1,30 @@
+@(desc: play.api.data.Field)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+@import DatePeriodF._
+
+@*implicitField = @{ views.html.helper.FieldConstructor(common.dateFieldTemplate.f) }*@
+
+
+<div class="inline-date control-group">
+    @formHelpers.hiddenInput(desc(Entity.ID))
+    <label class="control-label">@Messages(fieldPrefix + "." + IsadG.DATES)</label>
+    <div class="controls">
+        <a class="close" class="pull-right" href="#">&times;</a>
+        <table>
+            <tr>
+                <td>
+                    <select class="input-small" name="@desc("TYPE").name">
+                    @DatePeriodType.values.toList.sorted.map { v =>
+                    <option @{if(desc("TYPE").value == v) "selected" else ""} value="@v">@Messages(fieldPrefix + "." + v)</option>
+                    }
+                    </select>
+                </td>
+                @List(START_DATE, END_DATE).map { fname =>
+                @defining(desc(fname)) { field =>
+                <td><input class="input-small" type="text" name="@field.name" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" id="@field.id" /></td>
+                }
+                }
+            </tr>
+        </table>
+    </div>
+</div>

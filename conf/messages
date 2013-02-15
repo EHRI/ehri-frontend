@@ -144,6 +144,7 @@ actions.updateConcept=Update Concept
 actions.updateVocabulary=Update Vocabulary
 
 actions.backToList=Back to List
+actions.exportJson=Export JSON
 actions.deleteItem=Delete Item
 actions.updateItem=Update Item
 actions.createNewItem=Create New Item
@@ -346,6 +347,7 @@ isadg.name=Name
 isadg.identifier=Identifier
 isadg.title=Title
 isadg.dates=Dates
+isadg.creation=Creation
 isadg.languageCode=Language
 isadg.adminBiogHistory=Administrative and Biographical History
 isadg.archivalHistory=Archival History
