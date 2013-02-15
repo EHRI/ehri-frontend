@@ -181,6 +181,8 @@ GET     /annotation/annotate/:id     controllers.Annotations.annotate(id: String
 POST    /annotation/annotate/:id     controllers.Annotations.annotatePost(id: String)
 
 # API
+GET     /api/:contentType/list          controllers.ApiController.listItems(contentType: String)
+GET     /api/:contentType/:id           controllers.ApiController.getItem(contentType: String, id: String)
 GET     /api/*path               controllers.ApiController.get(path: String)
 
 # Map static resources from the /public folder to the /assets URL path
