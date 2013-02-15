@@ -9,7 +9,6 @@ import play.api.data._
 import play.api.data.Forms._
 import models.base.{DescribedEntity, AttributeSet, Persistable, TemporalEntity}
 import play.api.libs.json.{Json, JsString, JsValue}
-import play.api.libs.json
 import defines.EnumWriter.enumWrites
 import defines.enum
 
