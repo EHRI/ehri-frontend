@@ -45,6 +45,8 @@ object DocumentaryUnitFormat {
   import models.Entity._
   import models.IsadG._
 
+  implicit val dateWrites = play.api.libs.json.Writes.jodaDateWrites("yyyy-MM-dd")
+
   implicit val testCaseFormat: Format[TestData] = (
     (__ \ "id").format[String] and
     (__ \ "data" \ "foo").format[String] and
