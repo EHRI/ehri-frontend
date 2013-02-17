@@ -1,0 +1,12 @@
+@(item: models.base.AnnotatableEntity, page: rest.Page[models.base.AnnotatableEntity], entityType: defines.EntityType.Value, action: (String,String,String) => Call)(
+implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
+    @common.filterableList("pagination.displayingItems", page, new ListParams(), List(), List()) {
+        <ul>
+            @page.list.map { e =>
+                <li><a href="@action(item.id, entityType.toString, e.id)">@e</a></li>
+            }
+        </ul>
+    }
+}

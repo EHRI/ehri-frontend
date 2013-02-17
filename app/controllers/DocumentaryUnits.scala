@@ -2,14 +2,14 @@ package controllers
 
 import models.{DocumentaryUnitDescription, DocumentaryUnit, DocumentaryUnitF, DocumentaryUnitDescriptionF, Entity, IsadG,DatePeriodF}
 import _root_.models.forms.VisibilityForm
-import models.base.AccessibleEntity
+import _root_.models.base.{AnnotatableEntity, AccessibleEntity}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import base._
 import defines._
-import rest.EntityDAO
+import rest.{RestPageParams, EntityDAO}
 import scala.Some
 
 
@@ -273,6 +273,12 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
           .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
       }
     }
+  }
+
+  def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
+    item => page => implicit userOpt => implicit request =>
+      Ok(views.html.annotation.linkSourceList(item, page,
+        EntityType.withName(toType), routes.DocumentaryUnits.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {

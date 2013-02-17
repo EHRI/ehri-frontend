@@ -8,6 +8,7 @@ import defines._
 import models.{Annotation, Entity, UserProfile}
 import play.api.data.Form
 import models.AnnotationF
+import rest.{RestPageParams, EntityDAO}
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
@@ -30,6 +31,23 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
           }
         }
       )
+    }
+  }
+
+  def linkSelectAction(id: String, toType: String)(f: AnnotatableEntity => rest.Page[AnnotatableEntity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+      val linkSrcEntityType = EntityType.withName(toType)
+      AnnotatableEntity.fromEntity(item).map { ann =>
+        AsyncRest {
+          EntityDAO(linkSrcEntityType, userOpt).page(new RestPageParams()).map { pageOrErr =>
+            pageOrErr.right.map { page =>
+              f(ann)(page.copy(list = page.list.flatMap(e => AnnotatableEntity.fromEntity(e))))(userOpt)(request)
+            }
+          }
+        }
+      } getOrElse {
+        NotFound(views.html.errors.itemNotFound())
+      }
     }
   }
 

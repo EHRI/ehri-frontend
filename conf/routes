@@ -61,6 +61,7 @@ GET     /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setSco
 POST    /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: String, userId: String)
 GET     /docs/annotate/:id     controllers.DocumentaryUnits.annotate(id: String)
 POST    /docs/annotate/:id     controllers.DocumentaryUnits.annotatePost(id: String)
+GET     /docs/link/:id/:toType     controllers.DocumentaryUnits.linkAnnotateSelect(id: String, toType: String)
 GET     /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotate(id: String, toType: String, to: String)
 POST    /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotatePost(id: String, toType: String, to: String)
 
