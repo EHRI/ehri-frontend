@@ -14,7 +14,14 @@
                     @alist.map { ann =>
                         @** Q: What do we do when there is no source??? **@
                         @ann.source.map { src =>
-                            <li><a title="@ann.formatted" href="@views.Helpers.urlFor(src)">@src</a></li>
+                            <li>
+                                <a title="@ann.formatted" href="@views.Helpers.urlFor(src)">@src</a>
+                                <p class="relation-description">
+                                   @ann.formatted
+                                </p>
+
+                            </li>
+
                         }
                     }
                 </ul>
