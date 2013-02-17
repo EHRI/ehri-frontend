@@ -275,6 +275,11 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     }
   }
 
+  def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
+      item => implicit userOpt => implicit request =>
+    Ok(views.html.documentaryUnit.linkTo(DocumentaryUnit(item)))
+  }
+
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
     item => page => implicit userOpt => implicit request =>
       Ok(views.html.annotation.linkSourceList(item, page,

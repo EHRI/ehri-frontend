@@ -2,7 +2,7 @@
 
 @import models.IsadG._
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.holder.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(DocumentaryUnit(_)) ::: List(item))) {
+@documentaryUnit.itemPage(item) {
 
     @common.annotated(item, annotations, routes.DocumentaryUnits.annotate(item.id)) {
 
@@ -53,35 +53,4 @@
     @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
         @documentaryUnit.itemList(page)
     }
-
-
-
-} {
-
-    @common.visibility(item, routes.DocumentaryUnits.visibility(item.id), ContentType.DocumentaryUnit)
-    @common.latestAction(item, routes.DocumentaryUnits.history(item.id))
-
-    <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
-        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
-            <li><a href="@routes.DocumentaryUnits.createDoc(item.id)">@Messages("actions.createChildDocUnit")</a></li>
-            }
-        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
-            <li><a href="@routes.DocumentaryUnits.update(item.id)">@Messages("actions.updateItem")</a></li>
-        }
-        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
-            <li><a href="@routes.DocumentaryUnits.visibility(item.id)">@Messages("actions.setVisibility")</a></li>
-            }
-        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Delete)) {
-            <li><a href="@routes.DocumentaryUnits.delete(item.id)">@Messages("actions.deleteItem")</a></li>
-            }
-        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Grant)) {
-            <li><a href="@routes.DocumentaryUnits.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
-            }
-        }
-    </ul>
-
-<ul class="item-actions nav nav-tabs nav-stacked">
-    <li><a href="@routes.ApiController.getItem(ContentType.DocumentaryUnit.toString, item.id)">@Messages("actions.exportJson")</a></li>
-</ul>
 }
