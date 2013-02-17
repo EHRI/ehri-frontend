@@ -182,6 +182,8 @@ GET     /annotation/visibility/:id     controllers.Annotations.visibility(id: St
 POST    /annotation/visibility/:id     controllers.Annotations.visibilityPost(id: String)
 GET     /annotation/annotate/:id     controllers.Annotations.annotate(id: String)
 POST    /annotation/annotate/:id     controllers.Annotations.annotatePost(id: String)
+GET     /annotation/delete/:id     controllers.Annotations.delete(id: String)
+POST    /annotation/delete/:id     controllers.Annotations.deletePost(id: String)
 
 # API
 GET     /api/:contentType/list          controllers.ApiController.listItems(contentType: String)

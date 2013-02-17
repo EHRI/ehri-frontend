@@ -2,13 +2,14 @@ package controllers
 
 import defines._
 import models.Annotation
-import base.{EntityAnnotate, VisibilityController, EntityRead}
+import base.{EntityDelete, EntityAnnotate, VisibilityController, EntityRead}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.i18n.Messages
 
 
 object Annotations extends EntityRead[Annotation]
   with VisibilityController[Annotation]
+  with EntityDelete[Annotation]
   with EntityAnnotate[Annotation] {
 
   val entityType = EntityType.Annotation
@@ -35,6 +36,18 @@ object Annotations extends EntityRead[Annotation]
     implicit request =>
       Redirect(routes.Annotations.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
+    Ok(views.html.delete(
+      Annotation(item), routes.Annotations.deletePost(id), routes.Concepts.get(id)))
+  }
+
+  def deletePost(id: String) = deletePostAction(id) {
+    // TODO: Work out how to redirect to somewhere useful...
+    ok => implicit userOpt => implicit request =>
+      Redirect(routes.Application.index)
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt =>

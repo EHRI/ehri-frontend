@@ -15,7 +15,7 @@
                         @** Q: What do we do when there is no source??? **@
                         @ann.source.map { src =>
                             <li>
-                                <a title="@ann.formatted" href="@views.Helpers.urlFor(src)">@src</a>
+                                <a title="@ann.formatted" href="@views.Helpers.urlFor(src)">@src</a><a href="@routes.Annotations.get(ann.id)">*</a>
                                 <p class="relation-description">
                                    @ann.formatted
                                 </p>

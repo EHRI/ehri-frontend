@@ -155,6 +155,7 @@ actions.linkToAuthority=Link to an authority
 actions.backToList=Back to List
 actions.exportJson=Export JSON
 actions.deleteItem=Delete Item
+actions.deleteAnnotation=Delete Annotation
 actions.updateItem=Update Item
 actions.createNewItem=Create New Item
 actions.setVisibility=Set Visibility
