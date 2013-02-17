@@ -44,6 +44,8 @@ object Admin extends Controller with AuthController with ControllerHelpers {
         Ok(views.html.admin.createUser(errorForm, routes.Admin.createUserPost))
       },
       values => {
+        // Groups is currently unused, but will be when support is added to
+        // the REST API to add the user to them at creation time.
         val (email, username, name, pw, _, groups) = values
         // check if the email is already registered...
         models.sql.OpenIDUser.findByEmail(email).map { account =>
@@ -51,7 +53,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
             .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.profile_id)))
           BadRequest(views.html.admin.createUser(errForm, routes.Admin.createUserPost))
         } getOrElse {
-          // Okay to proceed...
+          // It's not registered, so create the account...
           val user = UserProfileF(id=None, identifier=username, name=name,
             location=None, about=None, languages=None)
           AsyncRest {
