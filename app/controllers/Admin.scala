@@ -29,8 +29,8 @@ object Admin extends Controller with AuthController with ControllerHelpers {
     })
   )
 
-  def adminActions = adminAction { implicit user => implicit request =>
-    Ok("todo")
+  def adminActions = adminAction { implicit userOpt => implicit request =>
+    Ok(views.html.admin.actions())
   }
 
   def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>

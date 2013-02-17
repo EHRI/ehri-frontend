@@ -106,13 +106,18 @@
                      </div>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <li class="@{if(req.path == "/") "active" else ""}"><a href="/">@Messages("home")</a></li>
+                            <li class="@{if(req.path == "/") "active" else ""}"><a href="/">@Messages("pages.home")</a></li>
                             @activeIfCurrent(routes.DocumentaryUnits.list(), Messages("contentTypes." + EntityType.DocumentaryUnit))
                             @activeIfCurrent(routes.Repositories.list(), Messages("contentTypes." + EntityType.Agent))
                             @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
                             @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
                             @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
                             @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
+                            @userOpt.map { user =>
+                                @if(user.isAdmin) {
+                                    @activeIfCurrent(routes.Admin.adminActions, Messages("pages.admin"))
+                                }
+                            }
                         </ul>
                     </div>
                 </div>

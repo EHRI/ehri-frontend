@@ -1,0 +1,13 @@
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@noSidebarLayout(Messages("pages.admin.title")) {
+
+    @Messages("pages.admin.message")
+
+    <h3>@Messages("pages.admin.userManagement")</h3>
+
+    <ul>
+        <li><a href="@routes.Admin.createUser">@Messages("actions.createUserProfile")</a></li>
+    </ul>
+
+}

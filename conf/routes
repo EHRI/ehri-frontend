@@ -19,6 +19,7 @@ POST	/openid							controllers.OpenIDLoginHandler.loginPost
 POST	/persona						controllers.PersonaLoginHandler.loginPost
 
 # Admin routes
+GET     /admin                          controllers.Admin.adminActions
 GET     /admin/createUser               controllers.Admin.createUser
 POST     /admin/createUser               controllers.Admin.createUserPost
 GET     /admin/login                    controllers.Admin.passwordLogin

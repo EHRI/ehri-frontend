@@ -1,7 +1,7 @@
 @(message: String)(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, lang: Lang, flash: Flash)
 
-@noSidebarLayout("Hello") {
+@noSidebarLayout(Messages("pages.home.title")) {
 
-    @Messages("home.message")
+    @Messages("pages.home.message")
     
 }

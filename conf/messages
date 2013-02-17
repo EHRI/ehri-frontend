@@ -3,9 +3,14 @@ banner.heading=EHRI Dev Test
 banner.signin=Sign In
 banner.signout=Sign Out
 
-home=Home
-home.message=This is a development version of the EHRI data management interface.\
+pages.home=Home
+pages.home.title=Welcome to the EHRI Administration interface
+pages.home.message=This is a development version of the EHRI data management interface.\
   It's not done yet, but don't let that put you off.
+pages.admin=Admin
+pages.admin.title=EHRI Admin
+pages.admin.message=Administration actions - careful now!
+pages.admin.userManagement=Manage Users
 
 forms.adminArea=Administration Area
 

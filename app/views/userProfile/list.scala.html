@@ -28,11 +28,4 @@
 	</ul>
     
 } {
-    @common.sidebarSection(None) {
-        @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@routes.UserProfiles.create">@Messages("Create New User")</a>
-            }
-        }
-    }
 }
