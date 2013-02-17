@@ -32,6 +32,8 @@ class JsonFormatSpec extends Specification {
     println(validation.get)
     println(Json.toJson(validation.get))
 
+    println(Json.toJson(validation.get)(testCaseWrites))
+
     //validation.asEither must beRight
     //val doc = validation.get
     /*println("DOC: " + doc)

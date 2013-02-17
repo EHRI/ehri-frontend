@@ -47,6 +47,12 @@ object DocumentaryUnitFormat {
 
   implicit val dateWrites = play.api.libs.json.Writes.jodaDateWrites("yyyy-MM-dd")
 
+    implicit val testCaseWrites: Writes[TestData] = (
+      (__ \ "id").write[String] and
+        (__ \ "data" \ "foo").write[String] and
+        (__ \ "data" \ "bar").write[String]
+      )(unlift(TestData.unapply))
+
   implicit val testCaseFormat: Format[TestData] = (
     (__ \ "id").format[String] and
     (__ \ "data" \ "foo").format[String] and
