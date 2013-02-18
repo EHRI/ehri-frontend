@@ -20,7 +20,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with EntityDelete[DocumentaryUnit]
   with PermissionScopeController[DocumentaryUnit]
   with EntityAnnotate[DocumentaryUnit]
-  with DescriptionCRUD[DocumentaryUnit, DocumentaryUnitF, DocumentaryUnitDescription, DocumentaryUnitDescriptionF] {
+  with DescriptionCRUD[DocumentaryUnit, DocumentaryUnitDescriptionF] {
 
   val DEFAULT_SORT = AccessibleEntity.NAME
 

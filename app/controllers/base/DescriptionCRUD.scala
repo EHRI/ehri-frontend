@@ -15,7 +15,7 @@ import play.api.i18n.Messages
  * for entities that can be multiply described.
  *
  */
-trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity with Formable[F], F <: Persistable, TD <: Formable[FD] with Description, FD <: Persistable] extends EntityRead[T] {
+trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity, FD <: Persistable] extends EntityRead[T] {
 
   /**
    * Create an additional description for the given item.
