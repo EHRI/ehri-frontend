@@ -34,23 +34,21 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
         },
         success = doc => {
           AsyncRest {
-            rest.EntityDAO(entityType, userOpt)
-              .update(id, doc).map {
-              itemOrErr =>
+            rest.EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...
-                itemOrErr.fold(
-                  err => err match {
-                    case err: rest.ValidationError => {
-                      val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
-                      val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-                      Right(f(item)(Left(filledForm))(userOpt)(request))
-                    }
-                    case e => Left(e)
-                  },
-                  item => Right(f(item)(Right(item))(userOpt)(request))
-                )
+              itemOrErr.fold(
+                err => err match {
+                  case err: rest.ValidationError => {
+                    val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
+                    val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
+                    Right(f(item)(Left(filledForm))(userOpt)(request))
+                  }
+                  case e => Left(e)
+                },
+                item => Right(f(item)(Right(item))(userOpt)(request))
+              )
             }
           }
         }
