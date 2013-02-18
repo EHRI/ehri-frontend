@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import play.api.mvc._
 import play.api.data.{ Form, FormError }
-import defines.PermissionType
+import defines.{EntityType, PermissionType}
 import models.{Entity, UserProfile}
 import models.forms.VisibilityForm
 import rest.EntityDAO
@@ -14,15 +14,18 @@ import play.api.i18n.Messages
  * Controller trait for creating, updating, and deleting auxiliary descriptions
  * for entities that can be multiply described.
  *
- * FIXME: Ultimately there should be REST methods on the server to support
- * these operations so we don't have to transfer so much data back and forth.
- *
  */
 trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity with Formable[F], F <: Persistable, TD <: Formable[FD] with Description, FD <: Persistable] extends EntityRead[T] {
 
-  // NB: The 'builder' param is a function which takes an entity and a form representation
-  // of the description and builds a new formable representation of the object T, i.e. the F
-  def createDescriptionPostAction(id: String, builder: (Entity, FD) => F, form: Form[FD])(
+  /**
+   * Create an additional description for the given item.
+   * @param id
+   * @param descriptionType
+   * @param form
+   * @param f
+   * @return
+   */
+  def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[FD])(
       f: Entity => Either[Form[FD],Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
@@ -30,11 +33,21 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity with Formable[F
             f(item)(Left(ef))(userOpt)(request)
         },
         { desc =>
-          val doc = builder(item, desc)
           AsyncRest {
-            EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
-              // TODO: Work out how to handle a validation error here...
-              itemOrErr.right.map { updated =>
+            EntityDAO(entityType, userOpt).createDescription(id, descriptionType, desc).map { itemOrErr =>
+            // If we have an error, check if it's a validation error.
+            // If so, we need to merge those errors back into the form
+            // and redisplay it...
+              if (itemOrErr.isLeft) {
+                itemOrErr.left.get match {
+                  case err: rest.ValidationError => {
+                    val serverErrors: Seq[FormError] = desc.errorsToForm(err.errorSet)
+                    val filledForm = form.fill(desc).copy(errors = form.errors ++ serverErrors)
+                    Right(f(item)(Left(filledForm))(userOpt)(request))
+                  }
+                  case e => Left(e)
+                }
+              } else itemOrErr.right.map { updated =>
                 f(item)(Right(updated))(userOpt)(request)
               }
             }
@@ -42,5 +55,68 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity with Formable[F
         })
     }
   }
+
+  /**
+   * Update an item's description.
+   * @param id
+   * @param descriptionType
+   * @param did
+   * @param form
+   * @param f
+   * @return
+   */
+  def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[FD])(
+    f: Entity => Either[Form[FD],Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) {
+      item => implicit userOpt => implicit request =>
+        form.bindFromRequest.fold({ ef =>
+          f(item)(Left(ef))(userOpt)(request)
+        },
+        { desc =>
+          AsyncRest {
+            EntityDAO(entityType, userOpt).updateDescription(id, descriptionType, did, desc).map { itemOrErr =>
+            // If we have an error, check if it's a validation error.
+            // If so, we need to merge those errors back into the form
+            // and redisplay it...
+              if (itemOrErr.isLeft) {
+                itemOrErr.left.get match {
+                  case err: rest.ValidationError => {
+                    val serverErrors: Seq[FormError] = desc.errorsToForm(err.errorSet)
+                    val filledForm = form.fill(desc).copy(errors = form.errors ++ serverErrors)
+                    Right(f(item)(Left(filledForm))(userOpt)(request))
+                  }
+                  case e => Left(e)
+                }
+              } else itemOrErr.right.map { updated =>
+                f(item)(Right(updated))(userOpt)(request)
+              }
+            }
+          }
+        })
+    }
+  }
+
+  /**
+   * Delete an item's description with the given id.
+   * @param id
+   * @param descriptionType
+   * @param did
+   * @param f
+   * @return
+   */
+  def deleteDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String)(
+      f: Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) {
+      item => implicit userOpt => implicit request =>
+      AsyncRest {
+        EntityDAO(entityType, userOpt).deleteDescription(id, descriptionType, did).map { itemOrErr =>
+          itemOrErr.right.map { updated =>
+            f(updated)(userOpt)(request)
+          }
+        }
+      }
+    }
+  }
+
 }
 
