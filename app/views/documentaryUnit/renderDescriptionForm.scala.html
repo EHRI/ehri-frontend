@@ -7,7 +7,7 @@
 <fieldset id="descriptions-area">
     <legend>@Messages(fieldPrefix + "." + DESCRIPTIONS_AREA)</legend>
     @formHelpers.hiddenInput(desc(Entity.ID))
-    @helper.inputText(desc(LANG_CODE), '_label -> Messages(fieldPrefix + "." + LANG_CODE))
+    @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
     @formHelpers.lineInput(desc, TITLE)
 
     @helper.repeat(desc(DATES), min=math.max(desc(DATES).indexes.length, 1)) { desc =>

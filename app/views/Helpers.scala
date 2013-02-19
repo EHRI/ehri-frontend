@@ -8,6 +8,7 @@ import play.api.mvc.Call
 import play.api.i18n.Lang
 
 import com.petebevin.markdown.MarkdownProcessor
+import org.apache.commons.lang3.text.WordUtils
 
 
 package object Helpers {
@@ -69,4 +70,41 @@ package object Helpers {
    * @return
    */
   def displayLanguage(code: String)(implicit lang: Lang) = new java.util.Locale(code).getDisplayLanguage(lang.toLocale)
+
+  /**
+   * Get a list of code->name pairs for the given language.
+   * @param lang
+   * @return
+   */
+  def languagePairList(implicit lang: Lang): List[(String,String)] = {
+    val locale = lang.toLocale
+    java.util.Locale.getISOLanguages.map { code =>
+      code -> WordUtils.capitalize(new java.util.Locale(code).getDisplayLanguage(locale))
+    }.toList.sortBy(_._2)
+  }
+
+  /**
+   * Get a list of country->name pairs for the given language.
+   * @param lang
+   * @return
+   */
+  def countryPairList(implicit lang: Lang): List[(String,String)] = {
+    val locale = lang.toLocale
+    java.util.Locale.getISOCountries.map { code =>
+      code -> WordUtils.capitalize(new java.util.Locale(locale.getLanguage, code).getDisplayCountry(locale))
+    }.toList.sortBy(_._2)
+  }
+
+  /**
+   * Function that shouldn't be necessary. Extract a list of values from
+   * a repeated form field. There's probably a more correct way of handling this
+   * but Play's multi value form support is so maddening it's difficult to figure
+   * it out.
+   * @param field
+   * @return
+   */
+  def fieldValues(field: play.api.data.Field): List[String] = {
+    0.until(field.indexes.max + 1).flatMap(i => field("[" + i + "]").value).toList
+  }
+
 }

@@ -86,15 +86,13 @@ trait ControllerHelpers {
    *  key[0] -> Seq(val1), key[1] -> Seq(val2), key[2] -> Seq(val3)
    */
   def fixMultiSelects(formData: Option[Map[String,Seq[String]]], multi: String*) = {
-    formData.map(b => {
-      b.flatMap { (t: (String,Seq[String])) =>
-        t match {
-          case (n, s) if multi.contains(n) => {
-            s.zipWithIndex.map(t => n + "[" + t._2 + "]" -> List(t._1))
-          }
-          case other => List(other)
-        }
+    formData.map { d =>
+      d.flatMap { case (key, values) =>
+        if (multi.contains(key))
+          values.toList.zipWithIndex.map(t => key + "[" + t._2 + "]" -> Seq(t._1))
+        else
+          List(key -> values)
       }
-    }).getOrElse(Map[String,Seq[String]]())
+    } getOrElse(Map[String,Seq[String]]())
   }
 }

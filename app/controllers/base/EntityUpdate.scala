@@ -27,7 +27,13 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
   def updatePostAction(id: String, form: Form[F])(f: Entity => Either[Form[F],Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
 
-      form.bindFromRequest.fold(
+      // Yay! Rewrite multi-selects! This is fast becoming the single most enraging this about
+      // using Play!  Grrrrrrrr
+      val data = fixMultiSelects(request.body.asFormUrlEncoded,
+        0.to(10).map(i => s"descriptions[$i].controlArea.languages").toSeq: _*)
+      println("DATA: " + data)
+
+      form.bindFromRequest(data).fold(
         errorForm => {
           Logger.logger.debug("Form errors: {}", errorForm.errors)
           f(item)(Left(errorForm))(userOpt)(request)

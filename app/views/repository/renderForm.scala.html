@@ -32,7 +32,7 @@
                 @formHelpers.lineInput(desc, STREET_ADDRESS)
                 @formHelpers.lineInput(desc, CITY)
                 @formHelpers.lineInput(desc, REGION)
-                @formHelpers.lineInput(desc, COUNTRY_CODE)
+                @formHelpers.choiceInput(desc(COUNTRY_CODE), COUNTRY_CODE, views.Helpers.countryPairList, blank=true)
                 @formHelpers.lineInput(desc, EMAIL)
                 @formHelpers.lineInput(desc, TELEPHONE)
                 @formHelpers.lineInput(desc, FAX)
@@ -81,10 +81,7 @@
                 @formHelpers.textInput(desc, STATUS)
                 @formHelpers.textInput(desc, LEVEL_OF_DETAIL)
                 @formHelpers.textInput(desc, DATES_CVD)
-                @* TODO: Make scripts a dropdown... *@
-                @helper.repeat(desc(LANGUAGES_USED), min = item.flatMap(_.listProperty(LANGUAGES_USED).map(_.length)).getOrElse(0) + 1) { field =>
-                    @helper.inputText(field, 'class -> "span8", '_label -> Messages("%s.%s".format(fieldPrefix, LANGUAGES_USED)))
-                }
+                @formHelpers.multiselectInput(desc(LANGUAGES_USED), LANGUAGES_USED, views.Helpers.languagePairList)
                 @helper.repeat(desc(SCRIPTS_USED), min = item.flatMap(_.listProperty(SCRIPTS_USED).map(_.length)).getOrElse(0) + 1) { field =>
                     @helper.inputText(field, 'class -> "span8", '_label -> Messages("%s.%s".format(fieldPrefix, SCRIPTS_USED)))
                 }
