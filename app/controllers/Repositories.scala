@@ -56,7 +56,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   def createPost = createPostAction(models.RepositoryForm.form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups { users => groups =>
+      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.repository.create(errorForm, accForm, users, groups, routes.Repositories.createPost))
       }
       case Right(item) => Redirect(routes.Repositories.get(item.id))
@@ -88,7 +88,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
   def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentType.DocumentaryUnit) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups { users => groups =>
+      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.documentaryUnit.create(Repository(item),
           errorForm, accForm, users, groups, routes.Repositories.createDocPost(id)))
       }

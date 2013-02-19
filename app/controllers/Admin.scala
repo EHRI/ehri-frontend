@@ -21,43 +21,57 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       "username" -> nonEmptyText,
       "name" -> nonEmptyText,
       "password" -> nonEmptyText,
-      "confirm" -> nonEmptyText,
-      "groups" -> optional(list(nonEmptyText))
-
+      "confirm" -> nonEmptyText
     ) verifying(Messages("admin.passwordsDoNotMatch"), f => f match {
-      case (_, _, _, pw, pwc, _) => pw == pwc
+      case (_, _, _, pw, pwc) => pw == pwc
     })
   )
+
+  val groupMembershipForm = Form(single("group" -> list(nonEmptyText)))
 
   def adminActions = adminAction { implicit userOpt => implicit request =>
     Ok(views.html.admin.actions())
   }
 
   def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
-    Ok(views.html.admin.createUser(userPasswordForm, routes.Admin.createUserPost))
+    getGroups { groups =>
+      Ok(views.html.admin.createUser(userPasswordForm, groupMembershipForm, groups, routes.Admin.createUserPost))
+    }
   }
 
   def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
     // TODO: Refactor to make this logic clearer...
+
+    // Fix Play's maddening handling of multi-select values
+    val boundGroupForm = groupMembershipForm.bindFromRequest(
+        fixMultiSelects(request.body.asFormUrlEncoded, "group"))
+
     userPasswordForm.bindFromRequest.fold(
       errorForm => {
-        Ok(views.html.admin.createUser(errorForm, routes.Admin.createUserPost))
+        getGroups { groups =>
+          Ok(views.html.admin.createUser(errorForm, boundGroupForm,
+              groups, routes.Admin.createUserPost))
+        }
       },
       values => {
-        // Groups is currently unused, but will be when support is added to
-        // the REST API to add the user to them at creation time.
-        val (email, username, name, pw, _, groups) = values
+        val (email, username, name, pw, _) = values
         // check if the email is already registered...
         models.sql.OpenIDUser.findByEmail(email).map { account =>
           val errForm = userPasswordForm.bindFromRequest
             .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.profile_id)))
-          BadRequest(views.html.admin.createUser(errForm, routes.Admin.createUserPost))
+          getGroups { groups =>
+            BadRequest(views.html.admin.createUser(errForm, boundGroupForm,
+                groups, routes.Admin.createUserPost))
+          }
         } getOrElse {
           // It's not registered, so create the account...
           val user = UserProfileF(id=None, identifier=username, name=name,
             location=None, about=None, languages=None)
+          val groups = boundGroupForm.value.getOrElse(List())
+
           AsyncRest {
-            rest.EntityDAO(EntityType.UserProfile, userOpt).create(user).map { itemOrErr =>
+            rest.EntityDAO(EntityType.UserProfile, userOpt)
+                .create(user, params = Map("group" -> groups)).map { itemOrErr =>
               itemOrErr.right.map { entity =>
                 models.sql.OpenIDUser.create(email, entity.id).map { account =>
                   account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))

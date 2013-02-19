@@ -19,7 +19,7 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRe
 
   def childCreateAction(id: String, ct: ContentType.Value)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
-      getGroups { users => groups =>
+      getUsersAndGroups { users => groups =>
         f(item)(users)(groups)(userOpt)(request)
       }
     }

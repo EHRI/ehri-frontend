@@ -43,7 +43,7 @@ object Groups extends PermissionHolderController[Group]
   def createPost = createPostAction(form) {
       formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups { users => groups =>
+      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.group.create(errorForm, accForm, users, groups, routes.Groups.createPost))
       }
       case Right(item) => Redirect(routes.Groups.get(item.id))

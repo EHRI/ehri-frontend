@@ -86,7 +86,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups { users => groups =>
+      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.concept.create(Concept(item),
           errorForm, accForm, users, groups, routes.Concepts.createConceptPost(id)))
       }

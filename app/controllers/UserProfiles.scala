@@ -10,7 +10,9 @@ import base._
 
 
 object UserProfiles extends PermissionHolderController[UserProfile]
-	with CRUD[UserProfileF,UserProfile] {
+  with EntityRead[UserProfile]
+  with EntityUpdate[UserProfileF,UserProfile]
+  with EntityDelete[UserProfile] {
 
 
 
@@ -35,22 +37,6 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   def list = listAction { page => params => implicit userOptOpt => implicit request =>
     Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_))), params))
-  }
-
-  def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.userProfile.create(form, VisibilityForm.form, users, groups, routes.UserProfiles.createPost))
-  }
-
-  def createPost = createPostAction(form) {
-      formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups { users => groups =>
-        BadRequest(views.html.userProfile.create(
-          errorForm, accForm, users, groups, routes.UserProfiles.createPost))
-      }
-      case Right(item) => Redirect(routes.UserProfiles.get(item.id))
-          .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasCreated", item.id))
-    }
   }
 
   def update(id: String) = updateAction(id) {

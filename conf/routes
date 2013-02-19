@@ -70,8 +70,6 @@ GET     /users                controllers.UserProfiles.list
 GET     /users/show/:id       controllers.UserProfiles.get(id: String)
 GET     /users/history/:id    controllers.UserProfiles.history(id: String)
 GET     /users/json/:id       controllers.UserProfiles.getJson(id: String)
-GET     /users/create         controllers.UserProfiles.create
-POST    /users/create         controllers.UserProfiles.createPost
 GET     /users/delete/:id     controllers.UserProfiles.delete(id: String)
 POST    /users/delete/:id     controllers.UserProfiles.deletePost(id: String)
 GET     /users/update/:id     controllers.UserProfiles.update(id: String)

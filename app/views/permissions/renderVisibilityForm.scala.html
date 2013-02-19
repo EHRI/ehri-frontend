@@ -8,9 +8,8 @@
         <div class="controls input">
             <select class="chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" multiple
             name="@rest.RestPageParams.ACCESSOR_PARAM">
-            @groups.map{t =>
-                <option value="@t._1" @(if(f.value.map(_.contains(t._1)).getOrElse(false))
-                            "selected" else "")>@t._2</option>
+            @groups.map{ case(id, name) =>
+                <option value="@id" @(if(f.value.map(_.contains(id)).getOrElse(false)) "selected")>@name</option>
             }
             </select>
         </div>
@@ -21,10 +20,8 @@
         <div class="controls input">
             <select class="chzn-select" data-placeholder="@Messages("visibility.chooseUsers")" multiple
             name="@rest.RestPageParams.ACCESSOR_PARAM">
-                @{println(s"Form data: ${f.data}")}
-            @users.map{t =>
-                <option value="@t._1" @(if(f.value.map(_.contains(t._1)).getOrElse(false))
-                            "selected" else "")>@t._2</option>
+            @users.map { case(id, name) =>
+                <option value="@id" @(if(f.value.map(_.contains(id)).getOrElse(false)) "selected")>@name</option>
             }
             </select>
         </div>

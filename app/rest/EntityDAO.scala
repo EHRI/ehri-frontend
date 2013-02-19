@@ -137,8 +137,9 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def create(item: Persistable, accessors: List[String] = Nil): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, "?%s".format(accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&"))))
+  def create(item: Persistable, accessors: List[String] = Nil, params: Map[String,Seq[String]] = Map()): Future[Either[RestError, Entity]] = {
+    val qs = utils.joinQueryString(params)
+    WS.url(enc(requestUrl, "?%s".format((accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}") ++ List(qs)).mkString("&"))))
         .withHeaders(authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))

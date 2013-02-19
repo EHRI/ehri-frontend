@@ -112,6 +112,7 @@ users.username=Username
 users.realname=Full Name
 users.password=Password
 users.passwordConfirm=Confirm Password
+users.groups=Group Membership
 
 #
 # Groups

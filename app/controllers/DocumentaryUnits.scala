@@ -101,7 +101,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def createDocPost(id: String) = childCreatePostAction(id, childForm, contentType) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups { users => groups =>
+      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.documentaryUnit.create(DocumentaryUnit(item),
           errorForm, accForm, users, groups, routes.DocumentaryUnits.createDocPost(id)))
       }

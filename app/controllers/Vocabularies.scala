@@ -48,7 +48,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def createPost = createPostAction(models.VocabularyForm.form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups { users => groups =>
+      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, routes.Vocabularies.createPost))
       }
       case Right(item) => Redirect(routes.Vocabularies.get(item.id))
@@ -80,7 +80,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
-      case Left((errorForm,accForm)) => getGroups { users => groups =>
+      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.concept.create(Vocabulary(item),
           errorForm, accForm, users, groups, routes.Vocabularies.createConceptPost(id)))
       }

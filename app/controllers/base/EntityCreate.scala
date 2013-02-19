@@ -27,7 +27,7 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
    */
   def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
-      getGroups { users => groups =>
+      getUsersAndGroups { users => groups =>
         f(users)(groups)(userOpt)(request)
       }
     }

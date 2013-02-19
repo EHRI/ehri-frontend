@@ -39,7 +39,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def getGroups(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+  def getUsersAndGroups(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     // TODO: Handle REST errors
     Async {
       for {

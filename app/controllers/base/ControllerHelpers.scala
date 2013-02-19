@@ -8,6 +8,7 @@ import rest._
 import play.api.mvc.Controller
 import play.api.mvc.AsyncResult
 import java.net.ConnectException
+import models.UserProfile
 
 object ControllerHelpers {
   def isAjax(implicit request: RequestHeader): Boolean =
@@ -18,11 +19,36 @@ object ControllerHelpers {
 trait ControllerHelpers {
   this: Controller with AuthController =>
 
+  /**
+   * Ensure that an action is performed by a logged-in user.
+   * @param res
+   * @param maybeUser
+   * @param request
+   * @return
+   */
   def Secured(res: Result)(implicit maybeUser: Option[models.UserProfile], request: RequestHeader): Result = {
-    maybeUser.map(u => res).getOrElse(authenticationFailed(request))
+    if (maybeUser.isDefined) res else authenticationFailed(request)
   }
 
-   /**
+  /**
+   * Get a complete list of possible groups
+   * @param f
+   * @param userOpt
+   * @param request
+   * @return
+   */
+  def getGroups(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+    // TODO: Handle REST errors
+    Async {
+      for {
+        groups <- rest.RestHelpers.getGroupList
+      } yield {
+        f(groups)
+      }
+    }
+  }
+
+  /**
    * Wrapper function which takes a promise of either a result
    * or a throwable. If the throwable exists it is handled in
    * an appropriate manner and returned as a AsyncResult
