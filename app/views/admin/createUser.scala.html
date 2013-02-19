@@ -15,7 +15,7 @@
             <label class="control-label" for="@gf("group").id">@Messages("users.groups")</label>
             <div class="controls controls-row">
                 @{println(gf.value)}
-                <select class="chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" name="@gf("group").name" id="@gf("group").id" multiple>
+                <select class="chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" name="@(gf("group").name)[]" id="@gf("group").id" multiple>
                     @groups.map { case(id, name) =>
                         <option value="@id" @{if(gf.value.map(_.contains(id)).getOrElse(false)) "selected"}>@name</option>
                     }

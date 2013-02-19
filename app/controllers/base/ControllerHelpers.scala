@@ -78,21 +78,4 @@ trait ControllerHelpers {
       }
     }
   }
-
-  /*
-   * Play Forms don't currently support multi-value select widgets. We
-   * need to transform the input from:
-   *  key -> Seq(va1, val2, val3) to:
-   *  key[0] -> Seq(val1), key[1] -> Seq(val2), key[2] -> Seq(val3)
-   */
-  def fixMultiSelects(formData: Option[Map[String,Seq[String]]], multi: String*) = {
-    formData.map { d =>
-      d.flatMap { case (key, values) =>
-        if (multi.contains(key))
-          values.toList.zipWithIndex.map(t => key + "[" + t._2 + "]" -> Seq(t._1))
-        else
-          List(key -> values)
-      }
-    } getOrElse(Map[String,Seq[String]]())
-  }
 }

@@ -39,8 +39,7 @@ trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def visibilityPostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      val data = models.forms.VisibilityForm.form
-        .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM)).get
+      val data = models.forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
       AsyncRest {
         rest.VisibilityDAO(userOpt).set(id, data).map { boolOrErr =>
           boolOrErr.right.map { bool =>

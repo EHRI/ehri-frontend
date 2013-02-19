@@ -28,13 +28,11 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRe
   def childCreatePostAction[CT<:Persistable](id: String, form: Form[CT], ct: ContentType.Value)(
         f: Entity => Either[(Form[CT],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
-      val accessorForm = VisibilityForm.form
-        .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM))
-      val accessors = accessorForm.value.getOrElse(List())
       form.bindFromRequest.fold(
-        errorForm => f(item)(Left((errorForm,accessorForm)))(userOpt)(request),
+        errorForm => f(item)(Left((errorForm,VisibilityForm.form)))(userOpt)(request),
         citem => {
           AsyncRest {
+            val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
             rest.EntityDAO(entityType, userOpt)
               .createInContext(id, ct, citem, accessors).map { itemOrErr =>
             // If we have an error, check if it's a validation error.
@@ -45,7 +43,7 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRe
                   case err: rest.ValidationError => {
                     val serverErrors = citem.errorsToForm(err.errorSet)
                     val filledForm = form.fill(citem).copy(errors = form.errors ++ serverErrors)
-                    Right(f(item)(Left((filledForm,accessorForm)))(userOpt)(request))
+                    Right(f(item)(Left((filledForm,VisibilityForm.form)))(userOpt)(request))
                   }
                   case e => Left(e)
                 }

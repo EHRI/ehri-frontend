@@ -42,14 +42,10 @@ object Admin extends Controller with AuthController with ControllerHelpers {
   def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
     // TODO: Refactor to make this logic clearer...
 
-    // Fix Play's maddening handling of multi-select values
-    val boundGroupForm = groupMembershipForm.bindFromRequest(
-        fixMultiSelects(request.body.asFormUrlEncoded, "group"))
-
     userPasswordForm.bindFromRequest.fold(
       errorForm => {
         getGroups { groups =>
-          Ok(views.html.admin.createUser(errorForm, boundGroupForm,
+          Ok(views.html.admin.createUser(errorForm, groupMembershipForm.bindFromRequest,
               groups, routes.Admin.createUserPost))
         }
       },
@@ -60,14 +56,14 @@ object Admin extends Controller with AuthController with ControllerHelpers {
           val errForm = userPasswordForm.bindFromRequest
             .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.profile_id)))
           getGroups { groups =>
-            BadRequest(views.html.admin.createUser(errForm, boundGroupForm,
+            BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
                 groups, routes.Admin.createUserPost))
           }
         } getOrElse {
           // It's not registered, so create the account...
           val user = UserProfileF(id=None, identifier=username, name=name,
             location=None, about=None, languages=None)
-          val groups = boundGroupForm.value.getOrElse(List())
+          val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
 
           AsyncRest {
             rest.EntityDAO(EntityType.UserProfile, userOpt)

@@ -34,29 +34,23 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
   }
 
   def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    withContentPermission(PermissionType.Create, contentType) { implicit userOpt =>
-      implicit request =>
-      // FIXME: This is really gross, but it's necessary because
-      // Play's forms do not yet support extracting multiselect
-      // values properly withsome some unfortunately massaging.
-        val accessorForm = VisibilityForm.form
-          .bindFromRequest(fixMultiSelects(request.body.asFormUrlEncoded, rest.RestPageParams.ACCESSOR_PARAM))
-        val accessors = accessorForm.value.getOrElse(List())
-        form.bindFromRequest.fold(
-          errorForm => f(Left((errorForm,accessorForm)))(userOpt)(request),
-          doc => {
-            AsyncRest {
+    withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
+      form.bindFromRequest.fold(
+        errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),
+        doc => {
+          AsyncRest {
+            val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
             rest.EntityDAO(entityType, userOpt)
-              .create(doc, accessors).map { itemOrErr =>
-            // If we have an error, check if it's a validation error.
-            // If so, we need to merge those errors back into the form
-            // and redisplay it...
+                .create(doc, accessors).map { itemOrErr =>
+              // If we have an error, check if it's a validation error.
+              // If so, we need to merge those errors back into the form
+              // and redisplay it...
               if (itemOrErr.isLeft) {
                 itemOrErr.left.get match {
                   case err: rest.ValidationError => {
                     val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
                     val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-                    Right(f(Left((filledForm,accessorForm)))(userOpt)(request))
+                    Right(f(Left((filledForm, VisibilityForm.form)))(userOpt)(request))
                   }
                   case e => Left(e)
                 }
