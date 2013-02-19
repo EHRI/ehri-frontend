@@ -10,7 +10,7 @@
         @helper.inputText(f("name"), '_label -> Messages(fieldPrefix + ".authorizedFormOfName"))
 
     @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
-        @formHelpers.lineInput(desc, LANG_CODE)
+        @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
 
         <fieldset id="identity-area">
             <legend>@Messages(fieldPrefix + "." + IDENTITY_AREA)</legend>
@@ -82,9 +82,7 @@
                 @formHelpers.textInput(desc, LEVEL_OF_DETAIL)
                 @formHelpers.textInput(desc, DATES_CVD)
                 @formHelpers.multiselectInput(desc(LANGUAGES_USED), LANGUAGES_USED, views.Helpers.languagePairList)
-                @helper.repeat(desc(SCRIPTS_USED), min = item.flatMap(_.listProperty(SCRIPTS_USED).map(_.length)).getOrElse(0) + 1) { field =>
-                    @helper.inputText(field, 'class -> "span8", '_label -> Messages("%s.%s".format(fieldPrefix, SCRIPTS_USED)))
-                }
+                @formHelpers.multiselectInput(desc(SCRIPTS_USED), SCRIPTS_USED, views.Helpers.scriptPairList)
                 @formHelpers.textInput(desc, SOURCES)
                 @formHelpers.textInput(desc, MAINTENANCE_NOTES)
             }

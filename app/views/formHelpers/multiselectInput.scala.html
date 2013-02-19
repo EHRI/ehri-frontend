@@ -6,7 +6,7 @@
 @defining(views.Helpers.fieldValues(f)) { values =>
     @helper.input(f, '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label)) { (id, name, value, htmlArgs) =>
         @*NB: Appending a '[]' to the name param makes multi-select binding work *@
-        <select class="chzn-select" multiple name="@(name)[]" id="@id">
+        <select class="span8 chzn-select" multiple name="@(name)[]" id="@id">
             @options.map { case (oid, oval) =>
                 <option value="@oid" @{if(values.contains(oid)) "selected"}>@oval</option>
             }

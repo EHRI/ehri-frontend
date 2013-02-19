@@ -84,6 +84,18 @@ package object Helpers {
   }
 
   /**
+   * Get a list of ISO15924 script.
+   *
+   * NB: The implicit lang parameter is currently ignored because
+   * the script data is not localised.
+   * @param lang
+   * @return
+   */
+  def scriptPairList(implicit lang: Lang): List[(String,String)] = {
+    utils.Data.scripts.sortBy(_._2)
+  }
+
+  /**
    * Get a list of country->name pairs for the given language.
    * @param lang
    * @return
