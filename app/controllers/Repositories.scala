@@ -92,7 +92,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
     implicit val token: Option[Token] = CSRF.getToken(request)
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        Ok(views.html.documentaryUnit.create(Repository(item),
+        BadRequest(views.html.documentaryUnit.create(Repository(item),
           errorForm, accForm, users, groups, routes.Repositories.createDocPost(id)))
       }
       case Right(citem) => Redirect(routes.DocumentaryUnits.get(citem.id))
