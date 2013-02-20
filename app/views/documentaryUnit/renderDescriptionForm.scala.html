@@ -4,20 +4,48 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
+<!-- Disgraceful placeholder template for adding/remove date rows via JS. -->
+<script type="application/x-js-template" id="date-row-template">
+    <div class="inline-date control-group" id="descriptions_DIDX__dates_IDX_">
+        <input type="hidden" id="descriptions_DIDX__dates_IDX__id" name="descriptions[DIDX].dates[IDX].id" value="">
+        <label class="control-label"> @Messages(fieldPrefix + "." + DATES)</label>
+        <div class="controls">
+            <a class="close remove-inline-date pull-right" href="#"> × </a>
+            <table>
+                <tr>
+                    <td class="control-group">
+                        <select class="input-small" name="descriptions[DIDX].dates[IDX].TYPE">
+                            @DatePeriodType.values.toList.sorted.map { v =>
+                                <option value="">@Messages(fieldPrefix + "." + v)</option>
+                            }
+                        </select>
+                    </td>
+                    <td class="control-group ">
+                        <input class="input-small" type="text" name="descriptions[DIDX].dates[IDX].startDate" value="" placeholder="Start Date" id="descriptions_DIDX__dates_IDX__startDate">
+                    </td>
+                    <td class="control-group ">
+                        <input class="input-small" type="text" name="descriptions[DIDX].dates[IDX].endDate" value="" placeholder="End Date" id="descriptions_DIDX__dates_IDX__endDate">
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</script>
+
 <fieldset id="descriptions-area">
-    <legend>@Messages(fieldPrefix + "." + DESCRIPTIONS_AREA)</legend>
+    <legend> @Messages(fieldPrefix + "." + DESCRIPTIONS_AREA) </legend>
     @formHelpers.hiddenInput(desc(Entity.ID))
-    @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
+    @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
     @formHelpers.lineInput(desc, TITLE)
 
-    @helper.repeat(desc(DATES), min=math.max(desc(DATES).indexes.length, 1)) { desc =>
+    @helper.repeat(desc(DATES), min = math.max(desc(DATES).indexes.length, 1)) { desc =>
         @documentaryUnit.renderDateRow(desc)
     }
     @formHelpers.textInput(desc, EXTENT_MEDIUM)
 </fieldset>
 
 <fieldset id="context-area">
-    <legend>@Messages(fieldPrefix + "." + CONTEXT_AREA)</legend>
+    <legend> @Messages(fieldPrefix + "." + CONTEXT_AREA) </legend>
     @defining(desc(CONTEXT_AREA)) { desc =>
             @formHelpers.textInput(desc, ADMIN_BIOG)
             @formHelpers.textInput(desc, ARCH_HIST)
@@ -25,7 +53,7 @@
     }
 </fieldset>
 <fieldset id="content-area">
-    <legend>@Messages(fieldPrefix + "." + CONTENT_AREA)</legend>
+    <legend> @Messages(fieldPrefix + "." + CONTENT_AREA) </legend>
     @defining(desc(CONTENT_AREA)) { desc =>
             @formHelpers.textInput(desc, SCOPE_CONTENT)
             @formHelpers.textInput(desc, APPRAISAL)
@@ -34,7 +62,7 @@
     }
 </fieldset>
 <fieldset id="conditions-area">
-    <legend>@Messages(fieldPrefix + "." + CONDITIONS_AREA)</legend>
+    <legend> @Messages(fieldPrefix + "." + CONDITIONS_AREA) </legend>
     @defining(desc(CONDITIONS_AREA)) { desc =>
             @formHelpers.textInput(desc, ACCESS_COND)
             @formHelpers.textInput(desc, REPROD_COND)
@@ -45,7 +73,7 @@
     }
 </fieldset>
 <fieldset id="materials-area">
-    <legend>@Messages(fieldPrefix + "." + MATERIALS_AREA)</legend>
+    <legend> @Messages(fieldPrefix + "." + MATERIALS_AREA) </legend>
     @defining(desc(MATERIALS_AREA)) { desc =>
             @formHelpers.textInput(desc, LOCATION_ORIGINALS)
             @formHelpers.textInput(desc, LOCATION_COPIES)
