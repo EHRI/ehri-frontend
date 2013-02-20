@@ -1,10 +1,12 @@
-@(group: Group, item: Accessor, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(group: Group, item: Accessor, action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("actions.addUserToGroup", group.name, item.name)) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
 		<div class="form-actions">
             <button type="submit" class="btn btn-primary">@Messages("Submit")</button>
         </div>

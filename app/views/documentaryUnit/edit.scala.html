@@ -1,10 +1,12 @@
-@(item: Option[DocumentaryUnit], f: play.api.data.Form[DocumentaryUnitF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Option[DocumentaryUnit], f: play.api.data.Form[DocumentaryUnitF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages(item.map(s => "actions.updateDocumentaryUnit").getOrElse("actions.createDocumentaryUnit"))) {
 		
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
 		@documentaryUnit.renderForm(f)
 	
 		<div class="form-actions">

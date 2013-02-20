@@ -14,7 +14,8 @@ case class ValidationError(errorSet: ErrorSet) extends RestError
 case class DeserializationError() extends RestError
 case class IntegrityError() extends RestError
 case class ItemNotFound() extends RestError
-case class ServerError() extends RestError
+case class ServerError(error: String) extends RestError
+case class CriticalError(error: String) extends RestError
 
 
 /**
@@ -126,7 +127,8 @@ trait RestDAO {
         )
         case NOT_FOUND => Logger.logger.error("404: {}", response.body); Left(ItemNotFound())
         case _ => {
-          sys.error("Unexpected response for %s: %d: %s".format(response.getAHCResponse.getHeaders, response.status, response.body))
+          Logger.logger.error(response.body)
+          sys.error(response.body)
         }
       }
     }

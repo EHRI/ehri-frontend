@@ -140,7 +140,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     formOrItem match {
       case Left(errorForm) => {
         Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-          errorForm, routes.DocumentaryUnits.createDescriptionPost(id)))
+          errorForm, routes.DocumentaryUnits.updateDescriptionPost(id, did)))
       }
       case Right(updated) => Redirect(routes.DocumentaryUnits.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))

@@ -1,9 +1,10 @@
 @(item: AccessibleEntity, accessor: Accessor, perms: ItemPermissionSet[Accessor], contentType: ContentType.Value, action: Call)(
-    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @rightSidebarLayout(Messages("actions.grantPermissionsOnItem", item.identifier, accessor.name)) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
 		<fieldset id="permissionItem-area">
 
         <table class="table table-bordered permissions-matrix">

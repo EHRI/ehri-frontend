@@ -155,6 +155,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         )
         val cr = route(fakeLoggedInRequest(POST,
           controllers.routes.Repositories.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        println(contentAsString(cr))
         status(cr) must equalTo(SEE_OTHER)
 
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
@@ -468,6 +469,16 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         contentAsString(show) must contain("Some history")
         contentAsString(show) must contain("Some content")
         contentAsString(show) must contain("An Address")
+      }
+    }
+
+    "error if missing mandatory values" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+        )
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.Repositories.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(BAD_REQUEST)
       }
     }
 

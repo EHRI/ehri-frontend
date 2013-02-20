@@ -7,12 +7,15 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.POST
 import play.api.test.Helpers.header
 import play.api.test.Helpers._
+import play.api.GlobalSettings
+import play.filters.csrf.{CSRFFilter, CSRF}
 
 trait TestLoginHelper {
 
-  val LOGIN_PATH = routes.Application.login.url
 
-  def fakeLoginApplication(userProfile: String): FakeApplication = fakeLoginApplication(userProfile, Map())
+  object FakeGlobal extends GlobalSettings
+
+  val LOGIN_PATH = routes.Application.login.url
 
   def fakeLoginApplication(userProfile: String, additionalConfiguration: Map[String, Any] = Map()) = {
     FakeApplication(

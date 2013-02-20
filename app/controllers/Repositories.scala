@@ -8,6 +8,7 @@ import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
 import base._
+import play.filters.csrf.CSRF.Token
 
 object Repositories extends CRUD[RepositoryF,Repository]
   with CreationContext[DocumentaryUnitF,Repository]
@@ -87,9 +88,11 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentType.DocumentaryUnit) {
       item => formsOrItem => implicit userOpt => implicit request =>
+    import play.filters.csrf._
+    implicit val token: Option[Token] = CSRF.getToken(request)
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.documentaryUnit.create(Repository(item),
+        Ok(views.html.documentaryUnit.create(Repository(item),
           errorForm, accForm, users, groups, routes.Repositories.createDocPost(id)))
       }
       case Right(citem) => Redirect(routes.DocumentaryUnits.get(citem.id))

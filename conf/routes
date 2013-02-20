@@ -30,8 +30,6 @@ POST    /admin/changePassword           controllers.Admin.changePasswordPost
 # Change locale
 GET     /locale                         controllers.Application.changeLocale
 
-GET		/test			  controllers.Application.test
-
 # Home page
 GET     /                           controllers.Application.index
 GET     /docs                controllers.DocumentaryUnits.list

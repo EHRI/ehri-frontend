@@ -1,4 +1,5 @@
-@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -12,6 +13,7 @@
 	}
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
 		<fieldset id="permissions-area">
 
 			<table class="table table-bordered permissions-matrix">

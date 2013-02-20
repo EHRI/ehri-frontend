@@ -1,7 +1,9 @@
-@(item: Option[Vocabulary], f: play.api.data.Form[models.VocabularyF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Option[Vocabulary], f: play.api.data.Form[models.VocabularyF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @rightSidebarLayout(Messages("actions.updateVocabulary")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
         @vocabulary.renderForm(item, f)
 
         <div class="form-actions">

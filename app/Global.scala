@@ -8,9 +8,10 @@ import play.api.mvc._
 import org.apache.commons.codec.binary.Base64
 
 import play.api.Play.current
+import play.filters.csrf.CSRFFilter
 
 // Note: this is in the default package.
-object Global extends GlobalSettings {
+object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   private def noAuthAction = Action { request =>
     play.api.mvc.Results.Unauthorized("This application required authentication")

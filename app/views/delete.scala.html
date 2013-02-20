@@ -1,12 +1,13 @@
-@(item: AccessibleEntity, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, flash: Flash)
+@(item: AccessibleEntity, action: Call, cancel: Call)(
+implicit userOpt: Option[UserProfile], request: RequestHeader, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @rightSidebarLayout(Messages("actions.deleteItem", item.identifier)) {
 
     <p>@Messages("deleting.deleteConfirmationMessage", item.toString)</p>
-    <form method="POST" action="@action" class="form-actions">
+    @helper.form(action = helper.CSRF(action), 'class -> "form-actions") {
         <button type="submit" class="btn btn-danger">@Messages("submitButton.deleteItem")</button>
         <a href="@cancel.url" class="btn">@Messages("actions.cancel")</a>
-    </form>
+    }
 } {
 
 }

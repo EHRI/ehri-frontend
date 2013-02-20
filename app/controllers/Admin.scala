@@ -11,6 +11,7 @@ import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
 import models.UserProfileF
 import models.sql.OpenIDUser
+import play.filters.csrf.CSRF
 
 
 object Admin extends Controller with AuthController with ControllerHelpers {
@@ -34,6 +35,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
   }
 
   def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
+    val csrf = CSRF.getToken(request)
     getGroups { groups =>
       Ok(views.html.admin.createUser(userPasswordForm, groupMembershipForm, groups, routes.Admin.createUserPost))
     }
@@ -42,6 +44,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
   def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
     // TODO: Refactor to make this logic clearer...
 
+    val csrf = CSRF.getToken(request)
     userPasswordForm.bindFromRequest.fold(
       errorForm => {
         getGroups { groups =>

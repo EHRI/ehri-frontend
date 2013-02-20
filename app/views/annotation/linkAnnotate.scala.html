@@ -1,10 +1,12 @@
-@(item: AnnotatableEntity, src: AnnotatableEntity, form: play.api.data.Form[AnnotationF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AnnotatableEntity, src: AnnotatableEntity, form: play.api.data.Form[AnnotationF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("actions.linkAnnotate", item, src)) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
 		<fieldset id="annotate-area">
 
         <legend>@Messages("Identity")</legend>

@@ -29,11 +29,6 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
     }
   }
 
-  def test = optionalUserAction { implicit maybeUser =>
-    implicit request =>
-      Ok(views.html.test("Testing login here..."))
-  }
-
   val emailForm = Form(single("email" -> email))
 
   def login = loginHandler.login

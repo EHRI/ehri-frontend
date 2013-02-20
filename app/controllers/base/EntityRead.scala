@@ -51,21 +51,19 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def getJson(id: String) = userProfileAction { implicit maybeUser =>
-    implicit request =>
-      import play.api.libs.json.Json
-      AsyncRest {
-        rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
-          itemOrErr.right.map {
-            item => Ok(Json.toJson(item.data))
-          }
+  def getJson(id: String) = userProfileAction { implicit maybeUser => implicit request =>
+    import play.api.libs.json.Json
+    AsyncRest {
+      rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
+        itemOrErr.right.map {
+          item => Ok(Json.toJson(item.data))
         }
       }
+    }
   }
 
   def getAction(id: String)(f: Entity => Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    itemPermissionAction(contentType, id) { item => implicit maybeUser =>
-      implicit request =>
+    itemPermissionAction(contentType, id) { item => implicit maybeUser => implicit request =>
       Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
@@ -82,8 +80,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
 
   def getWithChildrenAction[C <: AccessibleEntity](id: String, builder: Entity => C)(
       f: Entity => rest.Page[C] => ListParams =>  Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    itemPermissionAction(contentType, id) { item => implicit userOpt =>
-      implicit request =>
+    itemPermissionAction(contentType, id) { item => implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
@@ -101,8 +98,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   }
 
   def listAction(f: rest.Page[Entity] => ListParams => Option[UserProfile] => Request[AnyContent] => Result) = {
-    userProfileAction { implicit userOpt =>
-      implicit request =>
+    userProfileAction { implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
           val params = ListParams.bind(request)

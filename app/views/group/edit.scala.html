@@ -1,9 +1,11 @@
-@(item: Option[Group], f: play.api.data.Form[models.GroupF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Option[Group], f: play.api.data.Form[models.GroupF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @import models.GroupF
 
 @rightSidebarLayout(Messages("actions.updateGroup")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
         @group.renderForm(item, f)
 
 		<div class="form-actions">

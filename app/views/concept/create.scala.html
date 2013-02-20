@@ -1,4 +1,5 @@
-@(item: AccessibleEntity, f: play.api.data.Form[models.ConceptF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AccessibleEntity, f: play.api.data.Form[models.ConceptF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -7,6 +8,7 @@
 @rightSidebarLayout(Messages("actions.createConcept")) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
         @concept.renderForm(None, f)
 
         @permissions.renderVisibilityForm(vf, users, groups)

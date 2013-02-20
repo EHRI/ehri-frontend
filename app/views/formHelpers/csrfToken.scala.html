@@ -1,0 +1,3 @@
+@()(implicit token: play.filters.csrf.CSRF.Token)
+
+<input type="hidden" name="@play.filters.csrf.CSRF.Conf.TOKEN_NAME" value="@token.value" />

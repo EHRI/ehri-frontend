@@ -1,4 +1,4 @@
-@(form: Form[(String,String)], action: Call)(implicit request: RequestHeader, flash: Flash, lang: Lang)
+@(form: Form[(String,String)], action: Call)(implicit request: RequestHeader, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -8,7 +8,7 @@
         @Messages("login.adminLoginMessage")
     </div>
 
-    @helper.form(action = action, 'class -> "login-form form-horizontal") {
+    @helper.form(action = helper.CSRF(action), 'class -> "login-form form-horizontal") {
 
         @helper.input(form("email")) { (id, name, value, args) =>
             <input type="text" name="@name" id="@id" placeholder="@Messages("login.email")" @toHtmlArgs(args)>

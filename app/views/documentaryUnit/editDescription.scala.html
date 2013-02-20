@@ -1,5 +1,5 @@
 @(item: AccessibleEntity, f: Form[models.DocumentaryUnitDescriptionF], action: Call)(
-    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -7,6 +7,7 @@
 
     @defining("isadg") { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+            @formHelpers.csrfToken()
             @documentaryUnit.renderDescriptionForm(f(""))
 
             <div class="form-actions">

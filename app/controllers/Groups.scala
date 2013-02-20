@@ -104,93 +104,103 @@ object Groups extends PermissionHolderController[Group]
   /**
    * Present a list of groups to which the current user can be added.
    */
-  def membership(userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+  def membership(userType: String, userId: String) = {
+    withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
       item => implicit userOpt => implicit request =>
-    Async {
-      for {
-        groups <- rest.RestHelpers.getGroupList
-      } yield {
-        // filter out the groups the user already belongs to
-        val accessor = Accessor(item)
-        val filteredGroups = groups.filter(t => t._1 != accessor.id).filter {
-          case (ident, name) =>
-            // if the user is admin, they can add the user to ANY group
-            if (userOpt.get.isAdmin) {
-              !accessor.groups.map(_.id).contains(ident)
-            } else {
-              // if not, they can add the user to groups they belong to
-              // TODO: Enforce these policies with the permission system!
-              // TODO: WRITE TESTS FOR THESE WEIRD BEHAVIOURS!!!
-              (!accessor.groups.map(_.id).contains(ident)) &&
-                userOpt.get.groups.map(_.id).contains(ident)
+        Async {
+          for {
+            groups <- rest.RestHelpers.getGroupList
+          } yield {
+            // filter out the groups the user already belongs to
+            val accessor = Accessor(item)
+            val filteredGroups = groups.filter(t => t._1 != accessor.id).filter {
+              case (ident, name) =>
+                // if the user is admin, they can add the user to ANY group
+                if (userOpt.get.isAdmin) {
+                  !accessor.groups.map(_.id).contains(ident)
+                } else {
+                  // if not, they can add the user to groups they belong to
+                  // TODO: Enforce these policies with the permission system!
+                  // TODO: WRITE TESTS FOR THESE WEIRD BEHAVIOURS!!!
+                  (!accessor.groups.map(_.id).contains(ident)) &&
+                    userOpt.get.groups.map(_.id).contains(ident)
+                }
             }
+            Ok(views.html.group.membership(accessor, filteredGroups))
+          }
         }
-        Ok(views.html.group.membership(accessor, filteredGroups))
-      }
     }
   }
 
   /**
    * Confirm adding the given user to the specified group.
    */
-  def addMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+  def addMember(id: String, userType: String, userId: String) = {
+    withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
       item => implicit userOpt => implicit request =>
-    AsyncRest {
-      for {
-        groupOrErr <- rest.EntityDAO(entityType, userOpt).get(id)
-      } yield {
-        groupOrErr.right.map { group =>
-          Ok(views.html.group.confirmMembership(builder(group), Accessor(item),
-            routes.Groups.addMemberPost(id, userType, userId)))
+        AsyncRest {
+          for {
+            groupOrErr <- rest.EntityDAO(entityType, userOpt).get(id)
+          } yield {
+            groupOrErr.right.map { group =>
+              Ok(views.html.group.confirmMembership(builder(group), Accessor(item),
+                routes.Groups.addMemberPost(id, userType, userId)))
+            }
+          }
         }
-      }
     }
   }
 
   /**
    * Add the user to the group and redirect to the show view.
    */
-  def addMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+  def addMemberPost(id: String, userType: String, userId: String) = {
+    withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
       item => implicit userOpt => implicit request =>
-    AsyncRest {
-      rest.PermissionDAO(userOpt).addGroup(id, userId).map { boolOrErr =>
-        boolOrErr.right.map { ok =>
-          Redirect(routes.Groups.membership(userType, userId))
-            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        AsyncRest {
+          rest.PermissionDAO(userOpt).addGroup(id, userId).map { boolOrErr =>
+            boolOrErr.right.map { ok =>
+              Redirect(routes.Groups.membership(userType, userId))
+                .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+            }
+          }
         }
-      }
     }
   }
 
   /**
    * Confirm adding the given user to the specified group.
    */
-  def removeMember(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+  def removeMember(id: String, userType: String, userId: String) = {
+    withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
       item => implicit userOpt => implicit request =>
-    AsyncRest {
-      for {
-        groupOrErr <- rest.EntityDAO(entityType, userOpt).get(id)
-      } yield {
-        groupOrErr.right.map { group =>
-          Ok(views.html.group.removeMembership(builder(group), Accessor(item),
-            routes.Groups.removeMemberPost(id, userType, userId)))
+        AsyncRest {
+          for {
+            groupOrErr <- rest.EntityDAO(entityType, userOpt).get(id)
+          } yield {
+            groupOrErr.right.map { group =>
+              Ok(views.html.group.removeMembership(builder(group), Accessor(item),
+                routes.Groups.removeMemberPost(id, userType, userId)))
+            }
+          }
         }
-      }
     }
   }
 
   /**
    * Add the user to the group and redirect to the show view.
    */
-  def removeMemberPost(id: String, userType: String, userId: String) = withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+  def removeMemberPost(id: String, userType: String, userId: String) = {
+    withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
       item => implicit userOpt => implicit request =>
-    AsyncRest {
-      rest.PermissionDAO(userOpt).removeGroup(id, userId).map { boolOrErr =>
-        boolOrErr.right.map { ok =>
-          Redirect(routes.Groups.membership(userType, userId))
-            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        AsyncRest {
+          rest.PermissionDAO(userOpt).removeGroup(id, userId).map { boolOrErr =>
+            boolOrErr.right.map { ok =>
+              Redirect(routes.Groups.membership(userType, userId))
+                .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+            }
+          }
         }
-      }
     }
   }
 }

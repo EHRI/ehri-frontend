@@ -1,7 +1,7 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 <!DOCTYPE html>
 
-<html>
+<html lang="@lang.code">
     <head>
         <title>@title</title>
 
