@@ -596,7 +596,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Going to add user Reto to group Niod
         val add = route(fakeLoggedInRequest(POST,
-          routes.Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)).get
+          routes.Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)
+            .withFormUrlEncodedBody()).get
         status(add) must equalTo(SEE_OTHER)
 
         val userFetch = await(EntityDAO(EntityType.UserProfile, Some(userProfile)).get(id))
@@ -609,7 +610,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Going to add remove Reto from group KCL
         val rem = route(fakeLoggedInRequest(POST,
-          routes.Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)).get
+          routes.Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)
+            .withFormUrlEncodedBody()).get
         status(rem) must equalTo(SEE_OTHER)
 
         val userFetch = await(EntityDAO(EntityType.UserProfile, Some(userProfile)).get(id))
@@ -643,7 +645,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Add KCL to Admin
         val add = route(fakeLoggedInRequest(POST,
-          routes.Groups.addMemberPost("admin", EntityType.Group.toString, id).url)).get
+          routes.Groups.addMemberPost("admin", EntityType.Group.toString, id).url)
+            .withFormUrlEncodedBody()).get
         status(add) must equalTo(SEE_OTHER)
 
         val groupFetch = await(EntityDAO(EntityType.Group, Some(userProfile)).get(id))
@@ -656,7 +659,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         // Remove NIOD from Admin
         val rem = route(fakeLoggedInRequest(POST,
-          routes.Groups.removeMemberPost("admin", EntityType.Group.toString, "niod").url)).get
+          routes.Groups.removeMemberPost("admin", EntityType.Group.toString, "niod").url)
+            .withFormUrlEncodedBody()).get
         status(rem) must equalTo(SEE_OTHER)
 
         val groupFetch = await(EntityDAO(EntityType.Group, Some(userProfile)).get("niod"))
