@@ -359,6 +359,7 @@ isadg.identifier=Identifier
 isadg.title=Title
 isadg.dates=Dates
 isadg.creation=Creation
+isadg.extentAndMedium=Extent and Medium
 isadg.languageCode=Language of Description
 isadg.adminBiogHistory=Administrative and Biographical History
 isadg.archivalHistory=Archival History

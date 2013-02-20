@@ -13,6 +13,7 @@
     @helper.repeat(desc(DATES), min=math.max(desc(DATES).indexes.length, 1)) { desc =>
         @documentaryUnit.renderDateRow(desc)
     }
+    @formHelpers.textInput(desc, EXTENT_MEDIUM)
 </fieldset>
 
 <fieldset id="context-area">

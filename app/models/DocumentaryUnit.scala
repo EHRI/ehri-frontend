@@ -18,6 +18,7 @@ case object IsadG {
   val NAME = "name"
   val TITLE = "title"
   val DATES = "dates"
+  val EXTENT_MEDIUM = "extentAndMedium"
   val PUB_STATUS = "publicationStatus"
   val LANG_CODE = "languageCode"
 
@@ -129,6 +130,7 @@ case class DocumentaryUnitDescriptionF(
   val title: Option[String] = None,
   @Annotations.Relation(TemporalEntity.DATE_REL)
   val dates: List[DatePeriodF] = Nil,
+  val extentAndMedium: Option[String] = None,
   val context: DocumentaryUnitDescriptionF.Context,
   val content: DocumentaryUnitDescriptionF.Content,
   val conditions: DocumentaryUnitDescriptionF.Conditions,
@@ -148,6 +150,7 @@ case class DocumentaryUnitDescriptionF(
       DATA -> Json.obj(
         TITLE -> title,
         LANG_CODE -> languageCode,
+        EXTENT_MEDIUM -> extentAndMedium,
         ADMIN_BIOG -> context.adminBiogHistory,
         ARCH_HIST -> context.archivalHistory,
         ACQUISITION -> context.acquisition,
@@ -226,6 +229,7 @@ object DocumentaryUnitDescriptionForm {
       LANG_CODE -> nonEmptyText,
       TITLE -> optional(nonEmptyText),
       DATES -> list(DatePeriodForm.form.mapping),
+      EXTENT_MEDIUM -> optional(nonEmptyText),
       CONTEXT_AREA -> mapping(
         ADMIN_BIOG -> optional(text),
         ARCH_HIST -> optional(text),
@@ -317,6 +321,7 @@ case class DocumentaryUnitDescription(val e: Entity)
     languageCode = languageCode,
     title = stringProperty(TITLE),
     dates = dates.map(_.formable),
+    extentAndMedium = stringProperty(EXTENT_MEDIUM),
     context = Context(
       adminBiogHistory = stringProperty(ADMIN_BIOG),
       archivalHistory = stringProperty(ARCH_HIST),
