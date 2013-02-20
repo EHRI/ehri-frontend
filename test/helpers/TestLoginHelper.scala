@@ -9,11 +9,13 @@ import play.api.test.Helpers.header
 import play.api.test.Helpers._
 import play.api.GlobalSettings
 import play.filters.csrf.{CSRFFilter, CSRF}
+import play.filters.csrf.CSRF.Token
 
 trait TestLoginHelper {
 
 
-  object FakeGlobal extends GlobalSettings
+  val fakeCsrfString = "fake-csrf-token"
+  object FakeGlobal extends CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings
 
   val LOGIN_PATH = routes.Application.login.url
 
@@ -35,6 +37,6 @@ trait TestLoginHelper {
     // Since we use csrf in forms, even though it's disabled in
     // tests we still need to add a fake token to the session so
     // the token is there when the form tries to render it.
-    fr.withSession(CSRF.Conf.TOKEN_NAME -> "fake-csrf-token")
+    fr.withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)
   }
 }
