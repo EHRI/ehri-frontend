@@ -5,11 +5,11 @@
 @*implicitField = @{ views.html.helper.FieldConstructor(common.dateFieldTemplate.f) }*@
 
 
-<div class="inline-date control-group">
+<div class="inline-date control-group" id="@desc.id">
     @formHelpers.hiddenInput(desc(Entity.ID))
     <label class="control-label">@Messages(fieldPrefix + "." + IsadG.DATES)</label>
     <div class="controls">
-        <a class="close" class="pull-right" href="#">&times;</a>
+        <a class="close remove-inline-date pull-right" href="#">&times;</a>
         <table>
             <tr>
                 <td class="control-group">
