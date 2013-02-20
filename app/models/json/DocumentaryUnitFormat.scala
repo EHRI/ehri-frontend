@@ -104,6 +104,8 @@ object DocumentaryUnitFormat {
     (__ \ DATA).format[Conditions]((
         (__ \ ACCESS_COND).formatNullable[String] and
         (__ \ REPROD_COND).formatNullable[String] and
+        (__ \ LANG_MATERIALS).formatNullable[List[String]] and
+        (__ \ SCRIPT_MATERIALS).formatNullable[List[String]] and
         (__ \ PHYSICAL_CHARS).formatNullable[String] and
         (__ \ FINDING_AIDS).formatNullable[String]
       )(Conditions.apply, unlift(Conditions.unapply))) and

@@ -38,6 +38,8 @@ case object IsadG {
   val CONDITIONS_AREA = "conditionsArea"
   val ACCESS_COND = "conditionsOfAccess"
   val REPROD_COND = "conditionsOfReproduction"
+  val LANG_MATERIALS = "languageOfMaterials"
+  val SCRIPT_MATERIALS = "scriptOfMaterials"
   val PHYSICAL_CHARS = "physicalCharacteristics"
   val FINDING_AIDS = "findingAids"
 
@@ -155,6 +157,8 @@ case class DocumentaryUnitDescriptionF(
         SYS_ARR -> content.systemOfArrangement,
         ACCESS_COND -> conditions.conditionsOfAccess,
         REPROD_COND -> conditions.conditionsOfReproduction,
+        LANG_MATERIALS -> conditions.languageOfMaterials,
+        SCRIPT_MATERIALS -> conditions.scriptOfMaterials,
         PHYSICAL_CHARS -> conditions.physicalCharacteristics,
         FINDING_AIDS -> conditions.findingAids,
         LOCATION_ORIGINALS -> materials.locationOfOriginals,
@@ -190,6 +194,8 @@ object DocumentaryUnitDescriptionF {
   case class Conditions(
     val conditionsOfAccess: Option[String] = None,
     val conditionsOfReproduction: Option[String] = None,
+    val languageOfMaterials: Option[List[String]] = None,
+    val scriptOfMaterials: Option[List[String]] = None,
     val physicalCharacteristics: Option[String] = None,
     val findingAids: Option[String] = None
   ) extends AttributeSet
@@ -234,6 +240,8 @@ object DocumentaryUnitDescriptionForm {
       CONDITIONS_AREA -> mapping(
         ACCESS_COND -> optional(text),
         REPROD_COND -> optional(text),
+        LANG_MATERIALS -> optional(list(nonEmptyText)),
+        SCRIPT_MATERIALS -> optional(list(nonEmptyText)),
         PHYSICAL_CHARS -> optional(text),
         FINDING_AIDS -> optional(text)
       )(Conditions.apply)(Conditions.unapply),
@@ -323,6 +331,8 @@ case class DocumentaryUnitDescription(val e: Entity)
     conditions = Conditions(
       conditionsOfAccess = stringProperty(ACCESS_COND),
       conditionsOfReproduction = stringProperty(REPROD_COND),
+      languageOfMaterials = listProperty(LANG_MATERIALS),
+      scriptOfMaterials = listProperty(SCRIPT_MATERIALS),
       physicalCharacteristics = stringProperty(PHYSICAL_CHARS),
       findingAids = stringProperty(FINDING_AIDS)
     ),

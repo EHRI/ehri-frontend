@@ -37,6 +37,8 @@
     @defining(desc(CONDITIONS_AREA)) { desc =>
             @formHelpers.textInput(desc, ACCESS_COND)
             @formHelpers.textInput(desc, REPROD_COND)
+            @formHelpers.multiselectInput(desc(LANG_MATERIALS), LANG_MATERIALS, views.Helpers.languagePairList)
+            @formHelpers.multiselectInput(desc(SCRIPT_MATERIALS), SCRIPT_MATERIALS, views.Helpers.scriptPairList)
             @formHelpers.textInput(desc, PHYSICAL_CHARS)
             @formHelpers.textInput(desc, FINDING_AIDS)
     }

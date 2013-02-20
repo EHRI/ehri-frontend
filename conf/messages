@@ -288,7 +288,7 @@ isdiah.identifier=Identifier
 isdiah.authorizedFormOfName=Authorized Form Of Name
 isdiah.otherFormsOfName=Other Form(s) of Name
 isdiah.parallelFormsOfName=Parallel Form(s) of Name
-isdiah.languageCode=Language
+isdiah.languageCode=Language of Description
 isdiah.institutionType=Institution Type
 
 # AddressF
@@ -359,7 +359,7 @@ isadg.identifier=Identifier
 isadg.title=Title
 isadg.dates=Dates
 isadg.creation=Creation
-isadg.languageCode=Language
+isadg.languageCode=Language of Description
 isadg.adminBiogHistory=Administrative and Biographical History
 isadg.archivalHistory=Archival History
 isadg.acquisition=Acquisition
@@ -370,6 +370,8 @@ isadg.systemOfArrangement=System of Arrangement
 isadg.publicationStatus=Publication Status
 isadg.conditionsOfAccess=Conditions of Access
 isadg.conditionsOfReproduction=Conditions of Reproduction
+isadg.languageOfMaterials=Language(s) of Materials
+isadg.scriptOfMaterials=Script(s) of Materials
 isadg.physicalCharacteristics=Physical Characteristics
 isadg.findingAids=Finding Aids
 isadg.locationOfOriginals=Location of Originals
