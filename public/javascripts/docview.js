@@ -4,15 +4,15 @@ jQuery(function($) {
   $(".chzn-select").chosen();
 
   // Delete inline date period tables
-  $(".inline-date-set").on("click", ".remove-inline-date", function(event) {
-    $(this).closest(".inline-date").remove();
+  $(".inline-element-set").on("click", ".remove-inline-element", function(event) {
+    $(this).closest(".inline-element").remove();
     event.preventDefault();
   });
 
-  $(".inline-date-set").on("click", ".add-inline-date", function(event) {
-    var container = $(event.target).closest(".inline-date-set");
-    var template = $(".inline-date-template", container);
-    var idx = $(".inline-date", container).length;
+  $(".inline-element-set").on("click", ".add-inline-element", function(event) {
+    var container = $(event.target).closest(".inline-element-set");
+    var template = $(".inline-element-template", container);
+    var idx = $(".inline-element", container).length;
     var elem = $(template.html().replace(/IDX/g, idx));
     container.append(elem);
     event.preventDefault();

@@ -11,10 +11,10 @@
         @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
         @formHelpers.lineInput(desc, TITLE)
 
-        <div class="inline-date-set">
+        <div class="inline-element-set">
             <!-- Template for adding inline date forms via JS -->
-            <h5>@Messages(fieldPrefix + "." + DATES) | (<a href="#" class="add-inline-date">Add new</a>)</h5>
-            <script type="application/x-js-template" class="inline-date-template">
+            <h5>@Messages(fieldPrefix + "." + DATES) | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a></h5>
+            <script type="application/x-js-template" class="inline-element-template">
                 @documentaryUnit.renderDateRow(desc(DATES + "[IDX]"))
             </script>
 
