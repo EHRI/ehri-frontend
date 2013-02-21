@@ -9,7 +9,8 @@ object ListParams {
   final val LIMIT = "limit"
   final val PROPERTY_NAME = "pfn"
   final val PROPERTY_VALUE = "pfv"
-  final val ORDER = "sort"
+  final val SORT = "sort"
+  final val REVERSE = "reverse"
 
   def bind(request: Request[AnyContent]): ListParams = {
     import play.api.data.Forms._
@@ -24,7 +25,8 @@ object ListParams {
         LIMIT -> optional(number),
         PROPERTY_NAME -> list(text),
         PROPERTY_VALUE -> list(text),
-        ORDER -> optional(nonEmptyText)
+        SORT -> optional(nonEmptyText),
+        REVERSE -> optional(boolean)
       )(ListParams.apply)(ListParams.unapply)
     ).bindFromRequest(request.queryString).value.getOrElse(new ListParams())
   }
@@ -43,7 +45,8 @@ case class ListParams(
   limit: Option[Int] = None,
   pfn: List[String] = Nil,
   pfv: List[String] = Nil,
-  sort: Option[String] = None // only allowing one sort here
+  sort: Option[String] = None, // only allowing one sort here
+  reverse: Option[Boolean] = Some(false)
 ) {
 
   /**
@@ -66,9 +69,8 @@ case class ListParams(
 
     val combinedOrders: List[String] = sort.orElse(defaultSort).flatMap { orderBy =>
     // Convert a order name with a leading minus sign to a name/DESC pair
-      val (param, desc) = if (orderBy.startsWith("-")) (orderBy.substring(1), true) else (orderBy, false)
-      orderMap.get(param).flatMap { propertyPath =>
-        Some(s"${propertyPath}${if(desc) "__DESC" else ""}")
+      orderMap.get(orderBy).flatMap { propertyPath =>
+        Some(s"${propertyPath}${if(reverse.getOrElse(false)) "__DESC" else ""}")
       }
     }.toList
     rest.RestPageParams(page, limit, combinedFilters, combinedOrders)

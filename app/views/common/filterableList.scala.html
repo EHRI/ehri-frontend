@@ -19,6 +19,17 @@
         <form method="GET" class="form-search">
 
             <div class="btn-group pull-right">
+                @if(params.reverse.getOrElse(false)) {
+                    <a class="btn btn-toggle" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != ListParams.REVERSE))">
+                        <i class="icon-chevron-down"></i>
+                        Order
+                    </a>
+                } else {
+                    <a class="btn" href="@utils.joinPath(req.path, req.queryString.updated(ListParams.REVERSE, Seq("true")))">
+                        <i class="icon-chevron-up"></i>
+                        Order
+                    </a>
+                }
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                     @Messages("search.sortItems")
                     <span class="caret"></span>
@@ -26,17 +37,9 @@
                 <ul class="dropdown-menu">
                 @orderNames.toList.sorted.map { sortKey =>
                     <li>
-                        <a href="@utils.joinPath(req.path, req.queryString.updated(ListParams.ORDER, Seq(sortKey)))">
+                        <a href="@utils.joinPath(req.path, req.queryString.updated(ListParams.SORT, Seq(sortKey)))">
                             @Messages(sortKey)
                             @if(params.sort.equals(Some(sortKey))) {
-                                <i class="icon-ok"></i>
-                            }
-                        </a>
-                    </li>
-                    <li>
-                        <a href="@utils.joinPath(req.path, req.queryString.updated(ListParams.ORDER, Seq("-" + sortKey)))">
-                            @Messages(sortKey) @Messages("search.sortReversed")
-                            @if(params.sort.equals(Some("-" + sortKey))) {
                                 <i class="icon-ok"></i>
                             }
                         </a>
@@ -49,7 +52,7 @@
                 <h3>@Messages(paginationKey, page.offset + 1, page.offset + page.list.size, page.total)</h3>
                 <div class="item-list-filter well well-small">
                     @params.sort.map { s =>
-                    <input type="hidden" name="@ListParams.ORDER" VALUE="@s" />
+                        <input type="hidden" name="@ListParams.SORT" VALUE="@s" />
                     }
 
                     @if(params.pfn.isEmpty) {
