@@ -206,9 +206,30 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           routes.DocumentaryUnits.updatePost("c1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
-        val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c1").url)).get
+        val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
         status(show) must equalTo(OK)
         contentAsString(show) must contain("New Content for c1")
+      }
+    }
+
+    "allow updating an item with a custom log message" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val msg = "Imma updating this item!"
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("c1"),
+          "name" -> Seq("Collection 1"),
+          "descriptions[0].languageCode" -> Seq("en"),
+          "descriptions[0].title" -> Seq("Collection 1 - Updated"),
+          "logMessage" -> Seq(msg)
+        )
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.DocumentaryUnits.updatePost("c1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+
+        val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(show) must equalTo(OK)
+        // Log message should be in the history section...
+        contentAsString(show) must contain(msg)
       }
     }
 
