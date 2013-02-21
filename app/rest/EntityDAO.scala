@@ -117,8 +117,12 @@ object EntityDAO {
  */
 case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
 
+  private final val LOG_MESSAGE_HEADER_NAME = "logMessage"
+
   import EntityDAO._
   import play.api.http.Status._
+
+  def msgHeader(msg: Option[String]): Seq[(String,String)] = msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq[(String,String)]())
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
@@ -137,55 +141,62 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def create(item: Persistable, accessors: List[String] = Nil, params: Map[String,Seq[String]] = Map()): Future[Either[RestError, Entity]] = {
+  def create(item: Persistable, accessors: List[String] = Nil,
+      params: Map[String,Seq[String]] = Map(),
+      logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     val qs = utils.joinQueryString(params)
     WS.url(enc(requestUrl, "?%s".format((accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}") ++ List(qs)).mkString("&"))))
-        .withHeaders(authHeaders.toSeq: _*)
+        .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def createDescription(id: String, descriptionType: EntityType.Value, item: Persistable): Future[Either[RestError, Entity]] = {
+  def createDescription(id: String, descriptionType: EntityType.Value,
+      item: Persistable,
+      logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, descriptionType.toString))
-      .withHeaders(authHeaders.toSeq: _*)
+      .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def createInContext(id: String, contentType: ContentType.Value, item: Persistable, accessors: List[String] = Nil): Future[Either[RestError, Entity]] = {
+  def createInContext(id: String, contentType: ContentType.Value,
+      item: Persistable, accessors: List[String] = Nil,
+      logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, contentType, "?%s".format(accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&"))))
-        .withHeaders(authHeaders.toSeq: _*)
+        .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def update(id: String, item: Persistable): Future[Either[RestError, Entity]] = {
+  def update(id: String, item: Persistable, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     Logger.logger.debug("Posting update: {}", item)
-    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
+    WS.url(enc(requestUrl, id)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
         checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def updateDescription(id: String, descriptionType: EntityType.Value, did: String, item: Persistable): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, descriptionType.toString, did)).withHeaders(authHeaders.toSeq: _*)
+  def updateDescription(id: String, descriptionType: EntityType.Value,
+      did: String, item: Persistable, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
+    WS.url(enc(requestUrl, id, descriptionType.toString, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }
   }
 
-  def delete(id: String): Future[Either[RestError, Boolean]] = {
+  def delete(id: String, logMsg: Option[String] = None): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => r.status == OK)
     }
   }
 
-  def deleteDescription(id: String, descriptionType: EntityType.Value, did: String): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, descriptionType.toString, did)).withHeaders(authHeaders.toSeq: _*)
+  def deleteDescription(id: String, descriptionType: EntityType.Value, did: String, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
+    WS.url(enc(requestUrl, id, descriptionType.toString, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .delete.map { response =>
       checkError(response).right.map(r => jsonToEntity(r.json))
     }
