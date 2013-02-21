@@ -4,11 +4,12 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import play.api.mvc._
 import models.base.Persistable
-import play.api.data.{ Form, FormError }
+import play.api.data.{Form, FormError}
 import models.base.Formable
 import defines.PermissionType
 import models.{UserProfile, Entity}
 import play.api.Logger
+import play.api.data.FormError
 
 /**
  * Controller trait which updates an AccessibleEntity.
@@ -34,7 +35,7 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
         },
         success = doc => {
           AsyncRest {
-            rest.EntityDAO(entityType, userOpt).update(id, doc).map { itemOrErr =>
+            rest.EntityDAO(entityType, userOpt).update(id, doc, logMsg = getLogMessage).map { itemOrErr =>
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...

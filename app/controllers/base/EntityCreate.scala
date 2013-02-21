@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import play.api.mvc._
 import models.base.Persistable
-import play.api.data.{ Form, FormError }
+import play.api.data._
 import defines.PermissionType
 import models.{Entity, UserProfile}
 import models.forms.VisibilityForm
@@ -41,7 +41,7 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
           AsyncRest {
             val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
             rest.EntityDAO(entityType, userOpt)
-                .create(doc, accessors).map { itemOrErr =>
+                .create(doc, accessors, logMsg = getLogMessage).map { itemOrErr =>
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...

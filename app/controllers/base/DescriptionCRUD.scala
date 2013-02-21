@@ -3,12 +3,13 @@ package controllers.base
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import play.api.mvc._
-import play.api.data.{ Form, FormError }
+import play.api.data.{Form, FormError}
 import defines.{EntityType, PermissionType}
 import models.{Entity, UserProfile}
 import models.forms.VisibilityForm
 import rest.{ValidationError, EntityDAO}
 import play.api.i18n.Messages
+import rest.ValidationError
 
 /**
  * Controller trait for creating, updating, and deleting auxiliary descriptions
@@ -34,7 +35,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity, FD <: Persista
       },
       { desc =>
         AsyncRest {
-          EntityDAO(entityType, userOpt).createDescription(id, descriptionType, desc).map { itemOrErr =>
+          EntityDAO(entityType, userOpt).createDescription(id, descriptionType, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
                 case err: rest.ValidationError => {
@@ -69,7 +70,8 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity, FD <: Persista
       },
       { desc =>
         AsyncRest {
-          EntityDAO(entityType, userOpt).updateDescription(id, descriptionType, did, desc).map { itemOrErr =>
+          EntityDAO(entityType, userOpt)
+              .updateDescription(id, descriptionType, did, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
                 case err: rest.ValidationError => {
@@ -99,7 +101,8 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity, FD <: Persista
     withItemPermission(id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
-        EntityDAO(entityType, userOpt).deleteDescription(id, descriptionType, did).map { itemOrErr =>
+        EntityDAO(entityType, userOpt)
+            .deleteDescription(id, descriptionType, did, logMsg = getLogMessage).map { itemOrErr =>
           itemOrErr.right.map { updated =>
             f(updated)(userOpt)(request)
           }
