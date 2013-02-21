@@ -1,67 +1,73 @@
 @(desc: Field)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import models.IsadG._
+@import models.DatePeriodF._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+<div class="description-form" id="@desc("form").id">
+    <fieldset id="descriptions-area">
+        <legend> @Messages(fieldPrefix + "." + DESCRIPTIONS_AREA) </legend>
+        @formHelpers.hiddenInput(desc(Entity.ID))
+        @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
+        @formHelpers.lineInput(desc, TITLE)
 
-<!-- Disgraceful placeholder template for adding/remove date rows via JS. -->
-<script type="application/x-js-template" id="date-row-template">
-</script>
+        <div class="inline-date-set">
+            <!-- Template for adding inline date forms via JS -->
+            <h5>@Messages(fieldPrefix + "." + DATES) | (<a href="#" class="add-inline-date">Add new</a>)</h5>
+            <script type="application/x-js-template" class="inline-date-template">
+                @documentaryUnit.renderDateRow(desc(DATES + "[IDX]"))
+            </script>
 
-<fieldset id="descriptions-area">
-    <legend> @Messages(fieldPrefix + "." + DESCRIPTIONS_AREA) </legend>
-    @formHelpers.hiddenInput(desc(Entity.ID))
-    @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
-    @formHelpers.lineInput(desc, TITLE)
+            @helper.repeat(desc(DATES), min = math.max(desc(DATES).indexes.length, 1)) { desc =>
+                @documentaryUnit.renderDateRow(desc)
+            }
+        </div>
+        @formHelpers.textInput(desc, EXTENT_MEDIUM)
+    </fieldset>
 
-    @helper.repeat(desc(DATES), min = math.max(desc(DATES).indexes.length, 1)) { desc =>
-        @documentaryUnit.renderDateRow(desc)
-    }
-    @formHelpers.textInput(desc, EXTENT_MEDIUM)
-</fieldset>
-
-<fieldset id="context-area">
-    <legend> @Messages(fieldPrefix + "." + CONTEXT_AREA) </legend>
-    @defining(desc(CONTEXT_AREA)) { desc =>
-            @formHelpers.textInput(desc, ADMIN_BIOG)
-            @formHelpers.textInput(desc, ARCH_HIST)
-            @formHelpers.textInput(desc, ACQUISITION)
-    }
-</fieldset>
-<fieldset id="content-area">
-    <legend> @Messages(fieldPrefix + "." + CONTENT_AREA) </legend>
-    @defining(desc(CONTENT_AREA)) { desc =>
-            @formHelpers.textInput(desc, SCOPE_CONTENT)
-            @formHelpers.textInput(desc, APPRAISAL)
-            @formHelpers.textInput(desc, ACCRUALS)
-            @formHelpers.textInput(desc, SYS_ARR)
-    }
-</fieldset>
-<fieldset id="conditions-area">
-    <legend> @Messages(fieldPrefix + "." + CONDITIONS_AREA) </legend>
-    @defining(desc(CONDITIONS_AREA)) { desc =>
-            @formHelpers.textInput(desc, ACCESS_COND)
-            @formHelpers.textInput(desc, REPROD_COND)
-            @formHelpers.multiselectInput(desc(LANG_MATERIALS), LANG_MATERIALS, views.Helpers.languagePairList)
-            @formHelpers.multiselectInput(desc(SCRIPT_MATERIALS), SCRIPT_MATERIALS, views.Helpers.scriptPairList)
-            @formHelpers.textInput(desc, PHYSICAL_CHARS)
-            @formHelpers.textInput(desc, FINDING_AIDS)
-    }
-</fieldset>
-<fieldset id="materials-area">
-    <legend> @Messages(fieldPrefix + "." + MATERIALS_AREA) </legend>
-    @defining(desc(MATERIALS_AREA)) { desc =>
-            @formHelpers.textInput(desc, LOCATION_ORIGINALS)
-            @formHelpers.textInput(desc, LOCATION_COPIES)
-            @formHelpers.textInput(desc, RELATED_UNITS)
-            @formHelpers.textInput(desc, PUBLICATION_NOTE)
-    }
-</fieldset>
-<fieldset id="control-area">
-    <legend>@Messages(fieldPrefix + "." + CONTROL_AREA)</legend>
+    <fieldset id="context-area">
+        <legend> @Messages(fieldPrefix + "." + CONTEXT_AREA) </legend>
+        @defining(desc(CONTEXT_AREA)) { desc =>
+                @formHelpers.textInput(desc, ADMIN_BIOG)
+                @formHelpers.textInput(desc, ARCH_HIST)
+                @formHelpers.textInput(desc, ACQUISITION)
+        }
+    </fieldset>
+    <fieldset id="content-area">
+        <legend> @Messages(fieldPrefix + "." + CONTENT_AREA) </legend>
+        @defining(desc(CONTENT_AREA)) { desc =>
+                @formHelpers.textInput(desc, SCOPE_CONTENT)
+                @formHelpers.textInput(desc, APPRAISAL)
+                @formHelpers.textInput(desc, ACCRUALS)
+                @formHelpers.textInput(desc, SYS_ARR)
+        }
+    </fieldset>
+    <fieldset id="conditions-area">
+        <legend> @Messages(fieldPrefix + "." + CONDITIONS_AREA) </legend>
+        @defining(desc(CONDITIONS_AREA)) { desc =>
+                @formHelpers.textInput(desc, ACCESS_COND)
+                @formHelpers.textInput(desc, REPROD_COND)
+                @formHelpers.multiselectInput(desc(LANG_MATERIALS), LANG_MATERIALS, views.Helpers.languagePairList)
+                @formHelpers.multiselectInput(desc(SCRIPT_MATERIALS), SCRIPT_MATERIALS, views.Helpers.scriptPairList)
+                @formHelpers.textInput(desc, PHYSICAL_CHARS)
+                @formHelpers.textInput(desc, FINDING_AIDS)
+        }
+    </fieldset>
+    <fieldset id="materials-area">
+        <legend> @Messages(fieldPrefix + "." + MATERIALS_AREA) </legend>
+        @defining(desc(MATERIALS_AREA)) { desc =>
+                @formHelpers.textInput(desc, LOCATION_ORIGINALS)
+                @formHelpers.textInput(desc, LOCATION_COPIES)
+                @formHelpers.textInput(desc, RELATED_UNITS)
+                @formHelpers.textInput(desc, PUBLICATION_NOTE)
+        }
+    </fieldset>
+    <fieldset id="control-area">
+        <legend>@Messages(fieldPrefix + "." + CONTROL_AREA)</legend>
         @defining(desc(CONTROL_AREA)) { desc =>
-        @formHelpers.textInput(desc, ARCHIVIST_NOTE)
-        @formHelpers.textInput(desc, RULES_CONVENTIONS)
-        @formHelpers.textInput(desc, DATES_DESCRIPTIONS)
-}
-</fieldset>
+                @formHelpers.textInput(desc, ARCHIVIST_NOTE)
+                @formHelpers.textInput(desc, RULES_CONVENTIONS)
+                @formHelpers.textInput(desc, DATES_DESCRIPTIONS)
+        }
+    </fieldset>
+</div>
