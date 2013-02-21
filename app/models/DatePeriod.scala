@@ -27,8 +27,8 @@ object DatePeriodF {
 case class DatePeriodF(
   val id: Option[String],
   val `type`: Option[DatePeriodType.Type],
-  val startDate: Option[DateTime],
-  val endDate: Option[DateTime] = None
+  val startDate: DateTime,
+  val endDate: DateTime
 ) extends Persistable {
   val isA = EntityType.DatePeriod
 
@@ -37,7 +37,7 @@ case class DatePeriodF(
    * i.e. 1939-1945
    */
   def years: String = {
-    List(startDate, endDate).filter(_.isDefined).map(_.get.getYear).distinct.mkString("-")
+    List(startDate, endDate).map(_.getYear).distinct.mkString("-")
   }
 
   def toJson = {
@@ -62,8 +62,8 @@ object DatePeriodForm {
   val form = Form(mapping(
     Entity.ID -> optional(nonEmptyText),
     TYPE -> optional(models.forms.enum(DatePeriodType)),
-    START_DATE -> optional(jodaDate("yyyy-MM-dd")),
-    END_DATE -> optional(jodaDate("yyyy-MM-dd"))
+    START_DATE -> jodaDate("yyyy-MM-dd"),
+    END_DATE -> jodaDate("yyyy-MM-dd")
   )(DatePeriodF.apply)(DatePeriodF.unapply))
 }
 
@@ -71,8 +71,8 @@ case class DatePeriod(val e: Entity) extends Formable[DatePeriodF] {
   def formable: DatePeriodF = new DatePeriodF(
     id = Some(e.id),
     `type` = e.property(DatePeriodF.TYPE).flatMap(defines.enum(DatePeriodType).reads(_).asOpt),
-    startDate = e.stringProperty(DatePeriodF.START_DATE).map(new DateTime(_)),
-    endDate = e.stringProperty(DatePeriodF.END_DATE).map(new DateTime(_))
+    startDate = e.stringProperty(DatePeriodF.START_DATE).map(new DateTime(_)).getOrElse(sys.error("Invalid date period: " + e)),
+    endDate = e.stringProperty(DatePeriodF.END_DATE).map(new DateTime(_)).getOrElse(sys.error("Invalid date period: " + e))
   )
 }
 
