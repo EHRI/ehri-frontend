@@ -15,9 +15,7 @@
             @permissions.renderVisibilityForm(vf, users, groups)
         </fieldset>
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages("submitButton.createAgent")</button>
-        </div>
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createAgent"))
 	}
 } {
 

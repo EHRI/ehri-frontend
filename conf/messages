@@ -13,6 +13,7 @@ pages.admin.message=Administration actions - careful now!
 pages.admin.userManagement=Manage Users
 
 forms.adminArea=Administration Area
+forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
 
 search.filterItems=Filter Items
 search.sortItems=Sort Items

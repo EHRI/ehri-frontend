@@ -6,9 +6,7 @@
         @formHelpers.csrfToken()
         @userProfile.renderForm(None, f)
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages("submitButton.createUserProfile")</button>
-        </div>
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createUserProfile"))
 	}
 } {
 

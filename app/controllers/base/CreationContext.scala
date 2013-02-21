@@ -33,8 +33,9 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRe
         citem => {
           AsyncRest {
             val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+            println("LOG MESSAGE: " + getLogMessage)
             rest.EntityDAO(entityType, userOpt)
-              .createInContext(id, ct, citem, accessors).map { itemOrErr =>
+              .createInContext(id, ct, citem, accessors, logMsg = getLogMessage).map { itemOrErr =>
             // If we have an error, check if it's a validation error.
             // If so, we need to merge those errors back into the form
             // and redisplay it...

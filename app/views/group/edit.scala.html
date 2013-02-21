@@ -8,9 +8,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.csrfToken()
         @group.renderForm(item, f)
 
-		<div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages("submitButton.updateGroup")</button>
-        </div>
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateGroup"))
 	}
 } {
 

@@ -8,10 +8,8 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		@concept.renderForm(item, f)
-	
-		<div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages(item.map(s => "submitButton.updateConcept").getOrElse("submitButton.createConcept"))</button>
-		</div>
+
+        @common.submitButtonWithLogMessageInput(Messages(item.map(s => "submitButton.updateConcept").getOrElse("submitButton.createConcept")))
 	}
 } {
 

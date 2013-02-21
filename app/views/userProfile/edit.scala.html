@@ -7,9 +7,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.csrfToken()
         @userProfile.renderForm(item, f)
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages(item.map(s => "submitButton.updateUserProfile").getOrElse("submitButton.createUserProfile"))</button>
-        </div>
+        @common.submitButtonWithLogMessageInput(Messages(item.map(s => "submitButton.updateUserProfile").getOrElse("submitButton.createUserProfile")))
 	}
 		
 } {

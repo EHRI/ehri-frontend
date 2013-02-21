@@ -7,9 +7,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @vocabulary.renderForm(None, f)
         @permissions.renderVisibilityForm(vf, users, groups)
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages("submitButton.createVocabulary")</button>
-        </div>
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createVocabulary"))
 	}
 } {
 

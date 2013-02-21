@@ -165,6 +165,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   def createInContext(id: String, contentType: ContentType.Value,
       item: Persistable, accessors: List[String] = Nil,
       logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
+    println("LOG MESSAGE HEADER: " + msgHeader(logMsg))
     WS.url(enc(requestUrl, id, contentType, "?%s".format(accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&"))))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>

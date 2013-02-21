@@ -10,9 +10,7 @@
             @formHelpers.csrfToken()
             @documentaryUnit.renderDescriptionForm(f(""))
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">@Messages("submitButton.createDescription")</button>
-            </div>
+            @common.submitButtonWithLogMessageInput(Messages("submitButton.createDescription"))
         }
     }
 } {
