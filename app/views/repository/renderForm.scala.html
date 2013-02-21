@@ -23,19 +23,17 @@
 
         <fieldset id="contact-area">
             <legend>@Messages(fieldPrefix + "." + ADDRESS_AREA)</legend>
-            @helper.repeat(desc(ADDRESS_AREA), min=math.max(desc(ADDRESS_AREA).indexes.length, 1)) { desc =>
-                @formHelpers.hiddenInput(desc(Entity.ID))
-                @formHelpers.lineInput(desc, ADDRESS_NAME)
-                @formHelpers.lineInput(desc, CONTACT_PERSON)
-                @formHelpers.lineInput(desc, STREET_ADDRESS)
-                @formHelpers.lineInput(desc, CITY)
-                @formHelpers.lineInput(desc, REGION)
-                @formHelpers.choiceInput(desc(COUNTRY_CODE), COUNTRY_CODE, views.Helpers.countryPairList, blank=true)
-                @formHelpers.lineInput(desc, EMAIL)
-                @formHelpers.lineInput(desc, TELEPHONE)
-                @formHelpers.lineInput(desc, FAX)
-                @formHelpers.lineInput(desc, URL)
-            }
+            <div class="inline-element-set">
+                <label>
+                    @Messages(fieldPrefix + "." + ADDRESS_AREA) | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a>
+                </label>
+                <script type="application/x-js-template" class="inline-element-template">
+                    @repository.renderAddressForm(desc(ADDRESS_AREA + "[IDX]"))
+                </script>
+                @helper.repeat(desc(ADDRESS_AREA), min = 0) { desc =>
+                    @repository.renderAddressForm(desc)
+                }
+            </div>
         </fieldset>
 
         <fieldset id="description-area">
