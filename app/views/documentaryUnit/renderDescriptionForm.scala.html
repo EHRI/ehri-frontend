@@ -18,7 +18,7 @@
                 @documentaryUnit.renderDateRow(desc(DATES + "[IDX]"))
             </script>
 
-            @helper.repeat(desc(DATES), min = math.max(desc(DATES).indexes.length, 1)) { desc =>
+            @helper.repeat(desc(DATES), min = 0) { desc =>
                 @documentaryUnit.renderDateRow(desc)
             }
         </div>
