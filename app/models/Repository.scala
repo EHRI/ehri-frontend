@@ -266,8 +266,8 @@ object RepositoryDescriptionForm {
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
       NAME -> optional(text),
-      OTHER_FORMS_OF_NAME -> optional(list(text)),
-      PARALLEL_FORMS_OF_NAME -> optional(list(text)),
+      OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
+      PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       ADDRESS_AREA -> list(
         mapping(
           Entity.ID -> optional(nonEmptyText),

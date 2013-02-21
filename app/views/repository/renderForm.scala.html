@@ -15,12 +15,10 @@
         <fieldset id="identity-area">
             <legend>@Messages(fieldPrefix + "." + IDENTITY_AREA)</legend>
             @formHelpers.hiddenInput(desc(Entity.ID))
-            @helper.repeat(desc(OTHER_FORMS_OF_NAME), min = item.flatMap(_.listProperty(OTHER_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { field =>
-                @helper.inputText(field, 'class -> "span8", '_label -> Messages(fieldPrefix + "." + OTHER_FORMS_OF_NAME))
-            }
-            @helper.repeat(desc(PARALLEL_FORMS_OF_NAME), min = item.flatMap(_.listProperty(PARALLEL_FORMS_OF_NAME).map(_.length)).getOrElse(0) + 1) { field =>
-                @helper.inputText(field, 'class -> "span8", '_label -> Messages(fieldPrefix + "." + PARALLEL_FORMS_OF_NAME))
-            }
+
+            @repository.renderInlineNameSet(desc, OTHER_FORMS_OF_NAME)
+            @repository.renderInlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+
         </fieldset>
 
         <fieldset id="contact-area">
