@@ -31,6 +31,8 @@ object ApplicationBuild extends Build {
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",
+    // Solr stuff
+    "com.github.seratch" %% "scalikesolr" % "[4.0,)",
     //"com.typesafe" % "play-plugins-mailer_2.10" % "2.1-SNAPSHOT",
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
