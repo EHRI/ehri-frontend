@@ -119,6 +119,46 @@ package object Helpers {
   }
 
   /**
+   * Get a language name for a given code.
+   * @param code
+   * @param lang
+   * @return
+   */
+  def languageCodeToName(code: String)(implicit lang: Lang): String = {
+    new Locale(code, "").getDisplayLanguage(lang.toLocale) match {
+      case d if !d.isEmpty => d
+      case _ => code
+    }
+  }
+
+  /**
+   * Get the script name for a given code.
+   * @param code
+   * @param lang
+   * @return
+   */
+  def scriptCodeToName(code: String)(implicit lang: Lang): String = {
+    var tmploc = new Locale.Builder().setScript(code).build()
+    tmploc.getDisplayScript(lang.toLocale) match {
+      case d if !d.isEmpty => d
+      case _ => code
+    }
+  }
+
+  /**
+   * Get the country name for a given code.
+   * @param code
+   * @param lang
+   * @return
+   */
+  def countryCodeToName(code: String)(implicit lang: Lang): String = {
+    new Locale("", code).getDisplayCountry(lang.toLocale) match {
+      case d if !d.isEmpty => d
+      case _ => code
+    }
+  }
+
+  /**
    * Function that shouldn't be necessary. Extract a list of values from
    * a repeated form field. There's probably a more correct way of handling this
    * but Play's multi value form support is so maddening it's difficult to figure
