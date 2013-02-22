@@ -1,0 +1,15 @@
+@(result: solr.ItemPage[solr.SearchDescription], showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@noSidebarLayout("View item") {
+
+	<h3>Items:</h3>
+  
+	<ul>
+	@result.items.map { item =>
+	  	<li>
+			<a href="@showAction(item.itemId)">@item.name</a>
+		</li>
+	}
+	</ul>
+    
+}

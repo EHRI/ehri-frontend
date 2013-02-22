@@ -38,7 +38,7 @@ object ListParams {
  * @param limit   per-page limit
  * @param pfn     property filter name
  * @param pfv     property filter value
- * @param sort    sort order
+ * @param sort    sort sort
  */
 case class ListParams(
   page: Option[Int] = None,
@@ -51,8 +51,8 @@ case class ListParams(
 
   /**
    * Converts a list param set into a REST param set, given the necessary
-   * mappings between our filter and order values, and the server's filter
-   * and order specifications. i.e:
+   * mappings between our filter and sort values, and the server's filter
+   * and sort specifications. i.e:
    *
    * "prefLabel" = "<-describes.prefLabel"
    *
@@ -68,7 +68,7 @@ case class ListParams(
     } yield s"${propertyPath}__ICONTAINS:${value}"
 
     val combinedOrders: List[String] = sort.orElse(defaultSort).flatMap { orderBy =>
-    // Convert a order name with a leading minus sign to a name/DESC pair
+    // Convert a sort name with a leading minus sign to a name/DESC pair
       orderMap.get(orderBy).flatMap { propertyPath =>
         Some(s"${propertyPath}${if(reverse.getOrElse(false)) "__DESC" else ""}")
       }

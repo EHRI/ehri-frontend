@@ -3,6 +3,7 @@ package solr.facet
 import java.util.Locale
 
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParams, FacetParam, Param, Value}
+import defines.EntityType
 
 object Utils {
 
@@ -190,10 +191,10 @@ object FacetData {
   // No facets get...
   )
 
-  def getForIndex(rtype: solr.models.SearchType.Type) = {
-    rtype match {
-      case solr.models.SearchType.All => facets.flatMap { case(k, l) => l }.toList
-      case index => facets.get(index.toString).getOrElse(Nil)
+  def getForIndex(entity: Option[EntityType.Value]) = {
+    entity match {
+      case None => facets.flatMap { case(k, l) => l }.toList
+      case Some(et) => facets.get(et.toString).getOrElse(Nil)
     }
   }
 }

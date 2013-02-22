@@ -27,6 +27,9 @@ POST    /admin/login                    controllers.Admin.passwordLoginPost
 GET     /admin/changePassword           controllers.Admin.changePassword
 POST    /admin/changePassword           controllers.Admin.changePasswordPost
 
+# Search testing
+GET /search                             controllers.Application.search
+
 # Change locale
 GET     /locale                         controllers.Application.changeLocale
 

@@ -9,6 +9,8 @@ import play.api.data.Forms._
 import models.sql.OpenIDUser
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
+import play.api.libs.concurrent.Execution.Implicits._
+
 
 object Application extends Controller with Auth with LoginLogout with Authorizer with AuthController {
 
@@ -34,4 +36,14 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   def login = loginHandler.login
   def loginPost = loginHandler.loginPost
   def logout = loginHandler.logout
+
+  // Testing search
+  def search = userProfileAction { implicit userOpt => implicit request =>
+    import solr._
+    Async {
+      SolrDispatcher.list(SearchParams()).map { res =>
+        Ok(views.html.search(res, routes.DocumentaryUnits.get _))
+      }
+    }
+  }
 }
