@@ -1,14 +1,16 @@
 @(items: List[AccessibleEntity] = Nil)
 
 <ul class="breadcrumb">
-    @if(!items.isEmpty) {
-        @items.init.map { i =>
-            <li><a href="@views.Helpers.urlFor(i)">@i</a> <span class="divider">/</span></li>
-        }
+    @defining(if (!items.isEmpty) 200 / items.length else 300) { truncateLength =>
+        @if(!items.isEmpty) {
+            @items.init.map { i =>
+                <li><a title="@i" href="@views.Helpers.urlFor(i)">@views.Helpers.ellipsize(i.toString, truncateLength)</a> <span class="divider">/</span></li>
+            }
 
-        <!-- TODO: Decide whether to show the last time -->
-        <li class="muted"><em>@items.last</em></li>
-    } else {
-        <li></li>
+                <!-- TODO: Decide whether to show the last time -->
+            <li title="@items.last" class="muted"><em>@views.Helpers.ellipsize(items.last.toString, truncateLength)</em></li>
+        } else {
+            <li></li>
+        }
     }
 </ul>

@@ -9,6 +9,7 @@ import play.api.i18n.Lang
 
 import com.petebevin.markdown.MarkdownProcessor
 import org.apache.commons.lang3.text.WordUtils
+import org.apache.commons.lang3.StringUtils
 
 
 package object Helpers {
@@ -44,6 +45,16 @@ package object Helpers {
     }
   }
 
+  /**
+   * Function to truncate and add ellipses to long strings
+   * @param text
+   * @param max
+   */
+  def ellipsize(text: String, max: Int) = StringUtils.abbreviateMiddle(text, "...", max)
+
+  /**
+   * Get the URL for an unknown type of entity.
+   */
   import defines.EntityType
   import controllers.routes
   import models.Entity
