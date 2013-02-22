@@ -1,14 +1,13 @@
 package solr.models
 
 import play.api.libs.concurrent.Execution.Implicits._
-import com.github.seratch.scalikesolr.request.{QueryRequest => QRequest}
+import com.github.seratch.scalikesolr.request.QueryRequest
 import com.github.seratch.scalikesolr.response.QueryResponse
 import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType, Sort,StartRow,MaximumRowsReturned}
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 
-import play.api.i18n
-import play.api.libs.ws.{WS,Response}
+import play.api.libs.ws.WS
 
 import solr.facet.{FacetData,FacetClass,FieldFacetClass,QueryFacetClass,Facet}
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetParam,Param,Value}
@@ -62,14 +61,14 @@ case class FacetPage[A](
 
 object SolrHelper {
 
-  private def setRequestFacets(request: QRequest, flist: List[FacetClass]): Unit = {
+  private def setRequestFacets(request: QueryRequest, flist: List[FacetClass]): Unit = {
     request.setFacet(new FacetParams(
       enabled=true, 
       params=flist.map(_.asParams).flatten
     ))
   }
 
-  private def setRequestFilters(request: QRequest, flist: List[FacetClass], applied: Map[String,Seq[String]]): Unit = {
+  private def setRequestFilters(request: QueryRequest, flist: List[FacetClass], applied: Map[String,Seq[String]]): Unit = {
     // filter the results by applied facets
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
     // apparently only have one. So instead of adding multiple
@@ -93,7 +92,7 @@ object SolrHelper {
     request.setFilterQuery(FilterQuery(fqstring))
   }
 
-  def constrain(request: QRequest, rtype: SearchType.Type, appliedFacets: Map[String,Seq[String]]): Unit = {
+  def constrain(request: QueryRequest, rtype: SearchType.Type, appliedFacets: Map[String,Seq[String]]): Unit = {
     val flist = FacetData.getForIndex(rtype)
     setRequestFacets(request, flist)
     setRequestFilters(request, flist, appliedFacets)
@@ -105,7 +104,7 @@ object SolrHelper {
   }
   
   def buildQuery(index: SearchType.Type, offset: Int, pageSize: Int, orderBy: SearchOrder.Order,
-        field: SearchField.Field, query: String, facets: Map[String, Seq[String]]): QRequest = {
+        field: SearchField.Field, query: String, facets: Map[String, Seq[String]]): QueryRequest = {
 
     // Solr 3.6 seems to break querying with *:<query> style
     // http://bit.ly/MBKghG
@@ -118,7 +117,7 @@ object SolrHelper {
     }
     val queryString = "%s:%s".format(selector, if (query.trim.isEmpty) "*" else query.trim)
 
-    val req: QRequest = new QRequest(Query(queryString))
+    val req: QueryRequest = new QueryRequest(Query(queryString))
     req.setFacet(new FacetParams(
       enabled=true, 
       params=List(new FacetParam(Param("facet.field"), Value("django_ct")))
@@ -154,7 +153,7 @@ object SolrHelper {
     req
   }
 
-  def buildSearchUrl(query: QRequest) = {
+  def buildSearchUrl(query: QueryRequest) = {
     "%s/select%s".format(
       play.Play.application.configuration.getString("solr.path"),
       query.queryString
