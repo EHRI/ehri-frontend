@@ -10,6 +10,7 @@ import models.sql.OpenIDUser
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
 import play.api.libs.concurrent.Execution.Implicits._
+import models.base.{DescribedEntity, AccessibleEntity}
 
 
 object Application extends Controller with Auth with LoginLogout with Authorizer with AuthController {
@@ -43,7 +44,13 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
     val sp = SearchParams.form.bindFromRequest.value.get
     Async {
       SolrDispatcher.list(sp).map { res =>
-        Ok(views.html.search(res, sp, routes.Application.search, routes.DocumentaryUnits.get _))
+        AsyncRest {
+          rest.SearchDAO(userOpt).list(res.items.map(_.itemId)).map { listOrErr =>
+            listOrErr.right.map { list =>
+              Ok(views.html.search(res.copy(items = list.map(DescribedEntity(_))), sp, routes.Application.search, routes.DocumentaryUnits.get _))
+            }
+          }
+        }
       }
     }
   }

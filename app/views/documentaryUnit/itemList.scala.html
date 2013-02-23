@@ -2,21 +2,6 @@
 
 <ul class="unstyled">
 @page.list.map { item =>
-    <div class="list-item">
-        <h5>
-            <a href="@routes.DocumentaryUnits.get(item.id)">@item</a>
-            @item.descriptions.headOption.flatMap(_.dateString).map { d =>
-                &nbsp;[@d]
-            }
-            @item.holder.map { holder =>
-                <strong> - <a href="@controllers.routes.Repositories.get(holder.id)">@holder.name</a></strong>
-            }
-        </h5>
-        @item.descriptions.headOption.map { desc =>
-            @desc.property(IsadG.SCOPE_CONTENT).flatMap(_.asOpt[String]).map { sc =>
-                <p>@sc</p>
-            }
-        }
-    </div>
+    @documentaryUnit.listItem(item)
 }
 </ul>

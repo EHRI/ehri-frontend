@@ -1,6 +1,6 @@
 package models.base
 
-import models.{SystemEvent, Entity}
+import models.SystemEvent
 
 object AccessibleEntity {
   val IDENTIFIER = "identifier"
