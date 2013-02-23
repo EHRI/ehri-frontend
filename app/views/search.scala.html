@@ -7,7 +7,15 @@
 	<ul>
 	@result.items.map { item =>
 	  	<li>
-			<a href="@showAction(item.itemId)">@item.name</a>
+			<h5>
+				<a href="@showAction(item.itemId)">@item.name</a>
+				@item.data.get("holderName").filterNot(_.isEmpty).map { n =>
+					<span class="muted">&nbsp; @n</span>
+				}
+			</h5>
+			<p class="search-hit-description">
+				@item.data.getOrElse(IsadG.SCOPE_CONTENT, "")
+			</p>
 		</li>
 	}
 	</ul>

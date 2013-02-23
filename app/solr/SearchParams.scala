@@ -44,6 +44,26 @@ case class SearchParams(
   limit: Int = 20,
   sort: Option[SearchOrder.Value] = None,
   reversed: Boolean = false,
-  userOpt: Option[models.UserProfile] = None,
   facets: Map[String, Seq[String]] = Map()
 )
+
+object SearchParams {
+  import play.api.data.Forms._
+  import play.api.data.Form
+
+  // Constructor from just a query...
+  def formApply(q: Option[String], entity: Option[EntityType.Value]): SearchParams = {
+    new SearchParams(query=q, entity=entity)
+  }
+
+  def formUnapply(s: SearchParams): Option[(Option[String],Option[EntityType.Value])] = {
+    Some((s.query, s.entity))
+  }
+
+  val form = Form(
+    mapping(
+      "q" -> optional(nonEmptyText),
+      "st" -> optional(models.forms.enum(EntityType))
+    )(SearchParams.formApply _)(SearchParams.formUnapply _)
+  )
+}

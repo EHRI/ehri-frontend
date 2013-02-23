@@ -40,8 +40,9 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   // Testing search
   def search = userProfileAction { implicit userOpt => implicit request =>
     import solr._
+    val sp = SearchParams.form.bindFromRequest.value.get
     Async {
-      SolrDispatcher.list(SearchParams()).map { res =>
+      SolrDispatcher.list(sp).map { res =>
         Ok(views.html.search(res, routes.DocumentaryUnits.get _))
       }
     }

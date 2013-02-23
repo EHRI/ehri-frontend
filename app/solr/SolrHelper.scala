@@ -16,6 +16,8 @@ import defines.EntityType
 import play.api.Logger
 import xml.Node
 
+import models.UserProfile
+
 
 /**
  * Abstract search result page.
@@ -201,7 +203,7 @@ object SolrHelper {
 
 
 object SolrDispatcher {
-  def list(params: SearchParams): Future[ItemPage[SearchDescription]] = {
+  def list(params: SearchParams)(implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchDescription]] = {
     val offset = (params.page - 1) * params.limit
 
     val queryRequest = SolrHelper.buildQuery(params)
@@ -220,10 +222,15 @@ object SolrDispatcher {
       // TODO: Improve this hacky code
       val items = (nodes \\ "doc").map { doc =>
         SearchDescription(
-          (doc \\ "str").filter(attributeValueEquals("id")).text,
-          (doc \\ "str").filter(attributeValueEquals("name")).text,
-          EntityType.withName((doc \\ "str").filter(attributeValueEquals("type")).text),
-          (doc \\ "str").filter(attributeValueEquals("itemId")).text
+          id = (doc \\ "str").filter(attributeValueEquals("id")).text,
+          name = (doc \\ "str").filter(attributeValueEquals("name")).text,
+          `type` = EntityType.withName((doc \\ "str").filter(attributeValueEquals("type")).text),
+          itemId = (doc \\ "str").filter(attributeValueEquals("itemId")).text,
+          data = (doc \\ "str").foldLeft(Map[String,String]()) { (m, node) =>
+            node.attributes.get("name").map { attr =>
+              m + (attr.head.toString -> node.text)
+            } getOrElse m
+          }
         )
       }
 
