@@ -43,7 +43,7 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
     val sp = SearchParams.form.bindFromRequest.value.get
     Async {
       SolrDispatcher.list(sp).map { res =>
-        Ok(views.html.search(res, routes.DocumentaryUnits.get _))
+        Ok(views.html.search(res, sp, routes.Application.search, routes.DocumentaryUnits.get _))
       }
     }
   }

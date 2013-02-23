@@ -1,23 +1,28 @@
-@(result: solr.ItemPage[solr.SearchDescription], showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(result: solr.ItemPage[solr.SearchDescription], params: solr.SearchParams, action: Call, showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@noSidebarLayout("View item") {
-
-	<h3>Items:</h3>
-  
-	<ul>
-	@result.items.map { item =>
-	  	<li>
-			<h5>
-				<a href="@showAction(item.itemId)">@item.name</a>
-				@item.data.get("holderName").filterNot(_.isEmpty).map { n =>
-					<span class="muted">&nbsp; @n</span>
-				}
-			</h5>
-			<p class="search-hit-description">
-				@item.data.getOrElse(IsadG.SCOPE_CONTENT, "")
-			</p>
-		</li>
+@rightSidebarLayout("View item") {
+	@helper.form(action = action) {
+		<div class="control-group">
+			<div class="controls controls-row">
+				<input type="text" class="span12" name="q" value="@params.query" />
+			</div>
+		</div>  
+		<ul>
+		@result.items.map { item =>
+		  	<li>
+				<h5>
+					<a href="@showAction(item.itemId)">@item.name</a>
+					@item.data.get("holderName").filterNot(_.isEmpty).map { n =>
+						<span class="muted">&nbsp; @n</span>
+					}
+				</h5>
+				<p class="search-hit-description">
+					@item.data.getOrElse(IsadG.SCOPE_CONTENT, "")
+				</p>
+			</li>
+		}
+		</ul>
 	}
-	</ul>
-    
+} {
+	
 }

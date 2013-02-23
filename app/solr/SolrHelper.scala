@@ -156,8 +156,10 @@ object SolrHelper {
     //  if (query.trim == "") "*" else query)
 
     // FIXME: Only search by first specified field for now
-    val selector = params.fields.headOption.map(_.toString).getOrElse("*")
-    val queryString = "%s:%s".format(selector, params.query.getOrElse("*").trim)
+    //val selector = params.fields.headOption.map(_.toString).getOrElse("*")
+    // Searching specific fields not activated yet...
+    // NB: For some reason, wildcards required to avoid exact-match queries...
+    val queryString = "*%s*".format(params.query.getOrElse("*").trim)
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
     req.setFacet(new FacetParams(
