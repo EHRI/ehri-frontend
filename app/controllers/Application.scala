@@ -42,13 +42,15 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   def search = userProfileAction { implicit userOpt => implicit request =>
     import solr._
     val sp = SearchParams.form.bindFromRequest.value.get
-    Async {
-      SolrDispatcher.list(sp).map { res =>
-        AsyncRest {
-          rest.SearchDAO(userOpt).list(res.items.map(_.itemId)).map { listOrErr =>
-            listOrErr.right.map { list =>
-              Ok(views.html.search(res.copy(items = list.map(DescribedEntity(_))),
-                  sp, routes.Application.search, routes.DocumentaryUnits.get _))
+    AsyncRest {
+      SolrDispatcher(userOpt).list(sp).map { resOrErr =>
+        resOrErr.right.map { res =>
+          AsyncRest {
+            rest.SearchDAO(userOpt).list(res.items.map(_.itemId)).map { listOrErr =>
+              listOrErr.right.map { list =>
+                Ok(views.html.search(res.copy(items = list.map(DescribedEntity(_))),
+                    sp, routes.Application.search, routes.DocumentaryUnits.get _))
+              }
             }
           }
         }
