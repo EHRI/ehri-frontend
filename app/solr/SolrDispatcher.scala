@@ -16,7 +16,10 @@ import rest.RestError
 object SolrDispatcher {
 }
 
-
+/**
+ * Class for fetching query results from a Solr instance.
+ * @param userProfile
+ */
 case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO {
   def itemsFromXml(nodes: NodeSeq): Seq[SearchDescription] = (nodes \\ "doc").map { doc =>
     def attributeValueEquals(value: String)(node: Node) = {
