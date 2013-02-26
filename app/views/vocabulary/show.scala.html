@@ -12,7 +12,7 @@
 
     @common.filterableList("vocabulary.toplevelTermsPageHeader", page, params, Concepts.listFilterMappings.keys, Concepts.orderMappings.keys) {
         <ul>
-        @page.list.map { item =>
+        @page.items.map { item =>
             <div class="list-item">
             <h5>
             <a href="@routes.Concepts.get(item.id)">

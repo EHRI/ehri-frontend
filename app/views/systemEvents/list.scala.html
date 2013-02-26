@@ -2,12 +2,12 @@
 
 @rightSidebarLayout(Messages("actions.listSystemEvents")) {
 
-	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 
     @common.pagination(page)
 
 	<ul class="unstyled">
-	@page.list.map { item =>
+	@page.items.map { item =>
 	  	<div class="list-item">
 			<h5><a href="@routes.SystemEvents.get(item.id)">@item.time</a>
 			@item.actioner.map { accessor =>

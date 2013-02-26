@@ -32,7 +32,7 @@ object Groups extends PermissionHolderController[Group]
 
   def list = listAction {
       page => params => implicit maybeUser => implicit request =>
-    Ok(views.html.group.list(page.copy(list = page.list.map(Group(_))), params))
+    Ok(views.html.group.list(page.copy(items = page.items.map(Group(_))), params))
   }
 
   def create = createAction {

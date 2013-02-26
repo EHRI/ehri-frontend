@@ -89,7 +89,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
           val cReq = rest.EntityDAO(entityType, userOpt).pageChildren(id, processChildParams(params))
           for { annOrErr <- annsReq ; cOrErr <- cReq } yield {
             for { anns <- annOrErr.right ; children <- cOrErr.right } yield {
-              f(item)(children.copy(list = children.list.map(builder(_))))(params)(anns)(userOpt)(request)
+              f(item)(children.copy(items = children.items.map(builder(_))))(params)(anns)(userOpt)(request)
             }
           }
         }
@@ -124,7 +124,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
           val alReq = rest.SystemEventDAO(userOpt).history(id, RestPageParams())
           for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
             for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {
-              f(item)(al.copy(list = al.list.map(SystemEvent(_))))(userOpt)(request)
+              f(item)(al.copy(items = al.items.map(SystemEvent(_))))(userOpt)(request)
             }
           }
         }

@@ -23,7 +23,7 @@ case class SystemEventDAO(userProfile: Option[UserProfile]) extends RestDAO {
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
           valid = { page =>
-            Page(page.total, page.offset, page.limit, page.list)
+            Page(page.total, page.offset, page.limit, page.items)
           },
           invalid = { e =>
             sys.error("Unable to decode paginated list result: " + e.toString)
@@ -43,7 +43,7 @@ case class SystemEventDAO(userProfile: Option[UserProfile]) extends RestDAO {
         r.json.validate[Page[models.Entity]].fold(
           valid = { page =>
             println(s"page ${page.offset}, ${page.limit}")
-            Page(page.total, page.offset, page.limit, page.list.map(ItemWithId(_)))
+            Page(page.total, page.offset, page.limit, page.items.map(ItemWithId(_)))
           },
           invalid = { e =>
             sys.error("Unable to decode paginated list result: " + e.toString)

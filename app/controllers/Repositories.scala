@@ -46,7 +46,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.repository.list(page.copy(list = page.list.map(Repository(_))), params))
+    Ok(views.html.repository.list(page.copy(items = page.items.map(Repository(_))), params))
   }
 
   def create = createAction {

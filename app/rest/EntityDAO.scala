@@ -21,12 +21,12 @@ import play.api.Logger
  * @param list
  * @tparam T
  */
-case class Page[+T](val total: Long, val offset: Int, val limit: Int, val list: Seq[T]) {
-  def numPages = (total / limit) + (total % limit).min(1)
-  def page = (offset / limit) + 1
-
-  def hasMultiplePages = total > limit
-}
+case class Page[+T](
+  total: Long,
+  offset: Int,
+  limit: Int,
+  items: Seq[T]
+) extends utils.AbstractPage[T]
 
 /**
  * Decode a JSON page representation.

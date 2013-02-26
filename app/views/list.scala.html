@@ -5,7 +5,7 @@
 	<h3>Items:</h3>
   
 	<ul>
-	@items.list.map { item =>
+	@items.items.map { item =>
 	  	<li>
 			<a href="@showAction(item.id)">@item.name</a>
 		</li>

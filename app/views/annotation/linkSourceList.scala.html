@@ -4,7 +4,7 @@ implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: 
 @noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
     @common.filterableList("pagination.displayingItems", page, new ListParams(), List(), List()) {
         <ul>
-            @page.list.map { e =>
+            @page.items.map { e =>
                 <li><a href="@action(item.id, entityType.toString, e.id)">@e</a></li>
             }
         </ul>

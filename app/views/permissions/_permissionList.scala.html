@@ -1,11 +1,11 @@
 @(page: rest.Page[PermissionGrant], pageParamName: String)(implicit req: RequestHeader)
 
-    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
+    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 
     @common.pagination(page)
 
     <ul class="unstyled">
-    @page.list.map { item =>
+    @page.items.map { item =>
         <li class="list-item">
             <h5>@item.permission.map(_.toString).getOrElse(item)</h5>
             <ul>

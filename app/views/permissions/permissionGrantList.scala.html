@@ -3,7 +3,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("permissionGrant.heading", item.name)) {
-    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.list.size, page.total)</h3>
+    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 
     <div id="pagination" class="pagination">
         <ul>
@@ -23,7 +23,7 @@
     </div>
 
     <ul>
-    @page.list.map { item =>
+    @page.items.map { item =>
         <div class="list-item">
             <h4>@item.permission.toString</h4>
             <ul>

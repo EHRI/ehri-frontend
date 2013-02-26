@@ -12,39 +12,24 @@ import concurrent.Future
 import defines.EntityType
 
 
-/**
- * Abstract search result page.
- * @tparam A
- */
-trait Page[A] {
-  val total: Long
-  val page: Int
-  val offset: Long
-  val pageSize: Int
-  val items: Seq[A]
-  def numPages = (total / pageSize) + (total % pageSize).min(1)
-  lazy val prev = Option(page - 1).filter(_ >= 0)
-  lazy val next = Option(page + 1).filter(_ => (offset + items.size) < total)
-}
 
 /**
  * Page of search result items
  * @param items
  * @param page
  * @param offset
- * @param pageSize
+ * @param limit
  * @param total
  * @param facets
  * @tparam A
  */
 case class ItemPage[A](
   items: Seq[A],
-  page: Int,
-  offset: Long,
-  pageSize:Int,
+  offset: Int,
+  limit:Int,
   total: Long,
   facets: List[FacetClass]
-) extends Page[A]
+) extends utils.AbstractPage[A]
 
 /**
  * A paged list of facets.
@@ -52,18 +37,17 @@ case class ItemPage[A](
  * @param items
  * @param page
  * @param offset
- * @param pageSize
+ * @param limit
  * @param total
  * @tparam A
  */
 case class FacetPage[A](
   fc: FacetClass,
   items: Seq[A],
-  page: Int,
-  offset: Long,
-  pageSize: Int,
+  offset: Int,
+  limit: Int,
   total: Long
-) extends Page[A]
+) extends utils.AbstractPage[A]
 
 
 /**

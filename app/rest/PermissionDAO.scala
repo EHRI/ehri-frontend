@@ -46,7 +46,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
           valid = { page =>
-            Page(page.total, page.offset, page.limit, page.list.map(models.PermissionGrant(_)))
+            Page(page.total, page.offset, page.limit, page.items.map(models.PermissionGrant(_)))
           },
           invalid = { e =>
             sys.error("Unable to decode paginated list result: %s\n%s".format(e, r.json))

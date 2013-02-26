@@ -58,7 +58,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.concept.list(page.copy(list = page.list.map(Concept(_))), params))
+    Ok(views.html.concept.list(page.copy(items = page.items.map(Concept(_))), params))
   }
 
   def update(id: String) = updateAction(id) {

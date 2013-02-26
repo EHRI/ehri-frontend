@@ -28,6 +28,6 @@ object SystemEvents extends EntityRead[SystemEvent] {
 
   def list = listAction {
       page => params => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.list(page.copy(list = page.list.map(SystemEvent(_))), params))
+    Ok(views.html.systemEvents.list(page.copy(items = page.items.map(SystemEvent(_))), params))
   }
 }

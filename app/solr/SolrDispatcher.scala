@@ -51,7 +51,7 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
         val facetClasses = SolrHelper.extract(resp, params.entity, params.facets)
         val nodes = xml.XML.loadString(r.body)
 
-        ItemPage(itemsFromXml(nodes), params.page, offset, params.limit, resp.response.numFound, facetClasses)
+        ItemPage(itemsFromXml(nodes), offset, params.limit, resp.response.numFound, facetClasses)
       }
     }
   }
@@ -79,7 +79,7 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
           case "name" => facetClass.sortedByName.slice(offset, offset + params.limit)
           case _ => facetClass.sortedByCount.slice(offset, offset + params.limit)
         }
-        FacetPage(facetClass, facets, params.page, offset, params.limit, facetClass.count)
+        FacetPage(facetClass, facets, offset, params.limit, facetClass.count)
       }
     }
   }

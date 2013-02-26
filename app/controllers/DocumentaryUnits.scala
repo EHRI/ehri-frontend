@@ -76,7 +76,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.list(
-      page.copy(list = page.list.map(DocumentaryUnit(_))), params))
+      page.copy(items = page.items.map(DocumentaryUnit(_))), params))
   }
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>

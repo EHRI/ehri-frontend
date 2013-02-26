@@ -39,7 +39,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.list(page.copy(list = page.list.map(Vocabulary(_))), params))
+    Ok(views.html.vocabulary.list(page.copy(items = page.items.map(Vocabulary(_))), params))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>

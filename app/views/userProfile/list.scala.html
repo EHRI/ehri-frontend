@@ -2,11 +2,11 @@
 
 @rightSidebarLayout(Messages("actions.listUserProfiles")) {
 
-	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.list.size, items.total)</h3>
+	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
     @common.pagination(items)
 	
 	<ul>
-	@items.list.map { item =>
+	@items.items.map { item =>
 	  	<li>
             <div class="list-item">
                 <h4>

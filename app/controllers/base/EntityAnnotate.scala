@@ -41,7 +41,7 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
         AsyncRest {
           EntityDAO(linkSrcEntityType, userOpt).page(new RestPageParams()).map { pageOrErr =>
             pageOrErr.right.map { page =>
-              f(ann)(page.copy(list = page.list.flatMap(e => AnnotatableEntity.fromEntity(e))))(userOpt)(request)
+              f(ann)(page.copy(items = page.items.flatMap(e => AnnotatableEntity.fromEntity(e))))(userOpt)(request)
             }
           }
         }

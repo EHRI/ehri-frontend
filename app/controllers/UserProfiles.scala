@@ -36,7 +36,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   }
 
   def list = listAction { page => params => implicit userOptOpt => implicit request =>
-    Ok(views.html.userProfile.list(page.copy(list = page.list.map(UserProfile(_))), params))
+    Ok(views.html.userProfile.list(page.copy(items = page.items.map(UserProfile(_))), params))
   }
 
   def update(id: String) = updateAction(id) {
