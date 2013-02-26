@@ -78,8 +78,8 @@ object SolrHelper {
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
     // apparently only have one. So instead of adding multiple
     // fq clauses, we need to join them all with '+'
-    val fqstring = facetClasses.map(fclass => {
-      appliedFacets.flatMap(_.filter(_.name == fclass.param).headOption).map(_.values).map(paramVals =>
+    val fqstrings = facetClasses.flatMap(fclass => {
+      appliedFacets.flatMap(_.filter(_.name == fclass.param).headOption).map(_.values).map( paramVals =>
         fclass match {
           case fc: FieldFacetClass => {
             paramVals.map("%s:\"%s\"".format(fc.key, _))
@@ -92,9 +92,9 @@ object SolrHelper {
             })
           }
         }
-      ).getOrElse(Nil)
-    }).flatten.mkString(" +") // NB: Space before + is important
-    request.setFilterQuery(FilterQuery(fqstring))
+      )
+    })
+    request.setFilterQuery(FilterQuery(fqstrings.mkString(" +")))
   }
 
   /**
