@@ -2,7 +2,7 @@ package solr
 
 import com.github.seratch.scalikesolr.request.QueryRequest
 import com.github.seratch.scalikesolr.response.QueryResponse
-import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType, Sort,StartRow,MaximumRowsReturned}
+import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType, Sort,StartRow,MaximumRowsReturned,IsDebugQueryEnabled}
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 
@@ -73,7 +73,7 @@ object SolrHelper {
 
   private def setRequestFacets(request: QueryRequest, flist: List[FacetClass]): Unit = {
     request.setFacet(new FacetParams(
-      enabled=true, 
+      enabled=true,
       params=flist.map(_.asParams).flatten
     ))
   }
@@ -152,11 +152,11 @@ object SolrHelper {
     //val selector = params.fields.headOption.map(_.toString).getOrElse("*")
     // Searching specific fields not activated yet...
     // NB: For some reason, wildcards required to avoid exact-match queries...
-    val queryString = "*%s*".format(params.query.getOrElse("*").trim)
+    val queryString = "%s".format(params.query.getOrElse("*").trim)
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
     req.setFacet(new FacetParams(
-      enabled=true, 
+      enabled=true,
       params=List(new FacetParam(Param("facet.field"), Value("type")))
     ))
     req.setQueryParserType(QueryParserType("edismax"))
@@ -181,6 +181,9 @@ object SolrHelper {
           req.setFilterQuery(
             FilterQuery(req.filterQuery.fq + " +type:" + et.toString))
     }
+
+    // Debug query for now
+    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
 
     // Setup start and number of objects returned
     req.setStartRow(StartRow(params.offset))
