@@ -1,5 +1,7 @@
 @(items: rest.Page[Group], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
+@import defines._
+
 @rightSidebarLayout(Messages("actions.listGroups")) {
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
 

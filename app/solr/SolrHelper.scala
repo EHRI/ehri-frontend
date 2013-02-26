@@ -6,17 +6,22 @@ import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryPa
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 
-import solr.facet.{FacetData,FacetClass,FieldFacetClass,QueryFacetClass,Facet}
+import solr.facet._
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetParam,Param,Value}
-import concurrent.Future
 import defines.EntityType
-
+import com.github.seratch.scalikesolr.response.QueryResponse
+import com.github.seratch.scalikesolr.request.query.facet.Param
+import solr.facet.FieldFacetClass
+import scala.Some
+import com.github.seratch.scalikesolr.request.query.facet.FacetParam
+import com.github.seratch.scalikesolr.request.query.facet.Value
+import com.github.seratch.scalikesolr.request.QueryRequest
+import solr.facet.QueryFacetClass
 
 
 /**
  * Page of search result items
  * @param items
- * @param page
  * @param offset
  * @param limit
  * @param total
@@ -35,7 +40,6 @@ case class ItemPage[A](
  * A paged list of facets.
  * @param fc
  * @param items
- * @param page
  * @param offset
  * @param limit
  * @param total
@@ -69,13 +73,13 @@ object SolrHelper {
    * @param appliedFacets
    */
   private def setRequestFilters(request: QueryRequest, facetClasses: List[FacetClass],
-                                appliedFacets: Map[String,Seq[String]]): Unit = {
+                                appliedFacets: Option[List[AppliedFacet]]): Unit = {
     // filter the results by applied facets
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
     // apparently only have one. So instead of adding multiple
     // fq clauses, we need to join them all with '+'
     val fqstring = facetClasses.map(fclass => {
-      appliedFacets.get(fclass.param).map(paramVals =>
+      appliedFacets.flatMap(_.filter(_.name == fclass.param).headOption).map(_.values).map(paramVals =>
         fclass match {
           case fc: FieldFacetClass => {
             paramVals.map("%s:\"%s\"".format(fc.key, _))
@@ -99,7 +103,7 @@ object SolrHelper {
    * @param entity
    * @param appliedFacets
    */
-  def constrain(request: QueryRequest, entity: Option[EntityType.Value], appliedFacets: Map[String,Seq[String]]): Unit = {
+  def constrain(request: QueryRequest, entity: Option[EntityType.Value], appliedFacets: Option[List[AppliedFacet]]): Unit = {
     val flist = FacetData.getForIndex(entity)
     setRequestFacets(request, flist)
     setRequestFilters(request, flist, appliedFacets)
@@ -114,9 +118,9 @@ object SolrHelper {
    * @return
    */
   def extract(response: QueryResponse, entity: Option[EntityType.Value],
-              appliedFacets: Map[String,Seq[String]]): List[FacetClass] = {
+              appliedFacets: Option[List[AppliedFacet]]): List[FacetClass] = {
     val rawData = xml.XML.loadString(response.rawBody)
-    FacetData.getForIndex(entity).map(_.populateFromSolr(rawData, appliedFacets))
+    FacetData.getForIndex(entity).map(_.populateFromSolr(rawData, appliedFacets.getOrElse(List())))
   }
 
   /**
@@ -126,16 +130,6 @@ object SolrHelper {
    */
   def buildQuery(params: SearchParams): QueryRequest = {
 
-    // Solr 3.6 seems to break querying with *:<query> style
-    // http://bit.ly/MBKghG
-    //val queryString = "%s:%s".format(
-    //  if (field.trim == "") "*" else field,
-    //  if (query.trim == "") "*" else query)
-
-    // FIXME: Only search by first specified field for now
-    //val selector = params.fields.headOption.map(_.toString).getOrElse("*")
-    // Searching specific fields not activated yet...
-    // NB: For some reason, wildcards required to avoid exact-match queries...
     val queryString = "%s".format(params.query.getOrElse("*").trim)
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
@@ -148,11 +142,19 @@ object SolrHelper {
         enabled=true,
         isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
 
-    val order = if(params.reversed) "desc" else "asc"
+    val order = if(params.reversed.getOrElse(false)) "desc" else "asc"
     params.sort match {
       case None => // This is the default!
       // TODO: Define these options more succinctly
       case Some(sort) => req.setSort(Sort(s"$sort $order"))
+    }
+
+    // Apply search to specific fields. Can't find a way to do this using
+    // Scalikesolr's built-in classes so we have to use it's extension-param
+    // facility
+    params.fields.filterNot(_.isEmpty).map { fieldList =>
+      println("Fieldlist: " + fieldList)
+      req.set("qf", fieldList.mkString(" "))
     }
 
     // Facet the request accordingly

@@ -36,35 +36,32 @@ object SearchType extends Enumeration {
  * User: michaelb
  */
 case class SearchParams(
-  fields: List[String] = Nil,
-  entity: Option[EntityType.Value] = None,
   query: Option[String] = None,
   page: Option[Int] = None,
   limit: Option[Int] = None,
   sort: Option[SearchOrder.Value] = None,
-  reversed: Boolean = false,
-  facets: Map[String, Seq[String]] = Map()
+  reversed: Option[Boolean] = Some(false),
+  entity: Option[EntityType.Value] = None,
+  fields: Option[List[String]] = None,
+  facets: Option[List[facet.AppliedFacet]] = None
 )
 
 object SearchParams {
   import play.api.data.Forms._
   import play.api.data.Form
 
-  // Constructor from just a query...
-  def formApply(q: Option[String], page: Option[Int], limit: Option[Int], entity: Option[EntityType.Value]): SearchParams = {
-    new SearchParams(query=q, page=page, limit=limit, entity=entity)
-  }
-
-  def formUnapply(s: SearchParams): Option[(Option[String], Option[Int], Option[Int], Option[EntityType.Value])] = {
-    Some((s.query, s.page, s.limit, s.entity))
-  }
-
   val form = Form(
     mapping(
       "q" -> optional(nonEmptyText),
-      "page" -> optional(number(1)),
-      "limit" -> optional(number(1)),
-      "st" -> optional(models.forms.enum(EntityType))
-    )(SearchParams.formApply _)(SearchParams.formUnapply _)
+      "page" -> optional(number),
+      "limit" -> optional(number),
+      "sort" -> optional(models.forms.enum(SearchOrder)),
+      "order" -> optional(boolean),
+      "st" -> optional(models.forms.enum(EntityType)),
+      "qf" -> optional(list(nonEmptyText)),
+      "f" -> optional(list(
+        mapping("n" -> nonEmptyText, "v" -> list(nonEmptyText))(facet.AppliedFacet.apply _)(facet.AppliedFacet.unapply _)
+      ))
+    )(SearchParams.apply _)(SearchParams.unapply _)
   )
 }

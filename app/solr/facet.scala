@@ -47,6 +47,15 @@ case object CountOrder extends Enumeration
 case object FixedOrder extends Enumeration
 
 /**
+ * A facet that has been "applied", i.e. a name of the field
+ * and the set of values that should be used to constrain
+ * a particular search.
+ * @param name
+ * @param values
+ */
+case class AppliedFacet(name: String, values: List[String])
+
+/**
  * Encapsulates a single facet.
  *
  * @param solrVal   the value of this facet to Solr
@@ -105,7 +114,7 @@ sealed abstract class FacetClass (
   
   def asParams: List[FacetParam]
   
-  def populateFromSolr(data: xml.Elem, current: Map[String,Seq[String]]): FacetClass
+  def populateFromSolr(data: xml.Elem, current: List[AppliedFacet]): FacetClass
   
   def pretty(f: Facet): String = f.humanVal match {
     case Some(desc) => render(desc)
@@ -113,6 +122,17 @@ sealed abstract class FacetClass (
   }
 }
 
+/**
+ *
+ * @param key     the name of the Solr field being faceted on
+ * @param name    the 'pretty' human name of the Solr field
+ * @param param   the name of the HTTP param used to apply this facet
+ * @param render  a function (String => String) used to transform the
+ *                facet values into human-readable ones, using, for
+ *                example, i18n lookups.
+ * @param facets  a list of individual Facet values
+ * @param sort
+ */
 case class FieldFacetClass(
   override val key: String,
   override val name: String,
@@ -130,8 +150,8 @@ case class FieldFacetClass(
     ))      
   }
   
-  override def populateFromSolr(data: xml.Elem, current: Map[String,Seq[String]]): FacetClass = {
-    val applied = current.getOrElse(param, Seq[String]())
+  override def populateFromSolr(data: xml.Elem, current: List[AppliedFacet]): FacetClass = {
+    val applied: List[String] = current.filter(_.name == param).headOption.map(_.values).getOrElse(List[String]())
     val nodes = data.descendant.filter(n => (n \ "@name").text == "facet_fields") 
     var facets = List[Facet]()
     if (nodes.length > 0) {
@@ -166,8 +186,8 @@ case class QueryFacetClass(
     )      
   }
   
-  override def populateFromSolr(data: xml.Elem, current: Map[String,Seq[String]]): FacetClass = {
-    val applied = current.getOrElse(param, Seq[String]())
+  override def populateFromSolr(data: xml.Elem, current: List[AppliedFacet]): FacetClass = {
+    val applied: List[String] = current.filter(_.name == param).headOption.map(_.values).getOrElse(List[String]())
     val popfacets = facets.flatMap(f => {
       var nameval = "%s:%s".format(key, f.solrVal)
       data.descendant.filter(n => (n \\ "@name").text == nameval).text match {
