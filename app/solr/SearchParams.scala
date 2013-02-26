@@ -39,9 +39,8 @@ case class SearchParams(
   fields: List[String] = Nil,
   entity: Option[EntityType.Value] = None,
   query: Option[String] = None,
-  page: Int = 1,
-  offset: Int = 0,
-  limit: Int = 20,
+  page: Option[Int] = None,
+  limit: Option[Int] = None,
   sort: Option[SearchOrder.Value] = None,
   reversed: Boolean = false,
   facets: Map[String, Seq[String]] = Map()
@@ -52,17 +51,19 @@ object SearchParams {
   import play.api.data.Form
 
   // Constructor from just a query...
-  def formApply(q: Option[String], entity: Option[EntityType.Value]): SearchParams = {
-    new SearchParams(query=q, entity=entity)
+  def formApply(q: Option[String], page: Option[Int], limit: Option[Int], entity: Option[EntityType.Value]): SearchParams = {
+    new SearchParams(query=q, page=page, limit=limit, entity=entity)
   }
 
-  def formUnapply(s: SearchParams): Option[(Option[String],Option[EntityType.Value])] = {
-    Some((s.query, s.entity))
+  def formUnapply(s: SearchParams): Option[(Option[String], Option[Int], Option[Int], Option[EntityType.Value])] = {
+    Some((s.query, s.page, s.limit, s.entity))
   }
 
   val form = Form(
     mapping(
       "q" -> optional(nonEmptyText),
+      "page" -> optional(number(1)),
+      "limit" -> optional(number(1)),
       "st" -> optional(models.forms.enum(EntityType))
     )(SearchParams.formApply _)(SearchParams.formUnapply _)
   )

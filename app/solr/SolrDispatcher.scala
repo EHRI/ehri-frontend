@@ -40,7 +40,8 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
   }
 
   def list(params: SearchParams): Future[Either[RestError,ItemPage[SearchDescription]]] = {
-    val offset = (params.page - 1) * params.limit
+    val limit = params.limit.getOrElse(20)
+    val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
     val queryRequest = SolrHelper.buildQuery(params)
     Logger.logger.debug(queryRequest.queryString())
@@ -51,7 +52,7 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
         val facetClasses = SolrHelper.extract(resp, params.entity, params.facets)
         val nodes = xml.XML.loadString(r.body)
 
-        ItemPage(itemsFromXml(nodes), offset, params.limit, resp.response.numFound, facetClasses)
+        ItemPage(itemsFromXml(nodes), offset, limit, resp.response.numFound, facetClasses)
       }
     }
   }
@@ -60,7 +61,8 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     facet: String,
     sort: String = "name",
     params: SearchParams): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
-    val offset = (params.page - 1) * params.limit
+    val limit = params.limit.getOrElse(20)
+    val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
     // create a response returning 0 documents - we don't
     // actually care about the documents, so even this is
@@ -76,10 +78,10 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
         val facetClass = facetClasses.find(_.param==facet).getOrElse(
             throw new Exception("Unknown facet: " + facet))
         val facets = sort match {
-          case "name" => facetClass.sortedByName.slice(offset, offset + params.limit)
-          case _ => facetClass.sortedByCount.slice(offset, offset + params.limit)
+          case "name" => facetClass.sortedByName.slice(offset, offset + limit)
+          case _ => facetClass.sortedByCount.slice(offset, offset + limit)
         }
-        FacetPage(facetClass, facets, offset, params.limit, facetClass.count)
+        FacetPage(facetClass, facets, offset, limit, facetClass.count)
       }
     }
   }

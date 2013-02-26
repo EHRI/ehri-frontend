@@ -170,8 +170,13 @@ object SolrHelper {
     req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
 
     // Setup start and number of objects returned
-    req.setStartRow(StartRow(params.offset))
-    req.setMaximumRowsReturned(MaximumRowsReturned(params.limit))
+    params.page.map { page =>
+      req.setStartRow(StartRow((Math.max(page, 1) - 1) * params.limit.getOrElse(20)))
+    }
+    params.limit.map { limit =>
+      req.setMaximumRowsReturned(MaximumRowsReturned(limit))
+    }
+
     req
   }
 
