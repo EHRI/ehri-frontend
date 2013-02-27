@@ -1,12 +1,15 @@
-@(result: solr.ItemPage[models.base.DescribedEntity], params: solr.SearchParams, action: Call, showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(result: solr.ItemPage[models.base.DescribedEntity], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout("Search") {
-	@helper.form(action = action) {
-		<div class="control-group">
-			<div class="controls controls-row">
-				<input type="text" class="span12" name="q" value="@params.query" />
-			</div>
-		</div>
+@rightSidebarLayout(Messages("forms.search")) {
+	@helper.form(action = action, 'class -> "form-search") {
+        <div class="controls-row">
+            <input type="text" class="span10 search-query" name="q" value="@params.query" />
+            <button type="submit" class="btn">@Messages("forms.search")</button>
+        </div>
+
+        <p>
+            @common.selectedFacets(result)
+        </p>
 
         <h3>@Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)</h3>
 
@@ -26,9 +29,8 @@
 
                         </h5>
                         <p class="search-hit-description">
-                            @{println(item.e)}
                             @item.descriptions.headOption.map { d =>
-                            @d.e.stringProperty(IsadG.SCOPE_CONTENT)
+                                @d.e.stringProperty(IsadG.SCOPE_CONTENT)
                             }
                         </p>
                     </li>

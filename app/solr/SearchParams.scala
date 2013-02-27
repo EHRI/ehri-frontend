@@ -42,8 +42,7 @@ case class SearchParams(
   sort: Option[SearchOrder.Value] = None,
   reversed: Option[Boolean] = Some(false),
   entity: Option[EntityType.Value] = None,
-  fields: Option[List[String]] = None,
-  facets: Option[List[facet.AppliedFacet]] = None
+  fields: Option[List[String]] = None
 )
 
 object SearchParams {
@@ -58,10 +57,7 @@ object SearchParams {
       "sort" -> optional(models.forms.enum(SearchOrder)),
       "order" -> optional(boolean),
       "st" -> optional(models.forms.enum(EntityType)),
-      "qf" -> optional(list(nonEmptyText)),
-      "f" -> optional(list(
-        mapping("n" -> nonEmptyText, "v" -> list(nonEmptyText))(facet.AppliedFacet.apply _)(facet.AppliedFacet.unapply _)
-      ))
+      "qf" -> optional(list(nonEmptyText))
     )(SearchParams.apply _)(SearchParams.unapply _)
   )
 }

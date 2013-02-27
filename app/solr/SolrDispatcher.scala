@@ -10,7 +10,7 @@ import xml.{Node,NodeSeq}
 import concurrent.Future
 import defines.EntityType
 import rest.RestError
-
+import solr.facet.AppliedFacet
 
 
 object SolrDispatcher {
@@ -39,17 +39,17 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     )
   }
 
-  def list(params: SearchParams): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+  def list(params: SearchParams, facets: List[AppliedFacet]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = SolrHelper.buildQuery(params)
+    val queryRequest = SolrHelper.buildQuery(params, facets)
     Logger.logger.debug(queryRequest.queryString())
 
     WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
         val resp = new QueryResponse(writerType=queryRequest.writerType, rawBody=r.body)
-        val facetClasses = SolrHelper.extract(resp, params.entity, params.facets)
+        val facetClasses = SolrHelper.extract(resp, params.entity, facets)
         val nodes = xml.XML.loadString(r.body)
 
         ItemPage(itemsFromXml(nodes), offset, limit, resp.response.numFound, facetClasses)
@@ -60,7 +60,8 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
   def facet(
     facet: String,
     sort: String = "name",
-    params: SearchParams): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
+    params: SearchParams,
+    facets: List[AppliedFacet]): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -68,20 +69,20 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     // actually care about the documents, so even this is
     // not strictly necessary... we also don't care about the
     // ordering.
-    val queryRequest = SolrHelper.buildQuery(params)
+    val queryRequest = SolrHelper.buildQuery(params, facets)
 
     WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
         val resp = new QueryResponse(writerType=queryRequest.writerType, rawBody=r.body)
-        val facetClasses = SolrHelper.extract(resp, params.entity, params.facets)
+        val facetClasses = SolrHelper.extract(resp, params.entity, facets)
 
         val facetClass = facetClasses.find(_.param==facet).getOrElse(
             throw new Exception("Unknown facet: " + facet))
-        val facets = sort match {
+        val facetLabels = sort match {
           case "name" => facetClass.sortedByName.slice(offset, offset + limit)
           case _ => facetClass.sortedByCount.slice(offset, offset + limit)
         }
-        FacetPage(facetClass, facets, offset, limit, facetClass.count)
+        FacetPage(facetClass, facetLabels, offset, limit, facetClass.count)
       }
     }
   }

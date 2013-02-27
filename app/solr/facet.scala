@@ -4,6 +4,9 @@ import java.util.Locale
 
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParams, FacetParam, Param, Value}
 import defines.EntityType
+import views.Helpers
+import play.api.i18n.Messages
+import play.api.mvc.{AnyContent, Request}
 
 object Utils {
 
@@ -151,7 +154,7 @@ case class FieldFacetClass(
   }
   
   override def populateFromSolr(data: xml.Elem, current: List[AppliedFacet]): FacetClass = {
-    val applied: List[String] = current.filter(_.name == param).headOption.map(_.values).getOrElse(List[String]())
+    val applied: List[String] = current.filter(_.name == key).headOption.map(_.values).getOrElse(List[String]())
     val nodes = data.descendant.filter(n => (n \ "@name").text == "facet_fields") 
     var facets = List[Facet]()
     if (nodes.length > 0) {
@@ -187,7 +190,7 @@ case class QueryFacetClass(
   }
   
   override def populateFromSolr(data: xml.Elem, current: List[AppliedFacet]): FacetClass = {
-    val applied: List[String] = current.filter(_.name == param).headOption.map(_.values).getOrElse(List[String]())
+    val applied: List[String] = current.filter(_.name == key).headOption.map(_.values).getOrElse(List[String]())
     val popfacets = facets.flatMap(f => {
       var nameval = "%s:%s".format(key, f.solrVal)
       data.descendant.filter(n => (n \\ "@name").text == nameval).text match {
@@ -207,8 +210,30 @@ object FacetData {
   // Temporary hard-coded facet definitions... this will
   // be loaded from a config file at some point
 
+  def bindFromRequest(facetClasses: List[FacetClass])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
+    val qs = request.queryString
+    facetClasses.flatMap { fc =>
+      qs.get(fc.param).map { values =>
+        AppliedFacet(fc.key, values.toList)
+      }
+    }
+  }
+
   val facets = Map[String,List[FacetClass]](
   // No facets get...
+    "all" -> List(
+      FieldFacetClass(
+        key="languageCode",
+        name=Messages("isadg.languageCode"),
+        param="lang",
+        render=Helpers.languageCodeToName
+      ),
+      FieldFacetClass(
+        key="conditionsOfAccess",
+        name=Messages("isadg.conditionsOfAccess"),
+        param="accessCond"
+        )
+    )
   )
 
   def getForIndex(entity: Option[EntityType.Value]) = {

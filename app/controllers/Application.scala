@@ -11,6 +11,7 @@ import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base.{DescribedEntity, AccessibleEntity}
+import solr.facet.FacetData
 
 
 object Application extends Controller with Auth with LoginLogout with Authorizer with AuthController {
@@ -42,14 +43,15 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   def search = userProfileAction { implicit userOpt => implicit request =>
     import solr._
     val sp = SearchParams.form.bindFromRequest.value.get
+    val facets = FacetData.bindFromRequest(FacetData.getForIndex(sp.entity))
     AsyncRest {
-      SolrDispatcher(userOpt).list(sp).map { resOrErr =>
+      SolrDispatcher(userOpt).list(sp, facets).map { resOrErr =>
         resOrErr.right.map { res =>
           AsyncRest {
             rest.SearchDAO(userOpt).list(res.items.map(_.itemId)).map { listOrErr =>
               listOrErr.right.map { list =>
                 Ok(views.html.search(res.copy(items = list.map(DescribedEntity(_))),
-                    sp, routes.Application.search, routes.DocumentaryUnits.get _))
+                    sp, facets, routes.Application.search, routes.DocumentaryUnits.get _))
               }
             }
           }

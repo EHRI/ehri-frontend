@@ -14,6 +14,7 @@ pages.admin.userManagement=Manage Users
 
 forms.adminArea=Administration Area
 forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
+forms.search=Search
 
 search.filterItems=Filter Items
 search.sortItems=Sort Items

@@ -73,13 +73,15 @@ object SolrHelper {
    * @param appliedFacets
    */
   private def setRequestFilters(request: QueryRequest, facetClasses: List[FacetClass],
-                                appliedFacets: Option[List[AppliedFacet]]): Unit = {
+                                appliedFacets: List[AppliedFacet]): Unit = {
     // filter the results by applied facets
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
     // apparently only have one. So instead of adding multiple
     // fq clauses, we need to join them all with '+'
+    println("AF: " + appliedFacets)
+    println("FC: " + facetClasses)
     val fqstrings = facetClasses.flatMap(fclass => {
-      appliedFacets.flatMap(_.filter(_.name == fclass.param).headOption).map(_.values).map( paramVals =>
+      appliedFacets.filter(_.name == fclass.key).map(_.values).map( paramVals =>
         fclass match {
           case fc: FieldFacetClass => {
             paramVals.map("%s:\"%s\"".format(fc.key, _))
@@ -93,8 +95,10 @@ object SolrHelper {
           }
         }
       )
-    })
-    request.setFilterQuery(FilterQuery(fqstrings.mkString(" +")))
+    }).flatten
+    println("FQ: " + fqstrings)
+    if (!fqstrings.isEmpty)
+      request.setFilterQuery(FilterQuery("+" + fqstrings.mkString(" +")))
   }
 
   /**
@@ -103,7 +107,7 @@ object SolrHelper {
    * @param entity
    * @param appliedFacets
    */
-  def constrain(request: QueryRequest, entity: Option[EntityType.Value], appliedFacets: Option[List[AppliedFacet]]): Unit = {
+  def constrain(request: QueryRequest, entity: Option[EntityType.Value], appliedFacets: List[AppliedFacet]): Unit = {
     val flist = FacetData.getForIndex(entity)
     setRequestFacets(request, flist)
     setRequestFilters(request, flist, appliedFacets)
@@ -118,9 +122,9 @@ object SolrHelper {
    * @return
    */
   def extract(response: QueryResponse, entity: Option[EntityType.Value],
-              appliedFacets: Option[List[AppliedFacet]]): List[FacetClass] = {
+              appliedFacets: List[AppliedFacet]): List[FacetClass] = {
     val rawData = xml.XML.loadString(response.rawBody)
-    FacetData.getForIndex(entity).map(_.populateFromSolr(rawData, appliedFacets.getOrElse(List())))
+    FacetData.getForIndex(entity).map(_.populateFromSolr(rawData, appliedFacets))
   }
 
   /**
@@ -128,7 +132,7 @@ object SolrHelper {
    * @param params
    * @return
    */
-  def buildQuery(params: SearchParams): QueryRequest = {
+  def buildQuery(params: SearchParams, facets: List[AppliedFacet]): QueryRequest = {
 
     val queryString = "%s".format(params.query.getOrElse("*").trim)
 
@@ -157,8 +161,11 @@ object SolrHelper {
       req.set("qf", fieldList.mkString(" "))
     }
 
+    // Mmmn, speckcheck
+    req.set("spellcheck", "true")
+
     // Facet the request accordingly
-    SolrHelper.constrain(req, params.entity, params.facets)
+    SolrHelper.constrain(req, params.entity, facets)
 
     // if we're using a specific index, constrain on that as well
     params.entity match {
