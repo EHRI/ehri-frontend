@@ -1,0 +1,32 @@
+@(facets: List[solr.facet.FacetClass], call: Call)(implicit req: RequestHeader, lang: Lang)
+
+@import solr.facet.Utils
+
+@facets.map { fc =>
+    @if(fc.count > 0) {
+        <h4>
+            <a class="facet-header" href="#">@Messages(fc.name)</a>
+        </h4>
+        <dl>
+        @fc.sorted.take(10).map { f =>
+            @if(f.applied) {
+                <dd class="selected-filter">@fc.pretty(f) (@f.count)
+                    <a class="remove-filter" href="@Utils.pathWithoutFacet(fc, f,
+                        req.path, req.queryString.filterKeys(_!="page"))"><i class="icon-remove"></i></a>
+                        } else {
+                <dd>
+                    <a href="@Utils.pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">@fc.pretty(f)
+                        (@f.count)</a>
+                </dd>
+                }
+                }
+                    @if(fc.sorted.length > 10) {
+                    @*
+                    <a data-fclass="@fc.param"
+                    href="@Utils.joinPath(routes.Search.facets(facet=fc.param, rtype=rtype).toString, req.queryString.filterKeys(_!="page"))"
+                    *@
+        class="more-facets">More...</a>
+    }
+        </dl>
+    }
+    }
