@@ -42,14 +42,20 @@ object SolrIndexer extends RestDAO {
    * Delete a list of Solr models.
    */
   def deleteItemsById(items: Stream[String]): Future[Either[RestError,SolrUpdateResponse]] = {
-    val delete = Json.toJson(items.map{ item =>
-      Json.obj("delete" -> Json.obj("id" -> item))
-    })
+    // NB: Solr delete syntax requires a MAP rather than a list
+    val delete = items.foldLeft(Json.obj()) { case (obj,id) =>
+      // NB: Because we delete logical items, but descriptions are indexed
+      // we use a slightly dodgy query to delete stuff...
+      //Json.obj("delete" -> Json.obj("query" -> s"id:'$id' OR itemId:'$id'"))
+      obj + ("delete" -> Json.obj("query" -> s"id:'$id' OR itemId:'$id'"))
+    }
+
     WS.url(updateUrl).withHeaders(headers.toList: _*).post(delete).map { response =>
       checkError(response).right.map(_.json.validate[SolrUpdateResponse].fold({ err =>
-        Logger.logger.error("Unexpected Solr update response: {}", response.body)
+        Logger.logger.error("Unexpected Solr delete response: {}", response.body)
         sys.error(err.toString)
       }, { sur =>
+        println(sur)
         sur
       }
       ))
