@@ -229,6 +229,12 @@ object FacetData {
         render=Helpers.languageCodeToName
       ),
       FieldFacetClass(
+        key="type",
+        name=Messages("search.type"),
+        param="type",
+        render=s => Messages("contentTypes." + s)
+      ),
+      FieldFacetClass(
         key="conditionsOfAccess",
         name=Messages("isadg.conditionsOfAccess"),
         param="accessCond"
