@@ -11,7 +11,7 @@ case class SearchDAO(userProfile: Option[UserProfile]) extends RestDAO {
   def requestUrl = "http://%s:%d/%s/entities".format(host, port, mount)
 
   def list(ids: Seq[String]): Future[Either[RestError, List[Entity]]] = {
-    WS.url(enc(requestUrl, "?" + (ids.map("id=" + _).mkString("&")))).withHeaders(headers.toSeq: _*)
+    WS.url(enc(requestUrl, "?" + (ids.map("id=" + _).mkString("&")))).withHeaders(authHeaders.toSeq: _*)
       .get.map { response =>
         checkError(response).right.map { r =>
           r.json.validate[List[models.Entity]].fold(
