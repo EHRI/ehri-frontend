@@ -3,7 +3,7 @@ package views
 import java.util.Locale
 
 import views.html.helper.FieldConstructor
-import models.base.AccessibleEntity
+import models.base.{DescribedEntity, AccessibleEntity}
 import play.api.mvc.Call
 import play.api.i18n.Lang
 
@@ -18,6 +18,20 @@ package object Helpers {
   private val markdownProcessor = new MarkdownProcessor
 
   def renderMarkdown(text: String) = markdownProcessor.markdown(text)
+
+  /**
+   * Condense multiple descriptions that are next to each other in a list.
+   * This is not the same as removing duplicates
+   */
+  def condenseMultipleDescriptions(items: Seq[DescribedEntity]): Seq[DescribedEntity] = {
+    items.foldLeft(Seq[DescribedEntity]()) { case (s,d) =>
+      s.lastOption.map { ld =>
+        if (ld.id == d.id) s else s ++ Seq(d)
+      } getOrElse {
+        s ++ Seq(d)
+      }
+    }
+  }
 
   /*
    * Helper to provide Digg-style pagination, like:

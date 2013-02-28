@@ -24,6 +24,7 @@ search.sortReversed=(Descending)
 search.noItemsFound=No Items Found
 search.updateIndex=Update Search Index
 search.typesToUpdate=Types to Update
+search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descriptions}
 
 footer.footerText=This is a development version of the EHRI data entry interface.
 

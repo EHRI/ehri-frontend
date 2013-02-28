@@ -41,6 +41,7 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
 
   // Testing search
   def search = userProfileAction { implicit userOpt => implicit request =>
+
     import solr._
     val sp = SearchParams.form.bindFromRequest.value.get
     val facets = FacetData.bindFromRequest(FacetData.getForIndex(sp.entity))
@@ -48,9 +49,11 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
       SolrDispatcher(userOpt).list(sp, facets).map { resOrErr =>
         resOrErr.right.map { res =>
           AsyncRest {
+            println(res.items.map(_.itemId))
             rest.SearchDAO(userOpt).list(res.items.map(_.itemId)).map { listOrErr =>
               listOrErr.right.map { list =>
-                Ok(views.html.search(res.copy(items = list.map(DescribedEntity(_))),
+                val page = res.copy(items = list.map(DescribedEntity(_)))
+                Ok(views.html.search(page,
                     sp, facets, routes.Application.search, routes.DocumentaryUnits.get _))
               }
             }

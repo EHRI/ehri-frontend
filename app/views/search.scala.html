@@ -15,27 +15,20 @@
 
         @common.pagination(result)
 		<ul class="unstyled">
-		@result.items.map { item =>
-            @item match {
-
-                case d: DocumentaryUnit => {
-                    @documentaryUnit.listItem(d)
-                }
-
-                case _ => {
-                    <li>
-                        <h5>
-                            <a href="@views.Helpers.urlFor(item)">@item</a>
-
-                        </h5>
-                        <p class="search-hit-description">
-                            @item.descriptions.headOption.map { d =>
-                                @d.e.stringProperty(IsadG.SCOPE_CONTENT)
-                            }
-                        </p>
-                    </li>
-                }
-            }
+		@views.Helpers.condenseMultipleDescriptions(result.items).map { item =>
+            <li>
+                <h5>
+                    <a href="@views.Helpers.urlFor(item)">@item</a>
+                    @if(item.descriptions.size > 1) {
+                        <span class="muted">(@Messages("search.numDescriptions", item.descriptions.size))</span>
+                    }
+                </h5>
+                <p class="search-hit-description">
+                    @item.descriptions.headOption.map { d =>
+                        @d.e.stringProperty(IsadG.SCOPE_CONTENT)
+                    }
+                </p>
+            </li>
 		}
 		</ul>
 	}
