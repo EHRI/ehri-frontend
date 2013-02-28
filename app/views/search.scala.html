@@ -25,7 +25,7 @@
                 case _ => {
                     <li>
                         <h5>
-                            <a href="@showAction(item.e.id)">@item.stringProperty("name")</a>
+                            <a href="@views.Helpers.urlFor(item)">@item</a>
 
                         </h5>
                         <p class="search-hit-description">
