@@ -43,19 +43,12 @@ object SolrIndexer extends RestDAO {
    */
   def deleteItemsById(items: Stream[String]): Future[Either[RestError,SolrUpdateResponse]] = {
     // NB: Solr delete syntax requires a MAP rather than a list
-    val delete = items.foldLeft(Json.obj()) { case (obj,id) =>
+    val deleteJson = items.foldLeft(Json.obj()) { case (obj,id) =>
       // NB: Because we delete logical items, but descriptions are indexed
       // we use a slightly dodgy query to delete stuff...
       obj + ("delete" -> Json.obj("query" -> "id:\"%s\" OR itemId:\"%s\"".format(id, id)))
     }
-
-    WS.url(updateUrl).withHeaders(headers.toList: _*).post(delete).map { response =>
-      checkError(response).right.map(_.json.validate[SolrUpdateResponse].fold({ err =>
-        Logger.logger.error("Unexpected Solr delete response: {}", response.body)
-        sys.error(err.toString)
-      }, { sur => sur }
-      ))
-    }
+    solrUpdate(deleteJson)
   }
 
   /*
@@ -63,6 +56,13 @@ object SolrIndexer extends RestDAO {
    */
   def deleteItems(items: Stream[Entity]): Future[Either[RestError,SolrUpdateResponse]] = {
     deleteItemsById(items.map(_.id))
+  }
+
+  def deleteItemsByType(entityType: EntityType.Value): Future[Either[RestError,SolrUpdateResponse]] = {
+    val deleteJson = Json.obj(
+      "delete" -> Json.obj("query" -> ("type:" + entityIndexType(entityType).toString))
+    )
+    solrUpdate(deleteJson)
   }
 
   /*
@@ -74,19 +74,34 @@ object SolrIndexer extends RestDAO {
     Future.sequence(items.grouped(batchSize).toList.map(stream => updateBatch(stream.toList)))
   }
 
+  /**
+   * Run a Solr command, consisting of some Json.
+   * @param updateJson
+   * @return
+   */
+  private def solrUpdate(updateJson: JsValue): Future[Either[RestError,SolrUpdateResponse]] = {
+    WS.url(updateUrl).withHeaders(headers.toList: _*).post(updateJson).map { response =>
+      checkError(response).right.map(_.json.validate[SolrUpdateResponse].fold({ err =>
+        Logger.logger.error("Unexpected Solr response: {}", response.body)
+        sys.error(err.toString)
+      }, { sur => sur }
+      ))
+    }
+  }
+
   /* Update a single batch of solr models.
    */
   private def updateBatch(items: List[Entity]): Future[Either[RestError,SolrUpdateResponse]] = {
-    val data = items.flatMap(itemToJson)
-    WS.url(updateUrl).withHeaders(headers.toList: _*).post(Json.toJson(data)).map { response =>
-      checkError(response).right.map(_.json.validate[SolrUpdateResponse].fold({ err =>
-          Logger.logger.error("Unexpected Solr update response: {}", response.body)
-          sys.error(err.toString)
-        }, { sur =>
-        sur
-      }
-      ))
-    }
+    val data = Json.toJson(items.flatMap(itemToJson))
+    solrUpdate(data)
+  }
+
+  private def entityIndexType(entityType: EntityType.Value): EntityType.Value = entityType match {
+    case EntityType.DocumentaryUnit => EntityType.DocumentaryUnitDescription
+    case EntityType.Concept => EntityType.ConceptDescription
+    case EntityType.Authority => EntityType.AuthorityDescription
+    case EntityType.Agent => EntityType.AgentDescription
+    case e => e
   }
 
   /**
@@ -94,7 +109,7 @@ object SolrIndexer extends RestDAO {
    * @param item
    * @return
    */
-  def itemToJson(item: Entity): List[JsObject] = item.isA match {
+  private def itemToJson(item: Entity): List[JsObject] = item.isA match {
     case EntityType.DocumentaryUnit => docToSolr(DocumentaryUnit(item))
     case EntityType.Agent => repoToSolr(Repository(item))
     case EntityType.Concept => conceptToSolr(Concept(item))

@@ -57,11 +57,16 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
         entity <- entities
         pageOrErr <- EntityDAO(entity, userOpt).page(RestPageParams())
       } {
-        for { page <- pageOrErr.right } {
-          // Since we've already fetched a page of data, reuse it immediately
-          updateItemSet(entity, 1, chan)
-          2.to(page.numPages.toInt).foreach { p =>
-            updateItemSet(entity, p.toInt, chan)
+        // Clear all Entities from the index...
+        solr.SolrIndexer.deleteItemsByType(entity).map { resOrErr =>
+          resOrErr.right.map { _ =>
+            for { page <- pageOrErr.right } {
+              // Since we've already fetched a page of data, reuse it immediately
+              updateItemSet(entity, 1, chan)
+              2.to(page.numPages.toInt).foreach { p =>
+                updateItemSet(entity, p.toInt, chan)
+              }
+            }
           }
         }
       }
