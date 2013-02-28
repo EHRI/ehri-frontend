@@ -17,6 +17,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import defines._
 import rest.{RestError, EntityDAO}
+import play.api.GlobalSettings
 
 
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
@@ -30,6 +31,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
+
+  object SimpleFakeGlobal extends GlobalSettings
 
   // Set up Neo4j server config
   val runner: ServerRunner = new ServerRunner(classOf[ApplicationSpec].getName, testPort)
@@ -256,7 +259,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     }
 
     "should redirect to login page when permission denied when not logged in" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(SimpleFakeGlobal))) {
         val show = route(FakeRequest(GET, routes.DocumentaryUnits.get("c1").url)).get
         status(show) must equalTo(SEE_OTHER)
       }

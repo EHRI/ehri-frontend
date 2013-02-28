@@ -198,27 +198,20 @@ class DAOSpec extends Specification with BeforeExample {
     }
   }
 
-/*  "CypherDAO" should {
+  "CypherDAO" should {
     "get a JsValue for a graph item" in {
       running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
-        val dao = rest.cypher.CypherDAO()
-        
-        //println(await(WS.url("http://localhost:7575/db/data/").get).body)
-        
+        val dao = rest.cypher.CypherDAO(Some(userProfile))
         // FIXME: Cypher seems
-        val res = await(dao.cypher("START n = node:userProfile('identifier:*') RETURN n.identifier, n.name"))
-        res.right.map { r =>
-          println(r)
-        }
-        res.left.map { err =>
-          println(err + ": " + err.message + " - " + err.stacktrace)
-        }
+        val res = await(dao.cypher("START n = node:entities('__ID__:admin') RETURN n.identifier, n.name"))
         res must beRight
-        true must beTrue
+        // It should return one list value in the data section
+        val list = (res.right.get \ "data").as[List[List[String]]]
+        list(0)(0) mustEqual("admin")
       }
     }
   }
-*/  
+
   step {
     runner.stop
   }
