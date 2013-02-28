@@ -17,7 +17,11 @@ import play.api.libs.json.JsObject
 import models.DocumentaryUnit
 import defines.EntityType
 
-
+/**
+ * Object containing functions for managing the Solr index.
+ * Most of this should eventually go away when we have a
+ * proper external indexing service.
+ */
 object SolrIndexer extends RestDAO {
   // We don't need a user here yet unless we want to log
   // when the Solr index is changed.
