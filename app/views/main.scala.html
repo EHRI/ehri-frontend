@@ -111,6 +111,7 @@
                     <div class="nav-collapse collapse">
                         <ul class="nav">
                             <li class="@{if(req.path == "/") "active" else ""}"><a href="/">@Messages("pages.home")</a></li>
+                            @activeIfCurrent(routes.Application.search(), Messages("pages.search"))
                             @activeIfCurrent(routes.DocumentaryUnits.list(), Messages("contentTypes." + EntityType.DocumentaryUnit))
                             @activeIfCurrent(routes.Repositories.list(), Messages("contentTypes." + EntityType.Agent))
                             @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
