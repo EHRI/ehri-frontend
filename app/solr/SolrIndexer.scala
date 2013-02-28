@@ -47,7 +47,7 @@ object SolrIndexer extends RestDAO {
       // NB: Because we delete logical items, but descriptions are indexed
       // we use a slightly dodgy query to delete stuff...
       //Json.obj("delete" -> Json.obj("query" -> s"id:'$id' OR itemId:'$id'"))
-      obj + ("delete" -> Json.obj("query" -> s"id:'$id' OR itemId:'$id'"))
+      obj + ("delete" -> Json.obj("query" -> "id:\"%s\" OR itemId:\"%s\"".format(id, id)))
     }
 
     WS.url(updateUrl).withHeaders(headers.toList: _*).post(delete).map { response =>
@@ -160,6 +160,7 @@ object SolrIndexer extends RestDAO {
   private def entityToSolr(d: Entity): List[JsObject] = {
     val baseData = Json.obj(
       "id" -> d.id,
+      "itemId" -> d.id, // Duplicate, because the 'description' IS the item.
       "type" -> d.isA,
       "accessibleTo" -> d.relations(AccessibleEntity.ACCESS_REL).map(a => a.id)
     )
