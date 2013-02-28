@@ -3,6 +3,9 @@ jQuery(function($) {
   // Chosen selects - makes multi-select pretty
   $(".chzn-select").chosen();
 
+  // Fade success flash message after 3 seconds
+  $(".success-pullup").fadeOut(3000);
+
   // Delete inline date period tables
   $(".inline-element-set").on("click", ".remove-inline-element", function(event) {
     $(this).closest(".inline-element").remove();
