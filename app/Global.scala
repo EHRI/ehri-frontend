@@ -22,7 +22,8 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers
     EntityDAO.addCreateHandler { item =>
-      SolrIndexer.updateItems(Stream(item)).map { batchList =>
+      Logger.logger.info("Binding creation event to Solr create action")
+      solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
         batchList.map { result =>
           result.left.map { err =>
             Logger.logger.error("Solr create error: " + err)
@@ -32,7 +33,8 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     }
 
     EntityDAO.addUpdateHandler { item =>
-      SolrIndexer.updateItems(Stream(item)).map { batchList =>
+      Logger.logger.info("Binding update event to Solr update action")
+      solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
         batchList.map { result =>
           result.left.map { err =>
             Logger.logger.error("Solr update error: " + err)
@@ -42,7 +44,8 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     }
 
     EntityDAO.addDeleteHandler { item =>
-      SolrIndexer.deleteItemsById(Stream(item)).map { result =>
+      Logger.logger.info("Binding delete event to Solr delete action")
+      solr.SolrIndexer.deleteItemsById(Stream(item)).map { result =>
         result.left.map { err =>
           Logger.logger.error("Solr delete error: " + err)
         }
