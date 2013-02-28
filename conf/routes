@@ -27,6 +27,10 @@ POST    /admin/login                    controllers.Admin.passwordLoginPost
 GET     /admin/changePassword           controllers.Admin.changePassword
 POST    /admin/changePassword           controllers.Admin.changePasswordPost
 
+GET     /admin/updateIndex              controllers.SearchAdmin.updateIndex
+POST    /admin/updateIndex              controllers.SearchAdmin.updateIndexPost
+
+
 # Search testing
 GET /search                             controllers.Application.search
 

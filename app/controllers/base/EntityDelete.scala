@@ -5,6 +5,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import defines.PermissionType
 import models.{Entity, UserProfile}
+import solr.SolrIndexer
 
 /**
  * Controller trait for deleting AccessibleEntities.

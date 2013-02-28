@@ -16,6 +16,7 @@ import defines.{EntityType,ContentType,PermissionType}
 import models.UserProfile
 import models.{DocumentaryUnit,DocumentaryUnitF,UserProfileF}
 import rest.RestPageParams
+import play.api.GlobalSettings
 
 class DAOSpec extends Specification with BeforeExample {
   sequential
@@ -24,6 +25,7 @@ class DAOSpec extends Specification with BeforeExample {
   val config = Map("neo4j.server.port" -> testPort)
   val userProfile = UserProfile(Entity.fromString("mike", EntityType.UserProfile))
   val entityType = EntityType.UserProfile
+  object FakeGlobal extends GlobalSettings
 
   val runner: ServerRunner = new ServerRunner(classOf[DAOSpec].getName, testPort)
   runner.getConfigurator
@@ -39,20 +41,20 @@ class DAOSpec extends Specification with BeforeExample {
 
   "EntityDAO" should {
     "get an item by id" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         await(EntityDAO(entityType, Some(userProfile)).get(userProfile.identifier)) must beRight
       }
     }
 
     "create an item" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
         await(EntityDAO(entityType, Some(userProfile)).create(user)) must beRight
       }
     }
 
     "create an item in (agent) context" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val doc = DocumentaryUnitF(id = None, identifier = "foobar", name = "Foobar")
         val r = await(EntityDAO(EntityType.Agent, Some(userProfile)).createInContext("r1", ContentType.DocumentaryUnit, doc))
         r must beRight
@@ -62,7 +64,7 @@ class DAOSpec extends Specification with BeforeExample {
     }
 
     "create an item in (doc) context" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val doc = DocumentaryUnitF(id = None, identifier = "foobar", name = "Foobar")
         val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext("c1", ContentType.DocumentaryUnit, doc))
         r must beRight
@@ -72,7 +74,7 @@ class DAOSpec extends Specification with BeforeExample {
     }
         
     "update an item by id" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
         val entity = await(EntityDAO(entityType, Some(userProfile)).create(user)).right.get
         val udata = UserProfile(entity).formable.copy(location = Some("London"))
@@ -82,7 +84,7 @@ class DAOSpec extends Specification with BeforeExample {
     }
 
     "error when creating an item with a non-unique id" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
         await(EntityDAO(entityType, Some(userProfile)).create(user))
         val err = await(EntityDAO(entityType, Some(userProfile)).create(user))
@@ -92,7 +94,7 @@ class DAOSpec extends Specification with BeforeExample {
     }
 
     "error when fetching a non-existing item" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val err = await(EntityDAO(entityType, Some(userProfile)).get("blibidyblob"))
         err must beLeft
         err.left.get must beAnInstanceOf[ItemNotFound]
@@ -101,7 +103,7 @@ class DAOSpec extends Specification with BeforeExample {
     }
 
     "delete an item by id" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val user = UserProfileF(id=None, identifier = "foobar", name = "Foobar")
         val entity = await(EntityDAO(entityType, Some(userProfile)).create(user)).right.get
         await(EntityDAO(entityType, Some(userProfile)).delete(entity.id)) must beRight
@@ -109,7 +111,7 @@ class DAOSpec extends Specification with BeforeExample {
     }
 
     "page items" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         await(EntityDAO(entityType, Some(userProfile)).page(RestPageParams())) must beRight
       }
     }    
@@ -117,7 +119,7 @@ class DAOSpec extends Specification with BeforeExample {
 
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val perms = await(PermissionDAO[UserProfile](Some(userProfile)).get)
         perms must beRight
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
@@ -125,7 +127,7 @@ class DAOSpec extends Specification with BeforeExample {
     }
     
     "be able to set a user's permissions" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         val data = Map("agent" -> List("create", "update", "delete"), "documentaryUnit" -> List("create", "update","delete"))
         val perms = await(PermissionDAO(Some(userProfile)).get(user))
@@ -144,7 +146,7 @@ class DAOSpec extends Specification with BeforeExample {
     }
 
     "be able to set a user's permissions within a scope" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         val data = Map(ContentType.DocumentaryUnit.toString -> List("create", "update","delete"))
         val perms = await(PermissionDAO(Some(userProfile)).get(user))
@@ -164,7 +166,7 @@ class DAOSpec extends Specification with BeforeExample {
     }
 
     "be able to set a user's permissions for an item" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
         // NB: Currently, there's already a test permission grant for Reto-create on c1...
         val data = List("update","delete")
@@ -182,7 +184,7 @@ class DAOSpec extends Specification with BeforeExample {
   
   "VisibilityDAO" should {
     "set visibility correctly" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         
         // First, fetch an object and assert its accessibility
         val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
@@ -198,7 +200,7 @@ class DAOSpec extends Specification with BeforeExample {
 
 /*  "CypherDAO" should {
     "get a JsValue for a graph item" in {
-      running(FakeApplication(additionalConfiguration = config)) {
+      running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val dao = rest.cypher.CypherDAO()
         
         //println(await(WS.url("http://localhost:7575/db/data/").get).body)

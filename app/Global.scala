@@ -9,9 +9,46 @@ import org.apache.commons.codec.binary.Base64
 
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
+import rest.EntityDAO
+import solr.SolrIndexer
 
 // Note: this is in the default package.
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
+
+  override def onStart(app: Application) {
+
+    import play.api.libs.concurrent.Execution.Implicits._
+
+    // Bind the EntityDAO Create/Update/Delete actions
+    // to the SolrIndexer update/delete handlers
+    EntityDAO.addCreateHandler { item =>
+      SolrIndexer.updateItems(Stream(item)).map { batchList =>
+        batchList.map { result =>
+          result.left.map { err =>
+            Logger.logger.error("Solr create error: " + err)
+          }
+        }
+      }
+    }
+
+    EntityDAO.addUpdateHandler { item =>
+      SolrIndexer.updateItems(Stream(item)).map { batchList =>
+        batchList.map { result =>
+          result.left.map { err =>
+            Logger.logger.error("Solr update error: " + err)
+          }
+        }
+      }
+    }
+
+    EntityDAO.addDeleteHandler { item =>
+      SolrIndexer.deleteItemsById(Stream(item)).map { result =>
+        result.left.map { err =>
+          Logger.logger.error("Solr delete error: " + err)
+        }
+      }
+    }
+  }
 
   private def noAuthAction = Action { request =>
     play.api.mvc.Results.Unauthorized("This application required authentication")

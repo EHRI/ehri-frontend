@@ -18,7 +18,7 @@ import play.api.Logger
  * @param total
  * @param offset
  * @param limit
- * @param list
+ * @param items
  * @tparam T
  */
 case class Page[+T](
@@ -107,6 +107,28 @@ object EntityDAO {
       }
     )
   }
+
+  /**
+   * Global listeners for CUD events
+   */
+  import scala.collection.mutable.ListBuffer
+  private val onCreate: ListBuffer[Entity => Unit] = ListBuffer()
+  private val onUpdate: ListBuffer[Entity => Unit] = ListBuffer()
+  private val onDelete: ListBuffer[String => Unit] = ListBuffer()
+
+  def addCreateHandler(f: Entity => Unit): Unit = onCreate += f
+  def addUpdateHandler(f: Entity => Unit): Unit = onUpdate += f
+  def addDeleteHandler(f: String => Unit): Unit = onDelete += f
+
+  def handleCreate(e: Entity): Entity = {
+    onCreate.foreach(f => f(e))
+    e
+  }
+  def handleUpdate(e: Entity): Entity = {
+    onUpdate.foreach(f => f(e))
+    e
+  }
+  def handleDelete(id: String): Unit = onDelete.foreach(f => f(id))
 }
 
 /**
@@ -148,7 +170,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     WS.url(enc(requestUrl, "?%s".format((accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}") ++ List(qs)).mkString("&"))))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
-        checkError(response).right.map(r => jsonToEntity(r.json))
+        checkError(response).right.map(r => EntityDAO.handleCreate(jsonToEntity(r.json)))
     }
   }
 
@@ -158,7 +180,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     WS.url(enc(requestUrl, id, descriptionType.toString))
       .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
-      checkError(response).right.map(r => jsonToEntity(r.json))
+      checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
     }
   }
 
@@ -169,7 +191,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     WS.url(enc(requestUrl, id, contentType, "?%s".format(accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&"))))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
-        checkError(response).right.map(r => jsonToEntity(r.json))
+        checkError(response).right.map(r => EntityDAO.handleCreate(jsonToEntity(r.json)))
     }
   }
 
@@ -177,7 +199,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     Logger.logger.debug("Posting update: {}", item)
     WS.url(enc(requestUrl, id)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
-        checkError(response).right.map(r => jsonToEntity(r.json))
+        checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
     }
   }
 
@@ -185,21 +207,29 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
       did: String, item: Persistable, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, descriptionType.toString, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
-      checkError(response).right.map(r => jsonToEntity(r.json))
+      checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
     }
   }
 
   def delete(id: String, logMsg: Option[String] = None): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
-      checkError(response).right.map(r => r.status == OK)
+      checkError(response).right.map(r => {
+        EntityDAO.handleDelete(id)
+        r.status == OK
+      })
     }
   }
 
   def deleteDescription(id: String, descriptionType: EntityType.Value, did: String, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, descriptionType.toString, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .delete.map { response =>
-      checkError(response).right.map(r => jsonToEntity(r.json))
+      checkError(response).right.map(r => {
+        // FIXME: This is unfortunate. Since descriptions are indexed as individual
+        // items, deleting one means deleting it individually by ID
+        EntityDAO.handleDelete(did)
+        jsonToEntity(r.json)
+      })
     }
   }
 

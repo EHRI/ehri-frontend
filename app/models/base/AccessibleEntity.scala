@@ -7,12 +7,11 @@ object AccessibleEntity {
   val NAME = "name"
 
   final val EVENT_REL = "lifecycleEvent"
+  final val ACCESS_REL = "access"
 }
 
 trait AccessibleEntity extends WrappedEntity {
   import AccessibleEntity._
-
-  val ACCESS_REL = "access"
 
   val nameProperty = NAME
   
