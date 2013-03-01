@@ -75,7 +75,9 @@ object SolrIndexer extends RestDAO {
    * arbitrarily long lists.
    */
   def updateItems(items: Stream[Entity]): Future[List[Either[RestError,SolrUpdateResponse]]] = {
-    Future.sequence(items.grouped(batchSize).toList.map(stream => updateBatch(stream.toList)))
+    Future.sequence(items.grouped(batchSize).toList.map { batch =>
+      solrUpdate(Json.toJson(batch.toList.flatMap(itemToJson)))
+    })
   }
 
   /**
@@ -93,13 +95,6 @@ object SolrIndexer extends RestDAO {
     }
   }
 
-  /* Update a single batch of solr models.
-   */
-  private def updateBatch(items: List[Entity]): Future[Either[RestError,SolrUpdateResponse]] = {
-    val data = Json.toJson(items.flatMap(itemToJson))
-    solrUpdate(data)
-  }
-
   private def entityIndexType(entityType: EntityType.Value): EntityType.Value = entityType match {
     case EntityType.DocumentaryUnit => EntityType.DocumentaryUnitDescription
     case EntityType.Concept => EntityType.ConceptDescription
@@ -113,19 +108,21 @@ object SolrIndexer extends RestDAO {
    * @param item
    * @return
    */
-  private def itemToJson(item: Entity): List[JsObject] = item.isA match {
-    case EntityType.DocumentaryUnit => docToSolr(DocumentaryUnit(item))
-    case EntityType.Agent => repoToSolr(Repository(item))
-    case EntityType.Concept => conceptToSolr(Concept(item))
-    case any => entityToSolr(item)
+  private def itemToJson(item: Entity): List[JsObject] = {
+    item.isA match {
+      case EntityType.DocumentaryUnit => docToSolr(DocumentaryUnit(item))
+      case EntityType.Agent => repoToSolr(Repository(item))
+      case EntityType.Concept => conceptToSolr(Concept(item))
+      case any => entityToSolr(item)
+    }
   }
   
   private def docToSolr(d: DocumentaryUnit): List[JsObject] = {
     val descriptions = describedEntityToSolr(d)
     descriptions.map { desc =>
       ((desc
-        + ("holderId" -> Json.toJson(d.holder.map(_.id))))
-        + ("holderName" -> Json.toJson(d.holder.map(_.name))))
+        + ("holderId_s" -> Json.toJson(d.holder.map(_.id))))
+        + ("holderName_s" -> Json.toJson(d.holder.map(_.name))))
     }
   }
   
@@ -158,14 +155,18 @@ object SolrIndexer extends RestDAO {
       val baseData = Json.obj(
         "itemId" -> d.id,
         "id" -> desc.id,
+        "identifier" -> d.identifier,
+        "name" -> d.toString,
         "type" -> desc.e.isA,
-        "accessibleTo" -> d.accessors.map(a => a.id)
+        "accessibleTo" -> d.accessors.map(a => a.id),
+        "lastUpdated" -> d.latestEvent.map(_.dateTime),
+        "languageCode" -> d.stringProperty("languageCode")
       )
       // Merge in all the additional data already in the entity
       // Don't overwrite keys added specifically
       desc.e.data.toSeq.foldLeft(baseData) { case (bd, (key, jsval)) =>
         if (!bd.keys.contains(key))
-          bd + (key, jsval)
+          bd + (dynamicFieldName(key, jsval), jsval)
         else
           bd
       }
@@ -182,16 +183,27 @@ object SolrIndexer extends RestDAO {
       "id" -> d.id,
       "itemId" -> d.id, // Duplicate, because the 'description' IS the item.
       "type" -> d.isA,
-      "accessibleTo" -> d.relations(AccessibleEntity.ACCESS_REL).map(a => a.id)
+      "accessibleTo" -> d.relations(AccessibleEntity.ACCESS_REL).map(a => a.id),
+      "lastUpdated" -> d.relations(AccessibleEntity.EVENT_REL).map(a => SystemEvent(a).dateTime)
     )
     // Merge in all the additional data already in the entity
     // Don't overwrite keys added specifically
     val full = d.data.toSeq.foldLeft(baseData) { case (bd, (key, jsval)) =>
       if (!bd.keys.contains(key))
-        bd + (key, jsval)
+        bd + (dynamicFieldName(key, jsval), jsval)
       else
         bd
     }
     List(full)
+  }
+
+  private def dynamicFieldName(key: String, jsValue: JsValue): String = {
+    jsValue match {
+      case v: JsArray => key + "_ss" // Multivalue string
+      case v: JsNumber => key + "_i"  // integer ???
+      case v: JsString => key + "_t"  // Text general
+      case v: JsBoolean => key + "_b" // Boolean
+      case _ => key
+    }
   }
 }

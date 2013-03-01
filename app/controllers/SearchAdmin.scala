@@ -34,7 +34,6 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
 
     def updatePage(entityType: EntityType.Value, page: rest.Page[Entity], chan: Concurrent.Channel[String]) = {
       solr.SolrIndexer.updateItems(page.items.toStream).map { jobs =>
-        println(jobs)
         jobs.map { doneOrErr =>
           doneOrErr.right.map { solrResponse =>
             val msg = s"Done Solr update batch: $entityType (page: ${page.page}, time: ${solrResponse.time})"
