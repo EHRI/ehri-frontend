@@ -1,0 +1,12 @@
+@(field: play.api.data.Field)(implicit fieldPrefix: String, lang: Lang)
+
+<div class="inline-element">
+    <div class="control-group @{if(field.hasErrors) "error"}">
+        <label class="control-label"></label>
+        <div class="controls controls-row">
+            <input type="text" name="@field.name" id="@field.id" value="@field.value" />
+            <span class="help-inline errors">@field.errors.map(_.message).mkString(", ")</span>
+            <a class="close remove-inline-element" tabindex="-1" href="#">&times;</a>
+        </div>
+    </div>
+</div>

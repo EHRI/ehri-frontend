@@ -51,6 +51,7 @@ contentTypes.action=User Events
 contentTypes.systemEvent=System Events
 contentTypes.cvocVocabulary=CVocs
 contentTypes.cvocConcept=Concepts
+contentTypes.cvocConceptDescription=Concepts
 contentTypes.annotation=Annotations
 
 #
@@ -88,6 +89,8 @@ pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Display
 #
 # Concepts
 #
+concept.descriptions=Descriptions
+concept.languageCode=Language
 concept.prefLabel=Label
 concept.altLabel=Alternative Label(s)
 concept.scopeNote=Scope Note

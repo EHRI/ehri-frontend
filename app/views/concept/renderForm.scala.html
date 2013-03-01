@@ -1,4 +1,4 @@
-@(item: Option[Concept], f: play.api.data.Form[models.ConceptF])
+@(item: Option[Concept], f: play.api.data.Form[models.ConceptF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import models.ConceptF._
 
@@ -8,16 +8,16 @@
 
 @defining("concept") { implicit prefix =>
     <fieldset id="descriptions-area">
-    <legend>@Messages("descriptions")</legend>
-        @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-            @formHelpers.hiddenInput(desc(Entity.ID))
-            @formHelpers.lineInput(desc, LANGUAGE)
-            @formHelpers.lineInput(desc, PREFLABEL)
-            @helper.repeat(desc(ALTLABEL), min = item.flatMap(_.listProperty(ALTLABEL).map(_.length)).getOrElse(0) + 1) { field =>
-                @helper.inputText(field, '_label -> Messages(s"${prefix}.${ALTLABEL}"))
+        <div class="inline-element-set">
+            <label>
+                @Messages(prefix + ".descriptions") | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a>
+            </label>
+            <script type="application/x-js-template" class="inline-element-template">
+                @concept.renderDescriptionForm(f("descriptions[IDX]"))
+            </script>
+            @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+                @concept.renderDescriptionForm(desc)
             }
-            @formHelpers.textInput(desc, SCOPENOTE)
-            @formHelpers.textInput(desc, DEFINITION)
-        }
+        </div>
     </fieldset>
 }

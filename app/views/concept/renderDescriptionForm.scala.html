@@ -1,0 +1,14 @@
+@(desc: play.api.data.Field)(implicit prefix: String, lang: Lang)
+
+@import ConceptF._
+
+<div class="concept-description-form inline-element">
+    <a class="close remove-inline-element pull-right" tabindex="-1" href="#">&times;</a>
+    @formHelpers.hiddenInput(desc(Entity.ID))
+    @formHelpers.choiceInput(desc(LANGUAGE), LANGUAGE, views.Helpers.languagePairList, blank=true)
+    @formHelpers.lineInput(desc, PREFLABEL)
+    @*concept.renderInlineNameSet(desc, ALTLABEL)*@
+    @formHelpers.textInput(desc, SCOPENOTE)
+    @formHelpers.textInput(desc, DEFINITION)
+    <hr />
+</div>

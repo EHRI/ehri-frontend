@@ -1,0 +1,17 @@
+@(item: Concept, desc: ConceptDescription)(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+@import models.ConceptF._
+
+<h4>@desc.stringProperty(PREFLABEL)</h4>
+@desc.formable.altLabels.map { altLabels =>
+    @if(!altLabels.isEmpty) {
+    <h4>@Messages(prefix + "." + ALTLABEL)</h4>
+    <ul>
+        @altLabels.map { label =>
+        <li>@label</li>
+        }
+    </ul>
+    }
+}
+@common.stringValue(desc, SCOPENOTE)
+@common.stringValue(desc, DEFINITION)

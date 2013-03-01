@@ -7,22 +7,32 @@
         <div class="span8">
 
             @defining("concept") { implicit prefix =>
-                @item.descriptions.map { desc =>
-                    <div class="description-section">
-                        @desc.formable.altLabels.map { altLabels =>
-                            @if(!altLabels.isEmpty) {
-                                <h4>@Messages(prefix + "." + ALTLABEL)</h4>
-                                <ul>
-                                    @altLabels.map { label =>
-                                        <li>@label</li>
-                                    }
-                                </ul>
-                            }
+                <div class="tabbable">
+                    <ul class="nav nav-tabs">
+                        @item.descriptions.headOption.map { desc =>
+                        <li class="active">
+                            <a href="#tab1" data-toggle="tab">@views.Helpers.displayLanguage(desc.stringProperty("languageCode").getOrElse("en"))</a>
+                        </li>
                         }
-                        @common.stringValue(desc, SCOPENOTE)
-                        @common.stringValue(desc, DEFINITION)
+                        @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
+                        <li>
+                            <a href="#tab@{i+1}" data-toggle="tab">@views.Helpers.displayLanguage(desc.stringProperty("languageCode").getOrElse("en"))</a>
+                        </li>
+                        }
+                    </ul>
+                    <div class="tab-content">
+                        @item.descriptions.headOption.map { desc =>
+                        <div class="tab-pane active" id="tab1">
+                            @concept.renderDescription(item, desc)
+                        </div>
+                        }
+                        @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
+                        <div class="tab-pane" id="tab@{i+1}">
+                            @concept.renderDescription(item, desc)
+                        </div>
+                        }
                     </div>
-                }
+                </div>
             }
 
             @common.annotated(item, annotations, routes.Concepts.annotate(item.id)) {
