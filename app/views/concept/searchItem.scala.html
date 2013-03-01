@@ -1,15 +1,10 @@
 @(item: ConceptDescription)(implicit req: RequestHeader, lang: Lang)
 
-<div class="search-item">
-<h5>
-        @item.item.map { logicalObject =>
-    <a href="@views.Helpers.urlFor(logicalObject)">@item.stringProperty(ConceptF.PREFLABEL) - @views.Helpers.displayLanguage(item.languageCode)</a>
-    }.getOrElse {
-
+@common.searchItemOutline {
+    @item.item.map { logicalObject =>
+        <a href="@views.Helpers.urlFor(logicalObject)">@item.stringProperty(ConceptF.PREFLABEL) - @views.Helpers.displayLanguage(item.languageCode)</a>
     }
-    </h5>
-<p class="search-hit-description">
+} {
     @item.stringProperty(ConceptF.SCOPENOTE)
     @item.stringProperty(ConceptF.DEFINITION)
-</p>
-</div>
+}

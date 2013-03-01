@@ -1,10 +1,7 @@
 @(item: Vocabulary)(implicit req: RequestHeader, lang: Lang)
 
-<div class="search-item">
-    <h5>
-        <a href="@routes.Vocabularies.get(item.id)">@item</a>
-    </h5>
-    <p class="search-hit-description">
-        @item.stringProperty(VocabularyF.DESCRIPTION)
-    </p>
-</div>
+@common.searchItemOutline {
+    <a href="@routes.Vocabularies.get(item.id)">@item</a>
+} {
+    @item.stringProperty(VocabularyF.DESCRIPTION)
+}

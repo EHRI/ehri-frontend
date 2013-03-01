@@ -1,10 +1,7 @@
 @(item: UserProfile)(implicit req: RequestHeader, lang: Lang)
 
-<div class="search-item">
-    <h5>
-        <a href="@routes.UserProfiles.get(item.id)">@item</a>
-    </h5>
-    <p class="search-hit-description">
-        @item.formable.about
-    </p>
-</div>
+@common.searchItemOutline {
+    <a href="@routes.UserProfiles.get(item.id)">@item</a>
+} {
+    @item.formable.about
+}

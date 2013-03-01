@@ -1,10 +1,7 @@
 @(item: Group)(implicit req: RequestHeader, lang: Lang)
 
-<div class="search-item">
-    <h5>
-        <a href="@routes.Groups.get(item.id)">@item</a>
-    </h5>
-    <p class="search-hit-description">
-        @item.stringProperty(GroupF.DESCRIPTION)
-    </p>
-</div>
+@common.searchItemOutline {
+    <a href="@routes.Groups.get(item.id)">@item</a>
+} {
+    @item.stringProperty(GroupF.DESCRIPTION)
+}

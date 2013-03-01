@@ -2,31 +2,27 @@
 
 @import org.apache.commons.lang3.StringUtils
 
-<div class="search-item">
-    <h5>
-        @item.item.map { logicalObject =>
-            <a href="@views.Helpers.urlFor(logicalObject)">@logicalObject</a>
-        }.getOrElse {
-            <span class="error">Unknown object (probably caused by a bug)</span>
-        }
+@common.searchItemOutline {
+    @item.item.map { logicalObject =>
+    <a href="@views.Helpers.urlFor(logicalObject)">@logicalObject</a>
+    }.getOrElse {
+        <span class="error">Unknown object (probably caused by a bug)</span>
+    }
+} {
+    <small>
+        <ul class="unstyled muted inline inline-separator">
+            @item.item.flatMap(_.holder).map { holder =>
+                <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder</a></li>
+            }
+            <li><span class="muted">@views.Helpers.displayLanguage(item.languageCode)</span></li>
 
-    </h5>
-    <p class="search-hit-description">
-        <small>
-            <ul class="muted inline inline-separator">
-                @item.item.flatMap(_.holder).map { holder =>
-                    <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder</a></li>
-                }
-                <li><span class="muted">@views.Helpers.displayLanguage(item.languageCode)</span></li>
-
-                @item.dates.headOption.map { dp =>
+            @item.dates.headOption.map { dp =>
                 <li>@dp.formable.years</li>
-                }
-                @item.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
-                    <li>@s</li>
-                }
-            </ul>
-        </small>
-        @item.stringProperty(IsadG.SCOPE_CONTENT).map(StringUtils.abbreviate(_, 600))
-    </p>
-</div>
+            }
+            @item.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
+                <li>@s</li>
+            }
+        </ul>
+    </small>
+    @item.stringProperty(IsadG.SCOPE_CONTENT).map(StringUtils.abbreviate(_, 600))
+}

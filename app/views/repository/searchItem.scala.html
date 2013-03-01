@@ -1,21 +1,18 @@
 @(item: RepositoryDescription)(implicit req: RequestHeader, lang: Lang)
 
-<div class="search-item">
-    <h5>
-        @item.item.map { logicalObject =>
-            <a href="@views.Helpers.urlFor(logicalObject)">@logicalObject</a>
-        }
-    </h5>
-    <p class="search-hit-description">
-        <div class="muted">
-            <small>
+@common.searchItemOutline {
+    @item.item.map { logicalObject =>
+        <a href="@views.Helpers.urlFor(logicalObject)">@logicalObject</a>
+    }
+} {
+    <div class="muted">
+        <small>
             @item.addresses.headOption.map { address =>
                 @address.stringProperty(Isdiah.COUNTRY_CODE).map { cc =>
                     @views.Helpers.countryCodeToName(cc)
                 }
             }
-            </small>
-        </div>
-        @item.stringProperty(Isdiah.GENERAL_CONTEXT)
-    </p>
-</div>
+        </small>
+    </div>
+    @item.stringProperty(Isdiah.GENERAL_CONTEXT)
+}
