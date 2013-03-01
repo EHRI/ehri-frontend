@@ -12,6 +12,17 @@ import play.api.libs.json.{Json, JsString, JsValue}
 import defines.EnumWriter.enumWrites
 import defines.enum
 
+object CopyrightStatus extends Enumeration {
+  val Yes = Value("yes")
+  val No = Value("no")
+  val Unknown = Value("unknown")
+}
+
+object Scope extends Enumeration {
+  val High = Value("high")
+  val Medium = Value("medium")
+  val Low = Value("low")
+}
 
 case object IsadG {
   /* ISAD(G)-based field set */
@@ -59,6 +70,9 @@ case object IsadG {
 
 object DocumentaryUnitF {
 
+  final val SCOPE = "scope"
+  final val COPYRIGHT = "copyright"
+
   final val DESC_REL = "describes"
   final val ACCESS_REL = "access"
   final val HELD_REL = "heldBy"
@@ -71,6 +85,8 @@ case class DocumentaryUnitF(
   val identifier: String,
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
+  val copyrightStatus: Option[CopyrightStatus.Value] = Some(CopyrightStatus.Unknown),
+  val scope: Option[Scope.Value] = Some(Scope.Low),
 
   @Annotations.Relation(DocumentaryUnitF.DESC_REL)
   val descriptions: List[DocumentaryUnitDescriptionF] = Nil
@@ -115,7 +131,9 @@ case class DocumentaryUnitF(
       DATA -> Json.obj(
         IDENTIFIER -> identifier,
         NAME -> name,
-        PUB_STATUS -> publicationStatus
+        PUB_STATUS -> publicationStatus,
+        COPYRIGHT -> copyrightStatus.orElse(Some(CopyrightStatus.Unknown)),
+        SCOPE -> scope
       ),
       RELATIONSHIPS -> Json.obj(
         DESC_REL -> Json.toJson(descriptions.map(_.toJson).toSeq)
@@ -268,6 +286,7 @@ object DocumentaryUnitForm {
 
   import Entity._
   import IsadG._
+  import DocumentaryUnitF._
 
   val form = Form(
     mapping(
@@ -275,6 +294,8 @@ object DocumentaryUnitForm {
       IDENTIFIER -> nonEmptyText,
       NAME -> nonEmptyText,
       PUB_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
+      COPYRIGHT -> optional(models.forms.enum(CopyrightStatus)),
+      SCOPE -> optional(models.forms.enum(Scope)),
       DescribedEntity.DESCRIPTIONS -> list(DocumentaryUnitDescriptionForm.form.mapping)
     )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
   )
@@ -296,6 +317,10 @@ with Formable[DocumentaryUnitF] {
   val holder: Option[Repository] = e.relations(HELD_REL).headOption.map(Repository(_))
   val parent: Option[DocumentaryUnit] = e.relations(CHILD_REL).headOption.map(DocumentaryUnit(_))
   val publicationStatus = e.property(IsadG.PUB_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
+  // NB: There is a default value of copyright status, so use 'unknown'.
+  val copyrightStatus = e.property(COPYRIGHT).flatMap(enum(CopyrightStatus).reads(_).asOpt)
+        .orElse(Some(CopyrightStatus.Unknown))
+  val scope = e.property(SCOPE).flatMap(enum(Scope).reads(_).asOpt)
 
   override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
 
@@ -304,6 +329,8 @@ with Formable[DocumentaryUnitF] {
     identifier = identifier,
     name = name,
     publicationStatus = publicationStatus,
+    copyrightStatus = copyrightStatus,
+    scope = scope,
     descriptions = descriptions.map(_.formable)
   )
 }

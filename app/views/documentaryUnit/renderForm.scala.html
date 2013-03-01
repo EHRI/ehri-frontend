@@ -1,6 +1,7 @@
 @(f: play.api.data.Form[DocumentaryUnitF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import models.IsadG._
+@import models.DocumentaryUnitF._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -15,9 +16,11 @@
     @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
         @documentaryUnit.renderDescriptionForm(desc)
     }
-    <fieldset id="admin-area">
-        <legend>@Messages("forms.adminArea")</legend>
-        @formHelpers.enumChoiceInput(f(fieldPrefix + "." + PUB_STATUS), defines.PublicationStatus, Messages(fieldPrefix + "." + PUB_STATUS))
-    </fieldset>
-
 }
+
+<fieldset id="admin-area">
+    <legend>@Messages("forms.adminArea")</legend>
+    @formHelpers.enumChoiceInput(f(PUB_STATUS), defines.PublicationStatus, Messages(PUB_STATUS))
+    @formHelpers.enumChoiceInput(f(COPYRIGHT), models.CopyrightStatus, Messages(COPYRIGHT))("copyrightStatus")
+    @formHelpers.enumChoiceInput(f(SCOPE), models.Scope, Messages(SCOPE))("scope")
+</fieldset>

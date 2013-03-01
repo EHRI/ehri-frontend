@@ -233,6 +233,18 @@ object FacetData {
         name=Messages("search.type"),
         param="type",
         render=s => Messages("contentTypes." + s)
+      ),
+      FieldFacetClass(
+        key="copyrightStatus",
+        name=Messages("copyrightStatus.copyright"),
+        param="copyright",
+        render=s => Messages("copyrightStatus." + s)
+      ),
+      FieldFacetClass(
+        key="scope",
+        name=Messages("scope.scope"),
+        param="scope",
+        render=s => Messages("scope." + s)
       )
     )
   )

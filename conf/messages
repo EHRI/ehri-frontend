@@ -275,6 +275,19 @@ documentaryUnit.availableDescriptions=Available Descriptions
 documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD(G) description info.
 
 #
+# Form misc
+#
+copyrightStatus.copyright=Copyright Status
+copyrightStatus.no=No
+copyrightStatus.yes=Copyrighted
+copyrightStatus.unknown=Unknown
+
+scope.scope=Scope
+scope.high=High
+scope.medium=Medium
+scope.low=Low
+
+#
 # Permission Grants
 #
 permissionGrant.heading=Permissions for {0}
@@ -381,7 +394,6 @@ isadg.scopeAndContent=Scope and Content
 isadg.appraisal=Appraisal
 isadg.accruals=Accruals
 isadg.systemOfArrangement=System of Arrangement
-isadg.publicationStatus=Publication Status
 isadg.conditionsOfAccess=Conditions of Access
 isadg.conditionsOfReproduction=Conditions of Reproduction
 isadg.languageOfMaterials=Language(s) of Materials
