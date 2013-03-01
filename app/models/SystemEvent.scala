@@ -3,7 +3,7 @@ package models
 import models.base.AccessibleEntity
 import models.base.Accessor
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import play.api.i18n.Messages
 
 case class SystemEvent(val e: Entity) extends AccessibleEntity {
@@ -15,9 +15,17 @@ case class SystemEvent(val e: Entity) extends AccessibleEntity {
   val logMessage: String = e.property("logMessage").flatMap(_.asOpt[String]).getOrElse("No log message given.")
   val actioner: Option[Accessor] = e.relations(ACTIONER_REL).headOption.map(Accessor(_))
 
-  def time = {
-    DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").print(timeStamp)
-  }
+  /**
+   * Standard time output.
+   * @return
+   */
+  def time = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss ").print(timeStamp)
+
+  /**
+   * ISO date time output.
+   * @return
+   */
+  def dateTime = ISODateTimeFormat.dateTime().print(timeStamp)
 
   override def toString = Messages("systemEvents.itemAtTime", time)
 }
