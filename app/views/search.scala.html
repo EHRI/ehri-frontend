@@ -15,18 +15,18 @@
 
         @common.pagination(result)
 		<ul class="unstyled">
-		@views.Helpers.condenseMultipleDescriptions(result.items).map { item =>
+		@result.items.map { item =>
             <li>
                 @item.isA match {
 
-                    case EntityType.DocumentaryUnit => {
-                        @documentaryUnit.searchItem(DocumentaryUnit(item))
+                    case EntityType.DocumentaryUnitDescription => {
+                        @documentaryUnit.searchItem(DocumentaryUnitDescription(item))
                     }
-                    case EntityType.Agent => {
-                        @repository.searchItem(Repository(item))
+                    case EntityType.AgentDescription => {
+                        @repository.searchItem(RepositoryDescription(item))
                     }
-                    case EntityType.Concept => {
-                        @concept.searchItem(Concept(item))
+                    case EntityType.ConceptDescription => {
+                        @concept.searchItem(ConceptDescription(item))
                     }
                     case EntityType.UserProfile => {
                         @userProfile.searchItem(UserProfile(item))

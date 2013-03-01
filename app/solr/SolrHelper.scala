@@ -134,6 +134,8 @@ object SolrHelper {
    */
   def buildQuery(params: SearchParams, facets: List[AppliedFacet]): QueryRequest = {
 
+    val limit = params.limit.getOrElse(SearchParams.DEFAULT_LIMIT)
+
     val queryString = "%s".format(params.query.getOrElse("*").trim)
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
@@ -182,9 +184,7 @@ object SolrHelper {
     params.page.map { page =>
       req.setStartRow(StartRow((Math.max(page, 1) - 1) * params.limit.getOrElse(20)))
     }
-    params.limit.map { limit =>
-      req.setMaximumRowsReturned(MaximumRowsReturned(limit))
-    }
+    req.setMaximumRowsReturned(MaximumRowsReturned(limit))
 
     req
   }

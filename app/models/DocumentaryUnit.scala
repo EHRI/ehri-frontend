@@ -340,6 +340,9 @@ case class DocumentaryUnitDescription(val e: Entity)
   with TemporalEntity
   with Formable[DocumentaryUnitDescriptionF] {
 
+  // This should have one logical object
+  val item: Option[DocumentaryUnit] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(DocumentaryUnit(_))
+
   import models.IsadG._
   import DocumentaryUnitDescriptionF._
 

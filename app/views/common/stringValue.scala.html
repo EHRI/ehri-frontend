@@ -1,4 +1,4 @@
-@(desc: models.base.AccessibleEntity, fieldName: String)(implicit prefix: String = "")
+@(desc: models.base.WrappedEntity, fieldName: String)(implicit prefix: String = "")
 
 @defining(desc.stringProperty(fieldName)) { value =>
     @value.map { str =>

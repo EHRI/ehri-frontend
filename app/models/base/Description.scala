@@ -14,8 +14,11 @@ object Description {
 }
 
 
-trait Description extends AccessibleEntity {
+trait Description extends WrappedEntity {
 	val e: Entity
-	
-	val languageCode: String = e.property("languageCode").flatMap(_.asOpt[String]).getOrElse(sys.error("No language code found"))
+
+  val item: Option[AccessibleEntity]
+	val languageCode: String = e.property("languageCode").flatMap(_.asOpt[String]).getOrElse("Unknown Language")
+
+  override def toString = "Description: [" + languageCode + "]"
 }

@@ -1,10 +1,15 @@
-@(item: Concept)(implicit req: RequestHeader, lang: Lang)
+@(item: ConceptDescription)(implicit req: RequestHeader, lang: Lang)
 
 <div class="search-item">
-    <h5>
-        <a href="@routes.Concepts.get(item.id)">@item</a>
-        @if(item.descriptions.size > 1) {
-            <span class="muted">(@Messages("search.numDescriptions", item.descriptions.size))</span>
-        }
+<h5>
+        @item.item.map { logicalObject =>
+    <a href="@views.Helpers.urlFor(logicalObject)">@item.stringProperty(ConceptF.PREFLABEL) - @views.Helpers.displayLanguage(item.languageCode)</a>
+    }.getOrElse {
+
+    }
     </h5>
+<p class="search-hit-description">
+    @item.stringProperty(ConceptF.SCOPENOTE)
+    @item.stringProperty(ConceptF.DEFINITION)
+</p>
 </div>

@@ -137,6 +137,8 @@ case class ConceptDescription(val e: Entity)
 
   import ConceptF._
 
+  lazy val item: Option[Concept] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Concept(_))
+
   def formable: ConceptDescriptionF = new ConceptDescriptionF(
     id = Some(e.id),
     languageCode = e.stringProperty(LANGUAGE).getOrElse(sys.error(s"No language code found on concept data: ${e}")),

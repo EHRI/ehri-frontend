@@ -357,6 +357,7 @@ case class RepositoryDescription(val e: Entity) extends Description with Formabl
   import RepositoryDescriptionF._
   import Isdiah._
 
+  lazy val item: Option[Repository] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Repository(_))
   def addresses: List[Address] = e.relations(RepositoryF.ADDRESS_REL).map(Address(_))
 
   def formable: RepositoryDescriptionF = new RepositoryDescriptionF(

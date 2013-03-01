@@ -37,8 +37,8 @@ object SearchType extends Enumeration {
  */
 case class SearchParams(
   query: Option[String] = None,
-  page: Option[Int] = None,
-  limit: Option[Int] = None,
+  page: Option[Int] = Some(1),
+  limit: Option[Int] = Some(SearchParams.DEFAULT_LIMIT),
   sort: Option[SearchOrder.Value] = None,
   reversed: Option[Boolean] = Some(false),
   entity: Option[EntityType.Value] = None,
@@ -46,6 +46,8 @@ case class SearchParams(
 )
 
 object SearchParams {
+  final val DEFAULT_LIMIT = 20
+
   import play.api.data.Forms._
   import play.api.data.Form
 
