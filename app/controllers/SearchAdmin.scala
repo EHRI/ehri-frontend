@@ -13,6 +13,7 @@ import play.api.libs.iteratee.{Concurrent, Enumerator}
 import models.Entity
 import models.base.{DescribedEntity, AccessibleEntity}
 import play.api.Logger
+import play.api.libs.Comet
 
 
 object SearchAdmin extends Controller with AuthController with ControllerHelpers {
@@ -71,7 +72,6 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
       }
     }
 
-    Ok.stream(channel.andThen(Enumerator.eof))
+    Ok.stream(channel &> Comet(callback = "console.log"))
   }
-
 }

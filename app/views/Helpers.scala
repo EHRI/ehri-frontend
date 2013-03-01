@@ -10,6 +10,7 @@ import play.api.i18n.Lang
 import com.petebevin.markdown.MarkdownProcessor
 import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
+import models.Entity
 
 
 package object Helpers {
@@ -23,8 +24,8 @@ package object Helpers {
    * Condense multiple descriptions that are next to each other in a list.
    * This is not the same as removing duplicates
    */
-  def condenseMultipleDescriptions(items: Seq[DescribedEntity]): Seq[DescribedEntity] = {
-    items.foldLeft(Seq[DescribedEntity]()) { case (s,d) =>
+  def condenseMultipleDescriptions(items: Seq[Entity]): Seq[Entity] = {
+    items.foldLeft(Seq[Entity]()) { case (s,d) =>
       s.lastOption.map { ld =>
         if (ld.id == d.id) s else s ++ Seq(d)
       } getOrElse {

@@ -49,11 +49,9 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
       SolrDispatcher(userOpt).list(sp, facets).map { resOrErr =>
         resOrErr.right.map { res =>
           AsyncRest {
-            println(res.items.map(_.itemId))
             rest.SearchDAO(userOpt).list(res.items.map(_.itemId)).map { listOrErr =>
               listOrErr.right.map { list =>
-                val page = res.copy(items = list.map(DescribedEntity(_)))
-                Ok(views.html.search(page,
+                Ok(views.html.search(res.copy(items = list),
                     sp, facets, routes.Application.search, routes.DocumentaryUnits.get _))
               }
             }

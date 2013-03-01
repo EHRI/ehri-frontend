@@ -1,4 +1,4 @@
-@(result: solr.ItemPage[models.base.DescribedEntity], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(result: solr.ItemPage[Entity], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("forms.search")) {
 	@helper.form(action = action, 'class -> "form-search") {
@@ -17,17 +17,30 @@
 		<ul class="unstyled">
 		@views.Helpers.condenseMultipleDescriptions(result.items).map { item =>
             <li>
-                <h5>
-                    <a href="@views.Helpers.urlFor(item)">@item</a>
-                    @if(item.descriptions.size > 1) {
-                        <span class="muted">(@Messages("search.numDescriptions", item.descriptions.size))</span>
+                @item.isA match {
+
+                    case EntityType.DocumentaryUnit => {
+                        @documentaryUnit.searchItem(DocumentaryUnit(item))
                     }
-                </h5>
-                <p class="search-hit-description">
-                    @item.descriptions.headOption.map { d =>
-                        @d.e.stringProperty(IsadG.SCOPE_CONTENT)
+                    case EntityType.Agent => {
+                        @repository.searchItem(Repository(item))
                     }
-                </p>
+                    case EntityType.Concept => {
+                        @concept.searchItem(Concept(item))
+                    }
+                    case EntityType.UserProfile => {
+                        @userProfile.searchItem(UserProfile(item))
+                    }
+                    case EntityType.Group => {
+                        @group.searchItem(Group(item))
+                    }
+                    case EntityType.Vocabulary => {
+                        @vocabulary.searchItem(Vocabulary(item))
+                    }
+                    case _ => {
+                        @common.searchItem(item)
+                    }
+                }
             </li>
 		}
 		</ul>

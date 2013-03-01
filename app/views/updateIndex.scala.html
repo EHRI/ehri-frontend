@@ -2,26 +2,30 @@
 
 @import defines.EntityType
 
-@rightSidebarLayout(Messages("search.updateIndex")) {
+@extraScript = {
+}
 
-    @helper.form(action = action, 'class -> "form-horizontal") {
+@rightSidebarLayout(Messages("search.updateIndex"), scripts=extraScript) {
+
+    @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
         <div class="control-group">
             <label class="control-label">@Messages("search.typesToUpdate")</label>
             <div class="controls">
-                <label class="checkbox"><input type="checkbox" name="type[]" value="@EntityType.DocumentaryUnit" />
-                    @Messages("contentTypes." + EntityType.DocumentaryUnit.toString)
-                </label>
-                <label class="checkbox"><input type="checkbox" name="type[]" value="@EntityType.Agent" />
-                    @Messages("contentTypes." + EntityType.Agent.toString)
-                </label>
-                <label class="checkbox"><input type="checkbox" name="type[]" value="@EntityType.Concept" />
-                    @Messages("contentTypes." + EntityType.Concept.toString)
-                </label>
+
+                @List(EntityType.DocumentaryUnit,EntityType.Agent,EntityType.Concept,EntityType.Vocabulary,EntityType.UserProfile,EntityType.Group).map { et =>
+                    <label class="checkbox"><input type="checkbox" name="type[]" value="@et" />
+                        @Messages("contentTypes." + et.toString)
+                    </label>
+                }
             </div>
         </div>
         <div class="form-actions">
-            <input type="submit" class="btn btn-danger" value="@Messages("search.updateIndex")" />
+            <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.updateIndex")" />
+        </div>
+
+        <div id="output">
+
         </div>
     }
 

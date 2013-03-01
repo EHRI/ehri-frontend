@@ -25,7 +25,9 @@ case class SystemEvent(val e: Entity) extends AccessibleEntity {
    * ISO date time output.
    * @return
    */
-  def dateTime = ISODateTimeFormat.dateTime().print(timeStamp)
+  //def dateTime = ISODateTimeFormat.dateTime().print(timeStamp)
+  // NB: Because Solr barfs at the time zone +01
+  def dateTime = ISODateTimeFormat.dateTime.withZoneUTC.print(timeStamp)
 
   override def toString = Messages("systemEvents.itemAtTime", time)
 }

@@ -1,0 +1,5 @@
+@(item: Entity)(implicit req: RequestHeader, lang: Lang)
+
+<h5>
+    <a href="@views.Helpers.urlForEntity(item)">@ItemWithId(item)</a>
+</h5>
