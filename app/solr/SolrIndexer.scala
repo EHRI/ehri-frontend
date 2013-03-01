@@ -160,7 +160,7 @@ object SolrIndexer extends RestDAO {
         "type" -> desc.e.isA,
         "accessibleTo" -> d.accessors.map(a => a.id),
         "lastUpdated" -> d.latestEvent.map(_.dateTime),
-        "languageCode" -> d.stringProperty("languageCode")
+        "languageCode" -> desc.stringProperty("languageCode")
       )
       // Merge in all the additional data already in the entity
       // Don't overwrite keys added specifically
@@ -199,6 +199,8 @@ object SolrIndexer extends RestDAO {
 
   private def dynamicFieldName(key: String, jsValue: JsValue): String = {
     jsValue match {
+      // Ugh, this is temporary hopefully...
+      case s: JsString if s == "languageCode" => key
       case v: JsArray => key + "_ss" // Multivalue string
       case v: JsNumber => key + "_i"  // integer ???
       case v: JsString => key + "_t"  // Text general

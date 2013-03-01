@@ -4,11 +4,9 @@
 
 @facets.map { fc =>
     @if(fc.count > 0) {
-        <h4>
-            <a class="facet-header" href="#">@Messages(fc.name)</a>
-        </h4>
+        <h4>@Messages(fc.name)</h4>
         <dl>
-        @fc.sorted.take(10).map { f =>
+        @fc.sorted.map { f =>
             @if(f.applied) {
                 <dd class="selected-filter">@fc.pretty(f) (@f.count)
                     <a class="remove-filter" href="@Utils.pathWithoutFacet(fc, f,
@@ -19,14 +17,7 @@
                         (@f.count)</a>
                 </dd>
                 }
-                }
-                    @if(fc.sorted.length > 10) {
-                    @*
-                    <a data-fclass="@fc.param"
-                    href="@Utils.joinPath(routes.Search.facets(facet=fc.param, rtype=rtype).toString, req.queryString.filterKeys(_!="page"))"
-                    *@
-        class="more-facets">More...</a>
-    }
+            }
         </dl>
     }
-    }
+}
