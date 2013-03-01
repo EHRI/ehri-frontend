@@ -20,6 +20,25 @@
                 margin-bottom: 1.5em;
             }
 
+            /** Inline lists - Bootstrap doesn't actually do this by itself */
+            ul.inline li {
+                display: inline;
+            }
+
+            /** Put a separator between the bars of inline lists */
+            ul.inline-separator li:after {
+                content:" | ";
+            }
+            ul.inline-separator li:last-child:after {
+                content:"";
+            }
+
+            /** Alternative link color - just bolded */
+            a.alt {
+                color: #000;
+                font-weight: bolder;
+            }
+
             /** Turn of link styling on badges... */
             .badge a {
                 color: inherit;
