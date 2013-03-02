@@ -1,5 +1,7 @@
 @(item: RepositoryDescription)(implicit req: RequestHeader, lang: Lang)
 
+@import Isdiah._
+
 @common.searchItemOutline {
     @item.item.map { logicalObject =>
         <a href="@views.Helpers.urlFor(logicalObject)">@logicalObject</a>
@@ -7,12 +9,19 @@
 } {
     <div class="muted">
         <small>
+            <ul class="unstyled muted inline inline-separator">
             @item.addresses.headOption.map { address =>
-                @address.stringProperty(Isdiah.COUNTRY_CODE).map { cc =>
-                    @views.Helpers.countryCodeToName(cc)
+                @List(STREET_ADDRESS, CITY, REGION).map { adpart =>
+                    @address.stringProperty(adpart).filterNot(_.trim.isEmpty).map { part =>
+                        <li>@part</li>
+                    }
+                }
+                @address.stringProperty(COUNTRY_CODE).map { cc =>
+                    <li>@views.Helpers.countryCodeToName(cc)</li>
                 }
             }
+            </ul>
         </small>
     </div>
-    @item.stringProperty(Isdiah.GENERAL_CONTEXT)
+    @item.stringProperty(GENERAL_CONTEXT)
 }
