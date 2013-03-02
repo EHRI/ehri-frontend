@@ -1,10 +1,17 @@
 @(item: ConceptDescription)(implicit req: RequestHeader, lang: Lang)
 
-@common.searchItemOutline {
-    @item.item.map { logicalObject =>
-        <a href="@views.Helpers.urlFor(logicalObject)">@item.stringProperty(ConceptF.PREFLABEL) - @views.Helpers.displayLanguage(item.languageCode)</a>
+@defining(item.item) { ownerOpt =>
+    @ownerOpt.map { owner =>
+
+        @common.searchItemOutline {
+            <a href="@routes.Concepts.get(owner.id)">@item.stringProperty(ConceptF.PREFLABEL) - @views.Helpers.displayLanguage(item.languageCode)</a>
+        } {
+            @item.stringProperty(ConceptF.SCOPENOTE)
+            @item.stringProperty(ConceptF.DEFINITION)
+        }
+    }.getOrElse {
+        <div class="alert alert-error">
+            <strong>Oh dear.</strong> Unable to fetch owner object for description @item.id.
+        </div>
     }
-} {
-    @item.stringProperty(ConceptF.SCOPENOTE)
-    @item.stringProperty(ConceptF.DEFINITION)
 }

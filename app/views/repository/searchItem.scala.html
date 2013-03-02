@@ -2,26 +2,32 @@
 
 @import Isdiah._
 
-@common.searchItemOutline {
-    @item.item.map { logicalObject =>
-        <a href="@views.Helpers.urlFor(logicalObject)">@logicalObject</a>
+@defining(item.item) { ownerOpt =>
+    @ownerOpt.map { owner =>
+        @common.searchItemOutline {
+            <a href="@routes.Repositories.get(owner.id)">@owner</a>
+        } {
+            <div class="muted">
+                <small>
+                    <ul class="unstyled muted inline inline-separator">
+                        @item.addresses.headOption.map { address =>
+                            @List(STREET_ADDRESS, CITY, REGION).map { adpart =>
+                                @address.stringProperty(adpart).filterNot(_.trim.isEmpty).map { part =>
+                                    <li>@part</li>
+                                }
+                            }
+                            @address.stringProperty(COUNTRY_CODE).map { cc =>
+                                <li>@views.Helpers.countryCodeToName(cc)</li>
+                            }
+                        }
+                    </ul>
+                </small>
+            </div>
+            @item.stringProperty(GENERAL_CONTEXT)
+        }
+    }.getOrElse {
+        <div class="alert alert-error">
+            <strong>Oh dear.</strong> Unable to fetch owner object for description @item.id.
+        </div>
     }
-} {
-    <div class="muted">
-        <small>
-            <ul class="unstyled muted inline inline-separator">
-            @item.addresses.headOption.map { address =>
-                @List(STREET_ADDRESS, CITY, REGION).map { adpart =>
-                    @address.stringProperty(adpart).filterNot(_.trim.isEmpty).map { part =>
-                        <li>@part</li>
-                    }
-                }
-                @address.stringProperty(COUNTRY_CODE).map { cc =>
-                    <li>@views.Helpers.countryCodeToName(cc)</li>
-                }
-            }
-            </ul>
-        </small>
-    </div>
-    @item.stringProperty(GENERAL_CONTEXT)
 }

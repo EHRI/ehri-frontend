@@ -2,27 +2,31 @@
 
 @import org.apache.commons.lang3.StringUtils
 
-@common.searchItemOutline {
-    @item.item.map { logicalObject =>
-    <a href="@views.Helpers.urlFor(logicalObject)">@logicalObject</a>
-    }.getOrElse {
-        <span class="error">Unknown object (probably caused by a bug)</span>
-    }
-} {
-    <small>
-        <ul class="unstyled muted inline inline-separator">
-            @item.item.flatMap(_.holder).map { holder =>
-                <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder</a></li>
-            }
-            <li><span class="muted">@views.Helpers.displayLanguage(item.languageCode)</span></li>
+@defining(item.item) { ownerOpt =>
+    @ownerOpt.map { owner =>
+        @common.searchItemOutline {
+            <a href="@routes.DocumentaryUnits.get(owner.id)">@owner</a>
+        } {
+            <small>
+                <ul class="unstyled muted inline inline-separator">
+                    @item.item.flatMap(_.holder).map { holder =>
+                        <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder</a></li>
+                    }
+                    <li><span class="muted">@views.Helpers.displayLanguage(item.languageCode)</span></li>
 
-            @item.dates.headOption.map { dp =>
-                <li>@dp.formable.years</li>
-            }
-            @item.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
-                <li>@s</li>
-            }
-        </ul>
-    </small>
-    @item.stringProperty(IsadG.SCOPE_CONTENT).map(StringUtils.abbreviate(_, 600))
+                    @item.dates.headOption.map { dp =>
+                        <li>@dp.formable.years</li>
+                    }
+                    @item.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
+                        <li>@s</li>
+                    }
+                </ul>
+            </small>
+            @item.stringProperty(IsadG.SCOPE_CONTENT).map(StringUtils.abbreviate(_, 600))
+        }
+    }.getOrElse {
+        <div class="alert alert-error">
+            <strong>Oh dear.</strong> Unable to fetch owner object for description @item.id.
+        </div>
+    }
 }
