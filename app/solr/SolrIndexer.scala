@@ -16,6 +16,7 @@ import models.Repository
 import play.api.libs.json.JsObject
 import models.DocumentaryUnit
 import defines.EntityType
+import play.api.libs.iteratee.Input.Empty
 
 /**
  * Object containing functions for managing the Solr index.
@@ -26,7 +27,9 @@ object SolrIndexer extends RestDAO {
   // We don't need a user here yet unless we want to log
   // when the Solr index is changed.
   val userProfile: Option[UserProfile] = None
-  private def updateUrl = "%s/update?wt=json&commit=true".format(application.configuration.getString("solr.path"))
+  private def updateUrl(commit: Boolean = true) = {
+    "%s/update?wt=json&commit=%s&optimize=%s".format(application.configuration.getString("solr.path"), commit, commit)
+  }
   private val batchSize = application.configuration.getInt("solr.update.batchSize")
 
   override val headers = Map(
@@ -42,31 +45,44 @@ object SolrIndexer extends RestDAO {
     (__ \ "responseHeader"\ "QTime").read[Int]
   )(SolrUpdateResponse.apply _)
 
-  /*
+  /**
+   * Commit all pending docs
+   */
+  def commit: Future[Either[RestError,SolrUpdateResponse]] = {
+    WS.url(updateUrl(commit = true)).post(Map.empty[String,List[String]]).map { response =>
+      checkError(response).right.map(_.json.validate[SolrUpdateResponse].fold({ err =>
+        Logger.logger.error("Unexpected Solr response: {}", response.body)
+        sys.error(err.toString)
+      }, { sur => sur }
+      ))
+    }
+  }
+
+  /**
    * Delete a list of Solr models.
    */
-  def deleteItemsById(items: Stream[String]): Future[Either[RestError,SolrUpdateResponse]] = {
+  def deleteItemsById(items: Stream[String], commit: Boolean = true): Future[Either[RestError,SolrUpdateResponse]] = {
     // NB: Solr delete syntax requires a MAP rather than a list
     val deleteJson = items.foldLeft(Json.obj()) { case (obj,id) =>
       // NB: Because we delete logical items, but descriptions are indexed
       // we use a slightly dodgy query to delete stuff...
       obj + ("delete" -> Json.obj("query" -> "id:\"%s\" OR itemId:\"%s\"".format(id, id)))
     }
-    solrUpdate(deleteJson)
+    solrUpdate(deleteJson, commit = commit)
   }
 
   /*
    * Delete a list of Solr models.
    */
-  def deleteItems(items: Stream[Entity]): Future[Either[RestError,SolrUpdateResponse]] = {
-    deleteItemsById(items.map(_.id))
+  def deleteItems(items: Stream[Entity], commit: Boolean = true): Future[Either[RestError,SolrUpdateResponse]] = {
+    deleteItemsById(items.map(_.id), commit = commit)
   }
 
-  def deleteItemsByType(entityType: EntityType.Value): Future[Either[RestError,SolrUpdateResponse]] = {
+  def deleteItemsByType(entityType: EntityType.Value, commit: Boolean = true): Future[Either[RestError,SolrUpdateResponse]] = {
     val deleteJson = Json.obj(
       "delete" -> Json.obj("query" -> ("type:" + entityIndexType(entityType).toString))
     )
-    solrUpdate(deleteJson)
+    solrUpdate(deleteJson, commit = commit)
   }
 
   /*
@@ -74,9 +90,9 @@ object SolrIndexer extends RestDAO {
    * into batches of a fixed size so this function can accept
    * arbitrarily long lists.
    */
-  def updateItems(items: Stream[Entity]): Future[List[Either[RestError,SolrUpdateResponse]]] = {
+  def updateItems(items: Stream[Entity], commit: Boolean = true): Future[List[Either[RestError,SolrUpdateResponse]]] = {
     Future.sequence(items.grouped(batchSize).toList.map { batch =>
-      solrUpdate(Json.toJson(batch.toList.flatMap(itemToJson)))
+      solrUpdate(Json.toJson(batch.toList.flatMap(itemToJson)), commit = commit)
     })
   }
 
@@ -85,8 +101,8 @@ object SolrIndexer extends RestDAO {
    * @param updateJson
    * @return
    */
-  private def solrUpdate(updateJson: JsValue): Future[Either[RestError,SolrUpdateResponse]] = {
-    WS.url(updateUrl).withHeaders(headers.toList: _*).post(updateJson).map { response =>
+  private def solrUpdate(updateJson: JsValue, commit: Boolean = true): Future[Either[RestError,SolrUpdateResponse]] = {
+    WS.url(updateUrl(commit)).withHeaders(headers.toList: _*).post(updateJson).map { response =>
       checkError(response).right.map(_.json.validate[SolrUpdateResponse].fold({ err =>
         Logger.logger.error("Unexpected Solr response: {}", response.body)
         sys.error(err.toString)
