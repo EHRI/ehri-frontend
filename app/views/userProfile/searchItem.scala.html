@@ -3,5 +3,13 @@
 @common.searchItemOutline {
     <a href="@routes.UserProfiles.get(item.id)">@item</a>
 } {
+
+    <small>
+        <ul class="unstyled muted inline inline-separator">
+            @item.formable.location.filterNot(_.trim.isEmpty).map { loc =>
+                <li>@loc</li>
+            }
+        </ul>
+    </small>
     @item.formable.about
 }
