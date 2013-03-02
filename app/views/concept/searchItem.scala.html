@@ -4,8 +4,16 @@
     @ownerOpt.map { owner =>
 
         @common.searchItemOutline {
-            <a href="@routes.Concepts.get(owner.id)">@item.stringProperty(ConceptF.PREFLABEL) - @views.Helpers.displayLanguage(item.languageCode)</a>
+            <a href="@routes.Concepts.get(owner.id)">@item.stringProperty(ConceptF.PREFLABEL)</a>
         } {
+            <small>
+                <ul class="unstyled muted inline inline-separator">
+                    @item.item.flatMap(_.vocabulary).map { vocab =>
+                        <li><a class="alt" href="@routes.Vocabularies.get(vocab.id)">@vocab</a></li>
+                    }
+                    <li><span class="muted">@views.Helpers.displayLanguage(item.languageCode)</span></li>
+
+            </small>
             @item.stringProperty(ConceptF.SCOPENOTE)
             @item.stringProperty(ConceptF.DEFINITION)
         }
