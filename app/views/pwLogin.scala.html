@@ -8,15 +8,17 @@
         @Messages("login.adminLoginMessage")
     </div>
 
-    @helper.form(action = helper.CSRF(action), 'class -> "login-form form-horizontal") {
+    @form.globalErrors.map { e =>
+        <div class="alert alert-error">
+            @Messages(e.message)
+        </div>
+    }
 
-        @helper.input(form("email")) { (id, name, value, args) =>
-            <input type="text" name="@name" id="@id" placeholder="@Messages("login.email")" @toHtmlArgs(args)>
-        }
+    @helper.form(action = action, 'class -> "login-form form-horizontal") {
+        @formHelpers.csrfToken()
 
-        @helper.input(form("password")) { (id, name, value, args) =>
-            <input type="text" name="@name" id="@id" placeholder="@Messages("login.password")" @toHtmlArgs(args)>
-        }
+        @helper.inputText(form("email"), 'placeholder -> Messages("login.email"))
+        @helper.inputText(form("password"), 'placeholder -> Messages("login.password"))
 
         <div>
             <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />

@@ -21,11 +21,28 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       "email" -> email,
       "username" -> nonEmptyText,
       "name" -> nonEmptyText,
-      "password" -> nonEmptyText,
-      "confirm" -> nonEmptyText
-    ) verifying(Messages("admin.passwordsDoNotMatch"), f => f match {
+      "password" -> nonEmptyText(minLength = 6),
+      "confirm" -> nonEmptyText(minLength = 6)
+    ) verifying(Messages("login.passwordsDoNotMatch"), f => f match {
       case (_, _, _, pw, pwc) => pw == pwc
     })
+  )
+
+  val changePasswordForm = Form(
+    tuple(
+      "current" -> nonEmptyText,
+      "password" -> nonEmptyText(minLength = 6),
+      "confirm" -> nonEmptyText(minLength = 6)
+    ) verifying(Messages("login.passwordsDoNotMatch"), f => f match {
+      case (_, pw, pwc) => pw == pwc
+    })
+  )
+
+  val passwordLoginForm = Form(
+    tuple(
+      "email" -> email,
+      "password" -> nonEmptyText
+    )
   )
 
   val groupMembershipForm = Form(single("group" -> list(nonEmptyText)))
@@ -55,7 +72,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       values => {
         val (email, username, name, pw, _) = values
         // check if the email is already registered...
-        models.sql.OpenIDUser.findByEmail(email).map { account =>
+        OpenIDUser.findByEmail(email).map { account =>
           val errForm = userPasswordForm.bindFromRequest
             .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.profile_id)))
           getGroups { groups =>
@@ -72,7 +89,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
             rest.EntityDAO(EntityType.UserProfile, userOpt)
                 .create(user, params = Map("group" -> groups)).map { itemOrErr =>
               itemOrErr.right.map { entity =>
-                models.sql.OpenIDUser.create(email, entity.id).map { account =>
+                OpenIDUser.create(email, entity.id).map { account =>
                   account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
                   Redirect(routes.UserProfiles.get(entity.id))
                 }.getOrElse {
@@ -89,25 +106,12 @@ object Admin extends Controller with AuthController with ControllerHelpers {
   }
 
   def passwordLogin = Action { implicit request =>
-    val form = Form(
-      tuple(
-        "email" -> email,
-        "password" -> nonEmptyText
-      )
-    )
-    Ok(views.html.pwLogin(form, routes.Admin.passwordLoginPost))
+    Ok(views.html.pwLogin(passwordLoginForm, routes.Admin.passwordLoginPost))
   }
 
   def passwordLoginPost = Action { implicit request =>
-    val form = Form(
-      tuple(
-        "email" -> email,
-        "password" -> nonEmptyText
-      )
-    ).bindFromRequest
     val action = routes.Admin.passwordLoginPost
-
-    form.fold(
+    passwordLoginForm.bindFromRequest.fold(
       errorForm => {
         BadRequest(views.html.pwLogin(errorForm, action))
       },
@@ -131,7 +135,33 @@ object Admin extends Controller with AuthController with ControllerHelpers {
   //
   // Allow a logged-in user to change their account password.
   //
-  def changePassword = TODO
+  def changePassword = userProfileAction { implicit user => implicit request =>
+    Ok(views.html.pwChangePassword(changePasswordForm, routes.Admin.changePasswordPost))
+  }
 
-  def changePasswordPost = TODO
+  def changePasswordPost = userProfileAction { implicit user => implicit request =>
+    changePasswordForm.bindFromRequest.fold(
+      errorForm => {
+        BadRequest(views.html.pwChangePassword(errorForm, routes.Admin.changePasswordPost))
+      },
+      data => {
+        val (current, pw, _) = data
+        user.flatMap(_.account.map(_.email)).flatMap { email =>
+          println("Finding by email: " + email)
+          OpenIDUser.findByEmail(email).flatMap { acc =>
+            acc.password.flatMap { hashed =>
+              if (BCrypt.checkpw(current, hashed)) {
+                acc.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))
+                Some(Redirect(routes.Application.index).flashing("success" -> Messages("login.passwordChanged")))
+              } else {
+                None
+              }
+            }
+          }
+        } getOrElse {
+          Redirect(routes.Admin.changePassword).flashing("error" -> Messages("login.badUsernameOrPassword"))
+        }
+      }
+    )
+  }
 }

@@ -15,6 +15,11 @@ case class PersonaUser(profile_id: String, email: String) extends User {
       """DELETE FROM users WHERE profile_id = {profile_id}""").on('profile_id -> profile_id).executeUpdate()
     res == 1
   }
+
+  // TODO: Refactor accounts so we don't need this.
+  def updatePassword(hashed: String): PersonaUser = {
+    throw new UnsupportedOperationException("Unable to set Persona account password directly.")
+  }
 }
 
 object PersonaUser extends UserDAO {

@@ -29,12 +29,18 @@ search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descr
 footer.footerText=This is a development version of the EHRI data entry interface.
 
 login.login=Sign In
+login.changePassword=Change Password
 login.adminLoginMessage=Note: only EHRI partners are given passwords.\
    To sign up normally, please use the ''Sign In'' link at the top of the page and login with your OpenID account.
 login.linkToPasswordLogin=Click here if you have been given a password.
 login.email=Email
 login.password=Password
 login.badUsernameOrPassword=Incorrect username or password
+login.newPassword=New Password
+login.existingPassword=Current Password
+login.confirmPassword=Confirm New Password
+login.passwordsDoNotMatch=Password and confirmation do not match!
+login.passwordChanged=Password Changed!
 
 openid.openIdError=There was a problem logging you in with OpenID.\
   This may because your provider does not support attribute exchange. The error messages was: {0}
@@ -230,6 +236,7 @@ submitButton.createVocabulary=Create Vocabulary
 submitButton.createConcept=Create Concept
 submitButton.loginWithPassword=Sign In
 submitButton.loginWithOpenid=Sign In With OpenID
+submitButton.changePassword=Change Password
 submitButton.updateConcept=Update Concept
 submitButton.updateVocabulary=Update Vocabulary
 

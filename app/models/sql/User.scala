@@ -6,6 +6,7 @@ trait User {
 	def email: String
 	def profile_id: String
   def password: Option[String] = None
+  def updatePassword(hashed: String): User
   def delete(): Boolean
 }
 

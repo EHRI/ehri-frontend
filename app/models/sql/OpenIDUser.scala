@@ -47,6 +47,15 @@ case class OpenIDUser(id: Long, email: String, profile_id: String) extends User 
     this
   }
 
+  def updatePassword(data: String): OpenIDUser = DB.withConnection{ implicit connection =>
+    val res = SQL(
+      """
+        UPDATE user_auth SET data={data} WHERE id={id}
+      """
+    ).on('id -> id, 'data -> data).executeUpdate()
+    this
+  }
+
   def delete(): Boolean = DB.withConnection { implicit connection =>
     val res: Int = SQL(
       """DELETE FROM openid_user WHERE id = {id}""").on('id -> id).executeUpdate()
