@@ -51,7 +51,7 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
           AsyncRest {
             rest.SearchDAO(userOpt).list(res.items.map(_.id)).map { listOrErr =>
               listOrErr.right.map { list =>
-                Ok(views.html.search(res.copy(items = list),
+                Ok(views.html.search.search(res.copy(items = list),
                     sp, facets, routes.Application.search, routes.DocumentaryUnits.get _))
               }
             }

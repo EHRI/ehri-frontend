@@ -24,7 +24,7 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
 
 
   def updateIndex = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.updateIndex(action=routes.SearchAdmin.updateIndexPost))
+    Ok(views.html.search.updateIndex(action=routes.SearchAdmin.updateIndexPost))
   }
 
   def updateIndexPost = adminAction { implicit userOpt => implicit request =>
