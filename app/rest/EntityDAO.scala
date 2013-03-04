@@ -90,10 +90,6 @@ case class RestPageParams(page: Option[Int] = None, limit: Option[Int] = None, f
 
 }
 
-
-
-
-
 object EntityDAO {
   implicit val entityReads = Entity.entityReads
 
