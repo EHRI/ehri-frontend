@@ -30,11 +30,10 @@ trait EntitySearch[T <: AccessibleEntity] extends EntityRead[T] {
   def searchAction(f: solr.ItemPage[Entity] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction { implicit userOpt => implicit request =>
 
-      import solr._
-      val sp = SearchParams.form.bindFromRequest.value.get.copy(entity = Some(entityType))
+      val sp = solr.SearchParams.form.bindFromRequest.value.get.copy(entity = Some(entityType))
       val facets: List[AppliedFacet] = FacetData.bindFromRequest(entityFacets)
       AsyncRest {
-        SolrDispatcher(userOpt).list(sp, facets).map { resOrErr =>
+        solr.SolrDispatcher(userOpt).list(sp, facets).map { resOrErr =>
           resOrErr.right.map { res =>
             AsyncRest {
               rest.SearchDAO(userOpt).list(res.items.map(_.id)).map { listOrErr =>
