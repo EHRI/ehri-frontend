@@ -22,13 +22,28 @@ import solr.SolrIndexer
 
 object SearchAdmin extends Controller with AuthController with ControllerHelpers {
 
+  /**
+   * Message that terminates a long-lived streaming response, such
+   * as the search index update job.
+   */
+  val DONE_MESSAGE = "Done"
 
+  /**
+   * Render the update form
+   * @return
+   */
   def updateIndex = adminAction { implicit userOpt => implicit request =>
     Ok(views.html.search.updateIndex(action=routes.SearchAdmin.updateIndexPost))
   }
 
+  /**
+   * Perform the actual update, returning a streaming response as the batch
+   * jobs complete.
+   * @return
+   */
   def updateIndexPost = adminAction { implicit userOpt => implicit request =>
 
+    println("Running update: " + request.body.asFormUrlEncoded)
     val batchSize = application.configuration.getInt("solr.update.batchSize")
 
     import play.api.data.Form
@@ -36,6 +51,8 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
     import models.forms.enum
 
     val entities = Form(single("type" -> list(enum(defines.EntityType)))).bindFromRequest.value.get
+
+    def wrapMsg(m: String) = s"<message>$m</message>"
 
     /**
      * Update a single page of data
@@ -48,10 +65,10 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
 
           val solrResponse = doneOrErr.right.get
 
-          val msg = s"Done Solr update batch: $entityType (${page.range}}, time: ${solrResponse.time})"
+          val msg = s"Batch complete: $entityType (${page.range}}, time: ${solrResponse.time})"
           println(msg)
           Logger.logger.info(msg)
-          chan.push(msg + "\n")
+          chan.push(wrapMsg(msg))
           solrResponse
         }
       }
@@ -104,12 +121,12 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
         val totaltime = results.flatten.foldLeft(0) { case (total, result) =>
           total + result.time
         }
-        chan.push("Completed indexing in: " + totaltime + "\n")
-        chan.push("Committing...\n")
+        chan.push(wrapMsg("Completed indexing in: " + totaltime + " - commiting..."))
         SolrIndexer.commit.map { resOrErr =>
           if (resOrErr.isLeft) sys.error("Error committing Solr data: " + resOrErr.left.get)
           val result = resOrErr.right.get
-          chan.push(" ... done committing in " + result.time  + "\n")
+          chan.push(wrapMsg("Committed in " + result.time))
+          chan.push(wrapMsg(DONE_MESSAGE))
           chan.eofAndEnd()
         }
       }

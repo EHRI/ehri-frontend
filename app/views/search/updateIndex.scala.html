@@ -2,11 +2,78 @@
 
 @import defines.EntityType
 
-@extraScript = {
+@extraStyle = {
+    <style>
+        #update-progress {
+            max-height: 200px;
+            overflow: auto;
+        }
+        #update-progress pre {
+            background-color: #fff;
+            font-size: 0.7em;
+        }
+    </style>
 }
 
-@rightSidebarLayout(Messages("search.updateIndex"), scripts=extraScript) {
+@extraScript = {
+    <script type="application/javascript">
+        jQuery(function($) {
 
+            $("#submit-update").click(function(e) {
+                var $elem = $(this);
+                $elem.attr("disabled", true);
+                submitAndPoll($("#update-form").serialize(), function() {
+                    $elem.attr("disabled", false);
+                })
+            });
+
+            function appendProgressMessage(msg) {
+                var $elem = $("#update-progress");
+                var $inner = $("#update-progress > pre");
+                if ($inner.length === 0) {
+                    $inner = $("<pre></pre>");
+                    $elem.append($inner);
+                }
+                $inner.append(msg + "<br/>");
+                $elem.scrollTop($inner.height());
+
+            }
+
+            function submitAndPoll(data, doneFunc) {
+                var pollTimer = -1, nextReadPos = -1;
+                var xhReq = new XMLHttpRequest();
+                xhReq.open("POST", "@action.url", true);
+                //Send the proper header information along with the request
+                xhReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhReq.send(data);
+
+                // Don't bother with onreadystatechange - it shouldn't close
+                // and we're polling responsetext anyway
+                pollTimer = setInterval(pollLatestResponse, 250);
+
+                function pollLatestResponse() {
+                    var allMessages = xhReq.responseText;
+                    do {
+                        var unprocessed = allMessages.substring(nextReadPos);
+                        var messageXMLEndIndex = unprocessed.indexOf("</message>");
+                        if (messageXMLEndIndex!=-1) {
+                            var endOfFirstMessageIndex = messageXMLEndIndex + "</message>".length;
+                            var anUpdate = unprocessed.substring(0, endOfFirstMessageIndex);
+                            appendProgressMessage(anUpdate);
+                            nextReadPos += endOfFirstMessageIndex;
+                            if (anUpdate == "<message>@controllers.SearchAdmin.DONE_MESSAGE</message>") {
+                                doneFunc();
+                                clearInterval(pollTimer);
+                            }
+                        }
+                    } while (messageXMLEndIndex != -1);
+                }
+            }
+        });
+    </script>
+}
+
+@rightSidebarLayout(Messages("search.updateIndex"), scripts=extraScript, styles = extraStyle) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
         <div class="control-group">
@@ -24,11 +91,9 @@
             <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.updateIndex")" />
         </div>
 
-        <div id="output">
-
+        <div id="update-progress">
         </div>
     }
-
 } {
 
 }
