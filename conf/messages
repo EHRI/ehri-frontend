@@ -12,6 +12,7 @@ pages.admin=Admin
 pages.admin.title=EHRI Admin
 pages.admin.message=Administration actions - careful now!
 pages.admin.userManagement=Manage Users
+pages.admin.searchAdmin=Manage Search Index
 
 forms.adminArea=Administration Area
 forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
@@ -22,7 +23,7 @@ search.filterItems=Filter Items
 search.sortItems=Sort Items
 search.sortReversed=(Descending)
 search.noItemsFound=No Items Found
-search.updateIndex=Update Search Index
+search.updateIndex=Refresh Search Index
 search.typesToUpdate=Types to Update
 search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descriptions}
 
