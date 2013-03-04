@@ -12,6 +12,9 @@ trait AbstractPage[+A] {
   def page = (offset / limit) + 1
   def numPages = (total / limit) + (total % limit).min(1)
   def hasMultiplePages = total > limit
+  def start = offset + 1
+  def end = (offset + 1) + items.size
+  def range: String = s"$start-$end"
 
   lazy val prev = Option(page - 1).filter(_ >= 0)
   lazy val next = Option(page + 1).filter(_ => (offset + items.size) < total)
