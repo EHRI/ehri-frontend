@@ -48,7 +48,7 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
 
           val solrResponse = doneOrErr.right.get
 
-          val msg = s"Done Solr update batch: $entityType (page: ${page.page}, time: ${solrResponse.time})"
+          val msg = s"Done Solr update batch: $entityType (${page.range}}, time: ${solrResponse.time})"
           println(msg)
           Logger.logger.info(msg)
           chan.push(msg + "\n")
@@ -61,7 +61,8 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
      * Fetch a given page of data and update it.
      */
     def updateItemSet(entityType: EntityType.Value, pageNum: Int, chan: Concurrent.Channel[String]) = {
-      val getData = EntityDAO(entityType, userOpt).page(RestPageParams(page=Some(pageNum)))
+      val getData = EntityDAO(entityType, userOpt)
+            .page(RestPageParams(page=Some(pageNum), limit = Some(batchSize)))
       getData.flatMap { pageOrErr =>
         // Commit suicide if something went wrong
         if (pageOrErr.isLeft) sys.error("Batch failed: " + pageOrErr.left.get)
@@ -74,7 +75,7 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
     // Create an unicast channel in which to feed progress messages
     val channel = Concurrent.unicast[String] { chan =>
       var all: List[Future[List[SolrUpdateResponse]]] = entities.map { entity =>
-        EntityDAO(entity, userOpt).page(RestPageParams()).flatMap { firstPageOrErr =>
+        EntityDAO(entity, userOpt).page(RestPageParams(limit = Some(batchSize))).flatMap { firstPageOrErr =>
           if (firstPageOrErr.isLeft) sys.error(s"Unable to fetch first page of data for $entity: " + firstPageOrErr.left.get)
           val firstPage = firstPageOrErr.right.get
 
