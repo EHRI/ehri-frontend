@@ -2,6 +2,7 @@ package controllers
 
 import play.api.mvc.{AnyContent, Request}
 import play.api.data.Form
+import collection.immutable.ListMap
 
 
 object ListParams {
@@ -60,7 +61,7 @@ case class ListParams(
    * @param orderMap
    * @param defaultSort
    */
-  def toRestParams(filterMap: Map[String,String], orderMap: Map[String,String], defaultSort: Option[String] = None): rest.RestPageParams = {
+  def toRestParams(filterMap: ListMap[String,String], orderMap: ListMap[String,String], defaultSort: Option[String] = None): rest.RestPageParams = {
     val combinedFilters: List[String] = for {
       name <- pfn if !name.trim.isEmpty
       value <- pfv if !value.trim.isEmpty

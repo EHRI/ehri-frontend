@@ -2,7 +2,7 @@
 implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
-    @common.filterableList("pagination.displayingItems", page, new ListParams(), List(), List()) {
+    @common.filterableList("pagination.displayingItems", page, new ListParams(), collection.SortedSet.empty[String], collection.SortedSet.empty[String]) {
         <ul>
             @page.items.map { e =>
                 <li><a href="@action(item.id, entityType.toString, e.id)">@e</a></li>

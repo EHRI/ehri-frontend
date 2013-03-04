@@ -9,6 +9,7 @@ import play.api.i18n.Messages
 import defines._
 import base._
 import play.filters.csrf.CSRF.Token
+import collection.immutable.ListMap
 
 object Repositories extends CRUD[RepositoryF,Repository]
   with CreationContext[DocumentaryUnitF,Repository]
@@ -16,8 +17,8 @@ object Repositories extends CRUD[RepositoryF,Repository]
   with PermissionScopeController[Repository]
   with EntityAnnotate[Repository] {
 
-  val listFilterMappings = Map[String,String]()
-  val orderMappings = Map[String,String]()
+  val listFilterMappings = ListMap[String,String]()
+  val orderMappings = ListMap[String,String]()
   val DEFAULT_SORT = "name"
 
   override def processParams(params: ListParams): rest.RestPageParams = {

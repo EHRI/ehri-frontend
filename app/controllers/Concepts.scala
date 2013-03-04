@@ -7,6 +7,7 @@ import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
+import collection.immutable.ListMap
 
 object Concepts extends CreationContext[ConceptF, Concept]
   with VisibilityController[Concept]
@@ -24,13 +25,13 @@ object Concepts extends CreationContext[ConceptF, Concept]
    * Mapping between incoming list filter parameters
    * and the data values accessed via the server.
    */
-  val listFilterMappings: Map[String,String] = Map(
+  val listFilterMappings: ListMap[String,String] = ListMap(
     ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}",
     ConceptF.SCOPENOTE -> s"<-describes.${ConceptF.SCOPENOTE}L",
     ConceptF.DEFINITION -> s"<-describes.${ConceptF.DEFINITION}"
   )
 
-  val orderMappings: Map[String,String] = Map(
+  val orderMappings: ListMap[String,String] = ListMap(
     ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}"
   )
 

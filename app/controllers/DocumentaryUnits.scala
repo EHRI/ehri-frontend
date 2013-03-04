@@ -11,6 +11,7 @@ import base._
 import defines._
 import rest.{RestPageParams, EntityDAO}
 import scala.Some
+import collection.immutable.ListMap
 
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
@@ -28,15 +29,15 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
    * Mapping between incoming list filter parameters
    * and the data values accessed via the server.
    */
-  val listFilterMappings: Map[String,String] = Map(
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+  val listFilterMappings: ListMap[String,String] = ListMap(
     AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
     IsadG.ARCH_HIST -> s"<-describes.${IsadG.ARCH_HIST}",
     IsadG.SCOPE_CONTENT -> s"<-describes.${IsadG.SCOPE_CONTENT}",
     "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
   )
 
-  val orderMappings: Map[String,String] = Map(
+  val orderMappings: ListMap[String,String] = ListMap(
     Entity.IDENTIFIER -> Entity.IDENTIFIER,
     AccessibleEntity.NAME -> AccessibleEntity.NAME,
     "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
