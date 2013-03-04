@@ -12,12 +12,13 @@ object Accessor {
 	  case EntityType.UserProfile => UserProfile(e)
 	  case EntityType.Group => Group(e)
 	  case _ => sys.error("Unknow entity type for Accessor: " + e.isA.toString())
-	} 	
+	}
 }
 
 trait Accessor extends AccessibleEntity with NamedEntity {
-    val groups: List[Group] = e.relations(Accessor.BELONGS_REL).map(Group(_))
+  val groups: List[Group] = e.relations(Accessor.BELONGS_REL).map(Group(_))
 
+  lazy val allGroups: List[Group] = getGroups(this)
 
   def isAdmin = getAccessor(groups, "admin").isDefined
 
@@ -35,4 +36,10 @@ trait Accessor extends AccessibleEntity with NamedEntity {
 	    case Nil => None
 	  }
 	}
+
+  private def getGroups(acc: Accessor): List[Group] = {
+    acc.groups.foldLeft(acc.groups) { case (all, g) =>
+      all ++ getGroups(g)
+    }.distinct
+  }
 }
