@@ -17,6 +17,7 @@ import com.github.seratch.scalikesolr.request.query.facet.FacetParam
 import com.github.seratch.scalikesolr.request.query.facet.Value
 import com.github.seratch.scalikesolr.request.QueryRequest
 import solr.facet.QueryFacetClass
+import models.UserProfile
 
 
 /**
@@ -59,6 +60,8 @@ case class FacetPage[A](
  */
 object SolrHelper {
 
+  import SolrIndexer._
+
   private def setRequestFacets(request: QueryRequest, flist: List[FacetClass]): Unit = {
     request.setFacet(new FacetParams(
       enabled=true,
@@ -96,9 +99,7 @@ object SolrHelper {
         }
       )
     }).flatten
-    println("FQ: " + fqstrings)
-    if (!fqstrings.isEmpty)
-      request.setFilterQuery(FilterQuery("+" + fqstrings.mkString(" +")))
+    request.setFilterQuery(FilterQuery(multiple = fqstrings))
   }
 
   /**
@@ -132,7 +133,7 @@ object SolrHelper {
    * @param params
    * @return
    */
-  def buildQuery(params: SearchParams, facets: List[AppliedFacet]): QueryRequest = {
+  def buildQuery(params: SearchParams, facets: List[AppliedFacet])(implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val limit = params.limit.getOrElse(SearchParams.DEFAULT_LIMIT)
 
@@ -159,12 +160,11 @@ object SolrHelper {
     // Scalikesolr's built-in classes so we have to use it's extension-param
     // facility
     params.fields.filterNot(_.isEmpty).map { fieldList =>
-      println("Fieldlist: " + fieldList)
       req.set("qf", fieldList.mkString(" "))
     }
 
     // Mmmn, speckcheck
-    req.set("spellcheck", "true")
+    //req.set("spellcheck", "true")
 
     // Facet the request accordingly
     SolrHelper.constrain(req, params.entity, facets)
@@ -173,8 +173,24 @@ object SolrHelper {
     params.entity match {
       case None =>
       case Some(et) =>
-          req.setFilterQuery(
-            FilterQuery(req.filterQuery.fq + " +type:" + et.toString))
+        req.setFilterQuery(
+          FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(s"type:$et")))
+    }
+
+    // Filter docs based on access. If the user is empty, only allow
+    // through those which have accessibleTo:ALLUSERS.
+    // If we have a user and they're not admin, add a filter against
+    // all their groups
+    if (userOpt.isEmpty) {
+      req.setFilterQuery(
+        FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq("%s:%s".format(ACCESSOR_FIELD, ACCESSOR_ALL_PLACEHOLDER))))
+    } else if (!userOpt.get.isAdmin) {
+      // Create a boolean or query starting with the ALL placeholder, which
+      // includes all the groups the user belongs to, included inherited ones,
+      // i.e. accessibleTo:(ALLUSERS OR mike OR admin)
+      val accessors = SolrIndexer.ACCESSOR_ALL_PLACEHOLDER :: userOpt.map(u => (u.id :: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
+      req.setFilterQuery(
+        FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq("%s:(%s)".format(ACCESSOR_FIELD, accessors.mkString(" OR ")))))
     }
 
     // Debug query for now

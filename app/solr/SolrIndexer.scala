@@ -24,6 +24,10 @@ import play.api.libs.iteratee.Input.Empty
  * proper external indexing service.
  */
 object SolrIndexer extends RestDAO {
+
+  final val ACCESSOR_ALL_PLACEHOLDER = "ALLUSERS"
+  final val ACCESSOR_FIELD = "accessibleTo"
+
   // We don't need a user here yet unless we want to log
   // when the Solr index is changed.
   val userProfile: Option[UserProfile] = None
@@ -176,7 +180,7 @@ object SolrIndexer extends RestDAO {
         "identifier" -> d.identifier,
         "name" -> d.toString,
         "type" -> desc.e.isA,
-        "accessibleTo" -> d.accessors.map(a => a.id),
+        ACCESSOR_FIELD -> getAccessorValues(d.e),
         "lastUpdated" -> d.latestEvent.map(_.dateTime),
         "languageCode" -> desc.stringProperty("languageCode")
       )
@@ -201,7 +205,7 @@ object SolrIndexer extends RestDAO {
       "id" -> d.id,
       "itemId" -> d.id, // Duplicate, because the 'description' IS the item.
       "type" -> d.isA,
-      "accessibleTo" -> d.relations(AccessibleEntity.ACCESS_REL).map(a => a.id),
+      ACCESSOR_FIELD -> getAccessorValues(d),
       "lastUpdated" -> d.relations(AccessibleEntity.EVENT_REL).map(a => SystemEvent(a).dateTime)
     )
     // Merge in all the additional data already in the entity
@@ -225,5 +229,18 @@ object SolrIndexer extends RestDAO {
       case v: JsBoolean => key + "_b" // Boolean
       case _ => key
     }
+  }
+
+  /**
+   * Because it is not possible to filter query by empty multivalued fields in Solr,
+   * an item with no accessor restrictions uses the single value ALLUSERS.
+   * @param d
+   * @return
+   */
+  private def getAccessorValues(d: Entity) = {
+    if (d.relations(AccessibleEntity.ACCESS_REL).isEmpty)
+      List(ACCESSOR_ALL_PLACEHOLDER)
+    else
+      d.relations(AccessibleEntity.ACCESS_REL).map(a => a.id)
   }
 }
