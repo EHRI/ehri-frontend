@@ -18,7 +18,7 @@
         @formHelpers.csrfToken()
 
         @helper.inputText(form("email"), 'placeholder -> Messages("login.email"))
-        @helper.inputText(form("password"), 'placeholder -> Messages("login.password"))
+        @helper.inputPassword(form("password"), 'placeholder -> Messages("login.password"))
 
         <div>
             <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
