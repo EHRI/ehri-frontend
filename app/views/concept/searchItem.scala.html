@@ -12,7 +12,19 @@
                         <li><a class="alt" href="@routes.Vocabularies.get(vocab.id)">@vocab</a></li>
                     }
                     <li><span class="muted">@views.Helpers.displayLanguage(item.languageCode)</span></li>
-
+                </ul>
+                @if(owner.broaderTerms.size > 0) {
+                <ul class="unstyled inline inline-separator">
+                    <li>@Messages("concept.broaderTerms")</li>
+                    @owner.broaderTerms.map { bt =>
+                    <li>
+                        <a href="@routes.Concepts.get(bt.id)">
+                            @bt.toString(Lang(item.formable.languageCode))
+                        </a>
+                    </li>
+                    }
+                </ul>
+                }
             </small>
             @item.stringProperty(ConceptF.SCOPENOTE)
             @item.stringProperty(ConceptF.DEFINITION)

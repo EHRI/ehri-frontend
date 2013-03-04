@@ -5,7 +5,11 @@
 @defining(item.item) { ownerOpt =>
     @ownerOpt.map { owner =>
         @common.searchItemOutline {
-            <a href="@routes.DocumentaryUnits.get(owner.id)">@owner</a>
+            <a href="@routes.DocumentaryUnits.get(owner.id)">
+            @owner.ancestors.map(DocumentaryUnit).reverse.map { parent =>
+                @views.Helpers.ellipsize(parent.toString,40) &gt;
+            }
+            @owner</a>
         } {
             <small>
                 <ul class="unstyled muted inline inline-separator">
