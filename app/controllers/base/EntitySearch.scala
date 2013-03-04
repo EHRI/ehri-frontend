@@ -3,13 +3,13 @@ package controllers.base
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
-import defines.PermissionType
 import models.{Entity, UserProfile}
 import solr.facet.{AppliedFacet, FacetClass, FacetData}
 import solr.SearchParams
 
 /**
- * Controller trait for deleting AccessibleEntities.
+ * Controller trait searching via the Solr interface. Eventually
+ * we should try and genericise this so it's not tied to Solr.
  *
  * @tparam T the Entity's built representation
  */
