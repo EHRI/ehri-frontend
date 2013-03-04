@@ -143,6 +143,8 @@ object SolrIndexer extends RestDAO {
       ((desc
         + ("copyrightStatus" -> Json.toJson(d.copyrightStatus))
         + ("scope" -> Json.toJson(d.scope))
+        + ("parentId" -> Json.toJson(d.parent.map(_.id)))
+        + ("depthOfDescription" -> Json.toJson(d.ancestors.length))
         + ("holderId_s" -> Json.toJson(d.holder.map(_.id))))
         + ("holderName_s" -> Json.toJson(d.holder.map(_.name))))
     }
@@ -161,6 +163,7 @@ object SolrIndexer extends RestDAO {
     val descriptions = describedEntityToSolr(c)
     descriptions.map { desc =>
       ((desc
+        + ("parentId" -> Json.toJson(c.broaderTerms.map(_.id)))
         + ("vocabularyId_s" -> Json.toJson(c.vocabulary.map(_.id))))
         + ("vocabularyName_s" -> Json.toJson(c.vocabulary.map(_.name))))
     }
