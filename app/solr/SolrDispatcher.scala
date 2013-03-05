@@ -10,7 +10,7 @@ import xml.{Node,NodeSeq}
 import concurrent.Future
 import defines.EntityType
 import rest.RestError
-import solr.facet.AppliedFacet
+import solr.facet.{FacetClass, AppliedFacet}
 
 
 object SolrDispatcher {
@@ -39,17 +39,17 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     )
   }
 
-  def list(params: SearchParams, facets: List[AppliedFacet]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+  def list(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = SolrHelper.buildQuery(params, facets)(userProfile)
+    val queryRequest = SolrHelper.buildQuery(params, facets, allFacets)(userProfile)
     Logger.logger.debug(queryRequest.queryString())
 
     WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
         val resp = new QueryResponse(writerType=queryRequest.writerType, rawBody=r.body)
-        val facetClasses = SolrHelper.extract(resp, params.entity, facets)
+        val facetClasses = SolrHelper.extract(resp, facets, allFacets)
         val nodes = xml.XML.loadString(r.body)
 
         ItemPage(itemsFromXml(nodes), offset, limit, resp.response.numFound, facetClasses)
@@ -61,7 +61,9 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     facet: String,
     sort: String = "name",
     params: SearchParams,
-    facets: List[AppliedFacet]): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
+    facets: List[AppliedFacet],
+    allFacets: List[FacetClass]
+  ): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -69,12 +71,12 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     // actually care about the documents, so even this is
     // not strictly necessary... we also don't care about the
     // ordering.
-    val queryRequest = SolrHelper.buildQuery(params, facets)(userProfile)
+    val queryRequest = SolrHelper.buildQuery(params, facets, allFacets)(userProfile)
 
     WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
         val resp = new QueryResponse(writerType=queryRequest.writerType, rawBody=r.body)
-        val facetClasses = SolrHelper.extract(resp, params.entity, facets)
+        val facetClasses = SolrHelper.extract(resp, facets, allFacets)
 
         val facetClass = facetClasses.find(_.param==facet).getOrElse(
             throw new Exception("Unknown facet: " + facet))

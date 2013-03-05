@@ -219,41 +219,31 @@ object FacetData {
     }
   }
 
-  val facets = Map[String,List[FacetClass]](
-  // No facets get...
-    "all" -> List(
-      FieldFacetClass(
-        key="languageCode",
-        name=Messages("isadg.languageCode"),
-        param="lang",
-        render=Helpers.languageCodeToName
-      ),
-      FieldFacetClass(
-        key="type",
-        name=Messages("search.type"),
-        param="type",
-        render=s => Messages("contentTypes." + s)
-      ),
-      FieldFacetClass(
-        key="copyrightStatus",
-        name=Messages("copyrightStatus.copyright"),
-        param="copyright",
-        render=s => Messages("copyrightStatus." + s)
-      ),
-      FieldFacetClass(
-        key="scope",
-        name=Messages("scope.scope"),
-        param="scope",
-        render=s => Messages("scope." + s)
-      )
+  val facets = List(
+    FieldFacetClass(
+      key="languageCode",
+      name=Messages("isadg.languageCode"),
+      param="lang",
+      render=Helpers.languageCodeToName
+    ),
+    FieldFacetClass(
+      key="type",
+      name=Messages("search.type"),
+      param="type",
+      render=s => Messages("contentTypes." + s)
+    ),
+    FieldFacetClass(
+      key="copyrightStatus",
+      name=Messages("copyrightStatus.copyright"),
+      param="copyright",
+      render=s => Messages("copyrightStatus." + s)
+    ),
+    FieldFacetClass(
+      key="scope",
+      name=Messages("scope.scope"),
+      param="scope",
+      render=s => Messages("scope." + s)
     )
   )
-
-  def getForIndex(entity: Option[EntityType.Value]) = {
-    entity match {
-      case None => facets.flatMap { case(k, l) => l }.toList
-      case Some(et) => facets.get(et.toString).getOrElse(Nil)
-    }
-  }
 }
 

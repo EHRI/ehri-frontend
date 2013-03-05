@@ -41,7 +41,7 @@ case class SearchParams(
   limit: Option[Int] = Some(SearchParams.DEFAULT_LIMIT),
   sort: Option[SearchOrder.Value] = None,
   reversed: Option[Boolean] = Some(false),
-  entity: Option[EntityType.Value] = None,
+  entities: List[EntityType.Value] = Nil,
   fields: Option[List[String]] = None
 )
 
@@ -58,7 +58,7 @@ object SearchParams {
       "limit" -> optional(number),
       "sort" -> optional(models.forms.enum(SearchOrder)),
       "order" -> optional(boolean),
-      "st" -> optional(models.forms.enum(EntityType)),
+      "st" -> list(models.forms.enum(EntityType)),
       "qf" -> optional(list(nonEmptyText))
     )(SearchParams.apply _)(SearchParams.unapply _)
   )

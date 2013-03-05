@@ -10,16 +10,35 @@ import defines._
 import base._
 import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
+import views.Helpers
 
 object Repositories extends CRUD[RepositoryF,Repository]
   with CreationContext[DocumentaryUnitF,Repository]
 	with VisibilityController[Repository]
   with PermissionScopeController[Repository]
-  with EntityAnnotate[Repository] {
+  with EntityAnnotate[Repository]
+  with EntitySearch[Repository] {
 
   val listFilterMappings = ListMap[String,String]()
   val orderMappings = ListMap[String,String]()
   val DEFAULT_SORT = "name"
+
+  // Documentary unit facets
+  import solr.facet._
+  val entityFacets = List(
+    FieldFacetClass(
+      key="countryCode",
+      name=Messages("isdiah.countryCode"),
+      param="country",
+      render=Helpers.countryCodeToName
+    )
+  )
+
+  val searchEntities = List(
+    EntityType.AgentDescription,
+    EntityType.Agent
+  )
+
 
   override def processParams(params: ListParams): rest.RestPageParams = {
     params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
@@ -35,6 +54,13 @@ object Repositories extends CRUD[RepositoryF,Repository]
   val form = models.RepositoryForm.form
   val childForm = models.DocumentaryUnitForm.form
   val builder = Repository
+
+
+  def search = searchAction {
+    page => params => facets => implicit userOpt => implicit request =>
+      Ok(views.html.search.search(page, params, facets, routes.Repositories.search))
+
+  }
 
   def get(id: String) = getWithChildrenAction(id, DocumentaryUnit.apply _) {
       item => page => params => annotations => implicit userOpt => implicit request =>

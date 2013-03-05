@@ -105,27 +105,25 @@ object SolrHelper {
   /**
    * Constrain a search request with the given facets.
    * @param request
-   * @param entity
    * @param appliedFacets
+   * @param allFacets
    */
-  def constrain(request: QueryRequest, entity: Option[EntityType.Value], appliedFacets: List[AppliedFacet]): Unit = {
-    val flist = FacetData.getForIndex(entity)
-    setRequestFacets(request, flist)
-    setRequestFilters(request, flist, appliedFacets)
+  def constrain(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): Unit = {
+    setRequestFacets(request, allFacets)
+    setRequestFilters(request, allFacets, appliedFacets)
   }
 
 
   /**
    * Extract results from a solr response and return the facet data.
    * @param response
-   * @param entity
    * @param appliedFacets
+   * @param allFacets
    * @return
    */
-  def extract(response: QueryResponse, entity: Option[EntityType.Value],
-              appliedFacets: List[AppliedFacet]): List[FacetClass] = {
+  def extract(response: QueryResponse, appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): List[FacetClass] = {
     val rawData = xml.XML.loadString(response.rawBody)
-    FacetData.getForIndex(entity).map(_.populateFromSolr(rawData, appliedFacets))
+    allFacets.map(_.populateFromSolr(rawData, appliedFacets))
   }
 
   /**
@@ -133,7 +131,7 @@ object SolrHelper {
    * @param params
    * @return
    */
-  def buildQuery(params: SearchParams, facets: List[AppliedFacet])(implicit userOpt: Option[UserProfile]): QueryRequest = {
+  def buildQuery(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass])(implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val limit = params.limit.getOrElse(SearchParams.DEFAULT_LIMIT)
 
@@ -167,14 +165,13 @@ object SolrHelper {
     //req.set("spellcheck", "true")
 
     // Facet the request accordingly
-    SolrHelper.constrain(req, params.entity, facets)
+    SolrHelper.constrain(req, facets, allFacets)
 
     // if we're using a specific index, constrain on that as well
-    params.entity match {
-      case None =>
-      case Some(et) =>
-        req.setFilterQuery(
-          FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(s"type:$et")))
+    if (!params.entities.isEmpty) {
+      val filter = params.entities.map(_.toString).mkString(" OR ")
+      req.setFilterQuery(
+          FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(s"type:($filter)")))
     }
 
     // Filter docs based on access. If the user is empty, only allow

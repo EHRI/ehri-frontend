@@ -39,8 +39,7 @@ object ApplicationBuild extends Build {
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
-    // Add your own project settings here
-
+    // Bits that get automatically imported into templates...
     templatesImport ++= Seq("models.base._", "acl._", "defines._"),
 
 
@@ -49,7 +48,4 @@ object ApplicationBuild extends Build {
     resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com"
     )
-    
-    // pubishing this locally for 0.4-SNAPSHOT
-    //resolvers += "t2v.jp repo" at "http://www.t2v.jp/maven-repo/")
 }
