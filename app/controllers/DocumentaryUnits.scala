@@ -12,6 +12,7 @@ import defines._
 import rest.{RestPageParams, EntityDAO}
 import scala.Some
 import collection.immutable.ListMap
+import views.Helpers
 
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
@@ -21,9 +22,38 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with EntityDelete[DocumentaryUnit]
   with PermissionScopeController[DocumentaryUnit]
   with EntityAnnotate[DocumentaryUnit]
-  with DescriptionCRUD[DocumentaryUnit, DocumentaryUnitDescriptionF] {
+  with DescriptionCRUD[DocumentaryUnit, DocumentaryUnitDescriptionF]
+  with EntitySearch[DocumentaryUnit] {
 
   val DEFAULT_SORT = AccessibleEntity.NAME
+
+  // Documentary unit facets
+  import solr.facet._
+  val entityFacets = List(
+    FieldFacetClass(
+      key="languageCode",
+      name=Messages("isadg.languageCode"),
+      param="lang",
+      render=Helpers.languageCodeToName
+    ),
+    FieldFacetClass(
+      key="copyrightStatus",
+      name=Messages("copyrightStatus.copyright"),
+      param="copyright",
+      render=s => Messages("copyrightStatus." + s)
+    ),
+    FieldFacetClass(
+      key="scope",
+      name=Messages("scope.scope"),
+      param="scope",
+      render=s => Messages("scope." + s)
+    )
+  )
+
+  val searchEntities = List(
+    EntityType.DocumentaryUnitDescription,
+    EntityType.DocumentaryUnit
+  )
 
   /**
    * Mapping between incoming list filter parameters
@@ -65,6 +95,12 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val descriptionForm = models.DocumentaryUnitDescriptionForm.form
   val builder = DocumentaryUnit
 
+
+  def search = searchAction {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(views.html.search.search(page, params, facets, routes.DocumentaryUnits.search))
+
+  }
 
   def get(id: String) = getWithChildrenAction(id, builder) {
       item => page => params => annotations => implicit userOpt => implicit request =>

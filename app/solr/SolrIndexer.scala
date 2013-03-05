@@ -151,7 +151,18 @@ object SolrIndexer extends RestDAO {
   }
   
   private def repoToSolr(d: Repository): List[JsObject] = {
-    describedEntityToSolr(d)
+    // Get a list of the country codes in all addresses
+    // in all descriptions - usually there will only be one...
+    val cc: List[String] = d.descriptions.flatMap { d =>
+      d.addresses.flatMap { adr =>
+        adr.formable.countryCode.toList
+      }
+    }
+    val descriptions = describedEntityToSolr(d)
+    descriptions.map { desc =>
+      ((desc
+        + ("countryCode" -> Json.toJson(cc))))
+    }
   }
 
   /**

@@ -1,4 +1,5 @@
-@(result: solr.ItemPage[Entity], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(result: solr.ItemPage[Entity], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("forms.search")) {
 	@helper.form(action = action, 'class -> "form-search") {
