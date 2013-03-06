@@ -13,7 +13,7 @@ object DescribedEntity {
 
   def apply(e: Entity): DescribedEntity = e.isA match {
     case EntityType.DocumentaryUnit => DocumentaryUnit(e)
-    case EntityType.Agent => Repository(e)
+    case EntityType.Repository => Repository(e)
     case EntityType.Concept => Concept(e)
 
     case _ => sys.error("Unknown entity type for DescribedEntity: " + e.isA.toString())

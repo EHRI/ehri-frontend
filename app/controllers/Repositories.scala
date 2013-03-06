@@ -35,8 +35,8 @@ object Repositories extends CRUD[RepositoryF,Repository]
   )
 
   val searchEntities = List(
-    EntityType.AgentDescription,
-    EntityType.Agent
+    EntityType.RepositoryDescription,
+    EntityType.Repository
   )
 
 
@@ -48,8 +48,8 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
-  val entityType = EntityType.Agent
-  val contentType = ContentType.Agent
+  val entityType = EntityType.Repository
+  val contentType = ContentType.Repository
 
   val form = models.RepositoryForm.form
   val childForm = models.DocumentaryUnitForm.form

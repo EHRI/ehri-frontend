@@ -119,7 +119,7 @@ object SolrIndexer extends RestDAO {
     case EntityType.DocumentaryUnit => EntityType.DocumentaryUnitDescription
     case EntityType.Concept => EntityType.ConceptDescription
     case EntityType.Authority => EntityType.AuthorityDescription
-    case EntityType.Agent => EntityType.AgentDescription
+    case EntityType.Repository => EntityType.RepositoryDescription
     case e => e
   }
 
@@ -131,7 +131,7 @@ object SolrIndexer extends RestDAO {
   private def itemToJson(item: Entity): List[JsObject] = {
     item.isA match {
       case EntityType.DocumentaryUnit => docToSolr(DocumentaryUnit(item))
-      case EntityType.Agent => repoToSolr(Repository(item))
+      case EntityType.Repository => repoToSolr(Repository(item))
       case EntityType.Concept => conceptToSolr(Concept(item))
       case any => entityToSolr(item)
     }

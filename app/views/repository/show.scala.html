@@ -81,20 +81,20 @@
 
 } {
     @common.latestAction(item, routes.Repositories.history(item.id))
-    @common.visibility(item, routes.Repositories.visibility(item.id), ContentType.Agent)
+    @common.visibility(item, routes.Repositories.visibility(item.id), ContentType.Repository)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
             <li><a href="@routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
             }
-        @if(user.hasPermission(ContentType.Agent, PermissionType.Update)) {
+        @if(user.hasPermission(ContentType.Repository, PermissionType.Update)) {
             <li><a href="@routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
-        @if(user.hasPermission(ContentType.Agent, PermissionType.Delete)) {
+        @if(user.hasPermission(ContentType.Repository, PermissionType.Delete)) {
             <li><a href="@routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
-        @if(user.hasPermission(ContentType.Agent, PermissionType.Grant)) {
+        @if(user.hasPermission(ContentType.Repository, PermissionType.Grant)) {
             <li><a href="@routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
         <li><a href="@routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a></li>

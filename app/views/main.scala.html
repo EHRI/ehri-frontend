@@ -143,7 +143,7 @@
                             <li class="@{if(req.path == "/") "active" else ""}"><a href="/">@Messages("pages.home")</a></li>
                             @activeIfCurrent(routes.Application.search(), Messages("pages.search"))
                             @activeIfCurrent(routes.DocumentaryUnits.list(), Messages("contentTypes." + EntityType.DocumentaryUnit))
-                            @activeIfCurrent(routes.Repositories.list(), Messages("contentTypes." + EntityType.Agent))
+                            @activeIfCurrent(routes.Repositories.list(), Messages("contentTypes." + EntityType.Repository))
                             @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
                             @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
                             @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))

@@ -8,7 +8,7 @@ import models.RepositoryDescription
 object Description {
   def apply(e: Entity): Description = e.isA match {
     case EntityType.DocumentaryUnitDescription => DocumentaryUnitDescription(e)
-    case EntityType.AgentDescription => RepositoryDescription(e)
+    case EntityType.RepositoryDescription => RepositoryDescription(e)
     case _ => sys.error("Unknown description type: " + e.isA.toString())
   }
 }

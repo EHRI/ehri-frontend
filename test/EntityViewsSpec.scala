@@ -585,7 +585,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     "reliably set permissions" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
         val testData: Map[String, List[String]] = Map(
-          ContentType.Agent.toString -> List(PermissionType.Create.toString),
+          ContentType.Repository.toString -> List(PermissionType.Create.toString),
           ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
         )
         val cr = route(fakeLoggedInRequest(POST,
@@ -596,8 +596,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val permCall = await(PermissionDAO[UserProfile](Some(userProfile)).get(subjectUser))
         permCall must beRight
         val perms = permCall.right.get
-        perms.get(ContentType.Agent, PermissionType.Create) must beSome
-        perms.get(ContentType.Agent, PermissionType.Create).get.inheritedFrom must beNone
+        perms.get(ContentType.Repository, PermissionType.Create) must beSome
+        perms.get(ContentType.Repository, PermissionType.Create).get.inheritedFrom must beNone
         perms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
         perms.get(ContentType.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
       }

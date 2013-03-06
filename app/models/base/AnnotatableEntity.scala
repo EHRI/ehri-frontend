@@ -20,7 +20,7 @@ object AnnotatableEntity {
      */
     e.`type` match {
       case EntityType.Concept => Some(Concept(e))
-      case EntityType.Agent => Some(Repository(e))
+      case EntityType.Repository => Some(Repository(e))
       case EntityType.DocumentaryUnit => Some(DocumentaryUnit(e))
       case EntityType.Annotation => Some(Annotation(e))
       case _ => None

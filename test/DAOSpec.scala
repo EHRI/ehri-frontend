@@ -56,7 +56,7 @@ class DAOSpec extends Specification with BeforeExample {
     "create an item in (agent) context" in {
       running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val doc = DocumentaryUnitF(id = None, identifier = "foobar", name = "Foobar")
-        val r = await(EntityDAO(EntityType.Agent, Some(userProfile)).createInContext("r1", ContentType.DocumentaryUnit, doc))
+        val r = await(EntityDAO(EntityType.Repository, Some(userProfile)).createInContext("r1", ContentType.DocumentaryUnit, doc))
         r must beRight
         DocumentaryUnit(r.right.get).holder must beSome
         DocumentaryUnit(r.right.get).holder.get.identifier must equalTo("r1")
@@ -133,15 +133,15 @@ class DAOSpec extends Specification with BeforeExample {
         val perms = await(PermissionDAO(Some(userProfile)).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
-        perms.right.get.get(ContentType.Agent, PermissionType.Create) must beNone
-        perms.right.get.get(ContentType.Agent, PermissionType.Update) must beNone
+        perms.right.get.get(ContentType.Repository, PermissionType.Create) must beNone
+        perms.right.get.get(ContentType.Repository, PermissionType.Update) must beNone
         val permset = await(PermissionDAO(Some(userProfile)).set(user, data))
         permset must beRight
         val newperms = permset.right.get
         newperms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
         newperms.get(ContentType.DocumentaryUnit, PermissionType.Update) must beSome
-        newperms.get(ContentType.Agent, PermissionType.Create) must beSome
-        newperms.get(ContentType.Agent, PermissionType.Update) must beSome
+        newperms.get(ContentType.Repository, PermissionType.Create) must beSome
+        newperms.get(ContentType.Repository, PermissionType.Update) must beSome
       }
     }
 
@@ -152,8 +152,8 @@ class DAOSpec extends Specification with BeforeExample {
         val perms = await(PermissionDAO(Some(userProfile)).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
-        perms.right.get.get(ContentType.Agent, PermissionType.Create) must beNone
-        perms.right.get.get(ContentType.Agent, PermissionType.Update) must beNone
+        perms.right.get.get(ContentType.Repository, PermissionType.Create) must beNone
+        perms.right.get.get(ContentType.Repository, PermissionType.Update) must beNone
         await(PermissionDAO(Some(userProfile)).setScope(user, "r1", data))
         // Since c1 is held by r1, we should now have permissions to update and delete c1.
         val permset = await(PermissionDAO(Some(userProfile)).getItem(user, ContentType.DocumentaryUnit, "c1"))

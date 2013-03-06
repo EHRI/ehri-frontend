@@ -93,7 +93,7 @@ case class RepositoryF(
   val publicationStatus: Option[PublicationStatus.Value] = None,
   @Annotations.Relation(RepositoryF.DESC_REL) val descriptions: List[RepositoryDescriptionF] = Nil
 ) extends Persistable {
-  val isA = EntityType.Agent
+  val isA = EntityType.Repository
 
   def toJson: JsValue = {
     import RepositoryF._
@@ -167,7 +167,7 @@ case class RepositoryDescriptionF(
   val services: RepositoryDescriptionF.Services,
   val control: RepositoryDescriptionF.Control
 ) extends Persistable {
-  val isA = EntityType.AgentDescription
+  val isA = EntityType.RepositoryDescription
 
   def toJson: JsValue = {
     import AddressF._
