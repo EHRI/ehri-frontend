@@ -93,6 +93,9 @@ errors.permissionDeniedExplanation=It looks like you can't do whatever it is you
 # If there are 0 items, says "No items found", one item, "One item found" etc.
 pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
+# What we say when a logical item has no descriptions
+describedEntity.noDescriptions=This item has not been provided with a description
+
 #
 # Concepts
 #

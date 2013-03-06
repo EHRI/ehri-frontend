@@ -1,18 +1,11 @@
 @(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-<div class="list-item">
-    <h5>
+@common.searchItemOutline {
         <a href="@routes.DocumentaryUnits.get(item.id)">@item</a>
-        @item.descriptions.headOption.flatMap(_.dateString).map { d =>
-        &nbsp;[@d]
-        }
-        @item.holder.map { holder =>
-        <strong> - <a href="@controllers.routes.Repositories.get(holder.id)">@holder.name</a></strong>
-        }
-    </h5>
+} {
     @item.descriptions.headOption.map { desc =>
-    @desc.property(IsadG.SCOPE_CONTENT).flatMap(_.asOpt[String]).map { sc =>
-    <p>@sc</p>
+        @documentaryUnit.searchItemBody(item, desc)
+    }.getOrElse {
+        <small>@Messages("describedEntity.noDescriptions")</small>
     }
-    }
-</div>
+}

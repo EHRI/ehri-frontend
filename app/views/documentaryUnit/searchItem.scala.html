@@ -1,37 +1,11 @@
-@(item: DocumentaryUnitDescription)(implicit req: RequestHeader, lang: Lang)
-
-@import org.apache.commons.lang3.StringUtils
+@(item: DocumentaryUnitDescription)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @defining(item.item) { ownerOpt =>
     @ownerOpt.map { owner =>
         @common.searchItemOutline {
             <a href="@routes.DocumentaryUnits.get(owner.id)">@owner</a>
         } {
-            <small>
-                <ul class="unstyled muted inline inline-separator">
-                    <li>
-                        @owner.ancestors.map(DocumentaryUnit).reverse.map { parent =>
-                            <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toString,100)</a>
-                        }
-                    </li>
-                </ul>
-            </small>
-            <small>
-                <ul class="unstyled muted inline inline-separator">
-                    @item.item.flatMap(_.holder).map { holder =>
-                        <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder</a></li>
-                    }
-                    <li><span class="muted">@views.Helpers.displayLanguage(item.languageCode)</span></li>
-
-                    @item.dates.headOption.map { dp =>
-                        <li>@dp.formable.years</li>
-                    }
-                    @item.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
-                        <li>@s</li>
-                    }
-                </ul>
-            </small>
-            @item.stringProperty(IsadG.SCOPE_CONTENT).map(StringUtils.abbreviate(_, 600))
+            @documentaryUnit.searchItemBody(owner, item)
         }
     }.getOrElse {
         <div class="alert alert-error">

@@ -1,0 +1,26 @@
+@(item: Actor)(implicit req: RequestHeader, lang: Lang)
+
+@import Isaar._
+
+@common.searchItemOutline {
+    <a href="@routes.Actors.get(item.id)">@item</a>
+} {
+    @item.descriptions.headOption.map { desc =>
+        <small>
+            <ul class="unstyled muted inline inline-separator">
+                <li>@Messages("isaar." + desc.formable.entityType)</li>
+            </ul>
+        </small>
+        @desc.stringProperty(DATES_OF_EXISTENCE).map { d =>
+            <p>@d</p>
+        }
+        @desc.stringProperty(HISTORY).map { d =>
+            <p>@d</p>
+        }
+        @desc.stringProperty(GENERAL_CONTEXT).map { d =>
+            <p>@d</p>
+        }
+    }.getOrElse {
+        <small>@Messages("describedEntity.noDescriptions")</small>
+    }
+}

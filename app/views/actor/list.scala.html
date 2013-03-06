@@ -9,7 +9,7 @@
 	<ul class="unstyled">
 	@items.items.map { item =>
 	  	<li>
-			<a href="@routes.Actors.get(item.id)">@item</a>
+			@actor.listItem(item)
 		</li>
 	}
 	</ul>

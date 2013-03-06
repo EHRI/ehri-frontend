@@ -1,0 +1,31 @@
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescription)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+@import org.apache.commons.lang3.StringUtils
+
+<small>
+    <ul class="unstyled muted inline inline-separator">
+        <li>
+            @item.ancestors.map(DocumentaryUnit).reverse.map { parent =>
+                <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toString,100)</a>
+            }
+        </li>
+    </ul>
+</small>
+<small>
+    <ul class="unstyled muted inline inline-separator">
+        @item.holder.map { holder =>
+            <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder</a></li>
+        }
+        <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
+
+        @desc.dates.headOption.map { dp =>
+            <li>@dp.formable.years</li>
+        }
+        @desc.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
+            <li>@s</li>
+        }
+    </ul>
+</small>
+@desc.stringProperty(IsadG.SCOPE_CONTENT).map(StringUtils.abbreviate(_, 600)).map { sc =>
+    <p>@sc</p>
+}
