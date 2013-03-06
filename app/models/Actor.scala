@@ -167,6 +167,7 @@ case class ActorDescriptionF(
         DATES_CVD -> control.datesCDR,
         LANGUAGES_USED -> control.languages,
         SCRIPTS_USED -> control.scripts,
+        SOURCES -> control.sources,
         MAINTENANCE_NOTES -> control.maintenanceNotes
       )
     )
