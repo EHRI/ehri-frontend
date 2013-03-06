@@ -39,16 +39,13 @@ object ApplicationBuild extends Build {
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
-    // Add your own project settings here
-
+    // Bits that get automatically imported into templates...
     templatesImport ++= Seq("models.base._", "acl._", "defines._"),
 
 
-    resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
+    resolvers += "mvnrepository" at "http://mvnrepository/artifact",
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
+    resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com"
     )
-    
-    // pubishing this locally for 0.4-SNAPSHOT
-    //resolvers += "t2v.jp repo" at "http://www.t2v.jp/maven-repo/")
 }
