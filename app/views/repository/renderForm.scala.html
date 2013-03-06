@@ -2,6 +2,7 @@
 @import models.base.DescribedEntity
 
 @import Isdiah._
+@import RepositoryF._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
@@ -85,3 +86,10 @@
         </fieldset>
     }
 }
+
+<fieldset id="admin-area">
+    <legend>@Messages("forms.adminArea")</legend>
+    @formHelpers.enumChoiceInput(f(Isdiah.PUBLICATION_STATUS), defines.PublicationStatus, Isdiah.PUBLICATION_STATUS)
+    @formHelpers.choiceInput(f(PRIORITY), PRIORITY, 1.until(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
+</fieldset>
+

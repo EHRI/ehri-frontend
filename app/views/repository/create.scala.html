@@ -3,18 +3,11 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.createRepository")) {
+@rightSidebarLayout(Messages("actions.createAgent")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @repository.renderForm(None, f)
-
-        <fieldset id="admin-area">
-            <legend>@Messages("Administration")</legend>
-            @formHelpers.enumChoiceInput(f(Isdiah.PUBLICATION_STATUS), defines.PublicationStatus, Isdiah.PUBLICATION_STATUS)
-
-            @permissions.renderVisibilityForm(vf, users, groups)
-        </fieldset>
-
+        @permissions.renderVisibilityForm(vf, users, groups)
         @common.submitButtonWithLogMessageInput(Messages("submitButton.createAgent"))
 	}
 } {

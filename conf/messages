@@ -291,6 +291,9 @@ documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD
 #
 # Form misc
 #
+priority=Priority
+priority.1=One
+
 publicationStatus=Publication Status
 
 copyrightStatus.copyright=Copyright Status

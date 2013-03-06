@@ -13,6 +13,7 @@ import play.api.libs.json._
 import defines.EnumWriter.enumWrites
 
 
+
 /**
  * ISDIAH Field definitions
  */
@@ -84,14 +85,18 @@ object RepositoryF {
 
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
+
+  final val PRIORITY = "priority"
+
 }
 
 case class RepositoryF(
-  val id: Option[String],
-  val identifier: String,
-  val name: String,
-  val publicationStatus: Option[PublicationStatus.Value] = None,
-  @Annotations.Relation(RepositoryF.DESC_REL) val descriptions: List[RepositoryDescriptionF] = Nil
+  id: Option[String],
+  identifier: String,
+  name: String,
+  publicationStatus: Option[PublicationStatus.Value] = None,
+  @Annotations.Relation(RepositoryF.DESC_REL) descriptions: List[RepositoryDescriptionF] = Nil,
+  priority: Option[Int] = None
 ) extends Persistable {
   val isA = EntityType.Repository
 
@@ -105,7 +110,8 @@ case class RepositoryF(
       Entity.DATA -> Json.obj(
         IDENTIFIER -> identifier,
         NAME -> name,
-        PUBLICATION_STATUS -> publicationStatus
+        PUBLICATION_STATUS -> publicationStatus,
+        RepositoryF.PRIORITY -> priority
       ),
       Entity.RELATIONSHIPS -> Json.obj(
         DESC_REL -> Json.toJson(descriptions.map(_.toJson).toSeq)
@@ -118,54 +124,54 @@ case class RepositoryF(
 object RepositoryDescriptionF {
 
   case class Details(
-    val history: Option[String] = None,
-    val generalContext: Option[String] = None,
-    val mandates: Option[String] = None,
-    val administrativeStructure: Option[String] = None,
-    val records: Option[String] = None,
-    val buildings: Option[String] = None,
-    val holdings: Option[String] = None,
-    val findingAids: Option[String] = None
+    history: Option[String] = None,
+    generalContext: Option[String] = None,
+    mandates: Option[String] = None,
+    administrativeStructure: Option[String] = None,
+    records: Option[String] = None,
+    buildings: Option[String] = None,
+    holdings: Option[String] = None,
+    findingAids: Option[String] = None
   ) extends AttributeSet
 
   case class Access(
-    val openingTimes: Option[String] = None,
-    val conditions: Option[String] = None,
-    val accessibility: Option[String] = None
+    openingTimes: Option[String] = None,
+    conditions: Option[String] = None,
+    accessibility: Option[String] = None
   ) extends AttributeSet
 
   case class Services(
-    val researchServices: Option[String] = None,
-    val reproductionServices: Option[String] = None,
-    val publicAreas: Option[String] = None
+    researchServices: Option[String] = None,
+    reproductionServices: Option[String] = None,
+    publicAreas: Option[String] = None
   ) extends AttributeSet
 
   case class Control(
-    val descriptionIdentifier: Option[String] = None,
-    val institutionIdentifier: Option[String] = None,
-    val rulesAndConventions: Option[String] = None,
-    val status: Option[String] = None,
-    val levelOfDetail: Option[String] = None,
-    val datesCDR: Option[String] = None,
-    val languages: Option[List[String]] = None,
-    val scripts: Option[List[String]] = None,
-    val sources: Option[String] = None,
-    val maintenanceNotes: Option[String] = None
+    descriptionIdentifier: Option[String] = None,
+    institutionIdentifier: Option[String] = None,
+    rulesAndConventions: Option[String] = None,
+    status: Option[String] = None,
+    levelOfDetail: Option[String] = None,
+    datesCDR: Option[String] = None,
+    languages: Option[List[String]] = None,
+    scripts: Option[List[String]] = None,
+    sources: Option[String] = None,
+    maintenanceNotes: Option[String] = None
   ) extends AttributeSet
 
 }
 
 case class RepositoryDescriptionF(
-  val id: Option[String],
-  val languageCode: String,
-  val name: Option[String] = None,
-  val otherFormsOfName: Option[List[String]] = None,
-  val parallelFormsOfName: Option[List[String]] = None,
-  @Annotations.Relation(RepositoryF.ADDRESS_REL) val addresses: List[AddressF] = Nil,
-  val details: RepositoryDescriptionF.Details,
-  val access: RepositoryDescriptionF.Access,
-  val services: RepositoryDescriptionF.Services,
-  val control: RepositoryDescriptionF.Control
+  id: Option[String],
+  languageCode: String,
+  name: Option[String] = None,
+  otherFormsOfName: Option[List[String]] = None,
+  parallelFormsOfName: Option[List[String]] = None,
+  @Annotations.Relation(RepositoryF.ADDRESS_REL) addresses: List[AddressF] = Nil,
+  details: RepositoryDescriptionF.Details,
+  access: RepositoryDescriptionF.Access,
+  services: RepositoryDescriptionF.Services,
+  control: RepositoryDescriptionF.Control
 ) extends Persistable {
   val isA = EntityType.RepositoryDescription
 
@@ -218,17 +224,17 @@ object AddressF {
 }
 
 case class AddressF(
-  val id: Option[String],
-  val name: String,
-  val contactPerson: Option[String] = None,
-  val streetAddress: Option[String] = None,
-  val city: Option[String] = None,
-  val region: Option[String] = None,
-  val countryCode: Option[String] = None,
-  val email: Option[String] = None,
-  val telephone: Option[String] = None,
-  val fax: Option[String] = None,
-  val url: Option[String] = None
+  id: Option[String],
+  name: String,
+  contactPerson: Option[String] = None,
+  streetAddress: Option[String] = None,
+  city: Option[String] = None,
+  region: Option[String] = None,
+  countryCode: Option[String] = None,
+  email: Option[String] = None,
+  telephone: Option[String] = None,
+  fax: Option[String] = None,
+  url: Option[String] = None
 ) extends Persistable {
   val isA = EntityType.Address
 
@@ -327,7 +333,8 @@ object RepositoryForm {
       Entity.IDENTIFIER -> nonEmptyText,
       Isdiah.NAME -> nonEmptyText,
       Isdiah.PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
-      DescribedEntity.DESCRIPTIONS -> list(RepositoryDescriptionForm.form.mapping)
+      DescribedEntity.DESCRIPTIONS -> list(RepositoryDescriptionForm.form.mapping),
+      RepositoryF.PRIORITY -> optional(number(min = -1, max = 5))
     )(RepositoryF.apply)(RepositoryF.unapply)
   )
 }
@@ -341,14 +348,17 @@ case class Repository(val e: Entity)
   with Formable[RepositoryF] {
   override def descriptions: List[RepositoryDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(RepositoryDescription(_))
 
+  // Shortcuts...
   val publicationStatus = e.property(Isdiah.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
+  val priority = e.property(RepositoryF.PRIORITY).flatMap(_.asOpt[Int])
 
   def formable: RepositoryF = new RepositoryF(
     id = Some(e.id),
     identifier = identifier,
     name = name,
     publicationStatus = publicationStatus,
-    descriptions = descriptions.map(_.formable)
+    descriptions = descriptions.map(_.formable),
+    priority = priority
   )
 }
 
