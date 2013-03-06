@@ -15,6 +15,21 @@ import models.Entity
 
 package object Helpers {
 
+  // Pretty date/time handling
+  import org.ocpsoft.pretty.time.PrettyTime
+  def prettyDate(d: java.util.Date): String = {
+    val p = new PrettyTime() // TODO: Locale awareness, but not sure how to handle this centrally yet
+    p.format(d)
+  }
+  def prettyDate(d: org.joda.time.DateTime): String = prettyDate(d.toDate)
+  def prettyDate(d: Option[org.joda.time.DateTime]): String = {
+    d match {
+      case Some(dt) => prettyDate(dt.toDate)
+      case None => ""
+    }
+  }
+
+
   // Initialize Markdown processor for rendering markdown
   private val markdownProcessor = new MarkdownProcessor
 

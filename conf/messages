@@ -147,6 +147,7 @@ group.description=Group Description
 # System Events
 #
 systemEvents.itemAtTime=Action at {0}
+systemEvents.lastUpdated=Updated {0}
 
 # Actions
 actions.edit=Edit

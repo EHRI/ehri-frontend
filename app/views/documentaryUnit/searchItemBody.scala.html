@@ -24,8 +24,12 @@
         @desc.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
             <li>@s</li>
         }
+        @item.latestEvent.map { event =>
+            <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</li>
+        }
     </ul>
 </small>
 @desc.stringProperty(IsadG.SCOPE_CONTENT).map(StringUtils.abbreviate(_, 600)).map { sc =>
     <p>@sc</p>
 }
+

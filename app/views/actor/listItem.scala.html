@@ -2,6 +2,7 @@
 
 @import Isaar._
 
+@{println(item.e)}
 @common.searchItemOutline {
     <a href="@routes.Actors.get(item.id)">@item</a>
 } {
@@ -9,6 +10,9 @@
         <small>
             <ul class="unstyled muted inline inline-separator">
                 <li>@Messages("isaar." + desc.formable.entityType)</li>
+                @item.latestEvent.map { event =>
+                    <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</li>
+                }
             </ul>
         </small>
         @desc.stringProperty(DATES_OF_EXISTENCE).map { d =>
