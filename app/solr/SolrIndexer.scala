@@ -118,7 +118,7 @@ object SolrIndexer extends RestDAO {
   private def entityIndexType(entityType: EntityType.Value): EntityType.Value = entityType match {
     case EntityType.DocumentaryUnit => EntityType.DocumentaryUnitDescription
     case EntityType.Concept => EntityType.ConceptDescription
-    case EntityType.Authority => EntityType.AuthorityDescription
+    case EntityType.Actor => EntityType.ActorDescription
     case EntityType.Repository => EntityType.RepositoryDescription
     case e => e
   }

@@ -1,0 +1,13 @@
+@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, lang: Lang)
+
+<div class="inline-element-set">
+    <label>
+        @Messages(fieldPrefix + "." + name) | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a>
+    </label>
+    <script type="application/x-js-template" class="inline-element-template">
+        @actor.renderInlineName(field(name + "[IDX]"))
+    </script>
+    @helper.repeat(field(name), min = 0) { field =>
+        @actor.renderInlineName(field)
+    }
+</div>

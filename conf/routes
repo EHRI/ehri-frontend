@@ -129,6 +129,26 @@ POST    /agent/scope/:id/:userType/:userId    controllers.Repositories.setScoped
 GET     /agent/annotate/:id     controllers.Repositories.annotate(id: String)
 POST    /agent/annotate/:id     controllers.Repositories.annotatePost(id: String)
 
+GET     /cpf                controllers.Actors.list
+GET     /cpf/search         controllers.Actors.search
+GET     /cpf/show/:id       controllers.Actors.get(id: String)
+GET     /cpf/history/:id    controllers.Actors.history(id: String)
+GET     /cpf/json/:id       controllers.Actors.getJson(id: String)
+GET     /cpf/create         controllers.Actors.create
+POST    /cpf/create         controllers.Actors.createPost
+GET     /cpf/delete/:id     controllers.Actors.delete(id: String)
+POST    /cpf/delete/:id     controllers.Actors.deletePost(id: String)
+GET     /cpf/update/:id     controllers.Actors.update(id: String)
+POST    /cpf/update/:id     controllers.Actors.updatePost(id: String)
+GET     /cpf/visibility/:id     controllers.Actors.visibility(id: String)
+POST    /cpf/visibility/:id     controllers.Actors.visibilityPost(id: String)
+GET     /cpf/permissions/:id/manage    controllers.Actors.managePermissions(id: String, page: Int ?= 1, limit: Int ?=20)
+GET     /cpf/permissions/:id/add    controllers.Actors.addItemPermissions(id: String)
+GET     /cpf/permissions/:id/:userType/:userId    controllers.Actors.setItemPermissions(id: String, userType: String, userId: String)
+POST    /cpf/permissions/:id/:userType/:userId    controllers.Actors.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /cpf/annotate/:id     controllers.Actors.annotate(id: String)
+POST    /cpf/annotate/:id     controllers.Actors.annotatePost(id: String)
+
 GET     /vocabs                controllers.Vocabularies.list
 GET     /vocabs/show/:id       controllers.Vocabularies.get(id: String)
 GET     /vocabs/history/:id    controllers.Vocabularies.history(id: String)

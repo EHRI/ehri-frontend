@@ -1,0 +1,26 @@
+@(items: rest.Page[Actor], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("actions.listActors")) {
+
+	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
+
+	@common.pagination(items)
+	
+	<ul class="unstyled">
+	@items.items.map { item =>
+	  	<li>
+			<a href="@routes.Actors.get(item.id)">@item</a>
+		</li>
+	}
+	</ul>
+    
+} {
+
+    @common.sidebarSection(None) {
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.Actor, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@routes.Actors.create">@Messages("actions.createNewActor")</a>
+            }
+        }
+    }
+}

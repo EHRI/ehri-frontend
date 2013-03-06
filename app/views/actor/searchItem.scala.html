@@ -1,0 +1,24 @@
+@(item: ActorDescription)(implicit req: RequestHeader, lang: Lang)
+
+@import Isaar._
+
+@defining(item.item) { ownerOpt =>
+    @ownerOpt.map { owner =>
+        @common.searchItemOutline {
+            <a href="@routes.Actors.get(owner.id)">@owner</a>
+        } {
+            <small>
+                <ul class="unstyled muted inline inline-separator">
+                    <li>@Messages("isaar.entityType." + item.formable.entityType)</li>
+                </ul>
+            </small>
+            @item.stringProperty(DATES_OF_EXISTENCE)
+            @item.stringProperty(HISTORY)
+            @item.stringProperty(GENERAL_CONTEXT)
+        }
+    }.getOrElse {
+        <div class="alert alert-error">
+            <strong>Oh dear.</strong> Unable to fetch owner object for description @item.id.
+        </div>
+    }
+}

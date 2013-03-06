@@ -1,0 +1,54 @@
+@(item: Option[Actor], f: Form[ActorF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@import models.base.DescribedEntity
+
+@import Isaar._
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@defining("issar") { implicit fieldPrefix =>
+        @helper.inputText(f("identifier"), '_label -> "Identifier")
+        @helper.inputText(f("name"), '_label -> Messages(fieldPrefix + ".authorizedFormOfName"))
+
+    @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
+        @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
+
+        <fieldset id="identity-area">
+            <legend>@Messages(fieldPrefix + "." + IDENTITY_AREA)</legend>
+            @formHelpers.hiddenInput(desc(Entity.ID))
+
+            @actor.renderInlineNameSet(desc, OTHER_FORMS_OF_NAME)
+            @actor.renderInlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+
+        </fieldset>
+
+        <fieldset id="description-area">
+            <legend>@Messages(fieldPrefix + "." + DESCRIPTION_AREA)</legend>
+            @defining(desc(DESCRIPTION_AREA)) { desc =>
+                @formHelpers.textInput(desc, DATES_OF_EXISTENCE)
+                @formHelpers.textInput(desc, HISTORY)
+                @formHelpers.textInput(desc, PLACES)
+                @formHelpers.textInput(desc, LEGAL_STATUS)
+                @formHelpers.textInput(desc, FUNCTIONS)
+                @formHelpers.textInput(desc, MANDATES)
+                @formHelpers.textInput(desc, INTERNAL_STRUCTURE)
+                @formHelpers.textInput(desc, GENERAL_CONTEXT)
+            }
+        </fieldset>
+
+        <fieldset id="control-area">
+            <legend>@Messages(fieldPrefix + "." + CONTROL_AREA)</legend>
+            @defining(desc(CONTROL_AREA)) { desc =>
+                @formHelpers.lineInput(desc, DESCRIPTION_IDENTIFIER)
+                @formHelpers.lineInput(desc, INSTITUTION_IDENTIFIER)
+                @formHelpers.textInput(desc, RULES_CONVENTIONS)
+                @formHelpers.textInput(desc, STATUS)
+                @formHelpers.textInput(desc, LEVEL_OF_DETAIL)
+                @formHelpers.textInput(desc, DATES_CVD)
+                @formHelpers.multiselectInput(desc(LANGUAGES_USED), LANGUAGES_USED, views.Helpers.languagePairList)
+                @formHelpers.multiselectInput(desc(SCRIPTS_USED), SCRIPTS_USED, views.Helpers.scriptPairList)
+                @formHelpers.textInput(desc, SOURCES)
+                @formHelpers.textInput(desc, MAINTENANCE_NOTES)
+            }
+        </fieldset>
+    }
+}

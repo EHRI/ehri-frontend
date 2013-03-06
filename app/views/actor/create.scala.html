@@ -1,0 +1,22 @@
+@(f: Form[ActorF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@rightSidebarLayout(Messages("actions.createActor")) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @actor.renderForm(None, f)
+
+        <fieldset id="admin-area">
+            <legend>@Messages("Administration")</legend>
+            @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
+
+            @permissions.renderVisibilityForm(vf, users, groups)
+        </fieldset>
+
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createActor"))
+	}
+} {
+
+}
