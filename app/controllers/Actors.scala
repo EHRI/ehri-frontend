@@ -24,10 +24,10 @@ object Actors extends CRUD[ActorF,Actor]
   import solr.facet._
   val entityFacets = List(
     FieldFacetClass(
-      key="entityType",
-      name=Messages("isaar.entityType"),
+      key=models.Isaar.ENTITY_TYPE,
+      name=Messages("isaar." + models.Isaar.ENTITY_TYPE),
       param="cpf",
-      render=s => Messages("isaar.entityTypes." + s)
+      render=s => Messages("isaar." + s)
     )
   )
 
@@ -81,6 +81,7 @@ object Actors extends CRUD[ActorF,Actor]
   def createPost = createPostAction(models.ActorForm.form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+        println(errorForm.errors)
         BadRequest(views.html.actor.create(errorForm, accForm, users, groups, routes.Actors.createPost))
       }
       case Right(item) => Redirect(routes.Actors.get(item.id))

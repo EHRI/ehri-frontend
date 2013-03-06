@@ -1,6 +1,6 @@
 @(items: rest.Page[Repository], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listRepositorys")) {
+@rightSidebarLayout(Messages("actions.listAgents")) {
 
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
 
@@ -19,7 +19,7 @@
     @common.sidebarSection(None) {
         @maybeUser.map { user =>
             @if(user.hasPermission(ContentType.Repository, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@routes.Repositories.create">@Messages("actions.createNewRepository")</a>
+                <a class="btn btn-primary" href="@routes.Repositories.create">@Messages("actions.createNewAgent")</a>
             }
         }
     }

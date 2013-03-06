@@ -5,7 +5,7 @@
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations, routes.Actors.annotate(item.id)) {
-        @defining("isaah") { implicit fieldPrefix =>
+        @defining("isaar") { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
                 @item.descriptions.map { desc =>
                     <h5>@Messages(fieldPrefix + ".languageCode"): @views.Helpers.displayLanguage(desc.languageCode)</h5>

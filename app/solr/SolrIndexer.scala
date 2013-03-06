@@ -131,6 +131,7 @@ object SolrIndexer extends RestDAO {
   private def itemToJson(item: Entity): List[JsObject] = {
     item.isA match {
       case EntityType.DocumentaryUnit => docToSolr(DocumentaryUnit(item))
+      case EntityType.Actor => actorToSolr(Actor(item))
       case EntityType.Repository => repoToSolr(Repository(item))
       case EntityType.Concept => conceptToSolr(Concept(item))
       case any => entityToSolr(item)
@@ -149,7 +150,16 @@ object SolrIndexer extends RestDAO {
         + ("holderName_s" -> Json.toJson(d.holder.map(_.name))))
     }
   }
-  
+
+  private def actorToSolr(d: Actor): List[JsObject] = {
+    val descriptions = describedEntityToSolr(d)
+    // FIXME: This is very stupid
+    descriptions.zipWithIndex.map { case (desc,i) =>
+      ((desc
+        + (Isaar.ENTITY_TYPE -> Json.toJson(d.descriptions(i).formable.entityType))))
+    }
+  }
+
   private def repoToSolr(d: Repository): List[JsObject] = {
     // Get a list of the country codes in all addresses
     // in all descriptions - usually there will only be one...

@@ -31,10 +31,10 @@ case object Isaar {
 
   // Field set
   val IDENTITY_AREA = "identityArea"
-  val AUTHORIZED_FORM_OF_NAME = "authorizedFormOfName"
+  val AUTHORIZED_FORM_OF_NAME = "name"
   val OTHER_FORMS_OF_NAME = "otherFormsOfName"
   val PARALLEL_FORMS_OF_NAME = "parallelFormsOfName"
-  val ENTITY_TYPE = "entityType"
+  val ENTITY_TYPE = "typeOfEntity"
 
   // Description area
   val DESCRIPTION_AREA = "descriptionArea"
@@ -151,6 +151,7 @@ case class ActorDescriptionF(
         LANG_CODE -> languageCode,
         OTHER_FORMS_OF_NAME -> otherFormsOfName,
         PARALLEL_FORMS_OF_NAME -> parallelFormsOfName,
+        DATES_OF_EXISTENCE -> details.datesOfExistence,
         HISTORY -> details.history,
         PLACES -> details.places,
         LEGAL_STATUS -> details.legalStatus,

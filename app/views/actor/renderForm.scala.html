@@ -5,9 +5,9 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@defining("issar") { implicit fieldPrefix =>
+@defining("isaar") { implicit fieldPrefix =>
         @helper.inputText(f("identifier"), '_label -> "Identifier")
-        @helper.inputText(f("name"), '_label -> Messages(fieldPrefix + ".authorizedFormOfName"))
+        @helper.inputText(f("name"), '_label -> Messages(fieldPrefix + "." + NAME))
 
     @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
         @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
@@ -15,7 +15,8 @@
         <fieldset id="identity-area">
             <legend>@Messages(fieldPrefix + "." + IDENTITY_AREA)</legend>
             @formHelpers.hiddenInput(desc(Entity.ID))
-
+            @formHelpers.enumChoiceInput(desc(ENTITY_TYPE), ActorType, ENTITY_TYPE, blank=true)
+            @helper.inputText(desc(AUTHORIZED_FORM_OF_NAME), '_label -> Messages(fieldPrefix + "." + AUTHORIZED_FORM_OF_NAME))
             @actor.renderInlineNameSet(desc, OTHER_FORMS_OF_NAME)
             @actor.renderInlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
 

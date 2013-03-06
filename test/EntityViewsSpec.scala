@@ -575,6 +575,113 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     }
   }
 
+  "Actor views" should {
+
+    "list should get some items" in {
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        val list = route(fakeLoggedInRequest(GET, routes.Actors.list().url)).get
+        status(list) must equalTo(OK)
+        contentAsString(list) must contain(multipleItemsHeader)
+        contentAsString(list) must contain("a1")
+        contentAsString(list) must contain("a2")
+      }
+    }
+
+    "allow creating new items when logged in as privileged user" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("wiener-library"),
+          "name" -> Seq("Wiener Library"),
+          "descriptions[0].languageCode" -> Seq("en"),
+          "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
+          "descriptions[0].name" -> Seq("Wiener Library"),
+          "descriptions[0].otherFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
+          "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
+          "descriptions[0].descriptionArea.history" -> Seq("Some history"),
+          "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
+          "publicationStatus" -> Seq("Published")
+        )
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.Actors.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+
+        // FIXME: This route will change when a property ID mapping scheme is devised
+        val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain("Some history")
+        contentAsString(show) must contain("Some content")
+      }
+    }
+
+    "error if missing mandatory values" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+        )
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.Actors.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(BAD_REQUEST)
+      }
+    }
+
+    "give a form error when creating items with an existing identifier" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("a1")
+        )
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.Actors.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(BAD_REQUEST)
+      }
+    }
+
+
+    "link to other privileged actions when logged in" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val show = route(fakeLoggedInRequest(GET, routes.Actors.get("a1").url)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain(routes.Actors.update("a1").url)
+        contentAsString(show) must contain(routes.Actors.delete("a1").url)
+        contentAsString(show) must contain(routes.Actors.visibility("a1").url)
+        contentAsString(show) must contain(routes.Actors.list().url)
+      }
+    }
+
+    "allow updating items when logged in as privileged user" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("a1"),
+          "name" -> Seq("An Authority"),
+          "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
+          "descriptions[0].languageCode" -> Seq("en"),
+          "descriptions[0].name" -> Seq("An Authority"),
+          "descriptions[0].otherFormsOfName[0]" -> Seq("An Authority (Alt)"),
+          "descriptions[0].parallelFormsOfName[0]" -> Seq("An Authority 2 (Alt)"),
+          "descriptions[0].descriptionArea.history" -> Seq("New History for a1"),
+          "descriptions[0].descriptionArea.generalContext" -> Seq("New Content for a1"),
+          "publicationStatus" -> Seq("Draft")
+        )
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.Actors.updatePost("a1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+
+        val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(show) must equalTo(OK)
+        contentAsString(show) must contain("New Content for a1")
+      }
+    }
+
+    "disallow updating items when logged in as unprivileged user" in {
+      running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("a1")
+        )
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.Actors.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(UNAUTHORIZED)
+      }
+    }
+  }
+
   "UserProfile views" should {
 
     import rest.PermissionDAO

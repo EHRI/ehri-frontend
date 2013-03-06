@@ -80,7 +80,7 @@
             <label class="control-label">@Messages("search.typesToUpdate")</label>
             <div class="controls">
 
-                @List(EntityType.DocumentaryUnit,EntityType.Repository,EntityType.Concept,EntityType.Vocabulary,EntityType.UserProfile,EntityType.Group).map { et =>
+                @List(EntityType.DocumentaryUnit,EntityType.Actor, EntityType.Repository,EntityType.Concept,EntityType.Vocabulary,EntityType.UserProfile,EntityType.Group).map { et =>
                     <label class="checkbox"><input type="checkbox" name="type[]" value="@et" />
                         @Messages("contentTypes." + et.toString)
                     </label>

@@ -154,16 +154,19 @@ actions.createDescription=Add Description
 actions.listSystemEvents=System Events
 actions.listDocumentaryUnits=Collections
 actions.listAgents=Repositories
+actions.listActors=Authorities
 actions.listUserProfiles=Users
 actions.listGroups=Groups
 actions.listConcepts=Concepts
 actions.listVocabularies=Vocabularies
 actions.createDocumentaryUnit=Create Collection
 actions.createAgent=Create Repository
+actions.createActor=Create Authority
 actions.createUserProfile=Create User
 actions.createGroup=Create Group
 actions.updateDocumentaryUnit=Update Collection
 actions.updateAgent=Update Repository
+actions.updateActor=Update Authority
 actions.updateUserProfile=Update Profile
 actions.updateGroup=Update Group
 actions.updateConcept=Update Concept
@@ -184,7 +187,8 @@ actions.modifyPermissions=Modify Permissions
 actions.listPermissionGrants=Show Per-Item Permissions
 actions.createNewDocUnit=Create New Collection
 actions.createChildDocUnit=Create Child Collection
-actions.createNewRepository=Create New Repository
+actions.createNewAgent=Create New Repository
+actions.createNewActor=Create New Authority
 actions.createNewUser=Create New User Profile
 actions.createNewGroup=Create New Group
 actions.createConcept=Create New Concept
@@ -219,10 +223,12 @@ actions.manageGroups=Manage Groups
 # Submit buttons
 submitButton.createDocumentaryUnit=Create Collection
 submitButton.createAgent=Create Repository
+submitButton.createActor=Create Authority
 submitButton.createUserProfile=Create User
 submitButton.createGroup=Create Group
 submitButton.updateDocumentaryUnit=Update Collection
 submitButton.updateAgent=Update Repository
+submitButton.updateActor=Update Authority
 submitButton.updateUserProfile=Update Profile
 submitButton.updateGroup=Update Group
 submitButton.deleteItem=Delete Item
@@ -285,6 +291,8 @@ documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD
 #
 # Form misc
 #
+publicationStatus=Publication Status
+
 copyrightStatus.copyright=Copyright Status
 copyrightStatus.no=No
 copyrightStatus.yes=Copyrighted
@@ -372,6 +380,52 @@ isdiah.languages=Languages
 isdiah.scripts=Scripts
 isdiah.sources=Sources
 isdiah.maintenanceNotes=Maintenance Notes
+
+#
+# ISAAR Field definitions
+#
+
+# Form sections
+isaar.descriptionArea=Description Area
+isaar.identity=Identity Area
+isaar.services=Services Area
+
+# Identity Section
+isaar.identityArea=Identity Area
+isaar.identifier=Identifier
+isaar.name=Name
+isaar.authorizedFormOfName=Authorized Form Of Name
+isaar.otherFormsOfName=Other Form(s) of Name
+isaar.parallelFormsOfName=Parallel Form(s) of Name
+isaar.languageCode=Language of Description
+isaar.typeOfEntity=Authority Type
+isaar.corporateBody=Corporate Body
+isaar.family=Family
+isaar.person=Person
+
+
+# Description
+isaar.datesOfExistence=Dates of Existence
+isaar.history=History
+isaar.places=Places
+isaar.legalStatus=Legal Status
+isaar.functions=Functions
+isaar.mandates=Mandates
+isaar.internalStructure=Internal Structure
+isaar.generalContext=General Context
+
+# Control
+isaar.controlArea=Control Area
+isaar.descriptionIdentifier=Description Identifier
+isaar.institutionIdentifier=Institution Identifier
+isaar.rulesAndConventions=Rules and Conventions
+isaar.status=Status
+isaar.levelOfDetail=Level of Detail
+isaar.datesCVD=Dates of Creation and Deletion
+isaar.languages=Languages
+isaar.scripts=Scripts
+isaar.sources=Sources
+isaar.maintenanceNotes=Maintenance Notes
 
 
 #

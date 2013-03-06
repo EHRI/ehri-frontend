@@ -10,12 +10,12 @@
 
         <fieldset id="admin-area">
             <legend>@Messages("Administration")</legend>
-            @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
+            @formHelpers.enumChoiceInput(f(Isdiah.PUBLICATION_STATUS), defines.PublicationStatus, Isdiah.PUBLICATION_STATUS)
 
             @permissions.renderVisibilityForm(vf, users, groups)
         </fieldset>
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createRepository"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createAgent"))
 	}
 } {
 
