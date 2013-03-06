@@ -676,7 +676,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "identifier" -> Seq("a1")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Actors.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.Actors.updatePost("a1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(UNAUTHORIZED)
       }
     }
