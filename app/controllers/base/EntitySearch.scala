@@ -31,17 +31,18 @@ trait EntitySearch[T <: AccessibleEntity] extends EntityRead[T] {
    */
   def searchAction(f: solr.ItemPage[Entity] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction { implicit userOpt => implicit request =>
-
-      // Override the entity type with the controller entity type
-      val sp = solr.SearchParams.form.bindFromRequest.value.get.copy(entities = searchEntities)
-      val facets: List[AppliedFacet] = FacetData.bindFromRequest(entityFacets)
-      AsyncRest {
-        solr.SolrDispatcher(userOpt).list(sp, facets, entityFacets).map { resOrErr =>
-          resOrErr.right.map { res =>
-            AsyncRest {
-              rest.SearchDAO(userOpt).list(res.items.map(_.id)).map { listOrErr =>
-                listOrErr.right.map { list =>
-                  f(res.copy(items = list))(sp)(facets)(userOpt)(request)
+      Secured {
+        // Override the entity type with the controller entity type
+        val sp = solr.SearchParams.form.bindFromRequest.value.get.copy(entities = searchEntities)
+        val facets: List[AppliedFacet] = FacetData.bindFromRequest(entityFacets)
+        AsyncRest {
+          solr.SolrDispatcher(userOpt).list(sp, facets, entityFacets).map { resOrErr =>
+            resOrErr.right.map { res =>
+              AsyncRest {
+                rest.SearchDAO(userOpt).list(res.items.map(_.id)).map { listOrErr =>
+                  listOrErr.right.map { list =>
+                    f(res.copy(items = list))(sp)(facets)(userOpt)(request)
+                  }
                 }
               }
             }
