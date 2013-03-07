@@ -7,6 +7,7 @@ import play.api.mvc.Cookie
 import play.api.http.HeaderNames
 
 import helpers.TestLoginHelper
+import play.api.GlobalSettings
 
 /**
  * Add your spec here.
@@ -15,16 +16,16 @@ import helpers.TestLoginHelper
  */
 class ApplicationSpec extends Specification with TestLoginHelper {
   sequential
-
+  object SimpleFakeGlobal extends GlobalSettings
   "Application" should {
     "send 404 on a bad request" in {
-      running(FakeApplication()) {
+      running(FakeApplication(withGlobal = Some(SimpleFakeGlobal))) {
         route(FakeRequest(GET, "/boum")) must beNone
       }
     }
 
     "redirect to login page when called afresh" in {
-      running(FakeApplication()) {
+      running(FakeApplication(withGlobal = Some(SimpleFakeGlobal))) {
         val home = route(FakeRequest(GET, "/")).get
 
         status(home) must equalTo(SEE_OTHER)
