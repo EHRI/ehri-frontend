@@ -85,7 +85,6 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
           val params = ListParams.bind(request)
-          println("PARAMS: "+ params)
           val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
           val cReq = rest.EntityDAO(entityType, userOpt).pageChildren(id, processChildParams(params))
           for { annOrErr <- annsReq ; cOrErr <- cReq } yield {
