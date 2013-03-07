@@ -93,8 +93,10 @@ errors.databaseError=Database Error
 errors.databaseErrorExplanation=I''m afraid it looks like our database server has gone down.     \
   There's not much we can do without it, so please try again later.
 errors.permissionDenied=Permission Denied
-errors.permissionDeniedExplanation=It looks like you can't do whatever it is you were attempted \
+errors.permissionDeniedExplanation=It looks like you can''t do whatever it is you were attempted \
   to do. This is probably an error on our part. We'll try and fix that ASAP.
+errors.errorDetails=Details
+errors.noFurtherInfo=No additional information is available.
 
 # Pagination display. Should say something like "Displaying items 1 to 20 of 25.
 # If there are 0 items, says "No items found", one item, "One item found" etc.

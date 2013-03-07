@@ -9,13 +9,30 @@ import play.api.libs.ws.Response
 
 
 sealed trait RestError extends Throwable
-case class PermissionDenied() extends RestError
+case class PermissionDenied(
+  user: Option[String] = None,
+  permission: Option[String] = None,
+  item: Option[String] = None,
+  scope: Option[String] = None
+) extends RestError
 case class ValidationError(errorSet: ErrorSet) extends RestError
 case class DeserializationError() extends RestError
 case class IntegrityError() extends RestError
 case class ItemNotFound() extends RestError
 case class ServerError(error: String) extends RestError
 case class CriticalError(error: String) extends RestError
+
+object PermissionDenied {
+  import play.api.libs.json.util._
+  import play.api.libs.json._
+  import play.api.libs.functional.syntax._
+  implicit val permissionDeniedReads: Reads[PermissionDenied] = (
+    (__ \ "details" \ "accessor").readNullable[String] and
+    (__ \ "details" \ "permission").readNullable[String] and
+    (__ \ "details" \ "item").readNullable[String] and
+    (__ \ "details" \ "scope").readNullable[String]
+  )(PermissionDenied.apply _)
+}
 
 
 /**
@@ -108,7 +125,14 @@ trait RestDAO {
       case OK | CREATED => Right(response)
       case e => e match {
 
-        case UNAUTHORIZED => Left(PermissionDenied())
+        case UNAUTHORIZED => response.json.validate[PermissionDenied].fold(
+          valid = { perm =>
+            Left(perm)
+          },
+          invalid = { e =>
+            Left(PermissionDenied())
+          }
+        )
         case BAD_REQUEST => response.json.validate[ErrorSet].fold(
           valid = { errorSet =>
             Logger.logger.error("ValidationError ! : {}", response.json)

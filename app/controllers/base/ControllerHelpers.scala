@@ -62,7 +62,7 @@ trait ControllerHelpers {
             // actions should already be permission-secure, so it's really
             // an error if the server denies permission for something.
             case e: PermissionDenied => maybeUser.map { user =>
-              Unauthorized(views.html.errors.permissionDenied())
+              Unauthorized(views.html.errors.permissionDenied(Some(e)))
             } getOrElse {
               authenticationFailed(request)
             }

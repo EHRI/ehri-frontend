@@ -1,6 +1,21 @@
-@()(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(perm: Option[rest.PermissionDenied] = None)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @noSidebarLayout(Messages("errors.permissionDenied")) {
 
 	<p class="text-error">@Messages("errors.permissionDeniedExplanation")</p>
+
+    @perm.map { error =>
+        <hr/>
+        <p>
+            <strong>@Messages("errors.errorDetails"):</strong>
+            <dl>
+                <dt>user</dt><dd>@error.user</dd>
+                <dt>item</dt><dd>@error.item</dd>
+                <dt>permission</dt><dd>@error.permission</dd>
+                <dt>scope</dt><dd>@error.scope</dd>
+            </dl>
+        </p>
+    }.getOrElse {
+        <p>@Messages("errors.noFurtherInfo")</p>
+    }
 }
