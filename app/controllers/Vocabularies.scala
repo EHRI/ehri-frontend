@@ -126,7 +126,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(Vocabulary(item), users, groups,
+    Ok(views.html.permissions.permissionScope(Vocabulary(item), users, groups,
         routes.Vocabularies.setScopedPermissions _))
   }
 

@@ -164,7 +164,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(Repository(item), users, groups,
+    Ok(views.html.permissions.permissionScope(Repository(item), users, groups,
         routes.Repositories.setScopedPermissions _))
   }
 

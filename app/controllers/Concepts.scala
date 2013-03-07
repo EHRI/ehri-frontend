@@ -135,7 +135,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(Concept(item), users, groups,
+    Ok(views.html.permissions.permissionScope(Concept(item), users, groups,
         routes.Concepts.setScopedPermissions _))
   }
 
