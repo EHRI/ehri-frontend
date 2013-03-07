@@ -6,10 +6,20 @@
 
     <small>
         <ul class="unstyled muted inline inline-separator">
+            @item.groups.map { acc =>
+                <li><a class="alt" href="@routes.Groups.get(acc.id)">@acc</a></li>
+            }
             @item.formable.location.filterNot(_.trim.isEmpty).map { loc =>
                 <li>@loc</li>
             }
         </ul>
+        <ul class="unstyled muted inline inline-separator">
+            @item.latestEvent.map { event =>
+            <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</li>
+            }
+        </ul>
     </small>
-    @item.formable.about
+    @item.formable.about.map { about =>
+        <p>@about</p>
+    }
 }

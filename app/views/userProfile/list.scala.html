@@ -5,27 +5,12 @@
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
     @common.pagination(items)
 	
-	<ul>
+	<ul class="unstyled">
 	@items.items.map { item =>
 	  	<li>
-            <div class="list-item">
-                <h4>
-                    <a href="@routes.UserProfiles.get(item.id)">@item</a>
-                </h4>
-                <p>
-                    <div>
-                    @item.groups.sortBy(_.toString).map { g =>
-                        <a class="badge" href="@routes.Groups.get(g.id)">@g</a>
-                    }
-                    </div>
-                    @item.formable.about.map { d =>
-                        @d
-                    }
-                </p>
-            </div>
+            @userProfile.searchItem(item)
 		</li>
 	}
 	</ul>
-    
 } {
 }

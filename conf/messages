@@ -58,6 +58,7 @@ contentTypes.agentDescription=Repositories
 contentTypes.authority=Authorities
 contentTypes.documentaryUnit=Collections
 contentTypes.documentDescription=Descriptions
+contentTypes.authorityDescription=Authorities
 contentTypes.action=User Events
 contentTypes.systemEvent=History
 contentTypes.cvocVocabulary=CVocs
