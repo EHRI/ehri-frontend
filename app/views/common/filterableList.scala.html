@@ -13,62 +13,64 @@
     </div>
 }
 
-@if(page.total > 0 || (page.total == 0 && !params.pfn.isEmpty)) {
-    <hr />
-    <div class="item-list">
-        <form method="GET" class="form-search">
+<hr />
+<div class="item-list">
+    <form method="GET" class="form-search">
 
-            <div class="btn-group pull-right">
-                @if(params.reverse.getOrElse(false)) {
-                    <a class="btn btn-toggle" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != ListParams.REVERSE))">
-                        <i class="icon-chevron-down"></i>
-                        @Messages("search.order")
-                    </a>
-                } else {
-                    <a class="btn" href="@utils.joinPath(req.path, req.queryString.updated(ListParams.REVERSE, Seq("true")))">
-                        <i class="icon-chevron-up"></i>
-                        @Messages("search.order")
-                    </a>
-                }
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                    @Messages("search.sortItems")
-                    <span class="caret"></span>
+        <div class="btn-group pull-right">
+            @if(params.reverse.getOrElse(false)) {
+                <a class="btn btn-toggle" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != ListParams.REVERSE))">
+                    <i class="icon-chevron-down"></i>
+                    @Messages("search.order")
                 </a>
-                <ul class="dropdown-menu">
-                @orderNames.toList.map { sortKey =>
-                    <li>
-                        <a href="@utils.joinPath(req.path, req.queryString.updated(ListParams.SORT, Seq(sortKey)))">
-                            @Messages("search." + sortKey)
-                            @if(params.sort.equals(Some(sortKey))) {
-                                <i class="icon-ok"></i>
-                            }
-                        </a>
-                    </li>
-                }
-                </ul>
-            </div>
-
-            @if(page.total > 0) {
-                <h3>@Messages(paginationKey, page.offset + 1, page.offset + page.items.size, page.total)</h3>
-                <div class="item-list-filter well well-small">
-                    @params.sort.map { s =>
-                        <input type="hidden" name="@ListParams.SORT" VALUE="@s" />
-                    }
-
-                    @if(params.pfn.isEmpty) {
-                        @searchInput(propertyName = "", propertyValue = "", fieldOptions = filterNames, index = 0)
-                    } else {
-                        @params.pfn.zip(params.pfv).zipWithIndex.map { case (pv,i) =>
-                            @searchInput(propertyName = pv._1, propertyValue = pv._2, fieldOptions = filterNames, index = i)
-                        }
-                    }
-                </div>
-                @common.pagination(page)
             } else {
-                @Messages("search.noItemsFound")
+                <a class="btn" href="@utils.joinPath(req.path, req.queryString.updated(ListParams.REVERSE, Seq("true")))">
+                    <i class="icon-chevron-up"></i>
+                    @Messages("search.order")
+                </a>
+            }
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                @Messages("search.sortItems")
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+            @orderNames.toList.map { sortKey =>
+                <li>
+                    <a href="@utils.joinPath(req.path, req.queryString.updated(ListParams.SORT, Seq(sortKey)))">
+                        @Messages("search." + sortKey)
+                        @if(params.sort.equals(Some(sortKey))) {
+                            <i class="icon-ok"></i>
+                        }
+                    </a>
+                </li>
+            }
+            </ul>
+        </div>
+
+        @if(page.total > 0) {
+            <h3>@Messages(paginationKey, page.offset + 1, page.offset + page.items.size, page.total)</h3>
+        } else {
+            <h3>@Messages("search.noItemsFound")</h3>
+        }
+
+        <div class="item-list-filter well well-small">
+            @params.sort.map { s =>
+                <input type="hidden" name="@ListParams.SORT" VALUE="@s" />
             }
 
+            @if(params.pfn.isEmpty) {
+            @searchInput(propertyName = "", propertyValue = "", fieldOptions = filterNames, index = 0)
+            } else {
+            @params.pfn.zip(params.pfv).zipWithIndex.map { case (pv,i) =>
+            @searchInput(propertyName = pv._1, propertyValue = pv._2, fieldOptions = filterNames, index = i)
+            }
+            }
+        </div>
+
+        @if(page.total > 0) {
+            @common.pagination(page)
             @listBody
-        </form>
-    </div>
-}
+        }
+
+    </form>
+</div>
