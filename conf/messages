@@ -28,6 +28,7 @@ search.typesToUpdate=Types to Update
 search.relevance=Relevance
 search.order=Order
 search.name=Title
+search.identifier=Identifier
 search.lastUpdated=Recently Updated
 search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descriptions}
 

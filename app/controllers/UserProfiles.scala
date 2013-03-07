@@ -1,18 +1,37 @@
 package controllers
 
+import _root_.models.base.AccessibleEntity
 import models.forms.{VisibilityForm}
-import models.{UserProfile,UserProfileF}
+import _root_.models.{Entity, UserProfile, UserProfileF}
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
 import base._
+import collection.immutable.ListMap
 
 
 object UserProfiles extends PermissionHolderController[UserProfile]
   with EntityRead[UserProfile]
   with EntityUpdate[UserProfileF,UserProfile]
   with EntityDelete[UserProfile] {
+
+  val DEFAULT_SORT = AccessibleEntity.NAME
+
+  val listFilterMappings: ListMap[String,String] = ListMap(
+    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    Entity.IDENTIFIER -> Entity.IDENTIFIER
+  )
+
+  val orderMappings: ListMap[String,String] = ListMap(
+    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    Entity.IDENTIFIER -> Entity.IDENTIFIER
+  )
+
+
+  override def processParams(params: ListParams): rest.RestPageParams = {
+    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
+  }
 
 
 
