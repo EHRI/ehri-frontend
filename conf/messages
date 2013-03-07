@@ -59,7 +59,7 @@ contentTypes.authority=Authorities
 contentTypes.documentaryUnit=Collections
 contentTypes.documentDescription=Descriptions
 contentTypes.action=User Events
-contentTypes.systemEvent=System Events
+contentTypes.systemEvent=History
 contentTypes.cvocVocabulary=CVocs
 contentTypes.cvocConcept=Concepts
 contentTypes.cvocConceptDescription=Concepts
@@ -74,6 +74,9 @@ permissionTypes.delete=Delete
 permissionTypes.grant=Grant
 permissionTypes.annotate=Annotate
 permissionTypes.owner=Owner
+
+# Permission grant list paginations
+permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission granted|1<Displaying grants {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 
 # general models.forms
@@ -210,12 +213,16 @@ actions.showHistory=Item History
 actions.addNewGroup=Add New Group
 actions.addUserToGroup=Add {0} to group ''{1}''
 actions.updateGlobalPermissions=Update Global Permissions
-actions.manageScopedPermissions=Managed Scoped Permissions
-actions.manageScopedPermissionsForAccessor=Manage Scoped Permissions for {0}
-actions.manageScopedPermissionsForItem=Manage Scoped Permissions for {0}
-actions.manageItemPermissions=Manage Item Permissions
-actions.manageItemPermissionsForAccessor=Manage Item Permissions for {0}
-actions.manageItemPermissionsForItem=Manage Item Permissions for {0}
+actions.manageScopedPermissions=Scoped Permissions
+actions.manageScopedPermissionsText=Scoped permissions allow you to grant permissions for users or groups to perform\
+  actions on all items ''within'' another item (the scope), i.e. all documentary units within a given repository.
+actions.manageScopedPermissionsForAccessor=Scoped Permissions for {0}
+actions.manageScopedPermissionsForItem=Scoped Permissions for {0}
+actions.manageItemPermissions=Item-level Permissions
+actions.manageItemPermissionsText=Item-level permissions allow you to grant permissions for users or groups to perform\
+  actions on a single item, i.e. updating a repository''s descriptive information.
+actions.manageItemPermissionsForAccessor=Item-level Permissions for {0}
+actions.manageItemPermissionsForItem=Item-level Permissions for {0}
 actions.grantPermissionsInScope=Manage Permissions in scope {0} for {1}
 actions.grantPermissionsOnItem=Manage Permissions on {0} for {1}
 actions.updatePermissions=Update Permissions

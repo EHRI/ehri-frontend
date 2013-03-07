@@ -4,6 +4,10 @@
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("actions.manageItemPermissionsForAccessor", item.identifier)) {
+    <div class="well well-small muted">
+        <i class="icon-info-sign"></i>
+        @Messages("actions.manageItemPermissionsText")
+    </div>
 
     @if(!groups.isEmpty) {
         <strong>@Messages("contentTypes.group"): </strong>&nbsp;
