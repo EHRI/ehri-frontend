@@ -147,7 +147,7 @@ object SolrHelper {
         enabled=true,
         isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
 
-    val order = if(params.reversed.getOrElse(false)) "desc" else "asc"
+    val order = if(params.reverse.getOrElse(false)) "desc" else "asc"
     params.sort match {
       case None => // This is the default!
       // TODO: Define these options more succinctly

@@ -2,7 +2,7 @@
 
 @item.latestEvent.map { ev =>
     <div class="well well-small latest-event">
-        <strong>@ev.time</strong>
+        <strong title="@common.eventTitle(ev)">@views.Helpers.prettyDate(ev.timeStamp)</strong>
         <p class="muted">
             <em>@ev.logMessage</em>
         </p>

@@ -1,20 +1,62 @@
 @(result: solr.ItemPage[Entity], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
+@import solr.SearchParams
+
 @rightSidebarLayout(Messages("forms.search")) {
 	@helper.form(action = action, 'class -> "form-search") {
         <div class="controls-row">
-            <input type="text" class="span10 search-query" name="q" value="@params.query" />
-            <button type="submit" class="btn">@Messages("forms.search")</button>
+            <div class="input-append search-query span10">
+                <input type="text" class="span10" name="@SearchParams.QUERY" value="@params.query" />
+                <button class="btn">@Messages("forms.search")</button>
+            </div>
         </div>
+
+        <div class="btn-group pull-right" style="margin-top: 10px">
+            @if(params.reverse.getOrElse(false)) {
+            <a class="btn btn-toggle" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.REVERSE))">
+                <i class="icon-chevron-down"></i>
+                @Messages("search.order")
+            </a>
+            } else {
+                <a class="btn" href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.REVERSE, Seq("true")))">
+                <i class="icon-chevron-up"></i>
+                @Messages("search.order")
+            </a>
+            }
+
+            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                @Messages("search.sortItems")
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
+                        @if(params.sort.isEmpty) {
+                        <i class="icon-chevron-down"></i>
+                        }
+                        @Messages("search.relevance")
+                    </a>
+                </li>
+                @solr.SearchOrder.values.map { sortKey =>
+                <li>
+                    <a href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey)))">
+                        @Messages("search." + sortKey)
+                        @if(params.sort.equals(Some(sortKey))) {
+                        <i class="icon-ok"></i>
+                        }
+                    </a>
+                </li>
+                }
+            </ul>
+        </div>
+        <h3>@Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)</h3>
+        @common.pagination(result)
 
         <p>
             @common.selectedFacets(result)
         </p>
 
-        <h3>@Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)</h3>
-
-        @common.pagination(result)
 		<ul class="unstyled">
 		@result.items.map { item =>
             <li>

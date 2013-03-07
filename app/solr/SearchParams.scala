@@ -17,10 +17,8 @@ object SearchField extends Enumeration {
 
 object SearchOrder extends Enumeration {
   type Order = Value
-  val Relevance = Value("relevance")
-  val Title = Value("title")
-  val DateNewest = Value("dateNewest")
-  val DateOldest = Value("dateOldest")
+  val Title = Value("name")
+  val DateNewest = Value("lastUpdated")
 }
 
 object SearchType extends Enumeration {
@@ -40,26 +38,33 @@ case class SearchParams(
   page: Option[Int] = Some(1),
   limit: Option[Int] = Some(SearchParams.DEFAULT_LIMIT),
   sort: Option[SearchOrder.Value] = None,
-  reversed: Option[Boolean] = Some(false),
+  reverse: Option[Boolean] = Some(false),
   entities: List[EntityType.Value] = Nil,
   fields: Option[List[String]] = None
 )
 
 object SearchParams {
   final val DEFAULT_LIMIT = 20
+  final val REVERSE = "desc"
+  final val SORT = "sort"
+  final val LIMIT = "limit"
+  final val PAGE = "page"
+  final val QUERY = "q"
+  final val FIELD = "qf"
+  final val ENTITY = "st"
 
   import play.api.data.Forms._
   import play.api.data.Form
 
   val form = Form(
     mapping(
-      "q" -> optional(nonEmptyText),
-      "page" -> optional(number),
-      "limit" -> optional(number),
-      "sort" -> optional(models.forms.enum(SearchOrder)),
-      "order" -> optional(boolean),
-      "st" -> list(models.forms.enum(EntityType)),
-      "qf" -> optional(list(nonEmptyText))
+      QUERY -> optional(nonEmptyText),
+      PAGE -> optional(number),
+      LIMIT -> optional(number),
+      SORT -> optional(models.forms.enum(SearchOrder)),
+      REVERSE -> optional(boolean),
+      ENTITY -> list(models.forms.enum(EntityType)),
+      FIELD -> optional(list(nonEmptyText))
     )(SearchParams.apply _)(SearchParams.unapply _)
   )
 }

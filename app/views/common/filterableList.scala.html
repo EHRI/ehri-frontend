@@ -22,12 +22,12 @@
                 @if(params.reverse.getOrElse(false)) {
                     <a class="btn btn-toggle" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != ListParams.REVERSE))">
                         <i class="icon-chevron-down"></i>
-                        Order
+                        @Messages("search.order")
                     </a>
                 } else {
                     <a class="btn" href="@utils.joinPath(req.path, req.queryString.updated(ListParams.REVERSE, Seq("true")))">
                         <i class="icon-chevron-up"></i>
-                        Order
+                        @Messages("search.order")
                     </a>
                 }
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -38,7 +38,7 @@
                 @orderNames.toList.map { sortKey =>
                     <li>
                         <a href="@utils.joinPath(req.path, req.queryString.updated(ListParams.SORT, Seq(sortKey)))">
-                            @Messages(sortKey)
+                            @Messages("search." + sortKey)
                             @if(params.sort.equals(Some(sortKey))) {
                                 <i class="icon-ok"></i>
                             }
