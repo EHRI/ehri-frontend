@@ -135,7 +135,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
         val show = route(fakeLoggedInRequest(GET, routes.DocumentaryUnits.get("c2").url)).get
         status(show) must equalTo(UNAUTHORIZED)
-        contentAsString(show) must not contain ("c2")
+        contentAsString(show) must not contain ("Collection 2")
       }
     }
 
