@@ -185,7 +185,7 @@ actions.updateVocabulary=Update Vocabulary
 actions.linkTo=Link to another item
 actions.linkToConcept=Link to a vocabulary term
 actions.linkToDocumentaryUnit=Link to an archival description
-actions.linkToAuthority=Link to an authority
+actions.linkToActor=Link to an authority
 
 actions.backToList=Back to List
 actions.exportJson=Export JSON

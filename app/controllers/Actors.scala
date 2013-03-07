@@ -169,4 +169,36 @@ object Actors extends CRUD[ActorF,Actor]
       }
     }
   }
+
+  def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
+    item => implicit userOpt => implicit request =>
+      Ok(views.html.actor.linkTo(Actor(item)))
+  }
+
+  def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
+    item => page => implicit userOpt => implicit request =>
+      Ok(views.html.annotation.linkSourceList(item, page,
+        EntityType.withName(toType), routes.Actors.linkAnnotate _))
+  }
+
+  def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
+    target => source => implicit userOpt => implicit request =>
+      Ok(views.html.annotation.linkAnnotate(target, source,
+        models.AnnotationForm.form, routes.Actors.linkAnnotatePost(id, toType, to)))
+  }
+
+  def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
+    formOrAnnotation => implicit userOpt => implicit request =>
+      formOrAnnotation match {
+        case Left((target,source,errorForm)) => {
+          BadRequest(views.html.annotation.linkAnnotate(target, source,
+            errorForm, routes.Actors.linkAnnotatePost(id, toType, to)))
+        }
+        case Right(annotation) => {
+          Redirect(routes.Actors.get(id))
+            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        }
+      }
+  }
+
 }

@@ -1,0 +1,28 @@
+@(item: Actor)(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+
+    @html
+
+} {
+    @common.latestAction(item, routes.Actors.history(item.id))
+    @common.visibility(item, routes.Actors.visibility(item.id), ContentType.Actor)
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.Actor, PermissionType.Annotate)) {
+                <li><a href="@routes.Actors.linkTo(item.id)">@Messages("actions.linkTo")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Actor, PermissionType.Update)) {
+                <li><a href="@routes.Actors.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Actor, PermissionType.Delete)) {
+                <li><a href="@routes.Actors.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Actor, PermissionType.Grant)) {
+                <li><a href="@routes.Actors.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+            }
+            <li><a href="@routes.Actors.history(item.id)">@Messages("actions.showHistory")</a></li>
+        }
+    </ul>
+}

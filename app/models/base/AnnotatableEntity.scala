@@ -22,6 +22,7 @@ object AnnotatableEntity {
       case EntityType.Concept => Some(Concept(e))
       case EntityType.Repository => Some(Repository(e))
       case EntityType.DocumentaryUnit => Some(DocumentaryUnit(e))
+      case EntityType.Actor => Some(Actor(e))
       case EntityType.Annotation => Some(Annotation(e))
       case _ => None
     }

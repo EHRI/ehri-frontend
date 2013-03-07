@@ -1,0 +1,13 @@
+@(item: Actor)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@actor.itemPage(item) {
+
+    <h3>@Messages("actions.linkTo")</h3>
+
+    <ul>
+        <li><a href="@routes.Actors.linkAnnotateSelect(item.id, defines.EntityType.Actor)">@Messages("actions.linkToActor")</a></li>
+        <li><a href="@routes.Actors.linkAnnotateSelect(item.id, defines.EntityType.Concept)">@Messages("actions.linkToConcept")</a></li>
+        <li><a href="@routes.Actors.linkAnnotateSelect(item.id, defines.EntityType.DocumentaryUnit)">@Messages("actions.linkToDocumentaryUnit")</a></li>
+    </ul>
+
+}

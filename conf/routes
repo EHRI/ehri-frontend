@@ -148,6 +148,10 @@ GET     /cpf/permissions/:id/:userType/:userId    controllers.Actors.setItemPerm
 POST    /cpf/permissions/:id/:userType/:userId    controllers.Actors.setItemPermissionsPost(id: String, userType: String, userId: String)
 GET     /cpf/annotate/:id     controllers.Actors.annotate(id: String)
 POST    /cpf/annotate/:id     controllers.Actors.annotatePost(id: String)
+GET     /cpf/link/:id          controllers.Actors.linkTo(id: String)
+GET     /cpf/link/:id/:toType     controllers.Actors.linkAnnotateSelect(id: String, toType: String)
+GET     /cpf/link/:id/:toType/:to     controllers.Actors.linkAnnotate(id: String, toType: String, to: String)
+POST    /cpf/link/:id/:toType/:to     controllers.Actors.linkAnnotatePost(id: String, toType: String, to: String)
 
 GET     /vocabs                controllers.Vocabularies.list
 GET     /vocabs/show/:id       controllers.Vocabularies.get(id: String)

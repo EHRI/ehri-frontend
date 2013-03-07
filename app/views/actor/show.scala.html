@@ -1,8 +1,8 @@
-    @(item: Actor, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Actor, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import Isaar._
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+@actor.itemPage(item) {
 
     @common.annotated(item, annotations, routes.Actors.annotate(item.id)) {
         @defining("isaar") { implicit fieldPrefix =>
@@ -42,22 +42,4 @@
 
     @common.relatedLinks(item, annotations)
 
-} {
-    @common.latestAction(item, routes.Actors.history(item.id))
-    @common.visibility(item, routes.Actors.visibility(item.id), ContentType.Actor)
-
-    <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.Actor, PermissionType.Update)) {
-                <li><a href="@routes.Actors.update(item.id)">@Messages("actions.updateItem")</a></li>
-            }
-            @if(user.hasPermission(ContentType.Actor, PermissionType.Delete)) {
-                <li><a href="@routes.Actors.delete(item.id)">@Messages("actions.deleteItem")</a></li>
-            }
-            @if(user.hasPermission(ContentType.Actor, PermissionType.Grant)) {
-                <li><a href="@routes.Actors.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
-            }
-            <li><a href="@routes.Actors.history(item.id)">@Messages("actions.showHistory")</a></li>
-        }
-    </ul>
 }
