@@ -72,7 +72,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       values => {
         val (email, username, name, pw, _) = values
         // check if the email is already registered...
-        OpenIDUser.findByEmail(email).map { account =>
+        OpenIDUser.findByEmail(email.toLowerCase).map { account =>
           val errForm = userPasswordForm.bindFromRequest
             .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.profile_id)))
           getGroups { groups =>
@@ -89,7 +89,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
             rest.EntityDAO(EntityType.UserProfile, userOpt)
                 .create(user, params = Map("group" -> groups)).map { itemOrErr =>
               itemOrErr.right.map { entity =>
-                OpenIDUser.create(email, entity.id).map { account =>
+                OpenIDUser.create(email.toLowerCase, entity.id).map { account =>
                   account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
                   Redirect(routes.UserProfiles.get(entity.id))
                 }.getOrElse {
@@ -117,7 +117,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       },
       data => {
         val (email, pw) = data
-        OpenIDUser.findByEmail(email).flatMap { acc =>
+        OpenIDUser.findByEmail(email.toLowerCase).flatMap { acc =>
           acc.password.flatMap { hashed =>
             if (BCrypt.checkpw(pw, hashed)) {
               Some(Application.gotoLoginSucceeded(acc.profile_id))
@@ -148,7 +148,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
         val (current, pw, _) = data
         user.flatMap(_.account.map(_.email)).flatMap { email =>
           println("Finding by email: " + email)
-          OpenIDUser.findByEmail(email).flatMap { acc =>
+          OpenIDUser.findByEmail(email.toLowerCase).flatMap { acc =>
             acc.password.flatMap { hashed =>
               if (BCrypt.checkpw(current, hashed)) {
                 acc.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))

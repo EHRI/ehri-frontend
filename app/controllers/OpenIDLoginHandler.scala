@@ -60,7 +60,7 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
             Async {
               rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                 case Right(entity) => {
-                  models.sql.OpenIDUser.create(email, entity.id).map { user =>
+                  models.sql.OpenIDUser.create(email.toLowerCase, entity.id).map { user =>
                     user.addAssociation(info.id)
                     gotoLoginSucceeded(user.profile_id)
                         .withSession("access_uri" -> routes.UserProfiles.update(user.profile_id).url)
