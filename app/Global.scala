@@ -11,6 +11,7 @@ import play.api.Play.current
 import play.filters.csrf.CSRFFilter
 import rest.EntityDAO
 import solr.SolrIndexer
+import solr.SolrIndexer.SolrErrorResponse
 
 // Note: this is in the default package.
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
@@ -24,9 +25,9 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     EntityDAO.addCreateHandler { item =>
       Logger.logger.info("Binding creation event to Solr create action")
       solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
-        batchList.map { result =>
-          result.left.map { err =>
-            Logger.logger.error("Solr create error: " + err)
+        batchList.map { r => r match {
+            case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
+            case ok => ok
           }
         }
       }
@@ -35,9 +36,9 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     EntityDAO.addUpdateHandler { item =>
       Logger.logger.info("Binding update event to Solr update action")
       solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
-        batchList.map { result =>
-          result.left.map { err =>
-            Logger.logger.error("Solr update error: " + err)
+        batchList.map { r => r match {
+            case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
+            case ok => ok
           }
         }
       }
@@ -45,9 +46,9 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
     EntityDAO.addDeleteHandler { item =>
       Logger.logger.info("Binding delete event to Solr delete action")
-      solr.SolrIndexer.deleteItemsById(Stream(item)).map { result =>
-        result.left.map { err =>
-          Logger.logger.error("Solr delete error: " + err)
+      solr.SolrIndexer.deleteItemsById(Stream(item)).map { r => r match {
+          case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
+          case ok => ok
         }
       }
     }
