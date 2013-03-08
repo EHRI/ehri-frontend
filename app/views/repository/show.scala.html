@@ -1,6 +1,7 @@
     @(item: Repository, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import Isdiah._
+@import common.descriptionSection
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
@@ -8,66 +9,70 @@
         @defining("isdiah") { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
                 @item.descriptions.map { desc =>
-                    <h5>@Messages(fieldPrefix + ".languageCode"): @views.Helpers.displayLanguage(desc.languageCode)</h5>
+                    @common.descriptionOutline(desc, desc.languageCode) {
 
-                    @desc.addresses.map { address =>
-                        <address title="@address.stringProperty(ADDRESS_NAME)">
-                        @List(CONTACT_PERSON, STREET_ADDRESS,CITY,REGION).map { addressPart =>
-                            @address.stringProperty(addressPart).map { addressPartValue =>
-                                @addressPartValue<br />
+                        @descriptionSection(IDENTITY_AREA) {
+                            @common.stringValue(desc, AUTHORIZED_FORM_OF_NAME)
+                            @common.listValue(desc, PARALLEL_FORMS_OF_NAME)
+                            @common.listValue(desc, OTHER_FORMS_OF_NAME)
+                        }
+
+                        @descriptionSection(ADDRESS_AREA) {
+                            @desc.addresses.map { address =>
+                                <address title="@address.stringProperty(ADDRESS_NAME)">
+                                    @List(CONTACT_PERSON, STREET_ADDRESS,CITY,REGION).map { addressPart =>
+                                        @address.stringProperty(addressPart).map { addressPartValue =>
+                                            @addressPartValue<br />
+                                        }
+                                    }
+                                    @address.stringProperty(COUNTRY_CODE).map { cc =>
+                                        @views.Helpers.countryCodeToName(cc)<br />
+                                    }
+                                    @List(EMAIL, TELEPHONE, FAX, URL).map { addressPart =>
+                                        @address.stringProperty(addressPart).map { addressPartValue =>
+                                            @addressPartValue<br />
+                                        }
+                                    }
+                                </address>
                             }
                         }
-                        @address.stringProperty(COUNTRY_CODE).map { cc =>
-                            @* TODO: Map country code to name *@
-                            @cc<br />
+
+                        @descriptionSection(DESCRIPTION_AREA) {
+                            @common.stringValue(desc, HISTORY)
+                            @common.stringValue(desc, GENERAL_CONTEXT)
+                            @common.stringValue(desc, MANDATES)
+                            @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
+                            @common.stringValue(desc, RECORDS)
+                            @common.stringValue(desc, BUILDINGS)
+                            @common.stringValue(desc, HOLDINGS)
+                            @common.stringValue(desc, FINDING_AIDS)
                         }
-                        @List(EMAIL, TELEPHONE, FAX, URL).map { addressPart =>
-                            @address.stringProperty(addressPart).map { addressPartValue =>
-                                @addressPartValue<br />
-                            }
+
+                        @descriptionSection(ACCESS_AREA) {
+                            @common.stringValue(desc, OPENING_TIMES)
+                            @common.stringValue(desc, CONDITIONS)
+                            @common.stringValue(desc, ACCESSIBILITY)
                         }
-                        </address>
+
+                        @descriptionSection(SERVICES_AREA) {
+                            @common.stringValue(desc, RESEARCH_SERVICES)
+                            @common.stringValue(desc, REPROD_SERVICES)
+                            @common.stringValue(desc, PUBLIC_AREAS)
+                        }
+
+                        @descriptionSection(CONTROL_AREA) {
+                            @common.stringValue(desc, DESCRIPTION_IDENTIFIER)
+                            @common.stringValue(desc, INSTITUTION_IDENTIFIER)
+                            @common.stringValue(desc, RULES_CONVENTIONS)
+                            @common.stringValue(desc, STATUS)
+                            @common.stringValue(desc, LEVEL_OF_DETAIL)
+                            @common.stringValue(desc, DATES_CVD)
+                            @common.stringValue(desc, LANGUAGES_USED)
+                            @common.stringValue(desc, SCRIPTS_USED)
+                            @common.stringValue(desc, SOURCES)
+                            @common.stringValue(desc, MAINTENANCE_NOTES)
+                        }
                     }
-
-                    <h4>@Messages(fieldPrefix + "." + DESCRIPTION_AREA)</h4>
-                    <div class="description-section">
-                        @common.stringValue(desc, HISTORY)
-                        @common.stringValue(desc, GENERAL_CONTEXT)
-                        @common.stringValue(desc, MANDATES)
-                        @common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
-                        @common.stringValue(desc, RECORDS)
-                        @common.stringValue(desc, BUILDINGS)
-                        @common.stringValue(desc, HOLDINGS)
-                        @common.stringValue(desc, FINDING_AIDS)
-                    </div>
-
-                    <h4>@Messages(fieldPrefix + "." + ACCESS_AREA)</h4>
-                    <div class="description-section">
-                        @common.stringValue(desc, OPENING_TIMES)
-                        @common.stringValue(desc, CONDITIONS)
-                        @common.stringValue(desc, ACCESSIBILITY)
-                    </div>
-
-                    <h4>@Messages(fieldPrefix + "." + SERVICES_AREA)</h4>
-                    <div class="description-section">
-                        @common.stringValue(desc, RESEARCH_SERVICES)
-                        @common.stringValue(desc, REPROD_SERVICES)
-                        @common.stringValue(desc, PUBLIC_AREAS)
-                    </div>
-
-                    <h4>@Messages(fieldPrefix + "." + CONTROL_AREA)</h4>
-                    <div class="description-section">
-                        @common.stringValue(desc, DESCRIPTION_IDENTIFIER)
-                        @common.stringValue(desc, INSTITUTION_IDENTIFIER)
-                        @common.stringValue(desc, RULES_CONVENTIONS)
-                        @common.stringValue(desc, STATUS)
-                        @common.stringValue(desc, LEVEL_OF_DETAIL)
-                        @common.stringValue(desc, DATES_CVD)
-                        @common.stringValue(desc, LANGUAGES_USED)
-                        @common.stringValue(desc, SCRIPTS_USED)
-                        @common.stringValue(desc, SOURCES)
-                        @common.stringValue(desc, MAINTENANCE_NOTES)
-                    </div>
                 }
             }
         }

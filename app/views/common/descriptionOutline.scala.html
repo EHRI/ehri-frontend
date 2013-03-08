@@ -1,0 +1,6 @@
+@(item: models.base.WrappedEntity, langCode: String)(html: Html)(implicit fieldPrefix: String, lang: Lang)
+
+<div data-lang="@langCode" class="description @item.isA" id="@item.id">
+    <small class="label label-info muted pull-right">@views.Helpers.displayLanguage(langCode)</small>
+    @html
+</div>

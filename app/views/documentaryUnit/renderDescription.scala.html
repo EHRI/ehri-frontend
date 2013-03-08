@@ -2,61 +2,59 @@
 
 @import defines._
 @import models.IsadG._
+@import views.html.common.descriptionSection
 
-@userOpt.map { user =>
-    <div class="description-actions pull-right">
-    @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
-
-        <a class="btn btn-mini" href="@routes.DocumentaryUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
-        <a class="btn btn-mini" href="@routes.DocumentaryUnits.updateDescription(item.id, desc.id)">@Messages("actions.edit")</a>
-        <a class="btn btn-mini btn-danger" href="@routes.DocumentaryUnits.deleteDescription(item.id, desc.id)">@Messages("actions.delete")</a>
+@common.descriptionOutline(desc, desc.languageCode) {
+    @userOpt.map { user =>
+        <div class="description-actions pull-right">
+            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
+                <a class="btn btn-mini" href="@routes.DocumentaryUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
+                <a class="btn btn-mini" href="@routes.DocumentaryUnits.updateDescription(item.id, desc.id)">@Messages("actions.edit")</a>
+                <a class="btn btn-mini btn-danger" href="@routes.DocumentaryUnits.deleteDescription(item.id, desc.id)">@Messages("actions.delete")</a>
+            }
+        </div>
     }
-    </div>
+
+    @descriptionSection(IDENTITY_AREA) {
+        @if(!desc.dates.isEmpty) {
+            <h4>@Messages("isadg.dates")</h4>
+            @desc.dateString.map { d =>
+                <h4>@d</h4>
+            }
+        }
+
+        @common.stringValue(desc, EXTENT_MEDIUM)
+    }
+    @descriptionSection(CONTEXT_AREA) {
+        @common.stringValue(desc, ADMIN_BIOG)
+        @common.stringValue(desc, ARCH_HIST)
+        @common.stringValue(desc, ACQUISITION)
+    }
+
+    @descriptionSection(CONTENT_AREA) {
+        @common.stringValue(desc, SCOPE_CONTENT)
+        @common.stringValue(desc, APPRAISAL)
+        @common.stringValue(desc, ACCRUALS)
+        @common.stringValue(desc, SYS_ARR)
+    }
+
+    @descriptionSection(CONDITIONS_AREA) {
+        @common.stringValue(desc, ACCESS_COND)
+        @common.stringValue(desc, REPROD_COND)
+        @common.stringValue(desc, PHYSICAL_CHARS)
+        @common.stringValue(desc, FINDING_AIDS)
+    }
+
+    @descriptionSection(MATERIALS_AREA) {
+        @common.stringValue(desc, LOCATION_ORIGINALS)
+        @common.stringValue(desc, LOCATION_COPIES)
+        @common.stringValue(desc, RELATED_UNITS)
+        @common.stringValue(desc, PUBLICATION_NOTE)
+    }
+
+    @descriptionSection(CONTROL_AREA) {
+        @common.stringValue(desc, ARCHIVIST_NOTE)
+        @common.stringValue(desc, RULES_CONVENTIONS)
+        @common.stringValue(desc, DATES_DESCRIPTIONS)
+    }
 }
-
-<h5>@Messages("isadg.languageCode"): @views.Helpers.displayLanguage(desc.languageCode)</h5>
-
-<h4>@Messages("isadg.dates")</h4>
-@desc.dateString.map { d =>
-    <h4>@d</h4>
-}
-
-@common.stringValue(desc, EXTENT_MEDIUM)
-
-<h4>@Messages(fieldPrefix + "." + CONTEXT_AREA)</h4>
-<div class="description-section">
-    @common.stringValue(desc, ADMIN_BIOG)
-    @common.stringValue(desc, ARCH_HIST)
-    @common.stringValue(desc, ACQUISITION)
-</div>
-
-<h4>@Messages(fieldPrefix + "." + CONTENT_AREA)</h4>
-<div class="description-section">
-    @common.stringValue(desc, SCOPE_CONTENT)
-    @common.stringValue(desc, APPRAISAL)
-    @common.stringValue(desc, ACCRUALS)
-    @common.stringValue(desc, SYS_ARR)
-</div>
-
-<h4>@Messages(fieldPrefix + "." + CONDITIONS_AREA)</h4>
-<div class="description-section">
-    @common.stringValue(desc, ACCESS_COND)
-    @common.stringValue(desc, REPROD_COND)
-    @common.stringValue(desc, PHYSICAL_CHARS)
-    @common.stringValue(desc, FINDING_AIDS)
-</div>
-
-<h4>@Messages(fieldPrefix + "." + MATERIALS_AREA)</h4>
-<div class="description-section">
-    @common.stringValue(desc, LOCATION_ORIGINALS)
-    @common.stringValue(desc, LOCATION_COPIES)
-    @common.stringValue(desc, RELATED_UNITS)
-    @common.stringValue(desc, PUBLICATION_NOTE)
-</div>
-
-<h4>@Messages(fieldPrefix + "." + CONTROL_AREA)</h4>
-<div class="description-section">
-    @common.stringValue(desc, ARCHIVIST_NOTE)
-    @common.stringValue(desc, RULES_CONVENTIONS)
-    @common.stringValue(desc, DATES_DESCRIPTIONS)
-</div>

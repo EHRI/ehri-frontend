@@ -33,6 +33,7 @@ case object IsadG {
   val PUB_STATUS = "publicationStatus"
   val LANG_CODE = "languageCode"
 
+  val IDENTITY_AREA = "identityArea"
   val DESCRIPTIONS_AREA = "descriptionsArea"
   val ADMINISTRATION_AREA = "administrationArea"
 

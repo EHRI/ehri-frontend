@@ -184,7 +184,7 @@ case class RepositoryDescriptionF(
       ID -> id,
       TYPE -> isA,
       DATA -> Json.obj(
-        NAME -> name,
+        AUTHORIZED_FORM_OF_NAME -> name,
         LANG_CODE -> languageCode,
         OTHER_FORMS_OF_NAME -> otherFormsOfName,
         PARALLEL_FORMS_OF_NAME -> parallelFormsOfName,
@@ -271,7 +271,7 @@ object RepositoryDescriptionForm {
     mapping(
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
-      NAME -> optional(text),
+      AUTHORIZED_FORM_OF_NAME -> optional(text),
       OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       ADDRESS_AREA -> list(
@@ -373,7 +373,7 @@ case class RepositoryDescription(val e: Entity) extends Description with Formabl
   def formable: RepositoryDescriptionF = new RepositoryDescriptionF(
     id = Some(e.id),
     languageCode = languageCode,
-    name = e.stringProperty(NAME),
+    name = e.stringProperty(AUTHORIZED_FORM_OF_NAME),
     otherFormsOfName = e.listProperty(OTHER_FORMS_OF_NAME),
     parallelFormsOfName = e.listProperty(PARALLEL_FORMS_OF_NAME),
     addresses = addresses.map(_.formable),

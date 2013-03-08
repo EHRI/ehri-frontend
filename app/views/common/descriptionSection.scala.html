@@ -1,0 +1,10 @@
+@(name:String)(html: Html)(implicit fieldPrefix: String, lang: Lang)
+
+<h4>@Messages(fieldPrefix + "." + name)</h4>
+<div class="@{name}-section">
+    @if(html.toString.trim.isEmpty) {
+        <i><small><p class="muted">@Messages("describedEntity.noData")</p></small></i>
+    } else {
+        @html
+    }
+</div>

@@ -1,0 +1,14 @@
+@(desc: models.base.WrappedEntity, fieldName: String)(implicit prefix: String = "")
+
+@defining(desc.listProperty(fieldName)) { value =>
+    @value.map { list =>
+        @if(!list.isEmpty) {
+            <h5>@Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName))</h5>
+            <ul>
+                @list.map { item =>
+                    <li>@item</li>
+                }
+            </ul>
+        }
+    }
+}
