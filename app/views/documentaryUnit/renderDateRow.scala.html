@@ -14,7 +14,7 @@
                 <td class="control-group">
                     <select class="input-small" name="@desc("TYPE").name">
                     @DatePeriodType.values.toList.sorted.map { v =>
-                    <option @{if(desc("TYPE").value == v) "selected" else ""} value="@v">@Messages(fieldPrefix + "." + v)</option>
+                        <option @{if(desc("TYPE").value == v) "selected" else ""} value="@v">@Messages(fieldPrefix + "." + v)</option>
                     }
                     </select>
                 </td>

@@ -11,9 +11,12 @@
     @descriptionFormSection(IDENTITY_AREA) {
         @hiddenInput(desc(Entity.ID))
         @lineInput(desc, TITLE)
-        <div class="inline-element-set">
+        <div class="inline-element-set control-group">
             <!-- Template for adding inline date forms via JS -->
-            <h5>@Messages(fieldPrefix + "." + DATES) | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a></h5>
+            <label class="control-label">@Messages(fieldPrefix + "." + DATES)</label>
+            <div class="controls controls-row">
+                <a href="#" class="add-inline-element btn btn-mini">@Messages("actions.addNew")</a>
+            </div>
             <script type="application/x-js-template" class="inline-element-template">
                 @documentaryUnit.renderDateRow(desc(DATES + "[IDX]"))
             </script>
