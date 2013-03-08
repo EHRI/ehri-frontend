@@ -33,12 +33,12 @@
         }
         @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
             <li><a href="@routes.UserProfiles.permissions(item.id)">@Messages("actions.manageGlobalPermissions")</a></li>
-              <li><a href="@routes.UserProfiles.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
+            <li><a href="@routes.UserProfiles.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
         }
         @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
             <li><a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>
         }
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Delete)) {
+        @if(user.isAdmin) {
             <li><a href="@routes.UserProfiles.delete(item.id)">@Messages("actions.deleteItem")</a></li>
         }
         <li><a href="@routes.UserProfiles.history(item.id)">@Messages("actions.showHistory")</a></li>

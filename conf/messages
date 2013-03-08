@@ -193,6 +193,7 @@ actions.linkToDocumentaryUnit=Link to an archival description
 actions.linkToActor=Link to an authority
 
 actions.backToList=Back to List
+actions.viewProfile=View Profile
 actions.exportJson=Export JSON
 actions.deleteItem=Delete Item
 actions.deleteAnnotation=Delete Annotation
