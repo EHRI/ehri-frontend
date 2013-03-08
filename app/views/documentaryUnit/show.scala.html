@@ -1,6 +1,24 @@
-@(item: DocumentaryUnit, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.IsadG._
+
+@actions(title: String, id: String, did: String) = {
+    @userOpt.map { user =>
+        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
+            <div class="btn-group pull-right">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    @title
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="@routes.DocumentaryUnits.createDescription(id)">@Messages("actions.createDescription")</a></li>
+                    <li><a href="@routes.DocumentaryUnits.updateDescription(id, did)">@Messages("actions.edit")</a></li>
+                    <li><a class="alert alert-danger" href="@routes.DocumentaryUnits.deleteDescription(id, did)">@Messages("actions.delete")</a></li>
+            </ul>
+            </div>
+            }
+    }
+}
 
 @documentaryUnit.itemPage(item) {
 
@@ -32,11 +50,13 @@
                     <div class="tab-content">
                         @item.descriptions.headOption.map { desc =>
                             <div class="tab-pane active" id="tab1">
+                                @actions("Actions", item.id, desc.id)
                                 @documentaryUnit.renderDescription(item, desc)
                             </div>
                         }
                         @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                             <div class="tab-pane" id="tab@{i+1}">
+                                @actions("Actions", item.id, desc.id)
                                 @documentaryUnit.renderDescription(item, desc)
                             </div>
                         }

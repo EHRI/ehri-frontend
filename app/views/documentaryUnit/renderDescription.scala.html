@@ -5,16 +5,6 @@
 @import views.html.common.descriptionSection
 
 @common.descriptionOutline(desc, desc.languageCode) {
-    @userOpt.map { user =>
-        <div class="description-actions pull-right">
-            @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
-                <a class="btn btn-mini" href="@routes.DocumentaryUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
-                <a class="btn btn-mini" href="@routes.DocumentaryUnits.updateDescription(item.id, desc.id)">@Messages("actions.edit")</a>
-                <a class="btn btn-mini btn-danger" href="@routes.DocumentaryUnits.deleteDescription(item.id, desc.id)">@Messages("actions.delete")</a>
-            }
-        </div>
-    }
-
     @descriptionSection(IDENTITY_AREA) {
         @if(!desc.dates.isEmpty) {
             <h4>@Messages("isadg.dates")</h4>
