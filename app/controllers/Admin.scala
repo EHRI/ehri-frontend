@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentType}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
-import models.UserProfileF
+import models.{Entity, UserProfile, UserProfileF}
 import models.sql.OpenIDUser
 import play.filters.csrf.CSRF
 
@@ -61,6 +61,28 @@ object Admin extends Controller with AuthController with ControllerHelpers {
   def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
     // TODO: Refactor to make this logic clearer...
 
+    def createUserProfile(user: UserProfileF, groups: Seq[String])(f: UserProfile => Result): AsyncResult = {
+      AsyncRest {
+        rest.EntityDAO(EntityType.UserProfile, userOpt)
+            .create(user, params = Map("group" -> groups)).map { itemOrErr =>
+          itemOrErr.right.map { entity =>
+            f(UserProfile(entity))
+          }
+        }
+      }
+    }
+
+    def grantOwnerPerms(profile: UserProfile)(f: => Result): AsyncResult = {
+      AsyncRest {
+        rest.PermissionDAO(userOpt).setItem(profile, ContentType.UserProfile,
+            profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>
+          permsOrErr.right.map { _ =>
+            f
+          }
+        }
+      }
+    }
+
     val csrf = CSRF.getToken(request)
     userPasswordForm.bindFromRequest.fold(
       errorForm => {
@@ -85,19 +107,17 @@ object Admin extends Controller with AuthController with ControllerHelpers {
             location=None, about=None, languages=None)
           val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
 
-          AsyncRest {
-            rest.EntityDAO(EntityType.UserProfile, userOpt)
-                .create(user, params = Map("group" -> groups)).map { itemOrErr =>
-              itemOrErr.right.map { entity =>
-                OpenIDUser.create(email.toLowerCase, entity.id).map { account =>
-                  account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
-                  Redirect(routes.UserProfiles.get(entity.id))
-                }.getOrElse {
-                  // FIXME: Handle this - probably by throwing a global error.
-                  // If it fails it'll probably die anyway...
-                  BadRequest("creating user account failed!")
-                }
+          createUserProfile(user, groups) { profile =>
+            OpenIDUser.create(email.toLowerCase, profile.id).map { account =>
+              account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
+              // Final step, grant user permissions on their own account
+              grantOwnerPerms(profile) {
+                Redirect(routes.UserProfiles.get(profile.id))
               }
+            }.getOrElse {
+              // FIXME: Handle this - probably by throwing a global error.
+              // If it fails it'll probably die anyway...
+              BadRequest("creating user account failed!")
             }
           }
         }
