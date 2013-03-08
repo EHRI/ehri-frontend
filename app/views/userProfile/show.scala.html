@@ -1,8 +1,16 @@
 @(item: UserProfile, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
+@import UserProfileF._
+
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
-    @common.descriptionValue(Some(item.property("location").flatMap(_.asOpt[String]).getOrElse(Messages("profile.noLocationGiven"))), Messages("profile.location"))
+    @defining(FIELD_PREFIX) { implicit fieldPrefix =>
+        @common.stringValue(item, Entity.IDENTIFIER)
+        @common.stringValue(item, LOCATION)
+        @common.listValue(item, LANGUAGES, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+        @common.stringValue(item, ABOUT)
+    }
+
     @* @common.descriptionValue(if (item.languages.mkString(", ").isEmpty) None else Some(item.languages.mkString(", ")), Messages("profile.languages")) *@
     @* @common.descriptionValue(Some(item.about.getOrElse(Messages("profile.noBioGiven"))), Messages("profile.about")) *@
 

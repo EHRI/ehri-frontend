@@ -293,6 +293,8 @@ visibility.chooseGroups=Choose Groups
 #
 # User Profile Field definitions
 #
+profile.identifier=Identifier
+profile.name=Name
 profile.about=About
 profile.languages=Languages
 profile.location=Location

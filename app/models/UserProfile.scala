@@ -15,7 +15,14 @@ import defines.EnumWriter.enumWrites
 
 object UserProfileF {
 
+  val FIELD_PREFIX = "profile"
+
   final val PLACEHOLDER_TITLE = "[No Title Found]"
+
+  val NAME = "name"
+  val LOCATION = "location"
+  val ABOUT = "about"
+  val LANGUAGES = "languages"
 }
 
 case class UserProfileF(
@@ -44,15 +51,15 @@ case class UserProfileF(
 
 
 object UserProfileForm {
-
+  import UserProfileF._
   val form = Form(
     mapping(
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText,
-      "name" -> nonEmptyText,
-      "location" -> optional(nonEmptyText),
-      "about" -> optional(nonEmptyText),
-      "languages" -> optional(list(nonEmptyText))
+      NAME -> nonEmptyText,
+      LOCATION -> optional(nonEmptyText),
+      ABOUT -> optional(nonEmptyText),
+      LANGUAGES -> optional(list(nonEmptyText))
     )(UserProfileF.apply)(UserProfileF.unapply)
   )
 }
@@ -82,12 +89,13 @@ case class UserProfile(
     }.getOrElse(false)
   }
 
+  import UserProfileF._
   def formable: UserProfileF = new UserProfileF(
     id = Some(e.id),
     identifier = identifier,
-    name = e.property("name").flatMap(_.asOpt[String]).getOrElse(UserProfileF.PLACEHOLDER_TITLE),
-    location = e.property("location").flatMap(_.asOpt[String]),
-    about = e.property("about").flatMap(_.asOpt[String]),
-    languages = e.property("languages").flatMap(_.asOpt[List[String]])
+    name = e.property(NAME).flatMap(_.asOpt[String]).getOrElse(UserProfileF.PLACEHOLDER_TITLE),
+    location = e.property(LOCATION).flatMap(_.asOpt[String]),
+    about = e.property(ABOUT).flatMap(_.asOpt[String]),
+    languages = e.property(LANGUAGES).flatMap(_.asOpt[List[String]])
   )
 }
