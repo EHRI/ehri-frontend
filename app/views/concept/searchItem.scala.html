@@ -3,7 +3,7 @@
 @defining(item.item) { ownerOpt =>
     @ownerOpt.map { owner =>
 
-        @common.searchItemOutline {
+        @common.searchItemOutline(item.id) {
             <a href="@routes.Concepts.get(owner.id)">@item.stringProperty(ConceptF.PREFLABEL)</a>
         } {
             <small>

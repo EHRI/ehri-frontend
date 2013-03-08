@@ -1,6 +1,6 @@
 @(item: Group)(implicit req: RequestHeader, lang: Lang)
 
-@common.searchItemOutline {
+@common.searchItemOutline(item.id) {
     <a href="@routes.Groups.get(item.id)">@item</a>
 } {
     @item.formable.description

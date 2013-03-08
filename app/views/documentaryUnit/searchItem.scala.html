@@ -2,7 +2,7 @@
 
 @defining(item.item) { ownerOpt =>
     @ownerOpt.map { owner =>
-        @common.searchItemOutline {
+        @common.searchItemOutline(item.id) {
             <a href="@routes.DocumentaryUnits.get(owner.id)">@owner</a>
         } {
             @documentaryUnit.searchItemBody(owner, item)

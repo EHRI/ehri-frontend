@@ -1,6 +1,6 @@
 @(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-@common.searchItemOutline {
+@common.searchItemOutline(item.id) {
         <a href="@routes.DocumentaryUnits.get(item.id)">@item</a>
 } {
     @item.descriptions.headOption.map { desc =>

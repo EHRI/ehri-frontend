@@ -4,7 +4,7 @@
 
 @defining(item.item) { ownerOpt =>
     @ownerOpt.map { owner =>
-        @common.searchItemOutline {
+        @common.searchItemOutline(item.id) {
             <a href="@routes.Repositories.get(owner.id)">@owner</a>
         } {
             <small>

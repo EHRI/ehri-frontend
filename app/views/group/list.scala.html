@@ -7,16 +7,10 @@
 
     @common.pagination(items)
 	
-	<ul>
+	<ul class="unstyled">
 	@items.items.map { item =>
 	  	<li>
-            <div class="list-item">
-              <h4><a href="@routes.Groups.get(item.id)">@item</a></h4>
-                <p>@item.formable.description.map { d =>
-                    @d
-                }
-                </p>
-            </div>
+            @group.searchItem(item)
 		</li>
 	}
 	</ul>
@@ -27,7 +21,6 @@
             @{println(user.globalPermissions)}
             @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
                 <a class="btn btn-primary" href="@routes.Groups.create">@Messages("Create New Group")</a>
-
             }
         }
     }

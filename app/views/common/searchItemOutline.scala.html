@@ -1,6 +1,6 @@
-@(heading: Html)(body: Html = Html(""))(implicit lang: Lang)
+@(id: String)(heading: Html)(body: Html = Html(""))(implicit lang: Lang)
 
-<div class="search-item">
+<div class="search-item" id="@id">
     <div class="search-item-heading">
         @heading
     </div>

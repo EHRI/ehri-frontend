@@ -2,7 +2,7 @@
 
 @import Isdiah._
 
-@common.searchItemOutline {
+@common.searchItemOutline(item.id) {
     <a href="@routes.Repositories.get(item.id)">@item</a>
 } {
     @item.descriptions.headOption.map { desc =>

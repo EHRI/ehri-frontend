@@ -1,6 +1,6 @@
 @(item: Entity)(implicit req: RequestHeader, lang: Lang)
 
-@common.searchItemOutline {
+@common.searchItemOutline(item.id) {
     <a href="@views.Helpers.urlForEntity(item)">@ItemWithId(item)</a>
 } {
     @* no body yet *@

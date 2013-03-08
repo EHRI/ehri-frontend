@@ -1,6 +1,6 @@
 @(item: UserProfile)(implicit req: RequestHeader, lang: Lang)
 
-@common.searchItemOutline {
+@common.searchItemOutline(item.id) {
     <a href="@routes.UserProfiles.get(item.id)">@item</a>
 } {
 
