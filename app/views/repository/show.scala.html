@@ -67,8 +67,8 @@
                             @common.stringValue(desc, STATUS)
                             @common.stringValue(desc, LEVEL_OF_DETAIL)
                             @common.stringValue(desc, DATES_CVD)
-                            @common.stringValue(desc, LANGUAGES_USED)
-                            @common.stringValue(desc, SCRIPTS_USED)
+                            @common.listValue(desc, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+                            @common.listValue(desc, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
                             @common.stringValue(desc, SOURCES)
                             @common.stringValue(desc, MAINTENANCE_NOTES)
                         }

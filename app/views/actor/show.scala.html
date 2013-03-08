@@ -6,7 +6,7 @@
 @actor.itemPage(item) {
 
     @common.annotated(item, annotations, routes.Actors.annotate(item.id)) {
-        @defining("isaar") { implicit fieldPrefix =>
+        @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
                 @item.descriptions.map { desc =>
                     @common.descriptionOutline(desc, desc.languageCode) {
@@ -36,8 +36,8 @@
                             @common.stringValue(desc, STATUS)
                             @common.stringValue(desc, LEVEL_OF_DETAIL)
                             @common.stringValue(desc, DATES_CVD)
-                            @common.stringValue(desc, LANGUAGES_USED)
-                            @common.stringValue(desc, SCRIPTS_USED)
+                            @common.listValue(desc, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+                            @common.listValue(desc, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
                             @common.stringValue(desc, SOURCES)
                             @common.stringValue(desc, MAINTENANCE_NOTES)
                         }

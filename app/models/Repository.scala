@@ -18,6 +18,9 @@ import defines.EnumWriter.enumWrites
  * ISDIAH Field definitions
  */
 case object Isdiah {
+
+  val FIELD_PREFIX = "isdiah"
+
   val IDENTIFIER = "identifier"
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
@@ -26,7 +29,7 @@ case object Isdiah {
 
   // Field set
   val IDENTITY_AREA = "identityArea"
-  val AUTHORIZED_FORM_OF_NAME = "authorizedFormOfName"
+  val AUTHORIZED_FORM_OF_NAME = "name"
   val OTHER_FORMS_OF_NAME = "otherFormsOfName"
   val PARALLEL_FORMS_OF_NAME = "parallelFormsOfName"
   val INSTITUTION_TYPE = "institutionType"

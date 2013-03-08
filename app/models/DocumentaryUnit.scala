@@ -25,6 +25,9 @@ object Scope extends Enumeration {
 }
 
 case object IsadG {
+
+  val FIELD_PREFIX = "isadg"
+
   /* ISAD(G)-based field set */
   val NAME = "name"
   val TITLE = "title"

@@ -354,8 +354,7 @@ isdiah.services=Services Area
 
 # Identity Section
 isdiah.identityArea=Identity Area
-isdiah.identifier=Identifier
-isdiah.authorizedFormOfName=Authorized Form Of Name
+isdiah.name=Authorized Form Of Name
 isdiah.otherFormsOfName=Other Form(s) of Name
 isdiah.parallelFormsOfName=Parallel Form(s) of Name
 isdiah.languageCode=Language of Description
@@ -421,8 +420,7 @@ isaar.services=Services Area
 # Identity Section
 isaar.identityArea=Identity Area
 isaar.identifier=Identifier
-isaar.name=Name
-isaar.authorizedFormOfName=Authorized Form Of Name
+isaar.name=Authorized Form Of Name
 isaar.otherFormsOfName=Other Form(s) of Name
 isaar.parallelFormsOfName=Parallel Form(s) of Name
 isaar.languageCode=Language of Description

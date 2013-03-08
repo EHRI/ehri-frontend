@@ -23,6 +23,9 @@ object ActorType extends Enumeration {
  * ISAAR Field definitions
  */
 case object Isaar {
+
+  val FIELD_PREFIX = "isaar"
+
   val IDENTIFIER = "identifier"
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
@@ -66,6 +69,8 @@ object ActorF {
 
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
+
+  final val UNNAMED_PLACEHOLDER = "UNNAMED Authority"
 }
 
 case class ActorF(
@@ -129,7 +134,7 @@ case class ActorDescriptionF(
   id: Option[String],
   languageCode: String,
   entityType: ActorType.Value,
-  name: Option[String] = None,
+  name: String,
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
   details: ActorDescriptionF.Details,
@@ -146,7 +151,7 @@ case class ActorDescriptionF(
       ID -> id,
       TYPE -> isA,
       DATA -> Json.obj(
-        NAME -> name,
+        AUTHORIZED_FORM_OF_NAME -> name,
         ENTITY_TYPE -> entityType,
         LANG_CODE -> languageCode,
         OTHER_FORMS_OF_NAME -> otherFormsOfName,
@@ -189,7 +194,7 @@ object ActorDescriptionForm {
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
       ENTITY_TYPE -> forms.enum(ActorType),
-      NAME -> optional(text),
+      AUTHORIZED_FORM_OF_NAME -> nonEmptyText,
       OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       DESCRIPTION_AREA -> mapping(
@@ -253,6 +258,7 @@ case class Actor(val e: Entity)
 
 case class ActorDescription(val e: Entity) extends Description with Formable[ActorDescriptionF] {
 
+  import ActorF._
   import ActorDescriptionF._
   import Isaar._
 
@@ -262,7 +268,7 @@ case class ActorDescription(val e: Entity) extends Description with Formable[Act
     id = Some(e.id),
     languageCode = languageCode,
     entityType = e.stringProperty(ENTITY_TYPE).map(ActorType.withName(_)).getOrElse(ActorType.CorporateBody),
-    name = e.stringProperty(NAME),
+    name = e.stringProperty(AUTHORIZED_FORM_OF_NAME).getOrElse(UNNAMED_PLACEHOLDER),
     otherFormsOfName = e.listProperty(OTHER_FORMS_OF_NAME),
     parallelFormsOfName = e.listProperty(PARALLEL_FORMS_OF_NAME),
     details = Details(
