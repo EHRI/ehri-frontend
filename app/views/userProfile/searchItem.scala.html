@@ -19,7 +19,7 @@
             }
         </ul>
     </small>
-    @item.formable.about.map { about =>
+    @item.stringProperty(UserProfileF.ABOUT).filterNot(_.trim.isEmpty).map { about =>
         <p>@about</p>
     }
 }
