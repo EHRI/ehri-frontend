@@ -311,7 +311,12 @@ documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD
 # Form misc
 #
 priority=Priority
-priority.1=One
+priority.five=Five
+priority.four=Four
+priority.three=Three
+priority.two=Two
+priority.one=One
+priority.reject=Reject
 
 publicationStatus=Publication Status
 

@@ -27,7 +27,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
    */
   val listFilterMappings: ListMap[String,String] = ListMap(
     ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}",
-    ConceptF.SCOPENOTE -> s"<-describes.${ConceptF.SCOPENOTE}L",
+    ConceptF.SCOPENOTE -> s"<-describes.${ConceptF.SCOPENOTE}",
     ConceptF.DEFINITION -> s"<-describes.${ConceptF.DEFINITION}"
   )
 

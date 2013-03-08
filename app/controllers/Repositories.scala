@@ -5,7 +5,7 @@ import models.forms.VisibilityForm
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
-import play.api.i18n.Messages
+import i18n.Messages
 import defines._
 import base._
 import play.filters.csrf.CSRF.Token
@@ -17,7 +17,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
 	with VisibilityController[Repository]
   with PermissionScopeController[Repository]
   with EntityAnnotate[Repository]
-  with EntitySearch[Repository] {
+  with EntitySearch {
 
   val listFilterMappings = ListMap[String,String]()
   val orderMappings = ListMap[String,String]()
@@ -31,6 +31,20 @@ object Repositories extends CRUD[RepositoryF,Repository]
       name=Messages("isdiah.countryCode"),
       param="country",
       render=Helpers.countryCodeToName
+    ),
+    FieldFacetClass(
+      key="priority",
+      name=Messages("priority"),
+      param="priority",
+      render=s => s match {
+        case s if s == "1" => Messages("priority.one")
+        case s if s == "2" => Messages("priority.two")
+        case s if s == "3" => Messages("priority.three")
+        case s if s == "4" => Messages("priority.four")
+        case s if s == "5" => Messages("priority.five")
+        case s if s == "-1" => Messages("priority.reject")
+        case _ => Messages("priority.unknown")
+      }
     )
   )
 

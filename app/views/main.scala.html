@@ -140,7 +140,7 @@
                 <div class="navbar-inner">
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            @activeIfCurrent(routes.Application.search(), Messages("pages.search"))
+                            @activeIfCurrent(routes.Search.search(), Messages("pages.search"))
                             @activeIfCurrent(routes.DocumentaryUnits.list(), Messages("contentTypes." + EntityType.DocumentaryUnit))
                             @activeIfCurrent(routes.Actors.list(), Messages("contentTypes." + EntityType.Actor))
                             @activeIfCurrent(routes.Repositories.list(), Messages("contentTypes." + EntityType.Repository))
@@ -157,7 +157,7 @@
                                             @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
                                             @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
                                             <li role="presentation" class="divider"></li>
-                                            @activeIfCurrent(routes.SearchAdmin.updateIndex, Messages("search.updateIndex"))
+                                            @activeIfCurrent(routes.Search.updateIndex, Messages("search.updateIndex"))
                                         </ul>
                                     </li>
                                 }

@@ -14,7 +14,7 @@ object Actors extends CRUD[ActorF,Actor]
 	with VisibilityController[Actor]
   with PermissionItemController[Actor]
   with EntityAnnotate[Actor]
-  with EntitySearch[Actor] {
+  with EntitySearch {
 
   val listFilterMappings = ListMap[String,String]()
   val orderMappings = ListMap[String,String]()

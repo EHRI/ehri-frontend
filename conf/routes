@@ -27,12 +27,12 @@ POST    /admin/login                    controllers.Admin.passwordLoginPost
 GET     /admin/changePassword           controllers.Admin.changePassword
 POST    /admin/changePassword           controllers.Admin.changePasswordPost
 
-GET     /admin/updateIndex              controllers.SearchAdmin.updateIndex
-POST    /admin/updateIndex              controllers.SearchAdmin.updateIndexPost
+GET     /admin/updateIndex              controllers.Search.updateIndex
+POST    /admin/updateIndex              controllers.Search.updateIndexPost
 
 
 # Search testing
-GET /search                             controllers.Application.search
+GET /search                             controllers.Search.search
 
 # Change locale
 GET     /locale                         controllers.Application.changeLocale

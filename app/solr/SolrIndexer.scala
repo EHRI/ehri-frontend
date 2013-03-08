@@ -173,7 +173,8 @@ object SolrIndexer extends RestDAO {
     val descriptions = describedEntityToSolr(d)
     descriptions.map { desc =>
       ((desc
-        + ("countryCode" -> Json.toJson(cc))))
+        + ("countryCode" -> Json.toJson(cc))
+        + ("priority" -> Json.toJson(d.priority))))
     }
   }
 

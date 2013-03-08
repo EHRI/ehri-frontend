@@ -3,7 +3,7 @@ package controllers
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 
-import base.{ControllerHelpers, AuthController}
+import base.{EntitySearch, ControllerHelpers, AuthController}
 import play.api.data.{FormError, Form}
 import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentType}
@@ -11,16 +11,51 @@ import play.Play.application
 import rest.{RestPageParams, EntityDAO}
 import play.api.libs.iteratee.{Concurrent, Enumerator}
 import models.Entity
-import models.base.{DescribedEntity, AccessibleEntity}
 import play.api.Logger
 import play.api.libs.Comet
 import concurrent.Future
 import solr.SolrIndexer.{SolrErrorResponse, SolrResponse, SolrUpdateResponse}
-import collection.immutable.IndexedSeq
 import solr.SolrIndexer
+import solr.facet.FieldFacetClass
+import play.api.i18n.Messages
+import views.Helpers
 
 
-object SearchAdmin extends Controller with AuthController with ControllerHelpers {
+object Search extends EntitySearch {
+
+  val searchEntities = List() // i.e. Everything
+  val entityFacets = List(
+    FieldFacetClass(
+      key="languageCode",
+      name=Messages("isadg.languageCode"),
+      param="lang",
+      render=Helpers.languageCodeToName
+    ),
+    FieldFacetClass(
+      key="type",
+      name=Messages("search.type"),
+      param="type",
+      render=s => Messages("contentTypes." + s)
+    ),
+    FieldFacetClass(
+      key="copyrightStatus",
+      name=Messages("copyrightStatus.copyright"),
+      param="copyright",
+      render=s => Messages("copyrightStatus." + s)
+    ),
+    FieldFacetClass(
+      key="scope",
+      name=Messages("scope.scope"),
+      param="scope",
+      render=s => Messages("scope." + s)
+    )
+  )
+
+  // Testing searchDocu
+  def search = searchAction { page => params => facets => implicit userOpt => implicit request =>
+    Ok(views.html.search.search(page, params, facets, routes.Search.search))
+  }
+
 
   /**
    * Message that terminates a long-lived streaming response, such
@@ -33,7 +68,7 @@ object SearchAdmin extends Controller with AuthController with ControllerHelpers
    * @return
    */
   def updateIndex = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.search.updateIndex(action=routes.SearchAdmin.updateIndexPost))
+    Ok(views.html.search.updateIndex(action=routes.Search.updateIndexPost))
   }
 
   /**
