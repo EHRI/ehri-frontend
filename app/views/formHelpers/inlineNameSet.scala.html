@@ -5,9 +5,9 @@
         @Messages(fieldPrefix + "." + name) | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a>
     </label>
     <script type="application/x-js-template" class="inline-element-template">
-        @repository.renderInlineName(field(name + "[IDX]"))
+        @formHelpers.inlineName(field(name + "[IDX]"))
     </script>
     @helper.repeat(field(name), min = 0) { field =>
-        @repository.renderInlineName(field)
+        @formHelpers.inlineName(field)
     }
 </div>

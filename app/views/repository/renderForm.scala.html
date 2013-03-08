@@ -1,29 +1,26 @@
 @(item: Option[Repository], f: Form[RepositoryF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
-@import models.base.DescribedEntity
 
 @import Isdiah._
 @import RepositoryF._
+@import formHelpers._
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@formHelpers.lineInput(f(""), IDENTIFIER)
-@formHelpers.lineInput(f(""), NAME)
+@lineInput(f(""), IDENTIFIER)
+@lineInput(f(""), NAME)
 
 @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
     @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
-        @formHelpers.choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
+        @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
 
-        <fieldset id="identity-area">
-            <legend>@Messages(fieldPrefix + "." + IDENTITY_AREA)</legend>
-            @formHelpers.hiddenInput(desc(Entity.ID))
-            @formHelpers.lineInput(desc, AUTHORIZED_FORM_OF_NAME)
-            @repository.renderInlineNameSet(desc, OTHER_FORMS_OF_NAME)
-            @repository.renderInlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+        @descriptionFormSection(IDENTITY_AREA) {
+            @hiddenInput(desc(Entity.ID))
+            @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
+            @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
+            @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+        }
 
-        </fieldset>
-
-        <fieldset id="contact-area">
-            <legend>@Messages(fieldPrefix + "." + ADDRESS_AREA)</legend>
+        @descriptionFormSection(ADDRESS_AREA) {
             <div class="inline-element-set">
                 <label>
                     @Messages(fieldPrefix + "." + ADDRESS_AREA) | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a>
@@ -35,61 +32,56 @@
                     @repository.renderAddressForm(desc)
                 }
             </div>
-        </fieldset>
+        }
 
-        <fieldset id="description-area">
-            <legend>@Messages(fieldPrefix + "." + DESCRIPTION_AREA)</legend>
+        @descriptionFormSection(DESCRIPTION_AREA) {
             @defining(desc(DESCRIPTION_AREA)) { desc =>
-                @formHelpers.textInput(desc, HISTORY)
-                @formHelpers.textInput(desc, GENERAL_CONTEXT)
-                @formHelpers.textInput(desc, MANDATES)
-                @formHelpers.textInput(desc, ADMINISTRATIVE_STRUCTURE)
-                @formHelpers.textInput(desc, RECORDS)
-                @formHelpers.textInput(desc, BUILDINGS)
-                @formHelpers.textInput(desc, HOLDINGS)
-                @formHelpers.textInput(desc, FINDING_AIDS)
+                @textInput(desc, HISTORY)
+                @textInput(desc, GENERAL_CONTEXT)
+                @textInput(desc, MANDATES)
+                @textInput(desc, ADMINISTRATIVE_STRUCTURE)
+                @textInput(desc, RECORDS)
+                @textInput(desc, BUILDINGS)
+                @textInput(desc, HOLDINGS)
+                @textInput(desc, FINDING_AIDS)
             }
-        </fieldset>
+        }
 
-        <fieldset id="access-area">
-            <legend>@Messages(fieldPrefix + "." + ACCESS_AREA)</legend>
+        @descriptionFormSection(ACCESS_AREA) {
             @defining(desc(ACCESS_AREA)) { desc =>
-                @formHelpers.textInput(desc, OPENING_TIMES)
-                @formHelpers.textInput(desc, CONDITIONS)
-                @formHelpers.textInput(desc, ACCESSIBILITY)
+                @textInput(desc, OPENING_TIMES)
+                @textInput(desc, CONDITIONS)
+                @textInput(desc, ACCESSIBILITY)
             }
-        </fieldset>
+        }
 
-        <fieldset id="services-area">
-            <legend>@Messages(fieldPrefix + "." + SERVICES_AREA)</legend>
+        @descriptionFormSection(SERVICES_AREA) {
             @defining(desc(SERVICES_AREA)) { desc =>
-                @formHelpers.textInput(desc, RESEARCH_SERVICES)
-                @formHelpers.textInput(desc, REPROD_SERVICES)
-                @formHelpers.textInput(desc, PUBLIC_AREAS)
+                @textInput(desc, RESEARCH_SERVICES)
+                @textInput(desc, REPROD_SERVICES)
+                @textInput(desc, PUBLIC_AREAS)
             }
-        </fieldset>
+        }
 
-        <fieldset id="control-area">
-            <legend>@Messages(fieldPrefix + "." + CONTROL_AREA)</legend>
+        @descriptionFormSection(CONTROL_AREA) {
             @defining(desc(CONTROL_AREA)) { desc =>
-                @formHelpers.lineInput(desc, DESCRIPTION_IDENTIFIER)
-                @formHelpers.lineInput(desc, INSTITUTION_IDENTIFIER)
-                @formHelpers.textInput(desc, RULES_CONVENTIONS)
-                @formHelpers.textInput(desc, STATUS)
-                @formHelpers.textInput(desc, LEVEL_OF_DETAIL)
-                @formHelpers.textInput(desc, DATES_CVD)
-                @formHelpers.multiselectInput(desc(LANGUAGES_USED), LANGUAGES_USED, views.Helpers.languagePairList)
-                @formHelpers.multiselectInput(desc(SCRIPTS_USED), SCRIPTS_USED, views.Helpers.scriptPairList)
-                @formHelpers.textInput(desc, SOURCES)
-                @formHelpers.textInput(desc, MAINTENANCE_NOTES)
+                @lineInput(desc, DESCRIPTION_IDENTIFIER)
+                @lineInput(desc, INSTITUTION_IDENTIFIER)
+                @textInput(desc, RULES_CONVENTIONS)
+                @textInput(desc, STATUS)
+                @textInput(desc, LEVEL_OF_DETAIL)
+                @textInput(desc, DATES_CVD)
+                @multiselectInput(desc(LANGUAGES_USED), LANGUAGES_USED, views.Helpers.languagePairList)
+                @multiselectInput(desc(SCRIPTS_USED), SCRIPTS_USED, views.Helpers.scriptPairList)
+                @textInput(desc, SOURCES)
+                @textInput(desc, MAINTENANCE_NOTES)
             }
-        </fieldset>
+        }
     }
 }
 
-<fieldset id="admin-area">
-    <legend>@Messages("forms.adminArea")</legend>
-    @formHelpers.enumChoiceInput(f(Isdiah.PUBLICATION_STATUS), defines.PublicationStatus, Isdiah.PUBLICATION_STATUS)
-    @formHelpers.choiceInput(f(PRIORITY), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
-</fieldset>
+@descriptionFormSection("forms.adminArea") {
+    @enumChoiceInput(f(Isdiah.PUBLICATION_STATUS), defines.PublicationStatus, Isdiah.PUBLICATION_STATUS)
+    @choiceInput(f(PRIORITY), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
+}
 

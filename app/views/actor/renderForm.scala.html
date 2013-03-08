@@ -12,18 +12,15 @@
     @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
         @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
 
-        <fieldset id="identity-area">
-            <legend>@Messages(fieldPrefix + "." + IDENTITY_AREA)</legend>
+        @descriptionFormSection(IDENTITY_AREA) {
             @hiddenInput(desc(Entity.ID))
             @enumChoiceInput(desc(ENTITY_TYPE), ActorType, ENTITY_TYPE, blank=true)
             @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
-            @actor.renderInlineNameSet(desc, OTHER_FORMS_OF_NAME)
-            @actor.renderInlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+            @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
+            @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+        }
 
-        </fieldset>
-
-        <fieldset id="description-area">
-            <legend>@Messages(fieldPrefix + "." + DESCRIPTION_AREA)</legend>
+        @descriptionFormSection(DESCRIPTION_AREA) {
             @defining(desc(DESCRIPTION_AREA)) { desc =>
                 @textInput(desc, DATES_OF_EXISTENCE)
                 @textInput(desc, HISTORY)
@@ -34,10 +31,9 @@
                 @textInput(desc, INTERNAL_STRUCTURE)
                 @textInput(desc, GENERAL_CONTEXT)
             }
-        </fieldset>
+        }
 
-        <fieldset id="control-area">
-            <legend>@Messages(fieldPrefix + "." + CONTROL_AREA)</legend>
+        @descriptionFormSection(CONTROL_AREA) {
             @defining(desc(CONTROL_AREA)) { desc =>
                 @lineInput(desc, DESCRIPTION_IDENTIFIER)
                 @lineInput(desc, INSTITUTION_IDENTIFIER)
@@ -50,6 +46,6 @@
                 @textInput(desc, SOURCES)
                 @textInput(desc, MAINTENANCE_NOTES)
             }
-        </fieldset>
+        }
     }
 }

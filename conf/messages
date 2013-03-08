@@ -319,6 +319,9 @@ priority.two=Two
 priority.one=One
 priority.reject=Reject
 
+identifier=Identifier
+name=Name
+administrationArea=Administration Area
 publicationStatus=Publication Status
 
 copyrightStatus.copyright=Copyright Status

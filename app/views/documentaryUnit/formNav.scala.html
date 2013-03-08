@@ -2,11 +2,7 @@
 
 @import models.IsadG._
 <ul class="nav nav-tabs nav-stacked affix" id="form-nav-sidebar">
-    <li><a href="#descriptions-area"><i class="icon-chevron-left"></i>@Messages("isadg." + DESCRIPTIONS_AREA)</a></li>
-    <li><a href="#context-area"><i class="icon-chevron-left"></i>@Messages("isadg." + CONTEXT_AREA)</a></li>
-    <li><a href="#content-area"><i class="icon-chevron-left"></i>@Messages("isadg." + CONTENT_AREA)</a></li>
-    <li><a href="#conditions-area"><i class="icon-chevron-left"></i>@Messages("isadg." + CONDITIONS_AREA)</a></li>
-    <li><a href="#materials-area"><i class="icon-chevron-left"></i>@Messages("isadg." + MATERIALS_AREA)</a></li>
-    <li><a href="#control-area"><i class="icon-chevron-left"></i>@Messages("isadg." + CONTROL_AREA)</a></li>
-    <li><a href="#admin-area"><i class="icon-chevron-left"></i>@Messages("isadg." + ADMINISTRATION_AREA)</a></li>
+    @List(IDENTITY_AREA,CONTEXT_AREA,CONTENT_AREA,CONDITIONS_AREA,MATERIALS_AREA,CONTROL_AREA,ADMINISTRATION_AREA).map { s =>
+        <li><a href="#@{s}"><i class="icon-chevron-left"></i>@Messages("isadg." + s)</a></li>
+    }
 </ul>
