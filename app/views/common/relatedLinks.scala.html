@@ -16,9 +16,13 @@
                         @ann.source.map { src =>
                             <li>
                                 <a title="@ann.formatted" href="@views.Helpers.urlFor(src)">@src</a><a href="@routes.Annotations.get(ann.id)">*</a>
-                                <p class="relation-description">
+                                <br />
+                                <small class="relation-description">
+                                   @ann.accessor.map { user =>
+                                       <a class="alt" href="@views.Helpers.urlFor(user)">@user</a>:
+                                   }
                                    @ann.formatted
-                                </p>
+                                </small>
 
                             </li>
 

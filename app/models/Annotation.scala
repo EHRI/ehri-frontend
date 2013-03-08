@@ -88,10 +88,9 @@ case class Annotation(val e: Entity) extends AccessibleEntity
    * @return
    */
   def formatted: String = {
-    "%s%s%s".format(
-      accessor.map(a => s"${a}\n\n").getOrElse(""),
-      formable.body,
-      formable.comment.map(c => s"$c\n\n").getOrElse("")
+    "%s%s".format(
+      formable.comment.map(c => s"$c\n\n").getOrElse(""),
+      formable.body
     )
   }
 
