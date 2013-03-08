@@ -12,4 +12,13 @@
         </ul>
     }
 } {
+    @common.sidebarSection(None) {
+        @maybeUser.map { user =>
+            @if(user.isAdmin) {
+                @if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {
+                    <a class="btn btn-primary" href="@routes.Admin.createUser">@Messages("actions.createUserProfile")</a>
+                }
+            }
+        }
+    }
 }

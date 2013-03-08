@@ -72,36 +72,36 @@ GET     /docs/link/:id/:toType     controllers.DocumentaryUnits.linkAnnotateSele
 GET     /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotate(id: String, toType: String, to: String)
 POST    /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotatePost(id: String, toType: String, to: String)
 
-GET     /users                controllers.UserProfiles.list
-GET     /users/show/:id       controllers.UserProfiles.get(id: String)
-GET     /users/history/:id    controllers.UserProfiles.history(id: String)
-GET     /users/json/:id       controllers.UserProfiles.getJson(id: String)
-GET     /users/delete/:id     controllers.UserProfiles.delete(id: String)
-POST    /users/delete/:id     controllers.UserProfiles.deletePost(id: String)
-GET     /users/update/:id     controllers.UserProfiles.update(id: String)
-POST    /users/update/:id     controllers.UserProfiles.updatePost(id: String)
-GET     /users/permissions/:id     controllers.UserProfiles.permissions(id: String)
-POST    /users/permissions/:id     controllers.UserProfiles.permissionsPost(id: String)
-GET     /users/permissions/:id/list     controllers.UserProfiles.grantList(id: String)
+GET     /admin/users                controllers.UserProfiles.list
+GET     /admin/users/show/:id       controllers.UserProfiles.get(id: String)
+GET     /admin/users/history/:id    controllers.UserProfiles.history(id: String)
+GET     /admin/users/json/:id       controllers.UserProfiles.getJson(id: String)
+GET     /admin/users/delete/:id     controllers.UserProfiles.delete(id: String)
+POST    /admin/users/delete/:id     controllers.UserProfiles.deletePost(id: String)
+GET     /admin/users/update/:id     controllers.UserProfiles.update(id: String)
+POST    /admin/users/update/:id     controllers.UserProfiles.updatePost(id: String)
+GET     /admin/users/permissions/:id     controllers.UserProfiles.permissions(id: String)
+POST    /admin/users/permissions/:id     controllers.UserProfiles.permissionsPost(id: String)
+GET     /admin/users/permissions/:id/list     controllers.UserProfiles.grantList(id: String)
 
-GET     /group                controllers.Groups.list
-GET     /group/show/:id       controllers.Groups.get(id: String)
-GET     /group/history/:id    controllers.Groups.history(id: String)
-GET     /group/json/:id       controllers.Groups.getJson(id: String)
-GET     /group/create         controllers.Groups.create
-POST    /group/create         controllers.Groups.createPost
-GET     /group/delete/:id     controllers.Groups.delete(id: String)
-POST    /group/delete/:id     controllers.Groups.deletePost(id: String)
-GET     /group/update/:id     controllers.Groups.update(id: String)
-POST    /group/update/:id     controllers.Groups.updatePost(id: String)
-GET     /group/permissions/:id     controllers.Groups.permissions(id: String)
-POST    /group/permissions/:id     controllers.Groups.permissionsPost(id: String)
-GET     /group/permissions/:id/list     controllers.Groups.grantList(id: String)
-GET		/group/members/:userType/:userId	controllers.Groups.membership(userType: String, userId: String)
-GET		/group/add/:id/:userType/:userId	controllers.Groups.addMember(id: String, userType: String, userId: String)
-POST	/group/add/:id/:userType/:userId	controllers.Groups.addMemberPost(id: String, userType: String, userId: String)
-GET		/group/remove/:id/:userType/:userId	controllers.Groups.removeMember(id: String, userType: String, userId: String)
-POST	/group/remove/:id/:userType/:userId	controllers.Groups.removeMemberPost(id: String, userType: String, userId: String)
+GET     /admin/group                controllers.Groups.list
+GET     /admin/group/show/:id       controllers.Groups.get(id: String)
+GET     /admin/group/history/:id    controllers.Groups.history(id: String)
+GET     /admin/group/json/:id       controllers.Groups.getJson(id: String)
+GET     /admin/group/create         controllers.Groups.create
+POST    /admin/group/create         controllers.Groups.createPost
+GET     /admin/group/delete/:id     controllers.Groups.delete(id: String)
+POST    /admin/group/delete/:id     controllers.Groups.deletePost(id: String)
+GET     /admin/group/update/:id     controllers.Groups.update(id: String)
+POST    /admin/group/update/:id     controllers.Groups.updatePost(id: String)
+GET     /admin/group/permissions/:id     controllers.Groups.permissions(id: String)
+POST    /admin/group/permissions/:id     controllers.Groups.permissionsPost(id: String)
+GET     /admin/group/permissions/:id/list     controllers.Groups.grantList(id: String)
+GET		/admin/group/members/:userType/:userId	controllers.Groups.membership(userType: String, userId: String)
+GET		/admin/group/add/:id/:userType/:userId	controllers.Groups.addMember(id: String, userType: String, userId: String)
+POST	/admin/group/add/:id/:userType/:userId	controllers.Groups.addMemberPost(id: String, userType: String, userId: String)
+GET		/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMember(id: String, userType: String, userId: String)
+POST	/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMemberPost(id: String, userType: String, userId: String)
 
 
 GET     /agent                controllers.Repositories.list
@@ -202,8 +202,8 @@ GET     /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotate(id:
 POST    /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotatePost(id: String, toType: String, to: String)
 
 
-GET     /action                controllers.SystemEvents.list
-GET     /action/show/:id       controllers.SystemEvents.get(id: String)
+GET     /admin/action                controllers.SystemEvents.list
+GET     /admin/action/show/:id       controllers.SystemEvents.get(id: String)
 
 GET     /annotation/show/:id       controllers.Annotations.get(id: String)
 GET     /annotation/history/:id       controllers.Annotations.history(id: String)
