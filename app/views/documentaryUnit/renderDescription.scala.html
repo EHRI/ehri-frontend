@@ -7,10 +7,21 @@
 @common.descriptionOutline(desc, desc.languageCode) {
     @descriptionSection(IDENTITY_AREA) {
         @if(!desc.dates.isEmpty) {
-            <h4>@Messages("isadg.dates")</h4>
-            @desc.dateString.map { d =>
-                <h4>@d</h4>
-            }
+            <h4>@Messages(fieldPrefix + "." + DATES)</h4>
+            <table>
+                @desc.dates.map(_.formable).map { dp =>
+                <tr id="@dp.id">
+                    <td>
+                        @defining(dp.`type`) { typeOpt =>
+                            @typeOpt.map { t =>
+                                @Messages(fieldPrefix + "." + t)
+                            }
+                        }
+                    </td>
+                    <td>@dp.years.trim</td>
+                </tr>
+                }
+            </table>
         }
 
         @common.stringValue(desc, EXTENT_MEDIUM)
