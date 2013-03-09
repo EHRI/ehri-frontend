@@ -61,7 +61,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.userProfile.edit(
-        Some(UserProfile(item)), form.fill(UserProfile(item).formable), routes.UserProfiles.updatePost(id)))
+        UserProfile(item), form.fill(UserProfile(item).formable), routes.UserProfiles.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
@@ -69,7 +69,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
     formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.userProfile.edit(
-          Some(UserProfile(item)), errorForm, routes.UserProfiles.updatePost(id)))
+          UserProfile(item), errorForm, routes.UserProfiles.updatePost(id)))
       case Right(item) => Redirect(routes.UserProfiles.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }

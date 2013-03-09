@@ -54,14 +54,14 @@ object Groups extends PermissionHolderController[Group]
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.group.edit(
-        Some(Group(item)), form.fill(Group(item).formable), routes.Groups.updatePost(id)))
+        Group(item), form.fill(Group(item).formable), routes.Groups.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.group.edit(Some(Group(item)), errorForm, routes.Groups.updatePost(id)))
+        BadRequest(views.html.group.edit(Group(item), errorForm, routes.Groups.updatePost(id)))
       case Right(item) => Redirect(routes.Groups.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }

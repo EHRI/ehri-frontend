@@ -91,14 +91,14 @@ object Actors extends CRUD[ActorF,Actor]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.actor.edit(Some(Actor(item)), form.fill(Actor(item).formable), routes.Actors.updatePost(id)))
+    Ok(views.html.actor.edit(Actor(item), form.fill(Actor(item).formable), routes.Actors.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.actor.edit(Some(Actor(item)), errorForm, routes.Actors.updatePost(id)))
+        BadRequest(views.html.actor.edit(Actor(item), errorForm, routes.Actors.updatePost(id)))
       case Right(item) => Redirect(routes.Actors.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }

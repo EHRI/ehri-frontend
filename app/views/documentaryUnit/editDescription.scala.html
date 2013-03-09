@@ -1,11 +1,11 @@
-@(item: AccessibleEntity, f: Form[models.DocumentaryUnitDescriptionF], action: Call)(
+@(item: DocumentaryUnit, f: Form[models.DocumentaryUnitDescriptionF], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.createDescription")) {
+@rightSidebarLayout(Messages("actions.updateDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item)) {
 
-    @defining("isadg") { implicit fieldPrefix =>
+    @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
             @formHelpers.csrfToken()
             @documentaryUnit.renderDescriptionForm(f(""))

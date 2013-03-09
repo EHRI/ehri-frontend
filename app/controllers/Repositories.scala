@@ -108,14 +108,14 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.repository.edit(Some(Repository(item)), form.fill(Repository(item).formable), routes.Repositories.updatePost(id)))
+    Ok(views.html.repository.edit(Repository(item), form.fill(Repository(item).formable), routes.Repositories.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.repository.edit(Some(Repository(item)), errorForm, routes.Repositories.updatePost(id)))
+        BadRequest(views.html.repository.edit(Repository(item), errorForm, routes.Repositories.updatePost(id)))
       case Right(item) => Redirect(routes.Repositories.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }

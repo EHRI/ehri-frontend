@@ -1,13 +1,13 @@
-@(item: Option[UserProfile], f: play.api.data.Form[UserProfileF], action: Call)(
+@(item: UserProfile, f: play.api.data.Form[UserProfileF], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@rightSidebarLayout(Messages(item.map(s => "actions.updateUserProfile").getOrElse("actions.createUserProfile"))) {
+@rightSidebarLayout(Messages("actions.updateUserProfile"), breadcrumbs = common.breadcrumbs(List(item))) {
 
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @userProfile.renderForm(item, f)
+        @userProfile.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages(item.map(s => "submitButton.updateUserProfile").getOrElse("submitButton.createUserProfile")))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateUserProfile"))
 	}
 		
 } {

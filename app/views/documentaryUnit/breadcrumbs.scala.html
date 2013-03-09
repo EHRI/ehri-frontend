@@ -1,0 +1,3 @@
+@(doc: DocumentaryUnit)(implicit lang: Lang)
+
+@common.breadcrumbs(doc.holder.map(List(_)).getOrElse(Nil) ::: doc.ancestors.reverse.map(DocumentaryUnit(_)) ::: List(doc))

@@ -5,6 +5,23 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 
 @import models.ConceptF._
 
+@breadcrumbs = {
+    @item match {
+        case c: Concept => {
+            @concept.breadcrumbs(c)
+        }
+
+        case v: Vocabulary => {
+            @common.breadcrumbs(List(v))
+        }
+
+        case _ => {
+            @Html("")
+        }
+    }
+}
+
+
 @rightSidebarLayout(Messages("actions.createConcept")) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {

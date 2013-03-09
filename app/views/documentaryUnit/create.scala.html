@@ -3,7 +3,23 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.createDocumentaryUnit")) {
+@breadcrumbs = {
+    @item match {
+        case d: DocumentaryUnit => {
+            @documentaryUnit.breadcrumbs(d)
+        }
+
+        case r: Repository => {
+            @common.breadcrumbs(List(r))
+        }
+
+        case _ => {
+            @Html("")
+        }
+    }
+}
+
+@rightSidebarLayout(Messages("actions.createDocumentaryUnit"), breadcrumbs = breadcrumbs) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

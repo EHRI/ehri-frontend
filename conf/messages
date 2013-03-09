@@ -167,6 +167,7 @@ actions.delete=Delete
 actions.history=History
 actions.addNew=Add New
 actions.createDescription=Add Description
+actions.updateDescription=Update Description
 actions.listSystemEvents=System Events
 actions.listDocumentaryUnits=Collections
 actions.listAgents=Repositories

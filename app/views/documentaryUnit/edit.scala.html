@@ -3,7 +3,13 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages(item.map(s => "actions.updateDocumentaryUnit").getOrElse("actions.createDocumentaryUnit"))) {
+@breadcrumbs = {
+    @item.map { doc =>
+        @documentaryUnit.breadcrumbs(doc)
+    }
+}
+
+@rightSidebarLayout(Messages(item.map(s => "actions.updateDocumentaryUnit").getOrElse("actions.createDocumentaryUnit")), breadcrumbs = breadcrumbs) {
 		
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

@@ -58,14 +58,14 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.vocabulary.edit(
-      Some(Vocabulary(item)), form.fill(Vocabulary(item).formable),routes.Vocabularies.updatePost(id)))
+      Vocabulary(item), form.fill(Vocabulary(item).formable),routes.Vocabularies.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.vocabulary.edit(
-          Some(Vocabulary(olditem)), errorForm, routes.Vocabularies.updatePost(id)))
+          Vocabulary(olditem), errorForm, routes.Vocabularies.updatePost(id)))
       case Right(item) => Redirect(routes.Vocabularies.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }

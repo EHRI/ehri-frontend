@@ -1,6 +1,6 @@
 @(item: DocumentaryUnit)(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.holder.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(DocumentaryUnit(_)) ::: List(item))) {
+@rightSidebarLayout(item, breadcrumbs = documentaryUnit.breadcrumbs(item)) {
     @html
 } {
 

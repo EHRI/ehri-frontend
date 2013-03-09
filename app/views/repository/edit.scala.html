@@ -1,12 +1,12 @@
-@(item: Option[Repository], f: play.api.data.Form[RepositoryF], action: Call)(
+@(item: Repository, f: play.api.data.Form[RepositoryF], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.updateAgent")) {
+@rightSidebarLayout(Messages("actions.updateAgent"), breadcrumbs = common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @repository.renderForm(item, f)
+        @repository.renderForm(Some(item), f)
 
         @common.submitButtonWithLogMessageInput(Messages("submitButton.updateAgent"))
     }

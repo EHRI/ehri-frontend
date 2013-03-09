@@ -65,14 +65,14 @@ object Concepts extends CreationContext[ConceptF, Concept]
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.concept.edit(
-        Some(Concept(item)), form.fill(Concept(item).formable),routes.Concepts.updatePost(id)))
+        Concept(item), form.fill(Concept(item).formable),routes.Concepts.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       oldItem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => println(errorForm.errors);BadRequest(views.html.concept.edit(
-          Some(Concept(oldItem)), errorForm, routes.Concepts.updatePost(id)))
+      case Left(errorForm) => BadRequest(views.html.concept.edit(
+          Concept(oldItem), errorForm, routes.Concepts.updatePost(id)))
       case Right(item) => Redirect(routes.Concepts.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }

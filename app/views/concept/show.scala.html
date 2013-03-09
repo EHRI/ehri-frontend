@@ -2,7 +2,7 @@
 
 @import models.ConceptF._
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(item.vocabulary.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(Concept(_)) ::: List(item))) {
+@rightSidebarLayout(item, breadcrumbs = concept.breadcrumbs(item)) {
     <div class="row-fluid">
         <div class="span8">
 

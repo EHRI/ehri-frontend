@@ -1,15 +1,15 @@
-@(item: Option[Concept], f: play.api.data.Form[models.ConceptF], action: Call)(
+@(item: Concept, f: play.api.data.Form[models.ConceptF], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
  
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages(item.map(s => "actions.updateConcept").getOrElse("actions.createConcept"))) {
+@rightSidebarLayout(Messages("actions.updateConcept"), breadcrumbs = concept.breadcrumbs(item)) {
 		
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-		@concept.renderForm(item, f)
+		@concept.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages(item.map(s => "submitButton.updateConcept").getOrElse("submitButton.createConcept")))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateConcept"))
 	}
 } {
 
