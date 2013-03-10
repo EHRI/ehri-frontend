@@ -70,9 +70,9 @@ object AnnotationForm {
 }
 
 object Annotation {
-  final val ANNOTATES_REL = "annotates"
+  final val ANNOTATES_REL = "hasTarget"
   final val ACCESSOR_REL = "hasAnnotation"
-  final val SOURCE_REL = "hasSource"
+  final val SOURCE_REL = "hasBody"
 }
 
 case class Annotation(val e: Entity) extends AccessibleEntity
