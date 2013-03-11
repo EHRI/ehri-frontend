@@ -38,7 +38,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   val entityType = EntityType.UserProfile
   val contentType = ContentType.UserProfile
 
-  val form = models.UserProfileForm.form
+  val form = models.forms.UserProfileForm.form
 
   // NB: Because the UserProfile class has more optional
   // parameters we use the companion object apply method here.

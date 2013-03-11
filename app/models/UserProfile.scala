@@ -4,9 +4,6 @@ import defines.{PermissionType,ContentType}
 import acl._
 import models.base._
 
-import play.api.data._
-import play.api.data.Forms._
-
 import base.Persistable
 import defines.EntityType
 import play.api.libs.json.Json
@@ -38,21 +35,6 @@ case class UserProfileF(
   import Entity._
   import json.UserProfileFormat._
   def toJson = Json.toJson(this)
-}
-
-
-object UserProfileForm {
-  import UserProfileF._
-  val form = Form(
-    mapping(
-      Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText,
-      NAME -> nonEmptyText,
-      LOCATION -> optional(nonEmptyText),
-      ABOUT -> optional(nonEmptyText),
-      LANGUAGES -> optional(list(nonEmptyText))
-    )(UserProfileF.apply)(UserProfileF.unapply)
-  )
 }
 
 

@@ -1,8 +1,6 @@
 package models
 
 import base._
-import play.api.data._
-import play.api.data.Forms._
 
 import models.base.Persistable
 import defines.EntityType
@@ -11,7 +9,6 @@ import defines.EnumWriter.enumWrites
 
 object VocabularyType extends Enumeration {
   type Type = Value
-
 }
 
 object VocabularyF {
@@ -29,17 +26,6 @@ case class VocabularyF(
 
   import json.VocabularyFormat._
   def toJson = Json.toJson(this)
-}
-
-object VocabularyForm {
-  val form = Form(
-    mapping(
-      Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText,
-      VocabularyF.NAME -> optional(nonEmptyText),
-      VocabularyF.DESCRIPTION -> optional(nonEmptyText)
-    )(VocabularyF.apply)(VocabularyF.unapply)
-  )
 }
 
 

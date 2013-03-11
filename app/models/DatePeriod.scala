@@ -3,9 +3,6 @@ package models
 import models.base.Formable
 import org.joda.time.DateTime
 
-import play.api.data._
-import play.api.data.Forms._
-
 import models.base.Persistable
 import defines.EntityType
 import play.api.libs.json.Json
@@ -41,17 +38,6 @@ case class DatePeriodF(
   }
 }
 
-object DatePeriodForm {
-
-  import DatePeriodF._
-
-  val form = Form(mapping(
-    Entity.ID -> optional(nonEmptyText),
-    TYPE -> optional(models.forms.enum(DatePeriodType)),
-    START_DATE -> jodaDate("yyyy-MM-dd"),
-    END_DATE -> jodaDate("yyyy-MM-dd")
-  )(DatePeriodF.apply)(DatePeriodF.unapply))
-}
 
 case class DatePeriod(val e: Entity) extends Formable[DatePeriodF] {
   import json.DatePeriodFormat._

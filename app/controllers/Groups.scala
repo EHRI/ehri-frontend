@@ -16,7 +16,7 @@ object Groups extends PermissionHolderController[Group]
   val entityType = EntityType.Group
   val contentType = ContentType.Group
 
-  val form = models.GroupForm.form
+  val form = models.forms.GroupForm.form
   val builder = Group
 
   def get(id: String) = getAction(id) { item => annotations =>

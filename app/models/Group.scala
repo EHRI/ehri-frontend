@@ -1,8 +1,5 @@
 package models
 
-import play.api.data._
-import play.api.data.Forms._
-
 import models.base._
 import defines.EntityType
 import play.api.libs.json.Json
@@ -27,19 +24,6 @@ case class GroupF(
 
   import json.GroupFormat._
   def toJson = Json.toJson(this)
-}
-
-
-object GroupForm {
-
-  val form = Form(
-    mapping(
-      Entity.ID -> optional(text),
-      Entity.IDENTIFIER -> nonEmptyText,
-      GroupF.NAME -> nonEmptyText,
-      GroupF.DESCRIPTION -> optional(nonEmptyText)
-    )(GroupF.apply)(GroupF.unapply)
-  )
 }
 
 

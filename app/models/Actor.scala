@@ -7,8 +7,6 @@ package models
 import defines.{EntityType, PublicationStatus, enum}
 import base._
 
-import play.api.data._
-import play.api.data.Forms._
 import play.api.libs.json._
 import defines.EnumWriter.enumWrites
 
@@ -86,61 +84,6 @@ case class ActorDescriptionF(
 
   import json.IsaarFormat._
   def toJson: JsValue = Json.toJson(this)
-}
-
-
-object ActorDescriptionForm {
-
-  import ActorDescriptionF._
-  import Isaar._
-
-  val form = Form(
-    mapping(
-      Entity.ID -> optional(nonEmptyText),
-      LANG_CODE -> nonEmptyText,
-      ENTITY_TYPE -> forms.enum(ActorType),
-      AUTHORIZED_FORM_OF_NAME -> nonEmptyText,
-      OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
-      PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
-      DESCRIPTION_AREA -> mapping(
-        DATES_OF_EXISTENCE -> optional(text),
-        HISTORY -> optional(text),
-        PLACES -> optional(text),
-        LEGAL_STATUS -> optional(text),
-        FUNCTIONS -> optional(text),
-        MANDATES -> optional(text),
-        INTERNAL_STRUCTURE -> optional(text),
-        GENERAL_CONTEXT -> optional(text)
-      )(Details.apply)(Details.unapply),
-      CONTROL_AREA -> mapping(
-        DESCRIPTION_IDENTIFIER -> optional(text),
-        INSTITUTION_IDENTIFIER -> optional(text),
-        RULES_CONVENTIONS -> optional(text),
-        STATUS -> optional(text),
-        LEVEL_OF_DETAIL -> optional(text),
-        DATES_CVD -> optional(text),
-        LANGUAGES_USED -> optional(list(nonEmptyText)),
-        SCRIPTS_USED -> optional(list(nonEmptyText)),
-        SOURCES -> optional(text),
-        MAINTENANCE_NOTES -> optional(text)
-      )(Control.apply)(Control.unapply)
-    )(ActorDescriptionF.apply)(ActorDescriptionF.unapply)
-  )
-}
-
-object ActorForm {
-
-  import ActorF._
-
-  val form = Form(
-    mapping(
-      Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText,
-      NAME -> nonEmptyText,
-      PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
-      DescribedEntity.DESCRIPTIONS -> list(ActorDescriptionForm.form.mapping)
-    )(ActorF.apply)(ActorF.unapply)
-  )
 }
 
 

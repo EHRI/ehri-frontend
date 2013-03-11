@@ -90,9 +90,9 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentType.DocumentaryUnit
 
-  val form = models.DocumentaryUnitForm.form
-  val childForm = models.DocumentaryUnitForm.form
-  val descriptionForm = models.DocumentaryUnitDescriptionForm.form
+  val form = models.forms.DocumentaryUnitForm.form
+  val childForm = models.forms.DocumentaryUnitForm.form
+  val descriptionForm = models.forms.IsadGForm.form
   val builder = DocumentaryUnit
 
 
@@ -150,7 +150,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def createDescription(id: String) = withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-      models.DocumentaryUnitDescriptionForm.form, routes.DocumentaryUnits.createDescriptionPost(id)))
+      descriptionForm, routes.DocumentaryUnits.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
@@ -169,7 +169,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       item => implicit userOpt => implicit request =>
     val desc = DocumentaryUnit(item).formable.description(did).getOrElse(sys.error("Description not found: " + did))
     Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-      models.DocumentaryUnitDescriptionForm.form.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
+      descriptionForm.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
   }
 
   def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did, descriptionForm) {

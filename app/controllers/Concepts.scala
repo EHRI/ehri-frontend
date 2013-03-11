@@ -45,8 +45,8 @@ object Concepts extends CreationContext[ConceptF, Concept]
   val entityType = EntityType.Concept
   val contentType = ContentType.Concept
 
-  val form = models.ConceptForm.form
-  val childForm = models.ConceptForm.form
+  val form = models.forms.ConceptForm.form
+  val childForm = models.forms.ConceptForm.form
   val builder = Concept.apply _
 
   def get(id: String) = getWithChildrenAction(id, builder) { item => page => params => annotations =>

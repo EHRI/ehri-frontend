@@ -1,8 +1,6 @@
 package models
 
 import base._
-import play.api.data._
-import play.api.data.Forms._
 
 import models.base.Persistable
 import models.base.DescribedEntity
@@ -50,31 +48,6 @@ case class ConceptDescriptionF(
   def toJson = Json.toJson(this)
 }
 
-
-object ConceptDescriptionForm {
-
-  import ConceptF._
-
-  val form = Form(mapping(
-    Entity.ID -> optional(nonEmptyText),
-    LANGUAGE -> nonEmptyText,
-    PREFLABEL -> nonEmptyText,
-    ALTLABEL -> optional(list(nonEmptyText)),
-    DEFINITION -> optional(list(nonEmptyText)),
-    SCOPENOTE -> optional(list(nonEmptyText))
-  )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))
-}
-
-
-object ConceptForm {
-  val form = Form(
-    mapping(
-      Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText,
-      "descriptions" -> list(ConceptDescriptionForm.form.mapping)
-    )(ConceptF.apply)(ConceptF.unapply)
-  )
-}
 
 object Concept {
   final val VOCAB_REL = "inCvoc"

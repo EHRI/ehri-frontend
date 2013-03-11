@@ -48,7 +48,7 @@ object Actors extends CRUD[ActorF,Actor]
   val entityType = EntityType.Actor
   val contentType = ContentType.Actor
 
-  val form = models.ActorForm.form
+  val form = models.forms.ActorForm.form
   val builder = Actor
 
 
@@ -78,10 +78,9 @@ object Actors extends CRUD[ActorF,Actor]
         VisibilityForm.form, users, groups, routes.Actors.createPost))
   }
 
-  def createPost = createPostAction(models.ActorForm.form) { formsOrItem => implicit userOpt => implicit request =>
+  def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        println(errorForm.errors)
         BadRequest(views.html.actor.create(errorForm, accForm, users, groups, routes.Actors.createPost))
       }
       case Right(item) => Redirect(routes.Actors.get(item.id))

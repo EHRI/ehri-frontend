@@ -1,5 +1,6 @@
 package controllers
 
+import _root_.models.forms.OpenIDForm
 import _root_.models.sql.OpenIDAssociation
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -18,7 +19,7 @@ object OpenIDLoginHandler extends OpenIDLoginHandler(play.api.Play.current)
  */
 class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
 
-  import models.forms.UserForm
+  import models.forms.OpenIDForm
   import models.sql._
 
   val openidError = """
@@ -26,15 +27,15 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
 
   def login = optionalUserAction { implicit maybeUser =>
     implicit request =>
-      Ok(views.html.login(form = UserForm.openid, action = routes.OpenIDLoginHandler.loginPost))
+      Ok(views.html.login(OpenIDForm.openid, action = routes.OpenIDLoginHandler.loginPost))
   }
 
   def loginPost = optionalUserAction { implicit maybeUser =>
     implicit request =>
-      UserForm.openid.bindFromRequest.fold(
+      OpenIDForm.openid.bindFromRequest.fold(
         error => {
           Logger.info("bad request " + error.toString)
-          BadRequest(views.html.login(form = error, action = routes.OpenIDLoginHandler.loginPost))
+          BadRequest(views.html.login(error, action = routes.OpenIDLoginHandler.loginPost))
         },
         {
           case (openid) => AsyncResult(

@@ -3,10 +3,6 @@ package models
 import defines._
 import models.base._
 
-
-import forms._
-import play.api.data._
-import play.api.data.Forms._
 import models.base.{DescribedEntity, AttributeSet, Persistable, TemporalEntity}
 import play.api.libs.json.{Json, JsString, JsValue}
 import defines.EnumWriter.enumWrites
@@ -140,71 +136,9 @@ object DocumentaryUnitDescriptionF {
   )
 }
 
-object DocumentaryUnitDescriptionForm {
 
-  import DocumentaryUnitDescriptionF._
-  import IsadG._
-  import Entity._
 
-  val form = Form(
-    mapping(
-      ID -> optional(nonEmptyText),
-      LANG_CODE -> nonEmptyText,
-      TITLE -> optional(nonEmptyText),
-      DATES -> list(DatePeriodForm.form.mapping),
-      EXTENT_MEDIUM -> optional(nonEmptyText),
-      CONTEXT_AREA -> mapping(
-        ADMIN_BIOG -> optional(text),
-        ARCH_HIST -> optional(text),
-        ACQUISITION -> optional(text)
-      )(Context.apply)(Context.unapply),
-      CONTENT_AREA -> mapping(
-        SCOPE_CONTENT -> optional(text),
-        APPRAISAL -> optional(text),
-        ACCRUALS -> optional(text),
-        SYS_ARR -> optional(text)
-      )(Content.apply)(Content.unapply),
-      CONDITIONS_AREA -> mapping(
-        ACCESS_COND -> optional(text),
-        REPROD_COND -> optional(text),
-        LANG_MATERIALS -> optional(list(nonEmptyText)),
-        SCRIPT_MATERIALS -> optional(list(nonEmptyText)),
-        PHYSICAL_CHARS -> optional(text),
-        FINDING_AIDS -> optional(text)
-      )(Conditions.apply)(Conditions.unapply),
-      MATERIALS_AREA -> mapping(
-        LOCATION_ORIGINALS -> optional(text),
-        LOCATION_COPIES -> optional(text),
-        RELATED_UNITS -> optional(text),
-        PUBLICATION_NOTE -> optional(text)
-      )(Materials.apply)(Materials.unapply),
-      CONTROL_AREA -> mapping(
-        ARCHIVIST_NOTE -> optional(text),
-        RULES_CONVENTIONS -> optional(text),
-        DATES_DESCRIPTIONS -> optional(text)
-      )(Control.apply)(Control.unapply)
-    )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
-  )
-}
 
-object DocumentaryUnitForm {
-
-  import Entity._
-  import IsadG._
-  import DocumentaryUnitF._
-
-  val form = Form(
-    mapping(
-      ID -> optional(nonEmptyText),
-      IDENTIFIER -> nonEmptyText,
-      NAME -> nonEmptyText,
-      PUB_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
-      COPYRIGHT -> optional(models.forms.enum(CopyrightStatus)),
-      SCOPE -> optional(models.forms.enum(Scope)),
-      DescribedEntity.DESCRIPTIONS -> list(DocumentaryUnitDescriptionForm.form.mapping)
-    )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
-  )
-}
 
 
 case class DocumentaryUnit(val e: Entity) extends NamedEntity

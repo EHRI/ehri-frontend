@@ -25,8 +25,8 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   val entityType = EntityType.Vocabulary
   val contentType = ContentType.Vocabulary
 
-  val form = models.VocabularyForm.form
-  val childForm = models.ConceptForm.form
+  val form = models.forms.VocabularyForm.form
+  val childForm = models.forms.ConceptForm.form
   val builder = Vocabulary.apply _
 
   def get(id: String) = getWithChildrenAction(id, Concept.apply _) {
@@ -46,7 +46,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
     Ok(views.html.vocabulary.create(form, VisibilityForm.form, users, groups, routes.Vocabularies.createPost))
   }
 
-  def createPost = createPostAction(models.VocabularyForm.form) { formsOrItem => implicit userOpt => implicit request =>
+  def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, routes.Vocabularies.createPost))

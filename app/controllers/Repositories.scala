@@ -65,8 +65,8 @@ object Repositories extends CRUD[RepositoryF,Repository]
   val entityType = EntityType.Repository
   val contentType = ContentType.Repository
 
-  val form = models.RepositoryForm.form
-  val childForm = models.DocumentaryUnitForm.form
+  val form = models.forms.RepositoryForm.form
+  val childForm = models.forms.DocumentaryUnitForm.form
   val builder = Repository
 
 
@@ -96,7 +96,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
         VisibilityForm.form, users, groups, routes.Repositories.createPost))
   }
 
-  def createPost = createPostAction(models.RepositoryForm.form) { formsOrItem => implicit userOpt => implicit request =>
+  def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.repository.create(errorForm, accForm, users, groups, routes.Repositories.createPost))
