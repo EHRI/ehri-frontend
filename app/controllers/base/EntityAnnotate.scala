@@ -17,6 +17,12 @@ import rest.{RestPageParams, EntityDAO}
  */
 trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
 
+  def annotationAction(id: String)(f: models.Entity => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+      f(item)(models.AnnotationForm.form.bindFromRequest.discardingErrors)(userOpt)(request)
+    }
+  }
+
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       models.AnnotationForm.form.bindFromRequest.fold(

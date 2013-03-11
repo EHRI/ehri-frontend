@@ -50,10 +50,9 @@ object Annotations extends EntityRead[Annotation]
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt =>
-    implicit request =>
-      Ok(views.html.annotation.annotate(Annotation(item),
-        models.AnnotationForm.form, routes.Annotations.annotatePost(id)))
+  def annotate(id: String) = annotationAction(id) {
+      item => form => implicit userOpt => implicit request =>
+    Ok(views.html.annotation.annotate(Annotation(item), form, routes.Annotations.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit userOpt =>

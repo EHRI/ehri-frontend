@@ -269,10 +269,10 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
+  def annotate(id: String) = annotationAction(id) {
+      item => form => implicit userOpt => implicit request =>
     Ok(views.html.annotation.annotate(DocumentaryUnit(item),
-        models.AnnotationForm.form, routes.DocumentaryUnits.annotatePost(id)))
+          form, routes.DocumentaryUnits.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) {

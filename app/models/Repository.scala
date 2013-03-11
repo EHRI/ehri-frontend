@@ -13,8 +13,6 @@ import play.api.libs.json._
 import defines.EnumWriter.enumWrites
 
 
-
-
 object RepositoryF {
 
   final val DESC_REL = "describes"

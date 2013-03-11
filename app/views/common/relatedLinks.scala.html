@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AccessibleEntity, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader)
+@(item: AnnotatableEntity, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader)
 
 <div class="annotatable" id="@item.id">
     @annotations.get(item.id).map { list =>

@@ -163,9 +163,9 @@ object Concepts extends CreationContext[ConceptF, Concept]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Concept(item), models.AnnotationForm.form, routes.Concepts.annotatePost(id)))
+  def annotate(id: String) = annotationAction(id) {
+      item => form => implicit userOpt => implicit request =>
+    Ok(views.html.annotation.annotate(Concept(item), form, routes.Concepts.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) {

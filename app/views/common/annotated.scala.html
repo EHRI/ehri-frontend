@@ -13,7 +13,7 @@
                     <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a> -
                 }
                 @ann.formable.body.trim
-                <a href="@routes.Annotations.annotate(ann.id)">+</a>
+                <a href="@routes.Annotations.annotate(ann.id)?annotationType=comment">+</a>
                 @annotationList(ann.annotations)
             </li>
         }
@@ -23,7 +23,7 @@
 }
 
 <div class="annotatable" id="@item.id">
-    <a href="@url">+@Messages("actions.annotateThisItem")</a>
+    <a href="@url?annotationType=comment">+@Messages("actions.annotateThisItem")</a>
     @body
     @annotations.get(item.id).map { list =>
         @defining(list.filter(_.formable.annotationType == AnnotationType.Comment)) { alist =>

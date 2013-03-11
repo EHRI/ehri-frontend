@@ -57,9 +57,9 @@ object AnnotationForm {
 }
 
 object Annotation {
-  final val ANNOTATES_REL = "hasTarget"
+  final val ANNOTATES_REL = "hasAnnotationTarget"
   final val ACCESSOR_REL = "hasAnnotation"
-  final val SOURCE_REL = "hasBody"
+  final val SOURCE_REL = "hasAnnotationBody"
 }
 
 case class Annotation(val e: Entity) extends AccessibleEntity
@@ -81,13 +81,7 @@ case class Annotation(val e: Entity) extends AccessibleEntity
     )
   }
 
-  def formable: AnnotationF = new AnnotationF(
-    id = Some(e.id),
-    // NB: For the time being, annotations with no 'type' default to being a comment
-    annotationType = e.property(AnnotationF.ANNOTATION_TYPE).flatMap(enum(AnnotationType).reads(_).asOpt).getOrElse(AnnotationType.Comment),
-    body = e.stringProperty(AnnotationF.BODY).getOrElse(Messages("annotation.emptyBodyText")),
-    field = e.stringProperty(AnnotationF.FIELD),
-    comment = e.stringProperty(AnnotationF.COMMENT)
-  )
+  import json.AnnotationFormat._
+  def formable: AnnotationF = Json.toJson(e).as[AnnotationF]
 }
 

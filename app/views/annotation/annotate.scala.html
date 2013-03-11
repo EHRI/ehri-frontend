@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, form: play.api.data.Form[AnnotationF], action: Call)(
+@(item: AnnotatableEntity, form: play.api.data.Form[AnnotationF], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
@@ -6,9 +6,9 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 @rightSidebarLayout(Messages("actions.annotate", item.identifier)) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @helper.inputText(form(AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
-        @helper.inputText(form(AnnotationF.FIELD), '_label -> Messages("annotation.field"))
-        @formHelpers.enumChoiceInput(form(AnnotationF.ANNOTATION_TYPE), AnnotationType, Messages("annotation." + AnnotationF.ANNOTATION_TYPE))
+        @formHelpers.textInput(form(""), AnnotationF.BODY)
+        @formHelpers.hiddenInput(form(AnnotationF.FIELD))
+        @formHelpers.hiddenInput(form(AnnotationF.ANNOTATION_TYPE))
 
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">@Messages("submitButton.annotate")</button>
