@@ -34,25 +34,8 @@ case class RepositoryF(
 ) extends Persistable {
   val isA = EntityType.Repository
 
-  def toJson: JsValue = {
-    import RepositoryF._
-    import Isdiah._
-
-    Json.obj(
-      Entity.ID -> id,
-      Entity.TYPE -> isA,
-      Entity.DATA -> Json.obj(
-        IDENTIFIER -> identifier,
-        NAME -> name,
-        PUBLICATION_STATUS -> publicationStatus,
-        RepositoryF.PRIORITY -> priority
-      ),
-      Entity.RELATIONSHIPS -> Json.obj(
-        DESC_REL -> Json.toJson(descriptions.map(_.toJson).toSeq)
-      )
-    )
-  }
-
+  import json.RepositoryFormat._
+  def toJson: JsValue = Json.toJson(this)
 }
 
 object RepositoryDescriptionF {
