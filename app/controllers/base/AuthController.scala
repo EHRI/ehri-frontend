@@ -13,6 +13,8 @@ import defines.ContentType
 import models.UserProfile
 import java.net.ConnectException
 import rest.ServerError
+import scala.concurrent.Future
+import play.api.cache.Cache
 
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
@@ -70,40 +72,34 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * the profile of the user requesting the page, and her permissions.
    */
   def userProfileAction(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
-    optionalUserAction { implicit maybeAccount =>
-      implicit request =>
-        maybeAccount.map { account =>
+    optionalUserAction { implicit maybeAccount => implicit request =>
+      maybeAccount.map { account =>
 
-          // Since we know the user's profile_id we can get the real
-          // details by using a fake profile to access their profile as them...
-          val fakeProfile = UserProfile(models.Entity.fromString(account.profile_id, EntityType.UserProfile))
-          implicit val maybeUser = Some(fakeProfile)
+        // FIXME: This is a DELIBERATE BACKDOOR
+        val currentUser = USER_BACKDOOR__(account, request)
+        val fakeProfile = UserProfile(models.Entity.fromString(currentUser, EntityType.UserProfile))
+        implicit val maybeUser = Some(fakeProfile)
 
-
-          // FIXME: This is a DELIBERATE BACKDOOR
-          val currentUser = USER_BACKDOOR__(account, request)
-
-          AsyncRest {
-            // TODO: For the permissions to be properly initialized they must
-            // recieve a completely-constructed instance of the UserProfile
-            // object, complete with the groups it belongs to. Since this isn't
-            // available initially, and we don't want to block for it to become
-            // available, we should probably add the account to the permissions when
-            // we have both items from the server.
-            val fakeProfile = UserProfile(models.Entity.fromString(currentUser, EntityType.UserProfile))
-            val getProf = rest.EntityDAO(EntityType.UserProfile, maybeUser).get(currentUser)
-            val getGlobalPerms = rest.PermissionDAO(maybeUser).get
-            // These requests should execute in parallel...
-            for { r1 <- getProf; r2 <- getGlobalPerms } yield {
-              for { entity <- r1.right; gperms <- r2.right } yield {
-                val up = UserProfile(entity, account = Some(account), globalPermissions = Some(gperms))
-                f(Some(up))(request)
-              }
+        AsyncRest {
+          // TODO: For the permissions to be properly initialized they must
+          // recieve a completely-constructed instance of the UserProfile
+          // object, complete with the groups it belongs to. Since this isn't
+          // available initially, and we don't want to block for it to become
+          // available, we should probably add the account to the permissions when
+          // we have both items from the server.
+          val getProf = rest.EntityDAO(EntityType.UserProfile, maybeUser).get(currentUser)
+          val getGlobalPerms = rest.PermissionDAO(maybeUser).get
+          // These requests should execute in parallel...
+          for { r1 <- getProf; r2 <- getGlobalPerms } yield {
+            for { entity <- r1.right; gperms <- r2.right } yield {
+              val up = UserProfile(entity, account = Some(account), globalPermissions = Some(gperms))
+              f(Some(up))(request)
             }
           }
-        } getOrElse {
-          f(None)(request)
         }
+      }.getOrElse {
+        f(None)(request)
+      }
     }
   }
 
