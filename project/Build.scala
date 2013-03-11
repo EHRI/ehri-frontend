@@ -15,6 +15,8 @@ object ApplicationBuild extends Build {
   val appName = "docview"
   val appVersion = "1.0-SNAPSHOT"
 
+  javaOptions in test += "-Xmx8G"
+
   val appDependencies = Seq(
     jdbc,
     anorm,
@@ -42,7 +44,7 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Bits that get automatically imported into templates...
-    templatesImport ++= Seq("models.base._", "acl._", "defines._"),
+    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
 
 
     resolvers += "mvnrepository" at "http://mvnrepository/artifact",
