@@ -89,10 +89,6 @@ case class ActorDescriptionF(
 }
 
 
-
-
-
-
 object ActorDescriptionForm {
 
   import ActorDescriptionF._
@@ -163,11 +159,6 @@ case class Actor(val e: Entity)
 }
 
 case class ActorDescription(val e: Entity) extends Description with Formable[ActorDescriptionF] {
-
-  import ActorF._
-  import ActorDescriptionF._
-  import Isaar._
-
   lazy val item: Option[Actor] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Actor(_))
 
   import json.IsaarFormat._
