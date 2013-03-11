@@ -8,7 +8,28 @@
     @formHelpers.choiceInput(desc(LANGUAGE), LANGUAGE, views.Helpers.languagePairList, blank=true)
     @formHelpers.lineInput(desc, PREFLABEL)
     @*concept.renderInlineNameSet(desc, ALTLABEL)*@
-    @formHelpers.textInput(desc, SCOPENOTE)
-    @formHelpers.textInput(desc, DEFINITION)
+
+
+    @implicitField = @{  }
+
+    @* Fixme - not allowing more than one altlabel, scopenote, definition for now... *@
+    @defining(desc(SCOPENOTE + "[0]")) {  desc =>
+        <div class="control-group ">
+            <label class="control-label" for="@desc.id">@Messages(prefix + ".scopeNote")</label>
+            <div class="controls controls-row">
+                <textarea id="@desc.id" name="@desc.name" rows="4" class="span8">@desc.value</textarea>
+                <span class="help-inline errors"> </span>
+            </div>
+        </div>
+    }
+    @defining(desc(DEFINITION + "[0]")) {  desc =>
+        <div class="control-group ">
+            <label class="control-label" for="@desc.id">@Messages(prefix + ".definition")</label>
+            <div class="controls controls-row">
+                <textarea id="@desc.id" name="@desc.name" rows="4" class="span8">@desc.value</textarea>
+                <span class="help-inline errors"> </span>
+            </div>
+        </div>
+    }
     <hr />
 </div>

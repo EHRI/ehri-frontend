@@ -41,8 +41,8 @@ case class ConceptDescriptionF(
   val languageCode: String,
   val prefLabel: String,
   val altLabels: Option[List[String]] = None,
-  val definition: Option[String] = None,
-  val scopeNote: Option[String] = None
+  val definition: Option[List[String]] = None,
+  val scopeNote: Option[List[String]] = None
 ) extends Persistable {
   val isA = EntityType.ConceptDescription
 
@@ -60,8 +60,8 @@ object ConceptDescriptionForm {
     LANGUAGE -> nonEmptyText,
     PREFLABEL -> nonEmptyText,
     ALTLABEL -> optional(list(nonEmptyText)),
-    DEFINITION -> optional(nonEmptyText),
-    SCOPENOTE -> optional(nonEmptyText)
+    DEFINITION -> optional(list(nonEmptyText)),
+    SCOPENOTE -> optional(list(nonEmptyText))
   )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))
 }
 
@@ -97,9 +97,9 @@ case class Concept(e: Entity)
 
   override val nameProperty = ConceptF.PREFLABEL
 
-  override def descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ConceptDescription(_))
-  val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
-  val broaderTerms: List[Concept] = e.relations(Concept.NT_REL).map(Concept(_))
+  override lazy val descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ConceptDescription(_))
+  lazy val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
+  lazy val broaderTerms: List[Concept] = e.relations(Concept.NT_REL).map(Concept(_))
 
   import json.ConceptFormat._
   lazy val formable: ConceptF = Json.toJson(e).as[ConceptF]
@@ -117,10 +117,8 @@ case class ConceptDescription(val e: Entity)
   extends Description
   with Formable[ConceptDescriptionF] {
 
-  import ConceptF._
-
   lazy val item: Option[Concept] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Concept(_))
 
   import json.ConceptDescriptionFormat._
-  lazy val formable: ConceptDescriptionF = Json.toJson(e).as[ConceptDescriptionF]
+  def formable: ConceptDescriptionF = Json.toJson(e).as[ConceptDescriptionF]
 }

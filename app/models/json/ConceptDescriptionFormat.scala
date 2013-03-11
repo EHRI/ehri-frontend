@@ -32,8 +32,8 @@ object ConceptDescriptionFormat {
       (__ \ DATA \ LANGUAGE).read[String] and
       (__ \ DATA \ PREFLABEL).read[String] and
       (__ \ DATA \ ALTLABEL).readNullable[List[String]] and
-      (__ \ DATA \ DEFINITION).readNullable[String] and
-      (__ \ DATA \ SCOPENOTE).readNullable[String]
+      (__ \ DATA \ DEFINITION).readNullable[List[String]] and
+      (__ \ DATA \ SCOPENOTE).readNullable[List[String]]
   )(ConceptDescriptionF.apply _)
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
