@@ -159,7 +159,7 @@ case class Actor(val e: Entity)
   val publicationStatus = e.property(ActorF.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
 
   import json.ActorFormat._
-  def formable: ActorF = Json.toJson(e).as[ActorF]
+  lazy val formable: ActorF = Json.toJson(e).as[ActorF]
 }
 
 case class ActorDescription(val e: Entity) extends Description with Formable[ActorDescriptionF] {
@@ -171,7 +171,7 @@ case class ActorDescription(val e: Entity) extends Description with Formable[Act
   lazy val item: Option[Actor] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Actor(_))
 
   import json.IsaarFormat._
-  def formable: ActorDescriptionF = Json.toJson(e).as[ActorDescriptionF]
+  lazy val formable: ActorDescriptionF = Json.toJson(e).as[ActorDescriptionF]
 }
 
 

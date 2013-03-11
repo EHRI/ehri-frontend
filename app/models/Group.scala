@@ -46,6 +46,6 @@ object GroupForm {
 case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[GroupF] {
 
   import json.GroupFormat._
-  def formable: GroupF = Json.toJson(e).as[GroupF]
+  lazy val formable: GroupF = Json.toJson(e).as[GroupF]
 }
 

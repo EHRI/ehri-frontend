@@ -55,6 +55,6 @@ object DatePeriodForm {
 
 case class DatePeriod(val e: Entity) extends Formable[DatePeriodF] {
   import json.DatePeriodFormat._
-  def formable: DatePeriodF = Json.toJson(e).as[DatePeriodF]
+  lazy val formable: DatePeriodF = Json.toJson(e).as[DatePeriodF]
 }
 

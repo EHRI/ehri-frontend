@@ -226,7 +226,7 @@ case class Repository(val e: Entity)
   val priority = e.property(RepositoryF.PRIORITY).flatMap(_.asOpt[Int])
 
   import json.RepositoryFormat._
-  def formable: RepositoryF = Json.toJson(e).as[RepositoryF]
+  lazy val formable: RepositoryF = Json.toJson(e).as[RepositoryF]
 }
 
 case class RepositoryDescription(val e: Entity) extends Description with Formable[RepositoryDescriptionF] {
@@ -238,11 +238,11 @@ case class RepositoryDescription(val e: Entity) extends Description with Formabl
   def addresses: List[Address] = e.relations(RepositoryF.ADDRESS_REL).map(Address(_))
 
   import json.IsdiahFormat._
-  def formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF]
+  lazy val formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF]
 }
 
 case class Address(val e: Entity) extends AccessibleEntity with Formable[AddressF] {
   import json.AddressFormat._
-  def formable: AddressF = Json.toJson(e).as[AddressF]
+  lazy val formable: AddressF = Json.toJson(e).as[AddressF]
 }
 

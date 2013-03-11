@@ -230,7 +230,7 @@ with Formable[DocumentaryUnitF] {
   override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
 
   import json.DocumentaryUnitFormat._
-  def formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF]
+  lazy val formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF]
 }
 
 case class DocumentaryUnitDescription(val e: Entity)
@@ -245,5 +245,5 @@ case class DocumentaryUnitDescription(val e: Entity)
   import DocumentaryUnitDescriptionF._
 
   import json.IsadGFormat._
-  def formable = Json.toJson(e).as[DocumentaryUnitDescriptionF]
+  lazy val formable = Json.toJson(e).as[DocumentaryUnitDescriptionF]
 }

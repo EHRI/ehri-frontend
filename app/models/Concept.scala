@@ -102,7 +102,7 @@ case class Concept(e: Entity)
   val broaderTerms: List[Concept] = e.relations(Concept.NT_REL).map(Concept(_))
 
   import json.ConceptFormat._
-  def formable: ConceptF = Json.toJson(e).as[ConceptF]
+  lazy val formable: ConceptF = Json.toJson(e).as[ConceptF]
 
   // Because we (currently) have no 'name' property on Concept, get the first available preflabel
   override def toString = descriptions.headOption.flatMap(_.stringProperty(ConceptF.PREFLABEL)).getOrElse(identifier)
@@ -122,5 +122,5 @@ case class ConceptDescription(val e: Entity)
   lazy val item: Option[Concept] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Concept(_))
 
   import json.ConceptDescriptionFormat._
-  def formable: ConceptDescriptionF = Json.toJson(e).as[ConceptDescriptionF]
+  lazy val formable: ConceptDescriptionF = Json.toJson(e).as[ConceptDescriptionF]
 }

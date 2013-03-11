@@ -81,5 +81,5 @@ case class UserProfile(
   }
 
   import json.UserProfileFormat._
-  def formable: UserProfileF = Json.toJson(e).as[UserProfileF]
+  lazy val formable: UserProfileF = Json.toJson(e).as[UserProfileF]
 }
