@@ -38,21 +38,8 @@ case class AnnotationF(
 ) extends Persistable {
   val isA = EntityType.Annotation
 
-  def toJson = {
-    implicit val dateWrites = play.api.libs.json.Writes.jodaDateWrites("yyyy-MM-dd")
-    import AnnotationF._
-
-    Json.obj(
-      Entity.ID -> id,
-      Entity.TYPE -> isA,
-      Entity.DATA -> Json.obj(
-        BODY -> body,
-        ANNOTATION_TYPE -> annotationType,
-        FIELD -> field,
-        COMMENT -> comment
-      )
-    )
-  }
+  import json.AnnotationFormat._
+  def toJson = Json.toJson(this)
 }
 
 

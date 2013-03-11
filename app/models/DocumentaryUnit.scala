@@ -124,26 +124,8 @@ case class DocumentaryUnitF(
     withDescription(d)
   }
 
-  def toJson: JsValue = {
-    import Entity._
-    import IsadG._
-    import DocumentaryUnitF._
-
-    Json.obj(
-      ID -> id,
-      TYPE -> isA,
-      DATA -> Json.obj(
-        IDENTIFIER -> identifier,
-        NAME -> name,
-        PUB_STATUS -> publicationStatus,
-        COPYRIGHT -> copyrightStatus.orElse(Some(CopyrightStatus.Unknown)),
-        SCOPE -> scope
-      ),
-      RELATIONSHIPS -> Json.obj(
-        DESC_REL -> Json.toJson(descriptions.map(_.toJson).toSeq)
-      )
-    )
-  }
+  import json.DocumentaryUnitFormat._
+  def toJson: JsValue = Json.toJson(this)
 }
 
 case class DocumentaryUnitDescriptionF(
@@ -161,44 +143,8 @@ case class DocumentaryUnitDescriptionF(
 ) extends Persistable {
   val isA = EntityType.DocumentaryUnitDescription
 
-  def toJson: JsValue = {
-    import Entity._
-    import IsadG._
-    import DocumentaryUnitF._
-
-    Json.obj(
-      ID -> id,
-      TYPE -> isA,
-      DATA -> Json.obj(
-        TITLE -> title,
-        LANG_CODE -> languageCode,
-        EXTENT_MEDIUM -> extentAndMedium,
-        ADMIN_BIOG -> context.adminBiogHistory,
-        ARCH_HIST -> context.archivalHistory,
-        ACQUISITION -> context.acquisition,
-        SCOPE_CONTENT -> content.scopeAndContent,
-        APPRAISAL -> content.appraisal,
-        ACCRUALS -> content.accruals,
-        SYS_ARR -> content.systemOfArrangement,
-        ACCESS_COND -> conditions.conditionsOfAccess,
-        REPROD_COND -> conditions.conditionsOfReproduction,
-        LANG_MATERIALS -> conditions.languageOfMaterials,
-        SCRIPT_MATERIALS -> conditions.scriptOfMaterials,
-        PHYSICAL_CHARS -> conditions.physicalCharacteristics,
-        FINDING_AIDS -> conditions.findingAids,
-        LOCATION_ORIGINALS -> materials.locationOfOriginals,
-        LOCATION_COPIES -> materials.locationOfCopies,
-        RELATED_UNITS -> materials.relatedUnitsOfDescription,
-        PUBLICATION_NOTE -> materials.publicationNote,
-        ARCHIVIST_NOTE -> control.archivistNote,
-        RULES_CONVENTIONS -> control.rulesAndConventions,
-        DATES_DESCRIPTIONS -> control.datesOfDescriptions
-      ),
-      RELATIONSHIPS -> Json.obj(
-        TemporalEntity.DATE_REL -> Json.toJson(dates.map(_.toJson).toSeq)
-      )
-    )
-  }
+  import json.IsadGFormat._
+  def toJson: JsValue = Json.toJson(this)
 }
 
 object DocumentaryUnitDescriptionF {

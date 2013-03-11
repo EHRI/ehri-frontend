@@ -36,17 +36,8 @@ case class UserProfileF(
   val isA = EntityType.UserProfile
 
   import Entity._
-  def toJson = Json.obj(
-    ID -> id,
-    TYPE -> isA,
-    DATA -> Json.obj(
-      IDENTIFIER -> identifier,
-      "name" -> name,
-      "location" -> location,
-      "about" -> about,
-      "languages" -> languages
-    )
-  )
+  import json.UserProfileFormat._
+  def toJson = Json.toJson(this)
 }
 
 

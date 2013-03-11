@@ -43,7 +43,7 @@ object IsadGFormat {
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions
         ),
         RELATIONSHIPS -> Json.obj(
-          TemporalEntity.DATE_REL -> Json.toJson(d.dates.map(_.toJson).toSeq)
+          TemporalEntity.DATE_REL -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq)
         )
       )
     }

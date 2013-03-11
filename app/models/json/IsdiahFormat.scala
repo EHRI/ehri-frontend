@@ -48,7 +48,7 @@ object IsdiahFormat {
           MAINTENANCE_NOTES -> d.control.maintenanceNotes
         ),
         RELATIONSHIPS -> Json.obj(
-          RepositoryF.ADDRESS_REL -> Json.toJson(d.addresses.map(_.toJson).toSeq)
+          RepositoryF.ADDRESS_REL -> Json.toJson(d.addresses.map(Json.toJson(_)).toSeq)
         )
       )
     }

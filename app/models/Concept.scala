@@ -32,20 +32,8 @@ case class ConceptF(
 ) extends Persistable {
   val isA = EntityType.Concept
 
-  def toJson = {
-    import ConceptF._
-
-    Json.obj(
-      Entity.ID -> id,
-      Entity.TYPE -> isA,
-      Entity.DATA -> Json.obj(
-        Entity.IDENTIFIER -> identifier
-      ),
-      Entity.RELATIONSHIPS -> Json.obj(
-        DescribedEntity.DESCRIBES_REL -> Json.toJson(descriptions.map(_.toJson).toSeq)
-      )
-    )
-  }
+  import json.ConceptFormat._
+  def toJson = Json.toJson(this)
 }
 
 case class ConceptDescriptionF(
@@ -58,21 +46,8 @@ case class ConceptDescriptionF(
 ) extends Persistable {
   val isA = EntityType.ConceptDescription
 
-  def toJson = {
-    import ConceptF._
-
-    Json.obj(
-      Entity.ID -> id,
-      Entity.TYPE -> isA,
-      Entity.DATA -> Json.obj(
-        LANGUAGE -> languageCode,
-        PREFLABEL -> prefLabel,
-        ALTLABEL -> altLabels,
-        DEFINITION -> definition,
-        SCOPENOTE -> scopeNote
-      )
-    )
-  }
+  import json.ConceptDescriptionFormat._
+  def toJson = Json.toJson(this)
 }
 
 

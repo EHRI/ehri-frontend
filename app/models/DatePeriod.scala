@@ -29,7 +29,7 @@ case class DatePeriodF(
   val `type`: Option[DatePeriodType.Type],
   val startDate: DateTime,
   val endDate: DateTime
-) extends Persistable {
+) {
   val isA = EntityType.DatePeriod
 
   /**
@@ -38,20 +38,6 @@ case class DatePeriodF(
    */
   def years: String = {
     List(startDate, endDate).map(_.getYear).distinct.mkString("-")
-  }
-
-  def toJson = {
-    implicit val dateWrites = play.api.libs.json.Writes.jodaDateWrites("yyyy-MM-dd")
-
-    Json.obj(
-      Entity.ID -> id,
-      Entity.TYPE -> isA,
-      Entity.DATA -> Json.obj(
-        DatePeriodF.TYPE -> `type`,
-        DatePeriodF.START_DATE -> startDate,
-        DatePeriodF.END_DATE -> endDate
-      )
-    )
   }
 }
 

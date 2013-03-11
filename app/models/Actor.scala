@@ -85,24 +85,8 @@ case class ActorF(
 ) extends Persistable {
   val isA = EntityType.Actor
 
-  def toJson: JsValue = {
-    import ActorF._
-    import Isdiah._
-
-    Json.obj(
-      Entity.ID -> id,
-      Entity.TYPE -> isA,
-      Entity.DATA -> Json.obj(
-        IDENTIFIER -> identifier,
-        NAME -> name,
-        PUBLICATION_STATUS -> publicationStatus
-      ),
-      Entity.RELATIONSHIPS -> Json.obj(
-        DESC_REL -> Json.toJson(descriptions.map(_.toJson).toSeq)
-      )
-    )
-  }
-
+  import json.ActorFormat._
+  def toJson: JsValue = Json.toJson(this)
 }
 
 object ActorDescriptionF {
@@ -145,41 +129,8 @@ case class ActorDescriptionF(
 ) extends Persistable {
   val isA = EntityType.ActorDescription
 
-  def toJson: JsValue = {
-    import AddressF._
-    import Entity._
-    import Isaar._
-
-    Json.obj(
-      ID -> id,
-      TYPE -> isA,
-      DATA -> Json.obj(
-        AUTHORIZED_FORM_OF_NAME -> name,
-        ENTITY_TYPE -> entityType,
-        LANG_CODE -> languageCode,
-        OTHER_FORMS_OF_NAME -> otherFormsOfName,
-        PARALLEL_FORMS_OF_NAME -> parallelFormsOfName,
-        DATES_OF_EXISTENCE -> details.datesOfExistence,
-        HISTORY -> details.history,
-        PLACES -> details.places,
-        LEGAL_STATUS -> details.legalStatus,
-        FUNCTIONS -> details.functions,
-        MANDATES -> details.mandates,
-        INTERNAL_STRUCTURE -> details.internalStructure,
-        GENERAL_CONTEXT -> details.generalContext,
-        DESCRIPTION_IDENTIFIER -> control.descriptionIdentifier,
-        INSTITUTION_IDENTIFIER -> control.institutionIdentifier,
-        RULES_CONVENTIONS -> control.rulesAndConventions,
-        STATUS -> control.status,
-        LEVEL_OF_DETAIL -> control.levelOfDetail,
-        DATES_CVD -> control.datesCDR,
-        LANGUAGES_USED -> control.languages,
-        SCRIPTS_USED -> control.scripts,
-        SOURCES -> control.sources,
-        MAINTENANCE_NOTES -> control.maintenanceNotes
-      )
-    )
-  }
+  import json.IsaarFormat._
+  def toJson: JsValue = Json.toJson(this)
 }
 
 

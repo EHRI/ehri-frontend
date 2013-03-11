@@ -22,7 +22,7 @@ object ConceptFormat {
           IDENTIFIER -> d.identifier
         ),
         RELATIONSHIPS -> Json.obj(
-          DescribedEntity.DESCRIBES_REL -> Json.toJson(d.descriptions.map(_.toJson).toSeq)
+          DescribedEntity.DESCRIBES_REL -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
         )
       )
     }

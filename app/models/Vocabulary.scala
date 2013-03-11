@@ -27,21 +27,8 @@ case class VocabularyF(
 ) extends Persistable {
   val isA = EntityType.Vocabulary
 
-  def toJson = {
-    import VocabularyF._
-
-    Json.obj(
-      Entity.ID -> id,
-      Entity.TYPE -> isA,
-      Entity.DATA -> Json.obj(
-        Entity.IDENTIFIER -> identifier,
-        NAME -> name,
-        DESCRIPTION -> description
-      ),
-      Entity.RELATIONSHIPS -> Json.obj(
-      )
-    )
-  }
+  import json.VocabularyFormat._
+  def toJson = Json.toJson(this)
 }
 
 object VocabularyForm {

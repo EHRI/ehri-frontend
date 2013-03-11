@@ -25,17 +25,8 @@ case class GroupF(
 ) extends Persistable {
   val isA = EntityType.Group
 
-  import Entity._
-
-  def toJson = Json.obj(
-    ID -> id,
-    TYPE -> isA,
-    DATA -> Json.obj(
-      IDENTIFIER -> identifier,
-      GroupF.NAME -> name,
-      GroupF.DESCRIPTION -> description
-    )
-  )
+  import json.GroupFormat._
+  def toJson = Json.toJson(this)
 }
 
 
