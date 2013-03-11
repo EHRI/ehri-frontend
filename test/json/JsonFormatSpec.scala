@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 import play.api.i18n.Messages
 import models.json._
 import play.api.libs.json.Json
-import models.{ConceptF, RepositoryF, ActorF, DocumentaryUnitF,VocabularyF,UserProfileF,GroupF}
+import models.{ConceptF, RepositoryF, ActorF, DocumentaryUnitF,VocabularyF,UserProfileF,GroupF,AnnotationF}
 
 class JsonFormatSpec extends Specification {
 
@@ -71,5 +71,14 @@ class JsonFormatSpec extends Specification {
     validation.asEither must beRight
     val group = validation.get
     group mustEqual Json.toJson(group).as[GroupF]
+  }
+
+  "Annotation Format should read and write with no changes" in {
+    import models.json.AnnotationFormat._
+    val validation = Json.parse(json.annotationTestJson).validate[AnnotationF]
+    // The JSON should parse correctly
+    validation.asEither must beRight
+    val annotation = validation.get
+    annotation mustEqual Json.toJson(annotation).as[AnnotationF]
   }
 }
