@@ -24,54 +24,9 @@ object Scope extends Enumeration {
   val Low = Value("low")
 }
 
-case object IsadG {
-
-  val FIELD_PREFIX = "isadg"
-
-  /* ISAD(G)-based field set */
-  val TITLE = "title"
-  val DATES = "dates"
-  val EXTENT_MEDIUM = "extentAndMedium"
-  val PUB_STATUS = "publicationStatus"
-  val LANG_CODE = "languageCode"
-
-  val IDENTITY_AREA = "identityArea"
-  val DESCRIPTIONS_AREA = "descriptionsArea"
-  val ADMINISTRATION_AREA = "administrationArea"
-
-  val CONTEXT_AREA = "contextArea"
-  val ADMIN_BIOG = "adminBiogHistory"
-  val ARCH_HIST = "archivalHistory"
-  val ACQUISITION = "acquisition"
-
-  val CONTENT_AREA = "contentArea"
-  val SCOPE_CONTENT = "scopeAndContent"
-  val APPRAISAL = "appraisal"
-  val ACCRUALS = "accruals"
-  val SYS_ARR = "systemOfArrangement"
-
-  val CONDITIONS_AREA = "conditionsArea"
-  val ACCESS_COND = "conditionsOfAccess"
-  val REPROD_COND = "conditionsOfReproduction"
-  val LANG_MATERIALS = "languageOfMaterials"
-  val SCRIPT_MATERIALS = "scriptOfMaterials"
-  val PHYSICAL_CHARS = "physicalCharacteristics"
-  val FINDING_AIDS = "findingAids"
-
-  val MATERIALS_AREA = "materialsArea"
-  val LOCATION_ORIGINALS = "locationOfOriginals"
-  val LOCATION_COPIES = "locationOfCopies"
-  val RELATED_UNITS = "relatedUnitsOfDescription"
-  val PUBLICATION_NOTE = "publicationNote"
-
-  val CONTROL_AREA = "controlArea"
-  val ARCHIVIST_NOTE = "archivistNote"
-  val RULES_CONVENTIONS = "rulesAndConventions"
-  val DATES_DESCRIPTIONS = "datesOfDescriptions"
-}
-
 
 object DocumentaryUnitF {
+
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
   final val SCOPE = "scope"
@@ -274,15 +229,8 @@ with Formable[DocumentaryUnitF] {
 
   override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
 
-  def formable: DocumentaryUnitF = new DocumentaryUnitF(
-    id = Some(e.id),
-    identifier = identifier,
-    name = name,
-    publicationStatus = publicationStatus,
-    copyrightStatus = copyrightStatus,
-    scope = scope,
-    descriptions = descriptions.map(_.formable)
-  )
+  import json.DocumentaryUnitFormat._
+  def formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF]
 }
 
 case class DocumentaryUnitDescription(val e: Entity)
@@ -296,41 +244,6 @@ case class DocumentaryUnitDescription(val e: Entity)
   import models.IsadG._
   import DocumentaryUnitDescriptionF._
 
-  def formable = new DocumentaryUnitDescriptionF(
-    id = Some(e.id),
-    languageCode = languageCode,
-    title = stringProperty(TITLE),
-    dates = dates.map(_.formable),
-    extentAndMedium = stringProperty(EXTENT_MEDIUM),
-    context = Context(
-      adminBiogHistory = stringProperty(ADMIN_BIOG),
-      archivalHistory = stringProperty(ARCH_HIST),
-      acquisition = stringProperty(ACQUISITION)
-    ),
-    content = Content(
-      scopeAndContent = stringProperty(SCOPE_CONTENT),
-      appraisal = stringProperty(APPRAISAL),
-      accruals = stringProperty(ACCRUALS),
-      systemOfArrangement = stringProperty(SYS_ARR)
-    ),
-    conditions = Conditions(
-      conditionsOfAccess = stringProperty(ACCESS_COND),
-      conditionsOfReproduction = stringProperty(REPROD_COND),
-      languageOfMaterials = listProperty(LANG_MATERIALS),
-      scriptOfMaterials = listProperty(SCRIPT_MATERIALS),
-      physicalCharacteristics = stringProperty(PHYSICAL_CHARS),
-      findingAids = stringProperty(FINDING_AIDS)
-    ),
-    materials = Materials(
-      locationOfOriginals = stringProperty(LOCATION_ORIGINALS),
-      locationOfCopies = stringProperty(LOCATION_COPIES),
-      relatedUnitsOfDescription = stringProperty(RELATED_UNITS),
-      publicationNote = stringProperty(PUBLICATION_NOTE)
-    ),
-    control = Control(
-      archivistNote = stringProperty(ARCHIVIST_NOTE),
-      rulesAndConventions = stringProperty(RULES_CONVENTIONS),
-      datesOfDescriptions = stringProperty(DATES_DESCRIPTIONS)
-    )
-  )
+  import json.IsadGFormat._
+  def formable = Json.toJson(e).as[DocumentaryUnitDescriptionF]
 }

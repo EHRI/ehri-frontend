@@ -14,72 +14,6 @@ import defines.EnumWriter.enumWrites
 
 
 
-/**
- * ISDIAH Field definitions
- */
-case object Isdiah {
-
-  val FIELD_PREFIX = "isdiah"
-
-  val IDENTIFIER = "identifier"
-  val LANG_CODE = "languageCode"
-
-  // Field set
-  val IDENTITY_AREA = "identityArea"
-  val AUTHORIZED_FORM_OF_NAME = "name"
-  val OTHER_FORMS_OF_NAME = "otherFormsOfName"
-  val PARALLEL_FORMS_OF_NAME = "parallelFormsOfName"
-  val INSTITUTION_TYPE = "institutionType"
-
-  // AddressF
-  val ADDRESS_AREA = "addressArea"
-  val ADDRESS_NAME = "addressName"
-  val CONTACT_PERSON = "contactPerson"
-  val STREET_ADDRESS = "streetAddress"
-  val CITY = "city"
-  val REGION = "region"
-  val COUNTRY_CODE = "countryCode"
-  val EMAIL = "email"
-  val TELEPHONE = "telephone"
-  val FAX = "fax"
-  val URL = "url"
-
-  val DESCRIPTION_AREA = "descriptionArea"
-  val HISTORY = "history"
-  val GENERAL_CONTEXT = "generalContext"
-  val MANDATES = "mandates"
-  val ADMINISTRATIVE_STRUCTURE = "administrativeStructure"
-  val RECORDS = "records"
-  val BUILDINGS = "buildings"
-  val HOLDINGS = "holdings"
-  val FINDING_AIDS = "findingAids"
-
-  // Access
-  val ACCESS_AREA = "accessArea"
-  val OPENING_TIMES = "openingTimes"
-  val CONDITIONS = "conditions"
-  val ACCESSIBILITY = "accessibility"
-
-  // Services
-  val SERVICES_AREA = "servicesArea"
-  val RESEARCH_SERVICES = "researchServices"
-  val REPROD_SERVICES = "reproductionServices"
-  val PUBLIC_AREAS = "publicAreas"
-
-  // Control
-  val CONTROL_AREA = "controlArea"
-  val DESCRIPTION_IDENTIFIER = "descriptionIdentifier"
-  val INSTITUTION_IDENTIFIER = "institutionIdentifier"
-  val RULES_CONVENTIONS = "rulesAndConventions"
-  val STATUS = "status"
-  val LEVEL_OF_DETAIL = "levelOfDetail"
-  val DATES_CVD = "datesCVD"
-  val LANGUAGES_USED = "languages"
-  val SCRIPTS_USED = "scripts"
-  val SOURCES = "sources"
-  val MAINTENANCE_NOTES = "maintenanceNotes"
-}
-
 
 object RepositoryF {
 
@@ -177,48 +111,8 @@ case class RepositoryDescriptionF(
 ) extends Persistable {
   val isA = EntityType.RepositoryDescription
 
-  def toJson: JsValue = {
-    import AddressF._
-    import Entity._
-    import Isdiah._
-
-    Json.obj(
-      ID -> id,
-      TYPE -> isA,
-      DATA -> Json.obj(
-        AUTHORIZED_FORM_OF_NAME -> name,
-        LANG_CODE -> languageCode,
-        OTHER_FORMS_OF_NAME -> otherFormsOfName,
-        PARALLEL_FORMS_OF_NAME -> parallelFormsOfName,
-        HISTORY -> details.history,
-        GENERAL_CONTEXT -> details.generalContext,
-        MANDATES -> details.mandates,
-        ADMINISTRATIVE_STRUCTURE -> details.administrativeStructure,
-        RECORDS -> details.records,
-        BUILDINGS -> details.buildings,
-        HOLDINGS -> details.holdings,
-        FINDING_AIDS -> details.findingAids,
-        OPENING_TIMES -> access.openingTimes,
-        CONDITIONS -> access.conditions,
-        ACCESSIBILITY -> access.accessibility,
-        RESEARCH_SERVICES -> services.researchServices,
-        REPROD_SERVICES -> services.reproductionServices,
-        PUBLIC_AREAS -> services.publicAreas,
-        DESCRIPTION_IDENTIFIER -> control.descriptionIdentifier,
-        INSTITUTION_IDENTIFIER -> control.institutionIdentifier,
-        RULES_CONVENTIONS -> control.rulesAndConventions,
-        STATUS -> control.status,
-        LEVEL_OF_DETAIL -> control.levelOfDetail,
-        DATES_CVD -> control.datesCDR,
-        LANGUAGES_USED -> control.languages,
-        SCRIPTS_USED -> control.scripts,
-        MAINTENANCE_NOTES -> control.maintenanceNotes
-      ),
-      RELATIONSHIPS -> Json.obj(
-        RepositoryF.ADDRESS_REL -> Json.toJson(addresses.map(_.toJson).toSeq)
-      )
-    )
-  }
+  import json.IsdiahFormat._
+  def toJson: JsValue = Json.toJson(this)
 }
 
 object AddressF {
@@ -237,30 +131,8 @@ case class AddressF(
   telephone: Option[String] = None,
   fax: Option[String] = None,
   url: Option[String] = None
-) extends Persistable {
+) {
   val isA = EntityType.Address
-
-  def toJson: JsValue = {
-    import Entity._
-    import Isdiah._
-
-    Json.obj(
-      ID -> id,
-      TYPE -> isA,
-      DATA -> Json.obj(
-        ADDRESS_NAME -> name,
-        CONTACT_PERSON -> contactPerson,
-        STREET_ADDRESS -> streetAddress,
-        CITY -> city,
-        REGION -> region,
-        COUNTRY_CODE -> countryCode,
-        EMAIL -> email,
-        TELEPHONE -> telephone,
-        FAX -> fax,
-        URL -> url
-      )
-    )
-  }
 }
 
 
@@ -355,14 +227,8 @@ case class Repository(val e: Entity)
   val publicationStatus = e.property(RepositoryF.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
   val priority = e.property(RepositoryF.PRIORITY).flatMap(_.asOpt[Int])
 
-  def formable: RepositoryF = new RepositoryF(
-    id = Some(e.id),
-    identifier = identifier,
-    name = name,
-    publicationStatus = publicationStatus,
-    descriptions = descriptions.map(_.formable),
-    priority = priority
-  )
+  import json.RepositoryFormat._
+  def formable: RepositoryF = Json.toJson(e).as[RepositoryF]
 }
 
 case class RepositoryDescription(val e: Entity) extends Description with Formable[RepositoryDescriptionF] {
@@ -373,64 +239,12 @@ case class RepositoryDescription(val e: Entity) extends Description with Formabl
   lazy val item: Option[Repository] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Repository(_))
   def addresses: List[Address] = e.relations(RepositoryF.ADDRESS_REL).map(Address(_))
 
-  def formable: RepositoryDescriptionF = new RepositoryDescriptionF(
-    id = Some(e.id),
-    languageCode = languageCode,
-    name = e.stringProperty(AUTHORIZED_FORM_OF_NAME),
-    otherFormsOfName = e.listProperty(OTHER_FORMS_OF_NAME),
-    parallelFormsOfName = e.listProperty(PARALLEL_FORMS_OF_NAME),
-    addresses = addresses.map(_.formable),
-    details = Details(
-      history = e.stringProperty(HISTORY),
-      generalContext = e.stringProperty(GENERAL_CONTEXT),
-      mandates = e.stringProperty(MANDATES),
-      administrativeStructure = e.stringProperty(ADMINISTRATIVE_STRUCTURE),
-      records = e.stringProperty(RECORDS),
-      buildings = e.stringProperty(BUILDINGS),
-      holdings = e.stringProperty(HOLDINGS),
-      findingAids = e.stringProperty(FINDING_AIDS)
-    ),
-    access = Access(
-      openingTimes = e.stringProperty(OPENING_TIMES),
-      conditions = e.stringProperty(CONDITIONS),
-      accessibility = e.stringProperty(ACCESSIBILITY)
-    ),
-    services = Services(
-      researchServices = e.stringProperty(RESEARCH_SERVICES),
-      reproductionServices = e.stringProperty(REPROD_SERVICES),
-      publicAreas = e.stringProperty(PUBLIC_AREAS)
-    ),
-    control = Control(
-      descriptionIdentifier = e.stringProperty(DESCRIPTION_IDENTIFIER),
-      institutionIdentifier = e.stringProperty(INSTITUTION_IDENTIFIER),
-      rulesAndConventions = e.stringProperty(RULES_CONVENTIONS),
-      status = e.stringProperty(STATUS),
-      levelOfDetail = e.stringProperty(LEVEL_OF_DETAIL),
-      datesCDR = e.stringProperty(DATES_CVD),
-      languages = e.listProperty(LANGUAGES_USED),
-      scripts = e.listProperty(SCRIPTS_USED),
-      sources = e.stringProperty(SOURCES),
-      maintenanceNotes = e.stringProperty(MAINTENANCE_NOTES)
-    )
-  )
+  import json.IsdiahFormat._
+  def formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF]
 }
 
 case class Address(val e: Entity) extends AccessibleEntity with Formable[AddressF] {
-
-  import Isdiah._
-
-  def formable: AddressF = new AddressF(
-    id = Some(e.id),
-    name = e.stringProperty(ADDRESS_NAME).getOrElse("Unnamed Address"),
-    contactPerson = e.stringProperty(CONTACT_PERSON),
-    streetAddress = e.stringProperty(STREET_ADDRESS),
-    city = e.stringProperty(CITY),
-    region = e.stringProperty(REGION),
-    countryCode = e.stringProperty(COUNTRY_CODE),
-    email = e.stringProperty(EMAIL),
-    telephone = e.stringProperty(TELEPHONE),
-    fax = e.stringProperty(FAX),
-    url = e.stringProperty(URL)
-  )
+  import json.AddressFormat._
+  def formable: AddressF = Json.toJson(e).as[AddressF]
 }
 

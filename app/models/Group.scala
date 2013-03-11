@@ -45,11 +45,7 @@ object GroupForm {
 
 case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[GroupF] {
 
-  def formable: GroupF = new GroupF(
-    id = Some(e.id),
-    identifier = identifier,
-    name = e.stringProperty(GroupF.NAME).getOrElse(UserProfileF.PLACEHOLDER_TITLE),
-    description = e.stringProperty(GroupF.DESCRIPTION)
-  )
+  import json.GroupFormat._
+  def formable: GroupF = Json.toJson(e).as[GroupF]
 }
 

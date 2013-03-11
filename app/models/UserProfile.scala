@@ -80,13 +80,6 @@ case class UserProfile(
     }.getOrElse(false)
   }
 
-  import UserProfileF._
-  def formable: UserProfileF = new UserProfileF(
-    id = Some(e.id),
-    identifier = identifier,
-    name = e.property(NAME).flatMap(_.asOpt[String]).getOrElse(UserProfileF.PLACEHOLDER_TITLE),
-    location = e.property(LOCATION).flatMap(_.asOpt[String]),
-    about = e.property(ABOUT).flatMap(_.asOpt[String]),
-    languages = e.property(LANGUAGES).flatMap(_.asOpt[List[String]])
-  )
+  import json.UserProfileFormat._
+  def formable: UserProfileF = Json.toJson(e).as[UserProfileF]
 }

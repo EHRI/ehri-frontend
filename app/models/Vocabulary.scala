@@ -53,11 +53,6 @@ case class Vocabulary(e: Entity)
   with AnnotatableEntity
   with Formable[VocabularyF] {
 
-  import VocabularyF._
-  def formable: VocabularyF = new VocabularyF(
-      Some(e.id),
-      identifier,
-      e.stringProperty(NAME),
-      e.stringProperty(DESCRIPTION)
-  )
+  import json.VocabularyFormat._
+  def formable: VocabularyF = Json.toJson(e).as[VocabularyF]
 }

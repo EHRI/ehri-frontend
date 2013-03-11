@@ -54,11 +54,7 @@ object DatePeriodForm {
 }
 
 case class DatePeriod(val e: Entity) extends Formable[DatePeriodF] {
-  def formable: DatePeriodF = new DatePeriodF(
-    id = Some(e.id),
-    `type` = e.property(DatePeriodF.TYPE).flatMap(defines.enum(DatePeriodType).reads(_).asOpt),
-    startDate = e.stringProperty(DatePeriodF.START_DATE).map(new DateTime(_)).getOrElse(sys.error("Invalid date period: " + e)),
-    endDate = e.stringProperty(DatePeriodF.END_DATE).map(new DateTime(_)).getOrElse(sys.error("Invalid date period: " + e))
-  )
+  import json.DatePeriodFormat._
+  def formable: DatePeriodF = Json.toJson(e).as[DatePeriodF]
 }
 
