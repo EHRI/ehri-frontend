@@ -21,7 +21,7 @@ object VocabularyF {
 
 case class VocabularyF(
   val id: Option[String],
-  val identifer: String,
+  val identifier: String,
   val name: Option[String],
   val description: Option[String]
 ) extends Persistable {
@@ -34,7 +34,7 @@ case class VocabularyF(
       Entity.ID -> id,
       Entity.TYPE -> isA,
       Entity.DATA -> Json.obj(
-        Entity.IDENTIFIER -> identifer,
+        Entity.IDENTIFIER -> identifier,
         NAME -> name,
         DESCRIPTION -> description
       ),

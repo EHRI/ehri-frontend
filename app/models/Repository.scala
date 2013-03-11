@@ -22,9 +22,6 @@ case object Isdiah {
   val FIELD_PREFIX = "isdiah"
 
   val IDENTIFIER = "identifier"
-  val NAME = "name"
-  val PUBLICATION_STATUS = "publicationStatus"
-
   val LANG_CODE = "languageCode"
 
   // Field set
@@ -89,6 +86,8 @@ object RepositoryF {
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
 
+  val NAME = "name"
+  val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
 
 }
@@ -223,7 +222,7 @@ case class RepositoryDescriptionF(
 }
 
 object AddressF {
-
+  val UNNAMED_ADDRESS = "Unnamed Address"
 }
 
 case class AddressF(
@@ -329,15 +328,16 @@ object RepositoryDescriptionForm {
 }
 
 object RepositoryForm {
+  import RepositoryF._
 
   val form = Form(
     mapping(
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText,
-      Isdiah.NAME -> nonEmptyText,
-      Isdiah.PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
+      NAME -> nonEmptyText,
+      PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
       DescribedEntity.DESCRIPTIONS -> list(RepositoryDescriptionForm.form.mapping),
-      RepositoryF.PRIORITY -> optional(number(min = -1, max = 5))
+      PRIORITY -> optional(number(min = -1, max = 5))
     )(RepositoryF.apply)(RepositoryF.unapply)
   )
 }
@@ -352,7 +352,7 @@ case class Repository(val e: Entity)
   override def descriptions: List[RepositoryDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(RepositoryDescription(_))
 
   // Shortcuts...
-  val publicationStatus = e.property(Isdiah.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
+  val publicationStatus = e.property(RepositoryF.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
   val priority = e.property(RepositoryF.PRIORITY).flatMap(_.asOpt[Int])
 
   def formable: RepositoryF = new RepositoryF(

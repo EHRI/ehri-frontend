@@ -29,7 +29,6 @@ case object IsadG {
   val FIELD_PREFIX = "isadg"
 
   /* ISAD(G)-based field set */
-  val NAME = "name"
   val TITLE = "title"
   val DATES = "dates"
   val EXTENT_MEDIUM = "extentAndMedium"
@@ -73,7 +72,8 @@ case object IsadG {
 
 
 object DocumentaryUnitF {
-
+  val NAME = "name"
+  val PUBLICATION_STATUS = "publicationStatus"
   final val SCOPE = "scope"
   final val COPYRIGHT = "copyright"
 

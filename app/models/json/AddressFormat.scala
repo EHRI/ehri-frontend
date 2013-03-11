@@ -7,6 +7,7 @@ import play.api.libs.functional.syntax._
 
 
 object AddressFormat {
+  import AddressF._
   import Entity._
   import Isdiah._
 
@@ -34,7 +35,7 @@ object AddressFormat {
 
   implicit val addressReads: Reads[AddressF] = (
     (__ \ ID).readNullable[String] and
-    (__ \ DATA \ ADDRESS_NAME).read[String] and
+    ((__ \ DATA \ ADDRESS_NAME).read[String] orElse Reads.pure(UNNAMED_ADDRESS)) and
     (__ \ DATA \ CONTACT_PERSON).readNullable[String] and
     (__ \ DATA \ STREET_ADDRESS).readNullable[String] and
     (__ \ DATA \ CITY).readNullable[String] and

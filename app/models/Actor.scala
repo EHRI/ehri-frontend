@@ -71,6 +71,9 @@ object ActorF {
   final val ADDRESS_REL = "hasAddress"
 
   final val UNNAMED_PLACEHOLDER = "UNNAMED Authority"
+
+  val NAME = "name"
+  val PUBLICATION_STATUS = "publicationStatus"
 }
 
 case class ActorF(
@@ -225,12 +228,14 @@ object ActorDescriptionForm {
 
 object ActorForm {
 
+  import ActorF._
+
   val form = Form(
     mapping(
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText,
-      Isdiah.NAME -> nonEmptyText,
-      Isdiah.PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
+      NAME -> nonEmptyText,
+      PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
       DescribedEntity.DESCRIPTIONS -> list(ActorDescriptionForm.form.mapping)
     )(ActorF.apply)(ActorF.unapply)
   )
@@ -245,7 +250,7 @@ case class Actor(val e: Entity)
   with Formable[ActorF] {
   override def descriptions: List[ActorDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ActorDescription(_))
 
-  val publicationStatus = e.property(Isdiah.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
+  val publicationStatus = e.property(ActorF.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
 
   def formable: ActorF = new ActorF(
     id = Some(e.id),

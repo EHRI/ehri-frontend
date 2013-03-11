@@ -81,7 +81,7 @@
 }
 
 @descriptionFormSection("forms.adminArea") {
-    @enumChoiceInput(f(Isdiah.PUBLICATION_STATUS), defines.PublicationStatus, Isdiah.PUBLICATION_STATUS)
+    @enumChoiceInput(f(PUBLICATION_STATUS), defines.PublicationStatus, PUBLICATION_STATUS)
     @choiceInput(f(PRIORITY), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
 }
 

@@ -27,7 +27,7 @@ object ConceptF {
 
 case class ConceptF(
   val id: Option[String],
-  val identifer: String,
+  val identifier: String,
   @Annotations.Relation(DescribedEntity.DESCRIBES_REL) val descriptions: List[ConceptDescriptionF] = Nil
 ) extends Persistable {
   val isA = EntityType.Concept
@@ -39,7 +39,7 @@ case class ConceptF(
       Entity.ID -> id,
       Entity.TYPE -> isA,
       Entity.DATA -> Json.obj(
-        Entity.IDENTIFIER -> identifer
+        Entity.IDENTIFIER -> identifier
       ),
       Entity.RELATIONSHIPS -> Json.obj(
         DescribedEntity.DESCRIBES_REL -> Json.toJson(descriptions.map(_.toJson).toSeq)
