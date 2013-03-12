@@ -39,8 +39,8 @@ object ActorFormat {
       (__ \ DATA \ IDENTIFIER).read[String] and
       ((__ \ DATA \ NAME).read[String] orElse Reads.pure(UNNAMED_PLACEHOLDER)) and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[ActorDescriptionF]](
-        Reads.list[ActorDescriptionF])
+      ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[ActorDescriptionF]](
+        Reads.list[ActorDescriptionF]) orElse Reads.pure(Nil))
     )(ActorF.apply _)
 
   implicit val actorFormat: Format[ActorF] = Format(actorReads,actorWrites)

@@ -59,8 +59,8 @@ object IsadGFormat {
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).readNullable[String] and
-      (__ \ RELATIONSHIPS \ TemporalEntity.DATE_REL).lazyRead[List[DatePeriodF]](
-        Reads.list[DatePeriodF]) and
+      ((__ \ RELATIONSHIPS \ TemporalEntity.DATE_REL).lazyRead[List[DatePeriodF]](
+        Reads.list[DatePeriodF]) orElse Reads.pure(Nil)) and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[LevelOfDescription.Value] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String] and
       (__ \ DATA).read[Context]((

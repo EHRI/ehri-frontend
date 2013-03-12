@@ -46,8 +46,8 @@ object DocumentaryUnitFormat {
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
       ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
       (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-      (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[DocumentaryUnitDescriptionF]](
-        Reads.list[DocumentaryUnitDescriptionF])
+      ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[DocumentaryUnitDescriptionF]](
+        Reads.list[DocumentaryUnitDescriptionF]) orElse Reads.pure(Nil))
     )(DocumentaryUnitF.apply _)
 
   implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)

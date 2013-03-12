@@ -40,8 +40,8 @@ object RepositoryFormat {
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[RepositoryDescriptionF]](
-        Reads.list[RepositoryDescriptionF]) and
+      ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[RepositoryDescriptionF]](
+        Reads.list[RepositoryDescriptionF]) orElse Reads.pure(Nil)) and
       (__ \ DATA \ PRIORITY).readNullable[Int]
     )(RepositoryF.apply _)
 
