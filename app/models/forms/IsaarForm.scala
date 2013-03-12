@@ -2,7 +2,7 @@ package models.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{Isaar, ActorDescriptionF, ActorType, Entity}
+import models.{Isaar, ActorDescriptionF, Entity}
 import models.ActorDescriptionF.{Control, Details}
 
 /**

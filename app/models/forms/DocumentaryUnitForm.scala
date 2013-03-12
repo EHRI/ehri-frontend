@@ -2,7 +2,7 @@ package models.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{Scope, CopyrightStatus, Entity, DocumentaryUnitF}
+import models.{Entity, DocumentaryUnitF}
 import models.base.DescribedEntity
 
 /**

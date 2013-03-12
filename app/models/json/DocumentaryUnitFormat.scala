@@ -7,7 +7,7 @@ import play.api.libs.json.util._
 
 import defines.PublicationStatus
 import models.base.DescribedEntity
-import models.{Scope, CopyrightStatus, DocumentaryUnitDescriptionF, DocumentaryUnitF}
+import models.{DocumentaryUnitDescriptionF, DocumentaryUnitF}
 
 
 object DocumentaryUnitFormat {

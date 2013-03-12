@@ -5,6 +5,13 @@ package models
  */
 case object Isaar {
 
+  object ActorType extends Enumeration {
+    type Type = Value
+    val Person = Value("person")
+    val Family = Value("family")
+    val CorporateBody = Value("corporateBody")
+  }
+
   val FIELD_PREFIX = "isaar"
 
   val IDENTIFIER = "identifier"

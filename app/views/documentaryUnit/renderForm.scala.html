@@ -17,6 +17,6 @@
 
 @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
     @formHelpers.enumChoiceInput(f(PUB_STATUS), defines.PublicationStatus, Messages(PUB_STATUS))
-    @formHelpers.enumChoiceInput(f(COPYRIGHT), models.CopyrightStatus, Messages(COPYRIGHT))("copyrightStatus")
-    @formHelpers.enumChoiceInput(f(SCOPE), models.Scope, Messages(SCOPE))("scope")
+    @formHelpers.enumChoiceInput(f(COPYRIGHT), CopyrightStatus, Messages(COPYRIGHT))("copyrightStatus")
+    @formHelpers.enumChoiceInput(f(SCOPE), Scope, Messages(SCOPE))("scope")
 }

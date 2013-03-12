@@ -8,20 +8,48 @@ import play.api.libs.json.{Json, JsString, JsValue}
 import defines.EnumWriter.enumWrites
 import defines.enum
 
-object CopyrightStatus extends Enumeration {
-  val Yes = Value("yes")
-  val No = Value("no")
-  val Unknown = Value("unknown")
-}
 
-object Scope extends Enumeration {
-  val High = Value("high")
-  val Medium = Value("medium")
-  val Low = Value("low")
+
+case class DocumentaryUnit(val e: Entity) extends NamedEntity
+  with AccessibleEntity
+  with AnnotatableEntity
+  with HierarchicalEntity[DocumentaryUnit]
+  with DescribedEntity
+  with Formable[DocumentaryUnitF] {
+
+  import DocumentaryUnitF._
+  import DescribedEntity._
+
+  val hierarchyRelationName = CHILD_REL
+
+  val holder: Option[Repository] = e.relations(HELD_REL).headOption.map(Repository(_))
+  val parent: Option[DocumentaryUnit] = e.relations(CHILD_REL).headOption.map(DocumentaryUnit(_))
+  val publicationStatus = e.property(IsadG.PUB_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
+  // NB: There is a default value of copyright status, so use 'unknown'.
+  val copyrightStatus = e.property(COPYRIGHT).flatMap(enum(CopyrightStatus).reads(_).asOpt)
+    .orElse(Some(CopyrightStatus.Unknown))
+  val scope = e.property(SCOPE).flatMap(enum(Scope).reads(_).asOpt)
+
+  override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
+
+  import json.DocumentaryUnitFormat._
+  lazy val formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF]
 }
 
 
 object DocumentaryUnitF {
+
+  object CopyrightStatus extends Enumeration {
+    val Yes = Value("yes")
+    val No = Value("no")
+    val Unknown = Value("unknown")
+  }
+
+  object Scope extends Enumeration {
+    val High = Value("high")
+    val Medium = Value("medium")
+    val Low = Value("low")
+  }
 
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
@@ -40,8 +68,8 @@ case class DocumentaryUnitF(
   val identifier: String,
   val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
-  val copyrightStatus: Option[CopyrightStatus.Value] = Some(CopyrightStatus.Unknown),
-  val scope: Option[Scope.Value] = Some(Scope.Low),
+  val copyrightStatus: Option[DocumentaryUnitF.CopyrightStatus.Value] = Some(DocumentaryUnitF.CopyrightStatus.Unknown),
+  val scope: Option[DocumentaryUnitF.Scope.Value] = Some(DocumentaryUnitF.Scope.Low),
 
   @Annotations.Relation(DocumentaryUnitF.DESC_REL)
   val descriptions: List[DocumentaryUnitDescriptionF] = Nil
@@ -77,107 +105,4 @@ case class DocumentaryUnitF(
 
   import json.DocumentaryUnitFormat._
   def toJson: JsValue = Json.toJson(this)
-}
-
-case class DocumentaryUnitDescriptionF(
-  val id: Option[String],
-  val languageCode: String,
-  val title: Option[String] = None,
-  @Annotations.Relation(TemporalEntity.DATE_REL)
-  val dates: List[DatePeriodF] = Nil,
-  val extentAndMedium: Option[String] = None,
-  val context: DocumentaryUnitDescriptionF.Context,
-  val content: DocumentaryUnitDescriptionF.Content,
-  val conditions: DocumentaryUnitDescriptionF.Conditions,
-  val materials: DocumentaryUnitDescriptionF.Materials,
-  val control: DocumentaryUnitDescriptionF.Control
-) extends Persistable {
-  val isA = EntityType.DocumentaryUnitDescription
-
-  import json.IsadGFormat._
-  def toJson: JsValue = Json.toJson(this)
-}
-
-object DocumentaryUnitDescriptionF {
-
-  case class Context(
-    val adminBiogHistory: Option[String] = None,
-    val archivalHistory: Option[String] = None,
-    val acquisition: Option[String] = None
-  ) extends AttributeSet
-
-  case class Content(
-    val scopeAndContent: Option[String] = None,
-    val appraisal: Option[String] = None,
-    val accruals: Option[String] = None,
-    val systemOfArrangement: Option[String] = None
-  ) extends AttributeSet
-
-  case class Conditions(
-    val conditionsOfAccess: Option[String] = None,
-    val conditionsOfReproduction: Option[String] = None,
-    val languageOfMaterials: Option[List[String]] = None,
-    val scriptOfMaterials: Option[List[String]] = None,
-    val physicalCharacteristics: Option[String] = None,
-    val findingAids: Option[String] = None
-  ) extends AttributeSet
-
-  case class Materials(
-    val locationOfOriginals: Option[String] = None,
-    val locationOfCopies: Option[String] = None,
-    val relatedUnitsOfDescription: Option[String] = None,
-    val publicationNote: Option[String] = None
-  ) extends AttributeSet
-
-  case class Control(
-    val archivistNote: Option[String] = None,
-    val rulesAndConventions: Option[String] = None,
-    val datesOfDescriptions: Option[String] = None
-  )
-}
-
-
-
-
-
-
-case class DocumentaryUnit(val e: Entity) extends NamedEntity
-with AccessibleEntity
-with AnnotatableEntity
-with HierarchicalEntity[DocumentaryUnit]
-with DescribedEntity
-with Formable[DocumentaryUnitF] {
-
-  import DocumentaryUnitF._
-  import DescribedEntity._
-
-  val hierarchyRelationName = CHILD_REL
-
-  val holder: Option[Repository] = e.relations(HELD_REL).headOption.map(Repository(_))
-  val parent: Option[DocumentaryUnit] = e.relations(CHILD_REL).headOption.map(DocumentaryUnit(_))
-  val publicationStatus = e.property(IsadG.PUB_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
-  // NB: There is a default value of copyright status, so use 'unknown'.
-  val copyrightStatus = e.property(COPYRIGHT).flatMap(enum(CopyrightStatus).reads(_).asOpt)
-        .orElse(Some(CopyrightStatus.Unknown))
-  val scope = e.property(SCOPE).flatMap(enum(Scope).reads(_).asOpt)
-
-  override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
-
-  import json.DocumentaryUnitFormat._
-  lazy val formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF]
-}
-
-case class DocumentaryUnitDescription(val e: Entity)
-  extends Description
-  with TemporalEntity
-  with Formable[DocumentaryUnitDescriptionF] {
-
-  // This should have one logical object
-  val item: Option[DocumentaryUnit] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(DocumentaryUnit(_))
-
-  import models.IsadG._
-  import DocumentaryUnitDescriptionF._
-
-  import json.IsadGFormat._
-  lazy val formable = Json.toJson(e).as[DocumentaryUnitDescriptionF]
 }
