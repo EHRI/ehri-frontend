@@ -18,6 +18,7 @@ import play.api.test.Helpers._
 import defines._
 import rest.{RestError, EntityDAO}
 import play.api.GlobalSettings
+import play.api.i18n.Messages
 
 
 class EntityViewsSpec extends Specification with BeforeExample with TestLoginHelper {
@@ -154,6 +155,8 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].title" -> Seq("Hello Kitty"),
           "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
+          "descriptions[0].dates[0].startDate" -> Seq("1939-01-01"),
+          "descriptions[0].dates[0].endDate" -> Seq("1945-01-01"),
           "publicationStatus" -> Seq("Published")
         )
         val cr = route(fakeLoggedInRequest(POST,
@@ -191,6 +194,27 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         // NB: This error string comes from the server, so might
         // not match if changed there - single quotes surround the value
         contentAsString(cr2) must contain("exists and must be unique")
+      }
+    }
+
+    "give a form error when saving an invalid date" in {
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val testData: Map[String, Seq[String]] = Map(
+          "identifier" -> Seq("c1"),
+          "name" -> Seq("Bad Date Item"),
+          "descriptions[0].dates[0].startDate" -> Seq("1945-01-01"),
+          "descriptions[0].dates[0].endDate" -> Seq("1945-13-32") // THIS SHOULD FAIL!
+        )
+        // Since the item id is derived from the identifier field,
+        // a form error should result from using the same identifier
+        // twice within the given scope (in this case, r1)
+        val call = fakeLoggedInRequest(POST,
+          routes.Repositories.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*)
+        val cr = route(call, testData).get
+        status(cr) must equalTo(BAD_REQUEST)
+        // NB: This error string comes from the server, so might
+        // not match if changed there - single quotes surround the value
+        contentAsString(cr) must contain(Messages("error.date"))
       }
     }
 

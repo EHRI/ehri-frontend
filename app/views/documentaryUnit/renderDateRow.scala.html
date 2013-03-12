@@ -29,6 +29,21 @@
                     <a class="close remove-inline-element pull-right" tabindex="-1" href="#">&times;</a>
                 </td>
             </tr>
+            <tr>
+                <td></td>
+                @List(START_DATE, END_DATE).map { fname =>
+                    @defining(desc(fname)) { field =>
+                        <td class="control-group error">
+                            @if(field.hasErrors) {
+                                <small>
+                                    <span class="help-inline errors">@field.errors.map(e => Messages(e.message, e.key)).mkString("; ")</span>
+                                </small>
+                            }
+                        </td>
+                    }
+                }
+                <td></td>
+            </tr>
         </table>
     </div>
 </div>
