@@ -21,10 +21,17 @@ object DatePeriodFormat {
     )(DatePeriodF.apply _)
 
   import defines.EnumWriter.enumWrites
-  implicit val datePeriodWrites: Writes[DatePeriodF] = (
-    (__ \ ID).writeNullable[String] and
-      (__ \ DATA \ TYPE).writeNullable[DatePeriodType.Value] and
-      (__ \ DATA \ START_DATE).write[DateTime] and
-      (__ \ DATA \ END_DATE).write[DateTime]
-    )(unlift(DatePeriodF.unapply))
+  implicit val datePeriodWrites = new Writes[DatePeriodF] {
+    def writes(d: DatePeriodF): JsValue = {
+      Json.obj(
+        ID -> d.id,
+        TYPE -> d.isA,
+        DATA -> Json.obj(
+          TYPE -> d.`type` ,
+          START_DATE -> d.startDate,
+          END_DATE -> d.endDate
+        )
+      )
+    }
+  }
 }
