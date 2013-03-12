@@ -2,11 +2,23 @@ package models
 
 case object IsadG {
 
+  object LevelOfDescription extends Enumeration {
+    type Type = Value
+    val Collection = Value("collection")
+    val Fonds = Value("fonds")
+    val Subfonds = Value("subfonds")
+    val Series = Value("series")
+    val Subseries = Value("subseries")
+    val File = Value("file")
+    val Item = Value("item")
+  }
+
   val FIELD_PREFIX = "isadg"
 
   /* ISAD(G)-based field set */
   val TITLE = "title"
   val DATES = "dates"
+  val LEVEL_OF_DESCRIPTION = "levelOfDescription"
   val EXTENT_MEDIUM = "extentAndMedium"
   val PUB_STATUS = "publicationStatus"
   val LANG_CODE = "languageCode"

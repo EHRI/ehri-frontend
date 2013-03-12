@@ -4,22 +4,24 @@ import play.api.libs.json._
 import models._
 import models.base.TemporalEntity
 import play.api.libs.functional.syntax._
+import defines.EnumReader._
 
 
 object IsadGFormat {
+  import defines.EnumWriter.enumWrites
   import Entity._
   import IsadG._
   import DatePeriodFormat._
 
   implicit val isadGWrites = new Writes[DocumentaryUnitDescriptionF] {
     def writes(d: DocumentaryUnitDescriptionF): JsValue = {
-      import defines.EnumWriter.enumWrites
       Json.obj(
         ID -> d.id,
         TYPE -> d.isA,
         DATA -> Json.obj(
           TITLE -> d.title,
           LANG_CODE -> d.languageCode,
+          LEVEL_OF_DESCRIPTION -> d.levelOfDescription,
           EXTENT_MEDIUM -> d.extentAndMedium,
           ADMIN_BIOG -> d.context.adminBiogHistory,
           ARCH_HIST -> d.context.archivalHistory,
@@ -50,12 +52,16 @@ object IsadGFormat {
   }
 
   import DocumentaryUnitDescriptionF._
+
+  implicit val levelOfDescriptionReads = enumReads(LevelOfDescription)
+
   implicit val isadGReads: Reads[DocumentaryUnitDescriptionF] = (
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).readNullable[String] and
       (__ \ RELATIONSHIPS \ TemporalEntity.DATE_REL).lazyRead[List[DatePeriodF]](
         Reads.list[DatePeriodF]) and
+      (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[LevelOfDescription.Value] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String] and
       (__ \ DATA).read[Context]((
         (__ \ ADMIN_BIOG).readNullable[String] and
