@@ -30,12 +30,14 @@ case object Isdiah {
 
   // AddressF
   val ADDRESS_AREA = "addressArea"
-  val ADDRESS_NAME = "addressName"
+  val ADDRESS_NAME = "name"
   val CONTACT_PERSON = "contactPerson"
-  val STREET_ADDRESS = "streetAddress"
-  val CITY = "city"
-  val REGION = "region"
+  val STREET_ADDRESS = "street"
+  val CITY = "municipality"
+  val REGION = "firstdem"
+  val COUNTRY = "geogarea"
   val COUNTRY_CODE = "countryCode"
+  val POSTAL_CODE = "postalcode"
   val EMAIL = "email"
   val TELEPHONE = "telephone"
   val FAX = "fax"

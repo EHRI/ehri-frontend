@@ -24,6 +24,7 @@ object AddressFormat {
           STREET_ADDRESS -> d.streetAddress,
           CITY -> d.city,
           REGION -> d.region,
+          POSTAL_CODE -> d.postalCode,
           COUNTRY_CODE -> d.countryCode,
           EMAIL -> d.email,
           TELEPHONE -> d.telephone,
@@ -42,9 +43,10 @@ object AddressFormat {
     (__ \ DATA \ STREET_ADDRESS).readNullable[String] and
     (__ \ DATA \ CITY).readNullable[String] and
     (__ \ DATA \ REGION).readNullable[String] and
+    (__ \ DATA \ POSTAL_CODE).readNullable[String] and
     (__ \ DATA \ COUNTRY_CODE).readNullable[String] and
     (__ \ DATA \ EMAIL).readNullable[String] and
-    (__ \ DATA \ TELEPHONE).readNullable[String] and
+    ((__ \ DATA \ TELEPHONE).readNullable[List[String]] orElse Reads.pure(None)) and
     (__ \ DATA \ FAX).readNullable[String] and
     (__ \ DATA \ URL).readNullable[String]
   )(AddressF.apply _)

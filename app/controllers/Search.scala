@@ -137,7 +137,9 @@ object Search extends EntitySearch {
     val channel = Concurrent.unicast[String] { chan =>
       var all: List[Future[List[SolrResponse]]] = entities.map { entity =>
         EntityDAO(entity, userOpt).page(RestPageParams(limit = Some(batchSize))).flatMap { firstPageOrErr =>
-          if (firstPageOrErr.isLeft) sys.error(s"Unable to fetch first page of data for $entity: " + firstPageOrErr.left.get)
+          if (firstPageOrErr.isLeft) {
+            sys.error(s"Unable to fetch first page of data for $entity: " + firstPageOrErr.left.get)
+          }
           val firstPage = firstPageOrErr.right.get
 
           // Clear all Entities from the index...
@@ -152,8 +154,7 @@ object Search extends EntitySearch {
                 var page1: Future[List[SolrResponse]] = updatePage(entity, firstPage, chan)
 
                 // Run the rest in sequence
-                var rest: List[Future[List[SolrResponse]]] = 2.to(firstPage.numPages.toInt).map {
-                  p =>
+                var rest: List[Future[List[SolrResponse]]] = 2.to(firstPage.numPages.toInt).map { p =>
                     updateItemSet(entity, p.toInt, chan)
                 }.toList
 

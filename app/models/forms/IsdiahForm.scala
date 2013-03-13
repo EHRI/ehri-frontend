@@ -24,15 +24,16 @@ object IsdiahForm {
         mapping(
           Entity.ID -> optional(nonEmptyText),
           ADDRESS_NAME -> nonEmptyText,
-          CONTACT_PERSON -> optional(text),
-          STREET_ADDRESS -> optional(text),
-          CITY -> optional(text),
-          REGION -> optional(text),
-          COUNTRY_CODE -> optional(text),
+          CONTACT_PERSON -> optional(nonEmptyText),
+          STREET_ADDRESS -> optional(nonEmptyText),
+          CITY -> optional(nonEmptyText),
+          REGION -> optional(nonEmptyText),
+          POSTAL_CODE -> optional(nonEmptyText),
+          COUNTRY_CODE -> optional(nonEmptyText),
           EMAIL -> optional(email),
-          TELEPHONE -> optional(text),
-          FAX -> optional(text),
-          URL -> optional(text)
+          TELEPHONE -> optional(list(nonEmptyText)),
+          FAX -> optional(nonEmptyText),
+          URL -> optional(nonEmptyText)
         )(AddressF.apply)(AddressF.unapply)
       ),
       DESCRIPTION_AREA -> mapping(
