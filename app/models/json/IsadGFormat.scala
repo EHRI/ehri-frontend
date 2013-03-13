@@ -5,6 +5,7 @@ import models._
 import models.base.TemporalEntity
 import play.api.libs.functional.syntax._
 import defines.EnumReader._
+import defines.EntityType
 
 
 object IsadGFormat {
@@ -56,6 +57,7 @@ object IsadGFormat {
   implicit val levelOfDescriptionReads = enumReads(LevelOfDescription)
 
   implicit val isadGReads: Reads[DocumentaryUnitDescriptionF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnitDescription)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).readNullable[String] and

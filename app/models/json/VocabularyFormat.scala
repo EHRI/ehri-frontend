@@ -4,6 +4,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 import models._
+import defines.EntityType
 
 
 object VocabularyFormat {
@@ -26,6 +27,7 @@ object VocabularyFormat {
   }
 
   implicit val vocabularyReads: Reads[VocabularyF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Vocabulary)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).readNullable[String] and

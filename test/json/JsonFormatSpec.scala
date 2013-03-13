@@ -21,6 +21,10 @@ class JsonFormatSpec extends Specification {
     // Writing the doc and reading it again should produce exactly
     // the same object
     doc mustEqual Json.toJson(doc).as[DocumentaryUnitF]
+
+    // And error when parsing the wrong type
+    val badParse = Json.parse(json.repoTestJson).validate[DocumentaryUnitF]
+    badParse.asEither must beLeft
   }
 
   "Actor Format should read and write with no changes" in {
@@ -29,6 +33,8 @@ class JsonFormatSpec extends Specification {
     validation.asEither must beRight
     val actor = validation.get
     actor mustEqual Json.toJson(actor).as[ActorF]
+    val badParse = Json.parse(json.repoTestJson).validate[ActorF]
+    badParse.asEither must beLeft
   }
 
   "Repository Format should read and write with no changes" in {
@@ -37,6 +43,8 @@ class JsonFormatSpec extends Specification {
     validation.asEither must beRight
     val repo = validation.get
     repo mustEqual Json.toJson(repo).as[RepositoryF]
+    val badParse = Json.parse(json.documentaryUnitTestJson).validate[RepositoryF]
+    badParse.asEither must beLeft
   }
 
   "Concept Format should read and write with no changes" in {
@@ -45,6 +53,8 @@ class JsonFormatSpec extends Specification {
     validation.asEither must beRight
     val concept = validation.get
     concept mustEqual Json.toJson(concept).as[ConceptF]
+    val badParse = Json.parse(json.repoTestJson).validate[ConceptF]
+    badParse.asEither must beLeft
   }
 
   "Vocabulary Format should read and write with no changes" in {
@@ -53,6 +63,8 @@ class JsonFormatSpec extends Specification {
     validation.asEither must beRight
     val vocabulary = validation.get
     vocabulary mustEqual Json.toJson(vocabulary).as[VocabularyF]
+    val badParse = Json.parse(json.repoTestJson).validate[VocabularyF]
+    badParse.asEither must beLeft
   }
 
   "UserProfile Format should read and write with no changes" in {
@@ -62,6 +74,8 @@ class JsonFormatSpec extends Specification {
     validation.asEither must beRight
     val user = validation.get
     user mustEqual Json.toJson(user).as[UserProfileF]
+    val badParse = Json.parse(json.repoTestJson).validate[UserProfileF]
+    badParse.asEither must beLeft
   }
 
   "Group Format should read and write with no changes" in {
@@ -71,6 +85,8 @@ class JsonFormatSpec extends Specification {
     validation.asEither must beRight
     val group = validation.get
     group mustEqual Json.toJson(group).as[GroupF]
+    val badParse = Json.parse(json.repoTestJson).validate[GroupF]
+    badParse.asEither must beLeft
   }
 
   "Annotation Format should read and write with no changes" in {
@@ -80,5 +96,7 @@ class JsonFormatSpec extends Specification {
     validation.asEither must beRight
     val annotation = validation.get
     annotation mustEqual Json.toJson(annotation).as[AnnotationF]
+    val badParse = Json.parse(json.repoTestJson).validate[AnnotationF]
+    badParse.asEither must beLeft
   }
 }

@@ -3,7 +3,7 @@ package models.json
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import defines.PublicationStatus
+import defines.{EntityType, PublicationStatus}
 import models.base.DescribedEntity
 import models._
 
@@ -29,6 +29,7 @@ object ConceptFormat {
   }
 
   implicit val conceptReads: Reads[ConceptF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Concept)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[ConceptDescriptionF]](

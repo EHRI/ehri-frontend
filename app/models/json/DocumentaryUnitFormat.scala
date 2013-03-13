@@ -5,7 +5,7 @@ import play.api.libs.json._
 import play.api.libs.json.util._
 
 
-import defines.PublicationStatus
+import defines.{EntityType, PublicationStatus}
 import models.base.DescribedEntity
 import models.{DocumentaryUnitDescriptionF, DocumentaryUnitF}
 
@@ -40,6 +40,7 @@ object DocumentaryUnitFormat {
   }
 
   implicit val documentaryUnitReads: Reads[DocumentaryUnitF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnit)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).read[String] and

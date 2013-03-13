@@ -4,9 +4,10 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 
-import defines.PublicationStatus
+import defines.{EntityType, PublicationStatus}
 import models.base.DescribedEntity
 import models._
+import play.api.data.validation.ValidationError
 
 
 object ActorFormat {
@@ -35,7 +36,8 @@ object ActorFormat {
   }
 
   implicit val actorReads: Reads[ActorF] = (
-    (__ \ ID).readNullable[String] and
+      (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Actor)) andKeep
+      (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       ((__ \ DATA \ NAME).read[String] orElse Reads.pure(UNNAMED_PLACEHOLDER)) and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and

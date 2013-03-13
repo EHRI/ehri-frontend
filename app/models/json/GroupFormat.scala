@@ -4,6 +4,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 import models._
+import defines.EntityType
 
 
 object GroupFormat {
@@ -26,6 +27,7 @@ object GroupFormat {
   }
 
   implicit val groupReads: Reads[GroupF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Group)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).read[String] and

@@ -4,6 +4,7 @@ import play.api.libs.json._
 import models._
 import models.base.TemporalEntity
 import play.api.libs.functional.syntax._
+import defines.EntityType
 
 
 object AddressFormat {
@@ -34,6 +35,7 @@ object AddressFormat {
   }
 
   implicit val addressReads: Reads[AddressF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Address)) andKeep
     (__ \ ID).readNullable[String] and
     ((__ \ DATA \ ADDRESS_NAME).read[String] orElse Reads.pure(UNNAMED_ADDRESS)) and
     (__ \ DATA \ CONTACT_PERSON).readNullable[String] and

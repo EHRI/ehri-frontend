@@ -4,6 +4,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 import models.{AnnotationF,AnnotationType}
+import defines.EntityType
 
 object AnnotationFormat {
   import defines.EnumWriter.enumWrites
@@ -29,6 +30,7 @@ object AnnotationFormat {
   }
 
   implicit val annotationReads: Reads[AnnotationF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Annotation)) andKeep
     (__ \ ID).readNullable[String] and
       ((__ \ DATA \ ANNOTATION_TYPE).read[AnnotationType.Value]
           orElse Reads.pure(AnnotationType.Comment)) and

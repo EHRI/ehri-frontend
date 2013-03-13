@@ -4,7 +4,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 
-import defines.PublicationStatus
+import defines.{EntityType, PublicationStatus}
 import models.base.DescribedEntity
 import models._
 
@@ -36,6 +36,7 @@ object RepositoryFormat {
   }
 
   implicit val repositoryReads: Reads[RepositoryF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Repository)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).read[String] and

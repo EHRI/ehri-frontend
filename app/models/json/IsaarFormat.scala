@@ -3,6 +3,7 @@ package models.json
 import play.api.libs.json._
 import models._
 import play.api.libs.functional.syntax._
+import defines.EntityType
 
 
 object IsaarFormat {
@@ -49,6 +50,7 @@ object IsaarFormat {
 
   import ActorDescriptionF._
   implicit val isaarReads: Reads[ActorDescriptionF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.ActorDescription)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       ((__ \ DATA \ ENTITY_TYPE).read[ActorType.Value]
