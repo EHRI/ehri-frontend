@@ -158,7 +158,7 @@ object SolrIndexer extends RestDAO {
     // FIXME: This is very stupid
     descriptions.zipWithIndex.map { case (desc,i) =>
       ((desc
-        + (Isaar.ENTITY_TYPE -> Json.toJson(d.descriptions(i).formable.entityType))))
+        + (Isaar.ENTITY_TYPE -> Json.toJson(d.descriptions(i).stringProperty(Isaar.ENTITY_TYPE)))))
     }
   }
 
@@ -167,7 +167,7 @@ object SolrIndexer extends RestDAO {
     // in all descriptions - usually there will only be one...
     val cc: List[String] = d.descriptions.flatMap { d =>
       d.addresses.flatMap { adr =>
-        adr.formable.countryCode.toList
+        adr.stringProperty(Isdiah.COUNTRY_CODE).toList
       }
     }
     val descriptions = describedEntityToSolr(d)
@@ -209,7 +209,7 @@ object SolrIndexer extends RestDAO {
         "type" -> desc.e.isA,
         ACCESSOR_FIELD -> getAccessorValues(d.e),
         "lastUpdated" -> d.latestEvent.map(_.dateTime),
-        "languageCode" -> desc.stringProperty("languageCode")
+        "languageCode" -> desc.stringProperty(IsadG.LANG_CODE)
       )
       // Merge in all the additional data already in the entity
       // Don't overwrite keys added specifically

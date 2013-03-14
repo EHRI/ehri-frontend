@@ -15,7 +15,7 @@ trait TemporalEntity {
   
   val dates: List[DatePeriod] = e.relations(TemporalEntity.DATE_REL).map(DatePeriod(_))
   
-  lazy val dateString: Option[String] = dates.map(_.formable.years) match {
+  lazy val dateString: Option[String] = dates.flatMap(_.formableOpt.map(_.years)) match {
     case Nil => None
     case lst @ _ => Some(lst.mkString(", "))
   }    

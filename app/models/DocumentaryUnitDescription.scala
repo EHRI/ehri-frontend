@@ -15,6 +15,7 @@ case class DocumentaryUnitDescription(val e: Entity)
 
   import json.IsadGFormat._
   lazy val formable = Json.toJson(e).as[DocumentaryUnitDescriptionF]
+  lazy val formableOpt = Json.toJson(e).asOpt[DocumentaryUnitDescriptionF]
 }
 
 

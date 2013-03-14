@@ -9,7 +9,9 @@
         } {
             <small>
                 <ul class="unstyled muted inline inline-separator">
-                    <li>@Messages("isaar." + item.formable.entityType)</li>
+                    @item.stringProperty(ENTITY_TYPE).map { et =>
+                        <li>@Messages("isaar." + et)</li>
+                    }
                 </ul>
             </small>
             @item.stringProperty(DATES_OF_EXISTENCE)

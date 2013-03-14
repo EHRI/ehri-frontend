@@ -57,7 +57,8 @@ object IsaarFormat {
           orElse Reads.pure(ActorType.CorporateBody)) and
       ((__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String]
           orElse Reads.pure(UNNAMED_PLACEHOLDER)) and
-      (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] and
+      ((__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] orElse
+        (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] and
       (__ \ DATA).read[Details]((
         (__ \ DATES_OF_EXISTENCE).readNullable[String] and

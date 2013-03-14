@@ -83,5 +83,6 @@ case class Annotation(val e: Entity) extends AccessibleEntity
 
   import json.AnnotationFormat._
   lazy val formable: AnnotationF = Json.toJson(e).as[AnnotationF]
+  lazy val formableOpt: Option[AnnotationF] = Json.toJson(e).asOpt[AnnotationF]
 }
 

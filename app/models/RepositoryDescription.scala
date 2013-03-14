@@ -15,6 +15,7 @@ case class RepositoryDescription(val e: Entity) extends Description with Formabl
 
   import json.IsdiahFormat._
   lazy val formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF]
+  lazy val formableOpt: Option[RepositoryDescriptionF] = Json.toJson(e).asOpt[RepositoryDescriptionF]
 }
 
 

@@ -31,5 +31,6 @@ case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with A
 
   import json.GroupFormat._
   lazy val formable: GroupF = Json.toJson(e).as[GroupF]
+  lazy val formableOpt: Option[GroupF] = Json.toJson(e).asOpt[GroupF]
 }
 

@@ -46,6 +46,11 @@ case class Actor(val e: Entity)
 
   import json.ActorFormat._
   lazy val formable: ActorF = Json.toJson(e).as[ActorF]
+  lazy val formableOpt: Option[ActorF] = Json.toJson(e).asOpt[ActorF]
+
+  override def toString = {
+    descriptions.headOption.flatMap(d => d.stringProperty(Isdiah.AUTHORIZED_FORM_OF_NAME)).getOrElse(identifier)
+  }
 }
 
 

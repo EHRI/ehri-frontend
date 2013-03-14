@@ -34,6 +34,7 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
 
   import json.DocumentaryUnitFormat._
   lazy val formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF]
+  lazy val formableOpt: Option[DocumentaryUnitF] = Json.toJson(e).asOpt[DocumentaryUnitF]
 }
 
 

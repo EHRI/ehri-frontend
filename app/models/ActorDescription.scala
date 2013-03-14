@@ -8,7 +8,13 @@ case class ActorDescription(val e: Entity) extends Description with Formable[Act
   lazy val item: Option[Actor] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Actor(_))
 
   import json.IsaarFormat._
-  lazy val formable: ActorDescriptionF = Json.toJson(e).as[ActorDescriptionF]
+  lazy val formable: ActorDescriptionF = {
+    val json = Json.toJson(e)
+    println("JSON: " + json)
+    json.as[ActorDescriptionF]
+  }
+
+  lazy val formableOpt: Option[ActorDescriptionF] = Json.toJson(e).asOpt[ActorDescriptionF]
 }
 
 object ActorDescriptionF {

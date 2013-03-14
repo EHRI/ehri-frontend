@@ -51,5 +51,10 @@ case class Repository(val e: Entity)
 
   import json.RepositoryFormat._
   lazy val formable: RepositoryF = Json.toJson(e).as[RepositoryF]
+  lazy val formableOpt: Option[RepositoryF] = Json.toJson(e).asOpt[RepositoryF]
+
+  override def toString = {
+    descriptions.headOption.flatMap(d => d.stringProperty(Isdiah.AUTHORIZED_FORM_OF_NAME)).getOrElse(identifier)
+  }
 }
 

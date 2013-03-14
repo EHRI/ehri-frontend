@@ -10,6 +10,7 @@ case class Address(val e: Entity) extends AccessibleEntity with Formable[Address
   lazy val formable: AddressF = {
     Json.toJson(e).asOpt[AddressF].getOrElse(AddressF(id = None,  name = "FAKE ADDRESS"))
   }
+  lazy val formableOpt: Option[AddressF] = Json.toJson(e).asOpt[AddressF]
 }
 
 object AddressF {

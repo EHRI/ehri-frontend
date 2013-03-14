@@ -8,7 +8,9 @@
     @item.descriptions.headOption.map { desc =>
         <small>
             <ul class="unstyled muted inline inline-separator">
-                <li>@Messages("isaar." + desc.formable.entityType)</li>
+                @desc.stringProperty(ENTITY_TYPE).map { et =>
+                    <li>@Messages("isaar." + et)</li>
+                }
                 @item.latestEvent.map { event =>
                     <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</li>
                 }

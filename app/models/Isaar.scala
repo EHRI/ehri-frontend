@@ -30,12 +30,12 @@ case object Isaar {
   // Description area
   val DESCRIPTION_AREA = "descriptionArea"
   val DATES_OF_EXISTENCE = "datesOfExistence"
-  val HISTORY = "history"
-  val PLACES = "places"
+  val HISTORY = "biogHist"
+  val PLACES = "place"
   val LEGAL_STATUS = "legalStatus"
   val FUNCTIONS = "functions"
   val MANDATES = "mandates"
-  val INTERNAL_STRUCTURE = "internalStructure"
+  val INTERNAL_STRUCTURE = "structure"
   val GENERAL_CONTEXT = "generalContext"
 
   // Control
@@ -48,7 +48,7 @@ case object Isaar {
   val DATES_CVD = "datesCVD"
   val LANGUAGES_USED = "languages"
   val SCRIPTS_USED = "scripts"
-  val SOURCES = "sources"
+  val SOURCES = "source"
   val MAINTENANCE_NOTES = "maintenanceNotes"
 }
 

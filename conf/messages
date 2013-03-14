@@ -442,8 +442,8 @@ isaar.person=Person
 
 # Description
 isaar.datesOfExistence=Dates of Existence
-isaar.history=History
-isaar.places=Places
+isaar.biogHist=History
+isaar.place=Places
 isaar.legalStatus=Legal Status
 isaar.functions=Functions
 isaar.mandates=Mandates
@@ -460,7 +460,7 @@ isaar.levelOfDetail=Level of Detail
 isaar.datesCVD=Dates of Creation and Deletion
 isaar.languages=Languages
 isaar.scripts=Scripts
-isaar.sources=Sources
+isaar.source=Sources
 isaar.maintenanceNotes=Maintenance Notes
 
 

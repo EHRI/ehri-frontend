@@ -41,4 +41,5 @@ case class Vocabulary(e: Entity)
 
   import json.VocabularyFormat._
   lazy val formable: VocabularyF = Json.toJson(e).as[VocabularyF]
+  lazy val formableOpt: Option[VocabularyF] = Json.toJson(e).asOpt[VocabularyF]
 }
