@@ -2,15 +2,15 @@ package models.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{ActorF, Entity}
+import models.{HistoricalAgentF, Entity}
 import models.base.DescribedEntity
 
 /**
- * Actor model form.
+ * HistoricalAgent model form.
  */
-object ActorForm {
+object HistoricalAgentForm {
 
-  import ActorF._
+  import HistoricalAgentF._
 
   val form = Form(
     mapping(
@@ -19,6 +19,6 @@ object ActorForm {
       NAME -> nonEmptyText,
       PUBLICATION_STATUS -> optional(enum(defines.PublicationStatus)),
       DescribedEntity.DESCRIPTIONS -> list(IsaarForm.form.mapping)
-    )(ActorF.apply)(ActorF.unapply)
+    )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)
   )
 }

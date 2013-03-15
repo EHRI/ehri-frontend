@@ -120,7 +120,7 @@ object SolrIndexer extends RestDAO {
   private def entityIndexType(entityType: EntityType.Value): EntityType.Value = entityType match {
     case EntityType.DocumentaryUnit => EntityType.DocumentaryUnitDescription
     case EntityType.Concept => EntityType.ConceptDescription
-    case EntityType.Actor => EntityType.ActorDescription
+    case EntityType.HistoricalAgent => EntityType.HistoricalAgentDescription
     case EntityType.Repository => EntityType.RepositoryDescription
     case e => e
   }
@@ -133,7 +133,7 @@ object SolrIndexer extends RestDAO {
   private def itemToJson(item: Entity): List[JsObject] = {
     item.isA match {
       case EntityType.DocumentaryUnit => docToSolr(DocumentaryUnit(item))
-      case EntityType.Actor => actorToSolr(Actor(item))
+      case EntityType.HistoricalAgent => actorToSolr(HistoricalAgent(item))
       case EntityType.Repository => repoToSolr(Repository(item))
       case EntityType.Concept => conceptToSolr(Concept(item))
       case any => entityToSolr(item)
@@ -153,7 +153,7 @@ object SolrIndexer extends RestDAO {
     }
   }
 
-  private def actorToSolr(d: Actor): List[JsObject] = {
+  private def actorToSolr(d: HistoricalAgent): List[JsObject] = {
     val descriptions = describedEntityToSolr(d)
     // FIXME: This is very stupid
     descriptions.zipWithIndex.map { case (desc,i) =>

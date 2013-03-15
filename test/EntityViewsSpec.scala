@@ -153,7 +153,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "identifier" -> Seq("hello-kitty"),
           "name" -> Seq("Hello Kitty"),
           "descriptions[0].languageCode" -> Seq("en"),
-          "descriptions[0].title" -> Seq("Hello Kitty"),
+          "descriptions[0].name" -> Seq("Hello Kitty"),
           "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
           "descriptions[0].dates[0].startDate" -> Seq("1939-01-01"),
           "descriptions[0].dates[0].endDate" -> Seq("1945-01-01"),
@@ -224,7 +224,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "identifier" -> Seq("c1"),
           "name" -> Seq("Collection 1"),
           "descriptions[0].languageCode" -> Seq("en"),
-          "descriptions[0].title" -> Seq("Collection 1"),
+          "descriptions[0].name" -> Seq("Collection 1"),
           "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c1"),
           "descriptions[0].contextArea.acquistition" -> Seq("Acquisistion info"),
           "publicationStatus" -> Seq("Draft")
@@ -246,7 +246,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "identifier" -> Seq("c1"),
           "name" -> Seq("Collection 1"),
           "descriptions[0].languageCode" -> Seq("en"),
-          "descriptions[0].title" -> Seq("Collection 1 - Updated"),
+          "descriptions[0].name" -> Seq("Collection 1 - Updated"),
           "logMessage" -> Seq(msg)
         )
         val cr = route(fakeLoggedInRequest(POST,
@@ -266,7 +266,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "identifier" -> Seq("c4"),
           "name" -> Seq("Collection 4"),
           "descriptions[0].languageCode" -> Seq("en"),
-          "descriptions[0].title" -> Seq("Collection 4"),
+          "descriptions[0].name" -> Seq("Collection 4"),
           "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c4"),
           "publicationStatus" -> Seq("Draft")
         )
@@ -305,7 +305,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         "identifier" -> Seq("test"),
         "name" -> Seq("Test Item"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].title" -> Seq("Test Item"),
+        "descriptions[0].name" -> Seq("Test Item"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
       )
@@ -346,7 +346,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         "identifier" -> Seq(testItem),
         "name" -> Seq("Changed Name"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].title" -> Seq("Changed Name"),
+        "descriptions[0].name" -> Seq("Changed Name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
       )
@@ -423,7 +423,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       val testItem = "c1"
       val testData: Map[String, Seq[String]] = Map(
         "languageCode" -> Seq("en"),
-        "title" -> Seq("A Second Description"),
+        "name" -> Seq("A Second Description"),
         "contentArea.scopeAndContent" -> Seq("This is a second description")
       )
       // Now try again to update the item, which should succeed
@@ -445,7 +445,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       val testData: Map[String, Seq[String]] = Map(
         "languageCode" -> Seq("en"),
         "id" -> Seq("cd1"),
-        "title" -> Seq("An Updated Description"),
+        "name" -> Seq("An Updated Description"),
         "contentArea.scopeAndContent" -> Seq("This is an updated description")
       )
       // Now try again to update the item, which should succeed
@@ -504,7 +504,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
           "descriptions[0].descriptionArea.history" -> Seq("Some history"),
           "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
-          "descriptions[0].addressArea[0].addressName" -> Seq("An Address"),
+          "descriptions[0].addressArea[0].name" -> Seq("An Address"),
           "publicationStatus" -> Seq("Published")
         )
         val cr = route(fakeLoggedInRequest(POST,
@@ -599,7 +599,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
     }
   }
 
-  "Actor views" should {
+  "HistoricalAgent views" should {
 
     "list should get some items" in {
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
@@ -621,7 +621,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "descriptions[0].name" -> Seq("Wiener Library"),
           "descriptions[0].otherFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
           "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
-          "descriptions[0].descriptionArea.history" -> Seq("Some history"),
+          "descriptions[0].descriptionArea.biographicalHistory" -> Seq("Some history"),
           "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
           "publicationStatus" -> Seq("Published")
         )

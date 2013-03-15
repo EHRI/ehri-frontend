@@ -1,4 +1,4 @@
-@(items: rest.Page[Actor], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(items: rest.Page[HistoricalAgent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listActors")) {
 
@@ -9,7 +9,7 @@
 	<ul class="unstyled">
 	@items.items.map { item =>
 	  	<li>
-			@actor.listItem(item)
+			@historicalAgent.listItem(item)
 		</li>
 	}
 	</ul>

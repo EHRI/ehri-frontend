@@ -30,7 +30,7 @@ case object Isaar {
   // Description area
   val DESCRIPTION_AREA = "descriptionArea"
   val DATES_OF_EXISTENCE = "datesOfExistence"
-  val HISTORY = "biogHist"
+  val HISTORY = "biographicalHistory"
   val PLACES = "place"
   val LEGAL_STATUS = "legalStatus"
   val FUNCTIONS = "functions"

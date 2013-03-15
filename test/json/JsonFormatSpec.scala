@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 import play.api.i18n.Messages
 import models.json._
 import play.api.libs.json.Json
-import models.{ConceptF, RepositoryF, ActorF, DocumentaryUnitF,VocabularyF,UserProfileF,GroupF,AnnotationF}
+import models.{ConceptF, RepositoryF, HistoricalAgentF, DocumentaryUnitF,VocabularyF,UserProfileF,GroupF,AnnotationF}
 
 class JsonFormatSpec extends Specification {
 
@@ -27,13 +27,13 @@ class JsonFormatSpec extends Specification {
     badParse.asEither must beLeft
   }
 
-  "Actor Format should read and write with no changes" in {
-    import models.json.ActorFormat._
-    val validation = Json.parse(json.actorTestJson).validate[ActorF]
+  "HistoricalAgent Format should read and write with no changes" in {
+    import models.json.HistoricalAgentFormat._
+    val validation = Json.parse(json.actorTestJson).validate[HistoricalAgentF]
     validation.asEither must beRight
     val actor = validation.get
-    actor mustEqual Json.toJson(actor).as[ActorF]
-    val badParse = Json.parse(json.repoTestJson).validate[ActorF]
+    actor mustEqual Json.toJson(actor).as[HistoricalAgentF]
+    val badParse = Json.parse(json.repoTestJson).validate[HistoricalAgentF]
     badParse.asEither must beLeft
   }
 

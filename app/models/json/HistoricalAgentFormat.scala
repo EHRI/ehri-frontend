@@ -10,16 +10,16 @@ import models._
 import play.api.data.validation.ValidationError
 
 
-object ActorFormat {
+object HistoricalAgentFormat {
   import defines.EnumWriter.enumWrites
   import models.json.IsaarFormat._
   import models.Entity._
-  import models.ActorF._
+  import models.HistoricalAgentF._
 
   implicit val publicationStatusReads = defines.EnumReader.enumReads(PublicationStatus)
 
-  implicit val actorWrites: Writes[ActorF] = new Writes[ActorF] {
-    def writes(d: ActorF): JsValue = {
+  implicit val actorWrites: Writes[HistoricalAgentF] = new Writes[HistoricalAgentF] {
+    def writes(d: HistoricalAgentF): JsValue = {
       Json.obj(
         ID -> d.id,
         TYPE -> d.isA,
@@ -35,15 +35,15 @@ object ActorFormat {
     }
   }
 
-  implicit val actorReads: Reads[ActorF] = (
-      (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Actor)) andKeep
+  implicit val actorReads: Reads[HistoricalAgentF] = (
+      (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgent)) andKeep
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       ((__ \ DATA \ NAME).read[String] orElse Reads.pure(UNNAMED_PLACEHOLDER)) and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[ActorDescriptionF]](
-        Reads.list[ActorDescriptionF]) orElse Reads.pure(Nil))
-    )(ActorF.apply _)
+      ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[HistoricalAgentDescriptionF]](
+        Reads.list[HistoricalAgentDescriptionF]) orElse Reads.pure(Nil))
+    )(HistoricalAgentF.apply _)
 
-  implicit val actorFormat: Format[ActorF] = Format(actorReads,actorWrites)
+  implicit val actorFormat: Format[HistoricalAgentF] = Format(actorReads,actorWrites)
 }

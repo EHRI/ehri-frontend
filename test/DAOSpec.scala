@@ -129,7 +129,10 @@ class DAOSpec extends Specification with BeforeExample {
     "be able to set a user's permissions" in {
       running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
         val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
-        val data = Map("agent" -> List("create", "update", "delete"), "documentaryUnit" -> List("create", "update","delete"))
+        val data = Map(
+          ContentType.Repository.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString),
+          ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString)
+        )
         val perms = await(PermissionDAO(Some(userProfile)).get(user))
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
         perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone

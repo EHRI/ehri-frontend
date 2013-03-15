@@ -37,14 +37,14 @@ object IsdiahForm {
         )(AddressF.apply)(AddressF.unapply)
       ),
       DESCRIPTION_AREA -> mapping(
-        HISTORY -> optional(text),
-        GENERAL_CONTEXT -> optional(text),
-        MANDATES -> optional(text),
-        ADMINISTRATIVE_STRUCTURE -> optional(text),
-        RECORDS -> optional(text),
-        BUILDINGS -> optional(text),
-        HOLDINGS -> optional(text),
-        FINDING_AIDS -> optional(text)
+        HISTORY -> optional(nonEmptyText),
+        GENERAL_CONTEXT -> optional(nonEmptyText),
+        MANDATES -> optional(nonEmptyText),
+        ADMINISTRATIVE_STRUCTURE -> optional(nonEmptyText),
+        RECORDS -> optional(nonEmptyText),
+        BUILDINGS -> optional(nonEmptyText),
+        HOLDINGS -> optional(nonEmptyText),
+        FINDING_AIDS -> optional(nonEmptyText)
       )(Details.apply)(Details.unapply),
       ACCESS_AREA -> mapping(
         OPENING_TIMES -> optional(text),

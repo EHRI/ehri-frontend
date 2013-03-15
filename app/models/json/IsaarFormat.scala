@@ -9,13 +9,13 @@ import defines.EntityType
 object IsaarFormat {
   import defines.EnumWriter.enumWrites
   import Entity._
-  import ActorF._
+  import HistoricalAgentF._
   import Isaar._
 
   implicit val actorTypeReads = defines.EnumReader.enumReads(ActorType)
 
-  implicit val isaarWrites = new Writes[ActorDescriptionF] {
-    def writes(d: ActorDescriptionF): JsValue = {
+  implicit val isaarWrites = new Writes[HistoricalAgentDescriptionF] {
+    def writes(d: HistoricalAgentDescriptionF): JsValue = {
       Json.obj(
         ID -> d.id,
         TYPE -> d.isA,
@@ -48,9 +48,9 @@ object IsaarFormat {
     }
   }
 
-  import ActorDescriptionF._
-  implicit val isaarReads: Reads[ActorDescriptionF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.ActorDescription)) andKeep
+  import HistoricalAgentDescriptionF._
+  implicit val isaarReads: Reads[HistoricalAgentDescriptionF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgentDescription)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       ((__ \ DATA \ ENTITY_TYPE).read[ActorType.Value]
@@ -82,7 +82,7 @@ object IsaarFormat {
         (__ \ SOURCES).readNullable[String] and
         (__ \ MAINTENANCE_NOTES).readNullable[String]
       )(Control.apply _))
-  )(ActorDescriptionF.apply _)
+  )(HistoricalAgentDescriptionF.apply _)
 
-  implicit val isaarFormat: Format[ActorDescriptionF] = Format(isaarReads,isaarWrites)
+  implicit val isaarFormat: Format[HistoricalAgentDescriptionF] = Format(isaarReads,isaarWrites)
 }

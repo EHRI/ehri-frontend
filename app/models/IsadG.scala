@@ -16,7 +16,7 @@ case object IsadG {
   val FIELD_PREFIX = "isadg"
 
   /* ISAD(G)-based field set */
-  val TITLE = "title"
+  val TITLE = "name"
   val DATES = "dates"
   val LEVEL_OF_DESCRIPTION = "levelOfDescription"
   val EXTENT_MEDIUM = "extentAndMedium"

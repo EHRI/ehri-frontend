@@ -2,8 +2,8 @@ package models.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{Isaar, ActorDescriptionF, Entity}
-import models.ActorDescriptionF.{Control, Details}
+import models.{Isaar, HistoricalAgentDescriptionF, Entity}
+import models.HistoricalAgentDescriptionF.{Control, Details}
 
 /**
  * ISAAR description form.
@@ -42,6 +42,6 @@ object IsaarForm {
         SOURCES -> optional(text),
         MAINTENANCE_NOTES -> optional(text)
       )(Control.apply)(Control.unapply)
-    )(ActorDescriptionF.apply)(ActorDescriptionF.unapply)
+    )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )
 }

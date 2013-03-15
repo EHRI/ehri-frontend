@@ -57,12 +57,12 @@ openid.openIdError=There was a problem logging you in with OpenID.\
 # Friendly names for content types
 contentTypes.group=Groups
 contentTypes.userProfile=Users
-contentTypes.agent=Repositories
-contentTypes.agentDescription=Repositories
-contentTypes.authority=Authorities
+contentTypes.repository=Repositories
+contentTypes.repositoryDescription=Repositories
+contentTypes.historicalAgent=Authorities
 contentTypes.documentaryUnit=Collections
 contentTypes.documentDescription=Descriptions
-contentTypes.authorityDescription=Authorities
+contentTypes.historicalAgentDescription=Authorities
 contentTypes.action=User Events
 contentTypes.systemEvent=History
 contentTypes.cvocVocabulary=CVocs
@@ -447,7 +447,7 @@ isaar.place=Places
 isaar.legalStatus=Legal Status
 isaar.functions=Functions
 isaar.mandates=Mandates
-isaar.internalStructure=Internal Structure
+isaar.structure=Internal Structure
 isaar.generalContext=General Context
 
 # Control

@@ -61,7 +61,7 @@ package object json {
             "name" : "Wiener Library",
             "identifier" : "wiener-library"
           },
-          "type" : "agent",
+          "type" : "repository",
           "relationships" : {
             "describes" : [ {
               "id" : "5379607d-0b92-48a0-8309-c6b9e209a0dd",
@@ -70,7 +70,7 @@ package object json {
                 "history" : "The Wiener Library is in London",
                 "languageCode" : "en"
               },
-              "type" : "agentDescription",
+              "type" : "repositoryDescription",
               "relationships" : {
                 "hasAddress" : [ {
                   "id" : "134494ac-ff89-457c-b1d0-b0d88bc60836",
@@ -129,7 +129,7 @@ package object json {
           "name" : "Test Authority 2",
           "identifier" : "another-test-authority"
         },
-        "type" : "authority",
+        "type" : "historicalAgent",
         "relationships" : {
           "describes" : [ {
             "id" : "cdb5d0aa-2100-49f9-8481-2b7b278825fa",
@@ -145,7 +145,7 @@ package object json {
               "datesOfExistence" : "1900-2000",
               "history": "Some history"
             },
-            "type" : "authorityDescription",
+            "type" : "historicalAgentDescription",
             "relationships" : {
             }
           } ],
@@ -154,7 +154,7 @@ package object json {
             "data" : {
               "timestamp" : "2013-03-08T17:19:39.224+01:00",
               "identifier" : "5a47b976-91b1-42e7-9342-ba3175560ee3",
-              "logMessage" : "Updating item (authority): 'another-test-authority'"
+              "logMessage" : "Updating item (historicalAgent): 'another-test-authority'"
             },
             "type" : "systemEvent",
             "relationships" : {
@@ -198,7 +198,7 @@ package object json {
           "name" : "Wiener Library",
           "identifier" : "wiener-library"
         },
-        "type" : "agent",
+        "type" : "repository",
         "relationships" : {
           "describes" : [ {
             "id" : "9c5eadd2-6c57-4467-ba02-cd4b2c49ffa6",
@@ -206,7 +206,7 @@ package object json {
               "languageCode" : "en",
               "name" : "Wiener Library"
             },
-            "type" : "agentDescription",
+            "type" : "repositoryDescription",
             "relationships" : {
               "hasAddress" : [ {
                 "id" : "d9569bef-a939-4565-83ae-a52e57e6b222",

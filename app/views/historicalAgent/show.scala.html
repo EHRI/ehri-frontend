@@ -1,9 +1,9 @@
-@(item: Actor, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: HistoricalAgent, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import Isaar._
 @import common.descriptionSection
 
-@actor.itemPage(item) {
+@historicalAgent.itemPage(item) {
 
     @common.annotated(item, annotations, routes.Actors.annotate(item.id)) {
         @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>

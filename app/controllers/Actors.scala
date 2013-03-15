@@ -1,6 +1,6 @@
 package controllers
 
-import models.{Actor, ActorF}
+import models.{HistoricalAgent, HistoricalAgentF}
 import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
@@ -10,10 +10,10 @@ import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
 import views.Helpers
 
-object Actors extends CRUD[ActorF,Actor]
-	with VisibilityController[Actor]
-  with PermissionItemController[Actor]
-  with EntityAnnotate[Actor]
+object Actors extends CRUD[HistoricalAgentF,HistoricalAgent]
+	with VisibilityController[HistoricalAgent]
+  with PermissionItemController[HistoricalAgent]
+  with EntityAnnotate[HistoricalAgent]
   with EntitySearch {
 
   val listFilterMappings = ListMap[String,String]()
@@ -32,8 +32,8 @@ object Actors extends CRUD[ActorF,Actor]
   )
 
   val searchEntities = List(
-    EntityType.ActorDescription,
-    EntityType.Actor
+    EntityType.HistoricalAgentDescription,
+    EntityType.HistoricalAgent
   )
 
 
@@ -45,11 +45,11 @@ object Actors extends CRUD[ActorF,Actor]
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
-  val entityType = EntityType.Actor
+  val entityType = EntityType.HistoricalAgent
   val contentType = ContentType.Actor
 
-  val form = models.forms.ActorForm.form
-  val builder = Actor
+  val form = models.forms.HistoricalAgentForm.form
+  val builder = HistoricalAgent
 
 
   def search = searchAction {
@@ -60,28 +60,28 @@ object Actors extends CRUD[ActorF,Actor]
 
   def get(id: String) = getAction(id) {
       item => annotations => implicit userOpt => implicit request =>
-    Ok(views.html.actor.show(Actor(item), annotations))
+    Ok(views.html.historicalAgent.show(HistoricalAgent(item), annotations))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
     // TODO: Add relevant params
-    Ok(views.html.systemEvents.itemList(Actor(item), page, ListParams()))
+    Ok(views.html.systemEvents.itemList(HistoricalAgent(item), page, ListParams()))
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.actor.list(page.copy(items = page.items.map(Actor(_))), params))
+    Ok(views.html.historicalAgent.list(page.copy(items = page.items.map(HistoricalAgent(_))), params))
   }
 
   def create = createAction {
       users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.actor.create(form,
+    Ok(views.html.historicalAgent.create(form,
         VisibilityForm.form, users, groups, routes.Actors.createPost))
   }
 
   def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.actor.create(errorForm, accForm, users, groups, routes.Actors.createPost))
+        BadRequest(views.html.historicalAgent.create(errorForm, accForm, users, groups, routes.Actors.createPost))
       }
       case Right(item) => Redirect(routes.Actors.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
@@ -90,14 +90,14 @@ object Actors extends CRUD[ActorF,Actor]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.actor.edit(Actor(item), form.fill(Actor(item).formable), routes.Actors.updatePost(id)))
+    Ok(views.html.historicalAgent.edit(HistoricalAgent(item), form.fill(HistoricalAgent(item).formable), routes.Actors.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.actor.edit(Actor(item), errorForm, routes.Actors.updatePost(id)))
+        BadRequest(views.html.historicalAgent.edit(HistoricalAgent(item), errorForm, routes.Actors.updatePost(id)))
       case Right(item) => Redirect(routes.Actors.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
@@ -105,7 +105,7 @@ object Actors extends CRUD[ActorF,Actor]
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(Actor(item), routes.Actors.deletePost(id),
+    Ok(views.html.delete(HistoricalAgent(item), routes.Actors.deletePost(id),
         routes.Actors.get(id)))
   }
 
@@ -115,8 +115,8 @@ object Actors extends CRUD[ActorF,Actor]
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(Actor(item),
-      VisibilityForm.form.fill(Actor(item).accessors.map(_.id)),
+    Ok(views.html.permissions.visibility(HistoricalAgent(item),
+      VisibilityForm.form.fill(HistoricalAgent(item).accessors.map(_.id)),
       users, groups, routes.Actors.visibilityPost(id)))
   }
 
@@ -128,19 +128,19 @@ object Actors extends CRUD[ActorF,Actor]
 
   def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
       item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.managePermissions(Actor(item), perms,
+    Ok(views.html.permissions.managePermissions(HistoricalAgent(item), perms,
         routes.Actors.addItemPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(Actor(item), users, groups,
+    Ok(views.html.permissions.permissionItem(HistoricalAgent(item), users, groups,
         routes.Actors.setItemPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(Actor(item), accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(HistoricalAgent(item), accessor, perms, contentType,
         routes.Actors.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -152,14 +152,14 @@ object Actors extends CRUD[ActorF,Actor]
 
   def annotate(id: String) = annotationAction(id) {
       item => form => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Actor(item), form, routes.Actors.annotatePost(id)))
+    Ok(views.html.annotation.annotate(HistoricalAgent(item), form, routes.Actors.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) {
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(Actor(item),
+        BadRequest(views.html.annotation.annotate(HistoricalAgent(item),
           errorForm, routes.Actors.annotatePost(id)))
       }
       case Right(annotation) => {
@@ -171,7 +171,7 @@ object Actors extends CRUD[ActorF,Actor]
 
   def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
     item => implicit userOpt => implicit request =>
-      Ok(views.html.actor.linkTo(Actor(item)))
+      Ok(views.html.historicalAgent.linkTo(HistoricalAgent(item)))
   }
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {

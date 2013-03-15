@@ -1,4 +1,4 @@
-@(item: Actor, f: play.api.data.Form[ActorF], action: Call)(
+@(item: HistoricalAgent, f: play.api.data.Form[HistoricalAgentF], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 @rightSidebarLayout(Messages("actions.updateActor"), breadcrumbs = common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @actor.renderForm(Some(item), f)
+        @historicalAgent.renderForm(Some(item), f)
 
         <fieldset id="admin-area">
         <legend>@Messages("Administration")</legend>
