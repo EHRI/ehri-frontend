@@ -47,7 +47,6 @@ object ApplicationBuild extends Build {
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
 
 
-    resolvers += "mvnrepository" at "http://mvnrepository/artifact",
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com"
