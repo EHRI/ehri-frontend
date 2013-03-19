@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.updateActor"), breadcrumbs = common.breadcrumbs(List(item))) {
+@rightSidebarLayout(Messages("actions.updateHistoricalAgent"), breadcrumbs = common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @historicalAgent.renderForm(Some(item), f)
@@ -13,7 +13,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
         </fieldset>
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateActor"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateHistoricalAgent"))
     }
 } {
 

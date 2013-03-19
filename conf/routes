@@ -104,30 +104,30 @@ GET		/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMember(i
 POST	/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMemberPost(id: String, userType: String, userId: String)
 
 
-GET     /agent                controllers.Repositories.list
-GET     /agent/search         controllers.Repositories.search
-GET     /agent/show/:id       controllers.Repositories.get(id: String)
-GET     /agent/history/:id    controllers.Repositories.history(id: String)
-GET     /agent/json/:id       controllers.Repositories.getJson(id: String)
-GET     /agent/create         controllers.Repositories.create
-POST    /agent/create         controllers.Repositories.createPost
-GET     /agent/delete/:id     controllers.Repositories.delete(id: String)
-POST    /agent/delete/:id     controllers.Repositories.deletePost(id: String)
-GET     /agent/update/:id     controllers.Repositories.update(id: String)
-POST    /agent/update/:id     controllers.Repositories.updatePost(id: String)
-GET     /agent/create/:id     controllers.Repositories.createDoc(id: String)
-POST    /agent/create/:id     controllers.Repositories.createDocPost(id: String)
-GET     /agent/visibility/:id     controllers.Repositories.visibility(id: String)
-POST    /agent/visibility/:id     controllers.Repositories.visibilityPost(id: String)
-GET     /agent/permissions/:id/manage    controllers.Repositories.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
-GET     /agent/permissions/:id/add    controllers.Repositories.addItemPermissions(id: String)
-GET     /agent/permissions/:id/:userType/:userId    controllers.Repositories.setItemPermissions(id: String, userType: String, userId: String)
-POST    /agent/permissions/:id/:userType/:userId    controllers.Repositories.setItemPermissionsPost(id: String, userType: String, userId: String)
-GET     /agent/scope/:id/add    controllers.Repositories.addScopedPermissions(id: String)
-GET     /agent/scope/:id/:userType/:userId    controllers.Repositories.setScopedPermissions(id: String, userType: String, userId: String)
-POST    /agent/scope/:id/:userType/:userId    controllers.Repositories.setScopedPermissionsPost(id: String, userType: String, userId: String)
-GET     /agent/annotate/:id     controllers.Repositories.annotate(id: String)
-POST    /agent/annotate/:id     controllers.Repositories.annotatePost(id: String)
+GET     /repository                controllers.Repositories.list
+GET     /repository/search         controllers.Repositories.search
+GET     /repository/show/:id       controllers.Repositories.get(id: String)
+GET     /repository/history/:id    controllers.Repositories.history(id: String)
+GET     /repository/json/:id       controllers.Repositories.getJson(id: String)
+GET     /repository/create         controllers.Repositories.create
+POST    /repository/create         controllers.Repositories.createPost
+GET     /repository/delete/:id     controllers.Repositories.delete(id: String)
+POST    /repository/delete/:id     controllers.Repositories.deletePost(id: String)
+GET     /repository/update/:id     controllers.Repositories.update(id: String)
+POST    /repository/update/:id     controllers.Repositories.updatePost(id: String)
+GET     /repository/create/:id     controllers.Repositories.createDoc(id: String)
+POST    /repository/create/:id     controllers.Repositories.createDocPost(id: String)
+GET     /repository/visibility/:id     controllers.Repositories.visibility(id: String)
+POST    /repository/visibility/:id     controllers.Repositories.visibilityPost(id: String)
+GET     /repository/permissions/:id/manage    controllers.Repositories.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     /repository/permissions/:id/add    controllers.Repositories.addItemPermissions(id: String)
+GET     /repository/permissions/:id/:userType/:userId    controllers.Repositories.setItemPermissions(id: String, userType: String, userId: String)
+POST    /repository/permissions/:id/:userType/:userId    controllers.Repositories.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /repository/scope/:id/add    controllers.Repositories.addScopedPermissions(id: String)
+GET     /repository/scope/:id/:userType/:userId    controllers.Repositories.setScopedPermissions(id: String, userType: String, userId: String)
+POST    /repository/scope/:id/:userType/:userId    controllers.Repositories.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /repository/annotate/:id     controllers.Repositories.annotate(id: String)
+POST    /repository/annotate/:id     controllers.Repositories.annotatePost(id: String)
 
 GET     /cpf                controllers.HistoricalAgents.list
 GET     /cpf/search         controllers.HistoricalAgents.search

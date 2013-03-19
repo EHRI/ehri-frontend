@@ -5,7 +5,7 @@ package defines
 // entity types enum
 object ContentType extends Enumeration() {
   type Type = Value
-  val Actor = Value("historicalAgent")
+  val HistoricalAgent = Value("historicalAgent")
   val DocumentaryUnit = Value("documentaryUnit")
   val Repository = Value("repository")
   val SystemEvent = Value("systemEvent")

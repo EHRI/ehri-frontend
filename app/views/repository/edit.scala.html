@@ -3,12 +3,12 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.updateAgent"), breadcrumbs = common.breadcrumbs(List(item))) {
+@rightSidebarLayout(Messages("actions.updateRepository"), breadcrumbs = common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @repository.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateAgent"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateRepository"))
     }
 } {
 

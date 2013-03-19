@@ -48,7 +48,7 @@ object HistoricalAgentDescriptionF {
 case class HistoricalAgentDescriptionF(
   id: Option[String],
   languageCode: String,
-  entityType: Isaar.ActorType.Value,
+  entityType: Isaar.HistoricalAgentType.Value,
   name: String,
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,

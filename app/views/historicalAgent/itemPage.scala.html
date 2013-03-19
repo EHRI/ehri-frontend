@@ -6,20 +6,20 @@
 
 } {
     @common.latestAction(item, routes.HistoricalAgents.history(item.id))
-    @common.visibility(item, routes.HistoricalAgents.visibility(item.id), ContentType.Actor)
+    @common.visibility(item, routes.HistoricalAgents.visibility(item.id), ContentType.HistoricalAgent)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.Actor, PermissionType.Annotate)) {
+            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Annotate)) {
                 <li><a href="@routes.HistoricalAgents.linkTo(item.id)">@Messages("actions.linkTo")</a></li>
             }
-            @if(user.hasPermission(ContentType.Actor, PermissionType.Update)) {
+            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Update)) {
                 <li><a href="@routes.HistoricalAgents.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.Actor, PermissionType.Delete)) {
+            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Delete)) {
                 <li><a href="@routes.HistoricalAgents.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.Actor, PermissionType.Grant)) {
+            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Grant)) {
                 <li><a href="@routes.HistoricalAgents.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
             <li><a href="@routes.HistoricalAgents.history(item.id)">@Messages("actions.showHistory")</a></li>

@@ -3,12 +3,12 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.createAgent")) {
+@rightSidebarLayout(Messages("actions.createRepository")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @repository.renderForm(None, f)
         @permissions.renderVisibilityForm(vf, users, groups)
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createAgent"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createRepository"))
 	}
 } {
 

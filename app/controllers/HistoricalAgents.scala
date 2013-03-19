@@ -46,7 +46,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
   val entityType = EntityType.HistoricalAgent
-  val contentType = ContentType.Actor
+  val contentType = ContentType.HistoricalAgent
 
   val form = models.forms.HistoricalAgentForm.form
   val builder = HistoricalAgent

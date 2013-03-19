@@ -5,7 +5,7 @@ package models
  */
 case object Isaar {
 
-  object ActorType extends Enumeration {
+  object HistoricalAgentType extends Enumeration {
     type Type = Value
     val Person = Value("person")
     val Family = Value("family")

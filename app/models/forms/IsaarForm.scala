@@ -16,7 +16,7 @@ object IsaarForm {
     mapping(
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
-      ENTITY_TYPE -> enum(ActorType),
+      ENTITY_TYPE -> enum(HistoricalAgentType),
       AUTHORIZED_FORM_OF_NAME -> nonEmptyText,
       OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),

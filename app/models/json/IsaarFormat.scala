@@ -12,7 +12,7 @@ object IsaarFormat {
   import HistoricalAgentF._
   import Isaar._
 
-  implicit val actorTypeReads = defines.EnumReader.enumReads(ActorType)
+  implicit val HistoricalAgentTypeReads = defines.EnumReader.enumReads(HistoricalAgentType)
 
   implicit val isaarWrites = new Writes[HistoricalAgentDescriptionF] {
     def writes(d: HistoricalAgentDescriptionF): JsValue = {
@@ -53,8 +53,8 @@ object IsaarFormat {
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgentDescription)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
-      ((__ \ DATA \ ENTITY_TYPE).read[ActorType.Value]
-          orElse Reads.pure(ActorType.CorporateBody)) and
+      ((__ \ DATA \ ENTITY_TYPE).read[HistoricalAgentType.Value]
+          orElse Reads.pure(HistoricalAgentType.CorporateBody)) and
       ((__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String]
           orElse Reads.pure(UNNAMED_PLACEHOLDER)) and
       ((__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] orElse
