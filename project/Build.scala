@@ -34,7 +34,7 @@ object ApplicationBuild extends Build {
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",
     // Solr stuff
-    "com.github.seratch" %% "scalikesolr" % "[4.0,)",
+    "com.github.seratch" %% "scalikesolr" % "4.0.0",
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final",
     //"com.typesafe" % "play-plugins-mailer_2.10" % "2.1-SNAPSHOT",
