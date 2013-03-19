@@ -6,12 +6,14 @@
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations, routes.Repositories.annotate(item.id)) {
-        @defining("isdiah") { implicit fieldPrefix =>
+        @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
+            @common.stringValue(item, IDENTIFIER)
             @if(!item.descriptions.isEmpty) {
                 @item.descriptions.map { desc =>
                     @common.descriptionOutline(desc, desc.languageCode) {
 
                         @descriptionSection(IDENTITY_AREA) {
+                            @common.stringValue(desc, IDENTIFIER)
                             @common.stringValue(desc, AUTHORIZED_FORM_OF_NAME)
                             @common.listValue(desc, PARALLEL_FORMS_OF_NAME)
                             @common.listValue(desc, OTHER_FORMS_OF_NAME)

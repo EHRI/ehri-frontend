@@ -7,6 +7,7 @@
 
     @common.annotated(item, annotations, routes.HistoricalAgents.annotate(item.id)) {
         @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
+            @common.stringValue(item, IDENTIFIER)
             @if(!item.descriptions.isEmpty) {
                 @item.descriptions.map { desc =>
                     @common.descriptionOutline(desc, desc.languageCode) {

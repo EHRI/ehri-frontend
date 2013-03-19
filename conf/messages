@@ -365,6 +365,7 @@ isdiah.services=Services Area
 
 # Identity Section
 isdiah.identityArea=Identity Area
+isdiah.identifier=Identifier
 isdiah.name=Authorized Form Of Name
 isdiah.otherFormsOfName=Other Form(s) of Name
 isdiah.parallelFormsOfName=Parallel Form(s) of Name

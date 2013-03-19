@@ -46,6 +46,7 @@ object IsdiahFormat {
           DATES_CVD -> d.control.datesCDR,
           LANGUAGES_USED -> d.control.languages,
           SCRIPTS_USED -> d.control.scripts,
+          SOURCES -> d.control.sources,
           MAINTENANCE_NOTES -> d.control.maintenanceNotes
         ),
         RELATIONSHIPS -> Json.obj(
