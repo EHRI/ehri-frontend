@@ -94,7 +94,7 @@ package object Helpers {
   def urlForEntity(e: Entity): Call = e.isA match {
     case EntityType.SystemEvent => routes.SystemEvents.get(e.id)
     case EntityType.DocumentaryUnit => routes.DocumentaryUnits.get(e.id)
-    case EntityType.HistoricalAgent => routes.Actors.get(e.id)
+    case EntityType.HistoricalAgent => routes.HistoricalAgents.get(e.id)
     case EntityType.Repository => routes.Repositories.get(e.id)
     case EntityType.Group => routes.Groups.get(e.id)
     case EntityType.UserProfile => routes.UserProfiles.get(e.id)

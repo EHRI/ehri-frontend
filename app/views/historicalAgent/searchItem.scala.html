@@ -5,7 +5,7 @@
 @defining(item.item) { ownerOpt =>
     @ownerOpt.map { owner =>
         @common.searchItemOutline(item.id) {
-            <a href="@routes.Actors.get(owner.id)">@owner</a>
+            <a href="@routes.HistoricalAgents.get(owner.id)">@owner</a>
         } {
             <small>
                 <ul class="unstyled muted inline inline-separator">

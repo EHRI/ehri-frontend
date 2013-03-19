@@ -3,7 +3,7 @@
 @import Isaar._
 
 @common.searchItemOutline(item.id) {
-    <a href="@routes.Actors.get(item.id)">@item</a>
+    <a href="@routes.HistoricalAgents.get(item.id)">@item</a>
 } {
     @item.descriptions.headOption.map { desc =>
         <small>

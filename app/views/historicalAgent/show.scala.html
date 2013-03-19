@@ -5,7 +5,7 @@
 
 @historicalAgent.itemPage(item) {
 
-    @common.annotated(item, annotations, routes.Actors.annotate(item.id)) {
+    @common.annotated(item, annotations, routes.HistoricalAgents.annotate(item.id)) {
         @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
                 @item.descriptions.map { desc =>

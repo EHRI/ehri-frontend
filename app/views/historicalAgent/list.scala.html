@@ -1,6 +1,6 @@
 @(items: rest.Page[HistoricalAgent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listActors")) {
+@rightSidebarLayout(Messages("actions.listHistoricalAgents")) {
 
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
 
@@ -19,7 +19,7 @@
     @common.sidebarSection(None) {
         @maybeUser.map { user =>
             @if(user.hasPermission(ContentType.Actor, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@routes.Actors.create">@Messages("actions.createNewActor")</a>
+                <a class="btn btn-primary" href="@routes.HistoricalAgents.create">@Messages("actions.createNewActor")</a>
             }
         }
     }

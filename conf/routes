@@ -129,29 +129,29 @@ POST    /agent/scope/:id/:userType/:userId    controllers.Repositories.setScoped
 GET     /agent/annotate/:id     controllers.Repositories.annotate(id: String)
 POST    /agent/annotate/:id     controllers.Repositories.annotatePost(id: String)
 
-GET     /cpf                controllers.Actors.list
-GET     /cpf/search         controllers.Actors.search
-GET     /cpf/show/:id       controllers.Actors.get(id: String)
-GET     /cpf/history/:id    controllers.Actors.history(id: String)
-GET     /cpf/json/:id       controllers.Actors.getJson(id: String)
-GET     /cpf/create         controllers.Actors.create
-POST    /cpf/create         controllers.Actors.createPost
-GET     /cpf/delete/:id     controllers.Actors.delete(id: String)
-POST    /cpf/delete/:id     controllers.Actors.deletePost(id: String)
-GET     /cpf/update/:id     controllers.Actors.update(id: String)
-POST    /cpf/update/:id     controllers.Actors.updatePost(id: String)
-GET     /cpf/visibility/:id     controllers.Actors.visibility(id: String)
-POST    /cpf/visibility/:id     controllers.Actors.visibilityPost(id: String)
-GET     /cpf/permissions/:id/manage    controllers.Actors.managePermissions(id: String, page: Int ?= 1, limit: Int ?=20)
-GET     /cpf/permissions/:id/add    controllers.Actors.addItemPermissions(id: String)
-GET     /cpf/permissions/:id/:userType/:userId    controllers.Actors.setItemPermissions(id: String, userType: String, userId: String)
-POST    /cpf/permissions/:id/:userType/:userId    controllers.Actors.setItemPermissionsPost(id: String, userType: String, userId: String)
-GET     /cpf/annotate/:id     controllers.Actors.annotate(id: String)
-POST    /cpf/annotate/:id     controllers.Actors.annotatePost(id: String)
-GET     /cpf/link/:id          controllers.Actors.linkTo(id: String)
-GET     /cpf/link/:id/:toType     controllers.Actors.linkAnnotateSelect(id: String, toType: String)
-GET     /cpf/link/:id/:toType/:to     controllers.Actors.linkAnnotate(id: String, toType: String, to: String)
-POST    /cpf/link/:id/:toType/:to     controllers.Actors.linkAnnotatePost(id: String, toType: String, to: String)
+GET     /cpf                controllers.HistoricalAgents.list
+GET     /cpf/search         controllers.HistoricalAgents.search
+GET     /cpf/show/:id       controllers.HistoricalAgents.get(id: String)
+GET     /cpf/history/:id    controllers.HistoricalAgents.history(id: String)
+GET     /cpf/json/:id       controllers.HistoricalAgents.getJson(id: String)
+GET     /cpf/create         controllers.HistoricalAgents.create
+POST    /cpf/create         controllers.HistoricalAgents.createPost
+GET     /cpf/delete/:id     controllers.HistoricalAgents.delete(id: String)
+POST    /cpf/delete/:id     controllers.HistoricalAgents.deletePost(id: String)
+GET     /cpf/update/:id     controllers.HistoricalAgents.update(id: String)
+POST    /cpf/update/:id     controllers.HistoricalAgents.updatePost(id: String)
+GET     /cpf/visibility/:id     controllers.HistoricalAgents.visibility(id: String)
+POST    /cpf/visibility/:id     controllers.HistoricalAgents.visibilityPost(id: String)
+GET     /cpf/permissions/:id/manage    controllers.HistoricalAgents.managePermissions(id: String, page: Int ?= 1, limit: Int ?=20)
+GET     /cpf/permissions/:id/add    controllers.HistoricalAgents.addItemPermissions(id: String)
+GET     /cpf/permissions/:id/:userType/:userId    controllers.HistoricalAgents.setItemPermissions(id: String, userType: String, userId: String)
+POST    /cpf/permissions/:id/:userType/:userId    controllers.HistoricalAgents.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /cpf/annotate/:id     controllers.HistoricalAgents.annotate(id: String)
+POST    /cpf/annotate/:id     controllers.HistoricalAgents.annotatePost(id: String)
+GET     /cpf/link/:id          controllers.HistoricalAgents.linkTo(id: String)
+GET     /cpf/link/:id/:toType     controllers.HistoricalAgents.linkAnnotateSelect(id: String, toType: String)
+GET     /cpf/link/:id/:toType/:to     controllers.HistoricalAgents.linkAnnotate(id: String, toType: String, to: String)
+POST    /cpf/link/:id/:toType/:to     controllers.HistoricalAgents.linkAnnotatePost(id: String, toType: String, to: String)
 
 GET     /vocabs                controllers.Vocabularies.list
 GET     /vocabs/show/:id       controllers.Vocabularies.get(id: String)
