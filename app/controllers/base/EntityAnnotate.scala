@@ -9,6 +9,24 @@ import models.{Annotation, Entity, UserProfile}
 import play.api.data.Form
 import models.AnnotationF
 import rest.{RestPageParams, EntityDAO}
+import collection.immutable.ListMap
+import controllers.ListParams
+
+object EntityAnnotate {
+  /**
+   * Mapping between incoming list filter parameters
+   * and the data values accessed via the server.
+   */
+  val DEFAULT_SORT = AccessibleEntity.NAME
+
+  val listFilterMappings: ListMap[String,String] = ListMap(
+    AccessibleEntity.NAME -> s"<-describes.${AccessibleEntity.NAME}"
+  )
+
+  val orderMappings: ListMap[String,String] = ListMap(
+    AccessibleEntity.NAME -> AccessibleEntity.NAME
+  )
+}
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
@@ -40,14 +58,20 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
     }
   }
 
-  def linkSelectAction(id: String, toType: String)(f: AnnotatableEntity => rest.Page[AnnotatableEntity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def linkSelectAction(id: String, toType: String)(f: AnnotatableEntity => rest.Page[AnnotatableEntity] => ListParams => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
       AnnotatableEntity.fromEntity(item).map { ann =>
+        val params = ListParams.bind(request)
+
+        // Need to process params!
+
+        val rp = params.toRestParams(EntityAnnotate.listFilterMappings, EntityAnnotate.orderMappings, Some(EntityAnnotate.DEFAULT_SORT))
+
         AsyncRest {
-          EntityDAO(linkSrcEntityType, userOpt).page(new RestPageParams()).map { pageOrErr =>
+          EntityDAO(linkSrcEntityType, userOpt).page(rp).map { pageOrErr =>
             pageOrErr.right.map { page =>
-              f(ann)(page.copy(items = page.items.flatMap(e => AnnotatableEntity.fromEntity(e))))(userOpt)(request)
+              f(ann)(page.copy(items = page.items.flatMap(e => AnnotatableEntity.fromEntity(e))))(params)(userOpt)(request)
             }
           }
         }

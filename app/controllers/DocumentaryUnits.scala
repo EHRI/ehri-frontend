@@ -295,8 +295,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   }
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
-    item => page => implicit userOpt => implicit request =>
-      Ok(views.html.annotation.linkSourceList(item, page,
+    item => page => params => implicit userOpt => implicit request =>
+      Ok(views.html.annotation.linkSourceList(item, page, params,
         EntityType.withName(toType), routes.DocumentaryUnits.linkAnnotate _))
   }
 
