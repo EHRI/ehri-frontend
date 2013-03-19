@@ -16,7 +16,7 @@ object ConceptType extends Enumeration {
 
 object ConceptF {
   val LANGUAGE = "languageCode"
-  val PREFLABEL = "prefLabel"
+  val PREFLABEL = "name"
   val ALTLABEL = "altLabel"
   val DEFINITION = "definition"
   val SCOPENOTE = "scopeNote"
