@@ -9,11 +9,6 @@ import play.api.libs.json.Json
 import defines.EnumWriter.enumWrites
 import play.api.i18n.Lang
 
-object ConceptType extends Enumeration {
-  type Type = Value
-
-}
-
 object ConceptF {
   val LANGUAGE = "languageCode"
   val PREFLABEL = "name"
@@ -21,6 +16,9 @@ object ConceptF {
   val DEFINITION = "definition"
   val SCOPENOTE = "scopeNote"
 
+  object ConceptType extends Enumeration {
+    type Type = Value
+  }
 }
 
 case class ConceptF(
