@@ -154,6 +154,7 @@ users.groups=Group Membership
 #
 # Groups
 #
+group.admin=Admin
 group.identifier=Group Identifier
 group.name=Group Name
 group.description=Group Description
