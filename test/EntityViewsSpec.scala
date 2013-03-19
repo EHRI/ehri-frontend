@@ -603,7 +603,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "list should get some items" in {
       running(fakeLoginApplication(testOrdinaryUser, additionalConfiguration = config)) {
-        val list = route(fakeLoggedInRequest(GET, routes.Actors.list().url)).get
+        val list = route(fakeLoggedInRequest(GET, routes.HistoricalAgents.list().url)).get
         status(list) must equalTo(OK)
         contentAsString(list) must contain(multipleItemsHeader)
         contentAsString(list) must contain("a1")
@@ -626,7 +626,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "publicationStatus" -> Seq("Published")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Actors.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.HistoricalAgents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         // FIXME: This route will change when a property ID mapping scheme is devised
@@ -642,7 +642,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
         val testData: Map[String, Seq[String]] = Map(
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Actors.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.HistoricalAgents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(BAD_REQUEST)
       }
     }
@@ -653,7 +653,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "identifier" -> Seq("a1")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Actors.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.HistoricalAgents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(BAD_REQUEST)
       }
     }
@@ -661,12 +661,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
 
     "link to other privileged actions when logged in" in {
       running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
-        val show = route(fakeLoggedInRequest(GET, routes.Actors.get("a1").url)).get
+        val show = route(fakeLoggedInRequest(GET, routes.HistoricalAgents.get("a1").url)).get
         status(show) must equalTo(OK)
-        contentAsString(show) must contain(routes.Actors.update("a1").url)
-        contentAsString(show) must contain(routes.Actors.delete("a1").url)
-        contentAsString(show) must contain(routes.Actors.visibility("a1").url)
-        contentAsString(show) must contain(routes.Actors.list().url)
+        contentAsString(show) must contain(routes.HistoricalAgents.update("a1").url)
+        contentAsString(show) must contain(routes.HistoricalAgents.delete("a1").url)
+        contentAsString(show) must contain(routes.HistoricalAgents.visibility("a1").url)
+        contentAsString(show) must contain(routes.HistoricalAgents.list().url)
       }
     }
 
@@ -685,7 +685,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "publicationStatus" -> Seq("Draft")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Actors.updatePost("a1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.HistoricalAgents.updatePost("a1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         val show = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
@@ -700,7 +700,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
           "identifier" -> Seq("a1")
         )
         val cr = route(fakeLoggedInRequest(POST,
-          routes.Actors.updatePost("a1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.HistoricalAgents.updatePost("a1").url).withHeaders(postHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(UNAUTHORIZED)
       }
     }
