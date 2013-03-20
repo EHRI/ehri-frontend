@@ -16,6 +16,7 @@ object ConceptF {
   val DEFINITION = "definition"
   val SCOPENOTE = "scopeNote"
 
+  // NB: Type is currently unused...
   object ConceptType extends Enumeration {
     type Type = Value
   }
@@ -31,21 +32,6 @@ case class ConceptF(
   import json.ConceptFormat._
   def toJson = Json.toJson(this)
 }
-
-case class ConceptDescriptionF(
-  val id: Option[String],
-  val languageCode: String,
-  val prefLabel: String,
-  val altLabels: Option[List[String]] = None,
-  val definition: Option[List[String]] = None,
-  val scopeNote: Option[List[String]] = None
-) extends Persistable {
-  val isA = EntityType.ConceptDescription
-
-  import json.ConceptDescriptionFormat._
-  def toJson = Json.toJson(this)
-}
-
 
 object Concept {
   final val VOCAB_REL = "inCvoc"
@@ -83,15 +69,4 @@ case class Concept(e: Entity)
   def toString(implicit lang: Lang) = descriptions
     .find(_.formable.languageCode==lang.code).orElse(descriptions.headOption)
     .flatMap(_.stringProperty(ConceptF.PREFLABEL)).getOrElse(identifier)
-}
-
-case class ConceptDescription(val e: Entity)
-  extends Description
-  with Formable[ConceptDescriptionF] {
-
-  lazy val item: Option[Concept] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Concept(_))
-
-  import json.ConceptDescriptionFormat._
-  def formable: ConceptDescriptionF = Json.toJson(e).as[ConceptDescriptionF]
-  def formableOpt: Option[ConceptDescriptionF] = Json.toJson(e).asOpt[ConceptDescriptionF]
 }
