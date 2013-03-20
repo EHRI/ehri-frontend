@@ -194,8 +194,8 @@ actions.updateConcept=Update Concept
 actions.updateVocabulary=Update Vocabulary
 actions.linkTo=Link to another item
 actions.linkToConcept=Link to a vocabulary term
-actions.linkToDocumentaryUnit=Link to an archival description
-actions.linkToHistoricalAgent=Link to an authority
+actions.linkToDocumentaryUnit=Link to a documentary unit
+actions.linkToHistoricalAgent=Link to an authority file
 
 actions.backToList=Back to List
 actions.viewProfile=View Profile

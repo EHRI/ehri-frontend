@@ -10,7 +10,7 @@ import defines.{EntityType, PermissionType, ContentType}
 import play.Play.application
 import rest.{RestPageParams, EntityDAO}
 import play.api.libs.iteratee.{Concurrent, Enumerator}
-import models.Entity
+import models.{Isaar,Isdiah,IsadG,Entity}
 import play.api.Logger
 import play.api.libs.Comet
 import concurrent.Future
@@ -26,8 +26,8 @@ object Search extends EntitySearch {
   val searchEntities = List() // i.e. Everything
   val entityFacets = List(
     FieldFacetClass(
-      key="languageCode",
-      name=Messages("isadg.languageCode"),
+      key=IsadG.LANG_CODE,
+      name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
       param="lang",
       render=Helpers.languageCodeToName
     ),

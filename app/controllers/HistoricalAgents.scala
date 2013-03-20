@@ -1,6 +1,6 @@
 package controllers
 
-import models.{HistoricalAgent, HistoricalAgentF}
+import models.{HistoricalAgent, HistoricalAgentF,Isaar}
 import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
@@ -18,16 +18,17 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   val listFilterMappings = ListMap[String,String]()
   val orderMappings = ListMap[String,String]()
-  val DEFAULT_SORT = "name"
+
+  val DEFAULT_SORT = Isaar.AUTHORIZED_FORM_OF_NAME
 
   // Documentary unit facets
   import solr.facet._
   val entityFacets = List(
     FieldFacetClass(
       key=models.Isaar.ENTITY_TYPE,
-      name=Messages("isaar." + models.Isaar.ENTITY_TYPE),
+      name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
       param="cpf",
-      render=s => Messages("isaar." + s)
+      render=s => Messages(Isaar.LANG_CODE + "." + s)
     )
   )
 
