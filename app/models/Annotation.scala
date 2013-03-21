@@ -56,7 +56,8 @@ case class Annotation(val e: Entity) extends AccessibleEntity
 
   def annotations: List[Annotation] = e.relations(Annotation.ANNOTATES_REL).map(Annotation(_))
   def accessor: Option[Accessor] = e.relations(Annotation.ACCESSOR_REL).headOption.map(Accessor(_))
-  def source: Option[AnnotatableEntity] = e.relations(Annotation.SOURCE_REL).headOption.flatMap(AnnotatableEntity.fromEntity(_))
+  def source: Option[AnnotatableEntity] = e.relations(Annotation.SOURCE_REL)
+      .headOption.flatMap(AnnotatableEntity.fromEntity(_))
 
   /**
    * Output a formatted label representation. TODO: Improve.
