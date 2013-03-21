@@ -30,13 +30,24 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
     }
   }
 
+
+  /**
+   * Short cut search action without the ability to provide default filters
+   * @param f
+   * @return
+   */
+  def searchAction(f: solr.ItemPage[Entity] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+    searchAction(Map.empty[String,String])(f)
+  }
+
   /**
    * Action that restricts the search to the inherited entity type
    * and applies
    * @param f
    * @return
    */
-  def searchAction(f: solr.ItemPage[Entity] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def searchAction(filters: Map[String,String] = Map.empty)(
+      f: solr.ItemPage[Entity] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
         // Override the entity type with the controller entity type

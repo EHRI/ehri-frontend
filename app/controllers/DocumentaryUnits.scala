@@ -96,10 +96,19 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val builder = DocumentaryUnit
 
 
-  def search = searchAction {
+  def search = {
+    searchAction {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.search.search(page, params, facets, routes.DocumentaryUnits.search))
+        Ok(views.html.search.search(page, params, facets, routes.DocumentaryUnits.search))
+    }
+  }
 
+  def searchChildren(id: String) = itemPermissionAction(contentType, id) {
+      item => implicit userOpt => implicit request =>
+    searchAction(Map("parentId" -> item.id)) {
+      page => params => facets => implicit userOpt => implicit request =>
+        Ok(views.html.search.search(page, params, facets, routes.DocumentaryUnits.search))
+    }(request)
   }
 
   def get(id: String) = getWithChildrenAction(id, builder) {
