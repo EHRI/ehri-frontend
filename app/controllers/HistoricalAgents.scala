@@ -1,7 +1,7 @@
 package controllers
 
 import models.{HistoricalAgent, HistoricalAgentF,Isaar}
-import models.forms.VisibilityForm
+import _root_.models.forms.{AnnotationForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import defines._
@@ -56,7 +56,6 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   def search = searchAction {
     page => params => facets => implicit userOpt => implicit request =>
       Ok(views.html.search.search(page, params, facets, routes.HistoricalAgents.search))
-
   }
 
   def get(id: String) = getAction(id) {
@@ -171,20 +170,20 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   }
 
   def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-    item => implicit userOpt => implicit request =>
-      Ok(views.html.historicalAgent.linkTo(HistoricalAgent(item)))
+      item => implicit userOpt => implicit request =>
+    Ok(views.html.historicalAgent.linkTo(HistoricalAgent(item)))
   }
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
-    item => page => params => implicit userOpt => implicit request =>
-      Ok(views.html.annotation.linkSourceList(item, page, params,
+      item => page => params => implicit userOpt => implicit request =>
+    Ok(views.html.annotation.linkSourceList(item, page, params,
         EntityType.withName(toType), routes.HistoricalAgents.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
-    target => source => implicit userOpt => implicit request =>
-      Ok(views.html.annotation.linkAnnotate(target, source,
-        models.AnnotationForm.form, routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
+      target => source => implicit userOpt => implicit request =>
+    Ok(views.html.annotation.linkAnnotate(target, source,
+        AnnotationForm.form, routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
@@ -200,5 +199,4 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
         }
       }
   }
-
 }

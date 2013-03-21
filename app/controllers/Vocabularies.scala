@@ -2,7 +2,7 @@ package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{Concept,Vocabulary,VocabularyF,ConceptF}
-import models.forms.VisibilityForm
+import _root_.models.forms.{AnnotationForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import base._
@@ -156,7 +156,8 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Vocabulary(item), models.AnnotationForm.form, routes.Vocabularies.annotatePost(id)))
+    Ok(views.html.annotation.annotate(Vocabulary(item),
+      AnnotationForm.form, routes.Vocabularies.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) {

@@ -2,7 +2,7 @@ package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{Concept,ConceptF}
-import models.forms.VisibilityForm
+import _root_.models.forms.{AnnotationForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import base._
@@ -185,7 +185,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.annotation.linkAnnotate(target, source,
-            models.AnnotationForm.form, routes.Concepts.linkAnnotatePost(id, toType, to)))
+            AnnotationForm.form, routes.Concepts.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {

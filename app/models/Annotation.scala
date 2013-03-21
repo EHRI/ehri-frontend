@@ -43,18 +43,6 @@ case class AnnotationF(
 }
 
 
-object AnnotationForm {
-
-  import AnnotationF._
-
-  val form = Form(mapping(
-    Entity.ID -> optional(nonEmptyText),
-    ANNOTATION_TYPE -> models.forms.enum(AnnotationType),
-    BODY -> nonEmptyText, // TODO: Validate this server side
-    FIELD -> optional(nonEmptyText),
-    COMMENT -> optional(nonEmptyText)
-  )(AnnotationF.apply)(AnnotationF.unapply))
-}
 
 object Annotation {
   final val ANNOTATES_REL = "hasAnnotationTarget"

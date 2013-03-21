@@ -1,7 +1,7 @@
 package controllers
 
 import models.{Repository, RepositoryF, DocumentaryUnit,DocumentaryUnitF}
-import models.forms.VisibilityForm
+import _root_.models.forms.{AnnotationForm, VisibilityForm}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
@@ -208,7 +208,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Repository(item), models.AnnotationForm.form, routes.Repositories.annotatePost(id)))
+    Ok(views.html.annotation.annotate(Repository(item), AnnotationForm.form, routes.Repositories.annotatePost(id)))
   }
 
   def annotatePost(id: String) = annotationPostAction(id) {

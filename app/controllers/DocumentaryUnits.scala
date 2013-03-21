@@ -1,7 +1,7 @@
 package controllers
 
 import models.{DocumentaryUnitDescription, DocumentaryUnit, DocumentaryUnitF, DocumentaryUnitDescriptionF, Entity, IsadG,DatePeriodF}
-import _root_.models.forms.VisibilityForm
+import _root_.models.forms.{AnnotationForm, VisibilityForm}
 import _root_.models.base.{AnnotatableEntity, AccessibleEntity}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
@@ -303,7 +303,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.annotation.linkAnnotate(target, source,
-        models.AnnotationForm.form, routes.DocumentaryUnits.linkAnnotatePost(id, toType, to)))
+        AnnotationForm.form, routes.DocumentaryUnits.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {

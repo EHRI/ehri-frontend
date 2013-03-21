@@ -5,12 +5,13 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import models.base.Persistable
 import defines._
-import models.{Annotation, Entity, UserProfile}
+import models._
 import play.api.data.Form
-import models.AnnotationF
 import rest.{RestPageParams, EntityDAO}
 import collection.immutable.ListMap
 import controllers.ListParams
+import models.forms.AnnotationForm
+
 
 object EntityAnnotate {
   /**
@@ -37,13 +38,13 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
 
   def annotationAction(id: String)(f: models.Entity => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      f(item)(models.AnnotationForm.form.bindFromRequest.discardingErrors)(userOpt)(request)
+      f(item)(AnnotationForm.form.bindFromRequest.discardingErrors)(userOpt)(request)
     }
   }
 
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      models.AnnotationForm.form.bindFromRequest.fold(
+      AnnotationForm.form.bindFromRequest.fold(
         errorForm => f(Left(errorForm))(userOpt)(request),
         ann => {
           AsyncRest {
@@ -99,7 +100,7 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
   def linkPostAction(id: String, toType: String, to: String)(
       f: Either[(AnnotatableEntity,AnnotatableEntity,Form[AnnotationF]),Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      models.AnnotationForm.form.bindFromRequest.fold(
+      AnnotationForm.form.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
           getEntity(EntityType.withName(toType), to) { srcitem =>
           // If neither items are annotatable throw a 404
