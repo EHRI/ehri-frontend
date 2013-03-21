@@ -19,11 +19,13 @@ object AnnotationForm {
     COMMENT -> optional(nonEmptyText)
   )(AnnotationF.apply)(AnnotationF.unapply))
 
-  val multiForm = Form(    list(
-    tuple(
+
+
+  val multiForm = Form(    single(
+    "annotation" -> list(tuple(
       "src" -> nonEmptyText,
       "dst" -> nonEmptyText,
-      "annotation" -> form.mapping
-    )
+      "data" -> form.mapping
+    ))
   ))
 }
