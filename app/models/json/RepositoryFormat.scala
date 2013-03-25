@@ -7,15 +7,15 @@ import play.api.libs.json._
 import defines.{EntityType, PublicationStatus}
 import models.base.DescribedEntity
 import models._
+import defines.EnumUtils._
 
 
 object RepositoryFormat {
-  import defines.EnumWriter.enumWrites
   import models.json.IsdiahFormat._
   import models.Entity._
   import models.RepositoryF._
 
-  implicit val publicationStatusReads = defines.EnumReader.enumReads(PublicationStatus)
+  implicit val publicationStatusReads = defines.EnumUtils.enumReads(PublicationStatus)
 
   implicit val repositoryWrites: Writes[RepositoryF] = new Writes[RepositoryF] {
     def writes(d: RepositoryF): JsValue = {

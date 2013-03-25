@@ -5,12 +5,12 @@ import models.{DatePeriodType, Entity, DatePeriodF}
 import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
 import defines.EntityType
+import defines.EnumUtils._
 
 
 object DatePeriodFormat {
   import Entity.{TYPE => ETYPE,_}
   import DatePeriodF._
-  import defines.EnumReader.enumReads
 
   implicit val datePeriodTypeReads = enumReads(DatePeriodType)
 
@@ -22,7 +22,7 @@ object DatePeriodFormat {
       (__ \ DATA \ END_DATE).read[DateTime]
     )(DatePeriodF.apply _)
 
-  import defines.EnumWriter.enumWrites
+  import defines.EnumUtils.enumWrites
   implicit val datePeriodWrites = new Writes[DatePeriodF] {
     def writes(d: DatePeriodF): JsValue = {
       Json.obj(

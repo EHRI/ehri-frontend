@@ -3,6 +3,7 @@ package models.json
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.libs.json.util._
+import defines.EnumUtils._
 
 
 import defines.{EntityType, PublicationStatus}
@@ -11,14 +12,13 @@ import models.{DocumentaryUnitDescriptionF, DocumentaryUnitF}
 
 
 object DocumentaryUnitFormat {
-  import defines.EnumWriter.enumWrites
   import models.json.IsadGFormat._
   import models.Entity._
   import models.DocumentaryUnitF._
 
-  implicit val publicationStatusReads = defines.EnumReader.enumReads(PublicationStatus)
-  implicit val copyrightStatusReads = defines.EnumReader.enumReads(CopyrightStatus)
-  implicit val scopeReads = defines.EnumReader.enumReads(Scope)
+  implicit val publicationStatusReads = defines.EnumUtils.enumReads(PublicationStatus)
+  implicit val copyrightStatusReads = defines.EnumUtils.enumReads(CopyrightStatus)
+  implicit val scopeReads = defines.EnumUtils.enumReads(Scope)
 
   implicit val documentaryUnitWrites: Writes[DocumentaryUnitF] = new Writes[DocumentaryUnitF] {
     def writes(d: DocumentaryUnitF): JsValue = {

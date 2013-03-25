@@ -4,15 +4,15 @@ import play.api.libs.json._
 import models._
 import play.api.libs.functional.syntax._
 import defines.EntityType
+import defines.EnumUtils._
 
 
 object IsaarFormat {
-  import defines.EnumWriter.enumWrites
   import Entity._
   import HistoricalAgentF._
   import Isaar._
 
-  implicit val HistoricalAgentTypeReads = defines.EnumReader.enumReads(HistoricalAgentType)
+  implicit val HistoricalAgentTypeReads = defines.EnumUtils.enumReads(HistoricalAgentType)
 
   implicit val isaarWrites = new Writes[HistoricalAgentDescriptionF] {
     def writes(d: HistoricalAgentDescriptionF): JsValue = {

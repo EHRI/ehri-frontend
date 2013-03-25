@@ -2,9 +2,9 @@ package models.json
 
 import play.api.libs.json._
 import models._
-import models.base.TemporalEntity
 import play.api.libs.functional.syntax._
 import defines.EntityType
+import defines.EnumUtils._
 
 
 object AddressFormat {
@@ -14,7 +14,6 @@ object AddressFormat {
 
   implicit val addressWrites = new Writes[AddressF] {
     def writes(d: AddressF): JsValue = {
-      import defines.EnumWriter.enumWrites
       Json.obj(
         ID -> d.id,
         TYPE -> d.isA,

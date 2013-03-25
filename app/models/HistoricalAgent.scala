@@ -4,11 +4,11 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{EntityType, PublicationStatus, enum}
+import defines.{EntityType, PublicationStatus}
+import defines.EnumUtils._
 import base._
 
 import play.api.libs.json._
-import defines.EnumWriter.enumWrites
 
 object HistoricalAgentF {
 
@@ -42,7 +42,7 @@ case class HistoricalAgent(val e: Entity)
   with Formable[HistoricalAgentF] {
   override def descriptions: List[HistoricalAgentDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(HistoricalAgentDescription(_))
 
-  val publicationStatus = e.property(HistoricalAgentF.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
+  val publicationStatus = e.property(HistoricalAgentF.PUBLICATION_STATUS).flatMap(enumReads(PublicationStatus).reads(_).asOpt)
 
   import json.HistoricalAgentFormat._
   lazy val formable: HistoricalAgentF = Json.toJson(e).as[HistoricalAgentF]

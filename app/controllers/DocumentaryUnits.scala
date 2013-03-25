@@ -31,8 +31,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   import solr.facet._
   val entityFacets = List(
     FieldFacetClass(
-      key="languageCode",
-      name=Messages("isadg.languageCode"),
+      key=IsadG.LANG_CODE,
+      name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
       param="lang",
       render=Helpers.languageCodeToName
     ),

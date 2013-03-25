@@ -8,7 +8,7 @@ import models._
 
 import play.Play.application
 
-import defines.EnumWriter.enumWrites
+import defines.EnumUtils.enumWrites
 import concurrent.Future
 import rest.{ServerError, ValidationError, RestDAO, RestError}
 import play.api.Logger

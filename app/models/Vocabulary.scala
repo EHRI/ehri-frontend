@@ -5,7 +5,7 @@ import base._
 import models.base.Persistable
 import defines.EntityType
 import play.api.libs.json.Json
-import defines.EnumWriter.enumWrites
+import defines.EnumUtils.enumWrites
 
 object VocabularyType extends Enumeration {
   type Type = Value

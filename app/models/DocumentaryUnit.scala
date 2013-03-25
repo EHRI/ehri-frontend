@@ -1,13 +1,11 @@
 package models
 
 import defines._
+import defines.EnumUtils._
 import models.base._
 
 import models.base.{DescribedEntity, AttributeSet, Persistable, TemporalEntity}
 import play.api.libs.json.{Json, JsString, JsValue}
-import defines.EnumWriter.enumWrites
-import defines.enum
-
 
 
 case class DocumentaryUnit(val e: Entity) extends NamedEntity
@@ -24,11 +22,11 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
 
   val holder: Option[Repository] = e.relations(HELD_REL).headOption.map(Repository(_))
   val parent: Option[DocumentaryUnit] = e.relations(CHILD_REL).headOption.map(DocumentaryUnit(_))
-  val publicationStatus = e.property(IsadG.PUB_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
+  val publicationStatus = e.property(IsadG.PUB_STATUS).flatMap(enumReads(PublicationStatus).reads(_).asOpt)
   // NB: There is a default value of copyright status, so use 'unknown'.
-  val copyrightStatus = e.property(COPYRIGHT).flatMap(enum(CopyrightStatus).reads(_).asOpt)
+  val copyrightStatus = e.property(COPYRIGHT).flatMap(enumReads(CopyrightStatus).reads(_).asOpt)
     .orElse(Some(CopyrightStatus.Unknown))
-  val scope = e.property(SCOPE).flatMap(enum(Scope).reads(_).asOpt)
+  val scope = e.property(SCOPE).flatMap(enumReads(Scope).reads(_).asOpt)
 
   override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
 

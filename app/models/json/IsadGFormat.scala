@@ -4,12 +4,11 @@ import play.api.libs.json._
 import models._
 import models.base.TemporalEntity
 import play.api.libs.functional.syntax._
-import defines.EnumReader._
 import defines.EntityType
+import defines.EnumUtils._
 
 
 object IsadGFormat {
-  import defines.EnumWriter.enumWrites
   import Entity._
   import IsadG._
   import DatePeriodFormat._

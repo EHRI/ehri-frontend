@@ -5,10 +5,9 @@ import play.api.libs.json._
 
 import models.{AnnotationF,AnnotationType}
 import defines.EntityType
+import defines.EnumUtils._
 
 object AnnotationFormat {
-  import defines.EnumWriter.enumWrites
-  import defines.EnumReader.enumReads
   import models.AnnotationF._
   import models.Entity._
 

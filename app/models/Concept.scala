@@ -6,7 +6,6 @@ import models.base.Persistable
 import models.base.DescribedEntity
 import defines.EntityType
 import play.api.libs.json.Json
-import defines.EnumWriter.enumWrites
 import play.api.i18n.Lang
 
 object ConceptF {

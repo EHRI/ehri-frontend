@@ -5,10 +5,10 @@ import play.api.libs.json._
 
 import models._
 import defines.EntityType
+import defines.EnumUtils._
 
 
 object VocabularyFormat {
-  import defines.EnumWriter.enumWrites
   import models.VocabularyF._
   import models.Entity._
 

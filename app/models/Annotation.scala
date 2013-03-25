@@ -1,18 +1,10 @@
 package models
 
 import base.{AnnotatableEntity, AccessibleEntity, Accessor, Formable}
-import org.joda.time.DateTime
-
-import defines.enum
-import play.api.i18n.Messages
-
-import play.api.data.Form
-import play.api.data.Forms._
-
 import models.base.Persistable
 import defines.EntityType
 import play.api.libs.json.Json
-import defines.EnumWriter.enumWrites
+
 
 object AnnotationType extends Enumeration {
   type Type = Value

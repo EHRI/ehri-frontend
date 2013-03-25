@@ -5,11 +5,11 @@ import models._
 import models.base.TemporalEntity
 import play.api.libs.functional.syntax._
 import defines.EntityType
+import defines.EnumUtils._
 
 
 object IsdiahFormat {
 
-  import defines.EnumWriter.enumWrites
   import AddressFormat._
   import Entity._
   import Isdiah._

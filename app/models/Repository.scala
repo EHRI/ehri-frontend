@@ -4,10 +4,10 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{EntityType, PublicationStatus, enum}
+import defines.{EntityType, PublicationStatus}
 
 import play.api.libs.json._
-import defines.EnumWriter.enumWrites
+import defines.EnumUtils._
 import models.base._
 
 
@@ -46,7 +46,7 @@ case class Repository(val e: Entity)
   override def descriptions: List[RepositoryDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(RepositoryDescription(_))
 
   // Shortcuts...
-  val publicationStatus = e.property(RepositoryF.PUBLICATION_STATUS).flatMap(enum(PublicationStatus).reads(_).asOpt)
+  val publicationStatus = e.property(RepositoryF.PUBLICATION_STATUS).flatMap(enumReads(PublicationStatus).reads(_).asOpt)
   val priority = e.property(RepositoryF.PRIORITY).flatMap(_.asOpt[Int])
 
   import json.RepositoryFormat._

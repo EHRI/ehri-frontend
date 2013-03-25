@@ -6,7 +6,6 @@ import org.joda.time.DateTime
 import models.base.Persistable
 import defines.EntityType
 import play.api.libs.json.Json
-import defines.EnumWriter.enumWrites
 
 
 object DatePeriodType extends Enumeration {

@@ -5,7 +5,7 @@ import java.util.Locale
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParams, FacetParam, Param, Value}
 import defines.EntityType
 import views.Helpers
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import play.api.mvc.{AnyContent, Request}
 
 object Utils {
@@ -97,8 +97,7 @@ sealed abstract class FacetClass (
   val render: (String) => String = s => s,
   private val facets: List[Facet] = Nil,
   val sort: Enumeration = CountOrder
-)
-{
+) {
   val fieldType: String
   
   def count: Int = facets.length

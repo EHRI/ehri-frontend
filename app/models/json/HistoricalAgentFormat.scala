@@ -8,15 +8,15 @@ import defines.{EntityType, PublicationStatus}
 import models.base.DescribedEntity
 import models._
 import play.api.data.validation.ValidationError
+import defines.EnumUtils._
 
 
 object HistoricalAgentFormat {
-  import defines.EnumWriter.enumWrites
   import models.json.IsaarFormat._
   import models.Entity._
   import models.HistoricalAgentF._
 
-  implicit val publicationStatusReads = defines.EnumReader.enumReads(PublicationStatus)
+  implicit val publicationStatusReads = defines.EnumUtils.enumReads(PublicationStatus)
 
   implicit val actorWrites: Writes[HistoricalAgentF] = new Writes[HistoricalAgentF] {
     def writes(d: HistoricalAgentF): JsValue = {

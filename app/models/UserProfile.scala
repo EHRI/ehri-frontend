@@ -7,7 +7,7 @@ import models.base._
 import base.Persistable
 import defines.EntityType
 import play.api.libs.json.Json
-import defines.EnumWriter.enumWrites
+import defines.EnumUtils.enumWrites
 
 
 object UserProfileF {

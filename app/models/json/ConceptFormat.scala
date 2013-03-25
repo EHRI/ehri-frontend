@@ -3,13 +3,13 @@ package models.json
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import defines.{EntityType, PublicationStatus}
+import defines.EntityType
 import models.base.DescribedEntity
 import models._
+import defines.EnumUtils._
 
 
 object ConceptFormat {
-  import defines.EnumWriter.enumWrites
   import models.json.ConceptDescriptionFormat._
   import models.Entity._
 

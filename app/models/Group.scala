@@ -3,8 +3,6 @@ package models
 import models.base._
 import defines.EntityType
 import play.api.libs.json.Json
-import defines.EnumWriter.enumWrites
-
 
 object GroupF {
 

@@ -5,10 +5,10 @@ import play.api.libs.json._
 
 import models._
 import defines.EntityType
+import defines.EnumUtils._
 
 
 object UserProfileFormat {
-  import defines.EnumWriter.enumWrites
   import models.UserProfileF._
   import models.Entity._
 
