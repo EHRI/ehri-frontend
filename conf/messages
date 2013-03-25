@@ -116,7 +116,7 @@ describedEntity.noData=No information given
 #
 concept.descriptions=Descriptions
 concept.languageCode=Language
-concept.prefLabel=Label
+concept.name=Preferred Label
 concept.altLabel=Alternative Label(s)
 concept.scopeNote=Scope Note
 concept.definition=Definition
