@@ -11,6 +11,7 @@ import rest.{RestPageParams, EntityDAO}
 import collection.immutable.ListMap
 import controllers.ListParams
 import models.forms.AnnotationForm
+import scala.concurrent.Future
 
 
 object EntityAnnotate {
@@ -119,6 +120,39 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
               annOrErr.right.map { ann =>
                 f(Right(ann))(userOpt)(request)
               }
+            }
+          }
+        }
+      )
+    }
+  }
+
+  def linkPostMultiAction(id: String)(
+    f: Either[(AnnotatableEntity,Form[List[(String,String,AnnotationF)]]),List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+      val multiForm: Form[List[(String,String,AnnotationF)]] = models.forms.AnnotationForm.multiForm
+      multiForm.bindFromRequest.fold(
+        errorForm => { // oh dear, we have an error...
+          val res: Option[Result] = for {
+            target <- AnnotatableEntity.fromEntity(item)
+          } yield {
+            f(Left((target,errorForm)))(userOpt)(request)
+          }
+          res.getOrElse(NotFound(views.html.errors.itemNotFound()))
+        },
+        annFrms => {
+          Async {
+            val anns: Future[List[Annotation]] = Future.sequence {
+              annFrms.map { case (to, contentType, ann) =>
+                rest.AnnotationDAO(userOpt).link(id, to, ann).map { annOrErr =>
+                  // TODO: Fix error handling...
+                  if (annOrErr.isLeft) sys.error("Unable to create annotation: " + annOrErr.left.get)
+                  annOrErr.right.get
+                }
+              }
+            }
+            anns.map { lst =>
+              f(Right(lst))(userOpt)(request)
             }
           }
         }
