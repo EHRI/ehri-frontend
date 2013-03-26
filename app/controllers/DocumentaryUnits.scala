@@ -343,7 +343,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
           errorForms, routes.DocumentaryUnits.linkMultiAnnotatePost(id)))
       }
       case Right(annotations) => {
-        println("Links!: " + annotations)
         Redirect(routes.DocumentaryUnits.get(id))
           .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
       }
