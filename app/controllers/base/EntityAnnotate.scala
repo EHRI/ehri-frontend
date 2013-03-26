@@ -7,7 +7,7 @@ import models.base.Persistable
 import defines._
 import models._
 import play.api.data.Form
-import rest.{RestPageParams, EntityDAO}
+import rest.{RestError, RestPageParams, EntityDAO}
 import collection.immutable.ListMap
 import controllers.ListParams
 import models.forms.AnnotationForm
@@ -127,10 +127,22 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
     }
   }
 
+  def linkMultiAction(id: String)(f: AnnotatableEntity => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+      val res: Option[Result] = for {
+        target <- AnnotatableEntity.fromEntity(item)
+      } yield {
+        f(target)(userOpt)(request)
+      }
+      res.getOrElse(NotFound(views.html.errors.itemNotFound()))
+    }
+  }
+
   def linkPostMultiAction(id: String)(
-    f: Either[(AnnotatableEntity,Form[List[(String,String,AnnotationF)]]),List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Either[(AnnotatableEntity,Form[List[(String,AnnotationF)]]),List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      val multiForm: Form[List[(String,String,AnnotationF)]] = models.forms.AnnotationForm.multiForm
+      println("Form data: " + request.body.asFormUrlEncoded)
+      val multiForm: Form[List[(String,AnnotationF)]] = models.forms.AnnotationForm.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
           val res: Option[Result] = for {
@@ -140,19 +152,21 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
           }
           res.getOrElse(NotFound(views.html.errors.itemNotFound()))
         },
-        annFrms => {
-          Async {
-            val anns: Future[List[Annotation]] = Future.sequence {
-              annFrms.map { case (to, contentType, ann) =>
-                rest.AnnotationDAO(userOpt).link(id, to, ann).map { annOrErr =>
-                  // TODO: Fix error handling...
-                  if (annOrErr.isLeft) sys.error("Unable to create annotation: " + annOrErr.left.get)
-                  annOrErr.right.get
-                }
+        links => {
+          AsyncRest {
+            val anns: Future[List[Either[RestError,Annotation]]] = Future.sequence {
+              links.map { case (other, linkData) =>
+                rest.AnnotationDAO(userOpt).link(id, other, linkData)
               }
             }
-            anns.map { lst =>
-              f(Right(lst))(userOpt)(request)
+            anns.map { (lst: List[Either[RestError,Annotation]]) =>
+              // If there was an error, pluck the first one out and
+              // return it...
+              lst.filter(_.isLeft).map(_.left.get).headOption.map { err =>
+                Left(err)
+              } getOrElse {
+                Right(f(Right(lst.map(_.right.get)))(userOpt)(request))
+              }
             }
           }
         }

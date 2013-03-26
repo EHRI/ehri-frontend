@@ -328,6 +328,27 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       }
     }
   }
+
+  def linkMultiAnnotate(id: String) = linkMultiAction(id) {
+      target => implicit userOpt => implicit request =>
+    Ok(views.html.annotation.linkAnnotateMulti(target,
+        AnnotationForm.multiForm, routes.DocumentaryUnits.linkMultiAnnotatePost(id)))
+  }
+
+  def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {
+      formOrAnnotations => implicit userOpt => implicit request =>
+    formOrAnnotations match {
+      case Left((target,errorForms)) => {
+        BadRequest(views.html.annotation.linkAnnotateMulti(target,
+          errorForms, routes.DocumentaryUnits.linkMultiAnnotatePost(id)))
+      }
+      case Right(annotations) => {
+        println("Links!: " + annotations)
+        Redirect(routes.DocumentaryUnits.get(id))
+          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+      }
+    }
+  }
 }
 
 

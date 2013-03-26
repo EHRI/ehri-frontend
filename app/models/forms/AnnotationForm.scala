@@ -24,7 +24,6 @@ object AnnotationForm {
   val multiForm = Form(    single(
     "annotation" -> list(tuple(
       "id" -> nonEmptyText,
-      "type" -> nonEmptyText,
       "data" -> form.mapping
     ))
   ))

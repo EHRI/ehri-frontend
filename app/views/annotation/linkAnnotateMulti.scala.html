@@ -1,0 +1,28 @@
+@(item: AnnotatableEntity, form: play.api.data.Form[List[(String,AnnotationF)]], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@rightSidebarLayout(Messages("actions.linkAnnotate", item)) {
+	
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @helper.repeat(form("annotation"), min = 2) { annf =>
+            <fieldset id="annotate-area">
+                <legend>@Messages("annotation.relatedItem")</legend>
+
+                    @helper.inputText(annf("id"), '_label -> "item")
+                    @defining(annf("data")) { formData =>
+                        @helper.inputText(formData(AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
+                        <input type="hidden" value="@AnnotationType.Link" name="@formData(AnnotationF.ANNOTATION_TYPE).name" />
+                    }
+            </fieldset>
+        }
+
+        <div class="form-actions">
+			<button type="submit" class="btn btn-primary">@Messages("submitButton.linkAnnotate")</button>
+		</div>
+	}
+} {
+
+}
