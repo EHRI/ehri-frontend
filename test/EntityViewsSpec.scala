@@ -419,6 +419,32 @@ class EntityViewsSpec extends Specification with BeforeExample with TestLoginHel
       }
     }
 
+    "allow linking to multiple items via a single form submission" in {
+      val testItem = "c1"
+      val body1 = "This is a link 1"
+      val body2 = "This is a link 2"
+      val testData: Map[String,Seq[String]] = Map(
+        "annotation[0].id" -> Seq("c2"),
+        "annotation[0].data." +  AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationType.Link.toString),
+        "annotation[0].data." +  AnnotationF.BODY -> Seq(body1),
+        "annotation[1].id" -> Seq("c3"),
+        "annotation[1].data." +  AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationType.Link.toString),
+        "annotation[1].data." +  AnnotationF.BODY -> Seq(body2)
+      )
+      running(fakeLoginApplication(testPrivilegedUser, additionalConfiguration = config)) {
+        val cr = route(fakeLoggedInRequest(POST,
+          routes.DocumentaryUnits.linkMultiAnnotatePost(testItem).url)
+          .withHeaders(postHeaders.toSeq: _*), testData).get
+        status(cr) must equalTo(SEE_OTHER)
+        val getR = route(fakeLoggedInRequest(GET, redirectLocation(cr).get)).get
+        status(getR) must equalTo(OK)
+        contentAsString(getR) must contain("c2")
+        contentAsString(getR) must contain(body1)
+        contentAsString(getR) must contain("c3")
+        contentAsString(getR) must contain(body2)
+      }
+    }
+
     "allow adding extra descriptions" in {
       val testItem = "c1"
       val testData: Map[String, Seq[String]] = Map(
