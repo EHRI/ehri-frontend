@@ -55,7 +55,12 @@ object Search extends EntitySearch {
   def search = searchAction { page => params => facets => implicit userOpt => implicit request =>
     request match {
       case Accepts.Html() => Ok(views.html.search.search(page, params, facets, routes.Search.search))
-      case Accepts.Json() => Ok(Json.toJson(page.items))
+      case Accepts.Json() => Ok(Json.toJson(Json.obj(
+        "numPages" -> page.numPages,
+        "page" -> page.page,
+        "results" -> page.items
+        ))
+      )
     }
   }
 
