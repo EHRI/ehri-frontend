@@ -205,7 +205,7 @@ object SolrIndexer extends RestDAO {
         "itemId" -> d.id,
         "id" -> desc.id,
         "identifier" -> d.identifier,
-        "name" -> d.toString,
+        "name" -> desc.stringProperty("name"), // All descriptions should have a 'name' property
         "type" -> desc.e.isA,
         ACCESSOR_FIELD -> getAccessorValues(d.e),
         "lastUpdated" -> d.latestEvent.map(_.dateTime),
