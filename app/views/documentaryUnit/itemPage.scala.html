@@ -1,6 +1,6 @@
-@(item: DocumentaryUnit)(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = documentaryUnit.breadcrumbs(item)) {
+@rightSidebarLayout(item, breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = scripts, styles = styles) {
     @html
 } {
 
