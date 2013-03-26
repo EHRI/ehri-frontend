@@ -20,7 +20,12 @@
     }
 }
 
-@documentaryUnit.itemPage(item) {
+@extrascripts = {
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
+    <script src="@routes.Assets.at("javascripts/AnnotatePopup.js")" type="text/javascript"></script>
+}
+
+@documentaryUnit.itemPage(item, scripts = extrascripts) {
 
     @common.annotated(item, annotations, routes.DocumentaryUnits.annotate(item.id)) {
 
@@ -31,6 +36,31 @@
         @item.parent.map { parent =>
             <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
         }
+
+        <h4><a class="test-linking" href="#annotation-popup" data-toggle="modal">Testing Linking</a></h4>
+        <div id="annotation-popup" class="modal fade" ng-app="AnnotatePopup">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Annotation Test</h3>
+            </div>
+            <div class="modal-body" ng-controller="SearchController">
+                <form name="searchForm" ng:submit="doSearch(q)" >
+                   <label>Search</label>
+                    <input type="text" ng-model="q">
+                </form>
+                <div id="results" ng-show="results.length" ng-clock >
+                    <div class="result" ng-class="result.isSelected && 'active'"
+                        ng-click="selectResult(result)"
+                        ng-repeat="result in results">
+                        <h4>{{result.data.name}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn">Close</a>
+                <a href="#" class="btn btn-primary">Save changes</a>
+            </div>
+        </div>
 
         @defining("isadg") { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
