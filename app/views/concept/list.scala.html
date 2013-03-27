@@ -4,11 +4,11 @@
 
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 
-    @common.pagination(page)
-	
 	<ul class="unstyled">
 	@page.items.map { item =>
 	  	@concept.listItem(item)
 	}
 	</ul>
+
+    @common.pagination(page)
 }

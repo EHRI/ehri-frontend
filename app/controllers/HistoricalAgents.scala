@@ -1,14 +1,17 @@
 package controllers
 
-import models.{HistoricalAgent, HistoricalAgentF,Isaar}
+import _root_.models.base.AccessibleEntity
+import _root_.models._
 import _root_.models.forms.{AnnotationForm, VisibilityForm}
+import _root_.models.HistoricalAgent
 import play.api._
 import play.api.i18n.Messages
 import defines._
-import base._
+import _root_.controllers.base._
 import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
 import views.Helpers
+
 
 object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with VisibilityController[HistoricalAgent]
@@ -16,10 +19,18 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   with EntityAnnotate[HistoricalAgent]
   with EntitySearch {
 
-  val listFilterMappings = ListMap[String,String]()
-  val orderMappings = ListMap[String,String]()
+  val listFilterMappings = ListMap[String,String](
+    AccessibleEntity.NAME -> s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}",
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    Isaar.HISTORY -> s"<-describes.${Isaar.HISTORY}"
+  )
 
-  val DEFAULT_SORT = Isaar.AUTHORIZED_FORM_OF_NAME
+  val orderMappings = ListMap[String,String](
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    AccessibleEntity.NAME -> AccessibleEntity.NAME
+  )
+
+  val DEFAULT_SORT = s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}"
 
   // Documentary unit facets
   import solr.facet._

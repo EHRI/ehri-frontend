@@ -1,16 +1,20 @@
 package controllers
 
-import models.{Repository, RepositoryF, DocumentaryUnit,DocumentaryUnitF}
+import _root_.models.base.AccessibleEntity
+import _root_.models._
+import _root_.models.DocumentaryUnit
 import _root_.models.forms.{AnnotationForm, VisibilityForm}
+import _root_.models.Repository
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import i18n.Messages
 import defines._
-import base._
+import _root_.controllers.base._
 import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
 import views.Helpers
+import scala.Some
 
 object Repositories extends CRUD[RepositoryF,Repository]
   with CreationContext[DocumentaryUnitF,Repository]
@@ -19,8 +23,16 @@ object Repositories extends CRUD[RepositoryF,Repository]
   with EntityAnnotate[Repository]
   with EntitySearch {
 
-  val listFilterMappings = ListMap[String,String]()
-  val orderMappings = ListMap[String,String]()
+  val listFilterMappings = ListMap[String,String](
+    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    Isdiah.GENERAL_CONTEXT -> s"<-describes.${Isdiah.GENERAL_CONTEXT}"
+  )
+
+  val orderMappings = ListMap[String,String](
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    AccessibleEntity.NAME -> AccessibleEntity.NAME
+  )
   val DEFAULT_SORT = "name"
 
   // Documentary unit facets

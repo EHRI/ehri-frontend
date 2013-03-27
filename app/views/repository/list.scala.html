@@ -1,19 +1,9 @@
 @(page: rest.Page[Repository], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listRepositories")) {
-
-	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
-
-	@common.pagination(page)
-	
-	<ul class="unstyled">
-	@page.items.map { item =>
-	  	<li>
-            @repository.listItem(item)
-		</li>
-	}
-	</ul>
-    
+    @common.filterableList("pagination.displayingItems", page, params, Repositories.listFilterMappings.keys, Repositories.orderMappings.keys) {
+        @repository.itemList(page)
+    }
 } {
 
     @common.sidebarSection(None) {

@@ -1,19 +1,9 @@
-@(items: rest.Page[HistoricalAgent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[HistoricalAgent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listHistoricalAgents")) {
-
-	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
-
-	@common.pagination(items)
-	
-	<ul class="unstyled">
-	@items.items.map { item =>
-	  	<li>
-			@historicalAgent.listItem(item)
-		</li>
-	}
-	</ul>
-    
+    @common.filterableList("pagination.displayingItems", page, params, HistoricalAgents.listFilterMappings.keys, HistoricalAgents.orderMappings.keys) {
+        @historicalAgent.itemList(page)
+    }
 } {
 
     @common.sidebarSection(None) {
