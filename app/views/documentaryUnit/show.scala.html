@@ -43,20 +43,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h3>Annotation Test</h3>
             </div>
-            <div class="modal-body" ng-controller="SearchController">
-                <form name="searchForm" ng:submit="doSearch(q)" >
-                   <label>Search</label>
-                    <input type="text" ng-model="q">
-                </form>
-                <div id="results" ng-show="results.length" ng-clock >
-                    <div class="result" ng-class="result.isSelected && 'active'"
-                        ng-click="selectResult(result)"
-                        ng-repeat="result in results">
-                        <h4>{{result.data.name}}</h4>
-                    </div>
-                    <button ng-click="moreResults(q)">More...</button>
-                </div>
-            </div>
+            <div ng-view></div>
             <div class="modal-footer">
                 <a href="#" class="btn">Close</a>
                 <a href="#" class="btn btn-primary">Save changes</a>

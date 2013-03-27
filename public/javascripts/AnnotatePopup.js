@@ -17,11 +17,21 @@
         }
       };
     });
-  });
+  }).config(['$routeProvider', function($routeProvider) {
+    $routeProvider.
+        when('/search', {templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html',   controller: SearchCtrl}).
+        when('/search/:itemId', {templateUrl: ANGULAR_ROOT + '/partials/item-detail.tpl.html', controller: ItemDetailCtrl}).
+        otherwise({redirectTo: '/search'});
+  }]);
 }).call(this);
 
 
-function SearchController($scope, $portal, $log, $rootScope) {
+function ItemDetailCtrl($scope, $portal, $log, $rootScope, $routeParams) {
+  $scope.id = $routeParams.itemId;
+}
+
+
+function SearchCtrl($scope, $portal, $log, $rootScope) {
 
   $scope.numPages = false;
   $scope.results = [];
@@ -29,28 +39,23 @@ function SearchController($scope, $portal, $log, $rootScope) {
 
 
   $scope.doSearch = function(searchTerm, page) {
-    $log.log("SearchTerm: ", searchTerm, "Page: ", page);
-
     $scope.searching = true;
-
     return $portal.search(searchTerm, page).then(function(response) {
-      $log.log("Results: ", response);
       $scope.results = response.data.results;
       $scope.numPages = response.data.numPages;
       $scope.currentPage = response.data.page;
+      $scope.searching = false;
     });
   }
 
   $scope.moreResults = function(searchTerm) {
-    $log.log("SearchTerm: ", searchTerm);
-
     $scope.searching = true;
-
     return $portal.search(searchTerm, $scope.currentPage + 1).then(function(response) {
-      $log.log("Results: ", response);
+      // Append results instead of replacing them...
       $scope.results.push.apply($scope.results, response.data.results);
       $scope.numPages = response.data.numPages;
       $scope.currentPage = response.data.page;
+      $scope.searching = false;
     });
   }
 }
