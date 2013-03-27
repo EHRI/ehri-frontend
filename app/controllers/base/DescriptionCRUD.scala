@@ -16,7 +16,7 @@ import rest.ValidationError
  * for entities that can be multiply described.
  *
  */
-trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity, FD <: Persistable] extends EntityRead[T] {
+trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persistable] extends EntityRead[T] {
 
   /**
    * Create an additional description for the given item.

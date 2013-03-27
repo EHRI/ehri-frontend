@@ -1,4 +1,4 @@
-@(result: solr.ItemPage[Entity], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
+@(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import solr.SearchParams
@@ -58,36 +58,49 @@
         </p>
 
 		<ul class="unstyled">
-		@result.items.map { item =>
-            <li>
-                @item.isA match {
-
-                    case EntityType.DocumentaryUnitDescription => {
-                        @documentaryUnit.searchItem(DocumentaryUnitDescription(item))
+		@result.items.map { case(item, id) =>
+            @defining(Some(id)) { implicit descriptionId =>
+                <li>
+                    @item.isA match {
+                        case EntityType.DocumentaryUnit => {
+                            @documentaryUnit.listItem(DocumentaryUnit(item))
+                        }
+                        case EntityType.DocumentaryUnitDescription => {
+                            @documentaryUnit.searchItem(DocumentaryUnitDescription(item))
+                        }
+                        case EntityType.HistoricalAgent => {
+                            @historicalAgent.listItem(HistoricalAgent(item))
+                        }
+                        case EntityType.HistoricalAgentDescription => {
+                            @historicalAgent.searchItem(HistoricalAgentDescription(item))
+                        }
+                        case EntityType.Repository => {
+                            @repository.listItem(Repository(item))
+                        }
+                        case EntityType.RepositoryDescription => {
+                            @repository.searchItem(RepositoryDescription(item))
+                        }
+                        case EntityType.Concept => {
+                            @concept.listItem(Concept(item))
+                        }
+                        case EntityType.ConceptDescription => {
+                            @concept.searchItem(ConceptDescription(item))
+                        }
+                        case EntityType.UserProfile => {
+                            @userProfile.searchItem(UserProfile(item))
+                        }
+                        case EntityType.Group => {
+                            @group.searchItem(Group(item))
+                        }
+                        case EntityType.Vocabulary => {
+                            @vocabulary.searchItem(Vocabulary(item))
+                        }
+                        case _ => {
+                            @common.searchItem(item)
+                        }
                     }
-                    case EntityType.HistoricalAgentDescription => {
-                        @historicalAgent.searchItem(HistoricalAgentDescription(item))
-                    }
-                    case EntityType.RepositoryDescription => {
-                        @repository.searchItem(RepositoryDescription(item))
-                    }
-                    case EntityType.ConceptDescription => {
-                        @concept.searchItem(ConceptDescription(item))
-                    }
-                    case EntityType.UserProfile => {
-                        @userProfile.searchItem(UserProfile(item))
-                    }
-                    case EntityType.Group => {
-                        @group.searchItem(Group(item))
-                    }
-                    case EntityType.Vocabulary => {
-                        @vocabulary.searchItem(Vocabulary(item))
-                    }
-                    case _ => {
-                        @common.searchItem(item)
-                    }
-                }
-            </li>
+                </li>
+            }
 		}
 		</ul>
 	}

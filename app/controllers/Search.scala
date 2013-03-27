@@ -19,6 +19,7 @@ import solr.SolrIndexer
 import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
 import views.Helpers
+import play.api.libs.json.Json
 
 
 object Search extends EntitySearch {
@@ -53,7 +54,15 @@ object Search extends EntitySearch {
 
   // Testing searchDocu
   def search = searchAction { page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.search.search(page, params, facets, routes.Search.search))
+    request match {
+      case Accepts.Html() => Ok(views.html.search.search(page, params, facets, routes.Search.search))
+      case Accepts.Json() => Ok(Json.toJson(Json.obj(
+        "numPages" -> page.numPages,
+        "page" -> page.page,
+        "results" -> page.items.map(_._1)
+        ))
+      )
+    }
   }
 
 

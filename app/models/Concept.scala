@@ -45,7 +45,7 @@ case class Concept(e: Entity)
   extends NamedEntity
   with AccessibleEntity
   with AnnotatableEntity
-  with DescribedEntity
+  with DescribedEntity[ConceptDescription]
   with HierarchicalEntity[Concept]
   with Formable[ConceptF] {
 
@@ -53,7 +53,7 @@ case class Concept(e: Entity)
 
   override val nameProperty = ConceptF.PREFLABEL
 
-  override lazy val descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ConceptDescription(_))
+  lazy val descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ConceptDescription(_))
   lazy val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
   lazy val broaderTerms: List[Concept] = e.relations(Concept.NT_REL).map(Concept(_))
 
@@ -63,9 +63,4 @@ case class Concept(e: Entity)
 
   // Because we (currently) have no 'name' property on Concept, get the first available preflabel
   override def toString = descriptions.headOption.flatMap(_.stringProperty(ConceptF.PREFLABEL)).getOrElse(identifier)
-
-  // Language-aware toString
-  def toString(implicit lang: Lang) = descriptions
-    .find(_.formable.languageCode==lang.code).orElse(descriptions.headOption)
-    .flatMap(_.stringProperty(ConceptF.PREFLABEL)).getOrElse(identifier)
 }

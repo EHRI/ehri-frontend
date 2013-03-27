@@ -14,18 +14,32 @@ import solr.facet.{FacetClass, AppliedFacet}
 
 
 object SolrDispatcher {
+  val test = """<response>
+    <lst name="responseHeader">
+      <int name="status">0</int>
+      <int name="QTime">83</int>
+    </lst>
+    <lst name="grouped">
+      <lst name="itemId">
+        <int name="matches">4198</int>
+      </lst>
+    </lst>
+  </response>
+             """
 }
+
 
 /**
  * Class for fetching query results from a Solr instance.
  * @param userProfile
  */
 case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO {
-  def itemsFromXml(nodes: NodeSeq): Seq[SearchDescription] = (nodes \\ "doc").map { doc =>
-    def attributeValueEquals(value: String)(node: Node) = {
-      node.attributes.exists(_.value.text == value)
-    }
 
+  def attributeValueEquals(value: String)(node: Node) = {
+    node.attributes.exists(_.value.text == value)
+  }
+
+  def itemsFromXml(nodes: NodeSeq): Seq[SearchDescription] = (nodes \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
     SearchDescription(
       id = (doc \\ "str").filter(attributeValueEquals("id")).text,
       name = (doc \\ "str").filter(attributeValueEquals("name")).text,
@@ -39,6 +53,15 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     )
   }
 
+  def numFound(nodes: NodeSeq): Int = {
+    val s = (nodes \ "lst" \ "lst" \ "int").filter(attributeValueEquals("ngroups")).text
+    try {
+      s.toInt
+    } catch {
+      case e: NumberFormatException => 0
+    }
+  }
+
   def list(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
@@ -48,11 +71,10 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
 
     WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
-        val resp = new QueryResponse(writerType=queryRequest.writerType, rawBody=r.body)
-        val facetClasses = SolrHelper.extract(resp, facets, allFacets)
+        val facetClasses = SolrHelper.extract(response.body, facets, allFacets)
         val nodes = xml.XML.loadString(r.body)
 
-        ItemPage(itemsFromXml(nodes), offset, limit, resp.response.numFound, facetClasses)
+        ItemPage(itemsFromXml(nodes), offset, limit, numFound(nodes), facetClasses)
       }
     }
   }
@@ -75,8 +97,7 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
 
     WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
-        val resp = new QueryResponse(writerType=queryRequest.writerType, rawBody=r.body)
-        val facetClasses = SolrHelper.extract(resp, facets, allFacets)
+        val facetClasses = SolrHelper.extract(response.body, facets, allFacets)
 
         val facetClass = facetClasses.find(_.param==facet).getOrElse(
             throw new Exception("Unknown facet: " + facet))

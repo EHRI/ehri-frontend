@@ -1,0 +1,27 @@
+@(item: Concept, desc: ConceptDescription)(implicit lang: Lang)
+
+<small>
+<ul class="unstyled muted inline inline-separator">
+        @item.vocabulary.map { vocab =>
+            <li><a class="alt" href="@routes.Vocabularies.get(vocab.id)">@vocab</a></li>
+        }
+        <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
+        @item.latestEvent.map { event =>
+            <li title="@event.time">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</li>
+        }
+    </ul>
+@if(item.broaderTerms.size > 0) {
+    <ul class="unstyled inline inline-separator">
+        <li>@Messages("concept.broaderTerms")</li>
+        @item.broaderTerms.map { bt =>
+            <li>
+                <a href="@routes.Concepts.get(bt.id)">
+                    @bt.toStringLang
+                </a>
+            </li>
+        }
+    </ul>
+}
+</small>
+@desc.stringProperty(ConceptF.SCOPENOTE)
+@desc.stringProperty(ConceptF.DEFINITION)

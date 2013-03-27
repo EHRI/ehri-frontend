@@ -2,15 +2,17 @@
 
 @import org.apache.commons.lang3.StringUtils
 
-<small>
-    <ul class="unstyled muted inline inline-separator">
-        <li>
-            @item.ancestors.map(DocumentaryUnit).reverse.map { parent =>
-                <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toString,100)</a>
-            }
-        </li>
-    </ul>
-</small>
+@if(!item.ancestors.isEmpty) {
+    <small>
+        <ul class="unstyled muted inline inline-separator">
+            <li>
+                @item.ancestors.map(DocumentaryUnit).reverse.map { parent =>
+                    <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toString,100)</a>
+                }
+            </li>
+        </ul>
+    </small>
+}
 <small>
     <ul class="unstyled muted inline inline-separator">
         @item.holder.map { holder =>
