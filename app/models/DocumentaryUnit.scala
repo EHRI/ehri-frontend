@@ -12,7 +12,7 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
   with AccessibleEntity
   with AnnotatableEntity
   with HierarchicalEntity[DocumentaryUnit]
-  with DescribedEntity
+  with DescribedEntity[DocumentaryUnitDescription]
   with Formable[DocumentaryUnitF] {
 
   import DocumentaryUnitF._
@@ -28,7 +28,8 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
     .orElse(Some(CopyrightStatus.Unknown))
   val scope = e.property(SCOPE).flatMap(enumReads(Scope).reads(_).asOpt)
 
-  override def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
+  def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
+
 
   import json.DocumentaryUnitFormat._
   lazy val formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF]

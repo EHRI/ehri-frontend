@@ -36,7 +36,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @param f
    * @return
    */
-  def searchAction(f: solr.ItemPage[Entity] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def searchAction(f: solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     searchAction(Map.empty[String,String])(f)
   }
 
@@ -47,7 +47,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @return
    */
   def searchAction(filters: Map[String,String] = Map.empty)(
-      f: solr.ItemPage[Entity] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       //Secured {
         // Override the entity type with the controller entity type
@@ -56,10 +56,12 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
         AsyncRest {
           solr.SolrDispatcher(userOpt).list(sp, facets, entityFacets).map { resOrErr =>
             resOrErr.right.map { res =>
+              val ids = res.items.map(_.id)
+              val itemIds = res.items.map(_.itemId)
               AsyncRest {
-                rest.SearchDAO(userOpt).list(res.items.map(_.id)).map { listOrErr =>
+                rest.SearchDAO(userOpt).list(itemIds).map { listOrErr =>
                   listOrErr.right.map { list =>
-                    f(res.copy(items = list))(sp)(facets)(userOpt)(request)
+                    f(res.copy(items = list.zip(ids)))(sp)(facets)(userOpt)(request)
                   }
                 }
               }

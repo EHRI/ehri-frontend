@@ -81,8 +81,6 @@ object SolrHelper {
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
     // apparently only have one. So instead of adding multiple
     // fq clauses, we need to join them all with '+'
-    println("AF: " + appliedFacets)
-    println("FC: " + facetClasses)
     val fqstrings = facetClasses.flatMap(fclass => {
       appliedFacets.filter(_.name == fclass.key).map(_.values).map( paramVals =>
         fclass match {
@@ -121,8 +119,8 @@ object SolrHelper {
    * @param allFacets
    * @return
    */
-  def extract(response: QueryResponse, appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): List[FacetClass] = {
-    val rawData = xml.XML.loadString(response.rawBody)
+  def extract(response: String, appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): List[FacetClass] = {
+    val rawData = xml.XML.loadString(response)
     allFacets.map(_.populateFromSolr(rawData, appliedFacets))
   }
 
@@ -198,6 +196,14 @@ object SolrHelper {
       req.setStartRow(StartRow((Math.max(page, 1) - 1) * params.limit.getOrElse(20)))
     }
     req.setMaximumRowsReturned(MaximumRowsReturned(limit))
+
+    // Group by features to group results by the item id
+    req.set("group", true)
+    req.set("group.field", "itemId")
+    req.set("group.facet", true)
+    req.set("group.format", "simple")
+    req.set("group.ngroups", true)
+    //req.set("group.truncate", true)
 
     req
   }

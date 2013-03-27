@@ -18,7 +18,8 @@ trait Description extends WrappedEntity {
 	val e: Entity
 
   val item: Option[AccessibleEntity]
-	val languageCode: String = e.property("languageCode").flatMap(_.asOpt[String]).getOrElse("Unknown Language")
+  val name = e.stringProperty(AccessibleEntity.NAME).getOrElse(id)
+	val languageCode: String = e.stringProperty("languageCode").getOrElse("Unknown language")
 
-  override def toString = "Description: [" + languageCode + "]"
+  override def toString = name
 }

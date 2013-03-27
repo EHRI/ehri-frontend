@@ -13,6 +13,11 @@
         @styles
 
         <style>
+            /** Prevent scrolling when a Bootstrap modal is open */
+            body.modal-open {
+                overflow: hidden;
+            }
+
             /** Search items */
             .search-item {
                 padding-bottom: 0.5em;
@@ -129,7 +134,10 @@
 
         </style>
 
-        <script>var ANGULAR_ROOT = "@routes.Assets.at("javascripts")";</script>
+        <!-- Temporary var for Angular file location -->
+        <script>
+            var ANGULAR_ROOT = "@routes.Assets.at("javascripts")";
+        </script>
     </head>
     <body data-spy="scroll" data-target="#form-nav-sidebar">
 

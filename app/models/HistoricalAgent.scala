@@ -38,9 +38,9 @@ case class HistoricalAgent(val e: Entity)
   extends NamedEntity
   with AccessibleEntity
   with AnnotatableEntity
-  with DescribedEntity
+  with DescribedEntity[HistoricalAgentDescription]
   with Formable[HistoricalAgentF] {
-  override def descriptions: List[HistoricalAgentDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(HistoricalAgentDescription(_))
+  def descriptions: List[HistoricalAgentDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(HistoricalAgentDescription(_))
 
   val publicationStatus = e.property(HistoricalAgentF.PUBLICATION_STATUS).flatMap(enumReads(PublicationStatus).reads(_).asOpt)
 

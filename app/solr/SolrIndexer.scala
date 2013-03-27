@@ -2,7 +2,7 @@ package solr
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.ws.{Response, WS}
-import models.base.{DescribedEntity, AccessibleEntity}
+import models.base.{Description, DescribedEntity, AccessibleEntity}
 import play.api.libs.json._
 import models._
 
@@ -199,14 +199,14 @@ object SolrIndexer extends RestDAO {
    * @param d
    * @return
    */
-  private def describedEntityToSolr(d: DescribedEntity): List[JsObject] = {
+  private def describedEntityToSolr[D <: Description](d: DescribedEntity[D]): List[JsObject] = {
     d.descriptions.map { desc =>
       val baseData = Json.obj(
         "itemId" -> d.id,
         "id" -> desc.id,
         "identifier" -> d.identifier,
         "name" -> desc.stringProperty("name"), // All descriptions should have a 'name' property
-        "type" -> desc.e.isA,
+        "type" -> d.isA,
         ACCESSOR_FIELD -> getAccessorValues(d.e),
         "lastUpdated" -> d.latestEvent.map(_.dateTime),
         "languageCode" -> desc.stringProperty(IsadG.LANG_CODE)

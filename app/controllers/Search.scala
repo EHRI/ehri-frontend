@@ -58,7 +58,7 @@ object Search extends EntitySearch {
       case Accepts.Json() => Ok(Json.toJson(Json.obj(
         "numPages" -> page.numPages,
         "page" -> page.page,
-        "results" -> page.items
+        "results" -> page.items.map(_._1)
         ))
       )
     }

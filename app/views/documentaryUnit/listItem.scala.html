@@ -1,9 +1,9 @@
-@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
 
 @common.searchItemOutline(item.id) {
-        <a href="@routes.DocumentaryUnits.get(item.id)">@item</a>
+        <a href="@routes.DocumentaryUnits.get(item.id)">@item.toStringLang(lang)</a>
 } {
-    @item.descriptions.headOption.map { desc =>
+    @item.primaryDescription(descriptionId).map { desc =>
         @documentaryUnit.searchItemBody(item, desc)
     }.getOrElse {
         <small>@Messages("describedEntity.noDescriptions")</small>

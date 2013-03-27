@@ -12,15 +12,7 @@
 
     @common.filterableList("vocabulary.toplevelTermsPageHeader", page, params, Concepts.listFilterMappings.keys, Concepts.orderMappings.keys) {
         <ul>
-        @page.items.map { item =>
-            <div class="list-item">
-            <h5>
-            <a href="@routes.Concepts.get(item.id)">
-                @item.descriptions.headOption.map(_.stringProperty(models.ConceptF.PREFLABEL))
-            </a>
-            </h5>
-            </div>
-        }
+            @page.items.map(c => concept.listItem(c))
         </ul>
     }
 

@@ -8,22 +8,7 @@
 	
 	<ul class="unstyled">
 	@page.items.map { item =>
-	  	<div class="list-item">
-			<h5><a href="@routes.Concepts.get(item.id)">@item.identifier</a></h5>
-			@item.descriptions.headOption.map { desc =>
-              @defining(desc.formable) { d =>
-                  <p>
-                  @d.prefLabel<br />
-                  @d.definition.map { sc =>
-                      @sc <br />
-                  }
-                  @d.scopeNote.map { sc =>
-                      @sc <br />
-                  }
-                  </p>
-              }
-			}
-		</div>
+	  	@concept.listItem(item)
 	}
 	</ul>
 }
