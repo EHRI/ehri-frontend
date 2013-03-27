@@ -1,7 +1,7 @@
 @(page: utils.AbstractPage[_])(implicit req: RequestHeader)
 
 @if(page.hasMultiplePages) {
-    <div id="pagination" class="pagination">
+    <div id="pagination" class="pagination pull-right">
         <ul>
         @views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
             @range.map { cp =>
