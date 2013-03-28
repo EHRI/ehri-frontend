@@ -13,6 +13,7 @@ import rest.{RestPageParams, EntityDAO}
 import scala.Some
 import collection.immutable.ListMap
 import views.Helpers
+import solr.{SearchOrder, SearchParams}
 
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
@@ -26,6 +27,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with EntitySearch {
 
   val DEFAULT_SORT = AccessibleEntity.NAME
+
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name))
 
   // Documentary unit facets
   import solr.facet._
@@ -51,7 +54,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   )
 
   val searchEntities = List(
-    EntityType.DocumentaryUnitDescription,
     EntityType.DocumentaryUnit
   )
 
@@ -97,7 +99,10 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
 
   def search = {
-    searchAction {
+    // What filters we gonna use? How about, only list stuff here that
+    // has no parent items...
+    val filters = Map("depthOfDescription" -> 0)
+    searchAction(filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
         Ok(views.html.search.search(page, params, facets, routes.DocumentaryUnits.search))
     }

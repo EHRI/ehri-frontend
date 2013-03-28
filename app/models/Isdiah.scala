@@ -76,6 +76,6 @@ case object Isdiah {
   val LANGUAGES_USED = "languages"
   val SCRIPTS_USED = "scripts"
   val SOURCES = "sources"
-  val MAINTENANCE_NOTES = "maintenanceNotes"
+  val MAINTENANCE_NOTES = "notes"
 }
 

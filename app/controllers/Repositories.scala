@@ -15,6 +15,7 @@ import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
 import views.Helpers
 import scala.Some
+import solr.{SearchOrder, SearchParams}
 
 object Repositories extends CRUD[RepositoryF,Repository]
   with CreationContext[DocumentaryUnitF,Repository]
@@ -42,7 +43,8 @@ object Repositories extends CRUD[RepositoryF,Repository]
       key="countryCode",
       name=Messages("isdiah.countryCode"),
       param="country",
-      render=Helpers.countryCodeToName
+      render=Helpers.countryCodeToName,
+      sort = FacetSort.Name
     ),
     FieldFacetClass(
       key="priority",
@@ -81,8 +83,10 @@ object Repositories extends CRUD[RepositoryF,Repository]
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = Repository
 
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name))
 
-  def search = searchAction {
+
+  def search = searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
     page => params => facets => implicit userOpt => implicit request =>
       Ok(views.html.search.search(page, params, facets, routes.Repositories.search))
 

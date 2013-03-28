@@ -19,7 +19,6 @@ object RepositoryF {
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
-
 }
 
 case class RepositoryF(

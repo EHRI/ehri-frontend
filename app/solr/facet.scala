@@ -43,11 +43,12 @@ object Utils {
   }
 }
 
-// Scala's enum-like Phantom types for defining
-// how facets are ordered
-case object NameOrder extends Enumeration
-case object CountOrder extends Enumeration
-case object FixedOrder extends Enumeration
+
+case object FacetSort extends Enumeration {
+  val Name = Value("name")
+  val Count = Value("count")
+  val Fixed = Value("fixed")
+}
 
 /**
  * A facet that has been "applied", i.e. a name of the field
@@ -96,21 +97,17 @@ sealed abstract class FacetClass (
   val param: String,
   val render: (String) => String = s => s,
   private val facets: List[Facet] = Nil,
-  val sort: Enumeration = CountOrder
+  val sort: FacetSort.Value = FacetSort.Count
 ) {
   val fieldType: String
-  
   def count: Int = facets.length
-  
   def filtered: List[Facet] = facets.filter(_.count > 0)
-  
   def sortedByName = filtered.sortWith((a, b) => a.sortVal < b.sortVal)
-
   def sortedByCount = filtered.sortWith((a, b) => b.count < a.count)
 
   def sorted: List[Facet] = sort match {
-    case NameOrder => sortedByName
-    case CountOrder => sortedByCount
+    case FacetSort.Name => sortedByName
+    case FacetSort.Count => sortedByCount
     case _ => filtered
   }
   
@@ -141,7 +138,7 @@ case class FieldFacetClass(
   override val param: String,
   override val render: (String) => String = s=>s,
   val facets: List[Facet] = Nil,
-  override val sort: Enumeration = CountOrder
+  override val sort: FacetSort.Value = FacetSort.Count
 ) extends FacetClass(key,name, param,render,facets,sort) {
   override val fieldType: String = "facet.field"
   
@@ -175,7 +172,7 @@ case class QueryFacetClass(
   override val param: String,
   override val render: (String) => String = s=>s,
   facets: List[Facet] = Nil,
-  override val sort: Enumeration = NameOrder
+  override val sort: FacetSort.Value = FacetSort.Name
 ) extends FacetClass(key,name,param,render,facets,sort) {
   override val fieldType: String = "facet.query"
   

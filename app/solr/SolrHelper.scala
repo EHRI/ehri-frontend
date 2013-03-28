@@ -3,6 +3,7 @@ package solr
 import com.github.seratch.scalikesolr.request.QueryRequest
 import com.github.seratch.scalikesolr.response.QueryResponse
 import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType, Sort,StartRow,MaximumRowsReturned,IsDebugQueryEnabled}
+import com.github.seratch.scalikesolr.request.query.FieldsToReturn
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 
@@ -129,7 +130,8 @@ object SolrHelper {
    * @param params
    * @return
    */
-  def buildQuery(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass])(implicit userOpt: Option[UserProfile]): QueryRequest = {
+  def buildQuery(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
+      implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val limit = params.limit.getOrElse(SearchParams.DEFAULT_LIMIT)
 
@@ -172,6 +174,9 @@ object SolrHelper {
           FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(s"type:($filter)")))
     }
 
+    // Testing...
+    req.setFieldsToReturn(FieldsToReturn("id itemId type"))
+
     // Filter docs based on access. If the user is empty, only allow
     // through those which have accessibleTo:ALLUSERS.
     // If we have a user and they're not admin, add a filter against
@@ -186,6 +191,15 @@ object SolrHelper {
       val accessors = SolrIndexer.ACCESSOR_ALL_PLACEHOLDER :: userOpt.map(u => (u.id :: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
       req.setFilterQuery(
         FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq("%s:(%s)".format(ACCESSOR_FIELD, accessors.mkString(" OR ")))))
+    }
+
+    // Apply other arbitrary hard filters
+    filters.map { case (key, value) =>
+      val filter = value match {
+        case s: String => "%s:\"%s\"".format(key, s)
+        case _: Int => "%s:%s".format(key, value)
+      }
+      req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(filter)))
     }
 
     // Debug query for now

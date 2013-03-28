@@ -17,7 +17,7 @@ object SearchField extends Enumeration {
 
 object SearchOrder extends Enumeration {
   type Order = Value
-  val Title = Value("name")
+  val Name = Value("name")
   val DateNewest = Value("lastUpdated")
 }
 
@@ -41,7 +41,26 @@ case class SearchParams(
   reverse: Option[Boolean] = Some(false),
   entities: List[EntityType.Value] = Nil,
   fields: Option[List[String]] = None
-)
+) {
+
+  /**
+   * Set unset values from another (optional) instance.
+   * @param default
+   * @return
+   */
+  def setDefault(default: Option[SearchParams]): SearchParams = default match {
+    case Some(d) => SearchParams(
+      query = query orElse d.query,
+      page = page orElse d.page,
+      limit = limit orElse d.limit,
+      sort = sort orElse d.sort,
+      reverse = reverse orElse d.reverse,
+      entities = if (entities.isEmpty) d.entities else entities,
+      fields = fields orElse d.fields
+    )
+    case None => this
+  }
+}
 
 object SearchParams {
   final val DEFAULT_LIMIT = 20

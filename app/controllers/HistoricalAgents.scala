@@ -11,6 +11,7 @@ import _root_.controllers.base._
 import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
 import views.Helpers
+import solr.{SearchOrder, SearchParams}
 
 
 object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
@@ -32,6 +33,9 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   val DEFAULT_SORT = s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}"
 
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name))
+
+
   // Documentary unit facets
   import solr.facet._
   val entityFacets = List(
@@ -39,7 +43,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
       key=models.Isaar.ENTITY_TYPE,
       name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
       param="cpf",
-      render=s => Messages(Isaar.LANG_CODE + "." + s)
+      render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
     )
   )
 
@@ -64,9 +68,11 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   val builder = HistoricalAgent
 
 
-  def search = searchAction {
-    page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.search.search(page, params, facets, routes.HistoricalAgents.search))
+  def search = {
+    searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+      page => params => facets => implicit userOpt => implicit request =>
+        Ok(views.html.search.search(page, params, facets, routes.HistoricalAgents.search))
+    }
   }
 
   def get(id: String) = getAction(id) {

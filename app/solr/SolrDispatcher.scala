@@ -62,11 +62,11 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     }
   }
 
-  def list(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+  def list(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = SolrHelper.buildQuery(params, facets, allFacets)(userProfile)
+    val queryRequest = SolrHelper.buildQuery(params, facets, allFacets, filters)(userProfile)
     Logger.logger.debug(queryRequest.queryString())
 
     WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
@@ -84,7 +84,8 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     sort: String = "name",
     params: SearchParams,
     facets: List[AppliedFacet],
-    allFacets: List[FacetClass]
+    allFacets: List[FacetClass],
+    filters: Map[String,Any] = Map.empty
   ): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
@@ -93,7 +94,7 @@ case class SolrDispatcher(userProfile: Option[UserProfile]) extends rest.RestDAO
     // actually care about the documents, so even this is
     // not strictly necessary... we also don't care about the
     // ordering.
-    val queryRequest = SolrHelper.buildQuery(params, facets, allFacets)(userProfile)
+    val queryRequest = SolrHelper.buildQuery(params, facets, allFacets, filters)(userProfile)
 
     WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>

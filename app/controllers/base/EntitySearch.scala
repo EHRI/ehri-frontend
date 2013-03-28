@@ -37,7 +37,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @return
    */
   def searchAction(f: solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
-    searchAction(Map.empty[String,String])(f)
+    searchAction(Map.empty[String,Any])(f)
   }
 
   /**
@@ -46,15 +46,17 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @param f
    * @return
    */
-  def searchAction(filters: Map[String,String] = Map.empty)(
+  def searchAction(filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
       f: solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       //Secured {
         // Override the entity type with the controller entity type
-        val sp = solr.SearchParams.form.bindFromRequest.value.get.copy(entities = searchEntities)
+        val sp = solr.SearchParams.form.bindFromRequest
+            .value.get.copy(entities = searchEntities)
+            .setDefault(defaultParams)
         val facets: List[AppliedFacet] = bindFacetsFromRequest(entityFacets)
         AsyncRest {
-          solr.SolrDispatcher(userOpt).list(sp, facets, entityFacets).map { resOrErr =>
+          solr.SolrDispatcher(userOpt).list(sp, facets, entityFacets, filters).map { resOrErr =>
             resOrErr.right.map { res =>
               val ids = res.items.map(_.id)
               val itemIds = res.items.map(_.itemId)

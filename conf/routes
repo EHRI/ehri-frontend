@@ -39,8 +39,8 @@ GET     /locale                         controllers.Application.changeLocale
 
 # Home page
 GET     /                           controllers.Application.index
-GET     /docs                controllers.DocumentaryUnits.list
-GET     /docs/search         controllers.DocumentaryUnits.search
+GET     /docs                controllers.DocumentaryUnits.search
+GET     /docs/list           controllers.DocumentaryUnits.list
 GET     /docs/show/:id       controllers.DocumentaryUnits.get(id: String)
 GET     /docs/history/:id    controllers.DocumentaryUnits.history(id: String)
 GET     /docs/json/:id       controllers.DocumentaryUnits.getJson(id: String)
@@ -106,8 +106,8 @@ GET		/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMember(i
 POST	/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMemberPost(id: String, userType: String, userId: String)
 
 
-GET     /repository                controllers.Repositories.list
-GET     /repository/search         controllers.Repositories.search
+GET     /repository                controllers.Repositories.search
+GET     /repository/list           controllers.Repositories.list
 GET     /repository/show/:id       controllers.Repositories.get(id: String)
 GET     /repository/history/:id    controllers.Repositories.history(id: String)
 GET     /repository/json/:id       controllers.Repositories.getJson(id: String)
@@ -131,8 +131,8 @@ POST    /repository/scope/:id/:userType/:userId    controllers.Repositories.setS
 GET     /repository/annotate/:id     controllers.Repositories.annotate(id: String)
 POST    /repository/annotate/:id     controllers.Repositories.annotatePost(id: String)
 
-GET     /cpf                controllers.HistoricalAgents.list
-GET     /cpf/search         controllers.HistoricalAgents.search
+GET     /cpf                controllers.HistoricalAgents.search
+GET     /cpf/list           controllers.HistoricalAgents.list
 GET     /cpf/show/:id       controllers.HistoricalAgents.get(id: String)
 GET     /cpf/history/:id    controllers.HistoricalAgents.history(id: String)
 GET     /cpf/json/:id       controllers.HistoricalAgents.getJson(id: String)
