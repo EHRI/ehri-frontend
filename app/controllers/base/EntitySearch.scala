@@ -2,17 +2,20 @@ package controllers.base
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.AccessibleEntity
 import models.{Entity, UserProfile}
 import solr.facet.{AppliedFacet, FacetClass}
 import solr.SearchParams
 import defines.EntityType
+import play.api.Play._
+import solr.facet.AppliedFacet
 
 /**
  * Controller trait searching via the Solr interface. Eventually
  * we should try and genericise this so it's not tied to Solr.
  */
 trait EntitySearch extends Controller with AuthController with ControllerHelpers {
+
+  lazy val solrDispatcher: solr.Dispatcher = current.plugin(classOf[solr.Dispatcher]).get
 
   /**
    * Inheriting controllers should override a list of facets that
@@ -56,7 +59,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
             .setDefault(defaultParams)
         val facets: List[AppliedFacet] = bindFacetsFromRequest(entityFacets)
         AsyncRest {
-          solr.SolrDispatcher(userOpt).list(sp, facets, entityFacets, filters).map { resOrErr =>
+          solrDispatcher.list(sp, facets, entityFacets, filters).map { resOrErr =>
             resOrErr.right.map { res =>
               val ids = res.items.map(_.id)
               val itemIds = res.items.map(_.itemId)
