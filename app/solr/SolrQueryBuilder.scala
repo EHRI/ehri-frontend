@@ -1,65 +1,24 @@
 package solr
 
 import com.github.seratch.scalikesolr.request.QueryRequest
-import com.github.seratch.scalikesolr.response.QueryResponse
-import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType, Sort,StartRow,MaximumRowsReturned,IsDebugQueryEnabled}
+import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType,
+    Sort,StartRow,MaximumRowsReturned,IsDebugQueryEnabled}
 import com.github.seratch.scalikesolr.request.query.FieldsToReturn
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
+import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetParam,Param,Value}
 
 import solr.facet._
-import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetParam,Param,Value}
-import defines.EntityType
-import com.github.seratch.scalikesolr.response.QueryResponse
-import com.github.seratch.scalikesolr.request.query.facet.Param
-import solr.facet.FieldFacetClass
-import scala.Some
-import com.github.seratch.scalikesolr.request.query.facet.FacetParam
-import com.github.seratch.scalikesolr.request.query.facet.Value
-import com.github.seratch.scalikesolr.request.QueryRequest
-import solr.facet.QueryFacetClass
+
 import models.UserProfile
+import defines.EntityType
 
-
-/**
- * Page of search result items
- * @param items
- * @param offset
- * @param limit
- * @param total
- * @param facets
- * @tparam A
- */
-case class ItemPage[A](
-  items: Seq[A],
-  offset: Int,
-  limit:Int,
-  total: Long,
-  facets: List[FacetClass]
-) extends utils.AbstractPage[A]
-
-/**
- * A paged list of facets.
- * @param fc
- * @param items
- * @param offset
- * @param limit
- * @param total
- * @tparam A
- */
-case class FacetPage[A](
-  fc: FacetClass,
-  items: Seq[A],
-  offset: Int,
-  limit: Int,
-  total: Long
-) extends utils.AbstractPage[A]
 
 
 /**
  * Helpers for dealing with Solr responses.
  */
-object SolrHelper {
+object SolrQueryBuilder {
 
   import SolrIndexer._
 
@@ -71,6 +30,7 @@ object SolrHelper {
   }
 
   /**
+   * Apply filters to the request based on a set of applied facets.
    *
    * @param request
    * @param facetClasses
@@ -107,23 +67,57 @@ object SolrHelper {
    * @param appliedFacets
    * @param allFacets
    */
-  def constrain(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): Unit = {
+  private def constrain(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): Unit = {
     setRequestFacets(request, allFacets)
     setRequestFilters(request, allFacets, appliedFacets)
   }
 
+  private def constrainEntities(request: QueryRequest, entities: List[EntityType.Value]): Unit = {
+    if (!entities.isEmpty) {
+      val filter = entities.map(_.toString).mkString(" OR ")
+      request.setFilterQuery(
+        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq(s"type:($filter)")))
+    }
+  }
 
   /**
-   * Extract results from a solr response and return the facet data.
-   * @param response
-   * @param appliedFacets
-   * @param allFacets
-   * @return
+   * Filter docs based on access. If the user is empty, only allow
+   * through those which have accessibleTo:ALLUSERS.
+   * If we have a user and they're not admin, add a filter against
+   * all their groups
+   * @param request
+   * @param userOpt
    */
-  def extract(response: String, appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): List[FacetClass] = {
-    val rawData = xml.XML.loadString(response)
-    allFacets.map(_.populateFromSolr(rawData, appliedFacets))
+  private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfile]): Unit = {
+    if (userOpt.isEmpty) {
+      request.setFilterQuery(
+        FilterQuery(multiple = request.filterQuery.getMultiple() ++
+          Seq("%s:%s".format(ACCESSOR_FIELD, ACCESSOR_ALL_PLACEHOLDER))))
+    } else if (!userOpt.get.isAdmin) {
+      // Create a boolean or query starting with the ALL placeholder, which
+      // includes all the groups the user belongs to, included inherited ones,
+      // i.e. accessibleTo:(ALLUSERS OR mike OR admin)
+      val accessors = ACCESSOR_ALL_PLACEHOLDER :: userOpt.map(
+          u => (u.id :: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
+      request.setFilterQuery(
+        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq("%s:(%s)".format(
+          ACCESSOR_FIELD, accessors.mkString(" OR ")))))
+    }
   }
+
+  /**
+   * Group results by item id (as opposed to description id)
+   * @param request
+   */
+  private def setGrouping(request: QueryRequest): Unit = {
+    request.set("group", true)
+    request.set("group.field", "itemId")
+    request.set("group.facet", true)
+    request.set("group.format", "simple")
+    request.set("group.ngroups", true)
+    //req.set("group.truncate", true)
+  }
+
 
   /**
    * Build a query given a set of search parameters.
@@ -132,8 +126,6 @@ object SolrHelper {
    */
   def buildQuery(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
-
-    val limit = params.limit.getOrElse(SearchParams.DEFAULT_LIMIT)
 
     val queryString = "%s".format(params.query.getOrElse("*").trim)
 
@@ -147,11 +139,11 @@ object SolrHelper {
         enabled=true,
         isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
 
-    val order = if(params.reverse.getOrElse(false)) "desc" else "asc"
-    params.sort match {
-      case None => // This is the default!
-      // TODO: Define these options more succinctly
-      case Some(sort) => req.setSort(Sort(s"$sort $order"))
+    // Set result ordering, defaulting to the solr default 'score asc'
+    // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
+    // FIXME: This horrid concatenation of name/order
+    params.sort.map { sort =>
+      req.setSort(Sort(s"${sort.toString.split("""\.""").mkString(" ")}"))
     }
 
     // Apply search to specific fields. Can't find a way to do this using
@@ -165,33 +157,16 @@ object SolrHelper {
     //req.set("spellcheck", "true")
 
     // Facet the request accordingly
-    SolrHelper.constrain(req, facets, allFacets)
+    constrain(req, facets, allFacets)
 
     // if we're using a specific index, constrain on that as well
-    if (!params.entities.isEmpty) {
-      val filter = params.entities.map(_.toString).mkString(" OR ")
-      req.setFilterQuery(
-          FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(s"type:($filter)")))
-    }
+    constrainEntities(req, params.entities)
 
     // Testing...
     req.setFieldsToReturn(FieldsToReturn("id itemId type"))
 
-    // Filter docs based on access. If the user is empty, only allow
-    // through those which have accessibleTo:ALLUSERS.
-    // If we have a user and they're not admin, add a filter against
-    // all their groups
-    if (userOpt.isEmpty) {
-      req.setFilterQuery(
-        FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq("%s:%s".format(ACCESSOR_FIELD, ACCESSOR_ALL_PLACEHOLDER))))
-    } else if (!userOpt.get.isAdmin) {
-      // Create a boolean or query starting with the ALL placeholder, which
-      // includes all the groups the user belongs to, included inherited ones,
-      // i.e. accessibleTo:(ALLUSERS OR mike OR admin)
-      val accessors = SolrIndexer.ACCESSOR_ALL_PLACEHOLDER :: userOpt.map(u => (u.id :: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
-      req.setFilterQuery(
-        FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq("%s:(%s)".format(ACCESSOR_FIELD, accessors.mkString(" OR ")))))
-    }
+    // Return only fields we care about...
+    applyAccessFilter(req, userOpt)
 
     // Apply other arbitrary hard filters
     filters.map { case (key, value) =>
@@ -203,21 +178,19 @@ object SolrHelper {
     }
 
     // Debug query for now
-    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
+    //req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
 
     // Setup start and number of objects returned
+    val limit = params.limit.getOrElse(SearchParams.DEFAULT_LIMIT)
     params.page.map { page =>
       req.setStartRow(StartRow((Math.max(page, 1) - 1) * params.limit.getOrElse(20)))
     }
     req.setMaximumRowsReturned(MaximumRowsReturned(limit))
 
-    // Group by features to group results by the item id
-    req.set("group", true)
-    req.set("group.field", "itemId")
-    req.set("group.facet", true)
-    req.set("group.format", "simple")
-    req.set("group.ngroups", true)
-    //req.set("group.truncate", true)
+    // Group results by item id, as opposed to the document-level
+    // description (for non-multi-description entities this will
+    // be the same)
+    setGrouping(req)
 
     req
   }

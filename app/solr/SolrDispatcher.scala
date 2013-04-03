@@ -1,32 +1,47 @@
 package solr
 
 import play.api.libs.concurrent.Execution.Implicits._
-import com.github.seratch.scalikesolr.request.QueryRequest
-import com.github.seratch.scalikesolr.response.QueryResponse
 import models.UserProfile
 import play.api.libs.ws.WS
 import play.api.Logger
-import xml.{Node,NodeSeq}
 import concurrent.Future
 import defines.EntityType
 import rest.RestError
 import solr.facet.{FacetClass, AppliedFacet}
 
+/**
+ * Page of search result items
+ * @param items
+ * @param offset
+ * @param limit
+ * @param total
+ * @param facets
+ * @tparam A
+ */
+case class ItemPage[A](
+  items: Seq[A],
+  offset: Int,
+  limit:Int,
+  total: Long,
+  facets: List[FacetClass]
+) extends utils.AbstractPage[A]
 
-object SolrDispatcher {
-  val test = """<response>
-    <lst name="responseHeader">
-      <int name="status">0</int>
-      <int name="QTime">83</int>
-    </lst>
-    <lst name="grouped">
-      <lst name="itemId">
-        <int name="matches">4198</int>
-      </lst>
-    </lst>
-  </response>
-             """
-}
+/**
+ * A paged list of facets.
+ * @param fc
+ * @param items
+ * @param offset
+ * @param limit
+ * @param total
+ * @tparam A
+ */
+case class FacetPage[A](
+  fc: FacetClass,
+  items: Seq[A],
+  offset: Int,
+  limit: Int,
+  total: Long
+) extends utils.AbstractPage[A]
 
 
 /**
@@ -39,46 +54,18 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
 
-  private def attributeValueEquals(value: String)(node: Node) = {
-    node.attributes.exists(_.value.text == value)
-  }
-
-  private def itemsFromXml(nodes: NodeSeq): Seq[SearchDescription] = (nodes \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
-    SearchDescription(
-      id = (doc \\ "str").filter(attributeValueEquals("id")).text,
-      name = (doc \\ "str").filter(attributeValueEquals("name")).text,
-      `type` = EntityType.withName((doc \\ "str").filter(attributeValueEquals("type")).text),
-      itemId = (doc \\ "str").filter(attributeValueEquals("itemId")).text,
-      data = (doc \\ "str").foldLeft(Map[String,String]()) { (m, node) =>
-        node.attributes.get("name").map { attr =>
-          m + (attr.head.toString -> node.text)
-        } getOrElse m
-      }
-    )
-  }
-
-  private def numFound(nodes: NodeSeq): Int = {
-    val s = (nodes \ "lst" \ "lst" \ "int").filter(attributeValueEquals("ngroups")).text
-    try {
-      s.toInt
-    } catch {
-      case e: NumberFormatException => 0
-    }
-  }
-
   def list(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = SolrHelper.buildQuery(params, facets, allFacets, filters)(userOpt)
+    val queryRequest = SolrQueryBuilder.buildQuery(params, facets, allFacets, filters)(userOpt)
     Logger.logger.debug(queryRequest.queryString())
 
-    WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
+    WS.url(SolrQueryBuilder.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
-        val facetClasses = SolrHelper.extract(response.body, facets, allFacets)
-        val nodes = xml.XML.loadString(r.body)
+        val parser = SolrQueryParser(r.body)
 
-        ItemPage(itemsFromXml(nodes), offset, limit, numFound(nodes), facetClasses)
+        ItemPage(parser.items, offset, limit, parser.count, parser.extractFacetData(facets, allFacets))
       }
     }
   }
@@ -98,11 +85,12 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
     // actually care about the documents, so even this is
     // not strictly necessary... we also don't care about the
     // ordering.
-    val queryRequest = SolrHelper.buildQuery(params, facets, allFacets, filters)(userOpt)
+    val queryRequest = SolrQueryBuilder.buildQuery(params, facets, allFacets, filters)(userOpt)
 
-    WS.url(SolrHelper.buildSearchUrl(queryRequest)).get.map { response =>
+    WS.url(SolrQueryBuilder.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
-        val facetClasses = SolrHelper.extract(response.body, facets, allFacets)
+
+        val facetClasses = SolrQueryParser(r.body).extractFacetData(facets, allFacets)
 
         val facetClass = facetClasses.find(_.param==facet).getOrElse(
             throw new Exception("Unknown facet: " + facet))
