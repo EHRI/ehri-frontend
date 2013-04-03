@@ -1,7 +1,7 @@
 package controllers
 
 import controllers.base.AuthController
-import play.api.mvc.{Action, Controller, SimpleResult, ResponseHeader}
+import play.api.mvc.{Action, Controller}
 import controllers.base.ControllerHelpers
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Execution.Implicits._
@@ -26,7 +26,9 @@ object ApiController extends Controller with AuthController with ControllerHelpe
       Async {
         rest.ApiDAO(maybeUser)
           .get(List(urlpart, request.rawQueryString).mkString("?"), request.headers).map { r =>
-            SimpleResult(body = Enumerator(r.body), header = ResponseHeader(status = r.status))
+            Status(r.status)
+              .stream(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
+              .as(r.ahcResponse.getContentType)
           }
       }
   }
