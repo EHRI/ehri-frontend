@@ -4,16 +4,16 @@
 
 
 !(function() {
-  angular.module('AnnotatePopup', [ ], function($provide) {
+  angular.module('AnnotatePopup', ["ngSanitize" ], function($provide) {
     $provide.factory('$portal', function($http, $log) {
       return {
-        search: function(searchTerm, page) {
+        search: function(type, searchTerm, page) {
           var params = "?q=" + (searchTerm || "");
           if (page) {
             params = params + "&page=" + page;
           }
-          $log.log("Searching with: ", "/search" + params)
-          return $http.get("/search" + params, {headers: {"Accept": "application/json"}});
+          $log.log("Searching with: ", "/search/" + type + params)
+          return $http.get("/filter/" + type + params);
         }
       };
     });
@@ -44,8 +44,8 @@ function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
 
   $scope.doSearch = function(searchTerm, page) {
     $scope.searching = true;
-    return $portal.search(searchTerm, page).then(function(response) {
-      $scope.results = response.data.results;
+    return $portal.search($scope.type, searchTerm, page).then(function(response) {
+      $scope.results = response.data;
       $scope.numPages = response.data.numPages;
       $scope.currentPage = response.data.page;
       $scope.searching = false;
@@ -54,9 +54,9 @@ function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
 
   $scope.moreResults = function(searchTerm) {
     $scope.searching = true;
-    return $portal.search(searchTerm, $scope.currentPage + 1).then(function(response) {
+    return $portal.search($scope.type, searchTerm, $scope.currentPage + 1).then(function(response) {
       // Append results instead of replacing them...
-      $scope.results.push.apply($scope.results, response.data.results);
+      $scope.results.push.apply($scope.results, response.data);
       $scope.numPages = response.data.numPages;
       $scope.currentPage = response.data.page;
       $scope.searching = false;

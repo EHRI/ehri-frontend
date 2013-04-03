@@ -7,7 +7,7 @@
         <div class="result" ng-class="result.isSelected && 'active'"
              ng-click="selectResult(result)"
              ng-repeat="result in results">
-            <h4><a href="#/search/{{result.id}}">{{result.data.name}}</a></h4>
+            <h4><a href="#/search/{{result.0}}">{{result.1}}</a></h4>
         </div>
         <button ng-click="moreResults(q)">More...</button>
     </div>
