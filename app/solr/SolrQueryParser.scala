@@ -22,14 +22,8 @@ case class SolrQueryParser(response: Elem) {
   lazy val items: Seq[SearchDescription] = (response \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
     SearchDescription(
       id = (doc \\ "str").filter(attributeValueEquals("id")).text,
-      name = (doc \\ "str").filter(attributeValueEquals("name")).text,
-      `type` = EntityType.withName((doc \\ "str").filter(attributeValueEquals("type")).text),
       itemId = (doc \\ "str").filter(attributeValueEquals("itemId")).text,
-      data = (doc \\ "str").foldLeft(Map[String,String]()) { (m, node) =>
-        node.attributes.get("name").map { attr =>
-          m + (attr.head.toString -> node.text)
-        } getOrElse m
-      }
+      name = (doc \\ "str").filter(attributeValueEquals("name")).text
     )
   }
 

@@ -4,10 +4,11 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{Entity, UserProfile}
 import solr.facet.{AppliedFacet, FacetClass}
-import solr.SearchParams
+import solr.{SolrDispatcher, SearchParams}
 import defines.EntityType
 import play.api.Play._
 import solr.facet.AppliedFacet
+import play.api.data.Form
 
 /**
  * Controller trait searching via the Solr interface. Eventually
@@ -75,6 +76,27 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
           }
         }
       //}
+    }
+  }
+
+  def filterAction(entityType: EntityType.Value)(
+      f: Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+    userProfileAction { implicit userOpt => implicit request =>
+      import play.api.data.Form
+      import play.api.data.Forms._
+      val (q, page, limit) = Form(tuple(
+        "q" -> text,
+        "page" -> optional(number),
+        "limit" -> optional(number)
+      )).bindFromRequest.value.getOrElse(("",None,None))
+
+      AsyncRest {
+        solrDispatcher.filter(q, entityType, page, limit).map { resOrErr =>
+          resOrErr.right.map { res =>
+            f(res)(userOpt)(request)
+          }
+        }
+      }
     }
   }
 }

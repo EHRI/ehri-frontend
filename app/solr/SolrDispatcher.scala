@@ -54,6 +54,19 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
 
+  def filter(q: String, entityType: EntityType.Value, page: Option[Int] = Some(1), limit: Option[Int] = Some(100))(
+    implicit userOpt: Option[UserProfile]): Future[Either[RestError,Seq[(String,String)]]] = {
+
+    val queryRequest = SolrQueryBuilder.simpleFilter(q, entityType, page, limit)
+    Logger.logger.debug(queryRequest.queryString())
+
+    WS.url(SolrQueryBuilder.buildSearchUrl(queryRequest)).get.map { response =>
+      checkError(response).right.map { r =>
+        SolrQueryParser(r.body).items.map(i => (i.itemId, i.name))
+      }
+    }
+  }
+
   def list(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit

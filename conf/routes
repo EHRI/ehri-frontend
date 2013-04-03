@@ -34,6 +34,9 @@ POST    /admin/updateIndex              controllers.Search.updateIndexPost
 # Search testing
 GET /search                             controllers.Search.search
 
+# Get JSON (id,name) pair for a given type
+GET /filter/:entityType                       controllers.Search.filterType(entityType: String)
+
 # Change locale
 GET     /locale                         controllers.Application.changeLocale
 

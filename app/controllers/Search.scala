@@ -52,6 +52,10 @@ object Search extends EntitySearch {
     )
   )
 
+  /**
+   * Full text search action that returns a complete page of item data.
+   * @return
+   */
   def search = searchAction { page => params => facets => implicit userOpt => implicit request =>
     request match {
       case Accepts.Html() => Ok(views.html.search.search(page, params, facets, routes.Search.search))
@@ -62,6 +66,19 @@ object Search extends EntitySearch {
         ))
       )
     }
+  }
+
+  /**
+   * Quick filter action that searches applies a 'q' string filter to
+   * only the name_ngram field and returns an id/name pair.
+   * @param entityType
+   * @return
+   */
+  def filterType(entityType: String) = filterAction(EntityType.withName(entityType)) {
+      items => implicit userOpt => implicit request =>
+    Ok(Json.toJson(items.map{ case (id, name) =>
+      List(id, if (name.isEmpty) id else name)
+    }))
   }
 
 

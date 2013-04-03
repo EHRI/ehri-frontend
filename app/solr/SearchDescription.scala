@@ -8,8 +8,6 @@ import defines.EntityType
  */
 case class SearchDescription(
   id: String,
-  name: String,
-  `type`: EntityType.Value,
   itemId: String,
-  data: Map[String,String] = Map()
+  name: String
 )

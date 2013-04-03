@@ -118,6 +118,38 @@ object SolrQueryBuilder {
     //req.set("group.truncate", true)
   }
 
+  /**
+   * Run a simple filter on the name_ngram field of all entities
+   * of a given type.
+   * @param q
+   * @param entityType
+   * @param page
+   * @param limitOpt
+   * @param userOpt
+   * @return
+   */
+  def simpleFilter(q: String, entityType: EntityType.Value, page: Option[Int] = Some(1), limitOpt: Option[Int] = Some(100))(
+    implicit userOpt: Option[UserProfile]): QueryRequest = {
+
+    val queryString = "name_ngram:%s".format(if(q.trim.isEmpty) "*" else q)
+
+    val req: QueryRequest = new QueryRequest(Query(queryString))
+    constrainEntities(req, List(entityType))
+    applyAccessFilter(req, userOpt)
+    setGrouping(req)
+    req.set("qf", "name_ngram")
+    req.setFieldsToReturn(FieldsToReturn("id itemId name"))
+    req.setSort(Sort("name asc"))
+    // Setup start and number of objects returned
+    val limit = limitOpt.getOrElse(SearchParams.DEFAULT_LIMIT)
+    page.map { page =>
+      req.setStartRow(StartRow((Math.max(page, 1) - 1) * limit))
+    }
+    req.setMaximumRowsReturned(MaximumRowsReturned(limit))
+
+    req
+  }
+
 
   /**
    * Build a query given a set of search parameters.
