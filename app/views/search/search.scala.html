@@ -13,31 +13,11 @@
         </div>
 
         <div class="btn-group pull-right" style="margin-top: 10px">
-            @if(params.reverse.getOrElse(false)) {
-            <a class="btn btn-toggle" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.REVERSE))">
-                <i class="icon-chevron-down"></i>
-                @Messages("search.order")
-            </a>
-            } else {
-                <a class="btn" href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.REVERSE, Seq("true")))">
-                <i class="icon-chevron-up"></i>
-                @Messages("search.order")
-            </a>
-            }
-
             <button class="btn dropdown-toggle" data-toggle="dropdown">
                 @Messages("search.sortItems")
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-                <li>
-                    <a href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
-                        @if(params.sort.isEmpty) {
-                        <i class="icon-chevron-down"></i>
-                        }
-                        @Messages("search.relevance")
-                    </a>
-                </li>
                 @solr.SearchOrder.values.map { sortKey =>
                 <li>
                     <a href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey)))">

@@ -19,6 +19,9 @@
                             <li>@views.Helpers.countryCodeToName(cc)</li>
                         }
                     }
+                    @owner.latestEvent.map { event =>
+                        <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</li>
+                    }
                 </ul>
             </small>
             @item.stringProperty(GENERAL_CONTEXT)

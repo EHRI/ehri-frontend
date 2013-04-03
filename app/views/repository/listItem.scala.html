@@ -17,6 +17,9 @@
                     @address.stringProperty(COUNTRY_CODE).map { cc =>
                         <li>@views.Helpers.countryCodeToName(cc)</li>
                     }
+                    @item.latestEvent.map { event =>
+                        <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</li>
+                    }
                 }
             </ul>
         </small>
