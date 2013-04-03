@@ -8,7 +8,7 @@
     $provide.factory('$portal', function($http, $log) {
       return {
         search: function(searchTerm, page) {
-          var params = "?q=" + searchTerm;
+          var params = "?q=" + (searchTerm || "");
           if (page) {
             params = params + "&page=" + page;
           }
@@ -19,24 +19,28 @@
     });
   }).config(['$routeProvider', function($routeProvider) {
     $routeProvider.
-        when('/search', {templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html',   controller: SearchCtrl}).
+        when('/type', {templateUrl: ANGULAR_ROOT + '/partials/search-type.tpl.html',   controller: ItemTypeCtrl}).
+        when('/search/:type', {templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html',   controller: SearchCtrl}).
         when('/search/:itemId', {templateUrl: ANGULAR_ROOT + '/partials/item-detail.tpl.html', controller: ItemDetailCtrl}).
-        otherwise({redirectTo: '/search'});
+        otherwise({redirectTo: '/type'});
   }]);
 }).call(this);
 
+
+function ItemTypeCtrl($scope, $portal, $log, $rootScope, $routeParams) {
+
+}
 
 function ItemDetailCtrl($scope, $portal, $log, $rootScope, $routeParams) {
   $scope.id = $routeParams.itemId;
 }
 
 
-function SearchCtrl($scope, $portal, $log, $rootScope) {
-
+function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
+  $scope.type = $routeParams.type;
   $scope.numPages = false;
   $scope.results = [];
   $scope.currentPage = 1;
-
 
   $scope.doSearch = function(searchTerm, page) {
     $scope.searching = true;

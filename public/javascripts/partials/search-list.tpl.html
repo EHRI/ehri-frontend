@@ -1,7 +1,7 @@
 <div class="modal-body" ng-controller="SearchCtrl">
-    <form name="searchForm" ng:submit="doSearch(q)" >
+    <form name="searchForm" >
         <label>Search</label>
-        <input type="text" ng-model="q">
+        <input type="text" ng-model="q" ng-change="doSearch(q)">
     </form>
     <div id="results" ng-show="results.length" ng-clock >
         <div class="result" ng-class="result.isSelected && 'active'"
