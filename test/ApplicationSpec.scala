@@ -3,10 +3,7 @@ package test
 import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
-import play.api.mvc.Cookie
-import play.api.http.HeaderNames
 
-import helpers.TestLoginHelper
 import play.api.GlobalSettings
 
 /**
@@ -14,7 +11,7 @@ import play.api.GlobalSettings
  * You can mock out a whole application including requests, plugins etc.
  * For more information, consult the wiki.
  */
-class ApplicationSpec extends Specification with TestLoginHelper {
+class ApplicationSpec extends Specification {
   sequential
   object SimpleFakeGlobal extends GlobalSettings
   "Application" should {

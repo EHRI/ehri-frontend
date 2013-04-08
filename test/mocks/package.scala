@@ -1,3 +1,4 @@
+import models.sql.{OpenIDUser, User}
 import play.api.Play.current
 
 package object mocks {
@@ -9,4 +10,12 @@ package object mocks {
       id=1L,
       email=MOCK_EMAIL,
       profile_id=current.configuration.getString("test.user.profile_id").getOrElse("anonymous"))
+
+  object UserFixtures {
+    // These depend on the Neo4j Server fixtures
+    val privilegedUser = new OpenIDUser(1L, "example1@example.com", "mike")
+    val unprivilegedUser = new OpenIDUser(1L, "example2@example.com", "reto")
+
+    val all = Seq(privilegedUser, unprivilegedUser)
+  }
 }
