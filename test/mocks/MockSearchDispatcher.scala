@@ -16,14 +16,15 @@ import solr.facet.{FacetClass, AppliedFacet}
 case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
 
   def filter(q: String, entityType: EntityType.Value, page: Option[Int] = Some(1), limit: Option[Int] = Some(100))(
-      implicit userOpt: Option[UserProfile]): Future[Either[RestError,Seq[(String,String)]]] = {
+      implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String)]]] = {
+    val items = entityType match {
+      case EntityType.DocumentaryUnit => Seq("c1" -> "Collection 1", "c2" -> "Collection 2")
+      case EntityType.Repository => Seq("r1" -> "Repository 1", "r2" -> "Repository 2")
+      case _ => Seq()
+    }
     Future.successful {
       Right {
-        entityType match {
-          case EntityType.DocumentaryUnit => Seq("c1" -> "Collection 1", "c2" -> "Collection 2")
-          case EntityType.Repository => Seq("r1" -> "Repository 1", "r2" -> "Repository 2")
-          case _ => Seq()
-        }
+        ItemPage(items, offset = 0, limit = limit.getOrElse(100), total = items.size, facets = Nil)
       }
     }
   }
