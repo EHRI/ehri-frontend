@@ -1,14 +1,27 @@
-<div class="modal-body" ng-controller="SearchCtrl">
-    <form name="searchForm" >
-        <label>Search</label>
-        <input type="text" ng-model="q" ng-change="doSearch(q)">
-    </form>
-    <div id="results" ng-show="results.length" ng-clock >
-        <div class="result" ng-class="result.isSelected && 'active'"
-             ng-click="selectResult(result)"
-             ng-repeat="result in results">
-            <h4><a href="#/search/{{result.0}}">{{result.1}}</a></h4>
+<div class="row" ng-controller="SearchCtrl">
+    <div class="modal-header span10">
+        <a href="#/type">Back</a>
+        <form class="form-inline" name="searchForm" >
+            <input type="text" ng-model="q" ng-change="doSearch(q)">
+        </form>
+    </div>
+    <div class="span6">
+        <div class="modal-body">
+            <div id="results" ng-show="results.length" ng-clock >
+                <div class="result" ng-class="result.isSelected && 'active'"
+                     ng-click="selectResult(result)"
+                     ng-repeat="result in results">
+                    <h4><a href="" ng-click="setItem(result.0)">{{result.1}}</a></h4>
+                </div>
+                <button ng-click="moreResults(q)" class="btn" ng-class="!hasMorePages() && 'disabled'">More...</button>
+            </div>
         </div>
-        <button ng-click="moreResults(q)">More...</button>
+    </div>
+    <div class="modal-body">
+        <h4 ng-bind-template="{{itemData.relationships.describes[0].data.name}}"></h4>
+
+        <p ng-bind-template="{{itemData.relationships.describes[0].data.scopeAndContent}}"></p>
+        <p ng-bind-template="{{itemData.relationships.describes[0].data.archivalHistory}}"></p>
+
     </div>
 </div>

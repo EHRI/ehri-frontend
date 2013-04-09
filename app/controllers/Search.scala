@@ -62,7 +62,7 @@ object Search extends EntitySearch {
       case Accepts.Json() => Ok(Json.toJson(Json.obj(
         "numPages" -> page.numPages,
         "page" -> page.page,
-        "results" -> page.items.map(_._1)
+        "items" -> page.items.map(_._1)
         ))
       )
     }
@@ -75,10 +75,14 @@ object Search extends EntitySearch {
    * @return
    */
   def filterType(entityType: String) = filterAction(EntityType.withName(entityType)) {
-      items => implicit userOpt => implicit request =>
-    Ok(Json.toJson(items.map{ case (id, name) =>
-      List(id, if (name.isEmpty) id else name)
-    }))
+      page => implicit userOpt => implicit request =>
+    Ok(Json.obj(
+      "numPages" -> page.numPages,
+      "page" -> page.page,
+      "items" -> page.items.map { case (id, name) =>
+        Json.arr(id, name)
+      }
+    ))
   }
 
 

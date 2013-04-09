@@ -4,7 +4,7 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{Entity, UserProfile}
 import solr.facet.{AppliedFacet, FacetClass}
-import solr.{SolrDispatcher, SearchParams}
+import solr.{ItemPage, SolrDispatcher, SearchParams}
 import defines.EntityType
 import play.api.Play._
 import solr.facet.AppliedFacet
@@ -80,7 +80,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
   }
 
   def filterAction(entityType: EntityType.Value)(
-      f: Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: ItemPage[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       import play.api.data.Form
       import play.api.data.Forms._
