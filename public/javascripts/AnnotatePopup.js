@@ -42,12 +42,26 @@ function ItemDetailCtrl($scope, $portal, $log, $rootScope, $routeParams) {
 
 
 function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
+
+  $scope.selected = [["foo", "Foobar", "Reason"]];
   $scope.item = null;
   $scope.itemData = null;
   $scope.type = $routeParams.type;
   $scope.numPages = false;
   $scope.results = [];
   $scope.currentPage = 1;
+
+  $scope.addSelected = function() {
+    console.log("Add: " + $scope.item)
+    $scope.selected.push([$scope.item, $scope.itemData.relationships.describes[0].data.name])
+  }
+
+  $scope.removeSelected = function(id) {
+    console.log("Remove: " + id)
+    $scope.selected = $scope.selected.filter(function(ele, idx, arr) {
+      return (ele[0] !== id);
+    });
+  }
 
   $scope.hasMorePages = function() {
     return $scope.currentPage < $scope.numPages;
