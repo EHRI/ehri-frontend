@@ -13,8 +13,29 @@ import rest.EntityDAO
 import solr.SolrIndexer
 import solr.SolrIndexer.SolrErrorResponse
 
+/**
+ * Filter that applies CSRF protection unless a particular
+ * custom header is present. The value of the header is
+ * not checked.
+ */
+class AjaxCSRFFilter extends EssentialFilter {
+  var csrfFilter = new CSRFFilter()
+
+  val AJAX_HEADER_TOKEN = "ajax-ignore-csrf"
+
+  def apply(next: EssentialAction) = new EssentialAction {
+    def apply(request: RequestHeader) = {
+      if (request.headers.keys.contains(AJAX_HEADER_TOKEN))
+        next(request)
+      else
+        csrfFilter(next)(request)
+    }
+  }
+}
+
+
 // Note: this is in the default package.
-object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
+object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
   override def onStart(app: Application) {
 
