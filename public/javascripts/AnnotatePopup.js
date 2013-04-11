@@ -18,16 +18,29 @@
 
         detail: function(type, id) {
           return $http.get("/api/" + type + "/" + id);
+        },
+
+        saveAnnotations: function(id, args) {
+          var postArgs = {
+            method: "POST",
+            url: "/docs/linkm/" + id,
+            data: args.join("&"),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded', 'ajax-ignore-csrf': true}
+          };
+          $log.log("Post args...", postArgs);
+          return $http(postArgs);
         }
 
       };
     });
-  }).config(['$routeProvider', function($routeProvider) {
+  }).config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
     $routeProvider.
-        when('/type', {templateUrl: ANGULAR_ROOT + '/partials/search-type.tpl.html',   controller: ItemTypeCtrl}).
+        when('', {templateUrl: ANGULAR_ROOT + '/partials/search-type.tpl.html',   controller: ItemTypeCtrl}).
         when('/search/:type', {templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html',   controller: SearchCtrl}).
         when('/search/:type/:itemId', {templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html', controller: SearchCtrl}).
-        otherwise({redirectTo: '/type'});
+        otherwise({redirectTo: '/docs/show/:id'});
+
+    $locationProvider.html5Mode(false);
   }]);
 }).call(this);
 
@@ -40,10 +53,33 @@ function ItemDetailCtrl($scope, $portal, $log, $rootScope, $routeParams) {
   $scope.id = $routeParams.itemId;
 }
 
+function SaveCtrl($scope, $window, $portal, $log, $rootScope, $routeParams) {
+  $scope.id = $window.ITEM_ID;
+  console.log("Item id: " + $scope.id);
+  $scope.selected = [];
+  $scope.save = function() {
+    var args = [];
+    $scope.selected.forEach(function(ele, idx) {
+      var s = "annotation[" + idx + "].id=" + ele.id + "&" +
+          "annotation[" + idx + "].data.annotationType=link&" +
+          "annotation[" + idx + "].data.body=Test Annotation";
+      args.push(s)
+    });
+    return $portal.saveAnnotations($scope.id, args).then(function(response) {
+      $window.location = "/docs/show/" + $scope.id;
+    });
+  }
+
+  $scope.removeSelected = function(id) {
+    console.log("Remove: " + id)
+    $scope.selected = $scope.selected.filter(function(ele, idx, arr) {
+      return (ele.id !== id);
+    });
+  }
+}
 
 function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
-
-  $scope.selected = [["foo", "Foobar", "Reason"]];
+  $scope.id = $routeParams.id;
   $scope.item = null;
   $scope.itemData = null;
   $scope.type = $routeParams.type;
@@ -53,13 +89,10 @@ function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
 
   $scope.addSelected = function() {
     console.log("Add: " + $scope.item)
-    $scope.selected.push([$scope.item, $scope.itemData.relationships.describes[0].data.name])
-  }
-
-  $scope.removeSelected = function(id) {
-    console.log("Remove: " + id)
-    $scope.selected = $scope.selected.filter(function(ele, idx, arr) {
-      return (ele[0] !== id);
+    $scope.selected.push({
+      id: $scope.itemData.id,
+      type: $scope.itemData.type,
+      name: $scope.itemData.relationships.describes[0].data.name
     });
   }
 

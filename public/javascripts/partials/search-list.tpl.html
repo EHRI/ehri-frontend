@@ -1,6 +1,6 @@
 <div class="row" ng-controller="SearchCtrl">
     <div class="modal-header span10">
-        <a href="#/type">Back</a>
+        <a href="#">Back</a>
         <form class="form-inline" name="searchForm" >
             <input type="text" ng-model="q" ng-change="doSearch(q)">
         </form>
@@ -26,13 +26,5 @@
     </div>
     <div class="modal-header">
         <button ng-click="addSelected()" class="btn" ng-class="item == null && 'disabled'">Add</button>
-    </div>
-    <div id="selected-items">
-        <div ng-repeat="item in selected">
-            <div>
-                {{item.1}}
-                <button type="button" class="close" ng-click="removeSelected(item.0)" aria-hidden="true">&times;</button>
-            </div>
-        </div>
     </div>
 </div>
