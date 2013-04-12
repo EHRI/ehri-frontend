@@ -20,4 +20,5 @@ object EntityType extends Enumeration() {
   val Concept = Value("cvocConcept")
   val ConceptDescription = Value("cvocConceptDescription")
   val Vocabulary = Value("cvocVocabulary")
+  val Relationship = Value("relationship")
 }
