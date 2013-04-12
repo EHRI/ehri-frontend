@@ -43,26 +43,14 @@
                         case EntityType.DocumentaryUnit => {
                             @documentaryUnit.listItem(DocumentaryUnit(item))
                         }
-                        case EntityType.DocumentaryUnitDescription => {
-                            @documentaryUnit.searchItem(DocumentaryUnitDescription(item))
-                        }
                         case EntityType.HistoricalAgent => {
                             @historicalAgent.listItem(HistoricalAgent(item))
-                        }
-                        case EntityType.HistoricalAgentDescription => {
-                            @historicalAgent.searchItem(HistoricalAgentDescription(item))
                         }
                         case EntityType.Repository => {
                             @repository.listItem(Repository(item))
                         }
-                        case EntityType.RepositoryDescription => {
-                            @repository.searchItem(RepositoryDescription(item))
-                        }
                         case EntityType.Concept => {
                             @concept.listItem(Concept(item))
-                        }
-                        case EntityType.ConceptDescription => {
-                            @concept.searchItem(ConceptDescription(item))
                         }
                         case EntityType.UserProfile => {
                             @userProfile.searchItem(UserProfile(item))
