@@ -1,3 +1,22 @@
+$('#annotation-popup').on('hidden', function () {
+    window.location.href = "#";
+});
+
+$(document).ready(function () {
+	//RegEXP
+	var SearchCheck = new RegExp("^(#/search/)");
+	var hash = window.location.hash;
+	
+	//State (Avoid further checking)
+	var AnnotationLoaded = false;
+	
+	//If bookmarked, will show the popup
+	if(hash.match(SearchCheck) && !AnnotationLoaded )
+	{
+		$('#annotation-popup').modal('show');
+		var AnnotationLoaded = true;
+	}
+});
 /**
  * Module for performing a search...
  */
@@ -8,12 +27,12 @@
     $provide.factory('$portal', function($http, $log) {
       return {
         search: function(type, searchTerm, page) {
-          var params = "?q=" + (searchTerm || "");
-          if (page) {
-            params = params + "&page=" + page;
-          }
-          $log.log("Searching with: ", "/search/" + type + params)
-          return $http.get("/filter/" + type + params);
+			  var params = "?q=" + (searchTerm || "");
+			  if (page) {
+				params = params + "&page=" + page;
+			  }
+			  // $log.log("Searching with: ", "/search/" + type + params)
+			  return $http.get("/filter/" + type + params);
         },
 
         detail: function(type, id) {
@@ -33,24 +52,17 @@
 
       };
     });
-  }).config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  }).config(['$routeProvider', function($routeProvider, $locationProvider) {
     $routeProvider.
         when('', {templateUrl: ANGULAR_ROOT + '/partials/search-type.tpl.html',   controller: ItemTypeCtrl}).
         when('/search/:type', {templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html',   controller: SearchCtrl}).
-        when('/search/:type/:itemId', {templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html', controller: SearchCtrl}).
-        otherwise({redirectTo: '/docs/show/:id'});
-
-    $locationProvider.html5Mode(false);
+        otherwise({redirectTo: ''});
   }]);
 }).call(this);
 
 
-function ItemTypeCtrl($scope, $portal, $log, $rootScope, $routeParams) {
+function ItemTypeCtrl() {
 
-}
-
-function ItemDetailCtrl($scope, $portal, $log, $rootScope, $routeParams) {
-  $scope.id = $routeParams.itemId;
 }
 
 function SaveCtrl($scope, $window, $portal, $log, $rootScope, $routeParams) {
