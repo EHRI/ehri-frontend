@@ -1,0 +1,18 @@
+<div id="annotation-popup" class="modal fade" data-modalOverflow="true" data-width="700" data-height="400">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Annotation Test</h3>
+    </div>
+    <div ng-view></div>
+    <div class="modal-footer">
+        <div id="selected-items">
+            <div ng-repeat="item in selected">
+                <div>
+                    {{item.name}}
+                    <button type="button" class="close" ng-click="removeSelected(item.id)" aria-hidden="true">&times;</button>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary" ng-click="save()" ng-class="selected.length == 0 && 'disabled'">Save changes</button>
+    </div>
+</div>

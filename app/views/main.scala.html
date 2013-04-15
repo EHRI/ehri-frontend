@@ -15,6 +15,11 @@
 
         <style>
             /** Prevent scrolling when a Bootstrap modal is open */
+
+            .modal-body {
+                max-height: 800px;
+            }
+
             body.modal-open {
                 overflow: hidden;
             }
@@ -146,7 +151,7 @@
             <li class="@{if(req.path.startsWith(call.toString)) "active" else ""}"><a href="@call">@text</a></li>
         }
 
-        <div id="wrap">
+        <div id="wrap" class="page-container">
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
                     <div class="nav-collapse collapse">
