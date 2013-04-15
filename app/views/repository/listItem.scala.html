@@ -6,6 +6,32 @@
     <a href="@routes.Repositories.get(item.id)">@item</a>
 } {
     @item.descriptions.headOption.map { desc =>
+        @defining(desc.listProperty(OTHER_FORMS_OF_NAME).getOrElse(Nil)) { ofn =>
+            @if(!ofn.isEmpty) {
+                <small>
+                    <strong>
+                        <ul class="unstyled inline inline-separator">
+                            @ofn.map { on =>
+                                <li>@on</li>
+                            }
+                        </ul>
+                    </strong>
+                </small>
+            }
+         }
+        @defining(desc.listProperty(PARALLEL_FORMS_OF_NAME).getOrElse(Nil)) { ofn =>
+            @if(!ofn.isEmpty) {
+                <small>
+                    <strong>
+                        <ul class="unstyled inline inline-separator">
+                            @ofn.map { on =>
+                                <li>@on</li>
+                            }
+                        </ul>
+                    </strong>
+                </small>
+            }
+         }
         <small>
             <ul class="unstyled muted inline inline-separator">
                 @desc.addresses.headOption.map { address =>

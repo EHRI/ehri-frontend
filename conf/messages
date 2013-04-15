@@ -445,7 +445,7 @@ isaar.person=Person
 
 # Description
 isaar.datesOfExistence=Dates of Existence
-isaar.biogHist=History
+isaar.biographicalHistory=History
 isaar.place=Places
 isaar.legalStatus=Legal Status
 isaar.functions=Functions

@@ -28,8 +28,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   val DEFAULT_SORT = AccessibleEntity.NAME
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name))
-
   // Documentary unit facets
   import solr.facet._
   val entityFacets = List(
@@ -53,9 +51,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     )
   )
 
-  val searchEntities = List(
-    EntityType.DocumentaryUnit
-  )
 
   /**
    * Mapping between incoming list filter parameters
@@ -96,6 +91,10 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val childForm = models.forms.DocumentaryUnitForm.form
   val descriptionForm = models.forms.IsadGForm.form
   val builder = DocumentaryUnit
+
+  val searchEntities = List(entityType)
+
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=searchEntities)
 
 
   def search = {
