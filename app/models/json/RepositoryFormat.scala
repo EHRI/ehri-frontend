@@ -24,7 +24,6 @@ object RepositoryFormat {
         TYPE -> d.isA,
         DATA -> Json.obj(
           IDENTIFIER -> d.identifier,
-          NAME -> d.name,
           PUBLICATION_STATUS -> d.publicationStatus,
           PRIORITY -> d.priority
         ),
@@ -39,10 +38,9 @@ object RepositoryFormat {
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Repository)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ NAME).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[RepositoryDescriptionF]](
-        Reads.list[RepositoryDescriptionF]) orElse Reads.pure(Nil)) and
+      (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[RepositoryDescriptionF]](
+        Reads.list[RepositoryDescriptionF]) and
       (__ \ DATA \ PRIORITY).readNullable[Int]
     )(RepositoryF.apply _)
 

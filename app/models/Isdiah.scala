@@ -45,7 +45,7 @@ case object Isdiah {
 
   val DESCRIPTION_AREA = "descriptionArea"
   val HISTORY = "history"
-  val GENERAL_CONTEXT = "generalContext"
+  val GEOCULTURAL_CONTEXT = "geoculturalContext"
   val MANDATES = "mandates"
   val ADMINISTRATIVE_STRUCTURE = "administrativeStructure"
   val RECORDS = "records"

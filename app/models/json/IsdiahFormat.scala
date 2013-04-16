@@ -25,7 +25,7 @@ object IsdiahFormat {
           OTHER_FORMS_OF_NAME -> d.otherFormsOfName,
           PARALLEL_FORMS_OF_NAME -> d.parallelFormsOfName,
           HISTORY -> d.details.history,
-          GENERAL_CONTEXT -> d.details.generalContext,
+          GEOCULTURAL_CONTEXT -> d.details.generalContext,
           MANDATES -> d.details.mandates,
           ADMINISTRATIVE_STRUCTURE -> d.details.administrativeStructure,
           RECORDS -> d.details.records,
@@ -63,13 +63,15 @@ object IsdiahFormat {
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).readNullable[String] and
-      (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] and
-      (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] and
+      ((__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] orElse
+        (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
+      ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
+        (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       ((__ \ RELATIONSHIPS \ RepositoryF.ADDRESS_REL).lazyRead[List[AddressF]](Reads.list[AddressF])
           orElse Reads.pure(Nil)) and
       (__ \ DATA).read[Details]((
         (__ \ HISTORY).readNullable[String] and
-          (__ \ GENERAL_CONTEXT).readNullable[String] and
+          (__ \ GEOCULTURAL_CONTEXT).readNullable[String] and
           (__ \ MANDATES).readNullable[String] and
           (__ \ ADMINISTRATIVE_STRUCTURE).readNullable[String] and
           (__ \ RECORDS).readNullable[String] and

@@ -16,7 +16,6 @@ object DocumentaryUnitForm {
     mapping(
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText,
-      NAME -> nonEmptyText,
       PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
       COPYRIGHT -> optional(models.forms.enum(CopyrightStatus)),
       SCOPE -> optional(models.forms.enum(Scope)),

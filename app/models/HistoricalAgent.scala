@@ -17,14 +17,12 @@ object HistoricalAgentF {
 
   final val UNNAMED_PLACEHOLDER = "UNNAMED Authority"
 
-  val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
 }
 
 case class HistoricalAgentF(
   id: Option[String],
   identifier: String,
-  name: String,
   publicationStatus: Option[PublicationStatus.Value] = None,
   @Annotations.Relation(HistoricalAgentF.DESC_REL) descriptions: List[HistoricalAgentDescriptionF] = Nil
 ) extends Persistable {
@@ -35,8 +33,7 @@ case class HistoricalAgentF(
 }
 
 case class HistoricalAgent(val e: Entity)
-  extends NamedEntity
-  with AccessibleEntity
+  extends AccessibleEntity
   with AnnotatableEntity
   with DescribedEntity[HistoricalAgentDescription]
   with Formable[HistoricalAgentF] {

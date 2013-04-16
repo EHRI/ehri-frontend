@@ -55,7 +55,7 @@ class DAOSpec extends Specification with BeforeExample {
 
     "create an item in (agent) context" in {
       running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
-        val doc = DocumentaryUnitF(id = None, identifier = "foobar", name = "Foobar")
+        val doc = DocumentaryUnitF(id = None, identifier = "foobar")
         val r = await(EntityDAO(EntityType.Repository, Some(userProfile)).createInContext("r1", ContentType.DocumentaryUnit, doc))
         r must beRight
         DocumentaryUnit(r.right.get).holder must beSome
@@ -65,7 +65,7 @@ class DAOSpec extends Specification with BeforeExample {
 
     "create an item in (doc) context" in {
       running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
-        val doc = DocumentaryUnitF(id = None, identifier = "foobar", name = "Foobar")
+        val doc = DocumentaryUnitF(id = None, identifier = "foobar")
         val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext("c1", ContentType.DocumentaryUnit, doc))
         r must beRight
         DocumentaryUnit(r.right.get).parent must beSome

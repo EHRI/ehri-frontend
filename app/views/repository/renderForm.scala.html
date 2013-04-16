@@ -7,7 +7,6 @@
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @lineInput(f(""), IDENTIFIER)
-@lineInput(f(""), NAME)
 
 @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
     @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
@@ -37,7 +36,7 @@
         @descriptionFormSection(DESCRIPTION_AREA) {
             @defining(desc(DESCRIPTION_AREA)) { desc =>
                 @textInput(desc, HISTORY)
-                @textInput(desc, GENERAL_CONTEXT)
+                @textInput(desc, GEOCULTURAL_CONTEXT)
                 @textInput(desc, MANDATES)
                 @textInput(desc, ADMINISTRATIVE_STRUCTURE)
                 @textInput(desc, RECORDS)

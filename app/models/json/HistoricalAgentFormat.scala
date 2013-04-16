@@ -25,7 +25,6 @@ object HistoricalAgentFormat {
         TYPE -> d.isA,
         DATA -> Json.obj(
           IDENTIFIER -> d.identifier,
-          NAME -> d.name,
           PUBLICATION_STATUS -> d.publicationStatus
         ),
         RELATIONSHIPS -> Json.obj(
@@ -39,10 +38,9 @@ object HistoricalAgentFormat {
       (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgent)) andKeep
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
-      ((__ \ DATA \ NAME).read[String] orElse Reads.pure(UNNAMED_PLACEHOLDER)) and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[HistoricalAgentDescriptionF]](
-        Reads.list[HistoricalAgentDescriptionF]) orElse Reads.pure(Nil))
+      (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[HistoricalAgentDescriptionF]](
+        Reads.list[HistoricalAgentDescriptionF])
     )(HistoricalAgentF.apply _)
 
   implicit val actorFormat: Format[HistoricalAgentF] = Format(actorReads,actorWrites)

@@ -16,7 +16,6 @@ object RepositoryF {
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
 
-  val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
 }
@@ -24,7 +23,6 @@ object RepositoryF {
 case class RepositoryF(
   id: Option[String],
   identifier: String,
-  name: String,
   publicationStatus: Option[PublicationStatus.Value] = None,
   @Annotations.Relation(RepositoryF.DESC_REL) descriptions: List[RepositoryDescriptionF] = Nil,
   priority: Option[Int] = None
@@ -37,8 +35,7 @@ case class RepositoryF(
 
 
 case class Repository(val e: Entity)
-  extends NamedEntity
-  with AccessibleEntity
+  extends AccessibleEntity
   with AnnotatableEntity
   with DescribedEntity[RepositoryDescription]
   with Formable[RepositoryF] {

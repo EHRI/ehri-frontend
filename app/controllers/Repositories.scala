@@ -27,7 +27,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
   val listFilterMappings = ListMap[String,String](
     AccessibleEntity.NAME -> AccessibleEntity.NAME,
     Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    Isdiah.GENERAL_CONTEXT -> s"<-describes.${Isdiah.GENERAL_CONTEXT}"
+    Isdiah.GEOCULTURAL_CONTEXT -> s"<-describes.${Isdiah.GEOCULTURAL_CONTEXT}"
   )
 
   val orderMappings = ListMap[String,String](
@@ -124,6 +124,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
+        println("Updating: " + Repository(item).formable)
     Ok(views.html.repository.edit(Repository(item), form.fill(Repository(item).formable), routes.Repositories.updatePost(id)))
   }
 

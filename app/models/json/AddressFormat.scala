@@ -37,7 +37,7 @@ object AddressFormat {
   implicit val addressReads: Reads[AddressF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Address)) andKeep
     (__ \ ID).readNullable[String] and
-    ((__ \ DATA \ ADDRESS_NAME).read[String] orElse Reads.pure(UNNAMED_ADDRESS)) and
+    (__ \ DATA \ ADDRESS_NAME).readNullable[String] and
     (__ \ DATA \ CONTACT_PERSON).readNullable[String] and
     (__ \ DATA \ STREET_ADDRESS).readNullable[String] and
     (__ \ DATA \ CITY).readNullable[String] and

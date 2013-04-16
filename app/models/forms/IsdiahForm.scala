@@ -20,25 +20,10 @@ object IsdiahForm {
       AUTHORIZED_FORM_OF_NAME -> optional(text),
       OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
-      ADDRESS_AREA -> list(
-        mapping(
-          Entity.ID -> optional(nonEmptyText),
-          ADDRESS_NAME -> nonEmptyText,
-          CONTACT_PERSON -> optional(nonEmptyText),
-          STREET_ADDRESS -> optional(nonEmptyText),
-          CITY -> optional(nonEmptyText),
-          REGION -> optional(nonEmptyText),
-          POSTAL_CODE -> optional(nonEmptyText),
-          COUNTRY_CODE -> optional(nonEmptyText),
-          EMAIL -> optional(email),
-          TELEPHONE -> optional(list(nonEmptyText)),
-          FAX -> optional(nonEmptyText),
-          URL -> optional(nonEmptyText)
-        )(AddressF.apply)(AddressF.unapply)
-      ),
+      ADDRESS_AREA -> list(AddressForm.form.mapping),
       DESCRIPTION_AREA -> mapping(
         HISTORY -> optional(nonEmptyText),
-        GENERAL_CONTEXT -> optional(nonEmptyText),
+        GEOCULTURAL_CONTEXT -> optional(nonEmptyText),
         MANDATES -> optional(nonEmptyText),
         ADMINISTRATIVE_STRUCTURE -> optional(nonEmptyText),
         RECORDS -> optional(nonEmptyText),

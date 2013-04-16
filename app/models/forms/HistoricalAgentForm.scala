@@ -16,7 +16,6 @@ object HistoricalAgentForm {
     mapping(
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText,
-      NAME -> nonEmptyText,
       PUBLICATION_STATUS -> optional(enum(defines.PublicationStatus)),
       DescribedEntity.DESCRIPTIONS -> list(IsaarForm.form.mapping)
     )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)

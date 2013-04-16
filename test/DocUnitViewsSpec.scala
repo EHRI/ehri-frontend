@@ -163,7 +163,6 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("hello-kitty"),
-          "name" -> Seq("Hello Kitty"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].name" -> Seq("Hello Kitty"),
           "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
@@ -191,7 +190,6 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("c1"),
-          "name" -> Seq("Dup Item"),
           "publicationStatus" -> Seq("Published")
         )
         // Since the item id is derived from the identifier field,
@@ -213,7 +211,6 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("c1"),
-          "name" -> Seq("Bad Date Item"),
           "descriptions[0].dates[0].startDate" -> Seq("1945-01-01"),
           "descriptions[0].dates[0].endDate" -> Seq("1945-13-32") // THIS SHOULD FAIL!
         )
@@ -234,7 +231,6 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("c1"),
-          "name" -> Seq("Collection 1"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].name" -> Seq("Collection 1"),
           "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c1"),
@@ -256,7 +252,6 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
         val msg = "Imma updating this item!"
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("c1"),
-          "name" -> Seq("Collection 1"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].name" -> Seq("Collection 1 - Updated"),
           "logMessage" -> Seq(msg)
@@ -276,7 +271,6 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("c4"),
-          "name" -> Seq("Collection 4"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].name" -> Seq("Collection 4"),
           "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c4"),
@@ -315,7 +309,6 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       val testRepo = "r2"
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("test"),
-        "name" -> Seq("Test Item"),
         "descriptions[0].languageCode" -> Seq("en"),
         "descriptions[0].name" -> Seq("Test Item"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
@@ -356,7 +349,6 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       val testItem = "c4"
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq(testItem),
-        "name" -> Seq("Changed Name"),
         "descriptions[0].languageCode" -> Seq("en"),
         "descriptions[0].name" -> Seq("Changed Name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),

@@ -16,7 +16,6 @@ object RepositoryForm {
     mapping(
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText,
-      NAME -> nonEmptyText,
       PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
       DescribedEntity.DESCRIPTIONS -> list(IsdiahForm.form.mapping),
       PRIORITY -> optional(number(min = -1, max = 5))

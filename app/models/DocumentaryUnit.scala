@@ -51,7 +51,6 @@ object DocumentaryUnitF {
     val Low = Value("low")
   }
 
-  val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
   final val SCOPE = "scope"
   final val COPYRIGHT = "copyright"
@@ -66,7 +65,6 @@ object DocumentaryUnitF {
 case class DocumentaryUnitF(
   val id: Option[String],
   val identifier: String,
-  val name: String,
   val publicationStatus: Option[PublicationStatus.Value] = None,
   val copyrightStatus: Option[DocumentaryUnitF.CopyrightStatus.Value] = Some(DocumentaryUnitF.CopyrightStatus.Unknown),
   val scope: Option[DocumentaryUnitF.Scope.Value] = Some(DocumentaryUnitF.Scope.Low),

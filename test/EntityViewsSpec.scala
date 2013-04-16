@@ -85,13 +85,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("wiener-library"),
-          "name" -> Seq("Wiener Library"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].name" -> Seq("Wiener Library"),
           "descriptions[0].otherFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
           "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
           "descriptions[0].descriptionArea.history" -> Seq("Some history"),
-          "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
+          "descriptions[0].descriptionArea.geoculturalContext" -> Seq("Some content"),
           "descriptions[0].addressArea[0].name" -> Seq("An Address"),
           "publicationStatus" -> Seq("Published")
         )
@@ -146,13 +145,12 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("r1"),
-          "name" -> Seq("Repository 1"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].name" -> Seq("Repository 1"),
           "descriptions[0].otherFormsOfName[0]" -> Seq("Repository 1 (Alt)"),
           "descriptions[0].parallelFormsOfName[0]" -> Seq("Repository 1 (Alt)"),
           "descriptions[0].descriptionArea.history" -> Seq("New History for r1"),
-          "descriptions[0].descriptionArea.generalContext" -> Seq("New Content for r1"),
+          "descriptions[0].descriptionArea.geoculturalContext" -> Seq("New Content for r1"),
           "publicationStatus" -> Seq("Draft")
         )
         val cr = route(fakeLoggedInRequest(privilegedUser, POST,
@@ -169,10 +167,9 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("r1"),
-          "name" -> Seq("Repository 1"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].name" -> Seq("Repository 1"),
-          "descriptions[0].descriptionArea.generalContext" -> Seq("New Content for r1"),
+          "descriptions[0].descriptionArea.geoculturalContext" -> Seq("New Content for r1"),
           "publicationStatus" -> Seq("Draft")
         )
         val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
@@ -204,7 +201,6 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("wiener-library"),
-          "name" -> Seq("Wiener Library"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
           "descriptions[0].name" -> Seq("Wiener Library"),
@@ -263,7 +259,6 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val testData: Map[String, Seq[String]] = Map(
           "identifier" -> Seq("a1"),
-          "name" -> Seq("An Authority"),
           "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
           "descriptions[0].languageCode" -> Seq("en"),
           "descriptions[0].name" -> Seq("An Authority"),

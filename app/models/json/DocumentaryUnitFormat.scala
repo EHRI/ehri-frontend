@@ -27,7 +27,6 @@ object DocumentaryUnitFormat {
         TYPE -> d.isA,
         DATA -> Json.obj(
           IDENTIFIER -> d.identifier,
-          NAME -> d.name,
           PUBLICATION_STATUS -> d.publicationStatus,
           COPYRIGHT -> d.copyrightStatus.orElse(Some(CopyrightStatus.Unknown)),
           SCOPE -> d.scope
@@ -43,12 +42,11 @@ object DocumentaryUnitFormat {
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnit)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ NAME).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
       ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
       (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-      ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[DocumentaryUnitDescriptionF]](
-        Reads.list[DocumentaryUnitDescriptionF]) orElse Reads.pure(Nil))
+      (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[DocumentaryUnitDescriptionF]](
+        Reads.list[DocumentaryUnitDescriptionF])
     )(DocumentaryUnitF.apply _)
 
   implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
