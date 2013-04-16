@@ -35,7 +35,6 @@ case object Isdiah {
   val STREET_ADDRESS = "street"
   val CITY = "municipality"
   val REGION = "firstdem"
-  val COUNTRY = "geogarea"
   val COUNTRY_CODE = "countryCode"
   val POSTAL_CODE = "postalcode"
   val EMAIL = "email"
@@ -76,6 +75,6 @@ case object Isdiah {
   val LANGUAGES_USED = "languages"
   val SCRIPTS_USED = "scripts"
   val SOURCES = "sources"
-  val MAINTENANCE_NOTES = "notes"
+  val MAINTENANCE_NOTES = "maintenanceNotes"
 }
 

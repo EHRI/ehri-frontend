@@ -7,20 +7,7 @@
 } {
     @item.descriptions.headOption.map { desc =>
 
-        @defining(desc.listProperty(OTHER_FORMS_OF_NAME).getOrElse(Nil)) { ofn =>
-            @if(!ofn.isEmpty) {
-                <small>
-                    <strong>
-                        <ul class="unstyled inline inline-separator">
-                            @ofn.map { on =>
-                                <li>@on</li>
-                            }
-                        </ul>
-                    </strong>
-                </small>
-            }
-         }
-        @defining(desc.listProperty(PARALLEL_FORMS_OF_NAME).getOrElse(Nil)) { ofn =>
+        @defining((desc.listProperty(PARALLEL_FORMS_OF_NAME).toList ++ desc.listProperty(OTHER_FORMS_OF_NAME).toList).flatten) { ofn =>
             @if(!ofn.isEmpty) {
                 <small>
                     <strong>
