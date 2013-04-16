@@ -81,7 +81,7 @@ object SolrIndexer extends RestDAO {
 
   def deleteItemsByType(entityType: EntityType.Value, commit: Boolean = true): Future[SolrResponse] = {
     val deleteJson = Json.obj(
-      "delete" -> Json.obj("query" -> ("type:" + entityIndexType(entityType).toString))
+      "delete" -> Json.obj("query" -> ("type:" + entityType.toString))
     )
     solrUpdate(deleteJson, commit = commit)
   }
@@ -115,14 +115,6 @@ object SolrIndexer extends RestDAO {
         )
       }
     }
-  }
-
-  private def entityIndexType(entityType: EntityType.Value): EntityType.Value = entityType match {
-    case EntityType.DocumentaryUnit => EntityType.DocumentaryUnitDescription
-    case EntityType.Concept => EntityType.ConceptDescription
-    case EntityType.HistoricalAgent => EntityType.HistoricalAgentDescription
-    case EntityType.Repository => EntityType.RepositoryDescription
-    case e => e
   }
 
   /**
