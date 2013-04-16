@@ -51,6 +51,7 @@ object Repositories extends CRUD[RepositoryF,Repository]
       name=Messages("priority"),
       param="priority",
       render=s => s match {
+        case s if s == "0" => Messages("priority.zero")
         case s if s == "1" => Messages("priority.one")
         case s if s == "2" => Messages("priority.two")
         case s if s == "3" => Messages("priority.three")

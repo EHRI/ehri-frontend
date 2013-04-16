@@ -326,6 +326,7 @@ priority.four=Four
 priority.three=Three
 priority.two=Two
 priority.one=One
+priority.zero=Zero
 priority.reject=Reject
 
 identifier=Identifier
