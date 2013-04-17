@@ -35,6 +35,7 @@ case class ConceptF(
 object Concept {
   final val VOCAB_REL = "inCvoc"
   final val NT_REL = "narrower"
+  final val BT_REL = "broader"
 }
 
 /**
@@ -55,7 +56,7 @@ case class Concept(e: Entity)
 
   lazy val descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ConceptDescription(_))
   lazy val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
-  lazy val broaderTerms: List[Concept] = e.relations(Concept.NT_REL).map(Concept(_))
+  lazy val broaderTerms: List[Concept] = e.relations(Concept.BT_REL).map(Concept(_))
 
   import json.ConceptFormat._
   lazy val formable: ConceptF = Json.toJson(e).as[ConceptF]
