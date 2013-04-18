@@ -22,4 +22,5 @@ object EntityType extends Enumeration() {
   val Vocabulary = Value("cvocVocabulary")
   val Relationship = Value("relationship")
   val AuthoritativeSet = Value("authoritativeSet")
+  val AccessPoint = Value("relationship")
 }

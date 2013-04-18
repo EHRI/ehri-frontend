@@ -42,7 +42,7 @@ class DAOSpec extends Specification with BeforeExample {
   "EntityDAO" should {
     "get an item by id" in {
       running(FakeApplication(additionalConfiguration = config, withGlobal=Some(FakeGlobal))) {
-        await(EntityDAO(entityType, Some(userProfile)).get(userProfile.identifier)) must beRight
+        await(EntityDAO(entityType, Some(userProfile)).get(userProfile.id)) must beRight
       }
     }
 
@@ -59,7 +59,7 @@ class DAOSpec extends Specification with BeforeExample {
         val r = await(EntityDAO(EntityType.Repository, Some(userProfile)).createInContext("r1", ContentType.DocumentaryUnit, doc))
         r must beRight
         DocumentaryUnit(r.right.get).holder must beSome
-        DocumentaryUnit(r.right.get).holder.get.identifier must equalTo("r1")
+        DocumentaryUnit(r.right.get).holder.get.id must equalTo("r1")
       }
     }
 
@@ -69,7 +69,7 @@ class DAOSpec extends Specification with BeforeExample {
         val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext("c1", ContentType.DocumentaryUnit, doc))
         r must beRight
         DocumentaryUnit(r.right.get).parent must beSome
-        DocumentaryUnit(r.right.get).parent.get.identifier must equalTo("c1")
+        DocumentaryUnit(r.right.get).parent.get.id must equalTo("c1")
       }
     }
         
@@ -191,12 +191,12 @@ class DAOSpec extends Specification with BeforeExample {
         
         // First, fetch an object and assert its accessibility
         val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
-        DocumentaryUnit(c1a).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike"))
+        DocumentaryUnit(c1a).accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike"))
         
         val set = await(VisibilityDAO(Some(userProfile)).set(c1a.id, List("mike", "reto", "admin")))
         set must beRight
         val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
-        DocumentaryUnit(c1b).accessors.map(_.identifier) must haveTheSameElementsAs(List("admin", "mike", "reto"))
+        DocumentaryUnit(c1b).accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike", "reto"))
       }
     }
   }

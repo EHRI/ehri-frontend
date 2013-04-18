@@ -15,10 +15,9 @@ trait AccessibleEntity extends WrappedEntity {
 
   val nameProperty = NAME
   
-  def identifier = e.property(IDENTIFIER).flatMap(_.asOpt[String]).getOrElse("BUG! No idenfier found")
   def accessors = e.relations(ACCESS_REL).map(Accessor(_))
   def latestEvent: Option[SystemEvent] = e.relations(EVENT_REL).headOption.map(SystemEvent(_))
 
-  override def toString = e.stringProperty(nameProperty).getOrElse(identifier)
+  override def toString = e.stringProperty(nameProperty).getOrElse(e.id)
 
 }

@@ -63,5 +63,6 @@ case class Concept(e: Entity)
   lazy val formableOpt: Option[ConceptF] = Json.toJson(e).asOpt[ConceptF]
 
   // Because we (currently) have no 'name' property on Concept, get the first available preflabel
-  override def toString = descriptions.headOption.flatMap(_.stringProperty(ConceptF.PREFLABEL)).getOrElse(identifier)
+  override def toString = descriptions.headOption.flatMap(_.stringProperty(ConceptF.PREFLABEL))
+      .orElse(e.stringProperty(Entity.IDENTIFIER)).getOrElse(e.id)
 }

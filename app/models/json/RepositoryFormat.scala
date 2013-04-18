@@ -39,6 +39,9 @@ object RepositoryFormat {
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
+      // FIXME: This throws an error if an item has no descriptions - we should somehow
+      // make it so that the path being missing is permissable but a validation error
+      // is not.
       (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[RepositoryDescriptionF]](
         Reads.list[RepositoryDescriptionF]) and
       (__ \ DATA \ PRIORITY).readNullable[Int]

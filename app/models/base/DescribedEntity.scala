@@ -54,5 +54,5 @@ trait DescribedEntity[T <: Description] extends AccessibleEntity {
   // Language-aware toString
   def toStringLang(implicit lang: Lang) = descriptions
     .find(_.languageCode==lang.code).orElse(descriptions.headOption)
-      .map(_.toString).getOrElse(identifier)
+      .map(_.toString).getOrElse(id)
 }

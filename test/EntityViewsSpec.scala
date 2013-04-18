@@ -295,7 +295,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
       import rest.PermissionDAO
 
       val subjectUser = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
-      val id = subjectUser.identifier
+      val id = subjectUser.id
 
       "reliably set permissions" in {
         running(fakeLoginApplication(additionalConfiguration = config)) {
@@ -304,7 +304,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
             ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
           )
           val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-            routes.UserProfiles.permissionsPost(subjectUser.identifier).url).withHeaders(postHeaders.toSeq: _*), testData).get
+            routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(postHeaders.toSeq: _*), testData).get
           status(cr) must equalTo(SEE_OTHER)
 
           // Now check we can read back the same permissions.

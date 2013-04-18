@@ -196,7 +196,7 @@ object SolrIndexer extends RestDAO {
       val baseData = Json.obj(
         "itemId" -> d.id,
         "id" -> desc.id,
-        "identifier" -> d.identifier,
+        "identifier" -> d.stringProperty("identifier"),
         "name" -> desc.stringProperty("name"), // All descriptions should have a 'name' property
         "type" -> d.isA,
         ACCESSOR_FIELD -> getAccessorValues(d.e),
