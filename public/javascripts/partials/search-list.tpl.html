@@ -1,7 +1,7 @@
 <div style="height:50px;">
-	<a href="#">Back</a>
 	<form class="form-inline" name="searchForm" >
-		<input type="text" ng-model="q" ng-change="doSearch(q)">
+		<a class="btn btn-info" href="#">Back</a>
+		<input type="text" class="search-query" ng-model="q" ng-change="doSearch(q)" placeholder="Type your query there">
 	</form>
 </div>
 <div class="container-fluid">
@@ -14,14 +14,15 @@
 			</ul>
 			<button ng-click="moreResults(q)" class="btn" ng-class="!hasMorePages() && 'disabled'">More...</button>
 		</div>
-		<div class="span4" style="overflow:auto; max-height:345px;">
-			<button ng-click="addSelected()" class="btn" ng-class="item == null && 'disabled'">Add</button>
-			<div class="description">
+		<div class="span4" >
+			<div style="height:25px; line-height:25px; text-align:right;">
+				<button ng-click="addSelected()" class="btn btn-success btn-mini" ng-class="item == null && 'disabled'">Add</button>
+			</div>
+			<div class="description" style="overflow:auto; max-height:320px;">
 				<h4 ng-bind-template="{{itemData.relationships.describes[0].data.name}}"></h4>
 				<p ng-bind-template="{{itemData.relationships.describes[0].data.scopeAndContent}}"></p>
 				<p ng-bind-template="{{itemData.relationships.describes[0].data.archivalHistory}}"></p>
 			</div>
-			<button ng-click="addSelected()" class="btn" ng-class="item == null && 'disabled'">Add</button>
 		</div>
 	</div>
 </div>

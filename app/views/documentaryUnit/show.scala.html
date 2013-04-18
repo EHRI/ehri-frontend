@@ -39,25 +39,27 @@
         }
 
         <script>window.ITEM_ID="@{item.id}";</script>
-        <h4><a class="test-linking" href="#annotation-popup" data-toggle="modal">Testing Linking</a></h4>
-        <div id="annotation-popup" class="modal fade container" data-width="700" data-height="400" ng-app="AnnotatePopup" ng-controller="SaveCtrl">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3>Annotation Test</h3>
-            </div>
-            <div class="modal-body" ng-view></div>
-            <div class="modal-footer">
-                <div id="selected-items">
-                    <ul class="inline" ng-repeat="item in selected">
-                        <li>
-							<span class="btn btn-info btn-small">{{item.name}} <button class="close" ng-click="removeSelected(item.id)" aria-hidden="true">&times;</button></span>
-                        </li>
-                    </ul>
-                </div>
-				<hr />
-                <button class="btn btn-primary" ng-click="save()" ng-class="selected.length == 0 && 'disabled'">Save changes</button>
-            </div>
-        </div>
+		<div id="annotation-system" ng-app="AnnotatePopup">
+			<a class="test-linking btn btn-success pull-right" href="#annotation-popup" data-toggle="modal">Link</a>
+			<div id="annotation-popup" class="modal fade container" data-width="700" data-height="400" ng-controller="SaveCtrl">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h3>Annotation</h3>
+				</div>
+				<div class="modal-body" ng-view></div>
+				<div class="modal-footer">
+					<div id="selected-items">
+						<ul class="inline" style="line-height:25px;">
+							<li ng-repeat="item in selected">
+								<span class="btn btn-mini" ng-click="removeSelected(item.id)" style="white-space: nowrap;	overflow: hidden;	text-overflow: ellipsis; width:18%;">{{item.name}}</span>
+							<li>
+						</ul>
+					</div>
+					<hr />
+					<button class="btn btn-primary" ng-click="save()" ng-class="selected.length == 0 && 'disabled'">Save changes</button>
+				</div>
+			</div>
+		</div>
 
 
         @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
