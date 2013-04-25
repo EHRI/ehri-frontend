@@ -1,25 +1,34 @@
-<div style="height:50px;">
-	<form class="form-inline" name="searchForm" >
-		<a class="btn btn-info" href="#">Back</a>
-		<input type="text" class="search-query" ng-model="q" ng-change="doSearch(q)" placeholder="Type your query there">
-	</form>
-</div>
+
 <div class="container-fluid">
 	<div class="row-fluid">
-		<div class="span8" id="results" ng-show="results.length" ng-clock style="overflow:auto; max-height:345px;">
-			<ul class="result unstyled" ng-class="result.isSelected && 'active'"
-				 ng-click="selectResult(result)"
-				 ng-repeat="result in results">
-				<li><a href="" ng-click="setItem(result.0)">{{result.1}}</a></li>
-			</ul>
-			<button ng-click="moreResults(q)" class="btn" ng-class="!hasMorePages() && 'disabled'">More...</button>
+		<div class="span8" style="height:400px;">
+		
+			<div style="height:50px; line-height:50px;">
+				<form class="form-inline" name="searchForm" >
+					<input type="text" class="search-query" ng-model="q" ng-change="doSearch(q)" placeholder="Type your query there">
+				</form>
+			</div>
+			
+			<div style="overflow:auto; height:305px;" id="results" ng-show="results.length" ng-clock>
+				<ul class="result unstyled">
+					<li ng-class="result.isSelected && 'active'" ng-repeat="result in results[currentPage]">
+						<a href="" ng-click="setItem(result.0)">{{result.1}}</a>
+					</li>
+				</ul>
+			</div>
+			
+			<div style="padding-top:4px;">
+				<!-- Pagination -->
+				<pagination num-pages="numPages" current-page="currentPage" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
+			</div>
 		</div>
-		<div class="span4" >
-			<div style="height:25px; line-height:25px; text-align:right;">
+		
+		<div class="span4" style="height:400px;">
+			<div style="height:50px; line-height:50px;">
 				<button ng-click="addSelected()" class="btn btn-success btn-mini" ng-class="item == null && 'disabled'">Add</button>
 			</div>
-			<div class="description" style="overflow:auto; max-height:320px;">
-				<h4 ng-bind-template="{{itemData.relationships.describes[0].data.name}}"></h4>
+			<div  class="description" style="overflow:auto; max-height:305px;">
+				<h5>{{itemData.relationships.describes[0].data.name}}</h5>
 				<p ng-bind-template="{{itemData.relationships.describes[0].data.scopeAndContent}}"></p>
 				<p ng-bind-template="{{itemData.relationships.describes[0].data.archivalHistory}}"></p>
 			</div>

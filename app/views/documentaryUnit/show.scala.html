@@ -23,6 +23,7 @@
 @extrascripts = {
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
+    <script src="@routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/AnnotatePopup.js")" type="text/javascript"></script>
 }
 
@@ -45,8 +46,15 @@
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					<h3>Annotation</h3>
+					<div class="container-fluid">
+						<div class="row-fluid">
+							<div class="span4 text-center"><a href="#/search/documentaryUnit">Documentary Units</a></div>
+							<div class="span4 text-center"><a href="#/search/historicalAgent">Authorities</a></div>
+							<div class="span4 text-center"><a href="#/search/cvocConcept">Concepts</a></div>
+						</div>
+					</div>
 				</div>
-				<div class="modal-body" ng-view></div>
+				<div class="modal-body" style="padding-bottom:0;" ng-view></div>
 				<div class="modal-footer">
 					<div id="selected-items">
 						<ul class="inline" style="line-height:25px;">
