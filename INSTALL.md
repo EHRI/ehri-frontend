@@ -2,9 +2,7 @@
 
 ## Prerequisites
 
-For development, you need a version of the EHRI Neo4j REST server installed both as libraries and running standalone. This can be done by following the instructions here:
-
-    https://github.com/mikesname/neo4j-ehri-plugin/blob/master/docs/INSTALL.md
+For development, you need a version of the EHRI Neo4j REST server installed both as libraries and running standalone. This can be done by following the instructions [here](https://github.com/mikesname/neo4j-ehri-plugin/blob/master/docs/INSTALL.md).
 
 ### Install and set up Solr
 
