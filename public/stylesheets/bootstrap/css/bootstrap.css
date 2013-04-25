@@ -5115,3 +5115,5 @@ button.close {
 .collapse.in {
   height: auto;
 }
+
+.pagination-no-margin { margin:0; }

@@ -1,7 +1,9 @@
-$('#annotation-popup').on('hidden', function () {
+/*$('#annotation-popup').on('hidden', function () {
     window.location.href = "#";
 });
+*/
 
+/*
 $(document).ready(function () {
 	//RegEXP
 	var SearchCheck = new RegExp("^(#/search/)");
@@ -17,13 +19,14 @@ $(document).ready(function () {
 		var AnnotationLoaded = true;
 	}
 });
+*/
 /**
  * Module for performing a search...
  */
 
 
 !(function() {
-  angular.module('AnnotatePopup', ["ngSanitize" ], function($provide) {
+  angular.module('AnnotatePopup', ["ngSanitize", 'ui.bootstrap' ], function($provide) {
     $provide.factory('$portal', function($http, $log) {
       return {
         search: function(type, searchTerm, page) {
@@ -54,9 +57,8 @@ $(document).ready(function () {
     });
   }).config(['$routeProvider', function($routeProvider, $locationProvider) {
     $routeProvider.
-        when('', {templateUrl: ANGULAR_ROOT + '/partials/search-type.tpl.html',   controller: ItemTypeCtrl}).
         when('/search/:type', {templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html',   controller: SearchCtrl}).
-        otherwise({redirectTo: ''});
+        otherwise({redirectTo: '/search/documentaryUnit'});
   }]);
 }).call(this);
 
@@ -95,10 +97,13 @@ function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
   $scope.item = null;
   $scope.itemData = null;
   $scope.type = $routeParams.type;
-  $scope.numPages = false;
   $scope.results = [];
+  $scope.paginationResults = []
+  //Pagination system
   $scope.currentPage = 1;
-
+  $scope.maxSize = 5;
+  $scope.numPages = false;
+    
   $scope.addSelected = function() {
     console.log("Add: " + $scope.item)
     $scope.selected.push({
@@ -126,26 +131,41 @@ function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
     }
   }
 
+  
   $scope.doSearch = function(searchTerm, page) {
     $scope.searching = true;
     return $portal.search($scope.type, searchTerm, page).then(function(response) {
-      console.log(response.data)
-      $scope.results = response.data.items;
-      $scope.numPages = response.data.numPages;
+	
+      $scope.results = [];
       $scope.currentPage = response.data.page;
+	  $scope.results[$scope.currentPage] = response.data.items;
+      $scope.numPages = response.data.numPages;
       $scope.searching = false;
+	  console.log($scope.currentPage);
     });
   }
-
+  
+  $scope.$watch("currentPage", function(newValue, oldValue) { 
+		if(!$scope.results[newValue])
+		{
+			$scope.moreResults($scope.q);
+		}
+	});
+  
   $scope.moreResults = function(searchTerm) {
     $scope.searching = true;
-    return $portal.search($scope.type, searchTerm, $scope.currentPage + 1).then(function(response) {
+    return $portal.search($scope.type, searchTerm, $scope.currentPage).then(function(response) {
+	
       // Append results instead of replacing them...
-      $scope.results.push.apply($scope.results, response.data.items);
+	  
+      $scope.currentPage = response.data.page;
+      $scope.results[$scope.currentPage] = response.data.items;
       $scope.numPages = response.data.numPages;
       $scope.currentPage = response.data.page;
       $scope.searching = false;
+	  
     });
   }
-  $scope.doSearch("")
+  
+  $scope.doSearch("");
 }
