@@ -31,8 +31,8 @@ object AnnotationFormat {
   implicit val annotationReads: Reads[AnnotationF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Annotation)) andKeep
     (__ \ ID).readNullable[String] and
-      ((__ \ DATA \ ANNOTATION_TYPE).read[AnnotationType.Value]
-          orElse Reads.pure(AnnotationType.Comment)) and
+      ((__ \ DATA \ ANNOTATION_TYPE).readNullable[AnnotationType.Value]
+          orElse Reads.pure(Some(AnnotationType.Comment))) and
       (__ \ DATA \ BODY).read[String] and
       (__ \ DATA \ FIELD).readNullable[String] and
       (__ \ DATA \ COMMENT).readNullable[String]

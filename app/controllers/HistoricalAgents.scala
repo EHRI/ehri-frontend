@@ -2,7 +2,7 @@ package controllers
 
 import _root_.models.base.AccessibleEntity
 import _root_.models._
-import _root_.models.forms.{AnnotationForm, VisibilityForm}
+import _root_.models.forms.{LinkForm, AnnotationForm, VisibilityForm}
 import _root_.models.HistoricalAgent
 import play.api._
 import play.api.i18n.Messages
@@ -17,6 +17,7 @@ import solr.{SearchOrder, SearchParams}
 object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with VisibilityController[HistoricalAgent]
   with PermissionItemController[HistoricalAgent]
+  with EntityLink[HistoricalAgent]
   with EntityAnnotate[HistoricalAgent]
   with EntitySearch {
 
@@ -76,8 +77,8 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   }
 
   def get(id: String) = getAction(id) {
-      item => annotations => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.show(HistoricalAgent(item), annotations))
+      item => annotations => links => implicit userOpt => implicit request =>
+    Ok(views.html.historicalAgent.show(HistoricalAgent(item), annotations, links))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
@@ -193,21 +194,21 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
       item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.linkSourceList(item, page, params,
+    Ok(views.html.linking.linkSourceList(item, page, params,
         EntityType.withName(toType), routes.HistoricalAgents.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.linkAnnotate(target, source,
-        AnnotationForm.form, routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
+    Ok(views.html.linking.link(target, source,
+        LinkForm.form, routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
     formOrAnnotation => implicit userOpt => implicit request =>
       formOrAnnotation match {
         case Left((target,source,errorForm)) => {
-          BadRequest(views.html.annotation.linkAnnotate(target, source,
+          BadRequest(views.html.linking.link(target, source,
             errorForm, routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
         }
         case Right(annotation) => {

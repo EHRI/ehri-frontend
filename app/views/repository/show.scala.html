@@ -1,4 +1,4 @@
-    @(item: Repository, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+    @(item: Repository, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]], links: List[Link])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
@@ -7,13 +7,11 @@
             @common.stringValue(item, Isdiah.IDENTIFIER)
             @if(!item.descriptions.isEmpty) {
                 @item.descriptions.map { desc =>
-                    @repository.renderDescription(desc)
+                    @repository.renderDescription(item, desc, links)
                 }
             }
         }
     }
-
-    @common.relatedLinks(item, annotations)
 
     @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
         @documentaryUnit.itemList(page)

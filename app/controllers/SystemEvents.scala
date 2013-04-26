@@ -13,7 +13,7 @@ object SystemEvents extends EntityRead[SystemEvent] {
   val builder = SystemEvent
 
   def get(id: String) = getAction(id) { 
-      item => annotations => implicit userOpt => implicit request =>
+      item => annotations => links => implicit userOpt => implicit request =>
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     AsyncRest {
       val params = ListParams.bind(request)

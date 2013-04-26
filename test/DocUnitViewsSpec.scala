@@ -408,8 +408,8 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       val linkSrc = "cvocc1"
       val body = "This is a link"
       val testData: Map[String,Seq[String]] = Map(
-        AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationType.Link.toString),
-        AnnotationF.BODY -> Seq(body)
+        LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
+        LinkF.DESCRIPTION -> Seq(body)
       )
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val cr = route(fakeLoggedInRequest(privilegedUser, POST,
@@ -428,12 +428,12 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       val body1 = "This is a link 1"
       val body2 = "This is a link 2"
       val testData: Map[String,Seq[String]] = Map(
-        "annotation[0].id" -> Seq("c2"),
-        "annotation[0].data." +  AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationType.Link.toString),
-        "annotation[0].data." +  AnnotationF.BODY -> Seq(body1),
-        "annotation[1].id" -> Seq("c3"),
-        "annotation[1].data." +  AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationType.Link.toString),
-        "annotation[1].data." +  AnnotationF.BODY -> Seq(body2)
+        "link[0].id" -> Seq("c2"),
+        "link[0].data." +  LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
+        "link[0].data." +  LinkF.DESCRIPTION -> Seq(body1),
+        "link[1].id" -> Seq("c3"),
+        "link[1].data." +  LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
+        "link[1].data." +  LinkF.DESCRIPTION -> Seq(body2)
       )
       running(fakeLoginApplication(additionalConfiguration = config)) {
         val cr = route(fakeLoggedInRequest(privilegedUser, POST,

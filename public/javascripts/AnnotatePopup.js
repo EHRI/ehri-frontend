@@ -74,9 +74,9 @@ function SaveCtrl($scope, $window, $portal, $log, $rootScope, $routeParams) {
   $scope.save = function() {
     var args = [];
     $scope.selected.forEach(function(ele, idx) {
-      var s = "annotation[" + idx + "].id=" + ele.id + "&" +
-          "annotation[" + idx + "].data.annotationType=link&" +
-          "annotation[" + idx + "].data.body=Test Annotation";
+      var s = "link[" + idx + "].id=" + ele.id + "&" +
+          "link[" + idx + "].data.category=associative&" +
+          "link[" + idx + "].data.description=Test Annotation";
       args.push(s)
     });
     return $portal.saveAnnotations($scope.id, args).then(function(response) {

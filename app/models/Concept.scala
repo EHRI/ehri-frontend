@@ -46,6 +46,7 @@ case class Concept(e: Entity)
   extends NamedEntity
   with AccessibleEntity
   with AnnotatableEntity
+  with LinkableEntity
   with DescribedEntity[ConceptDescription]
   with HierarchicalEntity[Concept]
   with Formable[ConceptF] {
@@ -54,7 +55,8 @@ case class Concept(e: Entity)
 
   override val nameProperty = ConceptF.PREFLABEL
 
-  lazy val descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(ConceptDescription(_))
+  lazy val descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL)
+      .map(ConceptDescription(_)).sortBy(d => d.languageCode)
   lazy val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
   lazy val broaderTerms: List[Concept] = e.relations(Concept.BT_REL).map(Concept(_))
 

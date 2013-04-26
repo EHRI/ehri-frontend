@@ -2,7 +2,7 @@ package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{Concept,ConceptF}
-import _root_.models.forms.{AnnotationForm, VisibilityForm}
+import _root_.models.forms.{LinkForm, AnnotationForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import base._
@@ -15,6 +15,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   with EntityUpdate[ConceptF, Concept]
   with EntityDelete[Concept]
   with PermissionScopeController[Concept]
+  with EntityLink[Concept]
   with EntityAnnotate[Concept] {
 
   val targetContentTypes = Seq(ContentType.Concept)
@@ -49,7 +50,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   val childForm = models.forms.ConceptForm.form
   val builder = Concept.apply _
 
-  def get(id: String) = getWithChildrenAction(id, builder) { item => page => params => annotations =>
+  def get(id: String) = getWithChildrenAction(id, builder) { item => page => params => annotations => links =>
     implicit userOpt => implicit request =>
       Ok(views.html.concept.show(Concept(item), page, params, annotations))
   }
@@ -184,15 +185,15 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.linkAnnotate(target, source,
-            AnnotationForm.form, routes.Concepts.linkAnnotatePost(id, toType, to)))
+    Ok(views.html.linking.link(target, source,
+            LinkForm.form, routes.Concepts.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
-          BadRequest(views.html.annotation.linkAnnotate(target, source,
+          BadRequest(views.html.linking.link(target, source,
               errorForm, routes.Concepts.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {

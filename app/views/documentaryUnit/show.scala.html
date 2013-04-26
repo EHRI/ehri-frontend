@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.IsadG._
 
@@ -89,13 +89,13 @@
                         @item.descriptions.headOption.map { desc =>
                             <div class="tab-pane active" id="tab1">
                                 @actions("Actions", item.id, desc.id)
-                                @documentaryUnit.renderDescription(item, desc)
+                                @documentaryUnit.renderDescription(item, desc, links)
                             </div>
                         }
                         @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                             <div class="tab-pane" id="tab@{i+1}">
                                 @actions("Actions", item.id, desc.id)
-                                @documentaryUnit.renderDescription(item, desc)
+                                @documentaryUnit.renderDescription(item, desc, links)
                             </div>
                         }
                     </div>
@@ -105,9 +105,9 @@
                 <a href="@routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
             }
         }
-    }
 
-    @common.relatedLinks(item, annotations)
+        @common.annotationLinks(item, links)
+    }
 
     @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
         @documentaryUnit.itemList(page)

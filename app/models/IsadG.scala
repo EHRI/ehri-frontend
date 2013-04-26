@@ -13,8 +13,10 @@ case object IsadG {
     val Item = Value("item")
   }
 
+
   val FIELD_PREFIX = "isadg"
 
+  val ACCESS_POINTS = "accessPoints"
   /* ISAD(G)-based field set */
   val TITLE = "name"
   val DATES = "dates"

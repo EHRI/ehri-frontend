@@ -94,8 +94,8 @@ object Repositories extends CRUD[RepositoryF,Repository]
   }
 
   def get(id: String) = getWithChildrenAction(id, DocumentaryUnit.apply _) {
-      item => page => params => annotations => implicit userOpt => implicit request =>
-    Ok(views.html.repository.show(Repository(item), page, params, annotations))
+      item => page => params => annotations => links => implicit userOpt => implicit request =>
+    Ok(views.html.repository.show(Repository(item), page, params, annotations, links))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

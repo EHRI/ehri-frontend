@@ -11,6 +11,7 @@ import play.api.libs.json.{Json, JsString, JsValue}
 case class DocumentaryUnit(val e: Entity) extends NamedEntity
   with AccessibleEntity
   with AnnotatableEntity
+  with LinkableEntity
   with HierarchicalEntity[DocumentaryUnit]
   with DescribedEntity[DocumentaryUnitDescription]
   with Formable[DocumentaryUnitF] {
@@ -28,7 +29,8 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
     .orElse(Some(CopyrightStatus.Unknown))
   val scope = e.property(SCOPE).flatMap(enumReads(Scope).reads(_).asOpt)
 
-  def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL).map(DocumentaryUnitDescription(_))
+  def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL)
+      .map(DocumentaryUnitDescription(_)).sortBy(d => d.languageCode)
 
 
   import json.DocumentaryUnitFormat._

@@ -1,4 +1,4 @@
-@(item: AnnotatableEntity, src: AnnotatableEntity, form: play.api.data.Form[AnnotationF], action: Call)(
+@(item: LinkableEntity, src: LinkableEntity, form: play.api.data.Form[LinkF], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
@@ -10,8 +10,8 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 		<fieldset id="annotate-area">
 
         <legend>@Messages("Identity")</legend>
-            @helper.inputText(form(AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
-            <input type="hidden" value="@AnnotationType.Link" name="@form(AnnotationF.ANNOTATION_TYPE).name" />
+            @helper.inputText(form(LinkF.DESCRIPTION), '_label -> Messages("link.description"))
+            <input type="hidden" value="@LinkF.LinkType.Associative" name="@form(LinkF.LINK_TYPE).name" />
 		</fieldset>
 	  
 		<div class="form-actions">

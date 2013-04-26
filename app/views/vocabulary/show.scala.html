@@ -8,8 +8,6 @@
         }
     }
 
-    @common.relatedLinks(item, annotations)
-
     @common.filterableList("vocabulary.toplevelTermsPageHeader", page, params, Concepts.listFilterMappings.keys, Concepts.orderMappings.keys) {
         <ul>
             @page.items.map(c => concept.listItem(c))

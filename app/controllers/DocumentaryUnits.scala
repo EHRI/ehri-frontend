@@ -1,7 +1,7 @@
 package controllers
 
 import models.{DocumentaryUnitDescription, DocumentaryUnit, DocumentaryUnitF, DocumentaryUnitDescriptionF, Entity, IsadG,DatePeriodF}
-import _root_.models.forms.{AnnotationForm, VisibilityForm}
+import _root_.models.forms.{LinkForm, AnnotationForm, VisibilityForm}
 import _root_.models.base.{AnnotatableEntity, AccessibleEntity}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
@@ -23,6 +23,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with EntityDelete[DocumentaryUnit]
   with PermissionScopeController[DocumentaryUnit]
   with EntityAnnotate[DocumentaryUnit]
+  with EntityLink[DocumentaryUnit]
   with DescriptionCRUD[DocumentaryUnit, DocumentaryUnitDescriptionF]
   with EntitySearch {
 
@@ -116,8 +117,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   }
 
   def get(id: String) = getWithChildrenAction(id, builder) {
-      item => page => params => annotations => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.show(DocumentaryUnit(item), page, params, annotations))
+      item => page => params => annotations => links => implicit userOpt => implicit request =>
+    Ok(views.html.documentaryUnit.show(DocumentaryUnit(item), page, params, annotations, links))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
@@ -309,21 +310,21 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
     item => page => params => implicit userOpt => implicit request =>
-      Ok(views.html.annotation.linkSourceList(item, page, params,
+      Ok(views.html.linking.linkSourceList(item, page, params,
         EntityType.withName(toType), routes.DocumentaryUnits.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.linkAnnotate(target, source,
-        AnnotationForm.form, routes.DocumentaryUnits.linkAnnotatePost(id, toType, to)))
+    Ok(views.html.linking.link(target, source,
+        LinkForm.form, routes.DocumentaryUnits.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
-        BadRequest(views.html.annotation.linkAnnotate(target, source,
+        BadRequest(views.html.linking.link(target, source,
           errorForm, routes.DocumentaryUnits.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {
@@ -335,15 +336,15 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def linkMultiAnnotate(id: String) = linkMultiAction(id) {
       target => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.linkAnnotateMulti(target,
-        AnnotationForm.multiForm, routes.DocumentaryUnits.linkMultiAnnotatePost(id)))
+    Ok(views.html.linking.linkMulti(target,
+        LinkForm.multiForm, routes.DocumentaryUnits.linkMultiAnnotatePost(id)))
   }
 
   def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {
       formOrAnnotations => implicit userOpt => implicit request =>
     formOrAnnotations match {
       case Left((target,errorForms)) => {
-        BadRequest(views.html.annotation.linkAnnotateMulti(target,
+        BadRequest(views.html.linking.linkMulti(target,
           errorForms, routes.DocumentaryUnits.linkMultiAnnotatePost(id)))
       }
       case Right(annotations) => {

@@ -2,34 +2,32 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AnnotatableEntity, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader)
+@(item: models.base.LinkableEntity, desc: models.base.Description, links: List[Link])(implicit maybeUser: Option[UserProfile], req: RequestHeader)
 
 <div class="annotatable" id="@item.id">
-    @annotations.get(item.id).map { list =>
-        @defining(list.filter(_.formable.annotationType == AnnotationType.Link)) { alist =>
-            @if(!alist.isEmpty) {
-                <hr />
-                <h3>@Messages("isadg.accessPoints")</h3>
-                <ul class="item-annotation-links">
-                    @alist.map { ann =>
-                        @** Q: What do we do when there is no source??? **@
-                        @ann.source.map { src =>
-                            <li>
-                                <a title="@ann.formatted" href="@views.Helpers.urlFor(src)">@src</a><a href="@routes.Annotations.get(ann.id)">*</a>
-                                <br />
-                                <small class="relation-description">
-                                   @ann.accessor.map { user =>
-                                       <a class="alt" href="@views.Helpers.urlFor(user)">@user</a>:
-                                   }
-                                   @ann.formatted
-                                </small>
-
-                            </li>
-
+    @if(!desc.accessPoints.isEmpty) {
+        <hr />
+        <h3>@Messages(IsadG.FIELD_PREFIX + "." + IsadG.ACCESS_POINTS)</h3>
+        <ul class="item-annotation-links">
+            @desc.accessPoints.map { accessPoint =>
+                @accessPoint.target(item, links).map { case (link, other) =>
+                    <li class="resolved-access-point">
+                        <a href="@views.Helpers.urlForEntity(other.e)">@accessPoint.targetName</a>
+                        @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
+                            <p>@desc</p>
                         }
-                    }
-                </ul>
+                    </li>
+                }.getOrElse {
+                    <li class="unresolved-access-point">
+                        @accessPoint.targetName.map { t =>
+                            <strong>@t</strong>
+                        }
+                        @accessPoint.stringProperty(AccessPointF.DESCRIPTION).map { desc =>
+                            <p>@desc</p>
+                        }
+                    </li>
+                }
             }
-        }
+        </ul>
     }
 </div>

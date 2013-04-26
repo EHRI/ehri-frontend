@@ -1,4 +1,4 @@
-@(item: AnnotatableEntity, form: play.api.data.Form[List[(String,AnnotationF)]], action: Call)(
+@(item: LinkableEntity, form: play.api.data.Form[List[(String,LinkF)]], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
@@ -13,8 +13,8 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 
                     @helper.inputText(annf("id"), '_label -> "item")
                     @defining(annf("data")) { formData =>
-                        @helper.inputText(formData(AnnotationF.BODY), '_label -> Messages("annotation.bodyText"))
-                        <input type="hidden" value="@AnnotationType.Link" name="@formData(AnnotationF.ANNOTATION_TYPE).name" />
+                        @helper.inputText(formData(LinkF.DESCRIPTION), '_label -> Messages("link.description"))
+                        <input type="hidden" value="@LinkF.LinkType.Associative" name="@formData(LinkF.LINK_TYPE).name" />
                     }
             </fieldset>
         }

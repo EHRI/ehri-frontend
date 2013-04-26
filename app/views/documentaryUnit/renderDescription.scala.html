@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescription)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescription, links: List[Link])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import defines._
 @import models.IsadG._
@@ -61,4 +61,6 @@
         @common.stringValue(desc, RULES_CONVENTIONS)
         @common.stringValue(desc, DATES_DESCRIPTIONS)
     }
+
+    @common.relatedLinks(item, desc, links)
 }

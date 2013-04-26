@@ -30,7 +30,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   val builder = Vocabulary.apply _
 
   def get(id: String) = getWithChildrenAction(id, Concept.apply _) {
-      item => page => params => annotations => implicit userOpt => implicit request =>
+      item => page => params => annotations => links => implicit userOpt => implicit request =>
     Ok(views.html.vocabulary.show(Vocabulary(item), page, params, annotations))
   }
 

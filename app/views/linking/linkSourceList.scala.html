@@ -1,4 +1,4 @@
-@(item: models.base.AnnotatableEntity, page: rest.Page[models.base.AnnotatableEntity], params: ListParams, entityType: defines.EntityType.Value, action: (String,String,String) => Call)(
+@(item: models.base.LinkableEntity, page: rest.Page[models.base.LinkableEntity], params: ListParams, entityType: defines.EntityType.Value, action: (String,String,String) => Call)(
 implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import controllers.base.EntityAnnotate

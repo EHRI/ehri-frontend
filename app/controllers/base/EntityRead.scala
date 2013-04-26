@@ -3,12 +3,13 @@ package controllers.base
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import play.api.mvc._
-import models.{SystemEvent, Annotation, Entity, UserProfile}
+import models._
 import rest.{EntityDAO, Page}
 import play.api.data.Form
 import rest.RestPageParams
 import play.api.Logger
 import controllers.ListParams
+import models.SystemEvent
 
 
 /**
@@ -62,15 +63,16 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def getAction(id: String)(f: Entity => Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def getAction(id: String)(f: Entity => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
     itemPermissionAction(contentType, id) { item => implicit maybeUser => implicit request =>
       Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
           val annsReq = rest.AnnotationDAO(maybeUser).getFor(id)
-          for { annOrErr <- annsReq } yield {
-            for { anns <- annOrErr.right } yield {
-              f(item)(anns)(maybeUser)(request)
+          val linkReq = rest.LinkDAO(maybeUser).getFor(id)
+          for { annOrErr <- annsReq ; linkOrErr <- linkReq } yield {
+            for { anns <- annOrErr.right ; links <- linkOrErr.right } yield {
+              f(item)(anns)(links)(maybeUser)(request)
             }
           }
         }
@@ -79,17 +81,18 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   }
 
   def getWithChildrenAction[C <: AccessibleEntity](id: String, builder: Entity => C)(
-      f: Entity => rest.Page[C] => ListParams =>  Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Entity => rest.Page[C] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
     itemPermissionAction(contentType, id) { item => implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
           val params = ListParams.bind(request)
           val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
+          val linkReq = rest.LinkDAO(userOpt).getFor(id)
           val cReq = rest.EntityDAO(entityType, userOpt).pageChildren(id, processChildParams(params))
-          for { annOrErr <- annsReq ; cOrErr <- cReq } yield {
-            for { anns <- annOrErr.right ; children <- cOrErr.right } yield {
-              f(item)(children.copy(items = children.items.map(builder(_))))(params)(anns)(userOpt)(request)
+          for { annOrErr <- annsReq ; cOrErr <- cReq ; linkOrErr <- linkReq } yield {
+            for { anns <- annOrErr.right ; children <- cOrErr.right ; links <- linkOrErr.right } yield {
+              f(item)(children.copy(items = children.items.map(builder(_))))(params)(anns)(links)(userOpt)(request)
             }
           }
         }

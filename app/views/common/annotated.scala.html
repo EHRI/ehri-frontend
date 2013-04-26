@@ -4,17 +4,22 @@
 *@
 @(item: AccessibleEntity, annotations: Map[String,List[Annotation]], url: Call)(body: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader)
 
-@annotationList(annotations: List[Annotation]) = {
-    @if(!annotations.isEmpty) {
+@annotationList(notes: List[Annotation]) = {
+    @if(!notes.isEmpty) {
         <ul>
-        @annotations.map { ann =>
+        @notes.map { ann =>
             <li class="annotatable" id="@ann.id">
                 @ann.accessor.map { accessor =>
                     <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a> -
                 }
-                @ann.formable.body.trim
+                @ann.stringProperty(AnnotationF.BODY).map { body =>
+                    @body.trim
+                }
                 <a href="@routes.Annotations.annotate(ann.id)?annotationType=comment">+</a>
-                @annotationList(ann.annotations)
+                @if(!ann.annotations.isEmpty) {
+                    @{println("ANN: " + ann.annotations)}
+                    @annotationList(ann.annotations)
+                }
             </li>
         }
         </ul>
@@ -26,13 +31,11 @@
     <a href="@url?annotationType=comment">+@Messages("actions.annotateThisItem")</a>
     @body
     @annotations.get(item.id).map { list =>
-        @defining(list.filter(_.formable.annotationType == AnnotationType.Comment)) { alist =>
-            @if(!alist.isEmpty) {
-                <hr />
-                <div class="item-annotations">
-                    @annotationList(alist)
-                </div>
-            }
+        @if(!list.isEmpty) {
+            <hr />
+            <div class="item-annotations">
+                @annotationList(list)
+            </div>
         }
     }
 </div>

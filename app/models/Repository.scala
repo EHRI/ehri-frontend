@@ -37,6 +37,7 @@ case class RepositoryF(
 case class Repository(val e: Entity)
   extends AccessibleEntity
   with AnnotatableEntity
+  with LinkableEntity
   with DescribedEntity[RepositoryDescription]
   with Formable[RepositoryF] {
   override def descriptions: List[RepositoryDescription] = e.relations(DescribedEntity.DESCRIBES_REL).map(RepositoryDescription(_))

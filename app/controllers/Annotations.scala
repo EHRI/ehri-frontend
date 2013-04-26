@@ -17,7 +17,7 @@ object Annotations extends EntityRead[Annotation]
 
   val builder = Annotation.apply _
 
-  def get(id: String) = getAction(id) { item => annotations => implicit userOpt => implicit request =>
+  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     Ok(views.html.annotation.show(Annotation(item), annotations))
   }
 

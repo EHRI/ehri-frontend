@@ -9,7 +9,6 @@ import play.api.libs.json.Json
 object AnnotationType extends Enumeration {
   type Type = Value
   val Comment = Value("comment")
-  val Link = Value("link")
   val Aggregation = Value("aggregation")
 
 }
@@ -23,7 +22,7 @@ object AnnotationF {
 
 case class AnnotationF(
   val id: Option[String],
-  val annotationType: AnnotationType.Type,
+  val annotationType: Option[AnnotationType.Type] = Some(AnnotationType.Comment),
   val body: String,
   val field: Option[String] = None,
   val comment: Option[String] = None

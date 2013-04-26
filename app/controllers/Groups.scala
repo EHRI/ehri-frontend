@@ -19,7 +19,7 @@ object Groups extends PermissionHolderController[Group]
   val form = models.forms.GroupForm.form
   val builder = Group
 
-  def get(id: String) = getAction(id) { item => annotations =>
+  def get(id: String) = getAction(id) { item => annotations => links =>
     implicit maybeUser =>
       implicit request =>
         Ok(views.html.group.show(Group(item), annotations))

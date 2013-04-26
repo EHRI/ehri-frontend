@@ -16,7 +16,7 @@ object AccessPointFormat {
     (__ \ ETYPE).read[EntityType.Value](equalsReads(EntityType.AccessPoint)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ TYPE).readNullable[EntityType.Value] and
-      (__ \ DATA \ TEXT).read[String]
+      (__ \ DATA \ DESCRIPTION).read[String]
     )(AccessPointF.apply _)
 
   implicit val accessPointWrites = new Writes[AccessPointF] {
@@ -26,7 +26,7 @@ object AccessPointFormat {
         TYPE -> d.isA,
         DATA -> Json.obj(
           TYPE -> d.`type` ,
-          TEXT -> d.text
+          DESCRIPTION -> d.text
         )
       )
     }

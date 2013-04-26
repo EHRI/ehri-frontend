@@ -1,6 +1,7 @@
 package models.base
 
 import models.SystemEvent
+import play.api.i18n.Lang
 
 object AccessibleEntity {
   val IDENTIFIER = "identifier"
@@ -19,5 +20,18 @@ trait AccessibleEntity extends WrappedEntity {
   def latestEvent: Option[SystemEvent] = e.relations(EVENT_REL).headOption.map(SystemEvent(_))
 
   override def toString = e.stringProperty(nameProperty).getOrElse(e.id)
+
+
+  // Language-aware toString
+  def toStringLang(implicit lang: Lang) = {
+    if (isInstanceOf[DescribedEntity[_]]) {
+      val descriptions = asInstanceOf[DescribedEntity[_]].descriptions
+
+      descriptions.find(_.asInstanceOf[Description].languageCode==lang.code).orElse(descriptions.headOption)
+        .map(_.toString).getOrElse(id)
+    } else {
+      toString
+    }
+  }
 
 }

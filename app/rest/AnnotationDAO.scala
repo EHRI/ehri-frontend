@@ -52,11 +52,4 @@ case class AnnotationDAO(userProfile: Option[UserProfile] = None) extends RestDA
       checkError(response).right.map(r => Annotation(jsonToEntity(r.json)))
     }
   }
-
-  def link(id: String, src: String, ann: AnnotationF): Future[Either[RestError, Annotation]] = {
-    WS.url(enc(requestUrl, id, src)).withHeaders(authHeaders.toSeq: _*)
-      .post(ann.toJson).map { response =>
-      checkError(response).right.map(r => Annotation(jsonToEntity(r.json)))
-    }
-  }
 }
