@@ -73,4 +73,12 @@
             @textInput(desc, DATES_DESCRIPTIONS)
         }
     }
+
+    @descriptionFormSection(ACCESS_POINTS) {    
+        @helper.repeat(desc(ACCESS_POINTS), min = 0) { desc =>
+            @documentaryUnit.renderAccessPointRow(desc)
+        }
+    }
+
+
 </div>

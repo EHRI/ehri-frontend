@@ -2,7 +2,7 @@ package models.json
 
 import play.api.libs.json._
 import models._
-import models.base.TemporalEntity
+import models.base.{Description, TemporalEntity}
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
@@ -12,6 +12,7 @@ object IsadGFormat {
   import Entity._
   import IsadG._
   import DatePeriodFormat._
+  import AccessPointFormat._
 
   implicit val isadGWrites = new Writes[DocumentaryUnitDescriptionF] {
     def writes(d: DocumentaryUnitDescriptionF): JsValue = {
@@ -45,7 +46,8 @@ object IsadGFormat {
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions
         ),
         RELATIONSHIPS -> Json.obj(
-          TemporalEntity.DATE_REL -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq)
+          TemporalEntity.DATE_REL -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq),
+          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -93,7 +95,9 @@ object IsadGFormat {
         (__ \ ARCHIVIST_NOTE).readNullable[String] and
           (__ \ RULES_CONVENTIONS).readNullable[String] and
           (__ \ DATES_DESCRIPTIONS).readNullable[String]
-        )(Control.apply _))
+        )(Control.apply _)) and
+      (__ \ RELATIONSHIPS \ Description.ACCESS_REL).lazyRead[List[AccessPointF]](
+        Reads.list[AccessPointF])
   )(DocumentaryUnitDescriptionF.apply _)
 
   implicit val isadGFormat: Format[DocumentaryUnitDescriptionF] = Format(isadGReads,isadGWrites)

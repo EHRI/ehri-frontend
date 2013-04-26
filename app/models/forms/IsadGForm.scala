@@ -8,6 +8,7 @@ import models.DocumentaryUnitDescriptionF.Materials
 import models.DocumentaryUnitDescriptionF.Context
 import models.DocumentaryUnitDescriptionF.Content
 import models.DocumentaryUnitDescriptionF.Conditions
+import models.json.AccessPointFormat
 
 /**
  * IsadG description form.
@@ -53,7 +54,8 @@ object IsadGForm {
         ARCHIVIST_NOTE -> optional(text),
         RULES_CONVENTIONS -> optional(text),
         DATES_DESCRIPTIONS -> optional(text)
-      )(Control.apply)(Control.unapply)
+      )(Control.apply)(Control.unapply),
+      ACCESS_POINTS -> list(AccessPointForm.form.mapping)
     )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
   )
 }

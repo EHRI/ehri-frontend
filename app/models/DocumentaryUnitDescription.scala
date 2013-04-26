@@ -31,7 +31,8 @@ case class DocumentaryUnitDescriptionF(
   val content: DocumentaryUnitDescriptionF.Content,
   val conditions: DocumentaryUnitDescriptionF.Conditions,
   val materials: DocumentaryUnitDescriptionF.Materials,
-  val control: DocumentaryUnitDescriptionF.Control
+  val control: DocumentaryUnitDescriptionF.Control,
+  val accessPoints: List[AccessPointF]
   ) extends Persistable {
   val isA = EntityType.DocumentaryUnitDescription
 

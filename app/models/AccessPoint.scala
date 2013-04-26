@@ -15,7 +15,8 @@ object AccessPointF {
 case class AccessPointF(
   val id: Option[String],
   val `type`: Option[EntityType.Value],
-  val text: String
+  val name: String,
+  val description: Option[String]
 ) {
   val isA = EntityType.AccessPoint
 }
