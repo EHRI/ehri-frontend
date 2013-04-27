@@ -8,6 +8,7 @@ case class HistoricalAgentDescription(val e: Entity) extends Description with Fo
   lazy val item: Option[HistoricalAgent] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(HistoricalAgent(_))
 
   import json.IsaarFormat._
+
   lazy val formable: HistoricalAgentDescriptionF = {
     val json = Json.toJson(e)
     println("JSON: " + json)
@@ -53,11 +54,13 @@ case class HistoricalAgentDescriptionF(
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
   details: HistoricalAgentDescriptionF.Details,
-  control: HistoricalAgentDescriptionF.Control
+  control: HistoricalAgentDescriptionF.Control,
+  accessPoints: List[AccessPointF]
   ) extends Persistable {
   val isA = EntityType.HistoricalAgentDescription
 
   import json.IsaarFormat._
+
   def toJson: JsValue = Json.toJson(this)
 }
 

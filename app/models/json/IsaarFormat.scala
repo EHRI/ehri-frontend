@@ -5,11 +5,13 @@ import models._
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
+import models.base.Description
 
 
 object IsaarFormat {
   import Entity._
   import HistoricalAgentF._
+  import AccessPointFormat._
   import Isaar._
 
   implicit val HistoricalAgentTypeReads = defines.EnumUtils.enumReads(HistoricalAgentType)
@@ -43,6 +45,9 @@ object IsaarFormat {
           SCRIPTS_USED -> d.control.scripts,
           SOURCES -> d.control.sources,
           MAINTENANCE_NOTES -> d.control.maintenanceNotes
+        ),
+        RELATIONSHIPS -> Json.obj(
+          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -82,7 +87,9 @@ object IsaarFormat {
         (__ \ SCRIPTS_USED).readNullable[List[String]] and
         (__ \ SOURCES).readNullable[String] and
         (__ \ MAINTENANCE_NOTES).readNullable[String]
-      )(Control.apply _))
+      )(Control.apply _)) and
+      ((__ \ RELATIONSHIPS \ Description.ACCESS_REL).lazyRead[List[AccessPointF]](
+          Reads.list[AccessPointF]) orElse Reads.pure(Nil))
   )(HistoricalAgentDescriptionF.apply _)
 
   implicit val isaarFormat: Format[HistoricalAgentDescriptionF] = Format(isaarReads,isaarWrites)

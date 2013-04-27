@@ -14,6 +14,8 @@ case object Isaar {
 
   val FIELD_PREFIX = "isaar"
 
+  val ACCESS_POINTS = "accessPoints"
+
   val IDENTIFIER = "identifier"
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"

@@ -42,6 +42,14 @@ package object json {
           },
           "type" : "documentDescription",
           "relationships" : {
+      "relatesTo": [ {
+        "id": "dfkskekdkslekfs",
+        "type": "relationship",
+        "data" : {
+          "name": "Something",
+          "description": "Something else"
+        }
+      } ],
       "hasDate" : [ {
         "id" : "28f011c9-f913-4942-a11c-89fbbe8d0eb9",
         "data" : {
@@ -118,7 +126,7 @@ package object json {
         } ]
       }
     }
-  """
+                                """
 
   val actorTestJson =
     """
@@ -147,6 +155,14 @@ package object json {
             },
             "type" : "historicalAgentDescription",
             "relationships" : {
+              "relatesTo": [ {
+                "id": "dfkskekdkslekfs",
+                "type": "relationship",
+                "data" : {
+                  "name": "Something",
+                  "description": "Something else"
+                }
+              } ]
             }
           } ],
           "lifecycleEvent" : [ {

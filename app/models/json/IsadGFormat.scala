@@ -6,6 +6,7 @@ import models.base.{Description, TemporalEntity}
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
+import play.api.libs
 
 
 object IsadGFormat {
@@ -96,8 +97,8 @@ object IsadGFormat {
           (__ \ RULES_CONVENTIONS).readNullable[String] and
           (__ \ DATES_DESCRIPTIONS).readNullable[String]
         )(Control.apply _)) and
-      (__ \ RELATIONSHIPS \ Description.ACCESS_REL).lazyRead[List[AccessPointF]](
-        Reads.list[AccessPointF])
+      ((__ \ RELATIONSHIPS \ Description.ACCESS_REL).lazyRead[List[AccessPointF]](
+        Reads.list[AccessPointF]) orElse Reads.pure(Nil))
   )(DocumentaryUnitDescriptionF.apply _)
 
   implicit val isadGFormat: Format[DocumentaryUnitDescriptionF] = Format(isadGReads,isadGWrites)

@@ -41,7 +41,8 @@ object IsaarForm {
         SCRIPTS_USED -> optional(list(nonEmptyText)),
         SOURCES -> optional(text),
         MAINTENANCE_NOTES -> optional(text)
-      )(Control.apply)(Control.unapply)
+      )(Control.apply)(Control.unapply),
+      ACCESS_POINTS -> list(AccessPointForm.form.mapping)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )
 }
