@@ -3,37 +3,11 @@
 @import AccessPointF._
 
 <div class="inline-element control-group" id="@desc.id">
+    <a class="close remove-inline-element pull-right" tabindex="-1" href="#">&times;</a>
     @formHelpers.hiddenInput(desc(Entity.ID))
-    <label class="control-label"></label>
-    <div class="controls">
-        <table>
-            <tr>
-                @List(TARGET).map { fname =>
-                    @defining(desc(fname)) { field =>
-                    <td class="control-group @{if(field.hasErrors) "error"}">
-                        <input class="input-small" placeholder="yyyy-mm-dd" type="text" name="@field.name" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" id="@field.id" />
-                    </td>
-                    }
-                }
-                <td>
-                    <a class="close remove-inline-element pull-right" tabindex="-1" href="#">&times;</a>
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                @List(TARGET).map { fname =>
-                    @defining(desc(fname)) { field =>
-                        <td class="control-group error">
-                            @if(field.hasErrors) {
-                                <small>
-                                    <span class="help-inline errors">@field.errors.map(e => Messages(e.message, e.key)).mkString("; ")</span>
-                                </small>
-                            }
-                        </td>
-                    }
-                }
-                <td></td>
-            </tr>
-        </table>
+    <div class="controls controls-row">
+        @List(TARGET, DESCRIPTION).map { fname =>
+            @formHelpers.lineInput(desc, fname)
+        }
     </div>
 </div>

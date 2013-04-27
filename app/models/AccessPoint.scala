@@ -1,6 +1,6 @@
 package models
 
-import models.base.{LinkableEntity, AnnotatableEntity, Formable}
+import models.base.{NamedEntity, LinkableEntity, AnnotatableEntity, Formable}
 
 import defines.EntityType
 import play.api.libs.json.Json
@@ -9,7 +9,7 @@ import play.api.libs.json.Json
 object AccessPointF {
   val TYPE = "type"
   val DESCRIPTION = "description"
-  val TARGET = "relation/targetName" // Change to something better!
+  val TARGET = "name" // Change to something better!
 }
 
 case class AccessPointF(
@@ -22,7 +22,7 @@ case class AccessPointF(
 }
 
 
-case class AccessPoint(val e: Entity) extends AnnotatableEntity with Formable[AccessPointF] {
+case class AccessPoint(val e: Entity) extends AnnotatableEntity with NamedEntity with Formable[AccessPointF] {
   import json.AccessPointFormat._
   lazy val formable: AccessPointF = Json.toJson(e).as[AccessPointF]
   lazy val formableOpt: Option[AccessPointF] = Json.toJson(e).asOpt[AccessPointF]
