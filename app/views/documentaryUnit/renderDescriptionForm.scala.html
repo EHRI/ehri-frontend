@@ -75,20 +75,7 @@
     }
 
     @descriptionFormSection(ACCESS_POINTS) {
-        <div class="inline-element-set control-group">
-                <!-- Template for adding inline date forms via JS -->
-            <label class="control-label">@Messages(fieldPrefix + "." + ACCESS_POINTS)</label>
-            <div class="controls controls-row">
-                <a href="#" class="add-inline-element btn btn-mini">@Messages("actions.addNew")</a>
-            </div>
-            <script type="application/x-js-template" class="inline-element-template">
-                @documentaryUnit.renderAccessPointRow(desc(ACCESS_POINTS + "[IDX]"))
-            </script>
-
-            @helper.repeat(desc(ACCESS_POINTS), min = 0) { desc =>
-                @documentaryUnit.renderAccessPointRow(desc)
-            }
-        </div>
+        @accessPointSet(desc, ACCESS_POINTS)
     }
 
 

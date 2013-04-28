@@ -1,0 +1,16 @@
+@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+<div class="inline-element-set control-group">
+                <!-- Template for adding inline date forms via JS -->
+            <label class="control-label">@Messages(fieldPrefix + "." + name)</label>
+            <div class="controls controls-row">
+                <a href="#" class="add-inline-element btn btn-mini">@Messages("actions.addNew")</a>
+            </div>
+            <script type="application/x-js-template" class="inline-element-template">
+                @formHelpers.accessPoint(field(name + "[IDX]"))
+            </script>
+
+            @helper.repeat(field(name), min = 0) { desc =>
+    @formHelpers.accessPoint(desc)
+}
+</div>
