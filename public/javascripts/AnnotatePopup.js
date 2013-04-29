@@ -69,8 +69,11 @@ function ItemTypeCtrl() {
 
 function SaveCtrl($scope, $window, $portal, $log, $rootScope, $routeParams) {
   $scope.id = $window.ITEM_ID;
+  
   console.log("Item id: " + $scope.id);
+  
   $scope.selected = [];
+  
   $scope.save = function() {
     var args = [];
     $scope.selected.forEach(function(ele, idx) {
@@ -84,12 +87,19 @@ function SaveCtrl($scope, $window, $portal, $log, $rootScope, $routeParams) {
     });
   }
 
-  $scope.removeSelected = function(id) {
+  $rootScope.removeSelected = function(id) {
     console.log("Remove: " + id)
     $scope.selected = $scope.selected.filter(function(ele, idx, arr) {
       return (ele.id !== id);
     });
   }
+  
+ $scope.editItem = function(item) {
+    console.log("ReEditing: " + item);
+	$rootScope.tempSelected = item;
+	console.log($scope.tempSelected);
+  }
+  
 }
 
 function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
@@ -103,14 +113,40 @@ function SearchCtrl($scope, $portal, $log, $rootScope, $routeParams) {
   $scope.currentPage = 1;
   $scope.maxSize = 5;
   $scope.numPages = false;
-    
-  $scope.addSelected = function() {
-    console.log("Add: " + $scope.item)
-    $scope.selected.push({
+ 
+  $scope.addTemp = function() {
+    console.log("Editing: " + $scope.item);
+    $rootScope.tempSelected = {
       id: $scope.itemData.id,
       type: $scope.itemData.type,
       name: $scope.itemData.relationships.describes[0].data.name
-    });
+    };
+	
+    console.log($rootScope.tempSelected)
+  }
+ 
+  $scope.closeEdit = function() {
+  $rootScope.tempSelected = null;
+ }
+ 
+ 
+  $scope.addSelected = function(item) {
+    console.log($rootScope.tempSelected);
+	//Adding Title and Desc
+	$rootScope.tempSelected = item;
+    $rootScope.tempSelected["linkTitle"] = $scope.linkTitle;
+    $rootScope.tempSelected["linkDesc"] = $scope.linkDesc;
+    $rootScope.tempSelected["linkType"] = $scope.linkType;
+	
+	//Cleaning Results
+	$rootScope.removeSelected($rootScope.tempSelected.id);
+	
+	//Pushing to results
+	$scope.selected.push($rootScope.tempSelected);
+	
+	//Cleaning Temp
+	$rootScope.tempSelected = null;
+    console.log($scope.selected);
   }
 
   $scope.hasMorePages = function() {
