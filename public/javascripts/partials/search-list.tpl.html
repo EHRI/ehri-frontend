@@ -1,7 +1,7 @@
 
 <div class="container-fluid">
 	<div class="row-fluid">
-		<div class="span8" style="height:400px;">
+		<div class="span8" style="height:400px;" ng-class="(tempSelected != null || editSelected != null) && 'span4'">
 		
 			<div style="height:50px; line-height:50px;">
 				<form class="form-inline" name="searchForm" >
@@ -25,13 +25,23 @@
 		
 		<div class="span4" style="height:400px;">
 			<div style="height:50px; line-height:50px;">
-				<button ng-click="addSelected()" class="btn btn-success btn-mini" ng-class="item == null && 'disabled'">Add</button>
+				<button ng-click="addTemp()" class="btn btn-success btn-mini" ng-class="((item == null)) && 'disabled'">Add</button>
 			</div>
 			<div  class="description" style="overflow:auto; max-height:305px;">
 				<h5>{{itemData.relationships.describes[0].data.name}}</h5>
 				<p ng-bind-template="{{itemData.relationships.describes[0].data.scopeAndContent}}"></p>
 				<p ng-bind-template="{{itemData.relationships.describes[0].data.archivalHistory}}"></p>
 			</div>
+		</div>
+		<div class="span4" ng-class="(tempSelected == null || editSelected != null) && 'hide'">
+			<i ng-click="closeEdit()" class="icon icon-remove pull-right"></i>
+			<h5>{{tempSelected.name}}</h5>
+			<dl>
+				<dt>Title</dt><dd><input type="text" ng-model="linkTitle" value="{{tempSelected.linkTitle}}" /></dd>
+				<dt>Description</dt><dd><input type="text"  ng-model="linkDesc" value="{{tempSelected.linkDesc}}" /></dd>
+				<dt>Type</dt><dd><input type="text"  ng-model="linkType" value="{{tempSelected.linkType}}" /></dd>
+			</dl>
+			<span class="btn btn-success" ng-click="addSelected(tempSelected)">Add</span>
 		</div>
 	</div>
 </div>
