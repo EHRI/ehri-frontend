@@ -466,6 +466,13 @@ isaar.languages=Languages
 isaar.scripts=Scripts
 isaar.source=Sources
 isaar.maintenanceNotes=Maintenance Notes
+isaar.accessPoints=Access Points
+isaar.accessPoints.creatorAccess=Creators
+isaar.accessPoints.corporateBodyAccess=Corporate Bodies
+isaar.accessPoints.personAccess=Persons
+isaar.accessPoints.subjectAccess=Subject Access Points
+isaar.accessPoints.placeAccess=Place Access Points
+isaar.accessPoints.otherAccess=Other Access Points
 
 
 #
@@ -518,6 +525,12 @@ isadg.archivistNote=Archivist Note
 isadg.rulesAndConventions=Rules and Conventions
 isadg.datesOfDescriptions=Dates of Descriptions
 isadg.accessPoints=Access Points
+isadg.accessPoints.creatorAccess=Creators
+isadg.accessPoints.corporateBodyAccess=Corporate Bodies
+isadg.accessPoints.personAccess=Persons
+isadg.accessPoints.subjectAccess=Subject Access Points
+isadg.accessPoints.placeAccess=Place Access Points
+isadg.accessPoints.otherAccess=Other Access Points
 
 # isad(g) dates
 isadg.startDate=Start Date
