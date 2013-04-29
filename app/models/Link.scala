@@ -7,7 +7,7 @@ import models.LinkF.LinkType
 
 
 object LinkF {
-  val LINK_TYPE = "category"
+  val LINK_TYPE = "type"
   val DESCRIPTION = "description"
 
   object LinkType extends Enumeration {

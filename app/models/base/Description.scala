@@ -26,7 +26,11 @@ trait Description extends WrappedEntity {
   val name = e.stringProperty(AccessibleEntity.NAME).getOrElse(id)
 	val languageCode: String = e.stringProperty("languageCode").getOrElse("Unknown language")
 
+
+
   lazy val accessPoints: List[AccessPoint] = e.relations(Description.ACCESS_REL).map(AccessPoint(_))
+
+  def placeAccess = accessPoints.filter(ap => ap.stringProperty(AccessPointF.TYPE) == Some(AccessPointF.AccessPointType.PlaceAccess.toString))
 
   override def toString = name
 }
