@@ -25,6 +25,7 @@ object Links extends EntityRead[Link]
 
   def get(id: String) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
     Ok(views.html.link.show(Link(item), links))
+
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

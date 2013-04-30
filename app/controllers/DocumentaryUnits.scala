@@ -2,18 +2,19 @@ package controllers
 
 import models.{DocumentaryUnitDescription, DocumentaryUnit, DocumentaryUnitF, DocumentaryUnitDescriptionF, Entity, IsadG,DatePeriodF}
 import _root_.models.forms.{LinkForm, AnnotationForm, VisibilityForm}
-import _root_.models.base.{AnnotatableEntity, AccessibleEntity}
+import _root_.models.base.{LinkableEntity, AnnotatableEntity, AccessibleEntity}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import base._
 import defines._
-import rest.{RestPageParams, EntityDAO}
+import rest.{LinkDAO, RestPageParams, EntityDAO}
 import scala.Some
 import collection.immutable.ListMap
 import views.Helpers
 import solr.{SearchOrder, SearchParams}
+import play.api.libs.json.Json
 
 
 object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
@@ -354,7 +355,32 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     }
   }
 
+  /**
+   * Create an access point link for this object
+   * @return
+   */
   def createLinkJson = createLink
+
+  def getLinkJson(id: String, accessPointId: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+    AsyncRest {
+      LinkDAO(userOpt).getFor(id).map { linksOrErr =>
+        linksOrErr.right.map { linkList =>
+          val linkOpt = linkList.find(link => link.bodies.exists(b => b.id == accessPointId))
+          val itemOpt = LinkableEntity.fromEntity(item)
+          val res = for (link <- linkOpt ; item <- itemOpt ; linkData <- link.formableOpt ; target <- link.opposingTarget(item)) yield {
+            new AccessPointLink(
+              src = item.id,
+              dst = target.id,
+              accessPoint = accessPointId,
+              `type` = None, // TODO: Add
+              description = linkData.description
+            )
+          }
+          Ok(Json.toJson(res))
+        }
+      }
+    }
+  }
 }
 
 

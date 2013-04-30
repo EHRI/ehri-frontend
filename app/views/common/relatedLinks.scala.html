@@ -7,32 +7,31 @@
 @import AccessPointF._
 
 @relatedLinks(list: List[AccessPoint], accessPointType: AccessPointType.Value) = {
-    <div class="annotatable" id="@item.id">
-        @if(!list.isEmpty) {
-            <h4>@Messages(prefix + "." + IsadG.ACCESS_POINTS + "." + accessPointType)</h4>
-            <ul class="item-annotation-links">
-                @list.map { accessPoint =>
-                    @accessPoint.target(item, links).map { case (link, other) =>
-                        <li class="resolved-access-point" id="@accessPoint.id">
-                            <a href="@views.Helpers.urlForEntity(other.e)">@accessPoint.targetName</a> [<a href="@routes.Links.get(link.id)">*</a>]
-                            @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
+    @if(!list.isEmpty) {
+        <h4>@Messages(prefix + "." + IsadG.ACCESS_POINTS + "." + accessPointType)</h4>
+        <ul class="item-annotation-links">
+            @list.map { accessPoint =>
+                @accessPoint.target(item, links).map { case (link, other) =>
+                    <li class="resolved-access-point" id="@accessPoint.id">
+                        <a href="@views.Helpers.urlForEntity(other.e)">@accessPoint.targetName</a> [<a href="@routes.Links.get(link.id)">*</a>]
+                        @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
+                        <small><p class="muted">@desc</p></small>
+                    }
+                    </li>
+                }.getOrElse {
+                    <li class="unresolved-access-point" id=" @accessPoint.id">
+                        @accessPoint.targetName.map { t =>
+                            @t
+                        }
+                        @accessPoint.stringProperty(AccessPointF.DESCRIPTION).map { desc =>
                             <small><p class="muted">@desc</p></small>
                         }
-                        </li>
-                    }.getOrElse {
-                        <li class="unresolved-access-point" id=" @accessPoint.id">
-                            @accessPoint.targetName.map { t =>
-                                @t
-                            }
-                            @accessPoint.stringProperty(AccessPointF.DESCRIPTION).map { desc =>
-                                <small><p class="muted">@desc</p></small>
-                            }
-                        </li>
-                    }
+                        <a ng-click="addAccessPointLink('@item.id', '@accessPoint.id')">+</a>
+                    </li>
                 }
-            </ul>
-        }
-    </div>
+            }
+        </ul>
+    }
 }
 
 @if(!desc.accessPoints.isEmpty) {
