@@ -36,4 +36,6 @@ object DatePeriodFormat {
       )
     }
   }
+
+  implicit val datePeriodFormat: Format[DatePeriodF] = Format(datePeriodReads,datePeriodWrites)
 }

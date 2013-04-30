@@ -24,6 +24,12 @@
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
     <script src="@routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
+    <script>
+        @helper.javascriptRouter("jsRoutes")(
+            routes.javascript.DocumentaryUnits.createLinkJson,
+            routes.javascript.Links.deletePost
+        )
+    </script>
     <script src="@routes.Assets.at("javascripts/AnnotatePopup.js")" type="text/javascript"></script>
 }
 

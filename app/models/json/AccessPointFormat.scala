@@ -38,4 +38,6 @@ object AccessPointFormat {
       )
     }
   }
+
+  implicit val accessPointFormat: Format[AccessPointF] = Format(accessPointReads,accessPointWrites)
 }

@@ -200,5 +200,4 @@ package object Helpers {
   def fieldValues(field: play.api.data.Field): List[String] = {
     0.until(if (field.indexes.isEmpty) 0 else field.indexes.max + 1).flatMap(i => field("[" + i + "]").value).toList
   }
-
 }

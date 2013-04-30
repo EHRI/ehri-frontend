@@ -14,7 +14,7 @@
                 @list.map { accessPoint =>
                     @accessPoint.target(item, links).map { case (link, other) =>
                         <li class="resolved-access-point" id="@accessPoint.id">
-                            <a href="@views.Helpers.urlForEntity(other.e)">@accessPoint.targetName</a>
+                            <a href="@views.Helpers.urlForEntity(other.e)">@accessPoint.targetName</a> [<a href="@routes.Links.get(link.id)">*</a>]
                             @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
                             <small><p class="muted">@desc</p></small>
                         }
