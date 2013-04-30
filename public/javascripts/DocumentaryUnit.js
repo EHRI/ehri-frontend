@@ -48,6 +48,8 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 	$scope.maxSize = 5; // Number of pagination buttons shown
 	$scope.numPages = false; // Number of pages (get from query)
 	
+	$scope.AccessTypeList = [{id: "creatorAccess", name:"Creators"}, {id: "personAccess", name: "Persons"}, {id: "corporateBodyAccess", name: "Corporate Bodies"}, {id: "subjectAccess", name:"Subject Access Points"}, {id:"placeAccess", name:"Places"}, {id: "otherAccess", name: "Others"}];
+	$scope.LinkTypeList = [{id: "associative", name:"associative"}, {id: "hierarchical", name: "hierarchical"}, {id: "temporal", name: "temporal"}, {id: "family", name:"family"}];
 //----------------------------------------------------------------------------\\
 //Functions
 /*
@@ -135,6 +137,8 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 		$scope.tempSelected["linkTitle"] = $scope.linkTitle;
 		$scope.tempSelected["linkDesc"] = $scope.linkDesc;
 		$scope.tempSelected["linkType"] = $scope.linkType;
+		$scope.tempSelected["linkAccessType"] = $scope.linkAccessType;
+		$scope.tempSelected["accessType"] = $scope.accessType;
 
 		//Reset scopes
 		$scope.linkTitle = "";
@@ -178,15 +182,35 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 				$window.location = "/docs/show/" + $scope.id;
 			});
 		}
-		else
+		else if($rootScope.LinkMode == "Access")
 		{
 			jsRoutes.controllers.DocumentaryUnits.createLinkJson($scope.id, $rootScope.AccessItem.id).ajax({
 				data: JSON.stringify({target: $scope.selected.id, description: $scope.selected.linkDesc}),
 				headers: {"ajax-ignore-csrf": true, "Content-Type": "application/json"},
-        dataType: "json",
+				dataType: "json",
 				success: function(data) {
 					console.log(data);
-          $window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
+					$window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
+				}
+			});
+		}
+		else if($rootScope.LinkMode == "AddAccess")
+		{
+			jsRoutes.controllers.DocumentaryUnits.createAccessPointLinkJson($scope.id, $rootScope.DescriptionID).ajax({
+				data: JSON.stringify({
+					name: $scope.selected.name,
+					type: $scope.selected.accessType,
+					data: {
+						target: $scope.selected.id, 
+						description: $scope.selected.linkDesc,
+						type: $scope.selected.linkAccessType
+					}
+				}),
+				headers: {"ajax-ignore-csrf": true, "Content-Type": "application/json"},
+				dataType: "json",
+				success: function(data) {
+					console.log(data);
+					$window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
 				}
 			});
 		}
@@ -236,6 +260,15 @@ function DocumentaryCtrl($scope, $dialog, $rootScope) {
 	$scope.OpenModalAccess = function(idAccess, textAccess){
 		$rootScope.AccessItem = { id: idAccess, text: textAccess };
 		$rootScope.LinkMode = "Access";
+		
+		var d = $dialog.dialog($scope.modalLink);
+		d.open().then(function(result){
+			return true;
+		});
+	}
+	$scope.AddAccessModal = function(DescID) {
+		$rootScope.LinkMode = "AddAccess";
+		$rootScope.DescriptionID = DescID;
 		
 		var d = $dialog.dialog($scope.modalLink);
 		d.open().then(function(result){
