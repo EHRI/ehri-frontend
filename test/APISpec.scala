@@ -26,26 +26,27 @@ import controllers.base.{NewAccessPointLink, AccessPointLink}
 class APISpec extends Specification with BeforeExample with TestMockLoginHelper {
   sequential
 
-  import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
+  import mocks.UserFixtures.{privilegedUser, unprivilegedUser}
 
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
-  val userProfile = UserProfile(Entity.fromString(privilegedUser.profile_id, EntityType.UserProfile)
-    .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
 
   val entityType = EntityType.UserProfile
+
   object FakeGlobal extends GlobalSettings
 
   val runner: ServerRunner = new ServerRunner(classOf[DAOSpec].getName, testPort)
   runner.getConfigurator
     .getThirdpartyJaxRsClasses()
     .add(new ThirdPartyJaxRsPackage(
-      classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"));
+    classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"));
   runner.start
 
   val postHeaders: Map[String, String] = Map(
     HeaderNames.CONTENT_TYPE -> "application/json"
   )
+
+  class FakeApp extends WithApplication(fakeApplication(additionalConfiguration = config))
 
   def before = {
     runner.tearDown
@@ -53,31 +54,27 @@ class APISpec extends Specification with BeforeExample with TestMockLoginHelper 
   }
 
   "Link JSON endpoints should" should {
-    "allow creating and reading" in {
-      running(fakeLoginApplication(additionalConfiguration = config)) {
-        val json = Json.toJson(new AccessPointLink("a1", description = Some("Test link")))
-        val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-          routes.DocumentaryUnits.createLinkJson("c1", "ur1").url)
-          .withHeaders(postHeaders.toSeq: _*), json).get
-        status(cr) must equalTo(CREATED)
-        val cr2 = route(fakeLoggedInRequest(privilegedUser, GET,
-          routes.DocumentaryUnits.getLinkJson("c1", "ur1").url)).get
-        status(cr2) must equalTo(OK)
-        Json.parse(contentAsString(cr2)) mustEqual json
-      }
+    "allow creating and reading" in new FakeApp {
+      val json = Json.toJson(new AccessPointLink("a1", description = Some("Test link")))
+      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+        routes.DocumentaryUnits.createLinkJson("c1", "ur1").url)
+        .withHeaders(postHeaders.toSeq: _*), json).get
+      status(cr) must equalTo(CREATED)
+      val cr2 = route(fakeLoggedInRequest(privilegedUser, GET,
+        routes.DocumentaryUnits.getLinkJson("c1", "ur1").url)).get
+      status(cr2) must equalTo(OK)
+      Json.parse(contentAsString(cr2)) mustEqual json
     }
 
-    "allow creating new access points along with a link" in {
-      running(fakeLoginApplication(additionalConfiguration = config)) {
-        val link = new AccessPointLink("a1", description = Some("Test link"))
-        val apdata = new NewAccessPointLink("Test Access Point", AccessPointF.AccessPointType.SubjectAccess, link)
-        val json = Json.toJson(apdata)
-        val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-          routes.DocumentaryUnits.createAccessPointLinkJson("c1", "cd1").url)
-          .withHeaders(postHeaders.toSeq: _*), json).get
-        status(cr) must equalTo(CREATED)
-        println(contentAsString(cr))
-      }
+    "allow creating new access points along with a link" in new FakeApp {
+      val link = new AccessPointLink("a1", description = Some("Test link"))
+      val apdata = new NewAccessPointLink("Test Access Point", AccessPointF.AccessPointType.SubjectAccess, link)
+      val json = Json.toJson(apdata)
+      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+        routes.DocumentaryUnits.createAccessPointLinkJson("c1", "cd1").url)
+        .withHeaders(postHeaders.toSeq: _*), json).get
+      status(cr) must equalTo(CREATED)
+      println(contentAsString(cr))
     }
   }
 

@@ -16,7 +16,7 @@ import mocks.UserFixtures
 
 /**
  * Mixin trait that provides some handy methods to test actions that
- * have authorisation, such as fakeLoginApplication and fakeLoggedInRequest.
+ * have authorisation, such as fakeApplication and fakeLoggedInRequest.
  */
 trait TestLoginHelper {
 
@@ -37,7 +37,7 @@ trait TestLoginHelper {
    * @param global
    * @return
    */
-  def fakeLoginApplication(additionalConfiguration: Map[String, Any] = Map(), global: GlobalSettings = getGlobal) = {
+  def fakeApplication(additionalConfiguration: Map[String, Any] = Map(), global: GlobalSettings = getGlobal) = {
     FakeApplication(
       additionalConfiguration = additionalConfiguration ++ getConfig,
       additionalPlugins = getPlugins ++ Seq("mocks.MockSearchDispatcher"),
