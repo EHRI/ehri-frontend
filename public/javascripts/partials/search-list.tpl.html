@@ -1,47 +1,73 @@
-
-<div class="container-fluid">
-	<div class="row-fluid">
-		<div class="span8" style="height:400px;" ng-class="(tempSelected != null || editSelected != null) && 'span4'">
-		
-			<div style="height:50px; line-height:50px;">
-				<form class="form-inline" name="searchForm" >
-					<input type="text" class="search-query" ng-model="q" ng-change="doSearch(q)" placeholder="Type your query there">
-				</form>
-			</div>
-			
-			<div style="overflow:auto; height:305px;" id="results" ng-show="results.length" ng-clock>
-				<ul class="result unstyled">
-					<li ng-class="result.isSelected && 'active'" ng-repeat="result in results[currentPage]">
-						<a href="" ng-click="setItem(result.0)">{{result.1}}</a>
-					</li>
-				</ul>
-			</div>
-			
-			<div style="padding-top:4px;">
-				<!-- Pagination -->
-				<pagination num-pages="numPages" current-page="currentPage" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
-			</div>
-		</div>
-		
-		<div class="span4" style="height:400px;">
-			<div style="height:50px; line-height:50px;">
-				<button ng-click="addTemp()" class="btn btn-success btn-mini" ng-class="((item == null)) && 'disabled'">Add</button>
-			</div>
-			<div  class="description" style="overflow:auto; max-height:305px;">
-				<h5>{{itemData.relationships.describes[0].data.name}}</h5>
-				<p ng-bind-template="{{itemData.relationships.describes[0].data.scopeAndContent}}"></p>
-				<p ng-bind-template="{{itemData.relationships.describes[0].data.archivalHistory}}"></p>
-			</div>
-		</div>
-		<div class="span4" ng-class="(tempSelected == null || editSelected != null) && 'hide'">
-			<i ng-click="closeEdit()" class="icon icon-remove pull-right"></i>
-			<h5>{{tempSelected.name}}</h5>
-			<dl>
-				<dt>Title</dt><dd><input type="text" ng-model="linkTitle" value="{{tempSelected.linkTitle}}" /></dd>
-				<dt>Description</dt><dd><input type="text"  ng-model="linkDesc" value="{{tempSelected.linkDesc}}" /></dd>
-				<dt>Type</dt><dd><input type="text"  ng-model="linkType" value="{{tempSelected.linkType}}" /></dd>
-			</dl>
-			<span class="btn btn-success" ng-click="addSelected(tempSelected)">Add</span>
+<div class="modal-header">
+	<button type="button" class="close" ng-click="close()" aria-hidden="true">&times;</button>
+	<h3>Annotation</h3>
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span4 text-center"><a ng-click="setType('documentaryUnit')">Documentary Units</a></div>
+			<div class="span4 text-center"><a ng-click="setType('historicalAgent')">Authorities</a></div>
+			<div class="span4 text-center"><a ng-click="setType('cvocConcept')">Concepts</a></div>
 		</div>
 	</div>
+</div>
+<div class="modal-body" style="padding-bottom:0;">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span8" style="height:400px;" ng-class="(tempSelected != null || editSelected != null) && 'span4'">
+			
+				<div style="height:50px; line-height:50px;">
+					<form class="form-inline" name="searchForm" >
+						<input type="text" class="search-query" ng-model="q" ng-change="doSearch(q)" placeholder="Type your query there">
+					</form>
+				</div>
+				
+				<div style="overflow:auto; height:305px;" id="results" ng-show="results.length" ng-clock>
+					<ul class="result unstyled">
+						<li ng-class="result.isSelected && 'active'" ng-repeat="result in results[currentPage]">
+							<a href="" ng-click="setItem(result.0)">{{result.1}}</a>
+						</li>
+					</ul>
+				</div>
+				
+				<div style="padding-top:4px;">
+					<!-- Pagination -->
+					<pagination num-pages="numPages" current-page="currentPage" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
+				</div>
+			</div>
+			
+			<div class="span4" style="height:400px;">
+				<div style="height:50px; line-height:50px;">
+					<button ng-click="addTemp()" class="btn btn-success btn-mini" ng-class="((item == null)) && 'disabled'">Add</button>
+				</div>
+				<div  class="description" style="overflow:auto; max-height:305px;">
+					<h5>{{itemData.relationships.describes[0].data.name}}</h5>
+					<p ng-bind-template="{{itemData.relationships.describes[0].data.scopeAndContent}}"></p>
+					<p ng-bind-template="{{itemData.relationships.describes[0].data.archivalHistory}}"></p>
+				</div>
+			</div>
+			<div class="span4" ng-class="(tempSelected == null || editSelected != null) && 'hide'">
+				<i ng-click="closeEdit()" class="icon icon-remove pull-right"></i>
+				<h5>{{tempSelected.name}}</h5>
+				<dl>
+					<dt>Title</dt><dd><input type="text" ng-model="linkTitle" value="{{tempSelected.linkTitle}}" /></dd>
+					<dt>Description</dt><dd><input type="text"  ng-model="linkDesc" value="{{tempSelected.linkDesc}}" /></dd>
+					<dt>Type</dt><dd><input type="text"  ng-model="linkType" value="{{tempSelected.linkType}}" /></dd>
+				</dl>
+				<span class="btn btn-success" ng-click="addSelected(tempSelected)">Add</span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal-footer">
+	<div id="selected-items">
+		<ul class="inline" style="line-height:25px;">
+			<li ng-repeat="item in selected">
+				<div class="btn-group">
+					<span class="btn btn-mini span3" ng-click="editItem(item)" style="white-space: nowrap;	overflow: hidden;	text-overflow: ellipsis;">{{item.name}}</span>
+					<span class="btn btn-mini" ng-click="removeSelected(item.id)" ><i class="icon icon-remove"></i></span>
+				</div>
+			<li>
+		</ul>
+	</div>
+	<hr />
+	<button class="btn btn-primary" ng-click="save()" ng-class="selected.length == 0 && 'disabled'">Save changes</button>
 </div>
