@@ -343,7 +343,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {
       formOrAnnotations => implicit userOpt => implicit request =>
-        request.getQueryString()
     formOrAnnotations match {
       case Left((target,errorForms)) => {
         BadRequest(views.html.linking.linkMulti(target,
