@@ -1,13 +1,14 @@
 package controllers
 
-import models.{DocumentaryUnitDescription, DocumentaryUnit, DocumentaryUnitF, DocumentaryUnitDescriptionF, Entity, IsadG,DatePeriodF}
+import _root_.models._
+import _root_.models.DocumentaryUnit
 import _root_.models.forms.{LinkForm, AnnotationForm, VisibilityForm}
 import _root_.models.base.{LinkableEntity, AnnotatableEntity, AccessibleEntity}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
-import base._
+import _root_.controllers.base._
 import defines._
 import rest.{LinkDAO, RestPageParams, EntityDAO}
 import scala.Some
@@ -374,6 +375,44 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
    * @return
    */
   def getLinkJson(id: String, accessPointId: String) = getLink(id, accessPointId)
+
+  def getAccessPoints(id: String, descriptionId: String) = getAction(id) {
+      item => annotations => links => implicit userOpt => implicit request =>
+    val doc = DocumentaryUnit(item)
+    implicit val prefix = IsadG.FIELD_PREFIX
+    doc.description(descriptionId).map { desc =>
+      Ok(views.html.common.relatedLinks(doc, desc, links))
+    }.getOrElse {
+      NotFound(descriptionId)
+    }
+  }
+
+  // NB: This doesn't work when placed within the function scope
+  // should probably check if a bug has been reported.
+  case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF])
+
+  def getAccessPointsJson(id: String) = getAction(id) {
+      item => annotations => links => implicit userOpt => implicit request =>
+
+    import play.api.libs.json._
+    import play.api.libs.functional.syntax._
+    import models.json.AccessPointFormat.accessPointFormat
+    import models.json.LinkFormat.linkFormat
+
+
+    implicit val itemWrites = Json.format[LinkItem]
+    val list = DocumentaryUnit(item).descriptions.map { desc =>
+      val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
+        val apTypes = desc.accessPoints.filter(_.`type` == apt).map { ap =>
+          val link = links.find(_.bodies.exists(b => b.id == ap.id))
+          new LinkItem(ap.formable, link.flatMap(_.formableOpt))
+        }
+        (apt.toString, apTypes)
+      }
+      Map(desc.id -> accessPointTypes.toMap)
+    }
+    Ok(Json.toJson(list))
+  }
 }
 
 
