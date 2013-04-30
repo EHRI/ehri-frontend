@@ -26,7 +26,7 @@
                         @accessPoint.stringProperty(AccessPointF.DESCRIPTION).map { desc =>
                             <small><p class="muted">@desc</p></small>
                         }
-                        <a ng-click="addAccessPointLink('@item.id', '@accessPoint.id')">+</a>
+                        <a ng-click="OpenModalAccess('@accessPoint.id' , '@accessPoint.targetName.map { t =>  @t }')">+</a>
                     </li>
                 }
             }
