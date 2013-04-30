@@ -34,7 +34,7 @@
 	}])*/;
 }).call(this);
 
-function LinkCtrl($scope, $window, $portal, $log, dialog) {
+function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 // Items data
 	$scope.selected = []; //Basket items
 	$scope.id = $window.ITEM_ID; //Source documentaryUnit
@@ -141,11 +141,18 @@ function LinkCtrl($scope, $window, $portal, $log, dialog) {
 		$scope.linkDesc = "";
 		$scope.linkType = "";
 		
-		//Cleaning Results
-		$scope.removeSelected($scope.tempSelected.id);
+		if($rootScope.LinkMode == "Link")
+		{
+			//Cleaning Results
+			$scope.removeSelected($scope.tempSelected.id);
 
-		//Pushing to results
-		$scope.selected.push($scope.tempSelected);
+			//Pushing to results
+			$scope.selected.push($scope.tempSelected);
+		}
+		else
+		{
+			$scope.selected = $scope.tempSelected;
+		}
 
 		//Cleaning Temp
 		$scope.tempSelected = null;
@@ -157,16 +164,30 @@ function LinkCtrl($scope, $window, $portal, $log, dialog) {
 *
 */	
 	$scope.save = function() {
-		var args = [];
-		$scope.selected.forEach(function(ele, idx) {
-			var s = "link[" + idx + "].id=" + ele.id + "&" +
-			"link[" + idx + "].data.category=associative&" +
-			"link[" + idx + "].data.description=Test Annotation";
-			args.push(s)
-		});
-		return $portal.saveAnnotations($scope.id, args).then(function(response) {
-			$window.location = "/docs/show/" + $scope.id;
-		});
+		if($rootScope.LinkMode == "Link")
+		{
+			var args = [];
+			$scope.selected.forEach(function(ele, idx) {
+				console.log(ele);
+				var s = "link[" + idx + "].id=" + ele.id + "&" +
+				"link[" + idx + "].data.category=associative&" +
+				"link[" + idx + "].data.description=Test Annotation";
+				args.push(s)
+			});
+			return $portal.saveAnnotations($scope.id, args).then(function(response) {
+				$window.location = "/docs/show/" + $scope.id;
+			});
+		}
+		else
+		{
+			jsRoutes.controllers.DocumentaryUnits.createLinkJson($scope.id, $rootScope.AccessItem.id).ajax({
+				data: {target: $scope.selected.id, description: $scope.selected.linkDesc, type: "associative"},
+				headers: {"ajax-ignore-csrf": true, "Content-Type": "application/json"},
+				success: function(data) {
+					console.log(data);
+				}
+			});
+		}
 	}
 
 	$scope.removeSelected = function(id) {
@@ -185,7 +206,7 @@ function LinkCtrl($scope, $window, $portal, $log, dialog) {
 
 }
 
-function DocumentaryCtrl($scope, $dialog) {
+function DocumentaryCtrl($scope, $dialog, $rootScope) {
 	$scope.modalLink = {	//Options for modals
 		backdrop: true,
 		keyboard: true,
@@ -203,6 +224,17 @@ function DocumentaryCtrl($scope, $dialog) {
 *
 */
 	$scope.OpenModalLink = function(){
+		$rootScope.LinkMode = "Link";
+		
+		var d = $dialog.dialog($scope.modalLink);
+		d.open().then(function(result){
+			return true;
+		});
+	}
+	$scope.OpenModalAccess = function(idAccess, textAccess){
+		$rootScope.AccessItem = { id: idAccess, text: textAccess };
+		$rootScope.LinkMode = "Access";
+		
 		var d = $dialog.dialog($scope.modalLink);
 		d.open().then(function(result){
 			return true;
