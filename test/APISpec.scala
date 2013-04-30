@@ -56,9 +56,9 @@ class APISpec extends Specification with BeforeExample with TestMockLoginHelper 
   "Link JSON endpoints should" should {
     "allow creating and reading" in {
       running(fakeLoginApplication(additionalConfiguration = config)) {
-        val json = Json.toJson(new AccessPointLink("ur1", "c1", "a1", description = Some("Test link")))
+        val json = Json.toJson(new AccessPointLink("a1", description = Some("Test link")))
         val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-          routes.DocumentaryUnits.createLinkJson.url)
+          routes.DocumentaryUnits.createLinkJson("c1", "ur1").url)
           .withHeaders(postHeaders.toSeq: _*), json).get
         status(cr) must equalTo(CREATED)
         val cr2 = route(fakeLoggedInRequest(privilegedUser, GET,

@@ -359,8 +359,14 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
    * Create an access point link for this object
    * @return
    */
-  def createLinkJson = createLink
+  def createLinkJson(id: String, apid: String) = createLink(id, apid)
 
+  /**
+   * Get the link for a given document/access point
+   * @param id
+   * @param accessPointId
+   * @return
+   */
   def getLinkJson(id: String, accessPointId: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).getFor(id).map { linksOrErr =>
@@ -369,9 +375,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
           val itemOpt = LinkableEntity.fromEntity(item)
           val res = for (link <- linkOpt ; item <- itemOpt ; linkData <- link.formableOpt ; target <- link.opposingTarget(item)) yield {
             new AccessPointLink(
-              src = item.id,
-              dst = target.id,
-              accessPoint = accessPointId,
+              target = target.id,
               `type` = None, // TODO: Add
               description = linkData.description
             )

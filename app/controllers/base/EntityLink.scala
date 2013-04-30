@@ -14,16 +14,12 @@ import play.api.libs.json.{JsError, Json}
 
 /**
  * Class representing an access point link.
- * @param accessPoint id of the access point
- * @param src id of the source item
- * @param dst id of the destination item
+ * @param target id of the destination item
  * @param `type`  type field, i.e. associative
  * @param description description of link
  */
 case class AccessPointLink(
-  accessPoint: String,
-  src: String,
-  dst: String,
+  target: String,
   `type`: Option[AccessPointF.AccessPointType.Value] = None,
   description: Option[String] = None
 )
@@ -153,16 +149,16 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] {
    * Create a link, via Json, for any arbitrary two objects, via an access point.
    * @return
    */
-  def createLink = Action(parse.json) { request =>
+  def createLink(id: String, apid: String) = Action(parse.json) { request =>
     request.body.validate[AccessPointLink].fold(
       errors => { // oh dear, we have an error...
         BadRequest(JsError.toFlatJson(errors))
       },
       ann => {
-        withItemPermission(ann.src, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+        withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
           AsyncRest {
             val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
-            rest.LinkDAO(userOpt).link(ann.src, ann.dst, link, Some(ann.accessPoint)).map { annOrErr =>
+            rest.LinkDAO(userOpt).link(id, ann.target, link, Some(apid)).map { annOrErr =>
               annOrErr.right.map { ann =>
                 import models.json.LinkFormat.linkFormat
                 Created(Json.toJson(ann.formable))
