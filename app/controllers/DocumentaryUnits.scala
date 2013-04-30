@@ -394,11 +394,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def getAccessPointsJson(id: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
 
-    import play.api.libs.json._
-    import play.api.libs.functional.syntax._
     import models.json.AccessPointFormat.accessPointFormat
     import models.json.LinkFormat.linkFormat
-
 
     implicit val itemWrites = Json.format[LinkItem]
     val list = DocumentaryUnit(item).descriptions.map { desc =>
