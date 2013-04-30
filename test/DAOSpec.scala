@@ -18,29 +18,11 @@ import models.{DocumentaryUnit, DocumentaryUnitF, UserProfileF}
 import rest.RestPageParams
 import play.api.GlobalSettings
 
-class DAOSpec extends Specification with BeforeExample {
-  sequential
-
-  val testPort = 7575
-  val config = Map("neo4j.server.port" -> testPort)
+class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   val userProfile = UserProfile(Entity.fromString("mike", EntityType.UserProfile))
   val entityType = EntityType.UserProfile
 
-  object FakeGlobal extends GlobalSettings
-
-  val runner: ServerRunner = new ServerRunner(classOf[DAOSpec].getName, testPort)
-  runner.getConfigurator
-    .getThirdpartyJaxRsClasses()
-    .add(new ThirdPartyJaxRsPackage(
-    classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"));
-  runner.start
-
   class FakeApp extends WithApplication(FakeApplication(additionalConfiguration = config, withGlobal = Some(FakeGlobal)))
-
-  def before = {
-    runner.tearDown
-    runner.setUp
-  }
 
   "EntityDAO" should {
     "get an item by id" in new FakeApp {

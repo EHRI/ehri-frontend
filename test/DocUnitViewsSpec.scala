@@ -1,63 +1,26 @@
 package test
 
-import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
-import org.specs2.mutable.Specification
-import org.specs2.specification.BeforeExample
-import eu.ehri.extension.test.utils.ServerRunner
-import eu.ehri.extension.AbstractAccessibleEntityResource
-import helpers.TestMockLoginHelper
-import play.api.http.HeaderNames
-import models.UserProfile
+import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._
 import models.base.Accessor
 import play.api.test.Helpers._
 import defines._
-import rest.EntityDAO
-import play.api.GlobalSettings
 import controllers.routes
 import controllers.ListParams
 import play.api.i18n.Messages
-import play.api.test.{WithApplication, FakeApplication, FakeRequest}
+import play.api.test.FakeRequest
 
 
-class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLoginHelper {
-  sequential // Needed to avoid concurrency issues with Neo4j databases.
-
-
+class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
   import mocks.UserFixtures.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(Entity.fromString(privilegedUser.profile_id, EntityType.UserProfile)
     .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
 
-  val testPort = 7575
-  val config = Map("neo4j.server.port" -> testPort)
-
-  object SimpleFakeGlobal extends GlobalSettings
-
-  // Set up Neo4j server config
-  val runner: ServerRunner = new ServerRunner(classOf[DocUnitViewsSpec].getName, testPort)
-  runner.getConfigurator
-    .getThirdpartyJaxRsClasses()
-    .add(new ThirdPartyJaxRsPackage(classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"))
-  runner.start
-
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"
   val oneItemHeader = "One item found"
   val noItemsHeader = "No items found"
-
-  // Headers for post operations
-  val postHeaders: Map[String, String] = Map(
-    HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded"
-  )
-
-
-  class FakeApp extends WithApplication(fakeApplication(additionalConfiguration = config))
-
-  def before = {
-    runner.tearDown
-    runner.setUp
-  }
 
   "DocumentaryUnit views" should {
 
@@ -65,7 +28,6 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       val list = route(fakeLoggedInRequest(unprivilegedUser, GET, routes.DocumentaryUnits.list.url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(oneItemHeader)
-
       contentAsString(list) must not contain ("c1")
       contentAsString(list) must contain("c4")
     }
@@ -150,7 +112,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        controllers.routes.Repositories.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        controllers.routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       println(contentAsString(cr))
       status(cr) must equalTo(SEE_OTHER)
 
@@ -173,7 +135,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
       val call = fakeLoggedInRequest(privilegedUser, POST,
-        routes.Repositories.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*)
+        routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
       val cr1 = route(call, testData).get
       status(cr1) must equalTo(SEE_OTHER)
       // okay the first time
@@ -194,7 +156,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
       val call = fakeLoggedInRequest(privilegedUser, POST,
-        routes.Repositories.createDocPost("r1").url).withHeaders(postHeaders.toSeq: _*)
+        routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
       val cr = route(call, testData).get
       status(cr) must equalTo(BAD_REQUEST)
       // NB: This error string comes from the server, so might
@@ -212,7 +174,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.updatePost("c1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.DocumentaryUnits.updatePost("c1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -229,7 +191,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
         "logMessage" -> Seq(msg)
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.updatePost("c1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.DocumentaryUnits.updatePost("c1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -248,7 +210,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       )
 
       val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
-        routes.DocumentaryUnits.updatePost("c4").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.DocumentaryUnits.updatePost("c4").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
 
       // We can view the item when not logged in...
@@ -284,7 +246,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       // Trying to create the item should fail initially.
       // Check we cannot create an item...
       val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
-        routes.Repositories.createDocPost("r2").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.Repositories.createDocPost("r2").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
 
       // Grant permissions to create docs within the scope of r2
@@ -293,12 +255,12 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       )
       val permReq = route(fakeLoggedInRequest(privilegedUser, POST,
         routes.Repositories.setScopedPermissionsPost(testRepo, ContentType.UserProfile, unprivilegedUser.profile_id).url)
-        .withHeaders(postHeaders.toSeq: _*), permTestData).get
+        .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
       status(permReq) must equalTo(SEE_OTHER)
       // Now try again and create the item... it should succeed.
       // Check we cannot create an item...
       val cr2 = route(fakeLoggedInRequest(unprivilegedUser, POST,
-        routes.Repositories.createDocPost(testRepo).url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.Repositories.createDocPost(testRepo).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
       status(getR) must equalTo(OK)
@@ -320,7 +282,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       // Trying to create the item should fail initially.
       // Check we cannot create an item...
       val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
-        routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
 
       // Grant permissions to update item c1
@@ -329,12 +291,12 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       )
       val permReq = route(fakeLoggedInRequest(privilegedUser, POST,
         routes.DocumentaryUnits.setItemPermissionsPost(testItem, ContentType.UserProfile, unprivilegedUser.profile_id).url)
-        .withHeaders(postHeaders.toSeq: _*), permTestData).get
+        .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
       status(permReq) must equalTo(SEE_OTHER)
       // Now try again to update the item, which should succeed
       // Check we can update the item
       val cr2 = route(fakeLoggedInRequest(unprivilegedUser, POST,
-        routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
       status(getR) must equalTo(OK)
@@ -350,7 +312,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       // Now try again to update the item, which should succeed
       // Check we can update the item
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.annotatePost(testItem).url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.DocumentaryUnits.annotatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
@@ -367,7 +329,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
         routes.DocumentaryUnits.linkAnnotatePost(testItem, EntityType.Concept.toString, linkSrc).url)
-        .withHeaders(postHeaders.toSeq: _*), testData).get
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
@@ -389,7 +351,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
         routes.DocumentaryUnits.linkMultiAnnotatePost(testItem).url)
-        .withHeaders(postHeaders.toSeq: _*), testData).get
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
@@ -410,7 +372,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       // Check we can update the item
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
         routes.DocumentaryUnits.createDescriptionPost(testItem).url)
-        .withHeaders(postHeaders.toSeq: _*), testData).get
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
@@ -430,7 +392,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       // Check we can update the item
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
         routes.DocumentaryUnits.updateDescriptionPost(testItem, testItemDesc).url)
-        .withHeaders(postHeaders.toSeq: _*), testData).get
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
@@ -445,7 +407,7 @@ class DocUnitViewsSpec extends Specification with BeforeExample with TestMockLog
       // Check we can update the item
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
         routes.DocumentaryUnits.deleteDescriptionPost(testItem, testItemDesc).url)
-        .withHeaders(postHeaders.toSeq: _*)).get
+        .withHeaders(formPostHeaders.toSeq: _*)).get
       status(cr) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)

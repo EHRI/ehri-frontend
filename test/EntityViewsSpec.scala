@@ -1,65 +1,25 @@
 package test
 
-import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
-import org.specs2.mutable.Specification
-import org.specs2.specification.BeforeExample
-import eu.ehri.extension.test.utils.ServerRunner
-import eu.ehri.extension.AbstractAccessibleEntityResource
-import helpers.TestMockLoginHelper
-import play.api.http.HeaderNames
+import helpers._
 import models.UserProfile
 import models.Entity
 import models.base.Accessor
-import controllers.ListParams
-import models.{AnnotationType, AnnotationF}
 import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
 import defines._
-import rest.{RestError, EntityDAO}
-import play.api.GlobalSettings
-import play.api.i18n.Messages
+import rest.EntityDAO
 
-
-class EntityViewsSpec extends Specification with BeforeExample with TestMockLoginHelper {
-  sequential // Needed to avoid concurrency issues with Neo4j databases.
-
-
+class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
 
   val userProfile = UserProfile(Entity.fromString(privilegedUser.profile_id, EntityType.UserProfile)
     .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
 
-  val testPort = 7575
-  val config = Map("neo4j.server.port" -> testPort)
-
-  object SimpleFakeGlobal extends GlobalSettings
-
-  // Set up Neo4j server config
-  val runner: ServerRunner = new ServerRunner(classOf[EntityViewsSpec].getName, testPort)
-  runner.getConfigurator
-    .getThirdpartyJaxRsClasses()
-    .add(new ThirdPartyJaxRsPackage(classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"))
-  runner.start
-
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"
   val oneItemHeader = "One item found"
   val noItemsHeader = "No items found"
-
-  // Headers for post operations
-  val postHeaders: Map[String, String] = Map(
-    HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded"
-  )
-
-
-  class FakeApp extends WithApplication(fakeApplication(additionalConfiguration = config))
-
-  def before = {
-    runner.tearDown
-    runner.setUp
-  }
-
 
   "Repository views" should {
 
@@ -92,7 +52,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.Repositories.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.Repositories.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       // FIXME: This route will change when a property ID mapping scheme is devised
@@ -107,7 +67,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.Repositories.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.Repositories.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -116,7 +76,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
         "identifier" -> Seq("r1")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.Repositories.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.Repositories.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -143,7 +103,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.Repositories.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.Repositories.updatePost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -160,7 +120,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
-        routes.Repositories.updatePost("r1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.Repositories.updatePost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
 
       // We can view the item when not logged in...
@@ -194,7 +154,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.HistoricalAgents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.HistoricalAgents.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       // FIXME: This route will change when a property ID mapping scheme is devised
@@ -208,7 +168,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.HistoricalAgents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.HistoricalAgents.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -217,7 +177,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
         "identifier" -> Seq("a1")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.HistoricalAgents.createPost.url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.HistoricalAgents.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -244,7 +204,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.HistoricalAgents.updatePost("a1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -257,7 +217,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
         "identifier" -> Seq("a1")
       )
       val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
-        routes.HistoricalAgents.updatePost("a1").url).withHeaders(postHeaders.toSeq: _*), testData).get
+        routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
     }
   }
@@ -275,7 +235,7 @@ class EntityViewsSpec extends Specification with BeforeExample with TestMockLogi
           ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
         )
         val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-          routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(postHeaders.toSeq: _*), testData).get
+          routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         // Now check we can read back the same permissions.
