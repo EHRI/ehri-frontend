@@ -5119,6 +5119,7 @@ button.close {
 .pagination-no-margin { margin:0; }
 body .modal-test { 
     /* new custom width */
+position:fixed;
     width: 90%;
     /* must be half of the width, minus scrollbar on the left (30px) */
     margin-left: -45%;

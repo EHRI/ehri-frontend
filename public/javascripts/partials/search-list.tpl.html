@@ -1,7 +1,8 @@
 <div class="modal-header">
 	<button type="button" class="close" ng-click="close()" aria-hidden="true">&times;</button>
-	<h3 ng-class="(LinkMode == 'Link') && 'hide'">Annotation</h3>
-	<h3 ng-class="(LinkMode == 'Access') && 'hide'">Link "{{AccessItem.text}}"</h3>
+	<h3 ng-show="(LinkMode == 'Link')">Annotation</h3>
+	<h3 ng-show="(LinkMode == 'Access')">Link "{{AccessItem.text}}"</h3>
+	<h3 ng-show="(LinkMode == 'AddAccess')">Create and link Access</h3>
 	<div class="container-fluid">
 		<div class="row-fluid">
 			<div class="span4 text-center"><a ng-click="setType('documentaryUnit')">Documentary Units</a></div>
@@ -52,6 +53,8 @@
 					<dt ng-show="(LinkMode == 'Link')">Title</dt><dd ng-show="(LinkMode == 'Link')"><input type="text" ng-model="linkTitle" value="{{tempSelected.linkTitle}}" /></dd>
 					<dt>Description</dt><dd><input type="text"  ng-model="linkDesc" value="{{tempSelected.linkDesc}}" /></dd>
 					<dt ng-show="(LinkMode == 'Link')">Type</dt><dd ng-show="(LinkMode == 'Link')"><input type="text"  ng-model="linkType" value="{{tempSelected.linkType}}" /></dd>
+					<dt ng-show="(LinkMode == 'AddAccess')">Access type</dt><dd ng-show="(LinkMode == 'AddAccess')"><select ng-model="accessType"><option ng-repeat="type in AccessTypeList" value="{{type.id}}">{{type.name}}</option></select></dd>
+					<dt ng-show="(LinkMode == 'AddAccess')">Link type</dt><dd ng-show="(LinkMode == 'AddAccess')"><select ng-model="linkAccessType"><option ng-repeat="type in LinkTypeList" value="{{type.id}}">{{type.name}}</option></select></dd>
 				</dl>
 				<span class="btn btn-success" ng-click="addSelected(tempSelected)">Add</span>
 			</div>
@@ -67,7 +70,7 @@
 					<span class="btn btn-mini" ng-click="removeSelected(item.id)" ><i class="icon icon-remove"></i></span>
 				</div>
 			</li>
-			<li ng-show="(LinkMode == 'Access')">
+			<li ng-show="(LinkMode == 'Access') || (LinkMode == 'AddAccess')">
 					<span class="btn btn-mini span3" ng-click="editItem(selected)" style="white-space: nowrap;	overflow: hidden;	text-overflow: ellipsis;">{{selected.name}}</span>
 			</li>
 		</ul>
