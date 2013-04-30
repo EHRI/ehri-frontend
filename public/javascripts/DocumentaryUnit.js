@@ -181,10 +181,12 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 		else
 		{
 			jsRoutes.controllers.DocumentaryUnits.createLinkJson($scope.id, $rootScope.AccessItem.id).ajax({
-				data: {target: $scope.selected.id, description: $scope.selected.linkDesc, type: "associative"},
+				data: JSON.stringify({target: $scope.selected.id, description: $scope.selected.linkDesc}),
 				headers: {"ajax-ignore-csrf": true, "Content-Type": "application/json"},
+        dataType: "json",
 				success: function(data) {
 					console.log(data);
+          $window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
 				}
 			});
 		}

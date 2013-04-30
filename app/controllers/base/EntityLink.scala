@@ -6,7 +6,7 @@ import models.base._
 import defines._
 import models._
 import play.api.data.Form
-import rest.EntityDAO
+import rest.{LinkDAO, EntityDAO}
 import controllers.ListParams
 import models.forms.LinkForm
 import play.api.mvc.Result
@@ -171,6 +171,31 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] {
         }(request.map(js => AnyContentAsEmpty))
       }
     )
+  }
+
+  /**
+   * Get the link, if any, for a document and an access point.
+   * @param id
+   * @param apid
+   * @return
+   */
+  def getLink(id: String, apid: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+    AsyncRest {
+      LinkDAO(userOpt).getFor(id).map { linksOrErr =>
+        linksOrErr.right.map { linkList =>
+          val linkOpt = linkList.find(link => link.bodies.exists(b => b.id == apid))
+          val itemOpt = LinkableEntity.fromEntity(item)
+          val res = for (link <- linkOpt ; item <- itemOpt ; linkData <- link.formableOpt ; target <- link.opposingTarget(item)) yield {
+            new AccessPointLink(
+              target = target.id,
+              `type` = None, // TODO: Add
+              description = linkData.description
+            )
+          }
+          Ok(Json.toJson(res))
+        }
+      }
+    }
   }
 }
 
