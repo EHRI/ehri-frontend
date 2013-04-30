@@ -53,7 +53,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
   def searchAction(filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
       f: solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
-      //Secured {
+      Secured {
         // Override the entity type with the controller entity type
         val sp = solr.SearchParams.form.bindFromRequest
             .value.getOrElse(SearchParams())
@@ -75,7 +75,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
             }
           }
         }
-      //}
+      }
     }
   }
 

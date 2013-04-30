@@ -5,10 +5,12 @@ import defines.EntityType
 import models.DocumentaryUnitDescription
 import models.HistoricalAgentDescription
 import models.RepositoryDescription
+import play.api.libs.json.JsValue
 
 object Description {
 
   final val ACCESS_REL = "relatesTo"
+  final val UNKNOWN_PROP = "hasUnknownProperty"
 
   def apply(e: Entity): Description = e.isA match {
     case EntityType.DocumentaryUnitDescription => DocumentaryUnitDescription(e)
@@ -31,6 +33,8 @@ trait Description extends WrappedEntity {
   lazy val accessPoints: List[AccessPoint] = e.relations(Description.ACCESS_REL).map(AccessPoint(_))
 
   def placeAccess = accessPoints.filter(ap => ap.stringProperty(AccessPointF.TYPE) == Some(AccessPointF.AccessPointType.PlaceAccess.toString))
+
+  def unknownProperty: List[Entity] = e.relations(Description.UNKNOWN_PROP)
 
   override def toString = name
 }

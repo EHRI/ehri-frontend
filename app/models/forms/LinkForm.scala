@@ -14,13 +14,14 @@ object LinkForm {
   val form = Form(mapping(
     Entity.ID -> optional(nonEmptyText),
     LINK_TYPE -> models.forms.enum(LinkType),
-    DESCRIPTION -> nonEmptyText // TODO: Validate this server side
+    DESCRIPTION -> optional(nonEmptyText) // TODO: Validate this server side
   )(LinkF.apply)(LinkF.unapply))
 
   val multiForm = Form(    single(
     "link" -> list(tuple(
       "id" -> nonEmptyText,
-      "data" -> form.mapping
+      "data" -> form.mapping,
+      "accessPoint" -> optional(nonEmptyText)
     ))
   ))
 }

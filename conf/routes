@@ -76,6 +76,7 @@ GET     /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotate
 POST    /docs/link/:id/:toType/:to     controllers.DocumentaryUnits.linkAnnotatePost(id: String, toType: String, to: String)
 GET     /docs/linkm/:id          controllers.DocumentaryUnits.linkMultiAnnotate(id: String)
 POST    /docs/linkm/:id     controllers.DocumentaryUnits.linkMultiAnnotatePost(id)
+POST    /docs/link/create   controllers.DocumentaryUnits.createLinkJson
 
 GET     /admin/users                controllers.UserProfiles.list
 GET     /admin/users/show/:id       controllers.UserProfiles.get(id: String)
@@ -219,7 +220,17 @@ POST    /annotation/annotate/:id     controllers.Annotations.annotatePost(id: St
 GET     /annotation/delete/:id     controllers.Annotations.delete(id: String)
 POST    /annotation/delete/:id     controllers.Annotations.deletePost(id: String)
 
+GET     /link/show/:id       controllers.Links.get(id: String)
+GET     /link/history/:id       controllers.Links.history(id: String)
+GET     /link/visibility/:id     controllers.Links.visibility(id: String)
+POST    /link/visibility/:id     controllers.Links.visibilityPost(id: String)
+GET     /link/annotate/:id     controllers.Links.annotate(id: String)
+POST    /link/annotate/:id     controllers.Links.annotatePost(id: String)
+GET     /link/delete/:id     controllers.Links.delete(id: String)
+POST    /link/delete/:id     controllers.Links.deletePost(id: String)
+
 # API
+
 GET     /api/:contentType/list          controllers.ApiController.listItems(contentType: String)
 GET     /api/:contentType/:id           controllers.ApiController.getItem(contentType: String, id: String)
 GET     /api/*path               controllers.ApiController.get(path: String)

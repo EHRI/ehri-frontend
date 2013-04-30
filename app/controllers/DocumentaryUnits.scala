@@ -353,6 +353,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       }
     }
   }
+
+  def createLinkJson = createLink
 }
 
 

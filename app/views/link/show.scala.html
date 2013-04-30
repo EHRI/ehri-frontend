@@ -1,0 +1,19 @@
+@(item: Link, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+
+    @common.annotated(item, annotations, routes.Annotations.annotate(item.id)) {
+        TODO
+    }
+} {
+    @common.visibility(item, routes.Links.visibility(item.id), ContentType.Link)
+    @common.latestAction(item, routes.Links.history(item.id))
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+    @maybeUser.map { user =>
+        @if(user.hasPermission(ContentType.Link, PermissionType.Delete)) {
+            <li><a href="@routes.Links.delete(item.id)">@Messages("actions.deleteLink")</a></li>
+        }
+    }
+    </ul>
+}

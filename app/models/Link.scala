@@ -22,7 +22,7 @@ object LinkF {
 case class LinkF(
   val id: Option[String],
   val linkType: LinkType.Type,
-  val description: String
+  val description: Option[String]
 ) extends Persistable {
   val isA = EntityType.Link
 

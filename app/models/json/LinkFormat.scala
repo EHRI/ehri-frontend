@@ -31,7 +31,7 @@ object LinkFormat {
     (__ \ ID).readNullable[String] and
       ((__ \ DATA \ LINK_TYPE).read[LinkType.Value]
           orElse Reads.pure(LinkType.Associative)) and
-      (__ \ DATA \ DESCRIPTION).read[String]
+      (__ \ DATA \ DESCRIPTION).readNullable[String]
     )(LinkF.apply _)
 
   implicit val linkFormat: Format[LinkF] = Format(linkReads,linkWrites)

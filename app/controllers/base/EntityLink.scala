@@ -3,15 +3,37 @@ package controllers.base
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
-import models.base.Persistable
 import defines._
 import models._
 import play.api.data.Form
-import rest.{RestError, RestPageParams, EntityDAO}
-import collection.immutable.ListMap
+import rest.EntityDAO
 import controllers.ListParams
 import models.forms.LinkForm
-import scala.concurrent.Future
+import play.api.mvc.Result
+import play.api.libs.json.{JsError, Json}
+
+/**
+ * Class representing an access point link.
+ * @param accessPoint id of the access point
+ * @param src id of the source item
+ * @param dst id of the destination item
+ * @param `type`  type field, i.e. associative
+ * @param description description of link
+ */
+case class AccessPointLink(
+  accessPoint: String,
+  src: String,
+  dst: String,
+  `type`: Option[AccessPointF.AccessPointType.Value] = None,
+  description: Option[String] = None
+)
+
+object AccessPointLink {
+  // handlers for creating/listing/deleting links via JSON
+  import models.json.AccessPointFormat.accessPointTypeReads
+  implicit val accessPointTypeFormat = defines.EnumUtils.enumFormat(AccessPointF.AccessPointType)
+  implicit val accessPointLinkReads = Json.format[AccessPointLink]
+}
 
 
 /**
@@ -100,10 +122,10 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] {
   }
 
   def linkPostMultiAction(id: String)(
-      f: Either[(LinkableEntity,Form[List[(String,LinkF)]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: Either[(LinkableEntity,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       println("Form data: " + request.body.asFormUrlEncoded)
-      val multiForm: Form[List[(String,LinkF)]] = models.forms.LinkForm.multiForm
+      val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
           val res: Option[Result] = for {
@@ -115,24 +137,44 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] {
         },
         links => {
           AsyncRest {
-            val anns: Future[List[Either[RestError,Link]]] = Future.sequence {
-              links.map { case (other, linkData) =>
-                rest.LinkDAO(userOpt).link(id, other, linkData)
-              }
-            }
-            anns.map { (lst: List[Either[RestError,Link]]) =>
-              // If there was an error, pluck the first one out and
-              // return it...
-              lst.filter(_.isLeft).map(_.left.get).headOption.map { err =>
-                Left(err)
-              } getOrElse {
-                Right(f(Right(lst.map(_.right.get)))(userOpt)(request))
+            rest.LinkDAO(userOpt).linkMultiple(id, links).map { linksOrErr =>
+              linksOrErr.right.map { outLinks =>
+                f(Right(outLinks))(userOpt)(request)
               }
             }
           }
         }
       )
     }
+  }
+
+
+  /**
+   * Create a link, via Json, for any arbitrary two objects, via an access point.
+   * @return
+   */
+  def createLink = Action(parse.json) { request =>
+    request.body.validate[AccessPointLink].fold(
+      errors => { // oh dear, we have an error...
+        BadRequest(JsError.toFlatJson(errors))
+      },
+      ann => {
+        withItemPermission(ann.src, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+          AsyncRest {
+            val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
+            rest.LinkDAO(userOpt).link(ann.src, ann.dst, link, Some(ann.accessPoint)).map { annOrErr =>
+              annOrErr.right.map { ann =>
+                import models.json.LinkFormat.linkFormat
+                Created(Json.toJson(ann.formable))
+              }
+            }
+          }
+          // TODO: Fix AuthController so we can use the
+          // various auth action composers with body parsers
+          // other than AnyContent
+        }(request.map(js => AnyContentAsEmpty))
+      }
+    )
   }
 }
 
