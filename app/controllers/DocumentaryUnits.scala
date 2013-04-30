@@ -343,6 +343,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {
       formOrAnnotations => implicit userOpt => implicit request =>
+        request.getQueryString()
     formOrAnnotations match {
       case Left((target,errorForms)) => {
         BadRequest(views.html.linking.linkMulti(target,
@@ -360,6 +361,12 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
    * @return
    */
   def createLinkJson(id: String, apid: String) = createLink(id, apid)
+
+  /**
+   * Create an access point link for this object, in the process creating an access point
+   * @return
+   */
+  def createAccessPointLinkJson(id: String, desc: String) = createAccessPointLink(id, desc)
 
   /**
    * Get the link for a given document/access point

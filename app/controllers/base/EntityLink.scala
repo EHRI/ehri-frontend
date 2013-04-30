@@ -20,15 +20,26 @@ import play.api.libs.json.{JsError, Json}
  */
 case class AccessPointLink(
   target: String,
-  `type`: Option[AccessPointF.AccessPointType.Value] = None,
+  `type`: Option[LinkF.LinkType.Value] = None,
   description: Option[String] = None
 )
 
 object AccessPointLink {
   // handlers for creating/listing/deleting links via JSON
-  import models.json.AccessPointFormat.accessPointTypeReads
+  implicit val linkTypeFormat = defines.EnumUtils.enumFormat(LinkF.LinkType)
   implicit val accessPointTypeFormat = defines.EnumUtils.enumFormat(AccessPointF.AccessPointType)
   implicit val accessPointLinkReads = Json.format[AccessPointLink]
+}
+
+case class NewAccessPointLink(
+  name: String,
+  `type`: AccessPointF.AccessPointType.Value,
+  data: AccessPointLink
+)
+
+object NewAccessPointLink {
+  import AccessPointLink._
+  implicit val newAccessPointLinkFormat = Json.format[NewAccessPointLink]
 }
 
 
@@ -162,6 +173,38 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] {
               annOrErr.right.map { ann =>
                 import models.json.LinkFormat.linkFormat
                 Created(Json.toJson(ann.formable))
+              }
+            }
+          }
+          // TODO: Fix AuthController so we can use the
+          // various auth action composers with body parsers
+          // other than AnyContent
+        }(request.map(js => AnyContentAsEmpty))
+      }
+    )
+  }
+
+  /**
+   * Create a link, via Json, for any arbitrary two objects, via an access point.
+   * @return
+   */
+  def createAccessPointLink(id: String, descriptionId: String) = Action(parse.json) { request =>
+    request.body.validate[NewAccessPointLink].fold(
+      errors => { // oh dear, we have an error...
+        BadRequest(JsError.toFlatJson(errors))
+      },
+      ann => {
+        withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+          AsyncRest {
+            val link = new LinkF(id = None, ann.data.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.data.description)
+            rest.LinkDAO(userOpt).accessPointLink(id, ann.data.target, descriptionId, ann.name, ann.`type`, link).map { annOrErr =>
+              annOrErr.right.map { ann =>
+                import models.json.LinkFormat.linkFormat
+                import models.json.AccessPointFormat.accessPointFormat
+                Created(Json.obj(
+                  "accessPoint" -> Json.toJson(ann.bodies.headOption.flatMap(_.formableOpt)),
+                  "link" -> link
+                ))
               }
             }
           }

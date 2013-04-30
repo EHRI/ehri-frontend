@@ -79,7 +79,8 @@ GET     /docs/linkm/:id          controllers.DocumentaryUnits.linkMultiAnnotate(
 POST    /docs/linkm/:id     controllers.DocumentaryUnits.linkMultiAnnotatePost(id)
 POST    /docs/linkjs/:id/:accessPoint   controllers.DocumentaryUnits.createLinkJson(id: String, accessPoint: String)
 GET     /docs/linkjs/:id/:accessPoint   controllers.DocumentaryUnits.getLinkJson(id: String, accessPoint: String)
-
+# Same as above but creating the link as well
+POST    /docs/linkjsa/:id/:desc   controllers.DocumentaryUnits.createAccessPointLinkJson(id: String, desc: String)
 
 GET     /admin/users                controllers.UserProfiles.list
 GET     /admin/users/show/:id       controllers.UserProfiles.get(id: String)

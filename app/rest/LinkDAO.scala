@@ -19,6 +19,8 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
   import EntityDAO._
 
   final val BODY_PARAM = "body"
+  final val BODY_TYPE = "bodyType"
+  final val BODY_NAME = "bodyName"
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Link)
 
@@ -56,6 +58,24 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
     WS.url(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
       .withHeaders(authHeaders.toSeq: _*)
       .post(ann.toJson).map { response =>
+      checkError(response).right.map(r => Link(jsonToEntity(r.json)))
+    }
+  }
+
+  /**
+   * Create a single link.
+   * @param id
+   * @param src
+   * @param desc
+   * @param bodyName
+   * @param bodyType
+   * @return
+   */
+  def accessPointLink(id: String, src: String, desc: String, bodyName: String, bodyType: AccessPointF.AccessPointType.Value,
+                       link: LinkF): Future[Either[RestError, Link]] = {
+    WS.url(enc(requestUrl, id, src, s"$desc?$BODY_NAME=$bodyName&$BODY_TYPE=$bodyType"))
+      .withHeaders(authHeaders.toSeq: _*)
+      .post(link.toJson).map { response =>
       checkError(response).right.map(r => Link(jsonToEntity(r.json)))
     }
   }

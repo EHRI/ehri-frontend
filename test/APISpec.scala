@@ -9,17 +9,16 @@ import eu.ehri.extension.AbstractAccessibleEntityResource
 import com.typesafe.config.ConfigFactory
 import rest._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.Entity
+import models.{AccessPointF, Entity, UserProfile}
 import org.specs2.specification.BeforeExample
 import defines.EntityType
-import models.UserProfile
 import play.api.GlobalSettings
 import models.base.Accessor
 import controllers.routes
 import helpers.TestMockLoginHelper
 import play.api.libs.json.Json
 import play.api.http.HeaderNames
-import controllers.base.AccessPointLink
+import controllers.base.{NewAccessPointLink, AccessPointLink}
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
@@ -65,6 +64,19 @@ class APISpec extends Specification with BeforeExample with TestMockLoginHelper 
           routes.DocumentaryUnits.getLinkJson("c1", "ur1").url)).get
         status(cr2) must equalTo(OK)
         Json.parse(contentAsString(cr2)) mustEqual json
+      }
+    }
+
+    "allow creating new access points along with a link" in {
+      running(fakeLoginApplication(additionalConfiguration = config)) {
+        val link = new AccessPointLink("a1", description = Some("Test link"))
+        val apdata = new NewAccessPointLink("Test Access Point", AccessPointF.AccessPointType.SubjectAccess, link)
+        val json = Json.toJson(apdata)
+        val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+          routes.DocumentaryUnits.createAccessPointLinkJson("c1", "cd1").url)
+          .withHeaders(postHeaders.toSeq: _*), json).get
+        status(cr) must equalTo(CREATED)
+        println(contentAsString(cr))
       }
     }
   }
