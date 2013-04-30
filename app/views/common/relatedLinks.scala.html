@@ -37,6 +37,7 @@
 }
 
 @if(!desc.accessPoints.isEmpty) {
+	<a class="btn btn-success pull-right" ng-click="AddAccessModal('@desc.id')">Add</a>
     <h3>@Messages(prefix + "." + IsadG.ACCESS_POINTS)</h3>
     @AccessPointType.values.toList.map { accessPointType =>
         @relatedLinks(desc.accessPoints.filter(_.`type` == accessPointType), accessPointType)
