@@ -123,7 +123,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(show) must contain("Held By")
       // After having created an item it should contain a 'history' pane
       // on the show page
-      contentAsString(show) must contain(routes.DocumentaryUnits.history("r1-hello-kitty").url)
+      contentAsString(show) must contain(routes.DocumentaryUnits.history("nl-r1-hello-kitty").url)
     }
 
     "give a form error when creating items with the same id as existing ones" in new FakeApp {

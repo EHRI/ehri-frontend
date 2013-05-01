@@ -17,7 +17,9 @@ import views.Helpers
 import scala.Some
 import solr.{SearchOrder, SearchParams}
 
-object Repositories extends CRUD[RepositoryF,Repository]
+object Repositories extends EntityRead[Repository]
+  with EntityUpdate[RepositoryF, Repository]
+  with EntityDelete[Repository]
   with CreationContext[DocumentaryUnitF,Repository]
 	with VisibilityController[Repository]
   with PermissionScopeController[Repository]
@@ -105,22 +107,6 @@ object Repositories extends CRUD[RepositoryF,Repository]
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
     Ok(views.html.repository.list(page.copy(items = page.items.map(Repository(_))), params))
-  }
-
-  def create = createAction {
-      users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.repository.create(form,
-        VisibilityForm.form, users, groups, routes.Repositories.createPost))
-  }
-
-  def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.repository.create(errorForm, accForm, users, groups, routes.Repositories.createPost))
-      }
-      case Right(item) => Redirect(routes.Repositories.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
-    }
   }
 
   def update(id: String) = updateAction(id) {

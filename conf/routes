@@ -122,8 +122,6 @@ GET     /repository/list           controllers.Repositories.list
 GET     /repository/show/:id       controllers.Repositories.get(id: String)
 GET     /repository/history/:id    controllers.Repositories.history(id: String)
 GET     /repository/json/:id       controllers.Repositories.getJson(id: String)
-GET     /repository/create         controllers.Repositories.create
-POST    /repository/create         controllers.Repositories.createPost
 GET     /repository/delete/:id     controllers.Repositories.delete(id: String)
 POST    /repository/delete/:id     controllers.Repositories.deletePost(id: String)
 GET     /repository/update/:id     controllers.Repositories.update(id: String)
@@ -189,6 +187,30 @@ GET     /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScope
 POST    /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScopedPermissionsPost(id: String, userType: String, userId: String)
 GET     /vocabs/annotate/:id     controllers.Vocabularies.annotate(id: String)
 POST    /vocabs/annotate/:id     controllers.Vocabularies.annotatePost(id: String)
+
+GET     /country                controllers.Countries.list
+GET     /country/show/:id       controllers.Countries.get(id: String)
+GET     /country/history/:id    controllers.Countries.history(id: String)
+GET     /country/json/:id       controllers.Countries.getJson(id: String)
+GET     /country/create          controllers.Countries.create
+POST    /country/create          controllers.Countries.createPost
+GET     /country/delete/:id     controllers.Countries.delete(id: String)
+POST    /country/delete/:id     controllers.Countries.deletePost(id: String)
+GET     /country/update/:id     controllers.Countries.update(id: String)
+POST    /country/update/:id     controllers.Countries.updatePost(id: String)
+GET     /country/create/:id     controllers.Countries.createRepository(id: String)
+POST    /country/create/:id     controllers.Countries.createRepositoryPost(id: String)
+GET     /country/visibility/:id     controllers.Countries.visibility(id: String)
+POST    /country/visibility/:id     controllers.Countries.visibilityPost(id: String)
+GET     /country/permissions/:id/manage    controllers.Countries.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     /country/permissions/:id/add    controllers.Countries.addItemPermissions(id: String)
+GET     /country/permissions/:id/:userType/:userId    controllers.Countries.setItemPermissions(id: String, userType: String, userId: String)
+POST    /country/permissions/:id/:userType/:userId    controllers.Countries.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /country/scope/:id/add    controllers.Countries.addScopedPermissions(id: String)
+GET     /country/scope/:id/:userType/:userId    controllers.Countries.setScopedPermissions(id: String, userType: String, userId: String)
+POST    /country/scope/:id/:userType/:userId    controllers.Countries.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /country/annotate/:id     controllers.Countries.annotate(id: String)
+POST    /country/annotate/:id     controllers.Countries.annotatePost(id: String)
 
 GET     /concepts                controllers.Concepts.list
 GET     /concepts/show/:id       controllers.Concepts.get(id: String)

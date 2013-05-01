@@ -26,6 +26,8 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
   "Repository views" should {
 
+    val COUNTRY = "nl"
+
     "list should get some items" in new FakeApp {
       val list = route(fakeLoggedInRequest(unprivilegedUser, GET, routes.Repositories.list().url)).get
       status(list) must equalTo(OK)
@@ -55,7 +57,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.Repositories.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       // FIXME: This route will change when a property ID mapping scheme is devised
@@ -70,7 +72,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.Repositories.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -79,8 +81,11 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "identifier" -> Seq("r1")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.Repositories.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(BAD_REQUEST)
+        routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+      val cr2 = route(fakeLoggedInRequest(privilegedUser, POST,
+        routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr2) must equalTo(BAD_REQUEST)
     }
 
 

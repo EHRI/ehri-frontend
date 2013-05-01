@@ -1,6 +1,6 @@
     @(item: Repository, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]], links: List[Link])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+@rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(item.country.toList ::: List(item))) {
 
     @common.annotated(item, annotations, routes.Repositories.annotate(item.id)) {
         @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>

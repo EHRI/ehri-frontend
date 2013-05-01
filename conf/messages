@@ -69,6 +69,7 @@ contentTypes.cvocVocabulary=CVocs
 contentTypes.cvocConcept=Concepts
 contentTypes.cvocConceptDescription=Concepts
 contentTypes.annotation=Annotations
+contentTypes.country=Countries
 
 #
 # Permission Types
@@ -126,6 +127,7 @@ concept.narrowerTerms=Narrower Terms
 concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.description=Description
+country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 #
 # Annotations
@@ -196,6 +198,8 @@ actions.linkTo=Link to another item
 actions.linkToConcept=Link to a vocabulary term
 actions.linkToDocumentaryUnit=Link to a documentary unit
 actions.linkToHistoricalAgent=Link to an authority file
+actions.createCountry=Add Country
+actions.listCountries=Countries
 
 actions.backToList=Back to List
 actions.viewProfile=View Profile
@@ -273,6 +277,8 @@ submitButton.loginWithOpenid=Sign In With OpenID
 submitButton.changePassword=Change Password
 submitButton.updateConcept=Update Concept
 submitButton.updateVocabulary=Update Vocabulary
+submitButton.createCountry=Add Country
+submitButton.updateCountry=Update Country
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 

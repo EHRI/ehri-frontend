@@ -6,11 +6,4 @@
     }
 } {
 
-    @common.sidebarSection(None) {
-        @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.Repository, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@routes.Repositories.create">@Messages("actions.createNewRepository")</a>
-            }
-        }
-    }
 }

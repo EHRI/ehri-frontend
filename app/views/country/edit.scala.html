@@ -1,0 +1,13 @@
+@(item: Country, f: play.api.data.Form[models.CountryF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@rightSidebarLayout(Messages("actions.updateCountry"), breadcrumbs = common.breadcrumbs(List(item))) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @country.renderForm(Some(item), f)
+
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateCountry"))
+	}
+} {
+
+}

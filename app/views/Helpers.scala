@@ -102,6 +102,7 @@ package object Helpers {
     case EntityType.Vocabulary => routes.Vocabularies.get(e.id)
     case EntityType.Concept => routes.Concepts.get(e.id)
     case EntityType.ContentType => Call("GET", "#")
+    case EntityType.Country => routes.Countries.get(e.id)
     case i => sys.error("Cannot fetch URL for entity type: " + i)
   }
 

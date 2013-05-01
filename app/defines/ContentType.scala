@@ -16,4 +16,5 @@ object ContentType extends Enumeration() {
   val Vocabulary = Value("cvocVocabulary")
   val AuthoritativeSet = Value("authoritativeSet")
   val Link = Value("link")
+  val Country = Value("country")
 }

@@ -171,6 +171,7 @@
                                         <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
                                             @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
                                             @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
+                                            @activeIfCurrent(routes.Countries.list(), Messages("contentTypes." + EntityType.Country))
                                             @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
                                             <li role="presentation" class="divider"></li>
                                             @activeIfCurrent(routes.Search.updateIndex, Messages("search.updateIndex"))

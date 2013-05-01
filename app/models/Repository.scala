@@ -15,6 +15,7 @@ object RepositoryF {
 
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
+  final val COUNTRY_REL = "hasCountry"
 
   val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
@@ -45,6 +46,8 @@ case class Repository(val e: Entity)
   // Shortcuts...
   val publicationStatus = e.property(RepositoryF.PUBLICATION_STATUS).flatMap(enumReads(PublicationStatus).reads(_).asOpt)
   val priority = e.property(RepositoryF.PRIORITY).flatMap(_.asOpt[Int])
+
+  val country: Option[Country] = e.relations(RepositoryF.COUNTRY_REL).headOption.map(Country(_))
 
   import json.RepositoryFormat._
   lazy val formable: RepositoryF = Json.toJson(e).as[RepositoryF]
