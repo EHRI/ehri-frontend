@@ -389,7 +389,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   // NB: This doesn't work when placed within the function scope
   // should probably check if a bug has been reported.
-  case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF])
+  case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF], targetUrl: Option[String])
 
   def getAccessPointsJson(id: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
@@ -398,15 +398,20 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     import models.json.LinkFormat.linkFormat
 
     implicit val itemWrites = Json.format[LinkItem]
-    val list = DocumentaryUnit(item).descriptions.map { desc =>
+    val doc = DocumentaryUnit(item)
+    val list = doc.descriptions.map { desc =>
       val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
         val apTypes = desc.accessPoints.filter(_.`type` == apt).map { ap =>
           val link = links.find(_.bodies.exists(b => b.id == ap.id))
-          new LinkItem(ap.formable, link.flatMap(_.formableOpt))
+          new LinkItem(
+            ap.formable,
+            link.flatMap(_.formableOpt),
+            link.flatMap(l => l.opposingTarget(doc).map(t => views.Helpers.urlForEntity(t.e).url))
+          )
         }
-        (apt.toString, apTypes)
+        Map("type" -> Json.toJson(apt.toString), "data" -> Json.toJson(apTypes))
       }
-      Map(desc.id -> accessPointTypes.toMap)
+      Map("id" -> Json.toJson(desc.id), "data" -> Json.toJson(accessPointTypes))
     }
     Ok(Json.toJson(list))
   }
