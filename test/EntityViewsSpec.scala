@@ -10,6 +10,9 @@ import play.api.test.Helpers._
 import defines._
 import rest.EntityDAO
 
+/**
+ * Spec to test various page views operate as expected.
+ */
 class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
 

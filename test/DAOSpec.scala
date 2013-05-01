@@ -1,23 +1,18 @@
 package test
 
-import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
-import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
-import eu.ehri.extension.test.utils.ServerRunner
-import eu.ehri.extension.AbstractAccessibleEntityResource
-import com.typesafe.config.ConfigFactory
 import rest._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.Entity
-import play.api.libs.json.JsString
-import org.specs2.specification.BeforeExample
 import defines.{EntityType, ContentType, PermissionType}
 import models.UserProfile
 import models.{DocumentaryUnit, DocumentaryUnitF, UserProfileF}
 import rest.RestPageParams
-import play.api.GlobalSettings
 
+/**
+ * Spec for testing individual data access components work as expected.
+ */
 class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   val userProfile = UserProfile(Entity.fromString("mike", EntityType.UserProfile))
   val entityType = EntityType.UserProfile

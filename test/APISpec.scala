@@ -1,15 +1,13 @@
 package test
 
-import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{AccessPointF, Entity, UserProfile}
+import models.AccessPointF
 import controllers.routes
 import helpers._
 import play.api.libs.json.Json
 import controllers.base.{NewAccessPointLink, AccessPointLink}
-import play.api.http.{ContentTypes, HeaderNames}
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
