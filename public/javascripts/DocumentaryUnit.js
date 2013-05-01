@@ -179,8 +179,15 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 				args.push(s)
 			});
 			return $portal.saveAnnotations($scope.id, args).then(function(response) {
-				$window.location = "/docs/show/" + $scope.id;
-			});
+				if($rootScope.mode == "AccessPage")
+				{
+					$rootScope.getAccess();
+				}
+				else
+				{
+					$window.location = "/docs/show/" + $scope.id;
+				}	
+		});
 		}
 		else if($rootScope.LinkMode == "Access")
 		{
@@ -190,7 +197,14 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 				dataType: "json",
 				success: function(data) {
 					console.log(data);
-					$window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
+					if($rootScope.mode == "AccessPage")
+					{
+						$rootScope.getAccess();
+					}
+					else
+					{
+						$window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
+					}
 				}
 			});
 		}
@@ -210,7 +224,14 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 				dataType: "json",
 				success: function(data) {
 					console.log(data);
-					$window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
+					if($rootScope.mode == "AccessPage")
+					{
+						$rootScope.getAccess();
+					}
+					else
+					{
+						$window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
+					}
 				}
 			});
 		}
@@ -232,7 +253,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 
 }
 
-function DocumentaryCtrl($scope, $dialog, $rootScope) {
+function DocumentaryCtrl($scope, $dialog, $rootScope, $window) {
 	$scope.modalLink = {	//Options for modals
 		backdrop: true,
 		keyboard: true,
@@ -241,7 +262,9 @@ function DocumentaryCtrl($scope, $dialog, $rootScope) {
 		templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html',
 		controller: 'LinkCtrl'
 	};
-	
+	$scope.accesslist = [];
+	console.log($scope.accesslist);
+	$AccessTITLE = "Access Points";
 //----------------------------------------------------------------------------\\
 //Functions
 /*
@@ -288,10 +311,28 @@ function DocumentaryCtrl($scope, $dialog, $rootScope) {
 			{
 				jsRoutes.controllers.Links.deletePost(AccessLinkID).ajax({
 					success : function() {
-								var ok = true;
+									var ok = true;
+									if($rootScope.mode == "AccessPage")
+									{
+										$rootScope.getAccess();
+									}
 								}
 				});
 			}
 		});
 	};
+	$rootScope.getAccess = function() {
+		jsRoutes.controllers.DocumentaryUnits.getAccessPointsJson($window.ITEM_ID, $window.DESC_ID).ajax({
+			success: function (data) {
+				$scope.accesslist = data[0];
+				console.log($scope.accesslist.id);
+				$scope.$apply()
+			}
+		});
+	}
+	if($window.DESC_ID)
+	{
+		$rootScope.mode = "AccessPage";
+		$rootScope.getAccess();
+	}
 }
