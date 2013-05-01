@@ -5128,3 +5128,5 @@ position:fixed;
 }
 a { cursor:pointer;}
 .icon-close { cursor:pointer; }
+
+body .modal.ng-scope { position:fixed; }
