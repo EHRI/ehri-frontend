@@ -82,7 +82,7 @@ GET     /docs/linkjs/:id/:accessPoint   controllers.DocumentaryUnits.getLinkJson
 # Same as above but creating the link as well
 POST    /docs/linkjsa/:id/:desc   controllers.DocumentaryUnits.createAccessPointLinkJson(id: String, desc: String)
 # Refetch access point HTML
-GET     /docs/accessPoints/:id/:desc   controllers.DocumentaryUnits.getAccessPoints(id: String, desc: String)
+GET     /docs/accessPoints/:id/:desc   controllers.DocumentaryUnits.manageAccessPoints(id: String, desc: String)
 GET     /docs/accessPointsJs/:id   controllers.DocumentaryUnits.getAccessPointsJson(id: String)
 
 GET     /admin/users                controllers.UserProfiles.list

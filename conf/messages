@@ -250,6 +250,7 @@ actions.annotate=Annotate {0}
 actions.linkAnnotate=Link ''{0}'' to ''{1}''
 actions.annotateThisItem=Annotate Item
 actions.manageGroups=Manage Groups
+actions.manageAccessPoints=Manage Access Points
 
 # Submit buttons
 submitButton.createDocumentaryUnit=Create Collection

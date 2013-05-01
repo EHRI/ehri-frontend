@@ -376,12 +376,12 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
    */
   def getLinkJson(id: String, accessPointId: String) = getLink(id, accessPointId)
 
-  def getAccessPoints(id: String, descriptionId: String) = getAction(id) {
+  def manageAccessPoints(id: String, descriptionId: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
     val doc = DocumentaryUnit(item)
     implicit val prefix = IsadG.FIELD_PREFIX
     doc.description(descriptionId).map { desc =>
-      Ok(views.html.common.relatedLinks(doc, desc, links))
+      Ok(views.html.documentaryUnit.editAccessPoints(doc, desc))
     }.getOrElse {
       NotFound(descriptionId)
     }
