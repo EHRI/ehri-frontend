@@ -5,7 +5,7 @@
 					search: function(type, searchTerm, page) {
 						var params = "?q=" + (searchTerm || "");
 						if (page) {
-						params = params + "&page=" + page;
+						params = params + "&limit=10&page=" + page;
 					}
 					// $log.log("Searching with: ", "/search/" + type + params)
 					return $http.get("/filter/" + type + params);
@@ -275,4 +275,23 @@ function DocumentaryCtrl($scope, $dialog, $rootScope) {
 			return true;
 		});
 	}
+		
+	$scope.DeleteAccessLink = function(AccessLinkID, AccessLinkText){
+		var title = 'Delete link for access point';
+		var msg = 'Are you sure you want to delete the link for '+AccessLinkText+' ?';
+		var btns = [{result:0, label: 'Cancel'}, {result:1, label: 'OK', cssClass: 'btn-primary'}];
+
+		$dialog.messageBox(title, msg, btns)
+		.open()
+		.then(function(result){
+			if(result == 1)
+			{
+				jsRoutes.controllers.Links.deletePost(AccessLinkID).ajax({
+					success : function() {
+								var ok = true;
+								}
+				});
+			}
+		});
+	};
 }
