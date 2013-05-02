@@ -17,7 +17,7 @@
                     <li><a class="alert alert-danger" href="@routes.DocumentaryUnits.deleteDescription(id, did)">@Messages("actions.delete")</a></li>
                 </ul>
             </div>
-            }
+        }
     }
 }
 
@@ -60,24 +60,25 @@
                     <ul class="nav nav-tabs">
                          @item.descriptions.headOption.map { desc =>
                             <li class="active">
-                                <a href="#tab1" data-toggle="tab">@desc.stringProperty(TITLE).getOrElse("Untitled Description: FIXME I18N")</a>
+                                <a href="#desc-@desc.id" data-toggle="tab">@desc.stringProperty(TITLE).getOrElse("Untitled Description: FIXME I18N")</a>
                             </li>
                         }
                         @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                             <li>
-                                <a href="#tab@{i+1}" data-toggle="tab">@desc.stringProperty(TITLE).getOrElse("Untitled Description: FIXME I18N")</a>
+                                <a href="#desc-@desc.id" data-toggle="tab">@desc.stringProperty(TITLE).getOrElse("Untitled Description: FIXME I18N")</a>
                             </li>
                         }
                     </ul>
                     <div class="tab-content">
                         @item.descriptions.headOption.map { desc =>
-                            <div class="tab-pane active" id="tab1">
+                            <div class="tab-pane active" id="desc-@desc.id">
                                 @actions("Actions", item.id, desc.id)
                                 @documentaryUnit.renderDescription(item, desc, links)
                             </div>
+							
                         }
                         @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
-                            <div class="tab-pane" id="tab@{i+1}">
+                            <div class="tab-pane" id="desc-@desc.id">
                                 @actions("Actions", item.id, desc.id)
                                 @documentaryUnit.renderDescription(item, desc, links)
                             </div>
@@ -89,7 +90,8 @@
                 <a href="@routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
             }
         }
-
+		
+			
 			<div id="access-system">
 				<div id="ACCESS_LIST">
 					@common.annotationLinks(item, links)
