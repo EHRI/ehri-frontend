@@ -24,4 +24,5 @@ object EntityType extends Enumeration() {
   val AccessPoint = Value("relationship")
   val Link = Value("link")
   val Country = Value("country")
+  val UnknownProperty = Value("property")
 }
