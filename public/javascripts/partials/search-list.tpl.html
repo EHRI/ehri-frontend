@@ -38,7 +38,7 @@
 			
 			<div class="span4" style="height:400px;">
 				<div style="height:50px; line-height:50px;">
-					<button ng-click="addTemp()" class="btn btn-success btn-mini" ng-class="((item == null)) && 'disabled'">Add</button>
+					<button ng-click="addTemp()" class="btn btn-success btn-mini" ng-class="((item == null)) && 'disabled'" ng-show="mode != 'AccessPage'" >Add</button>
 				</div>
 				<div  class="description" style="overflow:auto; max-height:305px;">
 					<h5>{{itemData.relationships.describes[0].data.name}}</h5>
@@ -47,21 +47,44 @@
 				</div>
 			</div>
 			<div class="span4" ng-class="(tempSelected == null || editSelected != null) && 'hide'">
-				<i ng-click="closeEdit()" class="icon icon-remove pull-right"></i>
+				<div style="height:50px; line-height:50px;">
+					<i ng-show="mode != 'AccessPage'" ng-click="closeEdit()" class="icon icon-remove pull-right"></i>
+					<span ng-show="mode != 'AccessPage'" class="btn btn-success" ng-click="addSelected(tempSelected)">Add</span>
+				</div>
 				<h5>{{tempSelected.name}}</h5>
 				<dl>
 					<dt ng-show="(LinkMode == 'Link')">Title</dt><dd ng-show="(LinkMode == 'Link')"><input type="text" ng-model="linkTitle" value="{{tempSelected.linkTitle}}" /></dd>
 					<dt>Description</dt><dd><input type="text"  ng-model="linkDesc" value="{{tempSelected.linkDesc}}" /></dd>
 					<dt ng-show="(LinkMode == 'Link')">Type</dt><dd ng-show="(LinkMode == 'Link')"><input type="text"  ng-model="linkType" value="{{tempSelected.linkType}}" /></dd>
-					<dt ng-show="(LinkMode == 'AddAccess')">Access type</dt><dd ng-show="(LinkMode == 'AddAccess')"><select ng-model="accessType"><option ng-repeat="type in AccessTypeList" value="{{type.id}}">{{type.name}}</option></select></dd>
-					<dt ng-show="(LinkMode == 'AddAccess')">Link type</dt><dd ng-show="(LinkMode == 'AddAccess')"><select ng-model="linkAccessType"><option ng-repeat="type in LinkTypeList" value="{{type.id}}">{{type.name}}</option></select></dd>
+					<dt ng-show="(LinkMode == 'AddAccess')">Access type</dt>
+					<dd ng-show="(LinkMode == 'AddAccess')">
+							<select ng-model="accessType">
+								<option value="creatorAccess" >Creators</option>
+								<option value="personAccess"  selected="selected">Persons</option>
+								<option value="corporateBodyAccess" >Corporate Bodies</option>
+								<option value="subjectAccess" >Subject Access Points</option>
+								<option value="placeAccess" >Places</option>
+								<option value="otherAccess" >Others</option>
+							</select>
+					</dd>
+					<dt ng-show="(LinkMode == 'AddAccess')">Link type</dt>
+					<dd ng-show="(LinkMode == 'AddAccess')">
+						<select ng-model="linkAccessType">
+							<option value="associative">associative</option>
+							<option value="hierarchical">hierarchical</option>
+							<option value="temporal">temporal</option>
+							<option value="family">family</option>
+						</select>
+					</dd>
 				</dl>
-				<span class="btn btn-success" ng-click="addSelected(tempSelected)">Add</span>
 			</div>
 		</div>
 	</div>
 </div>
-<div class="modal-footer">
+<div ng-show="mode == 'AccessPage'" class="modal-footer">
+	<button ng-show="mode == 'AccessPage'" class="btn btn-primary" ng-click="save()" ng-class="selected.length == 0 && 'disabled'">Save changes</button>
+</div>
+<div class="modal-footer" ng-show="mode != 'AccessPage'">
 	<div id="selected-items">
 		<ul class="inline" style="line-height:25px;">
 			<li ng-repeat="item in selected" ng-show="(LinkMode == 'Link')">

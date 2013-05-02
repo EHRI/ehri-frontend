@@ -48,8 +48,21 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 	$scope.maxSize = 5; // Number of pagination buttons shown
 	$scope.numPages = false; // Number of pages (get from query)
 	
-	$scope.AccessTypeList = [{id: "creatorAccess", name:"Creators"}, {id: "personAccess", name: "Persons"}, {id: "corporateBodyAccess", name: "Corporate Bodies"}, {id: "subjectAccess", name:"Subject Access Points"}, {id:"placeAccess", name:"Places"}, {id: "otherAccess", name: "Others"}];
-	$scope.LinkTypeList = [{id: "associative", name:"associative"}, {id: "hierarchical", name: "hierarchical"}, {id: "temporal", name: "temporal"}, {id: "family", name:"family"}];
+	//$scope.AccessTypeList = [{id: "creatorAccess", name:"Creators"}, {id: "personAccess", name: "Persons"}, {id: "corporateBodyAccess", name: "Corporate Bodies"}, {id: "subjectAccess", name:"Subject Access Points"}, {id:"placeAccess", name:"Places"}, {id: "otherAccess", name: "Others"}];
+	//$scope.LinkTypeList = [{id: "associative", name:"associative"}, {id: "hierarchical", name: "hierarchical"}, {id: "temporal", name: "temporal"}, {id: "family", name:"family"}];
+	
+	$scope.initiate = function () {
+		if($rootScope.typeAccess)
+		{
+			$scope.accessType = $rootScope.typeAccess;
+		}
+		else
+		{
+			$scope.accessType = "creatorAccess";
+		}
+		$scope.linkAccessType = "associative";
+	}
+	$scope.initiate();
 //----------------------------------------------------------------------------\\
 //Functions
 /*
@@ -105,6 +118,10 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 			$scope.item = item;
 			return $portal.detail($scope.type, item).then(function(response) {
 				$scope.itemData = response.data;
+				if($rootScope.mode == "AccessPage")
+				{
+					$scope.addTemp();
+				}
 			});
 		}
 	}
@@ -137,6 +154,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 		$scope.tempSelected["linkTitle"] = $scope.linkTitle;
 		$scope.tempSelected["linkDesc"] = $scope.linkDesc;
 		$scope.tempSelected["linkType"] = $scope.linkType;
+		
 		$scope.tempSelected["linkAccessType"] = $scope.linkAccessType;
 		$scope.tempSelected["accessType"] = $scope.accessType;
 
@@ -144,6 +162,10 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 		$scope.linkTitle = "";
 		$scope.linkDesc = "";
 		$scope.linkType = "";
+		
+		//Test FIX
+		//$scope.linkAccessType = $rootScope.typeAccess;
+		//$scope.accessType = $scope.accessType;
 		
 		if($rootScope.LinkMode == "Link")
 		{
@@ -182,6 +204,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 				if($rootScope.mode == "AccessPage")
 				{
 					$rootScope.getAccess();
+					$scope.close();
 				}
 				else
 				{
@@ -191,6 +214,11 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 		}
 		else if($rootScope.LinkMode == "Access")
 		{
+		
+			if($rootScope.mode == "AccessPage")
+			{
+				$scope.addSelected($scope.tempSelected);
+			}
 			jsRoutes.controllers.DocumentaryUnits.createLinkJson($scope.id, $rootScope.AccessItem.id).ajax({
 				data: JSON.stringify({target: $scope.selected.id, description: $scope.selected.linkDesc}),
 				headers: {"ajax-ignore-csrf": true, "Content-Type": "application/json"},
@@ -200,6 +228,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 					if($rootScope.mode == "AccessPage")
 					{
 						$rootScope.getAccess();
+						$scope.close();
 					}
 					else
 					{
@@ -210,6 +239,10 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 		}
 		else if($rootScope.LinkMode == "AddAccess")
 		{
+			if($rootScope.mode == "AccessPage")
+			{
+				$scope.addSelected($scope.tempSelected);
+			}
 			jsRoutes.controllers.DocumentaryUnits.createAccessPointLinkJson($scope.id, $rootScope.DescriptionID).ajax({
 				data: JSON.stringify({
 					name: $scope.selected.name,
@@ -227,6 +260,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 					if($rootScope.mode == "AccessPage")
 					{
 						$rootScope.getAccess();
+						$scope.close();
 					}
 					else
 					{
@@ -298,7 +332,13 @@ function DocumentaryCtrl($scope, $dialog, $rootScope, $window) {
 			return true;
 		});
 	}
-		
+	
+	$scope.AddSelectedAccess = function(type, DescID) {
+		$rootScope.typeAccess = type;
+		$scope.AddAccessModal(DescID);
+		console.log($rootScope.typeAccess);
+	}
+	
 	$scope.DeleteAccessLink = function(AccessLinkID, AccessLinkText){
 		var title = 'Delete link for access point';
 		var msg = 'Are you sure you want to delete the link for '+AccessLinkText+' ?';

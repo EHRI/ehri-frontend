@@ -28,7 +28,7 @@
 			
 			<ul class="unstyled">
 				<li ng-repeat="category in accesslist.data" class="accessPointList">
-					<h3>{{category.type}}</h3>
+					<h3>{{category.type}} [<a ng-click="AddSelectedAccess(category.type, accesslist.id)">+</a>]</h3>
 					<ul class="item-annotation-links">
 						<li ng-repeat="access in category.data"  id="{{access.accessPoint.id}}">
 						
