@@ -21,7 +21,7 @@
                 @List(START_DATE, END_DATE).map { fname =>
                     @defining(desc(fname)) { field =>
                     <td class="control-group @{if(field.hasErrors) "error"}">
-                        <input class="input-small" placeholder="yyyy-mm-dd" type="text" name="@field.name" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" id="@field.id" />
+                        <input class="input-small datepicker"  data-date-format="mm/dd/yyyy" placeholder="yyyy-mm-dd" type="text" name="@field.name" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" id="@field.id" />
                     </td>
                     }
                 }
@@ -47,3 +47,4 @@
         </table>
     </div>
 </div>
+
