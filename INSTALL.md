@@ -52,11 +52,11 @@ Now we need to create an empty user and database for our application. The user a
 
     sudo su postgres -c psql
 
-Now, in the psql shell, type the following commands:
+Now, **in the psql shell**, type the following commands:
 
-    PSQL> CREATE USER docview WITH PASSWORD 'changeme';
-    PSQL> CREATE DATABASE docview;
-    PSQL> GRANT ALL PRIVILEGES ON DATABASE docview TO docview;
+    CREATE USER docview WITH PASSWORD 'changeme';
+    CREATE DATABASE docview;
+    GRANT ALL PRIVILEGES ON DATABASE docview TO docview;
 
 There are some settings on the conf/application.conf file you can adjust if you change any of the defaults.
 
@@ -82,9 +82,9 @@ So open up the Postgres shell again:
 
     sudo su postgres -c "psql docview"
 
-And change the value of default to whatever your $USER is:
+First, **in the psql shell**, double check there is a user with an auto-generated profile id in the database:
 
-    PSQL> SELECT * FROM users;
+    SELECT * FROM users;
 
 ```SQL
 docview=# select * from users;
@@ -95,7 +95,9 @@ docview=# select * from users;
 
 ```
 
-    PSQL> UPDATE users SET profile_id = 'mike' WHERE id = 1;  # CHANGE 'mike' to your Neo4j admin user name!!!
+Now, **CHANGING `$USER` BELOW TO WHATEVER YOUR USER ACTUALLY IS**, run the update command:
+
+    UPDATE users SET profile_id = '$USER' WHERE id = 1;
 
 Now, re-log in to the app and you should have full admin privileges.
 
