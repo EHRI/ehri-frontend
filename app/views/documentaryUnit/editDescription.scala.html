@@ -8,7 +8,7 @@
 						
 	<script>
 		$(document).ready(function() {
-				$(document).on('click', '.datepicker', function () {
+				$(document).on('click', 'input.datepicker', function () {
 					//alert($(this).val());
 					$(this).datepicker({startView: 'decade', startDate: '01/01/1930'}).datepicker('show');
 				});
