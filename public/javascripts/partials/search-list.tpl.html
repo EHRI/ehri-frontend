@@ -5,9 +5,21 @@
 	<h3 ng-show="(LinkMode == 'AddAccess')">Create and link Access</h3>
 	<div class="container-fluid">
 		<div class="row-fluid">
-			<div class="span4 text-center"><a ng-click="setType('documentaryUnit')">Documentary Units</a></div>
-			<div class="span4 text-center"><a ng-click="setType('historicalAgent')">Authorities</a></div>
-			<div class="span4 text-center"><a ng-click="setType('cvocConcept')">Concepts</a></div>
+			<div class="span4 text-center">
+				<a ng-click="setType('documentaryUnit')"  ng-class="(type == 'documentaryUnit') && 'muted'">
+					Documentary Units
+				</a>
+			</div>
+			<div class="span4 text-center">
+				<a ng-click="setType('historicalAgent')"  ng-class="(type == 'historicalAgent') && 'muted'">
+					Authorities
+				</a>
+			</div>
+			<div class="span4 text-center">
+				<a ng-click="setType('cvocConcept')"  ng-class="(type == 'cvocConcept') && 'muted'">
+					Concepts
+				</a>
+			</div>
 		</div>
 	</div>
 </div>
