@@ -8,7 +8,7 @@
             }
 
                 <!-- TODO: Decide whether to show the last time -->
-            <li title="@items.last" class="muted"><em>@views.Helpers.ellipsize(items.last.toStringLang, truncateLength)</em></li>
+            <li title="@items.last" class="muted"><a href="@views.Helpers.urlFor(items.last)"><em>@views.Helpers.ellipsize(items.last.toStringLang, truncateLength)</em></a></li>
         } else {
             <li></li>
         }

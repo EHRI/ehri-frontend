@@ -15,7 +15,7 @@
             @list.map { accessPoint =>
                 @accessPoint.target(item, links).map { case (link, other) =>
                     <li class="resolved-access-point" id="@accessPoint.id">
-                         <a href="@views.Helpers.urlForEntity(other.e)">@accessPoint.targetName</a> [<a href="@routes.Links.get(link.id)">*</a>] [<a ng-click="DeleteAccessLink('@link.id', '@accessPoint.targetName')">-</a>]
+                         <a href="@views.Helpers.urlForEntity(other.e)">@accessPoint.targetName</a> [<a href="@routes.Links.get(link.id)">*</a>]
                         @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
                         <small><p class="muted">@desc</p></small>
                     }
@@ -28,7 +28,6 @@
                         @accessPoint.stringProperty(AccessPointF.DESCRIPTION).map { desc =>
                             <small><p class="muted">@desc</p></small>
                         }
-                        <a ng-click="OpenModalAccess('@accessPoint.id' , '@accessPoint.targetName')">+</a>
                     </li>
                 }
             }
@@ -36,8 +35,8 @@
     }
 }
 
+
 @if(!desc.accessPoints.isEmpty) {
-	<a class="btn btn-success pull-right" ng-click="AddAccessModal('@desc.id')">Add</a>
     <h3>@Messages(prefix + "." + IsadG.ACCESS_POINTS)</h3>
     @AccessPointType.values.toList.map { accessPointType =>
         @relatedLinks(desc.accessPoints.filter(_.`type` == accessPointType), accessPointType)
