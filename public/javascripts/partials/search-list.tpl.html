@@ -82,6 +82,10 @@
 	</div>
 </div>
 <div ng-show="mode == 'AccessPage'" class="modal-footer">
+	<div id="selected-items">
+		<ul class="inline" style="line-height:25px;"><li ng-repeat="item in selected" ng-show="(LinkMode == 'Link')"><li>&nbsp;</li></ul>
+	</div>
+	<hr />
 	<button ng-show="mode == 'AccessPage'" class="btn btn-primary" ng-click="save()" ng-class="selected.length == 0 && 'disabled'">Save changes</button>
 </div>
 <div class="modal-footer" ng-show="mode != 'AccessPage'">
