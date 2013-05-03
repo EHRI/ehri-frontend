@@ -5,9 +5,9 @@
 @if(!item.ancestors.isEmpty) {
     <small>
         <ul class="unstyled muted inline inline-separator">
-            <li>
+            <i class="icon icon-folder-open"></i><li>
                 @item.ancestors.map(DocumentaryUnit).reverse.map { parent =>
-                    <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toString,100)</a>
+                    <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
                 }
             </li>
         </ul>
