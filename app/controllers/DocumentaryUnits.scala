@@ -41,6 +41,11 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       render=Helpers.languageCodeToName
     ),
     FieldFacetClass(
+      key="holderName",
+      name=Messages("documentaryUnit.heldBy"),
+      param="holder"
+    ),
+    FieldFacetClass(
       key="copyrightStatus",
       name=Messages("copyrightStatus.copyright"),
       param="copyright",

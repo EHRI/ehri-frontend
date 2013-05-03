@@ -140,8 +140,8 @@ object SolrIndexer extends RestDAO {
         + ("scope" -> Json.toJson(d.scope))
         + ("parentId" -> Json.toJson(d.parent.map(_.id)))
         + ("depthOfDescription" -> Json.toJson(d.ancestors.length))
-        + ("holderId_s" -> Json.toJson(d.holder.map(_.id))))
-        + ("holderName_s" -> Json.toJson(d.holder.toString)))
+        + ("holderId" -> Json.toJson(d.holder.map(_.id))))
+        + ("holderName" -> Json.toJson(d.holder.map(_.toString))))
     }
   }
 

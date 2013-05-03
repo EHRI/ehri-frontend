@@ -52,6 +52,9 @@
                         case EntityType.Concept => {
                             @concept.listItem(Concept(item))
                         }
+                        case EntityType.Country => {
+                            @country.searchItem(Country(item))
+                        }
                         case EntityType.UserProfile => {
                             @userProfile.searchItem(UserProfile(item))
                         }
