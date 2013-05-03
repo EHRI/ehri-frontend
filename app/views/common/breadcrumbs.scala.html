@@ -1,5 +1,6 @@
 @(items: List[AccessibleEntity] = Nil)(implicit lang: Lang)
 <div>
+<small><span class="alert alert-danger pull-right"><strong>Warning</strong>: Data is for test purposes only.</span></small>
 <ul class="breadcrumb">
     @defining(if (!items.isEmpty) 200 / items.length else 300) { truncateLength =>
         @if(!items.isEmpty) {
@@ -16,5 +17,4 @@
 	
 
 </ul>
-<button class="btn btn-danger">This is a testing site !</button>
 </div>
