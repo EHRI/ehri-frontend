@@ -1,36 +1,50 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescription, links: List[Link])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescription, links: List[Link], actionMenu: Html = Html(""))(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import defines._
 @import models.IsadG._
+@import views.html.common.descriptionListValue
 @import views.html.common.descriptionSection
 
 @common.descriptionOutline(desc, desc.languageCode) {
-    @descriptionSection(IDENTITY_AREA) {
-        @if(!desc.dates.isEmpty) {
-            <h4>@Messages(fieldPrefix + "." + DATES)</h4>
-            <table>
-                @desc.dates.map(_.formable).map { dp =>
-                <tr id="@dp.id">
-                    <td>
-                        @defining(dp.`type`) { typeOpt =>
-                            @typeOpt.map { t =>
-                                @Messages(fieldPrefix + "." + t)
-                            }
-                        }
-                    </td>
-                    <td>@dp.years.trim</td>
-                </tr>
-                }
-            </table>
-        }
+	<div class="span3 pull-right well well-small">
+		<dl>
+			@item.holder.map { holder =>
+				<dt>@Messages("documentaryUnit.heldBy")</dt><dd> <a href="@routes.Repositories.get(holder.id)">@holder.toStringLang</a></dd>
+			}
+			@item.parent.map { parent =>
+					<dt>@Messages("documentaryUnit.parentItem"): </dt><dd> <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></dd>
+			}
+			<hr />
+			@if(!desc.dates.isEmpty) {
+				<dt>@Messages(fieldPrefix + "." + DATES)</dt>
+				<dd>
+					@desc.dates.map(_.formable).map { dp =>
+							@defining(dp.`type`) { typeOpt =>
+								@typeOpt.map { t =>
+									@Messages(fieldPrefix + "." + t)
+								}
+							}
+						@dp.years.trim
+					}
+				</dd>
+					
+			}
 
-        @common.stringValue(desc, LEVEL_OF_DESCRIPTION)
-        @common.stringValue(desc, EXTENT_MEDIUM)
-    }
+			@common.descriptionListValue(desc, LEVEL_OF_DESCRIPTION)
+			@common.descriptionListValue(desc, EXTENT_MEDIUM)
+			
+			@common.descriptionListValue(desc, ACQUISITION)
+			<hr />
+			@actionMenu
+			<hr />
+			@common.visibilityNotWell(item, routes.DocumentaryUnits.visibility(item.id), ContentType.DocumentaryUnit)
+			@common.latestActionNotWell(item, routes.DocumentaryUnits.history(item.id))
+		</dl>
+	</div>
+    
     @descriptionSection(CONTEXT_AREA) {
         @common.stringValue(desc, ADMIN_BIOG)
         @common.stringValue(desc, ARCH_HIST)
-        @common.stringValue(desc, ACQUISITION)
     }
 
     @descriptionSection(CONTENT_AREA) {

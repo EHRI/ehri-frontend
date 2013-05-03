@@ -22,9 +22,9 @@
             @formHelpers.csrfToken()
             @documentaryUnit.renderDescriptionForm(f(""))
 
-            @common.submitButtonWithLogMessageInput(Messages("submitButton.createDescription"))
+            
         }
     }
 } {
-   @documentaryUnit.formNav();
+   @documentaryUnit.formNav(common.submitButtonWithLogMessageInputNoDiv(Messages("submitButton.createDescription")));
 }

@@ -26,8 +26,8 @@
 		@documentaryUnit.renderForm(f)
 
         @permissions.renderVisibilityForm(vf, users, groups)
-		@common.submitButtonWithLogMessageInput(Messages("submitButton.createDocumentaryUnit"))
+		
 	}
 } {
-   @documentaryUnit.formNav();
+   @documentaryUnit.formNav(common.submitButtonWithLogMessageInputNoDiv(Messages("submitButton.createDocumentaryUnit")));
 }

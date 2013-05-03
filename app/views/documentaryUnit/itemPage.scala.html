@@ -1,13 +1,8 @@
 @(item: DocumentaryUnit, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.toStringLang, breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = scripts, styles = styles) {
-    @html
-} {
-
-    @common.visibility(item, routes.DocumentaryUnits.visibility(item.id), ContentType.DocumentaryUnit)
-    @common.latestAction(item, routes.DocumentaryUnits.history(item.id))
-
-    <ul class="item-actions nav nav-tabs nav-stacked">
+@noSidebarLayout(item.toStringLang, breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = scripts, styles = styles) {
+    <ul class="item-actions nav nav-pills">
+		<li class="active"><a href="test.html">Document</a></li>
         @maybeUser.map { user =>
             @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
                 <li><a href="@routes.DocumentaryUnits.createDoc(item.id)">@Messages("actions.createChildDocUnit")</a></li>
@@ -25,9 +20,10 @@
                 <li><a href="@routes.DocumentaryUnits.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
         }
-    </ul>
+				<li><a href="@routes.ApiController.getItem(ContentType.DocumentaryUnit.toString, item.id)">@Messages("actions.exportJson")</a></li>
+				<li><a href="@routes.DocumentaryUnits.annotate(item.id)">@Messages("actions.annotateThisItem")</a></li>
+	</ul>
+	
+    @html
 
-<ul class="item-actions nav nav-tabs nav-stacked">
-    <li><a href="@routes.ApiController.getItem(ContentType.DocumentaryUnit.toString, item.id)">@Messages("actions.exportJson")</a></li>
-</ul>
 }

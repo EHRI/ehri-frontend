@@ -1,36 +1,51 @@
-@(item: Repository, desc: RepositoryDescription, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, fieldPrefix: String)
+@(item: Repository, desc: RepositoryDescription, links: List[Link])(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, fieldPrefix: String)
 
 @import Isdiah._
 @import common.descriptionSection
 
 @common.descriptionOutline(desc, desc.languageCode) {
-
+	<div class="span3 pull-right well well-small">
+		<div class="text-center"><h5 class="text-center">@desc</h5></div>
+		<dl>
+			@common.descriptionListValue(item, Isdiah.IDENTIFIER)
+			<dt>Address</dt>
+			<dd class="address" title='@Messages("isdiah.addressArea")'>
+				@desc.addresses.map { address =>
+					<ul class="unstyled" title="@address.stringProperty(ADDRESS_NAME)">
+						@List(CONTACT_PERSON, STREET_ADDRESS,CITY,REGION).map { addressPart =>
+							@address.stringProperty(addressPart).map { addressPartValue =>
+								<li title='@Messages("isdiah." + addressPart)'>@addressPartValue</li>
+							}
+						}
+						@address.stringProperty(COUNTRY_CODE).map { cc =>
+							<li title='@Messages("isdiah." + COUNTRY_CODE)'>@views.Helpers.countryCodeToName(cc)</li>
+						}
+					</ul>
+				}
+				</dd>
+				<dt>Contact</dt>
+				<dd>
+					<ul class="unstyled">
+						@desc.addresses.map { address =>
+							@List(EMAIL, TELEPHONE, FAX, URL).map { addressPart =>
+								@address.stringProperty(addressPart).map { addressPartValue =>
+									<li title='@Messages("isdiah." + addressPart)'><i class='@Messages("icon." + addressPart)'></i> @addressPartValue</li>
+								}
+							}
+						}
+					</ul>
+				</dd>
+			@*common.descriptionListValue(desc, IDENTIFIER)*@
+			@sidebar
+		</dl>
+	</div>
     @descriptionSection(IDENTITY_AREA) {
-        @common.stringValue(desc, IDENTIFIER)
         @common.stringValue(desc, AUTHORIZED_FORM_OF_NAME)
         @common.listValue(desc, PARALLEL_FORMS_OF_NAME)
         @common.listValue(desc, OTHER_FORMS_OF_NAME)
     }
 
-    @descriptionSection(ADDRESS_AREA) {
-        @desc.addresses.map { address =>
-            <address title="@address.stringProperty(ADDRESS_NAME)">
-                @List(CONTACT_PERSON, STREET_ADDRESS,CITY,REGION).map { addressPart =>
-                    @address.stringProperty(addressPart).map { addressPartValue =>
-                        @addressPartValue<br />
-                    }
-                }
-                @address.stringProperty(COUNTRY_CODE).map { cc =>
-                    @views.Helpers.countryCodeToName(cc)<br />
-                }
-                @List(EMAIL, TELEPHONE, FAX, URL).map { addressPart =>
-                    @address.stringProperty(addressPart).map { addressPartValue =>
-                        @addressPartValue<br />
-                    }
-                }
-            </address>
-        }
-    }
+   
 
     @descriptionSection(DESCRIPTION_AREA) {
         @common.stringValue(desc, HISTORY)
