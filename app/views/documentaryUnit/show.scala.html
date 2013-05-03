@@ -5,22 +5,18 @@
 @actions(title: String, id: String, did: String) = {
     @userOpt.map { user =>
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
-            <div class="btn-group pull-right">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                    @title
-                    <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a href="@routes.DocumentaryUnits.createDescription(id)">@Messages("actions.createDescription")</a></li>
-                    <li><a href="@routes.DocumentaryUnits.updateDescription(id, did)">@Messages("actions.edit")</a></li>
-                    <li><a href="@routes.DocumentaryUnits.manageAccessPoints(id, did)">@Messages("actions.manageAccessPoints")</a></li>
-                    <li><a class="alert alert-danger" href="@routes.DocumentaryUnits.deleteDescription(id, did)">@Messages("actions.delete")</a></li>
+            <dt>@title</dt>
+			<dd>
+                <ul class="unstyled">
+                    <li><a href="@routes.DocumentaryUnits.createDescription(id)"><i class="icon-plus-sign"></i> @Messages("actions.createDescription")</a></li>
+                    <li><a href="@routes.DocumentaryUnits.updateDescription(id, did)"><i class="icon-edit"></i> @Messages("actions.editDescription")</a></li>
+                    <li><a href="@routes.DocumentaryUnits.manageAccessPoints(id, did)"><i class="icon-tags"></i> @Messages("actions.manageAccessPoints")</a></li>
+                    <li><a href="@routes.DocumentaryUnits.deleteDescription(id, did)"><i class="icon-warning-sign"></i> @Messages("actions.delete")</a></li>
                 </ul>
-            </div>
+            </dd>
         }
     }
 }
-
 @extrascripts = {
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
@@ -38,15 +34,7 @@
 
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
 
-    @common.annotated(item, annotations, routes.DocumentaryUnits.annotate(item.id)) {
 
-        @item.holder.map { holder =>
-            <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
-        }
-
-        @item.parent.map { parent =>
-            <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
-        }
 
         <div id="documentaryUnit-app" ng-app="DocumentaryUnit" ng-controller="DocumentaryCtrl">
         <script>window.ITEM_ID="@{item.id}";</script>
@@ -72,22 +60,29 @@
                     <div class="tab-content">
                         @item.descriptions.headOption.map { desc =>
                             <div class="tab-pane active" id="desc-@desc.id">
-                                @actions("Actions", item.id, desc.id)
-                                @documentaryUnit.renderDescription(item, desc, links)
+								@documentaryUnit.renderDescription(item, desc, links, actions("Actions", item.id, desc.id))
                             </div>
 							
                         }
                         @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                             <div class="tab-pane" id="desc-@desc.id">
-                                @actions("Actions", item.id, desc.id)
-                                @documentaryUnit.renderDescription(item, desc, links)
+                                @documentaryUnit.renderDescription(item, desc, links, actions("Actions", item.id, desc.id))
                             </div>
                         }
                     </div>
                 </div>
             } else {
-                <p class="muted">@Messages("documentaryUnit.noDescriptions")</p>
+                @item.holder.map { holder =>
+					<h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
+				}
+
+				@item.parent.map { parent =>
+					<h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
+				}
+				
+				<p class="muted">@Messages("documentaryUnit.noDescriptions")</p>
                 <a href="@routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
+				
             }
         }
 		
@@ -98,7 +93,6 @@
 				</div>
 			</div>
 		</div>
-    }
 
     @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
         @documentaryUnit.itemList(page)

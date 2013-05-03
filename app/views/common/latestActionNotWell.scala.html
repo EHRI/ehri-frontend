@@ -1,0 +1,9 @@
+@(item: AccessibleEntity, historyUrl: Call)
+
+@item.latestEvent.map { ev =>
+	<dt><a href="@historyUrl"><i class="icon-calendar"></i>@Messages("actions.history")</a>
+	</dt>
+	<dd>
+		<small title="@common.eventTitle(ev)">@views.Helpers.prettyDate(ev.timeStamp)</small> <small class="muted">@ev.logMessage</small>
+    </dd>
+}

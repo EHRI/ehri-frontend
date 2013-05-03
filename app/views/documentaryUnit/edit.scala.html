@@ -14,8 +14,8 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		@documentaryUnit.renderForm(f)
-        @common.submitButtonWithLogMessageInput(Messages(item.map(s => "submitButton.updateDocumentaryUnit").getOrElse("submitButton.createDocumentaryUnit")))
+        
 	}
 } {
-    @documentaryUnit.formNav()
+    @documentaryUnit.formNav(common.submitButtonWithLogMessageInputNoDiv(Messages(item.map(s => "submitButton.updateDocumentaryUnit").getOrElse("submitButton.createDocumentaryUnit"))))
 }
