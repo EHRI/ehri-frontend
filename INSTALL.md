@@ -72,11 +72,11 @@ We can now see if the app actually works:
 
     play run
 
-Now, visit http://localhost:9000 in your browser. The app should show a screen saying it needs to apply a migration to the database. Click the "Apply This Script Now" button.
+Now, visit http://localhost:9000 in your browser. The app should show a screen saying it needs to apply a migration to the database.** Click the "Apply This Script Now" button.**
 
 Next, we have a little problem because we need to create the login details of our administrative user in the authorisation database. Unfortunately there is no way at present to do this without mucking with the database directly.
 
-Log in via OpenID. The application with create you a default user id (like user00001), but by default your account will have no privileges. We need to change the default generated user ID to the one your earlier created in Neo4j.
+**Log in via OpenID**. The application with create you a default user id (like user00001), but by default your account will have no privileges. We need to change the default generated user ID to the one your earlier created in Neo4j.
 
 So open up the Postgres shell again:
 
