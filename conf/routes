@@ -235,7 +235,8 @@ GET     /concepts/annotate/:id     controllers.Concepts.annotate(id: String)
 POST    /concepts/annotate/:id     controllers.Concepts.annotatePost(id: String)
 GET     /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotate(id: String, toType: String, to: String)
 POST    /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotatePost(id: String, toType: String, to: String)
-
+# UI Experiments
+GET     /concepts/manage/:id       controllers.Concepts.manage(id: String)
 
 GET     /admin/action                controllers.SystemEvents.list
 GET     /admin/action/show/:id       controllers.SystemEvents.get(id: String)

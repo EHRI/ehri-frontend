@@ -64,6 +64,9 @@
                         case EntityType.Vocabulary => {
                             @vocabulary.searchItem(Vocabulary(item))
                         }
+                        case EntityType.Country => {
+                            @country.searchItem(Country(item))
+                        }
                         case _ => {
                             @common.searchItem(item)
                         }

@@ -1,0 +1,7 @@
+@(buttonText: String, defaultLogMessage: String = "")(implicit extra: Html = Html(""))
+
+    <div class="row-fluid"><input class="span12" type="text" name="logMessage" placeholder="@Messages("forms.logMessagePlaceholder")" id="log-message" value="@defaultLogMessage" /></div>
+    <div class="row-fluid">
+			<button type="submit" class="btn btn-primary span12">@buttonText</button>
+			@extra
+	</div>

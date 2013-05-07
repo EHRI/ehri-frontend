@@ -1,0 +1,22 @@
+@(item: AccessibleEntity, url: Call, contentType: ContentType.Value)(implicit maybeUser: Option[UserProfile])
+
+@if(!item.accessors.isEmpty) {
+	<dt>
+		<i class="icon-lock"></i>
+		@Messages("visibility.visibilityRestrictedTo")
+	</dt>
+	<dd>
+		<ul>
+			@item.accessors.map { acc =>
+				<li><a href="@views.Helpers.urlFor(acc)">@acc.name</a></li>
+			}
+		</ul>
+} else {
+	<dt>
+		<i class="icon-eye-open"></i>
+		@Messages("visibility.visibleToEveryone")
+	</dt>
+	<dd>
+}
+
+	</dd>

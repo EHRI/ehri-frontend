@@ -1,0 +1,8 @@
+@(item: Concept, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@import models.ConceptF._
+
+@noSidebarLayout(item, breadcrumbs = concept.breadcrumbs(item)) {
+
+    I'm an empty page
+}

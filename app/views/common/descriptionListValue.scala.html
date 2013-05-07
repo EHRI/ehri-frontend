@@ -1,0 +1,12 @@
+@(desc: models.base.WrappedEntity, fieldName: String)(implicit prefix: String = "")
+
+@defining(desc.stringProperty(fieldName)) { value =>
+    @value.map { str =>
+        @if(!str.trim.isEmpty) {
+            <dt>
+                @Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName))
+            </dt>
+            <dd>@str</dd>
+        }
+    }
+}

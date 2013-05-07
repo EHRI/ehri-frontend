@@ -1,41 +1,42 @@
     @(item: Repository, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]], links: List[Link])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(item.country.toList ::: List(item))) {
-
-    @common.annotated(item, annotations, routes.Repositories.annotate(item.id)) {
-        @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
-            @common.stringValue(item, Isdiah.IDENTIFIER)
-            @if(!item.descriptions.isEmpty) {
-                @item.descriptions.map { desc =>
-                    @repository.renderDescription(item, desc, links)
-                }
-            }
-        }
-    }
+@noSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(item.country.toList ::: List(item))) {
+	
+	@defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
+		@if(!item.descriptions.isEmpty) {
+			@item.descriptions.map { desc =>
+				@repository.renderDescription(item, desc, links){
+					<hr />
+					<dt>Actions</dt>
+					<dd>
+						<ul class="item-actions unstyled">
+							@maybeUser.map { user =>
+							@if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
+								<li><a href="@routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
+								}
+							@if(user.hasPermission(ContentType.Repository, PermissionType.Update)) {
+								<li><a href="@routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a></li>
+								}
+							@if(user.hasPermission(ContentType.Repository, PermissionType.Delete)) {
+								<li><a href="@routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+								}
+							@if(user.hasPermission(ContentType.Repository, PermissionType.Grant)) {
+								<li><a href="@routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+								}
+							<li><a href="@routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a></li>
+							}
+							<li><a href="@routes.Repositories.annotate(item.id)"></a></li>
+						</ul>
+					</dd>
+					@common.latestActionNotWell(item, routes.Repositories.history(item.id))
+					@common.visibilityNotWell(item, routes.Repositories.visibility(item.id), ContentType.Repository)
+				}
+			}
+		}
+	}
 
     @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
         @documentaryUnit.itemList(page)
     }
-
-} {
-    @common.latestAction(item, routes.Repositories.history(item.id))
-    @common.visibility(item, routes.Repositories.visibility(item.id), ContentType.Repository)
-
-    <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
-        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
-            <li><a href="@routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
-            }
-        @if(user.hasPermission(ContentType.Repository, PermissionType.Update)) {
-            <li><a href="@routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a></li>
-            }
-        @if(user.hasPermission(ContentType.Repository, PermissionType.Delete)) {
-            <li><a href="@routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a></li>
-            }
-        @if(user.hasPermission(ContentType.Repository, PermissionType.Grant)) {
-            <li><a href="@routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
-            }
-        <li><a href="@routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a></li>
-        }
-    </ul>
-}
+    
+} 

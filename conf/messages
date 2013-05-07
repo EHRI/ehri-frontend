@@ -173,6 +173,7 @@ actions.delete=Delete
 actions.history=History
 actions.addNew=Add New
 actions.createDescription=Add Description
+actions.editDescription=Edit Description
 actions.updateDescription=Update Description
 actions.listSystemEvents=System Events
 actions.listDocumentaryUnits=Collections
@@ -394,6 +395,9 @@ isdiah.telephone=Telephone
 isdiah.fax=Fax
 isdiah.url=Website Address
 
+isdiah.street= Address Street
+isdiah.municipality= City
+
 # Description
 isdiah.history=History
 isdiah.geoculturalContext=Geographical and Cultural Context
@@ -513,6 +517,7 @@ isadg.extentAndMedium=Extent and Medium
 isadg.languageCode=Language of Description
 isadg.adminBiogHistory=Administrative and Biographical History
 isadg.archivalHistory=Archival History
+isadg.archivalHistory.description=To provide information on the history of the unit of description that is significant for its authenticity, integrity and interpretation.
 isadg.acquisition=Acquisition
 isadg.scopeAndContent=Scope and Content
 isadg.appraisal=Appraisal
@@ -542,3 +547,10 @@ isadg.accessPoints.otherAccess=Other Access Points
 # isad(g) dates
 isadg.startDate=Start Date
 isadg.endDate=End Date
+
+
+#Icons
+icon.email = icon-envelope
+icon.telephone = icon-volume-down
+icon.fax = icon-print
+icon.web = icon-home

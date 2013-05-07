@@ -28,7 +28,7 @@
 }
 
 <div class="annotatable" id="@item.id">
-    <a href="@url?annotationType=comment">+@Messages("actions.annotateThisItem")</a>
+		<a href="@url?annotationType=comment">+@Messages("actions.annotateThisItem")</a>
     @body
     @annotations.get(item.id).map { list =>
         @if(!list.isEmpty) {

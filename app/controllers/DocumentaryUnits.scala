@@ -43,7 +43,12 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     FieldFacetClass(
       key="holderName",
       name=Messages("documentaryUnit.heldBy"),
+<<<<<<< HEAD
       param="holder"
+=======
+      param="holder",
+      render=s => Messages(s)
+>>>>>>> upstream/ui-experiments
     ),
     FieldFacetClass(
       key="copyrightStatus",

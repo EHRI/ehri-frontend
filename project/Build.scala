@@ -48,7 +48,11 @@ object ApplicationBuild extends Build {
 
 
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
+<<<<<<< HEAD
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
+=======
+    resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
+>>>>>>> upstream/ui-experiments
     resolvers += "Codahale" at "http://repo.codahale.com"
     )
 }
