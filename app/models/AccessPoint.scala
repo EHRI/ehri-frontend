@@ -1,9 +1,9 @@
 package models
 
-import models.base.{NamedEntity, LinkableEntity, AnnotatableEntity, Formable}
+import models.base._
 
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import java.util.NoSuchElementException
 
 
@@ -28,8 +28,11 @@ case class AccessPointF(
   val `type`: AccessPointF.AccessPointType.Value,
   val name: String,
   val description: Option[String]
-) {
+) extends Persistable {
   val isA = EntityType.AccessPoint
+
+  import models.json.AccessPointFormat._
+  def toJson: JsValue = Json.toJson(this)
 }
 
 

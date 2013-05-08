@@ -11,10 +11,11 @@
 	</script>
     @helper.javascriptRouter("jsRoutes")(
         routes.javascript.DocumentaryUnits.get,
-        routes.javascript.DocumentaryUnits.createLinkJson,
-        routes.javascript.DocumentaryUnits.createAccessPointLinkJson,
-        routes.javascript.DocumentaryUnits.getLinkJson,
+        routes.javascript.DocumentaryUnits.createLink,
+        routes.javascript.DocumentaryUnits.createAccessPointLink,
+        routes.javascript.DocumentaryUnits.getLink,
         routes.javascript.DocumentaryUnits.getAccessPointsJson,
+        routes.javascript.DocumentaryUnits.deleteAccessPoint,
         routes.javascript.Links.deletePost
     )
 }
@@ -28,21 +29,22 @@
 			
 			<ul class="unstyled">
 				<li ng-repeat="category in accesslist.data" class="accessPointList">
-					<h3>{{category.type}} [<a ng-click="AddSelectedAccess(category.type, accesslist.id)">+</a>]</h3>
+					<h3>{{category.type}} [<a class="icon icon-plus" ng-click="AddSelectedAccess(category.type, accesslist.id)"></a>]</h3>
 					<ul class="item-annotation-links">
 						<li ng-repeat="access in category.data"  id="{{access.accessPoint.id}}">
 						
 							
 							<span ng-show="(access.link)">
 								<a href="{{access.targetUrl}}">{{access.accessPoint.data.name}}</a>
-							
-								[<a href="{{access.link.id}}">*</a>] 
-								[<a ng-click="DeleteAccessLink(access.link.id, access.accessPoint.data.name)">-</a>]
+								<a ng-click="DeleteAccessLink(access.link.id, access.accessPoint.data.name)">-</a>
 							</span>
 							
 							<span ng-show="!(access.link)">
-								{{access.accessPoint.data.name}} 
-								[<a ng-click="OpenModalAccess(access.accessPoint.id , access.accessPoint.data.name)">+</a>]
+								{{access.accessPoint.data.name}}
+                                <a title="@Messages("accessPoint.removeAccessPoint")"
+                                    class="icon icon-remove" ng-click="DeleteAccessPoint(access.accessPoint.id, access.accessPoint.data.name)"></a>
+								<a title="@Messages("accessPoint.addAccessPointLink")"
+                                    class="icon icon-plus" ng-click="OpenModalAccess(access.accessPoint.id , access.accessPoint.data.name)"></a>
 							</span>
 							
 							<small ng-show="access.accessPoint.data.description != null">

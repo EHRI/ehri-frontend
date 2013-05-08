@@ -135,12 +135,8 @@ object EntityDAO {
  */
 case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
 
-  private final val LOG_MESSAGE_HEADER_NAME = "logMessage"
-
   import EntityDAO._
   import play.api.http.Status._
-
-  def msgHeader(msg: Option[String]): Seq[(String,String)] = msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq[(String,String)]())
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
@@ -170,16 +166,6 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def createDescription(id: String, descriptionType: EntityType.Value,
-      item: Persistable,
-      logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, descriptionType.toString))
-      .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .post(item.toJson).map { response =>
-      checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
-    }
-  }
-
   def createInContext(id: String, contentType: ContentType.Value,
       item: Persistable, accessors: List[String] = Nil,
       logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
@@ -198,32 +184,12 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def updateDescription(id: String, descriptionType: EntityType.Value,
-      did: String, item: Persistable, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, descriptionType.toString, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .put(item.toJson).map { response =>
-      checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
-    }
-  }
-
   def delete(id: String, logMsg: Option[String] = None): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
         EntityDAO.handleDelete(id)
         r.status == OK
-      })
-    }
-  }
-
-  def deleteDescription(id: String, descriptionType: EntityType.Value, did: String, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, descriptionType.toString, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-        .delete.map { response =>
-      checkError(response).right.map(r => {
-        // FIXME: This is unfortunate. Since descriptions are indexed as individual
-        // items, deleting one means deleting it individually by ID
-        EntityDAO.handleDelete(did)
-        jsonToEntity(r.json)
       })
     }
   }
@@ -259,5 +225,4 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
       }
     }
   }
-
 }

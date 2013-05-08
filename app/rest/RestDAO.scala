@@ -84,6 +84,10 @@ trait RestDAO {
    * the server.
    */
   val AUTH_HEADER_NAME = "Authorization"
+  private final val LOG_MESSAGE_HEADER_NAME = "logMessage"
+
+  def msgHeader(msg: Option[String]): Seq[(String,String)] = msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq[(String,String)]())
+
 
   /**
    * Standard headers we sent to every Neo4j/EHRI Server request.
@@ -149,7 +153,8 @@ trait RestDAO {
             }
           }
         )
-        case NOT_FOUND => Logger.logger.error("404: {}", response.body); Left(ItemNotFound())
+        case NOT_FOUND => Logger.logger.error("404: {} -> {}", Array(
+          response.ahcResponse.getUri, response.body)); Left(ItemNotFound())
         case _ => {
           Logger.logger.error(response.body)
           sys.error(response.body)

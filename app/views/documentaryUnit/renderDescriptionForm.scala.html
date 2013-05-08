@@ -74,9 +74,9 @@
         }
     }
 
-    @descriptionFormSection(ACCESS_POINTS) {
-        @accessPointSet(desc, ACCESS_POINTS)
-    }
+        @* NB: Access points are hidden in this form because they are managed *@
+        @* separately from the accessPoints page. *@
+        @hiddenAccessPointSet(desc, ACCESS_POINTS)
 
 
 </div>
