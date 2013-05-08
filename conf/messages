@@ -111,6 +111,9 @@ pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Display
 # What we say when a logical item has no descriptions
 describedEntity.noDescriptions=This item has not been provided with a description
 describedEntity.noData=No information given
+describedEntity.additionalData=Additional Harvested Data (Click to display)
+describedEntity.additionalData.key=Key
+describedEntity.additionalData.value=Value
 
 #
 # Concepts

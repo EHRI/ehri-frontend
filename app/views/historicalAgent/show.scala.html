@@ -44,6 +44,10 @@
                         }
 
                         @common.relatedLinks(item, desc, links)
+
+                        @desc.unknownProperty.map { e =>
+                            @common.unknownData(e)
+                        }
                     }
                 }
             }
