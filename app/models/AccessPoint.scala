@@ -27,7 +27,7 @@ case class AccessPointF(
   val id: Option[String],
   val `type`: AccessPointF.AccessPointType.Value,
   val name: String,
-  val description: Option[String]
+  val description: Option[String] = None
 ) extends Persistable {
   val isA = EntityType.AccessPoint
 

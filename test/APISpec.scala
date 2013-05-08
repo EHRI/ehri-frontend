@@ -29,6 +29,16 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       Json.parse(contentAsString(cr2)) mustEqual json
     }
 
+    "allow creating new access points" in new FakeApp {
+      val ap = new AccessPointF(id = None, `type`=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
+      val json = Json.toJson(ap)(controllers.base.AccessPointLink.accessPointFormat)
+      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+        routes.DocumentaryUnits.createAccessPoint("c1", "cd1").url)
+        .withHeaders(jsonPostHeaders.toSeq: _*), json).get
+      status(cr) must equalTo(CREATED)
+      println(contentAsString(cr))
+    }
+
     "allow creating new access points along with a link" in new FakeApp {
       val link = new AccessPointLink("a1", description = Some("Test link"))
       val apdata = new NewAccessPointLink("Test Access Point", AccessPointF.AccessPointType.SubjectAccess, link)
