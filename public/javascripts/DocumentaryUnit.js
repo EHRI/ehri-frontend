@@ -27,6 +27,18 @@
         }
       };
     });
+
+    $provide.factory('$service', function() {
+      return {
+        createLink: jsRoutes.controllers.DocumentaryUnits.createLinkJson,
+        addAccessPointWithLink: jsRoutes.controllers.DocumentaryUnits.createAccessPointLinkJson,
+        getAccessPoints: jsRoutes.controllers.DocumentaryUnits.getAccessPointsJson,
+        deleteAccessPoint: jsRoutes.controllers.Links.deletePost,
+        redirectUrl: function(id) {
+          return jsRoutes.controllers.DocumentaryUnits.get(id).url;
+        }
+      };
+    });
   })/*.config(['$routeProvider', function($routeProvider, $locationProvider) {
    $routeProvider.
    when('/', {templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html',   controller: DocumentaryCtrl}).
@@ -34,7 +46,7 @@
    }])*/;
 }).call(this);
 
-function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
+function LinkCtrl($scope, $window, $portal, $service, dialog, $rootScope) {
 // Items data
   $scope.selected = []; //Basket items
   $scope.id = $window.ITEM_ID; //Source documentaryUnit
@@ -198,7 +210,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
           $scope.close();
         }
         else {
-          $window.location = "/docs/show/" + $scope.id;
+          $window.location = $service.redirectUrl($scope.id);
         }
       });
     }
@@ -207,7 +219,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
       if ($rootScope.mode == "AccessPage") {
         $scope.addSelected($scope.tempSelected);
       }
-      jsRoutes.controllers.DocumentaryUnits.createLinkJson($scope.id, $rootScope.AccessItem.id).ajax({
+      $service.createLink($scope.id, $rootScope.AccessItem.id).ajax({
         data: JSON.stringify({target: $scope.selected.id, description: $scope.selected.linkDesc}),
         headers: {"ajax-ignore-csrf": true, "Content-Type": "application/json"},
         dataType: "json",
@@ -218,7 +230,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
             $scope.close();
           }
           else {
-            $window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
+            $window.location = $service.redirectUrl($scope.id);
           }
         }
       });
@@ -227,7 +239,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
       if ($rootScope.mode == "AccessPage") {
         $scope.addSelected($scope.tempSelected);
       }
-      jsRoutes.controllers.DocumentaryUnits.createAccessPointLinkJson($scope.id, $rootScope.DescriptionID).ajax({
+      $service.addAccessPointWithLink($scope.id, $rootScope.DescriptionID).ajax({
         data: JSON.stringify({
           name: $scope.selected.name,
           type: $scope.selected.accessType,
@@ -246,7 +258,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
             $scope.close();
           }
           else {
-            $window.location = jsRoutes.controllers.DocumentaryUnits.get($scope.id).url;
+            $window.location = $service.redirectUrl($scope.id);
           }
         }
       });
@@ -269,7 +281,7 @@ function LinkCtrl($scope, $window, $portal, dialog, $rootScope) {
 
 }
 
-function DocumentaryCtrl($scope, $dialog, $rootScope, $window) {
+function DocumentaryCtrl($scope, $service, $dialog, $rootScope, $window) {
   $scope.modalLink = {	//Options for modals
     backdrop: true,
     keyboard: true,
@@ -333,7 +345,7 @@ function DocumentaryCtrl($scope, $dialog, $rootScope, $window) {
         .open()
         .then(function (result) {
           if (result == 1) {
-            jsRoutes.controllers.Links.deletePost(AccessLinkID).ajax({
+            $service.deleteAccessPoint(AccessLinkID).ajax({
               success: function () {
                 var ok = true;
                 if ($rootScope.mode == "AccessPage") {
@@ -345,7 +357,7 @@ function DocumentaryCtrl($scope, $dialog, $rootScope, $window) {
         });
   };
   $rootScope.getAccess = function () {
-    jsRoutes.controllers.DocumentaryUnits.getAccessPointsJson($window.ITEM_ID, $window.DESC_ID).ajax({
+    $service.getAccessPoints($window.ITEM_ID, $window.DESC_ID).ajax({
       success: function (data) {
         $scope.accesslist = data[0];
         console.log($scope.accesslist.id);
