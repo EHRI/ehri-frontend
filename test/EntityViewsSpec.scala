@@ -53,7 +53,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
         "descriptions[0].descriptionArea.history" -> Seq("Some history"),
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("Some content"),
-        "descriptions[0].addressArea[0].name" -> Seq("An Address"),
+        "descriptions[0].addressArea[0].addressName" -> Seq("An Address"),
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
