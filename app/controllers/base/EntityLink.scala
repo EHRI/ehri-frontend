@@ -125,6 +125,7 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] {
       val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
+          println(errorForm)
           val res: Option[Result] = for {
             target <- LinkableEntity.fromEntity(item)
           } yield {
@@ -169,6 +170,34 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] {
           // TODO: Fix AuthController so we can use the
           // various auth action composers with body parsers
           // other than AnyContent
+        }(request.map(js => AnyContentAsEmpty))
+      }
+    )
+  }
+
+  /**
+   * Create a link, via Json, for the object with the given id and a set of
+   * other objects.
+   * @return
+   */
+  def createMultipleLinks(id: String) = Action(parse.json) { request =>
+    request.body.validate[List[AccessPointLink]].fold(
+      errors => { // oh dear, we have an error...
+        BadRequest(JsError.toFlatJson(errors))
+      },
+      anns => {
+        withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+          AsyncRest {
+            val links = anns.map(ann =>
+              (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
+            )
+            rest.LinkDAO(userOpt).linkMultiple(id, links).map { linksOrErr =>
+              linksOrErr.right.map { newlinks =>
+                import models.json.LinkFormat.linkFormat
+                Created(Json.toJson(newlinks.map(_.formable)))
+              }
+            }
+          }
         }(request.map(js => AnyContentAsEmpty))
       }
     )

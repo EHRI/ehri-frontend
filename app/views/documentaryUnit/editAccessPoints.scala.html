@@ -10,6 +10,8 @@
             window.DESC_ID = "@desc.id";
         </script>
         @helper.javascriptRouter("jsRoutes")(
+            routes.javascript.Search.filterType,
+            routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
             routes.javascript.DocumentaryUnits.get,
             routes.javascript.DocumentaryUnits.createLink,
             routes.javascript.DocumentaryUnits.createAccessPoint,

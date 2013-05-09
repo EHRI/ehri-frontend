@@ -22,17 +22,6 @@
 }
 
 @extrascripts = {
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
-    <script src="@routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/DocumentaryUnit.js")" type="text/javascript"></script>
-    @helper.javascriptRouter("jsRoutes")(
-        routes.javascript.DocumentaryUnits.get,
-        routes.javascript.DocumentaryUnits.createLink,
-        routes.javascript.DocumentaryUnits.getLink,
-        routes.javascript.DocumentaryUnits.getAccessPointsJson,
-        routes.javascript.Links.deletePost
-    )
 }
 
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
@@ -46,12 +35,6 @@
         @item.parent.map { parent =>
             <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
         }
-
-        <div id="documentaryUnit-app" ng-app="DocumentaryUnit" ng-controller="DocumentaryCtrl">
-        <script>window.ITEM_ID="@{item.id}";</script>
-		
-		<a class="test-linking btn btn-success pull-right" ng-click="openModalLink()">Link</a>
-
 
         @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
@@ -89,14 +72,8 @@
                 <a href="@routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
             }
         }
-		
-			
-			<div id="access-system">
-				<div id="ACCESS_LIST">
-					@common.annotationLinks(item, links)
-				</div>
-			</div>
-		</div>
+
+        @common.annotationLinks(item, links)
     }
 
     @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {

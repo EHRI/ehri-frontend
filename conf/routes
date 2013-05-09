@@ -82,6 +82,7 @@ GET     /docs/linkm/:id          controllers.DocumentaryUnits.linkMultiAnnotate(
 POST    /docs/linkm/:id     controllers.DocumentaryUnits.linkMultiAnnotatePost(id)
 POST    /docs/linkjs/:id/:accessPoint   controllers.DocumentaryUnits.createLink(id: String, accessPoint: String)
 GET     /docs/linkjs/:id/:accessPoint   controllers.DocumentaryUnits.getLink(id: String, accessPoint: String)
+POST    /docs/linkjs/:id                controllers.DocumentaryUnits.createMultipleLinks(id: String)
 # Refetch access point HTML
 GET     /docs/accessPoints/:id/:desc   controllers.DocumentaryUnits.manageAccessPoints(id: String, desc: String)
 POST    /docs/accessPoints/create/:id/:desc   controllers.DocumentaryUnits.createAccessPoint(id: String, desc: String)

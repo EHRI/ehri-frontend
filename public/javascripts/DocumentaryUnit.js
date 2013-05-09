@@ -30,7 +30,9 @@
 
     $provide.factory('$service', function() {
       return {
+        filter: jsRoutes.controllers.Search.filterType,
         createLink: jsRoutes.controllers.DocumentaryUnits.createLink,
+        createMultipleLinks: jsRoutes.controllers.DocumentaryUnits.createMultipleLinks,
         createAccessPoint: jsRoutes.controllers.DocumentaryUnits.createAccessPoint,
         getAccessPoints: jsRoutes.controllers.DocumentaryUnits.getAccessPointsJson,
         deleteLink: jsRoutes.controllers.Links.deletePost,
@@ -201,7 +203,7 @@ function LinkCtrl($scope, $window, $portal, $service, dialog, $rootScope) {
       $scope.selected.forEach(function (ele, idx) {
         console.log(ele);
         var s = "link[" + idx + "].id=" + ele.id + "&" +
-            "link[" + idx + "].data.category=associative&" +
+            "link[" + idx + "].data.type=associative&" +
             "link[" + idx + "].data.description=Test Annotation";
         args.push(s)
       });
