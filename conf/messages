@@ -382,7 +382,8 @@ isdiah.name=Authorized Form Of Name
 isdiah.otherFormsOfName=Other Form(s) of Name
 isdiah.parallelFormsOfName=Parallel Form(s) of Name
 isdiah.languageCode=Language of Description
-isdiah.institutionType=Institution Type
+isdiah.scriptCode=Script of Description
+isdiah.institutionType=Type of Institution with Archival Holdings
 
 # AddressF
 isdiah.addressArea=Address Area
@@ -398,14 +399,14 @@ isdiah.fax=Fax
 isdiah.url=Website Address
 
 # Description
-isdiah.history=History
+isdiah.history=History of the Institution with Archival Holdings
 isdiah.geoculturalContext=Geographical and Cultural Context
-isdiah.mandates=Mandates
+isdiah.mandates=Mandates/Sources of Authority
 isdiah.administrativeStructure=Administrative Structure
-isdiah.records=Records
-isdiah.buildings=Buildings
-isdiah.holdings=Holdings
-isdiah.findingAids=Finding Aids
+isdiah.records=Records Management and Collecting Policies
+isdiah.buildings=Building(s)
+isdiah.holdings=Archival and Other Holdings
+isdiah.findingAids=Finding Aids, Guides, and Publication
 
 # Access
 isdiah.accessArea=Access Area
