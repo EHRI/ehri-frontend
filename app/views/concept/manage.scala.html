@@ -6,14 +6,18 @@
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
     <script src="@routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/ManageVocs.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/ManageConcepts.js")" type="text/javascript"></script>
 }
 
 @noSidebarLayout(item, scripts = extrascripts, breadcrumbs = concept.breadcrumbs(item)) {
-
+	<script type="text/javascript">
+		window.TARGET_DATA = {id: "@item.id",  relationships : { describes : [{ data: {name:"test"} }] }};
+	</script>
+<div id="BrowseConceptAppt" ng-app="ManageConcepts" ng-controller="BrowseCtrl">
 	<div>
-		<span class="btn btn-success btn-small">Reset as target</span> 
-		<span class="btn btn-info btn-small">Put in basket</span>
+		<span class="btn btn-success btn-small" ng-click="targetIt(parent)">Reset as target</span> 
+		<span class="btn btn-info btn-small" ng-click="pushIt(parent)">Put in basket</span>
+		<span class="btn btn-info btn-small" ng-click="setChildren('@item.id')">See Children</span>
 	</div>
 	
     <div class="well" style="margin-top:2em;">
@@ -22,87 +26,62 @@
 				<div class="span4">
 					<input class="input-medium search-query" type="text" placeholder="Search query" />
 				</div>
-				<div class="span4">
-					<h5>Item 1</h5>
-					<span class="btn btn-success btn-small">Set as target</span> 
-					<span class="btn btn-info btn-small">Put in basket</span>
+				<div class="span4" ng-show="(children[1])">
+					<h5>{{childrenDetails[1].relationships.describes.0.data.name}}</h5>
+					<span class="btn btn-success btn-small" ng-click="targetIt(childrenDetails[1])">Set as target</span> 
+					<span class="btn btn-info btn-small" ng-click="pushIt(childrenDetails[1])">Put in basket</span>
 				</div>
-				<div class="span4">
-					<h5>Item 1 Children 1</h5>
-					<span class="btn btn-success btn-small">Set as target</span> 
-					<span class="btn btn-info btn-small">Put in basket</span>
+				<div class="span4" ng-show="(children[2])">
+					<h5>{{childrenDetails[2].relationships.describes.0.data.name}}</h5>
+					<span class="btn btn-success btn-small" ng-click="targetIt(childrenDetails[2])">Set as target</span> 
+					<span class="btn btn-info btn-small" ng-click="pushIt(childrenDetails[2])">Put in basket</span>
 				</div>
 			</div>
 			<div class="row" style="margin-top:10px; margin-bottom:10px;">
 				<div class="span4">
 					<ul class="unstyled">
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
-						<li><i class="icon icon-move"></i> Item 1</li>
+						<li ng-repeat="result in results[0][currentPage[0]]" ng-click="setChildren(result.id)"><i class="icon icon-move"></i> {{result.relationships.describes.0.data.name}}</li>
+					</ul>
+				</div>
+				<div class="span4" ng-show="(children[1])">
+					<ul class="unstyled">
+						<li ng-repeat="result in results[1][currentPage[1]]" ng-click="setChildrenSecond(result.id)"><i class="icon icon-move"></i> {{result.relationships.describes.0.data.name}}</li>
 					</ul>
 				</div>
 				<div class="span4">
-					<ul class="unstyled">
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1</li>
+					<ul class="unstyled" ng-show="(children[2])">
+						<li ng-repeat="result in results[2][currentPage[2]]" ng-click="setChildrenThird(result.id)"><i class="icon icon-move"></i> {{result.relationships.describes.0.data.name}}</li>
 					</ul>
 				</div>
-				<div class="span4">
-					<ul class="unstyled">
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-						<li><i class="icon icon-move"></i> Item 1 Children 1 Children 1</li>
-					</ul>
+			</div>
+			<div class="row">
+				<div class="span4" style="padding-top:4px;">
+						<!-- Pagination -->
+						<pagination num-pages="numPages[0]" current-page="currentPage[0]" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
+				</div>
+				<div class="span4" style="padding-top:4px;" ng-show="(children[1])">
+					<div ng-show="(numPages[1] > 0)">
+						<!-- Pagination -->
+						<pagination num-pages="numPages[1]" current-page="currentPage[1]" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
+					</div>
+				</div>
+				<div class="span4" style="padding-top:4px;" ng-show="(children[2])">
+					<div ng-show="(numPages[2] > 0)">
+						<!-- Pagination -->
+						<pagination num-pages="numPages[2]" current-page="currentPage[2]" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
+					</div>
 				</div>
 			</div>
 			<div class="row">
 				<div class="span6 alert alert-success">
 					<h5>Target</h5>
-					
+					{{target.relationships.describes.0.data.name}}
 				</div>
 				<div class="span6 alert alert-info">
 					<h5>Basket</h5>
-					
+					<ul>
+						<li ng-repeat="selected in basket">{{selected.relationships.describes.0.data.name}}</li>
+					</ul>
 				</div>
 			</div>
 			<div class="row">
@@ -112,4 +91,5 @@
 			</div>
 		</div>
 	</div>
+</div>
 }
