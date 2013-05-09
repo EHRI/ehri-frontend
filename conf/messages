@@ -501,15 +501,6 @@ isadg.materialsArea=Materials Area
 isadg.controlArea=Control Area
 
 isadg.name=Title
-isadg.name.description=Provide either a formal title or a concise supplied title in accordance with the rules of \
-                       multilevel description and national conventions.\
-                       \
-                       If appropriate, abridge a long formal title, but only if this can be done without loss of \
-                       essential information.\
-                       For supplied titles, at the higher level, include the name of the creator of the records. At \
-                       lower levels one may include, for example, the name of the author of the document and a \
-                       term indicating the form of the material comprising the unit of description and, where \
-                       appropriate, a phrase reflecting function, activity, subject, location, or theme.
 isadg.identifier=Identifier
 isadg.dates=Dates
 isadg.levelOfDescription=Level of Description
