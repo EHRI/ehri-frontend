@@ -111,6 +111,9 @@ pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Display
 # What we say when a logical item has no descriptions
 describedEntity.noDescriptions=This item has not been provided with a description
 describedEntity.noData=No information given
+describedEntity.additionalData=Additional Harvested Data (Click to display)
+describedEntity.additionalData.key=Key
+describedEntity.additionalData.value=Value
 
 #
 # Concepts
@@ -384,11 +387,11 @@ isdiah.institutionType=Institution Type
 
 # AddressF
 isdiah.addressArea=Address Area
-isdiah.addressName=Address Name
+isdiah.addressName=Address Name/Type
 isdiah.contactPerson=Contact Person
-isdiah.streetAddress=Street Address
-isdiah.city=City
-isdiah.region=Region
+isdiah.street=Street Address
+isdiah.municipality=City
+isdiah.firstdem=Region
 isdiah.countryCode=Country Code
 isdiah.email=Email
 isdiah.telephone=Telephone
@@ -428,8 +431,8 @@ isdiah.rulesAndConventions=Rules and Conventions
 isdiah.status=Status
 isdiah.levelOfDetail=Level of Detail
 isdiah.datesCVD=Dates of Creation and Deletion
-isdiah.languages=Languages
-isdiah.scripts=Scripts
+isdiah.languages=Languages Used
+isdiah.scripts=Scripts Used
 isdiah.sources=Sources
 isdiah.maintenanceNotes=Maintenance Notes
 

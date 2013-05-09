@@ -20,13 +20,23 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
     "allow creating and reading" in new FakeApp {
       val json = Json.toJson(new AccessPointLink("a1", description = Some("Test link")))
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.createLinkJson("c1", "ur1").url)
+        routes.DocumentaryUnits.createLink("c1", "ur1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
       val cr2 = route(fakeLoggedInRequest(privilegedUser, GET,
-        routes.DocumentaryUnits.getLinkJson("c1", "ur1").url)).get
+        routes.DocumentaryUnits.getLink("c1", "ur1").url)).get
       status(cr2) must equalTo(OK)
       Json.parse(contentAsString(cr2)) mustEqual json
+    }
+
+    "allow creating new access points" in new FakeApp {
+      val ap = new AccessPointF(id = None, `type`=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
+      val json = Json.toJson(ap)(controllers.base.AccessPointLink.accessPointFormat)
+      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+        routes.DocumentaryUnits.createAccessPoint("c1", "cd1").url)
+        .withHeaders(jsonPostHeaders.toSeq: _*), json).get
+      status(cr) must equalTo(CREATED)
+      println(contentAsString(cr))
     }
 
     "allow creating new access points along with a link" in new FakeApp {
@@ -34,7 +44,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       val apdata = new NewAccessPointLink("Test Access Point", AccessPointF.AccessPointType.SubjectAccess, link)
       val json = Json.toJson(apdata)
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.createAccessPointLinkJson("c1", "cd1").url)
+        routes.DocumentaryUnits.createAccessPointLink("c1", "cd1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
       println(contentAsString(cr))

@@ -30,7 +30,7 @@ case object Isdiah {
 
   // AddressF
   val ADDRESS_AREA = "addressArea"
-  val ADDRESS_NAME = "name"
+  val ADDRESS_NAME = "addressName"
   val CONTACT_PERSON = "contactPerson"
   val STREET_ADDRESS = "street"
   val CITY = "municipality"

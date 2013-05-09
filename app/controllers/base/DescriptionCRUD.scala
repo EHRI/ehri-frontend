@@ -7,9 +7,8 @@ import play.api.data.{Form, FormError}
 import defines.{EntityType, PermissionType}
 import models.{Entity, UserProfile}
 import models.forms.VisibilityForm
-import rest.{ValidationError, EntityDAO}
+import rest.{DescriptionDAO, ValidationError, EntityDAO}
 import play.api.i18n.Messages
-import rest.ValidationError
 
 /**
  * Controller trait for creating, updating, and deleting auxiliary descriptions
@@ -35,7 +34,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
       },
       { desc =>
         AsyncRest {
-          EntityDAO(entityType, userOpt).createDescription(id, descriptionType, desc, logMsg = getLogMessage).map { itemOrErr =>
+          DescriptionDAO(userOpt).createDescription(id, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
                 case err: rest.ValidationError => {
@@ -70,8 +69,8 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
       },
       { desc =>
         AsyncRest {
-          EntityDAO(entityType, userOpt)
-              .updateDescription(id, descriptionType, did, desc, logMsg = getLogMessage).map { itemOrErr =>
+          DescriptionDAO(userOpt)
+              .updateDescription(id, did, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
                 case err: rest.ValidationError => {
@@ -97,14 +96,14 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
    * @return
    */
   def deleteDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String)(
-      f: Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Boolean => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
-        EntityDAO(entityType, userOpt)
-            .deleteDescription(id, descriptionType, did, logMsg = getLogMessage).map { itemOrErr =>
-          itemOrErr.right.map { updated =>
-            f(updated)(userOpt)(request)
+        DescriptionDAO(userOpt)
+            .deleteDescription(id, did, logMsg = getLogMessage).map { itemOrErr =>
+          itemOrErr.right.map { ok =>
+            f(ok)(userOpt)(request)
           }
         }
       }

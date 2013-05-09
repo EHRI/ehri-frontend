@@ -63,20 +63,16 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
   }
 
   /**
-   * Create a single link.
-   * @param id
-   * @param src
-   * @param desc
-   * @param bodyName
-   * @param bodyType
-   * @return
+   * Remove an access point for a given item.
+   * TODO: When the linking api gets sorted out, move
+   * this somewhere better.
    */
-  def accessPointLink(id: String, src: String, desc: String, bodyName: String, bodyType: AccessPointF.AccessPointType.Value,
-                       link: LinkF): Future[Either[RestError, Link]] = {
-    WS.url(enc(requestUrl, id, src, s"$desc?$BODY_NAME=$bodyName&$BODY_TYPE=$bodyType"))
+  def deleteAccessPoint(id: String): Future[Either[RestError,Boolean]] = {
+    println("DELETEING ACCESS POINT " + enc(requestUrl, "accessPoint", id))
+    WS.url(enc(requestUrl, "accessPoint", id))
       .withHeaders(authHeaders.toSeq: _*)
-      .post(link.toJson).map { response =>
-      checkError(response).right.map(r => Link(jsonToEntity(r.json)))
+      .delete.map { response =>
+      checkError(response).right.map(r => true)
     }
   }
 

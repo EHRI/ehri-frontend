@@ -7,7 +7,7 @@
 	<ul class="unstyled">
 	@page.items.map { item =>
 	  	<div class="list-item">
-			<h5><a href="@routes.SystemEvents.get(item.id)">@item.time</a>
+			<h5><a data-timestamp="@item.time" href="@routes.SystemEvents.get(item.id)">@views.Helpers.prettyDate(item.timeStamp)</a>
 			@item.actioner.map { accessor =>
                 - <a href="@views.Helpers.urlFor(accessor)">@accessor</a>
 			}
