@@ -500,9 +500,17 @@ isadg.conditionsArea=Conditions Area
 isadg.materialsArea=Materials Area
 isadg.controlArea=Control Area
 
-isadg.name=Name
+isadg.name=Title
+isadg.name.description=Provide either a formal title or a concise supplied title in accordance with the rules of \
+                       multilevel description and national conventions.\
+                       \
+                       If appropriate, abridge a long formal title, but only if this can be done without loss of \
+                       essential information.\
+                       For supplied titles, at the higher level, include the name of the creator of the records. At \
+                       lower levels one may include, for example, the name of the author of the document and a \
+                       term indicating the form of the material comprising the unit of description and, where \
+                       appropriate, a phrase reflecting function, activity, subject, location, or theme.
 isadg.identifier=Identifier
-isadg.title=Title
 isadg.dates=Dates
 isadg.levelOfDescription=Level of Description
 isadg.collection=Collection
@@ -513,7 +521,7 @@ isadg.subseries=Subseries
 isadg.file=File
 isadg.item=Item
 isadg.creation=Creation
-isadg.extentAndMedium=Extent and Medium
+isadg.extentAndMedium=Extent and Medium of the Unit of Description
 isadg.languageCode=Language of Description
 isadg.adminBiogHistory=Administrative and Biographical History
 isadg.archivalHistory=Archival History
@@ -522,14 +530,14 @@ isadg.scopeAndContent=Scope and Content
 isadg.appraisal=Appraisal
 isadg.accruals=Accruals
 isadg.systemOfArrangement=System of Arrangement
-isadg.conditionsOfAccess=Conditions of Access
-isadg.conditionsOfReproduction=Conditions of Reproduction
+isadg.conditionsOfAccess=Conditions Governing Access
+isadg.conditionsOfReproduction=Conditions Governing Reproduction
 isadg.languageOfMaterials=Language(s) of Materials
 isadg.scriptOfMaterials=Script(s) of Materials
-isadg.physicalCharacteristics=Physical Characteristics
+isadg.physicalCharacteristics=Physical Characteristics and Technical Requirements
 isadg.findingAids=Finding Aids
-isadg.locationOfOriginals=Location of Originals
-isadg.locationOfCopies=Location of Copies
+isadg.locationOfOriginals=Existence and Location of Originals
+isadg.locationOfCopies=Existence and Location of Copies
 isadg.relatedUnitsOfDescription=Related Units of Description
 isadg.publicationNote=Publication Note
 isadg.archivistNote=Archivist Note
