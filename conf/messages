@@ -383,8 +383,7 @@ isdiah.name=Authorized Form Of Name
 isdiah.otherFormsOfName=Other Form(s) of Name
 isdiah.parallelFormsOfName=Parallel Form(s) of Name
 isdiah.languageCode=Language of Description
-isdiah.scriptCode=Script of Description
-isdiah.institutionType=Type of Institution with Archival Holdings
+isdiah.institutionType=Institution Type
 
 # AddressF
 isdiah.addressArea=Address Area
@@ -403,14 +402,14 @@ isdiah.street= Address Street
 isdiah.municipality= City
 
 # Description
-isdiah.history=History of the Institution with Archival Holdings
+isdiah.history=History
 isdiah.geoculturalContext=Geographical and Cultural Context
-isdiah.mandates=Mandates/Sources of Authority
+isdiah.mandates=Mandates
 isdiah.administrativeStructure=Administrative Structure
-isdiah.records=Records Management and Collecting Policies
-isdiah.buildings=Building(s)
-isdiah.holdings=Archival and Other Holdings
-isdiah.findingAids=Finding Aids, Guides, and Publication
+isdiah.records=Records
+isdiah.buildings=Buildings
+isdiah.holdings=Holdings
+isdiah.findingAids=Finding Aids
 
 # Access
 isdiah.accessArea=Access Area
@@ -504,10 +503,19 @@ isadg.conditionsArea=Conditions Area
 isadg.materialsArea=Materials Area
 isadg.controlArea=Control Area
 
-isadg.name=Title
+isadg.name=Name
 isadg.identifier=Identifier
+isadg.identifier.description=To identify uniquely the unit of description and to provide a link to the description that represents it.
+isadg.languageCode=Language of Description
+isadg.title=Title
+isadg.title.description=To name the unit of description.
+isadg.name.description=To name the unit of description.
 isadg.dates=Dates
+isadg.dates.description=To identify and record the date(s) of the unit of description.
 isadg.levelOfDescription=Level of Description
+isadg.levelOfDescription.description=To identify the level of arrangement of the unit of description.
+
+#Level of description list
 isadg.collection=Collection
 isadg.fonds=Fonds
 isadg.subfonds=Subfonds
@@ -516,29 +524,56 @@ isadg.subseries=Subseries
 isadg.file=File
 isadg.item=Item
 isadg.creation=Creation
-isadg.extentAndMedium=Extent and Medium of the Unit of Description
-isadg.languageCode=Language of Description
+
+#Back to field identifier
+isadg.extentAndMedium=Extent and Medium
+isadg.extentAndMedium.description=To identify and describe the physical or logical extent and the medium of the unit of description
+
 isadg.adminBiogHistory=Administrative and Biographical History
+isadg.adminBiogHistory.description=To provide an administrative history of, or biographical details on, the creator (or creators) of the unit of description to place the material in context and make it better understood.
 isadg.archivalHistory=Archival History
 isadg.archivalHistory.description=To provide information on the history of the unit of description that is significant for its authenticity, integrity and interpretation.
 isadg.acquisition=Acquisition
+isadg.acquisition.description=To identify the immediate source of acquisition or transfer
+
 isadg.scopeAndContent=Scope and Content
+isadg.scopeAndContent.description=To enable users to judge the potential relevance of the unit of description. 
 isadg.appraisal=Appraisal
+isadg.appraisal.description=To provide information on any appraisal, destruction and scheduling action.
 isadg.accruals=Accruals
+isadg.accruals.description=To inform the user of foreseen additions to the unit of description.
 isadg.systemOfArrangement=System of Arrangement
-isadg.conditionsOfAccess=Conditions Governing Access
-isadg.conditionsOfReproduction=Conditions Governing Reproduction
+isadg.systemOfArrangement=To provide information on the internal structure, the order and/or the system of classification of the unit of description.
+isadg.conditionsOfAccess=Conditions of Access
+isadg.conditionsOfAccess.description=To provide information on the legal status or other regulations that restrict or affect access to the unit of description.
+isadg.conditionsOfReproduction=Conditions of Reproduction
+isadg.conditionsOfReproduction.description=To identify any restrictions on reproduction of the unit of description.
+
 isadg.languageOfMaterials=Language(s) of Materials
+isadg.languageOfMaterials.description=To identify the language(s) systems employed in the unit of description
 isadg.scriptOfMaterials=Script(s) of Materials
-isadg.physicalCharacteristics=Physical Characteristics and Technical Requirements
+isadg.scriptOfMaterials.description=To identify the script(s) and symbol systems employed in the unit of description
+isadg.physicalCharacteristics=Physical Characteristics
+isadg.physicalCharacteristics.description=To provide information about any important physical characteristics or technical requirements that affect use of the unit of description.
 isadg.findingAids=Finding Aids
-isadg.locationOfOriginals=Existence and Location of Originals
-isadg.locationOfCopies=Existence and Location of Copies
+isadg.findingAids.description=To identify any finding aids to the unit of description.
+
+isadg.locationOfOriginals=Location of Originals
+isadg.locationOfOriginals.description=To indicate the existence, location, availability and/or destruction of originals where the unit of description consists of copies.
+isadg.locationOfCopies=Location of Copies
+isadg.locationOfCopies.description=To indicate the existence, location and availability of copies of the unit of description.
 isadg.relatedUnitsOfDescription=Related Units of Description
+isadg.relatedUnitsOfDescription.description=To identify related units of description.
 isadg.publicationNote=Publication Note
+isadg.publicationNote.description=To identify any publications that are about or are based on the use, study, or analysis of the unit of description.
+
 isadg.archivistNote=Archivist Note
+isadg.archivistNote.description=To provide information that cannot be accommodated in any of the other areas.
 isadg.rulesAndConventions=Rules and Conventions
+isadg.rulesAndConventions.description=To identify the protocols on which the description is based
 isadg.datesOfDescriptions=Dates of Descriptions
+isadg.datesOfDescriptions.description=To indicate when this description was prepared and/or revised
+
 isadg.accessPoints=Access Points
 isadg.accessPoints.creatorAccess=Creators
 isadg.accessPoints.corporateBodyAccess=Corporate Bodies
@@ -550,7 +585,6 @@ isadg.accessPoints.otherAccess=Other Access Points
 # isad(g) dates
 isadg.startDate=Start Date
 isadg.endDate=End Date
-<<<<<<< HEAD
 
 
 #Icons
@@ -558,5 +592,3 @@ icon.email = icon-envelope
 icon.telephone = icon-volume-down
 icon.fax = icon-print
 icon.web = icon-home
-=======
->>>>>>> upstream/master
