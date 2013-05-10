@@ -1,9 +1,18 @@
 @(elements: helper.FieldElements)
 
 <div class="control-group @if(elements.hasErrors) {error}">
-    <label class="control-label" for="@elements.id">@elements.label</label>
+    <label class="control-label" for="@elements.id">
+
+			@if(elements.args.get('title))	{
+				<a href="#"  data-toggle="tooltip" title="@elements.args.get('title)"> @elements.label <i class="icon-info-sign"></i></a>
+			} else  {
+				@elements.label
+			}
+
+		</label>
     <div class="controls controls-row">
-        @elements.input
+
+			@elements.input
         <span class="help-inline errors">@elements.infos.mkString(", ") @elements.errors.mkString(", ")</span>
     </div>
 </div>
