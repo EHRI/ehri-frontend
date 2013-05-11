@@ -7,7 +7,7 @@ import models.AccessPointF
 import controllers.routes
 import helpers._
 import play.api.libs.json.Json
-import controllers.base.{NewAccessPointLink, AccessPointLink}
+import controllers.base.AccessPointLink
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
@@ -39,12 +39,11 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       println(contentAsString(cr))
     }
 
-    "allow creating new access points along with a link" in new FakeApp {
+    "allow creating new links" in new FakeApp {
       val link = new AccessPointLink("a1", description = Some("Test link"))
-      val apdata = new NewAccessPointLink("Test Access Point", AccessPointF.AccessPointType.SubjectAccess, link)
-      val json = Json.toJson(apdata)
+      val json = Json.toJson(link)
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.createAccessPointLink("c1", "cd1").url)
+        routes.DocumentaryUnits.createLink("c1", "ur1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
       println(contentAsString(cr))
