@@ -123,6 +123,8 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
 
   $scope.selectLinkMatch = function(match) {
     console.log("Got link match: " + match)
+    // FIXME: Overwriting the user's typed-in text is
+    // perhaps not the best behaviour to use here!
     $scope.tempAccessPoint.name = match[1];
     $scope.tempAccessPoint.link = {
       target: match[0],
