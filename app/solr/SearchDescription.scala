@@ -9,5 +9,6 @@ import defines.EntityType
 case class SearchDescription(
   id: String,
   itemId: String,
-  name: String
+  name: String,
+  `type`: EntityType.Value
 )

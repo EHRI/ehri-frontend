@@ -79,8 +79,8 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
     }
   }
 
-  def filterAction(entityType: EntityType.Value)(
-      f: ItemPage[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def filterAction(entityType: Option[EntityType.Value] = None)(
+      f: ItemPage[(String,String,EntityType.Value)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       import play.api.data.Form
       import play.api.data.Forms._

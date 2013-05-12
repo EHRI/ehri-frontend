@@ -71,13 +71,13 @@ object Search extends EntitySearch {
    * @param entityType
    * @return
    */
-  def filterType(entityType: String) = filterAction(EntityType.withName(entityType)) {
+  def filterType(entityType: Option[String]) = filterAction(entityType.map(EntityType.withName(_))) {
       page => implicit userOpt => implicit request =>
     Ok(Json.obj(
       "numPages" -> page.numPages,
       "page" -> page.page,
-      "items" -> page.items.map { case (id, name) =>
-        Json.arr(id, name)
+      "items" -> page.items.map { case (id, name, t) =>
+        Json.arr(id, name, t.toString)
       }
     ))
   }

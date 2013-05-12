@@ -23,7 +23,8 @@ case class SolrQueryParser(response: Elem) {
     SearchDescription(
       id = (doc \\ "str").filter(attributeValueEquals("id")).text,
       itemId = (doc \\ "str").filter(attributeValueEquals("itemId")).text,
-      name = (doc \\ "str").filter(attributeValueEquals("name")).text
+      name = (doc \\ "str").filter(attributeValueEquals("name")).text,
+      `type` = EntityType.withName((doc \\ "str").filter(attributeValueEquals("type")).text.trim)
     )
   }
 
