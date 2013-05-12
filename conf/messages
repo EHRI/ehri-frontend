@@ -363,6 +363,9 @@ permissionGrant.targets=Targets
 permissionGrant.scope=Scope
 permissionGrant.grantedBy=Granted By
 
+# Access Points
+accessPoints.addNew=Add New
+
 #
 # ISDIAH Field definitions
 #
