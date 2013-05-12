@@ -5,7 +5,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import defines.PermissionType
 import models.{Entity, UserProfile}
-import solr.SolrIndexer
+import play.api.libs.json.Json
 
 /**
  * Controller trait for deleting AccessibleEntities.
@@ -25,7 +25,10 @@ trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
       AsyncRest {
         rest.EntityDAO(entityType, userOpt).delete(id, logMsg = getLogMessage).map { boolOrErr =>
           boolOrErr.right.map { ok =>
-            f(ok)(userOpt)(request)
+            request match {
+              case Accepts.Html() => f(ok)(userOpt)(request)
+              case Accepts.Json() => Ok(Json.toJson(ok))
+            }
           }
         }
       }
