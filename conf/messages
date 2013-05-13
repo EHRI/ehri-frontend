@@ -365,6 +365,7 @@ permissionGrant.grantedBy=Granted By
 
 # Access Points
 accessPoints.addNew=Add New
+accessPoints.newAccessPoint=New Access Point
 accessPoints.browse=Search
 
 #

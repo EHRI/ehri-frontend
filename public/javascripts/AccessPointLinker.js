@@ -1,5 +1,5 @@
 !(function () {
-  angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead' ], function ($provide) {
+  angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead', 'ui.bootstrap.pagination' ], function ($provide) {
     $provide.factory('$search', function ($http, $log) {
       var search = function (type, searchTerm, page) {
         var params = "?limit=10&q=" + (searchTerm || "");
@@ -28,6 +28,7 @@
     $provide.factory('$service', function() {
       return {
         get: jsRoutes.controllers.Application.get,
+        getType: jsRoutes.controllers.Application.getType,
         filter: jsRoutes.controllers.Search.filterType,
         createLink: jsRoutes.controllers.DocumentaryUnits.createLink,
         createMultipleLinks: jsRoutes.controllers.DocumentaryUnits.createMultipleLinks,
@@ -185,7 +186,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
       && $scope.tempAccessPoint.name != "";
   }
 
-  $scope.deleteAccessLink = function (accessLinkID, accessLinkText) {
+  $scope.deleteAccessPointWithLink = function (accessPointId, accessLinkId, accessLinkText) {
     var title = 'Delete link for access point';
     var msg = 'Are you sure you want to delete the link for ' + accessLinkText + ' ?';
     var btns = [
@@ -197,11 +198,18 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
         .open()
         .then(function (result) {
           if (result == 1) {
-            $service.deleteLink(accessLinkID).ajax({
+            $service.deleteLink(accessLinkId).ajax({
               headers: {"Accept": "application/json; charset=utf-8"},
               success: function (data) {
                 if (data === true) {
-                  $scope.getAccess();
+                  $service.deleteAccessPoint($scope.itemId, accessPointId).ajax({
+                    headers: {"Accept": "application/json; charset=utf-8"},
+                    success: function (data) {
+                      if (data === true) {
+                        $scope.getAccess();
+                      }
+                    }
+                  });
                 }
               }
             });
@@ -220,7 +228,6 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
   }
 
   $scope.selectLinkMatch = function(match) {
-    console.log("Got link match: " + match)
     // FIXME: Overwriting the user's typed-in text is
     // perhaps not the best behaviour to use here!
     $scope.tempAccessPoint.name = match[1];
@@ -329,14 +336,23 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
     return $service.get(id).url;
   }
 
+  $scope.getTypeUrl = function(type, id) {
+    return $service.getType(type, id).url;
+  }
+
   $scope.cancelAddAccessPoint = function() {
     $scope.tempAccessPoint = null;
     $scope.matches = [];
   }
 
+  $scope.removeTempAccessPointLink = function() {
+    $scope.tempAccessPoint.link = null;
+  }
+
   $scope.getAccess = function () {
     $service.getAccessPoints($scope.itemId, $scope.descriptionId).ajax({
       success: function (data) {
+        console.log(data[0])
         $scope.accesslist = data[0];
         $scope.$apply()
       }

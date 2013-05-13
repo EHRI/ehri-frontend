@@ -8,6 +8,7 @@
 
     @helper.javascriptRouter("jsRoutes")(
         routes.javascript.Application.get,
+        routes.javascript.Application.getType,
         routes.javascript.Search.filterType,
         routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
         routes.javascript.DocumentaryUnits.get,
@@ -31,21 +32,19 @@
             @AccessPointType.values.toList.map { accessPointType =>
                 <li class="accessPointList">
                     <h3>@Messages("isadg." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
-                    <ul class="item-annotation-links">
+                    <ul class="item-annotation-links unstyled">
                         <li ng-repeat="access in getAccessPointsWithType('@accessPointType')" id="{{access.accessPoint.id}}">
                             <span ng-switch="access.link != null">
                                 <span ng-switch-when="true">
-                                    <a href="{{access.targetUrl}}">{{access.accessPoint.data.name}}</a>
+                                    <a href="{{getTypeUrl(access.target.type, access.target.id)}}">{{access.accessPoint.data.name}}</a>
                                     <a title="@Messages("accessPoint.removeAccessPoint")"
-                                    class="icon icon-remove" ng-click="deleteAccessLink(access.link.id, access.accessPoint.data.name)"></a>
+                                    class="icon icon-remove" ng-click="deleteAccessPointWithLink(access.accessPoint.id, access.link.id, access.accessPoint.data.name)"></a>
                                 </span>
 
                                 <span ng-switch-when="false">
                                     {{access.accessPoint.data.name}}
                                     <a title="@Messages("accessPoint.removeAccessPoint")"
-                                    class="icon icon-remove" ng-click="deleteAccessPoint(access.accessPoint.id, access.accessPoint.data.name)"></a>
-                                    <a title="@Messages("accessPoint.addAccessPointLink")"
-                                    class="icon icon-plus" ng-click="openModalAccess(access.accessPoint.id , access.accessPoint.data.name)"></a>
+                                        class="icon icon-remove" ng-click="deleteAccessPoint(access.accessPoint.id, access.accessPoint.data.name)"></a>
                                 </span>
                             </span>
                             <small ng-show="access.accessPoint.data.description">
@@ -55,23 +54,28 @@
 
                         <li ng-switch="editInProgress('@accessPointType')">
                             <small ng-switch-when="false"><a ng-click="addNewAccessPoint('@accessPointType')">@Messages("accessPoints.addNew")</a></small>
-                            <div ng-switch-when="true" class="new-access-point">
-                                <input type="text" ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" />
-                                <a ng-click="openBrowseDialog()">@Messages("accessPoints.browse")</a><br />
-                                <input type="text" ng-model="tempAccessPoint.description" /><br />
-                                <div ng-switch="tempAccessPoint.link != null">
-                                    <span ng-switch-when="true">
-                                        <i class="icon icon-align-left"></i>
-                                        <a target="_blank" href="{{getUrl(tempAccessPoint.link.target)}}">{{tempAccessPoint.link.name}}</a>
-                                    </span>
+                            <div class="well well-small" ng-switch-when="true" class="new-access-point">
+                                <h4>@Messages("accessPoints.newAccessPoint")</h4>
+                                <div class="control-group">
+                                    <input type="text" ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" />
+                                        <a class="btn btn-mini btn-info" ng-click="openBrowseDialog()">@Messages("accessPoints.browse")</a><br />
+                                    <input type="text" ng-model="tempAccessPoint.description" /><br />
+                                    <div ng-switch="tempAccessPoint.link != null">
+                                        <span ng-switch-when="true">
+                                            <i class="icon icon-hand-right"></i>
+                                            <a target="_blank" href="{{getUrl(tempAccessPoint.link.target)}}">{{tempAccessPoint.link.name}}</a>
+                                            <a title="@Messages("accessPoint.removeAccessPointLink")"
+                                               class="icon icon-remove" ng-click="removeTempAccessPointLink()"></a>
+                                        </span>
+                                    </div>
                                 </div>
-                                <button ng-click="saveNewAccessPoint()" ng-disabled="!hasValidNewAccessPoint('@accessPointType')">
+                                <button class="btn btn-small btn-primary" ng-click="saveNewAccessPoint()" ng-disabled="!hasValidNewAccessPoint('@accessPointType')">
                                     Save</button>
-                                <button ng-click="cancelAddAccessPoint()">Cancel</button>
-                                <small>
+                                <button class="btn btn-small" ng-click="cancelAddAccessPoint()">Cancel</button>
+                                <small class="control-group">
                                     <ul class="potential-matches unstyled" style="overflow: auto; max-height: 200px">
                                         <li ng-repeat="item in matches">
-                                            <a ng-click="selectLinkMatch(item)">{{item[1]}} <span class="badge">{{item[2]}}</span></a>
+                                            <a ng-click="selectLinkMatch(item)">{{item[1]}} <span class="badge pull-right">{{item[2]}}</span></a>
                                         </li>
                                     </ul>
                                 </small>

@@ -7,7 +7,7 @@ import play.api.Play.current
 import base.{Authorizer,AuthController,LoginHandler}
 import play.api.data.Form
 import play.api.data.Forms._
-import models.Entity
+import models.{UserProfile, Entity}
 import defines.EntityType
 
 
@@ -43,23 +43,24 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
         rest.SearchDAO(userOpt).list(List(id)).map { listOrErr =>
           listOrErr.right.map(_ match {
             case Nil => NotFound(views.html.errors.itemNotFound())
-            case Entity(_, etype, _, _) :: _ => {
-              etype match {
-                // FIXME: Handle case not given here!
-                case EntityType.DocumentaryUnit => Redirect(routes.DocumentaryUnits.get(id))
-                case EntityType.Repository => Redirect(routes.Repositories.get(id))
-                case EntityType.HistoricalAgent => Redirect(routes.HistoricalAgents.get(id))
-                case EntityType.UserProfile => Redirect(routes.UserProfiles.get(id))
-                case EntityType.Link => Redirect(routes.Links.get(id))
-                case EntityType.Annotation => Redirect(routes.Annotations.get(id))
-                case EntityType.Concept => Redirect(routes.Concepts.get(id))
-                case EntityType.Vocabulary => Redirect(routes.Vocabularies.get(id))
-                case _ => NotFound(views.html.errors.itemNotFound())
-              }
-            }
+            case Entity(_, etype, _, _) :: _ =>
+              getUrlForType(etype, id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
           })
         }
       }
+    }
+  }
+
+  /**
+   * Action for redirecting to any item page, given a raw id.
+   * TODO: Ultimately implement this in a better way, not
+   * requiring two DB hits (including the redirect...)
+   * @param id
+   * @return
+   */
+  def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
+    Secured {
+      getUrlForType(EntityType.withName(`type`), id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
     }
   }
 
@@ -68,4 +69,19 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   def login = loginHandler.login
   def loginPost = loginHandler.loginPost
   def logout = loginHandler.logout
+
+  private def getUrlForType(`type`: EntityType.Value, id: String): Option[Call] = {
+    `type` match {
+      // FIXME: Handle case not given here!
+      case EntityType.DocumentaryUnit => Some(routes.DocumentaryUnits.get(id))
+      case EntityType.Repository => Some(routes.Repositories.get(id))
+      case EntityType.HistoricalAgent => Some(routes.HistoricalAgents.get(id))
+      case EntityType.UserProfile => Some(routes.UserProfiles.get(id))
+      case EntityType.Link => Some(routes.Links.get(id))
+      case EntityType.Annotation => Some(routes.Annotations.get(id))
+      case EntityType.Concept => Some(routes.Concepts.get(id))
+      case EntityType.Vocabulary => Some(routes.Vocabularies.get(id))
+      case _ => None
+    }
+  }
 }

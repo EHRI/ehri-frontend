@@ -13,6 +13,7 @@ package object json {
    * Reader for the EntityType enum
    */
   implicit val entityTypeReads = defines.EnumUtils.enumReads(EntityType)
+  implicit val entityTypeFormat = defines.EnumUtils.enumFormat(EntityType)
 
   /**
    * Reads combinator that checks if a value is equal to the expected value.
