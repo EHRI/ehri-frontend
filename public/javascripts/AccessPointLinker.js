@@ -1,5 +1,5 @@
 !(function () {
-  angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead', 'ui.bootstrap.pagination' ], function ($provide) {
+  var linker = angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead', 'ui.bootstrap.pagination' ], function ($provide) {
     $provide.factory('$search', function ($http, $log) {
       var search = function (type, searchTerm, page) {
         var params = "?limit=10&q=" + (searchTerm || "");
@@ -42,6 +42,16 @@
       };
     });
   });
+
+  linker.directive('selectOnClick', function () {
+    // Linker function
+    return function (scope, element, attrs) {
+      element.click(function () {
+        element.select();
+      });
+    };
+  });
+
 }).call(this);
 
 

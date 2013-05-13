@@ -26,8 +26,6 @@
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
     <div ng-app="AccessPointLinker" class="ng-cloak">
         <div ng-controller="LinkerCtrl" ng-init="init('@item.id','@desc.id')">
-            <a class="btn btn-success pull-right" ng-click="addAccessModal(accesslist.id)">Add</a>
-
             <ul class="unstyled">
             @AccessPointType.values.toList.map { accessPointType =>
                 <li class="accessPointList">
@@ -53,13 +51,23 @@
                         </li>
 
                         <li ng-switch="editInProgress('@accessPointType')">
-                            <small ng-switch-when="false"><a ng-click="addNewAccessPoint('@accessPointType')">@Messages("accessPoints.addNew")</a></small>
+                            <small ng-switch-when="false">
+                                <a ng-click="addNewAccessPoint('@accessPointType')">
+                                    <i class="icon icon-plus-sign"></i>
+                                    @Messages("accessPoints.addNew")
+                                </a>
+
+                            </small>
                             <div class="well well-small" ng-switch-when="true" class="new-access-point">
                                 <h4>@Messages("accessPoints.newAccessPoint")</h4>
                                 <div class="control-group">
-                                    <input type="text" ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" />
-                                        <a class="btn btn-mini btn-info" ng-click="openBrowseDialog()">@Messages("accessPoints.browse")</a><br />
-                                    <input type="text" ng-model="tempAccessPoint.description" /><br />
+                                    <div class="controls-row input-append">
+                                    <input type="text" placeholder="@Messages("accessPoints.name")" ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" autofocus="true" />
+                                        <a class="btn" ng-click="openBrowseDialog()">
+                                            <i class="icon icon-search"></i>
+                                        </a><br />
+                                    </div>
+                                    <input type="text" placeholder="@Messages("accessPoints.description")" ng-model="tempAccessPoint.description" /><br />
                                     <div ng-switch="tempAccessPoint.link != null">
                                         <span ng-switch-when="true">
                                             <i class="icon icon-hand-right"></i>
@@ -72,13 +80,15 @@
                                 <button class="btn btn-small btn-primary" ng-click="saveNewAccessPoint()" ng-disabled="!hasValidNewAccessPoint('@accessPointType')">
                                     Save</button>
                                 <button class="btn btn-small" ng-click="cancelAddAccessPoint()">Cancel</button>
-                                <small class="control-group">
-                                    <ul class="potential-matches unstyled" style="overflow: auto; max-height: 200px">
-                                        <li ng-repeat="item in matches">
-                                            <a ng-click="selectLinkMatch(item)">{{item[1]}} <span class="badge pull-right">{{item[2]}}</span></a>
-                                        </li>
-                                    </ul>
-                                </small>
+                                <p>
+                                    <small class="control-group">
+                                        <ul class="potential-matches" style="overflow: auto; max-height: 200px">
+                                            <li ng-repeat="item in matches">
+                                                <a ng-click="selectLinkMatch(item)">{{item[1]}} <span class="badge pull-right">{{item[2]}}</span></a>
+                                            </li>
+                                        </ul>
+                                    </small>
+                                </p>
                             </div>
                         </li>
                     </ul>

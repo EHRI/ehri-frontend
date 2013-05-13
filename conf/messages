@@ -367,6 +367,8 @@ permissionGrant.grantedBy=Granted By
 accessPoints.addNew=Add New
 accessPoints.newAccessPoint=New Access Point
 accessPoints.browse=Search
+accessPoints.name=Name of link target...
+accessPoints.description=Optional description...
 
 #
 # ISDIAH Field definitions
