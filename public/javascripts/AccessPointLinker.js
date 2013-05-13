@@ -55,7 +55,7 @@
 }).call(this);
 
 
-function LinkCtrl($scope, $window, $search, dialog) {
+function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
 // Items data
   // FIXME: Retrieving the passed-in query should be easier!
   $scope.q = dialog.options.resolve.q();
@@ -67,12 +67,22 @@ function LinkCtrl($scope, $window, $search, dialog) {
   $scope.maxSize = 5; // Number of pagination buttons shown
   $scope.numPages = false; // Number of pages (get from query)
 
-  //Trigger moreResults if current page changes
+  // Trigger moreResults if current page changes
   $scope.$watch("currentPage", function (newValue, oldValue) {
     if (!$scope.results[newValue]) {
       $scope.moreResults($scope.q);
     }
   });
+
+  $rootScope.readableType = function(code) {
+    var types = {
+      cvocConcept: "Concept/Keyword",
+      documentaryUnit: "Archival Unit",
+      repository: "Repository",
+      historicalAgent: "Authority"
+    }
+    return types[code] ? types[code] : code;
+  }
 
   /**
    * Trigger a search for the current search term.
@@ -126,6 +136,7 @@ function LinkCtrl($scope, $window, $search, dialog) {
       $scope.item = item;
       return $search.detail(item[2], item[0]).then(function (response) {
         $scope.itemData = response.data;
+        console.log($scope.itemData)
       });
     }
   }

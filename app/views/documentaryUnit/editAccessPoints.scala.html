@@ -28,7 +28,7 @@
         <div ng-controller="LinkerCtrl" ng-init="init('@item.id','@desc.id')">
             <ul class="unstyled">
             @AccessPointType.values.toList.map { accessPointType =>
-                <li class="accessPointList">
+                <li class="accessPointList @accessPointType">
                     <h3>@Messages("isadg." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
                     <ul class="item-annotation-links unstyled">
                         <li ng-repeat="access in getAccessPointsWithType('@accessPointType')" id="{{access.accessPoint.id}}">

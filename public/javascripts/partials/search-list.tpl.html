@@ -28,8 +28,7 @@
 <div class="modal-body" style="padding-bottom:0;">
 	<div class="container-fluid">
 		<div class="row-fluid">
-			<div class="span8"ng-class="(tempSelected != null || editSelected != null) && 'span4'">
-			
+			<div class="span8">
 				<div style="height:50px; line-height:50px;">
 					<form class="form-inline" name="searchForm" >
 						<input type="text" class="search-query" ng-model="q" ng-change="doSearch(q)" placeholder="Type your query there">
@@ -39,7 +38,10 @@
 				<div style="overflow:auto; height:305px;" id="results" ng-show="results.length" ng-clock>
 					<ul class="result unstyled">
 						<li ng-class="result.isSelected && 'active'" ng-repeat="result in results[currentPage]">
-							<a href="" ng-click="setItem(result)">{{result.1}}</a>
+							<a href="" ng-click="setItem(result)">
+                                {{result.1}}
+                                <span class="muted pull-right">{{readableType(result.2)}}</span>
+                            </a>
 						</li>
 					</ul>
 				</div>
