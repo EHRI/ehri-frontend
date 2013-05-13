@@ -1,5 +1,5 @@
 !(function () {
-  angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap' ], function ($provide) {
+  angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead' ], function ($provide) {
     $provide.factory('$search', function ($http, $log) {
       var search = function (type, searchTerm, page) {
         var params = "?limit=10&q=" + (searchTerm || "");
@@ -27,6 +27,7 @@
 
     $provide.factory('$service', function() {
       return {
+        get: jsRoutes.controllers.Application.get,
         filter: jsRoutes.controllers.Search.filterType,
         createLink: jsRoutes.controllers.DocumentaryUnits.createLink,
         createMultipleLinks: jsRoutes.controllers.DocumentaryUnits.createMultipleLinks,
@@ -172,6 +173,8 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
   // Matches for other items to (potentially) link to
   $scope.matches = [];
 
+  $scope.test = ["foo", "bar", "baz"]
+
   $scope.editInProgress = function(type) {
     return $scope.tempAccessPoint !== null && $scope.tempAccessPoint.type == type;
   }
@@ -223,8 +226,12 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
     $scope.tempAccessPoint.name = match[1];
     $scope.tempAccessPoint.link = {
       target: match[0],
+      name: match[1],
+      targetType: match[2],
       type: "associative"
     }
+    // Clear the list of matches
+    $scope.matches = [];
   }
 
   $scope.deleteAccessPoint = function (accessPointId, accessLinkText) {
@@ -260,7 +267,6 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
   }
 
   $scope.addNewAccessPoint = function(type) {
-    console.log("Adding new with type: " + type);
     $scope.tempAccessPoint = {
       type: type,
       name: "",
@@ -270,6 +276,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
   }
 
   $scope.queryNameMatches = function() {
+    console.log("Query name matches: ")
     if (!$scope.hasValidNewAccessPoint) {
       $scope.matches = [];
 
@@ -277,6 +284,16 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
 
     $search.filter(null, $scope.tempAccessPoint.name).then(function(result) {
       $scope.matches = result.data.items;
+    });
+  }
+
+  $scope.doSearch = function(text) {
+    return $search.filter(null, text).then(function(result) {
+      console.log(result.data);
+      return result.data.items.map(function(i) {
+        console.log(i[1])
+        return i[1];
+      });
     });
   }
 
@@ -306,6 +323,10 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
         });
       }
     });
+  }
+
+  $scope.getUrl = function(id) {
+    return $service.get(id).url;
   }
 
   $scope.cancelAddAccessPoint = function() {
