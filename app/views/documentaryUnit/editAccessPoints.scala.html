@@ -52,7 +52,7 @@
 
                         <li ng-switch="editInProgress('@accessPointType')">
                             <small ng-switch-when="false">
-                                <a ng-click="addNewAccessPoint('@accessPointType')">
+                                <a ng-click="initialiseEdit('@accessPointType')">
                                     <i class="icon icon-plus-sign"></i>
                                     @Messages("accessPoints.addNew")
                                 </a>
