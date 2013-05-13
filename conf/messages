@@ -365,6 +365,7 @@ permissionGrant.grantedBy=Granted By
 
 # Access Points
 accessPoints.addNew=Add New
+accessPoints.browse=Search
 
 #
 # ISDIAH Field definitions
@@ -524,7 +525,7 @@ isadg.scopeAndContent=Scope and Content
 isadg.appraisal=Appraisal
 isadg.accruals=Accruals
 isadg.systemOfArrangement=System of Arrangement
-isadg.conditionsOfAccess=Conditions Governing Access
+jm=Conditions Governing Access
 isadg.conditionsOfReproduction=Conditions Governing Reproduction
 isadg.languageOfMaterials=Language(s) of Materials
 isadg.scriptOfMaterials=Script(s) of Materials

@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field, fieldName: String)(implicit prefix: String = "")
+@(desc: play.api.data.Field, fieldName: String)(implicit prefix: String = "", lang: Lang)
 
     @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 

@@ -9,17 +9,17 @@
             window.ITEM_ID = "@item.id";
             window.DESC_ID = "@desc.id";
         </script>
-        @helper.javascriptRouter("jsRoutes")(
-            routes.javascript.Search.filterType,
-            routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
-            routes.javascript.DocumentaryUnits.get,
-            routes.javascript.DocumentaryUnits.createLink,
-            routes.javascript.DocumentaryUnits.createAccessPoint,
-            routes.javascript.DocumentaryUnits.getLink,
-            routes.javascript.DocumentaryUnits.getAccessPointsJson,
-            routes.javascript.DocumentaryUnits.deleteAccessPoint,
-            routes.javascript.Links.deletePost
-        )
+    @helper.javascriptRouter("jsRoutes")(
+        routes.javascript.Search.filterType,
+        routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
+        routes.javascript.DocumentaryUnits.get,
+        routes.javascript.DocumentaryUnits.createLink,
+        routes.javascript.DocumentaryUnits.createAccessPoint,
+        routes.javascript.DocumentaryUnits.getLink,
+        routes.javascript.DocumentaryUnits.getAccessPointsJson,
+        routes.javascript.DocumentaryUnits.deleteAccessPoint,
+        routes.javascript.Links.deletePost
+    )
     }
 
 @import AccessPointF._
@@ -30,49 +30,52 @@
             <a class="btn btn-success pull-right" ng-click="addAccessModal(accesslist.id)">Add</a>
 
             <ul class="unstyled">
-                @AccessPointType.values.toList.map { accessPointType =>
-                    <li class="accessPointList">
-                        <h3>@Messages("isadg." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
-                        <ul class="item-annotation-links">
-                            <li ng-repeat="access in getAccessPointsWithType('@accessPointType')" id="{{access.accessPoint.id}}">
-
-
-                                <span ng-show="access.link">
+            @AccessPointType.values.toList.map { accessPointType =>
+                <li class="accessPointList">
+                    <h3>@Messages("isadg." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
+                    <ul class="item-annotation-links">
+                        <li ng-repeat="access in getAccessPointsWithType('@accessPointType')" id="{{access.accessPoint.id}}">
+                            <span ng-switch="access.link != null">
+                                <span ng-switch-when="true">
                                     <a href="{{access.targetUrl}}">{{access.accessPoint.data.name}}</a>
                                     <a title="@Messages("accessPoint.removeAccessPoint")"
-                                        class="icon icon-remove" ng-click="deleteAccessLink(access.link.id, access.accessPoint.data.name)"></a>
+                                    class="icon icon-remove" ng-click="deleteAccessLink(access.link.id, access.accessPoint.data.name)"></a>
                                 </span>
 
-                                <span ng-show="!access.link">
+                                <span ng-switch-when="false">
                                     {{access.accessPoint.data.name}}
                                     <a title="@Messages("accessPoint.removeAccessPoint")"
                                     class="icon icon-remove" ng-click="deleteAccessPoint(access.accessPoint.id, access.accessPoint.data.name)"></a>
                                     <a title="@Messages("accessPoint.addAccessPointLink")"
                                     class="icon icon-plus" ng-click="openModalAccess(access.accessPoint.id , access.accessPoint.data.name)"></a>
                                 </span>
+                            </span>
+                            <small ng-show="access.accessPoint.data.description">
+                                <p class="muted">{{access.accessPoint.data.description}}</p>
+                            </small>
+                        </li>
 
-                                <small ng-show="access.accessPoint.data.description">
-                                    <p class="muted">{{access.accessPoint.data.description}}</p>
-                                </small>
-                            </li>
-
-                            <li>
-                                <small ng-show="!editInProgress('@accessPointType')"><a ng-click="addNewAccessPoint('@accessPointType')">@Messages("accessPoints.addNew")</a></small>
-                                <div ng-show="editInProgress('@accessPointType')" class="new-access-point">
-                                    <input ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" /><br />
-                                    <input ng-model="tempAccessPoint.description" /><br />
-                                    <button ng-click="saveNewAccessPoint()" ng-disabled="!hasValidNewAccessPoint('@accessPointType')">Save</button>
-                                    <button ng-click="cancelAddAccessPoint()">Cancel</button>
-                                    <ul class="potential-matches">
+                        <li ng-switch="editInProgress('@accessPointType')">
+                            <small ng-switch-when="false"><a ng-click="addNewAccessPoint('@accessPointType')">@Messages("accessPoints.addNew")</a></small>
+                            <div ng-switch-when="true" class="new-access-point">
+                                <input ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" /><br />
+                                <input ng-model="tempAccessPoint.description" /><br />
+                                <button ng-click="saveNewAccessPoint()" ng-disabled="!hasValidNewAccessPoint('@accessPointType')">
+                                    Save</button>
+                                <button ng-click="cancelAddAccessPoint()">Cancel</button>
+                                <small>
+                                    <ul class="potential-matches unstyled" style="overflow: auto; max-height: 200px">
                                         <li ng-repeat="item in matches">
-                                            <a ng-click="selectLinkMatch(item)">{{item[1]}} ({{item[2]}})</a>
+                                            <a ng-click="selectLinkMatch(item)">{{item[1]}} <span class="badge">{{item[2]}}</span></a>
                                         </li>
                                     </ul>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                }
+                                    <a ng-click="openBrowseDialog()">@Messages("accessPoints.browse")</a>
+                                </small>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            }
             </ul>
         </div>
     </div>

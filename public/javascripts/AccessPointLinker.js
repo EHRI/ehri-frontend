@@ -1,17 +1,22 @@
 !(function () {
   angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap' ], function ($provide) {
     $provide.factory('$search', function ($http, $log) {
+      var search = function (type, searchTerm, page) {
+        var params = "?limit=10&q=" + (searchTerm || "");
+        if (type) {
+          params = params + "&type=" + type;
+        }
+        if (page) {
+          params = params + "&page=" + page;
+        }
+        $log.log("Searching with: ", "/search/" + params)
+        return $http.get("/filter" + params);
+      }
+
       return {
-        search: function (type, searchTerm, page) {
-          var params = "?q=" + (searchTerm || "PLACEHOLDER_SEARCH_QUERY");
-          if (type) {
-            params = params + "&type=" + type;
-          }
-          if (page) {
-            params = params + "&limit=10&page=" + page;
-          }
-          // $log.log("Searching with: ", "/search/" + type + params)
-          return $http.get("/filter" + params);
+        search: search,
+        filter: function (type, searchTerm, page) {
+          return search(type, (searchTerm || "PLACEHOLDER_NO_RESULTS"), page);
         },
 
         detail: function (type, id) {
@@ -38,6 +43,76 @@
 }).call(this);
 
 
+function LinkCtrl($scope, $window, $search, dialog) {
+// Items data
+  // FIXME: Retrieving the passed-in query should be easier!
+  $scope.q = dialog.options.resolve.q();
+  $scope.item = null; // Preview item
+  $scope.type = ''; // Type of query
+  $scope.results = []; // Results from query
+
+  $scope.currentPage = 1; //Current page of pagination
+  $scope.maxSize = 5; // Number of pagination buttons shown
+  $scope.numPages = false; // Number of pages (get from query)
+
+  //Trigger moreResults if current page changes
+  $scope.$watch("currentPage", function (newValue, oldValue) {
+    if (!$scope.results[newValue]) {
+      $scope.moreResults($scope.q);
+    }
+  });
+
+  //Trigger a new research, ie. reset results
+  $scope.doSearch = function (searchTerm, page) {
+    return $search.search($scope.type, searchTerm, page).then(function (response) {
+      $scope.results = [];
+      $scope.currentPage = response.data.page;
+      $scope.results[$scope.currentPage] = response.data.items;
+      $scope.numPages = response.data.numPages;
+    });
+  }
+
+  //Trigger same research on a defined page
+  $scope.moreResults = function (searchTerm) {
+    return $search.search($scope.type, searchTerm, $scope.currentPage).then(function (response) {
+      // Append results instead of replacing them...
+      $scope.currentPage = response.data.page;
+      $scope.results[$scope.currentPage] = response.data.items;
+      $scope.numPages = response.data.numPages;
+      $scope.currentPage = response.data.page;
+    });
+  }
+
+  $scope.setType = function (type) {
+    $scope.type = type;
+    $scope.doSearch($scope.q);
+  }
+
+  $scope.setItem = function (item) {
+    if ($scope.item === item) {
+      $scope.item = $scope.itemData = null;
+    } else {
+      $scope.item = item;
+      return $search.detail(item[2], item[0]).then(function (response) {
+        $scope.itemData = response.data;
+      });
+    }
+  }
+
+  //Send edited item to basket
+  $scope.selectItem = function () {
+    if ($scope.item)
+      $scope.close($scope.item);
+  }
+
+  $scope.close = function (result) {
+    console.log("Closing with: " + $scope.item)
+    dialog.close(result);
+  };
+}
+
+
+
 function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
 
   /**
@@ -51,6 +126,23 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
 
 
   /**
+   * Modal dialog configuration
+   */
+  $scope.modalLink = {	//Options for modals
+    backdrop: true,
+    keyboard: true,
+    backdropClick: true,
+    dialogClass: "modal modal-test",
+    templateUrl: ANGULAR_ROOT + '/partials/search-list.tpl.html',
+    resolve: {
+      q: function() {
+        return angular.copy($scope.tempAccessPoint.name);
+      }
+    },
+    controller: 'LinkCtrl'
+  };
+
+  /**
    * Initialize the scope with the item and description IDs.
    * @param  {[type]} itemId        item ID
    * @param  {[type]} descriptionId description ID
@@ -58,7 +150,6 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
   $scope.init = function(itemId, descriptionId) {
     $scope.itemId = itemId;
     $scope.descriptionId = descriptionId;
-    $rootScope.mode = "AccessPage";
     $scope.getAccess();
   }
 
@@ -91,12 +182,6 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
       && $scope.tempAccessPoint.name != "";
   }
 
-  $scope.addSelectedAccess = function (type, descID) {
-    $rootScope.typeAccess = type;
-    $scope.addAccessModal(descID);
-    console.log($rootScope.typeAccess);
-  }
-
   $scope.deleteAccessLink = function (accessLinkID, accessLinkText) {
     var title = 'Delete link for access point';
     var msg = 'Are you sure you want to delete the link for ' + accessLinkText + ' ?';
@@ -120,6 +205,16 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
           }
         });
   };
+
+  $scope.openBrowseDialog = function() {
+    var d = $dialog.dialog($scope.modalLink);
+    d.open().then(function (result) {
+      if (result) {
+        $scope.selectLinkMatch(result);
+      }
+      return true;
+    });
+  }
 
   $scope.selectLinkMatch = function(match) {
     console.log("Got link match: " + match)
@@ -180,7 +275,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
 
     }
 
-    $search.search(null, $scope.tempAccessPoint.name).then(function(result) {
+    $search.filter(null, $scope.tempAccessPoint.name).then(function(result) {
       $scope.matches = result.data.items;
     });
   }
