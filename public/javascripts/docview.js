@@ -29,4 +29,6 @@ jQuery(function($) {
     event.preventDefault();
   });
 
+	$('[data-toggle="tooltip"]').tooltip({placement: "right"});
+
 });

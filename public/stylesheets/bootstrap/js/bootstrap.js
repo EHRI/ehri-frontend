@@ -2168,5 +2168,3 @@
   })
 
 }(window.jQuery);
-
-$('[data-toggle="tooltip"]').tooltip({placement: "right"});
