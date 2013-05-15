@@ -3,7 +3,9 @@
 <div class="inline-element-set control-group">
     <label class="control-label">@Messages(fieldPrefix + "." + name)</label>
     <div class="controls controls-row">
-        <a href="#" class="add-inline-element btn btn-mini">@Messages("actions.addNew")</a>
+        <a href="#"
+            title="@views.Helpers.renderMarkdown(Messages(fieldPrefix + "." + name + ".description"))"
+            class="add-inline-element btn btn-mini">@Messages("actions.addNew")</a>
     </div>
 
     <script type="application/x-js-template" class="inline-element-template">
