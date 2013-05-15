@@ -385,60 +385,256 @@ isdiah.services=Services Area
 # Identity Section
 isdiah.identityArea=Identity Area
 isdiah.identifier=Identifier
+isdiah.identifier.description=To provide a unique numeric or alpha-numeric code identifying the\
+  institution with archival holdings.\n\n\
+Record the numeric or alpha-numeric code identifying the institution with archival\
+ holdings in accordance with the relevant international and national standards.
+
 isdiah.name=Authorized Form Of Name
-isdiah.otherFormsOfName=Other Form(s) of Name
+isdiah.name.description=To create an authorised access point that uniquely identifies the institution with\
+  archival holdings.\n\n\
+Record the standardised form of name of the institution with archival holdings, adding\
+ appropriate qualifiers (for instance dates, place, etc.), if necessary. Specify separately\
+ in the Rules and/or conventions used element (5.6.3) which set of rules has been\
+ applied for this element. (5.1.2)
+
 isdiah.parallelFormsOfName=Parallel Form(s) of Name
+isdiah.parallelFormsOfName.description=To indicate the various forms in which the authorised form \
+  of name of an institution with archival holdings occurs in other languages or script form(s).\n\n\
+Record the parallel form(s) of name of the institution with archival holdings in\
+ accordance with any relevant national or international conventions or rules applied by\
+ the agency that created the description, including any necessary sub elements and/or\
+ qualifiers required by those conventions or rules. Specify in the Rules and/or\
+ conventions used element (5.6.3) which rules have been applied. (5.1.3)
+
+isdiah.otherFormsOfName=Other Form(s) of Name
+isdiah.otherFormsOfName.description=To indicate any other name(s) for the institution with \
+  archival holdings not used elsewhere in the Identity Area.\n\n\
+Record any other name(s) by which the institution with archival holdings may be\
+ known. This could include other forms of the same name, acronyms, other\
+ institutional names, or changes of name over time, including, if possible, relevant dates. (5.1.4)
+
 isdiah.languageCode=Language of Description
 isdiah.scriptCode=Script of Description
+
 isdiah.institutionType=Type of Institution with Archival Holdings
+isdiah.institutionType.description=To identify the type of an institution with archival holdings.\n\n\
+Record the type of the institution with archival holdings.\n\n\
+Note: different consistent systems of criteria can be used and/or combined to classify\
+ institutions with archival holdings, in accordance with any relevant national or\
+ international conventions, rules or controlled vocabularies. (5.1.5)
 
 # AddressF
 isdiah.addressArea=Address Area
 isdiah.addressName=Address Name/Type
+isdiah.addressName.description=A short descriptive indicating the type of address given below\
+  e.g ''primary''
+
 isdiah.contactPerson=Contact Person
+isdiah.contactPerson.description=To provide users with all the information needed to contact members of staff.\n\n\
+Record the name, the contact details and the position of the members of staff (first\
+ name, surname, area of responsibility, email, etc.). This information may relate to the\
+ Administrative structure element (5.3.4).
+
 isdiah.street=Street Address
+isdiah.street.description=
 isdiah.municipality=City
+isdiah.municipality.description=
 isdiah.firstdem=Region
+isdiah.firstdem.description=
 isdiah.countryCode=Country Code
+isdiah.countryCode.description=
 isdiah.email=Email
+isdiah.email.description=
 isdiah.telephone=Telephone
+isdiah.telephone.description=
 isdiah.fax=Fax
+isdiah.fax.description=
 isdiah.url=Website Address
+isdiah.url.description=
 
 # Description
 isdiah.history=History of the Institution with Archival Holdings
+isdiah.history.description=To provide a concise history of the institution with archival holdings.\n\n\
+Record any relevant information about the history of the institution with archival\
+  holdings. This element may include information on dates of establishment, changes of\
+  names, changes of legislative mandates, or of any other sources of authority for the\
+  institution with archival holdings. (5.3.1)
+
 isdiah.geoculturalContext=Geographical and Cultural Context
+isdiah.geoculturalContext.description=To provide information about the geographical and \
+ cultural context of the institution with archival holdings.\n\n\
+Identify the geographical area the institution with archival holdings belongs to.\
+ Record any other relevant information about the cultural context of the institution with\
+ archival holdings. (5.3.2)
+
 isdiah.mandates=Mandates/Sources of Authority
+isdiah.mandates.description=To indicate the sources of authority for the institution with \
+  archival holdings in terms of its powers, functions, responsibilities or sphere of \
+  activities, including territorial.\n\n\
+Record any document, law, directive or charter which acts as a source of authority for\
+ the powers, functions and responsibilities of the institution with archival holdings,\
+ together with information on the jurisdiction(s) and covering dates when the\
+ mandate(s) applied or were changed. (5.3.3)
+
 isdiah.administrativeStructure=Administrative Structure
+isdiah.administrativeStructure.description=To represent the current administrative structure\
+  of the institution with archival holdings.\n\n\
+Describe, in narrative form or using organisational charts, the current administrative\
+ structure of the institution with archival holdings.(5.3.4)
+
 isdiah.records=Records Management and Collecting Policies
+isdiah.records.description=To provide information about the records management and collecting\
+  policies of the institution with archival holdings.\n\n\
+Record information about the records management and collecting policies of the\
+ institution with archival holdings. Define the scope and nature of material which the\
+ institution with archival holdings accessions. Indicate whether the repository seeks to\
+ acquire archival materials by transfer, gift, purchase and/or loan. If the policy includes\
+ active survey and/or rescue work, this might be spelt out. (5.3.5)
+
 isdiah.buildings=Building(s)
+isdiah.buildings.description=To provide information about the building(s) of the institution\
+  with archival holdings.\n\n\
+Record information on the building(s) of the institution with archival holdings\
+ (general and architectural characteristics of the building, capacity of storage areas,\
+ etc). Where possible, provide information which can be used for generating statistics. (5.3.6)
+
+
 isdiah.holdings=Archival and Other Holdings
+isdiah.holdings.description=To provide a profile of the holdings of the institution.\n\n\
+Record a short description of the holdings of the institution with archival holdings,\
+ describing how and when they were formed. Provide information on volume of\
+ holdings, media formats, thematic coverage, etc. See chapter 6 for guidance on how to\
+ establish links to archival databases and/or detailed descriptions of the holdings. (5.3.7)
+
 isdiah.findingAids=Finding Aids, Guides, and Publication
+isdiah.findingAids.description=To provide a general overview of the published and/or\
+  unpublished finding aids and guides prepared by the institution with archival \
+  holdings and any other relevant publications.\n\n\
+Record the title and other pertinent details of the published and/or unpublished finding\
+ aids and guides prepared by the institution with archival holdings and of any other\
+ relevant publications. Use ISO 690 Information and documentation ? Bibliographic\
+ references and other national or international cataloguing rules. See chapter 6 for\
+ guidance on how to establish links to online archival catalogues and/or finding aids. (5.3.8)
 
 # Access
 isdiah.accessArea=Access Area
+isdiah.accessArea.description=
+
 isdiah.openingTimes=Opening Times
+isdiah.openingTimes.description=To provide information on opening times and dates of annual closures.\n\n\
+Record the opening hours of the institution with archival holdings and annual,\
+  seasonal and public holidays, and any other planned closures. Record times\
+  associated with the availability and/or delivery of services (for example, exhibition\
+  spaces, reference services, etc.). (5.4.1)
+
 isdiah.conditions=Conditions of Access
+isdiah.conditions.description=To provide information about the conditions, requirements\
+  and procedures for access to, and use of institutional services.\n\n\
+Describe access policies, including any restrictions and/or regulations for the use of\
+ materials and facilities. Record information about registration, appointments, readers?\
+ tickets, letters of introduction, admission fees, etc. Where appropriate, make reference\
+ to the relevant legislation. (5.4.2)
+
 isdiah.accessibility=Accessibility
+isdiah.accessibility.description=To provide accessibility information related to the\
+  institution with archival holdings and its services.\n\n\
+Record information about travelling to the institution with archival holdings and\
+ details for users with disabilities, including building features, specialised equipment\
+ or tools, parking or lifts. (5.4.3)
 
 # Services
 isdiah.servicesArea=Services Area
+isdiah.servicesArea.description=
+
 isdiah.researchServices=Research Services
+isdiah.researchServices.description=To describe the research services provided by the\
+  institution with archival holdings.\n\n\
+Record information about the onsite services provided by the institution with archival\
+ holdings such as languages spoken by staff, research and consultation rooms, enquiry\
+ services, internal libraries, map, microfiches, audio-visual, computer rooms, etc.\
+ Record as well any relevant information about research services, such as research\
+ undertaken by the institution with archival holdings, and the fee charge if applicable. (5.5.1)
+
+
 isdiah.reproductionServices=Reproduction Services
+isdiah.reproductionServices.description=To provide information about reproduction services.\n\n\
+Record information about reproduction services available to the public (microfilms,\
+ photocopies, photographs, digitised copies). Specify general conditions and\
+ restrictions to the services, including applicable fees and publication rules. (5.5.2)
+
 isdiah.publicAreas=Public Areas
+isdiah.publicAreas.description=To provide information about areas of the institution\
+  available for public use.\n\n\
+Record information about spaces available for public use (permanent or temporary\
+ exhibitions, free or charged internet connection, cash machines, cafeterias, restaurants,\
+ shops, etc.). (5.5.3)
 
 # Control
 isdiah.controlArea=Control Area
+isdiah.controlArea.description=
+
 isdiah.descriptionIdentifier=Description Identifier
+isdiah.descriptionIdentifier.description=To identify the description of the institution with \
+  archival holdings uniquely within the context in which it will be used.\n\n\
+Record a unique description identifier in accordance with local and/or national\
+ conventions. If the description is to be used internationally, record the code of the\
+ country in which the description was created in accordance with the latest version of\
+ ISO 3166 - Codes for the representation of names of countries. Where the creator of\
+ the description is an international organisation, give the organisational identifier in\
+ place of the country code. (5.6.1)
+
 isdiah.institutionIdentifier=Institution Identifier
+isdiah.institutionIdentifier.description=To identify the agency(ies) responsible for the description.\n\n\
+Record the full authorised form of name(s) of the agency(ies) responsible for creating,\
+ modifying or disseminating the description or, alternatively, record a code for the\
+ agency in accordance with the national or international agency code standard. (5.6.2)
+
 isdiah.rulesAndConventions=Rules and Conventions
+isdiah.rulesAndConventions.description=To identify the national or international conventions\
+  or rules applied in creating the description.\n\n\
+Record the names, and, where useful, the editions or publication dates of the\
+ conventions or rules applied. Specify, separately, which rules have been applied for\
+ creating the Authorised form(s) of name. Include reference to any system(s) of dating\
+ used to identify dates in this description (e.g. ISO 8601). (5.6.3)
+
 isdiah.status=Status
+isdiah.status.description=To indicate the drafting status of the description so \
+  that users can understand the current status of the description.\n\n\
+Record the current status of the description, indicating whether it is a draft, finalized\
+ and/or revised or deleted. (5.6.4)
+
 isdiah.levelOfDetail=Level of Detail
+isdiah.levelOfDetail.description=To indicate whether the description applies a minimal,\
+  partial or a full level of detail.\n\n\
+Record whether the description consists of a minimal, partial or full level of detail in\
+ accordance with relevant international and/or national guidelines and/or rules. In the\
+ absence of national guidelines or rules, minimal descriptions are those that consist\
+ only of the three essential elements of an ISDIAH compliant description (see 4.7),\
+ while full descriptions are those that convey information for all relevant ISDIAH\
+ elements of description. (5.6.5)
+
 isdiah.datesCVD=Dates of Creation and Deletion
+isdiah.datesCVD.description=To indicate when this description was created, revised or deleted.\n\n\
+Record the date the description was created and the dates of any revisions to the\
+ description. Specify in the Rules and/or conventions used element (5.6.3) the\
+ system(s) of dating used, e.g. ISO 8601. (5.6.6)
+
 isdiah.languages=Languages Used
 isdiah.scripts=Scripts Used
+
 isdiah.sources=Sources
+isdiah.sources.description=To indicate the sources consulted in creating the description\
+  of the institution with archival holdings.\n\n\
+Record the sources consulted in establishing the description of the institution with\
+ archival holdings. (5.6.8)
+
 isdiah.maintenanceNotes=Maintenance Notes
+isdiah.maintenanceNotes.description=To document additional information relating to the\
+  creation of and changes to the description.\n\n\
+Record notes pertinent to the creation and maintenance of the description. For\
+ example, the names of persons responsible for creating and/or revising the description\
+ may be recorded here. (5.6.9)
 
 #
 # ISAAR Field definitions
