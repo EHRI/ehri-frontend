@@ -24,6 +24,7 @@
 @import AccessPointF._
 
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
+    <h4>&quot;@desc&quot;</h4>
     <div ng-app="AccessPointLinker" class="ng-cloak">
         <div ng-controller="LinkerCtrl" ng-init="init('@item.id','@desc.id')">
             <ul class="unstyled">
