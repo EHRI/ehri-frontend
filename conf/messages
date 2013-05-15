@@ -508,9 +508,44 @@ isadg.materialsArea=Materials Area
 isadg.controlArea=Control Area
 
 isadg.name=Title
-isadg.identifier=Identifier
+isadg.name.description=To name the unit of description.\n\n\
+Provide either a formal title or a concise supplied title in accordance with the rules of\
+ multilevel description and national conventions.\n\n\
+If appropriate, abridge a long formal title, but only if this can be done without loss of\
+ essential information.\n\n\
+For supplied titles, at the higher level, include the name of the creator of the records. At\
+ lower levels one may include, for example, the name of the author of the document and a\
+ term indicating the form of the material comprising the unit of description and, where\
+ appropriate, a phrase reflecting function, activity, subject, location, or theme.\n\n\
+Distinguish between formal and supplied titles according to national or language\
+ conventions. (3.1.2)
+
+isadg.identifier=Reference code
+isadg.identifier.description=To identify uniquely the unit of description and to provide a\
+ link to the description that represents it.\n\n\
+A specific local reference code, control number, or other unique identifier within the scope\
+  of the holding repository.\n\n\
+NB: Contra ISAD(G) 3.1.1 do not include the country and repository\
+  code here.
+
 isadg.dates=Dates
+isadg.dates.description=To identify and record the date(s) of the unit of description.\n\n\
+Record at least one of the following types of dates for the unit of description, as\
+ appropriate to the materials and the level of description.\n\
+Date(s) when records were accumulated in the transaction of business or the conduct of\
+ affairs;\
+ Date(s) when documents were created. This includes the dates of copies, editions, or\
+ versions of, attachments to, or originals of items generated prior to their accumulation as\
+ records.\n\
+Identify the type of date(s) given. Other dates may be supplied and identified in accordance\
+ with national conventions.\n\
+Record as a single date or a range of dates as appropriate. A range of dates should always\
+ be inclusive unless the unit of description is a record-keeping system (or part thereof) in\
+ active use. (3.1.3)
+
 isadg.levelOfDescription=Level of Description
+isadg.levelOfDescription.description=To identify the level of arrangement of the unit of description. (3.1.4)
+
 isadg.collection=Collection
 isadg.fonds=Fonds
 isadg.subfonds=Subfonds
@@ -519,28 +554,150 @@ isadg.subseries=Subseries
 isadg.file=File
 isadg.item=Item
 isadg.creation=Creation
+
 isadg.extentAndMedium=Extent and Medium of the Unit of Description
+isadg.extentAndMedium.description=\
+  To identify and describe:\n\
+   1. the physical or logical extent and\n\
+   2. the medium of the unit of description.\n\n\
+Record the extent of the unit of description by giving the number of physical or logical\
+ units in arabic numerals and the unit of measurement. Give the specific medium (media)\
+ of the unit of description. (3.1.5)
 isadg.languageCode=Language of Description
+
 isadg.adminBiogHistory=Administrative and Biographical History
+isadg.adminBiogHistory.description=To provide an administrative history of, or biographical details on,\
+  the creator (or creators) of the unit of description to place the material in context and make it\
+  better understood.\n\n\
+Record concisely any significant information on the origin, progress, development and work\
+ of the organization (or organizations) or on the life and work of the individual (or\
+ individuals) responsible for the creation of the unit of description. If additional information\
+ is available in a published source, cite the source. (3.2.2)
+
 isadg.archivalHistory=Archival History
-isadg.acquisition=Acquisition
+isadg.archivalHistory.description=To provide information on the history of the unit of description\
+  that is significant for its authenticity, integrity and interpretation.\n\n\
+Record the successive transfers of ownership, responsibility and/or custody of the unit of\
+ description and indicate those actions, such as history of the arrangement, production of\
+ contemporary finding aids, re-use of the records for other purposes or software migrations,\
+ that have contributed to its present structure and arrangement. Give the dates of these\
+ actions, insofar as they can be ascertained. If the archival history is unknown, record that\
+ information.\n\n\
+Optionally, when the unit of description is acquired directly from the creator, do not record\
+ an archival history but rather, record this information as the Immediate source of\
+ acquisition. (3.2.3)
+
+isadg.acquisition=Immediate Source of Acquisition or Transfer
+isadg.acquisition.description=To identify the immediate source of acquisition or transfer.\n\n\
+Record the source from which the unit of description was acquired and the date and/or\
+ method of acquisition if any or all of this information is not confidential. If the source is\
+ unknown, record that information. Optionally, add accession numbers or codes. (3.2.4)
+
 isadg.scopeAndContent=Scope and Content
+isadg.scopeAndContent.description=To enable users to judge the potential relevance of the unit of description.\n\n\
+Give a summary of the scope (such as, time periods, geography) and content, (such as\
+ documentary forms, subject matter, administrative processes) of the unit of description,\
+ appropriate to the level of description. (3.3.1)
+
 isadg.appraisal=Appraisal
+isadg.appraisal.description=To provide information on any appraisal, destruction and scheduling action.\n\n\
+Record appraisal, destruction and scheduling actions taken on or planned for the unit of\
+ description, especially if they may affect the interpretation of the material. (3.3.2)
+
 isadg.accruals=Accruals
+isadg.accruals.description=To inform the user of foreseen additions to the unit of description.\n\n\
+Indicate if accruals are expected. Where appropriate, give an estimate of their quantity and\
+ frequency. (3.3.3)
+
 isadg.systemOfArrangement=System of Arrangement
-jm=Conditions Governing Access
+isadg.systemOfArrangement.description=To provide information on the internal structure, the order\
+  and/or the system of classification of the unit of description.\n\n\
+Specify the internal structure, order and/or the system of classification of the unit of\
+ description. Note how these have been treated by the archivist. For electronic records,\
+ record or reference information on system design. (3.3.4)
+
+isadg.conditionsOfAccess=Conditions Governing Access
+isadg.conditionsOfAccess.description=To provide information on the legal status or other\
+ regulations that restrict or affect access to the unit of description.\n\n\
+Specify the law or legal status, contract, regulation or policy that affects access to the unit\
+ of description. Indicate the extent of the period of closure and the date at which the\
+ material will open when appropriate. (3.4.1)
+
 isadg.conditionsOfReproduction=Conditions Governing Reproduction
+isadg.conditionsOfReproduction.description=To identify any restrictions on reproduction\
+  of the unit of description.\n\n\
+Give information about conditions, such as copyright, governing the reproduction of the\
+ unit of description after access has been provided. If the existence of such conditions is\
+ unknown, record this. If there are no conditions, no statement is necessary. (3.4.2)
+
 isadg.languageOfMaterials=Language(s) of Materials
+isadg.languageOfMaterials.description=To identify the language(s) employed in the unit of description.\n\n\
+Record the language(s) and/or script(s) of the materials comprising the unit of description.\
+ Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (3.4.3)
+
 isadg.scriptOfMaterials=Script(s) of Materials
+isadg.scriptOfMaterials.description=To identify the script(s) employed in the unit of description.\n\n\
+Record the language(s) and/or script(s) of the materials comprising the unit of description.\
+ Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (3.4.3)
+
 isadg.physicalCharacteristics=Physical Characteristics and Technical Requirements
+isadg.physicalCharacteristics.description=To provide information about any important physical\
+ characteristics or technical requirements that affect use of the unit of description.\n\n\
+Indicate any important physical conditions, such as preservation requirements, that affect\
+ the use of the unit of description. Note any software and/or hardware required to access\
+ the unit of description. (3.4.4)
+
 isadg.findingAids=Finding Aids
+isadg.findingAids.description=To identify any finding aids to the unit of description.\n\n\
+  Give information about any finding aids that the repository or records creator may have\
+that provide information relating to the context and contents of the unit of description.\
+If appropriate, include information on where to obtain a copy. (3.4.5)
+
 isadg.locationOfOriginals=Existence and Location of Originals
+isadg.locationOfOriginals.description=To indicate the existence, location, availability\
+ and/or destruction of originals where the unit of description consists of copies.\n\n\
+If the original of the unit of description is available (either in the institution or elsewhere)\
+ record its location, together with any significant control numbers. If the originals no longer\
+ exist, or their location is unknown, give that information. (3.5.1)
+
 isadg.locationOfCopies=Existence and Location of Copies
+isadg.locationOfCopies.description=To indicate the existence, location and availability\
+ of copies of the unit of description.\n\n\
+If the copy of the unit of description is available (either in the institution or elsewhere)\
+ record its location, together with any significant control numbers. (3.5.2)
+
 isadg.relatedUnitsOfDescription=Related Units of Description
+isadg.relatedUnitsOfDescription.description=To identify related units of description.\n\n\
+Record information about units of description in the same repository or elsewhere that are\
+ related by provenance or other association(s). Use appropriate introductory wording and\
+ explain the nature of the relationship . If the related unit of description is a finding aid, use\
+ the finding aids element of description (3.4.5) to make the reference to it. (3.5.3)
+
 isadg.publicationNote=Publication Note
+isadg.publicationNote.description=To identify any publications that are about or are \
+ based on the use, study, or analysis of the unit of description.\n\n\
+Record a citation to, and/or information about a publication that is about or based on the\
+ use, study, or analysis of the unit of description. Include references to published facsimiles\
+ or transcriptions. (3.5.4)
+
+isadg.note=Note(s)
+isadg.note.description=To provide information that cannot be accommodated in any of the other areas.\n\n\
+Record specialized or other important information not accommodated by any of the\
+ defined elements of description. (3.6.1)
+
 isadg.archivistNote=Archivist Note
+isadg.archivistNote.description=To explain how the description was prepared and by whom.\n\n\
+Record notes on sources consulted in preparing the description and who prepared it. (3.7.1)
+
 isadg.rulesAndConventions=Rules and Conventions
+isadg.rulesAndConventions.description=To identify the protocols on which the description is based.\n\n\
+Record the international, national and/or local rules or conventions followed in preparing\
+ the description. (3.7.2)
+
 isadg.datesOfDescriptions=Dates of Descriptions
+isadg.datesOfDescriptions.description=To indicate when this description was prepared and/or revised.\n\n\
+Record the date(s) the entry was prepared and/or revised. (3.7.3)
+
 isadg.accessPoints=Access Points
 isadg.accessPoints.creatorAccess=Creators
 isadg.accessPoints.corporateBodyAccess=Corporate Bodies
