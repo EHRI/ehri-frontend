@@ -6,7 +6,7 @@ jQuery(function($) {
     return $.trim($(this).prop("title")) != "";
   }).popover({
     html: true,
-    delay: 100,
+    delay:1000,
     trigger: "blur",
     placement: "right"
   });
