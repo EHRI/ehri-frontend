@@ -1,7 +1,10 @@
 jQuery(function($) {
 
-  // Add Bootstrap tooltip on input boxes with a title
-  $("input[title],textarea[title]").popover({
+  // Add Bootstrap tooltip on input boxes with a title.
+  // Filter items with an empty title.
+  $("input[title],textarea[title]").filter(function(e) {
+    return $.trim($(this).prop("title")) != "";
+  }).popover({
     html: true,
     delay: 100,
     trigger: "blur",
