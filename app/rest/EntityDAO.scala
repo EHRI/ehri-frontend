@@ -203,7 +203,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
         r.json.validate[Page[models.Entity]].fold(
           valid = { page => page },
           invalid = { e =>
-            sys.error("Unable to decode paginated list result: " + e.toString)
+            sys.error(s"Unable to decode paginated list result: $e: ${r.json}")
           }
         )
       }
@@ -219,10 +219,40 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
         r.json.validate[Page[models.Entity]].fold(
           valid = { page => page },
           invalid = { e =>
-            sys.error("Unable to decode paginated list result: " + e.toString)
+            sys.error(s"Unable to decode paginated list result: $e: ${r.json}")
           }
         )
       }
+    }
+  }
+
+  def count(params: RestPageParams): Future[Either[RestError, Long]] = {
+    WS.url(enc(requestUrl, "count", params.toString))
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      // FIXME: Check actual error content...
+      checkError(response).right.map(r => {
+        r.json.validate[Long].fold(
+          valid = { count => count },
+          invalid = { e =>
+            sys.error(s"Unable to decode count result: $e: ${r.json}")
+          }
+        )
+      })
+    }
+  }
+
+  def countChildren(id: String, params: RestPageParams): Future[Either[RestError, Long]] = {
+    WS.url(enc(requestUrl, id, "count", params.toString))
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      // FIXME: Check actual error content...
+      checkError(response).right.map(r => {
+        r.json.validate[Long].fold(
+          valid = { count => count },
+          invalid = { e =>
+            sys.error(s"Unable to decode count result: $e: ${r.json}")
+          }
+        )
+      })
     }
   }
 }

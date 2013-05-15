@@ -76,6 +76,12 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     "page items" in new FakeApp {
       await(EntityDAO(entityType, Some(userProfile)).page(RestPageParams())) must beRight
     }
+
+    "count items" in new FakeApp {
+      var r = await(EntityDAO(entityType, Some(userProfile)).count(RestPageParams()))
+      r must beRight
+      r.right.get mustEqual 5L
+    }
   }
 
   "PermissionDAO" should {
