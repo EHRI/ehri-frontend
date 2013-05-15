@@ -4,7 +4,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @defining(views.Helpers.fieldValues(f)) { values =>
-    @helper.input(f, '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label)) { (id, name, value, htmlArgs) =>
+    @helper.input(f, 'title -> views.Helpers.renderMarkdown(Messages(fieldPrefix + "." + label + ".description")), '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label)) { (id, name, value, htmlArgs) =>
         @*NB: Appending a '[]' to the name param makes multi-select binding work *@
         <select class="span8 chzn-select" multiple name="@(name)[]" id="@id">
             @options.map { case (oid, oval) =>

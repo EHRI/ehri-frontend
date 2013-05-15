@@ -2,4 +2,4 @@
 
     @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@helper.textarea(desc(fieldName), 'title -> Messages(prefix + "." + fieldName + ".description"), 'rows -> 4, 'class -> "span8", '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
+@helper.textarea(desc(fieldName), 'title -> views.Helpers.renderMarkdown(Messages(prefix + "." + fieldName + ".description")), 'rows -> 4, 'class -> "span8", '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
