@@ -1,5 +1,13 @@
 jQuery(function($) {
 
+  // Add Bootstrap tooltip on input boxes with a title
+  $("input[title],textarea[title]").popover({
+    html: true,
+    delay: 100,
+    trigger: "blur",
+    placement: "right"
+  });
+
   // Click to expand additonal data sections
   $("table.unknown-data").hide();
   $(".expand-unknown-data").click(function(e) {
