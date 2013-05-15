@@ -455,8 +455,13 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
   $scope.getAccessPointList = function () {
     $service.getAccessPoints($scope.itemId, $scope.descriptionId).ajax({
       success: function (data) {
-        $scope.accesslist = data[0];
-        $scope.$apply()
+        for (var i in data) {
+          if (data[i].id === $scope.descriptionId) {
+            $scope.accesslist = data[i];
+            $scope.$apply();
+            break;
+          }
+        }
       }
     });
   }
