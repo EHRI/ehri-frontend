@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 @rightSidebarLayout(Messages("admin.createNewUser")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @helper.inputText(f("email"), '_label -> Messages("users.email"))
+        @helper.inputText(f("email"), 'autofocus -> "autofocus", '_label -> Messages("users.email"))
         @helper.inputText(f("username"), '_label -> Messages("users.username"))
         @helper.inputText(f("name"), '_label -> Messages("users.realname"))
         @helper.inputPassword(f("password"), '_label -> Messages("users.password"))

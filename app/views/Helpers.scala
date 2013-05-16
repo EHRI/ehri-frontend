@@ -100,6 +100,7 @@ package object Helpers {
     case EntityType.UserProfile => routes.UserProfiles.get(e.id)
     case EntityType.Annotation => routes.Annotations.get(e.id)
     case EntityType.Vocabulary => routes.Vocabularies.get(e.id)
+    case EntityType.AuthoritativeSet => routes.AuthoritativeSets.get(e.id)
     case EntityType.Concept => routes.Concepts.get(e.id)
     case EntityType.ContentType => Call("GET", "#")
     case EntityType.Country => routes.Countries.get(e.id)

@@ -1,0 +1,5 @@
+@(item: Option[AuthoritativeSet], f: Form[models.AuthoritativeSetF])
+
+@formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+@formHelpers.lineInput(f(""), models.AuthoritativeSetF.NAME)
+@formHelpers.textInput(f(""), models.AuthoritativeSetF.DESCRIPTION)

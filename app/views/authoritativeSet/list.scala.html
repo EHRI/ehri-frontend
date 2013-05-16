@@ -1,0 +1,28 @@
+@(page: rest.Page[AuthoritativeSet], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("actions.listAuthoritativeSets")) {
+
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+
+    @common.pagination(page)
+	
+	<ul class="unstyled">
+	@page.items.map { item =>
+	  	<div class="list-item">
+			<h5>
+				<a href="@routes.AuthoritativeSets.get(item.id)">@item</a>
+			</h5>
+		</div>
+	}
+	</ul>
+
+} {
+    @common.sidebarSection(None) {
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.AuthoritativeSet, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@routes.AuthoritativeSets.create">@Messages("actions.createAuthoritativeSet")</a>
+            }
+        }
+    }
+
+}

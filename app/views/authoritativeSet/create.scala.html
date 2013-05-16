@@ -1,0 +1,14 @@
+@(f: Form[models.AuthoritativeSetF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@rightSidebarLayout(Messages("actions.createAuthoritativeSet")) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @authoritativeSet.renderForm(None, f)
+        @permissions.renderVisibilityForm(vf, users, groups)
+
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createAuthoritativeSet"))
+	}
+} {
+
+}

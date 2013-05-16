@@ -170,6 +170,7 @@
                             @activeIfCurrent(routes.HistoricalAgents.search(), Messages("contentTypes." + EntityType.HistoricalAgent))
                             @activeIfCurrent(routes.Repositories.search(), Messages("contentTypes." + EntityType.Repository))
                             @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
+                            @activeIfCurrent(routes.AuthoritativeSets.list(), Messages("contentTypes." + EntityType.AuthoritativeSet))
                             @userOpt.map { user =>
                                 @if(user.isAdmin) {
                                     <li class="dropdown @{if(req.path.startsWith(routes.Admin.adminActions.toString)) "active" else ""}">

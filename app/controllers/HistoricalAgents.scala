@@ -84,22 +84,6 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
     Ok(views.html.historicalAgent.list(page.copy(items = page.items.map(HistoricalAgent(_))), params))
   }
 
-  def create = createAction {
-      users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.create(form,
-        VisibilityForm.form, users, groups, routes.HistoricalAgents.createPost))
-  }
-
-  def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.historicalAgent.create(errorForm, accForm, users, groups, routes.HistoricalAgents.createPost))
-      }
-      case Right(item) => Redirect(routes.HistoricalAgents.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
-    }
-  }
-
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.edit(HistoricalAgent(item), form.fill(HistoricalAgent(item).formable), routes.HistoricalAgents.updatePost(id)))

@@ -1,0 +1,13 @@
+@(item: AuthoritativeSet, f: play.api.data.Form[models.AuthoritativeSetF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@rightSidebarLayout(Messages("actions.updateAuthoritativeSet"), breadcrumbs = common.breadcrumbs(List(item))) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @authoritativeSet.renderForm(Some(item), f)
+
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateAuthoritativeSet"))
+	}
+} {
+
+}

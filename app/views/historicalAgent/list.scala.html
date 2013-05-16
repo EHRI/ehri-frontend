@@ -5,12 +5,4 @@
         @historicalAgent.itemList(page)
     }
 } {
-
-    @common.sidebarSection(None) {
-        @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@routes.HistoricalAgents.create">@Messages("actions.createNewHistoricalAgent")</a>
-            }
-        }
-    }
 }

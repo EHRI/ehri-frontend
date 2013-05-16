@@ -1,0 +1,38 @@
+@(item: AuthoritativeSet, page: rest.Page[HistoricalAgent], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+
+    @common.annotated(item, annotations, routes.AuthoritativeSets.annotate(item.id)) {
+        @defining("authoritativeSet") { implicit  prefix =>
+            @common.stringValue(item, models.AuthoritativeSetF.DESCRIPTION)
+        }
+    }
+
+    @common.filterableList("authoritativeSet.items", page, params, HistoricalAgents.listFilterMappings.keys, HistoricalAgents.orderMappings.keys) {
+        <ul>
+            @page.items.map(c => historicalAgent.listItem(c))
+        </ul>
+    }
+
+} {
+    @common.visibility(item, routes.AuthoritativeSets.visibility(item.id), ContentType.AuthoritativeSet)
+    @common.latestAction(item, routes.AuthoritativeSets.history(item.id))
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+        @maybeUser.map { user =>
+            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Create)) {
+                <li><a href="@routes.AuthoritativeSets.createHistoricalAgent(item.id)">@Messages("actions.createHistoricalAgent")</a></li>
+            }
+            @if(user.hasPermission(ContentType.AuthoritativeSet, PermissionType.Update)) {
+                <li><a href="@routes.AuthoritativeSets.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.AuthoritativeSet, PermissionType.Delete)) {
+                <li><a href="@routes.AuthoritativeSets.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.AuthoritativeSet, PermissionType.Grant)) {
+                <li><a href="@routes.AuthoritativeSets.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+            }
+            <li><a href="@routes.AuthoritativeSets.history(item.id)">@Messages("actions.showHistory")</a></li>
+        }
+    </ul>
+}

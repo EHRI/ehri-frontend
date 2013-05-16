@@ -65,7 +65,8 @@ contentTypes.documentDescription=Descriptions
 contentTypes.historicalAgentDescription=Authorities
 contentTypes.action=User Events
 contentTypes.systemEvent=History
-contentTypes.cvocVocabulary=CVocs
+contentTypes.cvocVocabulary=Vocabs
+contentTypes.authoritativeSet=Authority Sets
 contentTypes.cvocConcept=Concepts
 contentTypes.cvocConceptDescription=Concepts
 contentTypes.annotation=Annotations
@@ -130,7 +131,13 @@ concept.narrowerTerms=Narrower Terms
 concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.description=Description
+authoritativeSet.description=Description
 country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
+
+#
+# Authority set
+#
+authoritativeSet.items=Authority Items
 
 #
 # Annotations
@@ -189,7 +196,8 @@ actions.listHistoricalAgents=Authorities
 actions.listUserProfiles=Users
 actions.listGroups=Groups
 actions.listConcepts=Concepts
-actions.listVocabularies=Vocabularies
+actions.listVocabularies=Vocabulries
+actions.listAuthoritativeSets=Authority Sets
 actions.createDocumentaryUnit=Create Collection
 actions.createRepository=Create Repository
 actions.createHistoricalAgent=Create Authority
@@ -202,6 +210,7 @@ actions.updateUserProfile=Update Profile
 actions.updateGroup=Update Group
 actions.updateConcept=Update Concept
 actions.updateVocabulary=Update Vocabulary
+actions.updateAuthoritativeSet=Update Authority Set
 actions.linkTo=Link to another item
 actions.linkToConcept=Link to a vocabulary term
 actions.linkToDocumentaryUnit=Link to a documentary unit
@@ -227,6 +236,7 @@ actions.createNewUser=Create New User Profile
 actions.createNewGroup=Create New Group
 actions.createConcept=Create New Concept
 actions.createVocabulary=Create New Vocabulary
+actions.createAuthoritativeSet=Create New Authority Set
 actions.createTopLevelConcept=Create Top-level Concept
 actions.createNarrowerConcept=Create Narrower Concept
 actions.modifyGroups=Add/Remove Parent Groups
@@ -294,7 +304,7 @@ deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"? 
 accessor.notInAnyGroups=This user does not belong to any groups.
 accessor.currentGroups=Current Groups
 accessor.removeGroup=Remove
-accessor.itemCannotBeAddedToAdditionalGroup=This {0} cannot be added to additional groups
+accessor.itemCannotBeAddedToAdditionalGroups=This {0} cannot be added to additional groups
 
 permissions.itemPermissionsForItem=Item-level Permissions for {0}
 permissions.scopedPermissionsForItem=Scoped Permissions for {0}
