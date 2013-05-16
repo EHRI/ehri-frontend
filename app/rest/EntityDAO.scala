@@ -137,6 +137,10 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
 
   import EntityDAO._
   import play.api.http.Status._
+  import Entity.entityReads
+
+  // Implicit reader for pages of items
+  implicit val entityPageReads = PageReads.pageReads
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
@@ -194,10 +198,36 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def page(params: RestPageParams): Future[Either[RestError, Page[Entity]]] = {
-    import Entity.entityReads
-    implicit val entityPageReads = PageReads.pageReads
-    WS.url(enc(requestUrl, "page", params.toString))
+  def list(params: RestPageParams = RestPageParams()): Future[Either[RestError, List[Entity]]] = {
+    WS.url(enc(requestUrl, "list" + params.toString))
+      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkError(response).right.map { r =>
+        r.json.validate[List[models.Entity]].fold(
+          valid = { list => list },
+          invalid = { e =>
+            sys.error(s"Unable to decode list result: $e: ${r.json}")
+          }
+        )
+      }
+    }
+  }
+
+  def listChildren(id: String, params: RestPageParams = RestPageParams()): Future[Either[RestError, List[Entity]]] = {
+    WS.url(enc(requestUrl, id, "list" + params.toString))
+      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkError(response).right.map { r =>
+        r.json.validate[List[models.Entity]].fold(
+          valid = { list => list },
+          invalid = { e =>
+            sys.error(s"Unable to decode list result: $e: ${r.json}")
+          }
+        )
+      }
+    }
+  }
+
+  def page(params: RestPageParams = RestPageParams()): Future[Either[RestError, Page[Entity]]] = {
+    WS.url(enc(requestUrl, "page" + params.toString))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
@@ -210,10 +240,9 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def pageChildren(id: String, params: RestPageParams): Future[Either[RestError, Page[Entity]]] = {
-    import Entity.entityReads
+  def pageChildren(id: String, params: RestPageParams = RestPageParams()): Future[Either[RestError, Page[Entity]]] = {
     implicit val entityPageReads = PageReads.pageReads
-    WS.url(enc(requestUrl, id, "page", params.toString))
+    WS.url(enc(requestUrl, id, "page" + params.toString))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(
@@ -226,8 +255,8 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def count(params: RestPageParams): Future[Either[RestError, Long]] = {
-    WS.url(enc(requestUrl, "count", params.toString))
+  def count(params: RestPageParams = RestPageParams()): Future[Either[RestError, Long]] = {
+    WS.url(enc(requestUrl, "count" + params.toString))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
@@ -241,8 +270,8 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def countChildren(id: String, params: RestPageParams): Future[Either[RestError, Long]] = {
-    WS.url(enc(requestUrl, id, "count", params.toString))
+  def countChildren(id: String, params: RestPageParams = RestPageParams()): Future[Either[RestError, Long]] = {
+    WS.url(enc(requestUrl, id, "count" + params.toString))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
