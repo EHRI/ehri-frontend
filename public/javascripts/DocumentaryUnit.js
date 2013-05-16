@@ -7,6 +7,10 @@
           if (page) {
             params = params + "&limit=10&page=" + page;
           }
+		  else
+		  {
+			params = params + "&limit=10";
+		}
           // $log.log("Searching with: ", "/search/" + type + params)
           return $http.get("/filter/" + type + params);
         },
@@ -30,12 +34,10 @@
 
     $provide.factory('$service', function() {
       return {
-        filter: jsRoutes.controllers.Search.filterType,
         createLink: jsRoutes.controllers.DocumentaryUnits.createLink,
-        createMultipleLinks: jsRoutes.controllers.DocumentaryUnits.createMultipleLinks,
-        createAccessPoint: jsRoutes.controllers.DocumentaryUnits.createAccessPoint,
+        addAccessPointWithLink: jsRoutes.controllers.DocumentaryUnits.createAccessPointLink,
         getAccessPoints: jsRoutes.controllers.DocumentaryUnits.getAccessPointsJson,
-        deleteLink: jsRoutes.controllers.Links.deletePost,
+        deleteAccessPointLink: jsRoutes.controllers.Links.deletePost,
         deleteAccessPoint: jsRoutes.controllers.DocumentaryUnits.deleteAccessPoint,
         redirectUrl: function(id) {
           return jsRoutes.controllers.DocumentaryUnits.get(id).url;
@@ -203,7 +205,7 @@ function LinkCtrl($scope, $window, $portal, $service, dialog, $rootScope) {
       $scope.selected.forEach(function (ele, idx) {
         console.log(ele);
         var s = "link[" + idx + "].id=" + ele.id + "&" +
-            "link[" + idx + "].data.type=associative&" +
+            "link[" + idx + "].data.category=associative&" +
             "link[" + idx + "].data.description=Test Annotation";
         args.push(s)
       });
@@ -242,34 +244,28 @@ function LinkCtrl($scope, $window, $portal, $service, dialog, $rootScope) {
       if ($rootScope.mode == "AccessPage") {
         $scope.addSelected($scope.tempSelected);
       }
-      var headers = {"ajax-ignore-csrf": true, "Content-Type": "application/json"};
-
-      // Here we need to first create an access point, and then create the link
-      // to the target object.
-      $service.createAccessPoint($scope.id, $rootScope.descriptionID).ajax({
+      $service.addAccessPointWithLink($scope.id, $rootScope.DescriptionID).ajax({
         data: JSON.stringify({
           name: $scope.selected.name,
           type: $scope.selected.accessType,
-          description: $scope.selected.linkDesc
+          data: {
+            target: $scope.selected.id,
+            description: $scope.selected.linkDesc,
+            type: $scope.selected.linkAccessType
+          }
         }),
-        headers: headers
-      }).done(function (data) {
-         $service.createLink($scope.id, data.id).ajax({
-           data: JSON.stringify({
-             target: $scope.selected.id,
-             type: $scope.selected.linkAccessType,
-             description: $scope.selected.linkDesc
-           }),
-           headers: headers
-         }).done(function(data) {
-           if ($rootScope.mode == "AccessPage") {
-             $rootScope.getAccess();
-             $scope.close();
-           }
-           else {
-             $window.location = $service.redirectUrl($scope.id);
-           }
-         });
+        headers: {"ajax-ignore-csrf": true, "Content-Type": "application/json"},
+        dataType: "json",
+        success: function (data) {
+          console.log(data);
+          if ($rootScope.mode == "AccessPage") {
+            $rootScope.getAccess();
+            $scope.close();
+          }
+          else {
+            $window.location = $service.redirectUrl($scope.id);
+          }
+        }
       });
     }
   }
@@ -300,14 +296,16 @@ function DocumentaryCtrl($scope, $service, $dialog, $rootScope, $window) {
     controller: 'LinkCtrl'
   };
   $scope.accesslist = [];
-  $accessTitle = "Access Points";
-
+  console.log($scope.accesslist);
+  $AccessTITLE = "Access Points";
+//----------------------------------------------------------------------------\\
+//Functions
   /*
    *
    *	Dialog Opening
    *
    */
-  $scope.openModalLink = function () {
+  $scope.OpenModalLink = function () {
     $rootScope.LinkMode = "Link";
 
     var d = $dialog.dialog($scope.modalLink);
@@ -315,7 +313,7 @@ function DocumentaryCtrl($scope, $service, $dialog, $rootScope, $window) {
       return true;
     });
   }
-  $scope.openModalAccess = function (idAccess, textAccess) {
+  $scope.OpenModalAccess = function (idAccess, textAccess) {
     $rootScope.AccessItem = { id: idAccess, text: textAccess };
     $rootScope.LinkMode = "Access";
 
@@ -324,9 +322,9 @@ function DocumentaryCtrl($scope, $service, $dialog, $rootScope, $window) {
       return true;
     });
   }
-  $scope.addAccessModal = function (descID) {
+  $scope.AddAccessModal = function (descID) {
     $rootScope.LinkMode = "AddAccess";
-    $rootScope.descriptionID = descID;
+    $rootScope.DescriptionID = descID;
 
     var d = $dialog.dialog($scope.modalLink);
     d.open().then(function (result) {
@@ -334,13 +332,13 @@ function DocumentaryCtrl($scope, $service, $dialog, $rootScope, $window) {
     });
   }
 
-  $scope.addSelectedAccess = function (type, descID) {
+  $scope.AddSelectedAccess = function (type, descID) {
     $rootScope.typeAccess = type;
-    $scope.addAccessModal(descID);
+    $scope.AddAccessModal(descID);
     console.log($rootScope.typeAccess);
   }
 
-  $scope.deleteAccessLink = function (accessLinkID, accessLinkText) {
+  $scope.DeleteAccessLink = function (accessLinkID, accessLinkText) {
     var title = 'Delete link for access point';
     var msg = 'Are you sure you want to delete the link for ' + accessLinkText + ' ?';
     var btns = [
@@ -352,7 +350,7 @@ function DocumentaryCtrl($scope, $service, $dialog, $rootScope, $window) {
         .open()
         .then(function (result) {
           if (result == 1) {
-            $service.deleteLink(accessLinkID).ajax({
+            $service.deleteAccessPointLink(accessLinkID).ajax({
               success: function () {
                 var ok = true;
                 if ($rootScope.mode == "AccessPage") {
@@ -364,7 +362,7 @@ function DocumentaryCtrl($scope, $service, $dialog, $rootScope, $window) {
         });
   };
 
-  $scope.deleteAccessPoint = function (accessPointID, accessLinkText) {
+  $scope.DeleteAccessPoint = function (accessPointID, accessLinkText) {
     var title = 'Delete access point';
     var msg = 'Are you sure you want to delete this access point: ' + accessLinkText + ' ?';
     var btns = [
