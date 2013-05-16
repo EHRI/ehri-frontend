@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 object Search extends EntitySearch {
 
   val searchEntities = List() // i.e. Everything
-  val entityFacets = List(
+  override val entityFacets = List(
     FieldFacetClass(
       key=IsadG.LANG_CODE,
       name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),

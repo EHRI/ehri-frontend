@@ -33,7 +33,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   // Documentary unit facets
   import solr.facet._
-  val entityFacets = List(
+  override val entityFacets = List(
     FieldFacetClass(
       key=IsadG.LANG_CODE,
       name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
@@ -100,10 +100,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val descriptionForm = models.forms.IsadGForm.form
   val builder = DocumentaryUnit
 
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))
   val searchEntities = List(entityType)
-
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=searchEntities)
-
 
   def search = {
     // What filters we gonna use? How about, only list stuff here that

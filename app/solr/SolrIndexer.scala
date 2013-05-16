@@ -17,6 +17,7 @@ import play.api.libs.json.JsObject
 import models.DocumentaryUnit
 import defines.EntityType
 import play.api.libs.iteratee.Input.Empty
+import play.api.i18n.Lang
 
 /**
  * Object containing functions for managing the Solr index.
@@ -128,6 +129,7 @@ object SolrIndexer extends RestDAO {
       case EntityType.HistoricalAgent => actorToSolr(HistoricalAgent(item))
       case EntityType.Repository => repoToSolr(Repository(item))
       case EntityType.Concept => conceptToSolr(Concept(item))
+      case EntityType.Country => countryToSolr(Country(item))
       case any => entityToSolr(item)
     }
   }
@@ -160,6 +162,13 @@ object SolrIndexer extends RestDAO {
       ((desc
         + ("countryCode" -> Json.toJson(d.country.map(_.id)))
         + ("priority" -> Json.toJson(d.priority))))
+    }
+  }
+
+  private def countryToSolr(d: Country): List[JsObject] = {
+    val docs = entityToSolr(d.e)
+    docs.map { desc =>
+      (desc + ("name" -> Json.toJson(views.Helpers.countryCodeToName(d.id)(new Lang("en")))))
     }
   }
 

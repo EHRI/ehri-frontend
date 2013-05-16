@@ -193,7 +193,7 @@ POST    /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScope
 GET     /vocabs/annotate/:id     controllers.Vocabularies.annotate(id: String)
 POST    /vocabs/annotate/:id     controllers.Vocabularies.annotatePost(id: String)
 
-GET     /country                controllers.Countries.list
+GET     /country                controllers.Countries.search
 GET     /country/show/:id       controllers.Countries.get(id: String)
 GET     /country/history/:id    controllers.Countries.history(id: String)
 GET     /country/json/:id       controllers.Countries.getJson(id: String)

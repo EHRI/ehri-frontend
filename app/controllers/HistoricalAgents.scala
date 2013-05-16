@@ -34,12 +34,9 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   val DEFAULT_SORT = s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}"
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name))
-
-
   // Documentary unit facets
   import solr.facet._
-  val entityFacets = List(
+  override val entityFacets = List(
     FieldFacetClass(
       key=models.Isaar.ENTITY_TYPE,
       name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
@@ -47,13 +44,6 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
       render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
     )
   )
-
-  val searchEntities = List(
-    EntityType.HistoricalAgentDescription,
-    EntityType.HistoricalAgent
-  )
-
-
   override def processParams(params: ListParams): rest.RestPageParams = {
     params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
   }
@@ -67,6 +57,10 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   val form = models.forms.HistoricalAgentForm.form
   val builder = HistoricalAgent
+
+  // Search params
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name))
+  val searchEntities = List(entityType)
 
 
   def search = {

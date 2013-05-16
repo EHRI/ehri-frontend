@@ -5,11 +5,10 @@
 @(item: models.base.LinkableEntity, links: List[Link])(implicit maybeUser: Option[UserProfile], req: RequestHeader)
 
 <div class="annotatable" id="@item.id">
-    @{println("Links: " + links)}
     @defining(item.annotationLinks(links)) { annotationLinks =>
         @if(!annotationLinks.isEmpty) {
             <hr />
-            <h3>@Messages("relationships")</h3>
+            <h3>@Messages("linking.linkTo")</h3>
             <ul class="item-annotation-links">
                 @* Assume items with an access point body have been rendered previously *@
 

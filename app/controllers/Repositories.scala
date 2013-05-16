@@ -40,7 +40,7 @@ object Repositories extends EntityRead[Repository]
 
   // Documentary unit facets
   import solr.facet._
-  val entityFacets = List(
+  override val entityFacets = List(
     FieldFacetClass(
       key="countryCode",
       name=Messages("isdiah.countryCode"),
@@ -65,12 +65,6 @@ object Repositories extends EntityRead[Repository]
     )
   )
 
-  val searchEntities = List(
-    EntityType.RepositoryDescription,
-    EntityType.Repository
-  )
-
-
   override def processParams(params: ListParams): rest.RestPageParams = {
     params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
   }
@@ -87,7 +81,7 @@ object Repositories extends EntityRead[Repository]
   val builder = Repository
 
   val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name))
-
+  val searchEntities = List(entityType)
 
   def search = searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
     page => params => facets => implicit userOpt => implicit request =>

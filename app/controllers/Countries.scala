@@ -6,12 +6,14 @@ import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
+import solr.{SearchOrder, SearchParams}
 
 object Countries extends CRUD[CountryF,Country]
   with CreationContext[RepositoryF, Country]
   with VisibilityController[Country]
   with PermissionScopeController[Country]
-  with EntityAnnotate[Country] {
+  with EntityAnnotate[Country]
+  with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.Repository)
 
@@ -20,13 +22,16 @@ object Countries extends CRUD[CountryF,Country]
   }
   override def processChildParams(params: ListParams) = Repositories.processParams(params)
 
-
   val entityType = EntityType.Country
   val contentType = ContentType.Country
 
   val form = models.forms.CountryForm.form
   val childForm = models.forms.RepositoryForm.form
   val builder = Country.apply _
+
+  // Search memebers
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name))
+  val searchEntities = List(entityType)
 
   def get(id: String) = getWithChildrenAction(id, Repository.apply _) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
@@ -39,6 +44,11 @@ object Countries extends CRUD[CountryF,Country]
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
     Ok(views.html.country.list(page.copy(items = page.items.map(Country(_))), params))
+  }
+
+  def search = searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(views.html.search.search(page, params, facets, routes.Countries.search))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
@@ -95,7 +105,7 @@ object Countries extends CRUD[CountryF,Country]
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(routes.Countries.list())
+    Redirect(routes.Countries.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 

@@ -141,6 +141,11 @@ annotation.annotationType=Type
 annotation.emptyBodyText=[Missing Annotation Text]
 
 #
+# Linking
+#
+linking.linkTo=Links to Other Items
+
+#
 # Admin
 #
 admin.createNewUser=Create New User

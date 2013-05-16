@@ -17,7 +17,7 @@
     @helper.form(action = action, 'class -> "login-form form-horizontal") {
         @formHelpers.csrfToken()
 
-        @helper.inputText(form("email"), 'placeholder -> Messages("login.email"))
+        @helper.inputText(form("email"), 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"))
         @helper.inputPassword(form("password"), 'placeholder -> Messages("login.password"))
 
         <div>

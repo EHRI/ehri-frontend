@@ -17,13 +17,20 @@
 
         <style>
             /** Prevent scrolling when a Bootstrap modal is open */
-
             .modal-body {
                 max-height: 800px;
             }
 
             body.modal-open {
                 overflow: hidden;
+            }
+
+
+            /** 'Sticky' footers which pin themselves to the
+                botton of the viewport when initially outside it. */
+            .sticky {
+            -webkit-box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.1);
+            box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.1);
             }
 
             /** Search items */
@@ -173,7 +180,7 @@
                                         <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
                                             @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
                                             @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
-                                            @activeIfCurrent(routes.Countries.list(), Messages("contentTypes." + EntityType.Country))
+                                            @activeIfCurrent(routes.Countries.search(), Messages("contentTypes." + EntityType.Country))
                                             @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
                                             <li role="presentation" class="divider"></li>
                                             @activeIfCurrent(routes.Search.updateIndex, Messages("search.updateIndex"))

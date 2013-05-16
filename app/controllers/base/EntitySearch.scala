@@ -22,7 +22,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * Inheriting controllers should override a list of facets that
    * are available for the given entity type.
    */
-  val entityFacets: List[FacetClass]
+  val entityFacets: List[FacetClass] = Nil
   val searchEntities: List[EntityType.Value]
 
   def bindFacetsFromRequest(facetClasses: List[FacetClass])(implicit request: Request[AnyContent]): List[AppliedFacet] = {

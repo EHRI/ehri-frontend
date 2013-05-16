@@ -7,7 +7,7 @@
 	@helper.form(action = action, 'class -> "form-search") {
         <div class="controls-row">
             <div class="input-append search-query span10">
-                <input type="text" class="span10" name="@SearchParams.QUERY" value="@params.query" />
+                <input type="text" class="span10" name="@SearchParams.QUERY" value="@params.query" autofocus />
                 <button class="btn">@Messages("forms.search")</button>
             </div>
         </div>
