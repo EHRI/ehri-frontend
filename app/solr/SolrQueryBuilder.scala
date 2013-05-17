@@ -128,18 +128,20 @@ object SolrQueryBuilder {
    * @param userOpt
    * @return
    */
-  def simpleFilter(q: String, entityType: Option[EntityType.Value], page: Option[Int] = Some(1), limitOpt: Option[Int] = Some(100))(
+  def simpleFilter(q: String, entityType: Option[EntityType.Value], page: Option[Int] = Some(1), limitOpt: Option[Int] = Some(100),
+                    alphabetical: Boolean = false)(
     implicit userOpt: Option[UserProfile]): QueryRequest = {
 
-    val queryString = "name_ngram:%s".format(if(q.trim.isEmpty) "*" else q)
+    val queryString = if(q.trim.isEmpty) "*" else q
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
     constrainEntities(req, entityType.toList)
     applyAccessFilter(req, userOpt)
     setGrouping(req)
-    req.set("qf", "name_ngram")
+    req.set("qf", "name^2.0 name_ngram")
     req.setFieldsToReturn(FieldsToReturn("id itemId name type"))
-    req.setSort(Sort("name asc"))
+    if (alphabetical) req.setSort(Sort("name asc"))
+    req.setQueryParserType(QueryParserType("edismax"))
     // Setup start and number of objects returned
     val limit = limitOpt.getOrElse(SearchParams.DEFAULT_LIMIT)
     page.map { page =>
