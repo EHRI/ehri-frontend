@@ -16,6 +16,12 @@
         @styles
 
         <style>
+            /* Highlight the current search sort */
+            .current-search-sort {
+                text-decoration: underline;
+                text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+            }
+
             /** Prevent scrolling when a Bootstrap modal is open */
             .modal-body {
                 max-height: 800px;
@@ -169,8 +175,7 @@
                             @activeIfCurrent(routes.DocumentaryUnits.search(), Messages("contentTypes." + EntityType.DocumentaryUnit))
                             @activeIfCurrent(routes.HistoricalAgents.search(), Messages("contentTypes." + EntityType.HistoricalAgent))
                             @activeIfCurrent(routes.Repositories.search(), Messages("contentTypes." + EntityType.Repository))
-                            @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
-                            @activeIfCurrent(routes.AuthoritativeSets.list(), Messages("contentTypes." + EntityType.AuthoritativeSet))
+                            @activeIfCurrent(routes.Concepts.search(), Messages("contentTypes." + EntityType.Concept))
                             @userOpt.map { user =>
                                 @if(user.isAdmin) {
                                     <li class="dropdown @{if(req.path.startsWith(routes.Admin.adminActions.toString)) "active" else ""}">
@@ -182,6 +187,8 @@
                                             @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
                                             @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
                                             @activeIfCurrent(routes.Countries.search(), Messages("contentTypes." + EntityType.Country))
+                                            @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
+                                            @activeIfCurrent(routes.AuthoritativeSets.list(), Messages("contentTypes." + EntityType.AuthoritativeSet))
                                             @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
                                             <li role="presentation" class="divider"></li>
                                             @activeIfCurrent(routes.Search.updateIndex, Messages("search.updateIndex"))
