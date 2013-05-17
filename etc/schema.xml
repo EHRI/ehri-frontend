@@ -61,6 +61,8 @@ limitations under the License.
   <field name="type" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
   <field name="itemId" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
   <field name="parentId" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="holderId" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="holderName" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="accessibleTo" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="identifier" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="name" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -103,6 +105,7 @@ limitations under the License.
 <copyField source="name" dest="title"/>
 <copyField source="name" dest="text"/>
 <copyField source="title" dest="text"/>
+<copyField source="holderName" dest="text"/>
 <copyField source="*_t" dest="text"/>
 <copyField source="accessPoints" dest="text"/>
 <!-- field for the QueryParser to use when an explicit fieldname is absent -->
