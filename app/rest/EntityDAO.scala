@@ -76,8 +76,10 @@ case class RestPageParams(page: Option[Int] = None, limit: Option[Int] = None, f
     sort = if (sort.isEmpty) default.sort else sort
   )
 
+  def offset: Int = (page.getOrElse(1) - 1) * limit.getOrElse(DEFAULT_LIST_LIMIT)
+  def range: String = s"$offset-${offset + limit.getOrElse(DEFAULT_LIST_LIMIT)}"
+
   override def toString = {
-    val offset = (page.getOrElse(1) - 1) * limit.getOrElse(DEFAULT_LIST_LIMIT)
     "?" + List(
       s"${OFFSET_PARAM}=${offset}",
       s"${LIMIT_PARAM}=${limit.getOrElse(DEFAULT_LIST_LIMIT)}",
