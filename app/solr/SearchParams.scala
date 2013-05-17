@@ -18,7 +18,7 @@ object SearchField extends Enumeration {
 object SearchOrder extends Enumeration {
   type Order = Value
   val Score = Value("score.desc")
-  val Name = Value("name.asc")
+  val Name = Value("name_sort.asc")
   val DateNewest = Value("lastUpdated.desc")
 }
 

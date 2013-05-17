@@ -7,7 +7,7 @@ The ASF licenses this file to You under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License.  You may obtain a copy of the License at
 
- http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,17 +25,17 @@ limitations under the License.
   <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
   <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" positionIncrementGap="0"/>
   <!-- A general text field that has reasonable, generic
-     cross-language defaults: it tokenizes with StandardTokenizer,
- removes stop words from case-insensitive "stopwords.txt"
- (empty by default), and down cases.  At query time only, it
- also applies synonyms. -->
+cross-language defaults: it tokenizes with StandardTokenizer,
+removes stop words from case-insensitive "stopwords.txt"
+(empty by default), and down cases.  At query time only, it
+also applies synonyms. -->
   <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
     <analyzer type="index">
       <tokenizer class="solr.StandardTokenizerFactory"/>
       <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
       <!-- in this example, we will only use synonyms at query time
-    <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
-    -->
+<filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
+-->
       <filter class="solr.LowerCaseFilterFactory"/>
     </analyzer>
     <analyzer type="query">
@@ -54,6 +54,35 @@ limitations under the License.
       <tokenizer class="solr.LowerCaseTokenizerFactory"/>
     </analyzer>
   </fieldType>
+
+  <!-- Field type for sorting items. Removes all non-alphanumeric.
+       Pinched from http://stackoverflow.com/a/3783380/285374
+        with ASCIIFoldingFilterFactory substituted for ISOLatin1AccentFactory -->
+  <fieldType name="text_prefix" class="solr.TextField" positionIncrementGap="1" sortMissingLast="true">
+    <analyzer type="index">
+      <tokenizer class="solr.KeywordTokenizerFactory"/>
+      <filter class="solr.ASCIIFoldingFilterFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <!-- Remove non alpha-numeric characters -->
+      <filter class="solr.PatternReplaceFilterFactory" pattern="[^a-zA-Z0-9 ]" replacement="" replace="all"/>
+      <filter class="solr.TrimFilterFactory"/>
+      <!-- Remove leading "the "-->
+      <filter class="solr.PatternReplaceFilterFactory" pattern="^the\s" replacement="" replace="all"/>
+      <filter class="solr.TrimFilterFactory"/>
+      <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="6"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.KeywordTokenizerFactory"/>
+      <filter class="solr.ASCIIFoldingFilterFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <!-- Remove non alpha-numeric characters -->
+      <filter class="solr.PatternReplaceFilterFactory" pattern="[^a-zA-Z0-9 ]" replacement="" replace="all"/>
+      <filter class="solr.TrimFilterFactory"/>
+      <!-- Remove leading "the "-->
+      <filter class="solr.PatternReplaceFilterFactory" pattern="^the\s" replacement="" replace="all"/>
+      <filter class="solr.TrimFilterFactory"/>
+    </analyzer>
+  </fieldType>
 </types>
 <fields>
   <!-- general -->
@@ -67,6 +96,7 @@ limitations under the License.
   <field name="identifier" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="name" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="name_ngram" type="text_general_edge_ngram" indexed="true" stored="true" multiValued="true"/>
+  <field name="name_sort" type="text_prefix" indexed="true" stored="false" multiValued="false"/>
   <field name="title" type="text_general" indexed="true" stored="true" multiValued="false"/>
   <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
   <field name="otherFormsOfName" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -100,6 +130,7 @@ limitations under the License.
 <uniqueKey>id</uniqueKey>
 <!-- Copy all string and text values to text field -->
 <copyField source="name" dest="name_ngram"/>
+<copyField source="name" dest="name_sort"/>
 <copyField source="otherFormsOfName" dest="name_ngram"/>
 <copyField source="parallelFormsOfName" dest="name_ngram"/>
 <copyField source="name" dest="title"/>

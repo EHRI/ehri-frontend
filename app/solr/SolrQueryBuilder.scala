@@ -140,7 +140,7 @@ object SolrQueryBuilder {
     setGrouping(req)
     req.set("qf", "name^2.0 name_ngram")
     req.setFieldsToReturn(FieldsToReturn("id itemId name type"))
-    if (alphabetical) req.setSort(Sort("name asc"))
+    if (alphabetical) req.setSort(Sort("name_sort asc"))
     req.setQueryParserType(QueryParserType("edismax"))
     // Setup start and number of objects returned
     val limit = limitOpt.getOrElse(SearchParams.DEFAULT_LIMIT)
