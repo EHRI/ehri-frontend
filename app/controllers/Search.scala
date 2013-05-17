@@ -12,7 +12,7 @@ import models.{IsadG,Entity}
 import play.api.Logger
 import concurrent.Future
 import solr.SolrIndexer.{SolrErrorResponse, SolrResponse, SolrUpdateResponse}
-import solr.SolrIndexer
+import solr.{SearchOrder, SearchParams, SolrIndexer}
 import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
 import views.Helpers
@@ -53,7 +53,9 @@ object Search extends EntitySearch {
    * Full text search action that returns a complete page of item data.
    * @return
    */
-  def search = searchAction { page => params => facets => implicit userOpt => implicit request =>
+  def search = searchAction(
+      defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score)))) {
+      page => params => facets => implicit userOpt => implicit request =>
     request match {
       case Accepts.Html() => Ok(views.html.search.search(page, params, facets, routes.Search.search))
       case Accepts.Json() => Ok(Json.toJson(Json.obj(

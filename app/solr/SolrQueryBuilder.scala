@@ -185,10 +185,12 @@ object SolrQueryBuilder {
     // facility
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
+    } getOrElse {
+      req.set("qf", "name^3.0 text")
     }
 
     // Mmmn, speckcheck
-    //req.set("spellcheck", "true")
+    req.set("spellcheck", "true")
 
     // Facet the request accordingly
     constrain(req, facets, allFacets)

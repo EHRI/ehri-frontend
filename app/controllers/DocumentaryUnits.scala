@@ -100,7 +100,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val descriptionForm = models.forms.IsadGForm.form
   val builder = DocumentaryUnit
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(entityType))
 
 
   def search = {

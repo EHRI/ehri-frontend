@@ -66,7 +66,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
 
   // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities = List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
   def search = {
