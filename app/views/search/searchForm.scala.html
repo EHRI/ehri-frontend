@@ -3,11 +3,14 @@
 
 @import solr.SearchParams
 
-@helper.form(action = action, 'class -> "form-search") {
+@helper.form(action = action, 'class -> "") {
     <div class="controls-row">
         <div class="input-append search-query span10">
-            <input type="text" class="span10" name="@SearchParams.QUERY" value="@params.query" autofocus />
-            <button class="btn">@Messages("forms.search")</button>
+            <input type="text" class="input-block-level span15" name="@SearchParams.QUERY" value="@params.query" autofocus />
+            <button class="btn">
+                <i class="icon-search"></i>
+                @Messages("forms.search")
+            </button>
         </div>
     </div>
 

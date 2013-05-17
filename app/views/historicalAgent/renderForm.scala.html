@@ -5,7 +5,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@lineInput(f(""), IDENTIFIER)
+@lineInput(f(""), IDENTIFIER)(prefix = FIELD_PREFIX)
 
 @defining(FIELD_PREFIX) { implicit fieldPrefix =>
     @helper.repeat(f(DescribedEntity.DESCRIPTIONS), min=math.max(f(DescribedEntity.DESCRIPTIONS).indexes.length, 1)) { desc =>
