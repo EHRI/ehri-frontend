@@ -5,11 +5,11 @@
     @defining(if (!items.isEmpty) 200 / items.length else 300) { truncateLength =>
         @if(!items.isEmpty) {
             @items.init.map { i =>
-                <li><a title="@i" href="@views.Helpers.urlFor(i)">@views.Helpers.ellipsize(i.toStringLang, truncateLength)</a> <span class="divider">/</span></li>
+                <li><a title="@i" href="@views.Helpers.urlFor(i)">@views.Helpers.ellipsize(i.toStringAbbr, truncateLength)</a> <span class="divider">/</span></li>
             }
 
                 <!-- TODO: Decide whether to show the last time -->
-            <li title="@items.last" class="muted"><a href="@views.Helpers.urlFor(items.last)"><em>@views.Helpers.ellipsize(items.last.toStringLang, truncateLength)</em></a></li>
+            <li title="@items.last" class="muted"><a href="@views.Helpers.urlFor(items.last)"><em>@views.Helpers.ellipsize(items.last.toStringAbbr, truncateLength)</em></a></li>
         } else {
             <li></li>
         }
