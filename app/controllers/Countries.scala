@@ -30,7 +30,7 @@ object Countries extends CRUD[CountryF,Country]
   val builder = Country.apply _
 
   // Search memebers
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities = List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
   def get(id: String) = getWithChildrenAction(id, Repository.apply _) {

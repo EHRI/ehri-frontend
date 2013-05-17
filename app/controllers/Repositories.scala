@@ -80,7 +80,7 @@ object Repositories extends EntityRead[Repository]
   val childForm = models.forms.DocumentaryUnitForm.form
   val builder = Repository
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities = List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
   def search = searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
