@@ -88,7 +88,8 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   def createHistoricalAgent(id: String) = childCreateAction(id, ContentType.HistoricalAgent) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.create(
-      AuthoritativeSet(item), childForm, VisibilityForm.form, users, groups, routes.AuthoritativeSets.createHistoricalAgentPost(id)))
+      AuthoritativeSet(item), childForm, VisibilityForm.form, users, groups,
+        routes.AuthoritativeSets.createHistoricalAgentPost(id)))
   }
 
   def createHistoricalAgentPost(id: String) = childCreatePostAction(id, childForm, ContentType.HistoricalAgent) {
@@ -98,7 +99,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
         BadRequest(views.html.historicalAgent.create(AuthoritativeSet(item),
           errorForm, accForm, users, groups, routes.AuthoritativeSets.createHistoricalAgentPost(id)))
       }
-      case Right(citem) => Redirect(routes.AuthoritativeSets.get(id))
+      case Right(citem) => Redirect(routes.HistoricalAgents.get(citem.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
     }
   }
