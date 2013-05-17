@@ -6,12 +6,14 @@ import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
+import solr.{SearchOrder, SearchParams}
 
 object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with CreationContext[HistoricalAgentF, AuthoritativeSet]
   with VisibilityController[AuthoritativeSet]
   with PermissionScopeController[AuthoritativeSet]
-  with EntityAnnotate[AuthoritativeSet] {
+  with EntityAnnotate[AuthoritativeSet]
+  with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.HistoricalAgent)
 
@@ -28,9 +30,22 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   val childForm = models.forms.HistoricalAgentForm.form
   val builder = AuthoritativeSet.apply _
 
-  def get(id: String) = getWithChildrenAction(id, HistoricalAgent.apply _) {
+  // Search params
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))
+
+
+  /*def get(id: String) = getWithChildrenAction(id, HistoricalAgent.apply _) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
     Ok(views.html.authoritativeSet.show(AuthoritativeSet(item), page, params, annotations))
+  }*/
+
+  def get(id: String) = itemPermissionAction(contentType, id) {
+      item => implicit userOpt => implicit request =>
+    searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
+      page => params => facets => implicit userOpt => implicit request =>
+        Ok(views.html.authoritativeSet.show(
+          AuthoritativeSet(item), page, params, facets, routes.AuthoritativeSets.get(id)))
+    }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

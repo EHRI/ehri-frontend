@@ -1,13 +1,16 @@
 package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{Concept,ConceptF}
+import _root_.models.{IsadG, Isaar, Concept, ConceptF}
 import _root_.models.forms.{LinkForm, AnnotationForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
 import collection.immutable.ListMap
+import solr.facet.{FacetSort, FieldFacetClass}
+import views.Helpers
+import solr.{SearchOrder, SearchParams}
 
 object Concepts extends CreationContext[ConceptF, Concept]
   with VisibilityController[Concept]
@@ -16,7 +19,8 @@ object Concepts extends CreationContext[ConceptF, Concept]
   with EntityDelete[Concept]
   with PermissionScopeController[Concept]
   with EntityLink[Concept]
-  with EntityAnnotate[Concept] {
+  with EntityAnnotate[Concept]
+  with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.Concept)
 
@@ -50,9 +54,36 @@ object Concepts extends CreationContext[ConceptF, Concept]
   val childForm = models.forms.ConceptForm.form
   val builder = Concept.apply _
 
+
+  override val entityFacets = List(
+    FieldFacetClass(
+      key=IsadG.LANG_CODE, // FIXME - define elsewhere
+      name=Messages("concept.languageCode"),
+      param="lang",
+      render=Helpers.languageCodeToName
+    ),
+    FieldFacetClass(
+      key="holderName",
+      name=Messages("concept.inVocabulary"),
+      param="set",
+      sort = FacetSort.Name
+    )
+  )
+
+  // Search params
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities = List(entityType))
+
+
   def get(id: String) = getWithChildrenAction(id, builder) { item => page => params => annotations => links =>
     implicit userOpt => implicit request =>
       Ok(views.html.concept.show(Concept(item), page, params, annotations))
+  }
+
+  def search = {
+    searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+      page => params => facets => implicit userOpt => implicit request =>
+        Ok(views.html.concept.search(page, params, facets, routes.Concepts.search))
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

@@ -33,7 +33,7 @@ case class ConceptF(
 }
 
 object Concept {
-  final val VOCAB_REL = "inCvoc"
+  final val IN_SET_REL = "inAuthoritativeSet"
   final val NT_REL = "narrower"
   final val BT_REL = "broader"
 }
@@ -57,7 +57,7 @@ case class Concept(e: Entity)
 
   lazy val descriptions: List[ConceptDescription] = e.relations(DescribedEntity.DESCRIBES_REL)
       .map(ConceptDescription(_)).sortBy(d => d.languageCode)
-  lazy val vocabulary: Option[Vocabulary] = e.relations(Concept.VOCAB_REL).headOption.map(Vocabulary(_))
+  lazy val vocabulary: Option[Vocabulary] = e.relations(Concept.IN_SET_REL).headOption.map(Vocabulary(_))
   lazy val broaderTerms: List[Concept] = e.relations(Concept.BT_REL).map(Concept(_))
 
   import json.ConceptFormat._

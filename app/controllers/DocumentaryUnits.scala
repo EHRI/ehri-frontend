@@ -101,7 +101,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   val builder = DocumentaryUnit
 
   val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))
-  val searchEntities = List(entityType)
+
 
   def search = {
     // What filters we gonna use? How about, only list stuff here that

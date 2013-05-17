@@ -14,6 +14,7 @@ object HistoricalAgentF {
 
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
+  final val IN_SET_REL = "inAuthoritativeSet"
 
   final val UNNAMED_PLACEHOLDER = "UNNAMED Authority"
 
@@ -40,6 +41,8 @@ case class HistoricalAgent(val e: Entity)
   with Formable[HistoricalAgentF] {
   def descriptions: List[HistoricalAgentDescription] = e.relations(DescribedEntity.DESCRIBES_REL)
       .map(HistoricalAgentDescription(_)).sortBy(d => d.languageCode)
+
+  val set: Option[AuthoritativeSet] = e.relations(HistoricalAgentF.IN_SET_REL).headOption.map(AuthoritativeSet(_))
 
   val publicationStatus = e.property(HistoricalAgentF.PUBLICATION_STATUS).flatMap(enumReads(PublicationStatus).reads(_).asOpt)
 

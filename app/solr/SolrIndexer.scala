@@ -152,6 +152,8 @@ object SolrIndexer extends RestDAO {
     // FIXME: This is very stupid
     descriptions.zipWithIndex.map { case (desc,i) =>
       ((desc
+        + ("holderId" -> Json.toJson(d.set.map(_.id)))
+        + ("holderName" -> Json.toJson(d.set.map(_.toString)))
         + (Isaar.ENTITY_TYPE -> Json.toJson(d.descriptions(i).stringProperty(Isaar.ENTITY_TYPE)))))
     }
   }
@@ -182,8 +184,8 @@ object SolrIndexer extends RestDAO {
     descriptions.map { desc =>
       ((desc
         + ("parentId" -> Json.toJson(c.broaderTerms.map(_.id)))
-        + ("vocabularyId_s" -> Json.toJson(c.vocabulary.map(_.id))))
-        + ("vocabularyName_s" -> Json.toJson(c.vocabulary.map(_.name))))
+        + ("holderId" -> Json.toJson(c.vocabulary.map(_.id))))
+        + ("holderName" -> Json.toJson(c.vocabulary.map(_.toString))))
     }
   }
 

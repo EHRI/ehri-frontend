@@ -239,7 +239,8 @@ POST    /country/scope/:id/:userType/:userId    controllers.Countries.setScopedP
 GET     /country/annotate/:id     controllers.Countries.annotate(id: String)
 POST    /country/annotate/:id     controllers.Countries.annotatePost(id: String)
 
-GET     /concepts                controllers.Concepts.list
+GET     /concepts                controllers.Concepts.search
+GET     /concepts/list           controllers.Concepts.list
 GET     /concepts/show/:id       controllers.Concepts.get(id: String)
 GET     /concepts/history/:id    controllers.Concepts.history(id: String)
 GET     /concepts/json/:id       controllers.Concepts.getJson(id: String)

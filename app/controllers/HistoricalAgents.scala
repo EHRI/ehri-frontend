@@ -21,6 +21,14 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   with EntityAnnotate[HistoricalAgent]
   with EntitySearch {
 
+  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+
+  val entityType = EntityType.HistoricalAgent
+  val contentType = ContentType.HistoricalAgent
+
+  val form = models.forms.HistoricalAgentForm.form
+  val builder = HistoricalAgent
+
   val listFilterMappings = ListMap[String,String](
     AccessibleEntity.NAME -> s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}",
     Entity.IDENTIFIER -> Entity.IDENTIFIER,
@@ -42,6 +50,12 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
       name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
       param="cpf",
       render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+    ),
+    FieldFacetClass(
+      key="holderName",
+      name=Messages(s"$entityType.authoritativeSet"),
+      param="set",
+      sort = FacetSort.Name
     )
   )
   override def processParams(params: ListParams): rest.RestPageParams = {
@@ -50,17 +64,9 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   override def processChildParams(params: ListParams) = DocumentaryUnits.processChildParams(params)
 
 
-  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
-
-  val entityType = EntityType.HistoricalAgent
-  val contentType = ContentType.HistoricalAgent
-
-  val form = models.forms.HistoricalAgentForm.form
-  val builder = HistoricalAgent
 
   // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name))
-  val searchEntities = List(entityType)
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities = List(entityType))
 
 
   def search = {

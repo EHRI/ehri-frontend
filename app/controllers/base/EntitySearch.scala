@@ -23,7 +23,6 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * are available for the given entity type.
    */
   val entityFacets: List[FacetClass] = Nil
-  val searchEntities: List[EntityType.Value]
 
   def bindFacetsFromRequest(facetClasses: List[FacetClass])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
     val qs = request.queryString
@@ -57,7 +56,6 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
         // Override the entity type with the controller entity type
         val sp = solr.SearchParams.form.bindFromRequest
             .value.getOrElse(SearchParams())
-            .copy(entities = searchEntities)
             .setDefault(defaultParams)
         val facets: List[AppliedFacet] = bindFacetsFromRequest(entityFacets)
         AsyncRest {
