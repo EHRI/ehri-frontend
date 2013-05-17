@@ -101,14 +101,15 @@ sealed abstract class FacetClass (
 ) {
   val fieldType: String
   def count: Int = facets.length
-  def filtered: List[Facet] = facets.filter(_.count > 0)
-  def sortedByName = filtered.sortWith((a, b) => a.sortVal < b.sortVal)
-  def sortedByCount = filtered.sortWith((a, b) => b.count < a.count)
+  def sortedByName = facets.sortWith((a, b) => a.sortVal < b.sortVal)
+  def sortedByCount = facets.sortWith((a, b) => b.count < a.count)
+
+
 
   def sorted: List[Facet] = sort match {
     case FacetSort.Name => sortedByName
     case FacetSort.Count => sortedByCount
-    case _ => filtered
+    case _ => facets
   }
   
   def asParams: List[FacetParam]
