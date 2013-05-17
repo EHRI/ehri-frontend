@@ -162,7 +162,8 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.HistoricalAgents.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        routes.AuthoritativeSets
+          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       // FIXME: This route will change when a property ID mapping scheme is devised
@@ -176,7 +177,8 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.HistoricalAgents.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        routes.AuthoritativeSets
+          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -185,8 +187,13 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "identifier" -> Seq("a1")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.HistoricalAgents.createPost.url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(BAD_REQUEST)
+        routes.AuthoritativeSets
+          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+      val cr2 = route(fakeLoggedInRequest(privilegedUser, POST,
+        routes.AuthoritativeSets
+          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr2) must equalTo(BAD_REQUEST)
     }
 
 
