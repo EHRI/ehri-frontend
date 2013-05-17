@@ -4,20 +4,27 @@
 
 @facets.map { fc =>
     @if(fc.count > 0) {
-        <h4>@Messages(fc.name)</h4>
-        <dl>
-        @fc.sorted.map { f =>
-            @if(f.applied) {
-                <dd class="selected-filter">@fc.pretty(f) (@f.count)
-                    <a class="remove-filter" href="@Utils.pathWithoutFacet(fc, f,
-                        req.path, req.queryString.filterKeys(_!="page"))"><i class="icon-remove"></i></a>
-                        } else {
-                <dd>
-                    <a href="@Utils.pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">@fc.pretty(f)
-                        (@f.count)</a>
-                </dd>
+        <small>
+            <h4>@Messages(fc.name)</h4>
+            <ul class="unstyled facet-list">
+            @fc.sorted.map { f =>
+                @if(f.applied) {
+                    <li class="selected-filter">
+                        @{fc.pretty(f)}
+                        (@f.count)
+                        <a class="remove-filter" href="@Utils.pathWithoutFacet(fc, f,
+                            req.path, req.queryString.filterKeys(_!="page"))"><i class="icon-remove"></i></a>
+                    </li>
+                } else {
+                    <li>
+                        <a href="@Utils.pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">
+                            @fc.pretty(f)
+                            (@f.count)
+                        </a>
+                    </li>
                 }
             }
-        </dl>
+            </ul>
+        </small>
     }
 }
