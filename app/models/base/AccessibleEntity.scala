@@ -21,8 +21,11 @@ trait AccessibleEntity extends WrappedEntity {
 
   override def toString = e.stringProperty(nameProperty).getOrElse(e.id)
 
-
-  // Language-aware toString
+  /**
+   * A language aware toString
+   * @param lang
+   * @return a name matching as much as possible the given lang
+   */
   def toStringLang(implicit lang: Lang) = {
     if (isInstanceOf[DescribedEntity[_]]) {
       val descriptions = asInstanceOf[DescribedEntity[_]].descriptions
@@ -33,5 +36,12 @@ trait AccessibleEntity extends WrappedEntity {
       toString
     }
   }
+
+  /**
+   * Abbreviated string representation, which defaults
+   * to the regular toString.
+   * @return a succinct name
+   */
+  def toStringAbbr(implicit lang: Lang): String = toStringLang
 
 }

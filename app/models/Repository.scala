@@ -9,6 +9,7 @@ import defines.{EntityType, PublicationStatus}
 import play.api.libs.json._
 import defines.EnumUtils._
 import models.base._
+import play.api.i18n.Lang
 
 
 object RepositoryF {
@@ -52,6 +53,13 @@ case class Repository(val e: Entity)
   import json.RepositoryFormat._
   lazy val formable: RepositoryF = Json.toJson(e).as[RepositoryF]
   lazy val formableOpt: Option[RepositoryF] = Json.toJson(e).asOpt[RepositoryF]
+
+  override def toStringAbbr(implicit lang: Lang) = {
+    val otherNames: List[String] = descriptions.flatMap(_.listProperty(Isdiah.OTHER_FORMS_OF_NAME).getOrElse(Nil))
+    val names: List[String] = (toStringLang :: otherNames)
+    names.sortBy((s: String) => s.length).head
+  }
+
 
   override def toString = {
     descriptions.headOption.flatMap(d => d.stringProperty(Isdiah.AUTHORIZED_FORM_OF_NAME)).getOrElse(id)
