@@ -34,6 +34,7 @@ search.name.asc=Name
 search.identifier=Identifier
 search.lastUpdated.desc=Recently Updated
 search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descriptions}
+search.spellingSuggestion=Did you mean
 
 footer.footerText=This is a development version of the EHRI data entry interface.
 

@@ -28,6 +28,11 @@ case class SolrQueryParser(response: Elem) {
     )
   }
 
+  lazy val spellcheckSuggestions: Option[String] =
+      (response \ "lst" \ "lst" \ "lst" \ "arr").filter(attributeValueEquals("suggestion")).map { suggest =>
+        (suggest \\ "str").text
+      }.headOption
+
   /**
    * Count the number of search descriptions returned in this response.
    */

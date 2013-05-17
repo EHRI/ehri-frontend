@@ -191,6 +191,8 @@ object SolrQueryBuilder {
 
     // Mmmn, speckcheck
     req.set("spellcheck", "true")
+    req.set("spellcheck.q", queryString)
+    req.set("spellcheck.extendedResults", "true")
 
     // Facet the request accordingly
     constrain(req, facets, allFacets)
