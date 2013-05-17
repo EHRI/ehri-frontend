@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<!--
+ This is a stripped down config file used for a simple example...  
+ It is *not* a good example to work from. 
+-->
+<config>
+  <luceneMatchVersion>LUCENE_41</luceneMatchVersion>
+  <!--  The DirectoryFactory to use for indexes.
+        solr.StandardDirectoryFactory, the default, is filesystem based.
+        solr.RAMDirectoryFactory is memory based, not persistent, and doesn't work with replication. -->
+  <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.StandardDirectoryFactory}"/>
+
+  <dataDir>${solr.portal.data.dir:}</dataDir>
+
+  <updateHandler class="solr.DirectUpdateHandler2">
+    <updateLog>
+      <str name="dir">${solr.portal.data.dir:}</str>
+    </updateLog>
+  </updateHandler>
+
+  <!-- realtime get handler, guaranteed to return the latest stored fields 
+    of any document, without the need to commit or open a new searcher. The current 
+    implementation relies on the updateLog feature being enabled. -->
+  <requestHandler name="/get" class="solr.RealTimeGetHandler">
+    <lst name="defaults">
+      <str name="omitHeader">true</str>
+    </lst>
+  </requestHandler>  
+  
+  <requestHandler name="/replication" class="solr.ReplicationHandler" startup="lazy" /> 
+
+  <requestDispatcher handleSelect="true" >
+    <requestParsers enableRemoteStreaming="false" multipartUploadLimitInKB="2048" formdataUploadLimitInKB="2048" />
+  </requestDispatcher>
+  
+  <requestHandler name="standard" class="solr.StandardRequestHandler" default="true">
+        <!-- default values for query parameters --> 
+     <lst name="defaults"> 
+     <str name="echoParams">explicit</str> 
+     </lst> 
+     <arr name="last-components"> 
+      <str>spellcheck</str> 
+     </arr> 
+  </requestHandler>
+
+  <requestHandler name="/analysis/field" startup="lazy" class="solr.FieldAnalysisRequestHandler" />
+  <requestHandler name="/update" class="solr.UpdateRequestHandler"  />
+  <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />
+     
+  <requestHandler name="/admin/ping" class="solr.PingRequestHandler">
+    <lst name="invariants">
+      <str name="q">solrpingquery</str>
+    </lst>
+    <lst name="defaults">
+      <str name="echoParams">all</str>
+    </lst>
+  </requestHandler>
+   
+  <!-- config for the admin interface --> 
+  <admin>
+    <defaultQuery>solr</defaultQuery>
+  </admin>
+
+   <!-- 
+        A spellchecker built from a field of the main index. Copied from here:
+        http://www.arunchinnachamy.com/apache-solr-spellchecker-configuration/
+   -->
+  <searchComponent name="spellcheck" class="solr.SpellCheckComponent">
+   <str name="queryAnalyzerFieldType">string</str> <!-- Replace with Field Type of your schema -->
+   <lst name="spellchecker">
+       <str name="name">default</str>
+       <str name="field">title</str> <!-- Replace with field name as per your scheme -->
+       <str name="spellcheckIndexDir">./spellchecker</str>
+       <str name="buildOnOptimize">true</str>
+       <str name="buildOnCommit">true</str>
+   </lst>
+   <!-- a spellchecker that uses a different distance measure -->
+   <lst name="spellchecker">
+       <str name="name">jarowinkler</str> 
+       <str name="field">title</str>
+       <str name="distanceMeasure">org.apache.lucene.search.spell.JaroWinklerDistance</str>
+       <str name="spellcheckIndexDir">./spellchecker2</str>
+   </lst>
+ 
+   <!-- a file based spell checker -->
+   <lst name="spellchecker">
+       <str name="classname">solr.FileBasedSpellChecker</str>
+       <str name="name">file</str>
+       <str name="sourceLocation">spellings.txt</str>
+       <str name="characterEncoding">UTF-8</str>
+       <str name="spellcheckIndexDir">./spellchecker</str>
+   </lst>   
+  </searchComponent>
+
+   <requestHandler name="/spell" class="solr.SearchHandler" startup="lazy">
+    <lst name="defaults">
+        <str name="df">title</str> <!--The default field for spell checking. -->
+        <str name="spellcheck.dictionary">default</str> <!--default or file or jarowinkler as mentioned above. -->
+        <str name="spellcheck">on</str>
+        <str name="spellcheck.extendedResults">true</str> 
+        <str name="spellcheck.count">10</str>
+        <str name="spellcheck.maxResultsForSuggest">5</str> 
+        <str name="spellcheck.collate">true</str>
+        <str name="spellcheck.collateExtendedResults">true</str> 
+        <str name="spellcheck.maxCollationTries">10</str>
+        <str name="spellcheck.maxCollations">5</str> 
+    </lst>
+    <arr name="last-components">
+       <str>spellcheck</str>
+    </arr>
+  </requestHandler>
+
+
+</config>
+
