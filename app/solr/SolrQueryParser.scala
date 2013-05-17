@@ -21,23 +21,33 @@ case class SolrQueryParser(response: Elem) {
    */
   lazy val items: Seq[SearchDescription] = (response \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
     SearchDescription(
-      id = (doc \\ "str").filter(attributeValueEquals("id")).text,
-      itemId = (doc \\ "str").filter(attributeValueEquals("itemId")).text,
-      name = (doc \\ "str").filter(attributeValueEquals("name")).text,
-      `type` = EntityType.withName((doc \\ "str").filter(attributeValueEquals("type")).text.trim)
+      id = (doc \\ "str").filter(hasAttr("name", "id")).text,
+      itemId = (doc \\ "str").filter(hasAttr("name", "itemId")).text,
+      name = (doc \\ "str").filter(hasAttr("name", "name")).text,
+      `type` = EntityType.withName((doc \\ "str").filter(hasAttr("name", "type")).text.trim)
     )
   }
 
   lazy val spellcheckSuggestions: Option[String] =
-      (response \ "lst" \ "lst" \ "lst" \ "arr").filter(attributeValueEquals("suggestion")).map { suggest =>
+      (response \ "lst" \ "lst" \ "lst" \ "arr").filter(hasAttr("name", "suggestion")).map { suggest =>
         (suggest \\ "str").text
       }.headOption
+
+  lazy val spellcheckSuggestion: Option[(String,String)] = {
+    // This
+    for {
+      suggestion <- (response \ "lst" \ "lst").filter(hasAttr("name", "suggestions")).headOption
+      name <- (suggestion \ "lst" \ "@name").headOption
+      word <- (suggestion \ "lst" \ "arr" \ "lst" \ "str").filter(hasAttr("name", "word")).headOption
+    } yield (name.text, word.text)
+  }
+
 
   /**
    * Count the number of search descriptions returned in this response.
    */
   lazy val count: Int = {
-    val s = (response \ "lst" \ "lst" \ "int").filter(attributeValueEquals("ngroups")).text
+    val s = (response \ "lst" \ "lst" \ "int").filter(hasAttr("name", "ngroups")).text
     try {
       s.toInt
     } catch {
@@ -56,7 +66,7 @@ case class SolrQueryParser(response: Elem) {
     allFacets.map(_.populateFromSolr(response, appliedFacets))
   }
 
-  private def attributeValueEquals(value: String)(node: Node) = {
-    node.attributes.exists(_.value.text == value)
+  private def hasAttr(name: String, value: String)(node: Node) = {
+    node.attributes.exists(attr => attr.key == name && attr.value.text == value)
   }
 }

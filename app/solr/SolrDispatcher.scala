@@ -24,7 +24,7 @@ case class ItemPage[A](
   limit:Int,
   total: Long,
   facets: List[FacetClass],
-  spellcheck: Option[String] = None
+  spellcheck: Option[(String,String)] = None
 ) extends utils.AbstractPage[A]
 
 /**
@@ -82,8 +82,7 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
     WS.url(SolrQueryBuilder.buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
         val parser = SolrQueryParser(r.body)
-
-        ItemPage(parser.items, offset, limit, parser.count, parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestions)
+        ItemPage(parser.items, offset, limit, parser.count, parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
       }
     }
   }
