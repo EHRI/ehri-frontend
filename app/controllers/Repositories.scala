@@ -85,7 +85,7 @@ object Repositories extends EntityRead[Repository]
 
   def search = searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
     page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.search.search(page, params, facets, routes.Repositories.search))
+      Ok(views.html.repository.search(page, params, facets, routes.Repositories.search))
 
   }
 

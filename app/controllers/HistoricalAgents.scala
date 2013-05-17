@@ -66,7 +66,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   def search = {
     searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.search.search(page, params, facets, routes.HistoricalAgents.search))
+        Ok(views.html.historicalAgent.search(page, params, facets, routes.HistoricalAgents.search))
     }
   }
 

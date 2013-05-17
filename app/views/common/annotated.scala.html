@@ -17,7 +17,6 @@
                 }
                 <a href="@routes.Annotations.annotate(ann.id)?annotationType=comment">+</a>
                 @if(!ann.annotations.isEmpty) {
-                    @{println("ANN: " + ann.annotations)}
                     @annotationList(ann.annotations)
                 }
             </li>

@@ -109,7 +109,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     val filters = Map("depthOfDescription" -> 0)
     searchAction(filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.search.search(page, params, facets, routes.DocumentaryUnits.search))
+        Ok(views.html.documentaryUnit.search(page, params, facets, routes.DocumentaryUnits.search))
     }
   }
 

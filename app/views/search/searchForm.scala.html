@@ -1,0 +1,78 @@
+@(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@import solr.SearchParams
+
+@helper.form(action = action, 'class -> "form-search") {
+    <div class="controls-row">
+        <div class="input-append search-query span10">
+            <input type="text" class="span10" name="@SearchParams.QUERY" value="@params.query" autofocus />
+            <button class="btn">@Messages("forms.search")</button>
+        </div>
+    </div>
+
+    <div class="btn-group pull-right" style="margin-top: 10px">
+        <button class="btn dropdown-toggle" data-toggle="dropdown">
+            @Messages("search.sortItems")
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            @solr.SearchOrder.values.map { sortKey =>
+            <li>
+                <a href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey)))">
+                    @Messages("search." + sortKey)
+                    @if(params.sort.equals(Some(sortKey))) {
+                    <i class="icon-ok"></i>
+                    }
+                </a>
+            </li>
+            }
+        </ul>
+    </div>
+    <h3>@Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)</h3>
+    <p>
+        @common.selectedFacets(result)
+    </p>
+
+    <ul class="unstyled">
+    @result.items.map { case(item, id) =>
+        @defining(Some(id)) { implicit descriptionId =>
+            <li>
+                @item.isA match {
+                    case EntityType.DocumentaryUnit => {
+                        @documentaryUnit.listItem(DocumentaryUnit(item))
+                    }
+                    case EntityType.HistoricalAgent => {
+                        @historicalAgent.listItem(HistoricalAgent(item))
+                    }
+                    case EntityType.Repository => {
+                        @repository.listItem(Repository(item))
+                    }
+                    case EntityType.Concept => {
+                        @concept.listItem(Concept(item))
+                    }
+                    case EntityType.Country => {
+                        @country.searchItem(Country(item))
+                    }
+                    case EntityType.UserProfile => {
+                        @userProfile.searchItem(UserProfile(item))
+                    }
+                    case EntityType.Group => {
+                        @group.searchItem(Group(item))
+                    }
+                    case EntityType.AuthoritativeSet => {
+                        @authoritativeSet.searchItem(AuthoritativeSet(item))
+                    }
+                    case EntityType.Vocabulary => {
+                        @vocabulary.searchItem(Vocabulary(item))
+                    }
+                    case _ => {
+                        @common.searchItem(item)
+                    }
+                }
+            </li>
+        }
+    }
+    </ul>
+    @common.pagination(result)
+}

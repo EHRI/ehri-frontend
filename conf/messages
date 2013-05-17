@@ -131,13 +131,13 @@ concept.narrowerTerms=Narrower Terms
 concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.description=Description
-authoritativeSet.description=Description
 country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 #
 # Authority set
 #
 authoritativeSet.items=Authority Items
+authoritativeSet.description=Description
 
 #
 # Annotations
@@ -290,12 +290,14 @@ submitButton.linkAnnotate=Link Items
 submitButton.updateGlobalPermissions=Update Global Permissions
 submitButton.createUser=Create User
 submitButton.createVocabulary=Create Vocabulary
+submitButton.createAuthoritativeSet=Create Authority Set
 submitButton.createConcept=Create Concept
 submitButton.loginWithPassword=Sign In
 submitButton.loginWithOpenid=Sign In With OpenID
 submitButton.changePassword=Change Password
 submitButton.updateConcept=Update Concept
 submitButton.updateVocabulary=Update Vocabulary
+submitButton.updateAuthoritativeSet=Update Authority Set
 submitButton.createCountry=Add Country
 submitButton.updateCountry=Update Country
 
@@ -341,6 +343,18 @@ documentaryUnit.heldBy=Held By
 documentaryUnit.parentItem=Parent Item
 documentaryUnit.availableDescriptions=Available Descriptions
 documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD(G) description info.
+documentaryUnit.search=Search Top-level Descriptions
+
+#
+# Repositories
+#
+repository.search=Search Repositories
+
+#
+# Historical Agents
+#
+historicalAgent.search=Search Authorities
+
 
 #
 # Form misc

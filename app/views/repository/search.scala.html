@@ -1,8 +1,8 @@
 @(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("forms.search")) {
-    @searchForm(result, params, action)
+@rightSidebarLayout(Messages("repository.search")) {
+    @views.html.search.searchForm(result, params, action)
 } {
     @common.facetList(result.facets, action)
 }
