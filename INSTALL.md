@@ -10,9 +10,10 @@ Download Solr and extract it to the location of your choice (using ~/apps for th
 
 	curl -0 http://mirrors.ukfast.co.uk/sites/ftp.apache.org/lucene/solr/4.2.1/solr-4.2.1.tgz | tar -zx -C ~/apps
 
-For now, re-use the example Solr core (named "collection1", inside the example/solr direction).  As a shortcut, you can just grab the schema.xml from Github:
+For now, re-use the example Solr core (named "collection1", inside the example/solr direction).  As a shortcut, you can just grab the `schema.xml` and `solrconfig.xml` from Github:
 
 	curl https://raw.github.com/mikesname/docview/master/etc/schema.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/schema.xml
+	curl https://raw.github.com/mikesname/docview/master/etc/solrconfig.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/solrconfig.xml
 
 You should now able able to start the Solr server in another shell:
 
