@@ -158,7 +158,7 @@ object SolrQueryBuilder {
    * @param params
    * @return
    */
-  def buildQuery(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val queryString = params.query.getOrElse("*").trim
@@ -240,12 +240,5 @@ object SolrQueryBuilder {
     setGrouping(req)
 
     req
-  }
-
-  def buildSearchUrl(query: QueryRequest) = {
-    "%s/select%s".format(
-      play.Play.application.configuration.getString("solr.path"),
-      query.queryString
-    )
   }
 }

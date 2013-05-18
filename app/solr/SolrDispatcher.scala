@@ -8,6 +8,7 @@ import concurrent.Future
 import defines.EntityType
 import rest.RestError
 import solr.facet.{FacetClass, AppliedFacet}
+import com.github.seratch.scalikesolr.request.QueryRequest
 
 /**
  * Page of search result items
@@ -55,6 +56,27 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
 
+  /**
+   * Get the Solr URL...
+   * @param query
+   * @return
+   */
+  private def buildSearchUrl(query: QueryRequest) = {
+    "%s/select%s".format(
+      play.Play.application.configuration.getString("solr.path"),
+      query.queryString
+    )
+  }
+
+  /**
+   * Filter items on name only, returning minimal data.
+   * @param q
+   * @param entityType
+   * @param page
+   * @param limitOpt
+   * @param userOpt
+   * @return a tuple of id, name, and type
+   */
   def filter(q: String, entityType: Option[EntityType.Value] = None, page: Option[Int] = Some(1), limitOpt: Option[Int] = Some(100))(
     implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String,EntityType.Value)]]] = {
     val limit = limitOpt.getOrElse(100)
@@ -63,7 +85,7 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
     val queryRequest = SolrQueryBuilder.simpleFilter(q, entityType, page, limitOpt)
     Logger.logger.debug(queryRequest.queryString())
 
-    WS.url(SolrQueryBuilder.buildSearchUrl(queryRequest)).get.map { response =>
+    WS.url(buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
         val parser = SolrQueryParser(r.body)
         val items = parser.items.map(i => (i.itemId, i.name, i.`type`))
@@ -72,14 +94,23 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
     }
   }
 
-  def list(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+  /**
+   * Do a full search with the given parameters.
+   * @param params
+   * @param facets
+   * @param allFacets
+   * @param filters
+   * @param userOpt
+   * @return a set of SearchDescriptions for matching results.
+   */
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = SolrQueryBuilder.buildQuery(params, facets, allFacets, filters)(userOpt)
+    val queryRequest = SolrQueryBuilder.search(params, facets, allFacets, filters)(userOpt)
     Logger.logger.debug(queryRequest.queryString())
 
-    WS.url(SolrQueryBuilder.buildSearchUrl(queryRequest)).get.map { response =>
+    WS.url(buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
         val parser = SolrQueryParser(r.body)
         ItemPage(parser.items, offset, limit, parser.count, parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
@@ -87,6 +118,17 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
     }
   }
 
+  /**
+   * Return only facet counts for the given query, in pages.
+   * @param facet
+   * @param sort
+   * @param params
+   * @param facets
+   * @param allFacets
+   * @param filters
+   * @param userOpt
+   * @return paged Facets
+   */
   def facet(
     facet: String,
     sort: String = "name",
@@ -102,9 +144,9 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
     // actually care about the documents, so even this is
     // not strictly necessary... we also don't care about the
     // ordering.
-    val queryRequest = SolrQueryBuilder.buildQuery(params, facets, allFacets, filters)(userOpt)
+    val queryRequest = SolrQueryBuilder.search(params, facets, allFacets, filters)(userOpt)
 
-    WS.url(SolrQueryBuilder.buildSearchUrl(queryRequest)).get.map { response =>
+    WS.url(buildSearchUrl(queryRequest)).get.map { response =>
       checkError(response).right.map { r =>
 
         val facetClasses = SolrQueryParser(r.body).extractFacetData(facets, allFacets)

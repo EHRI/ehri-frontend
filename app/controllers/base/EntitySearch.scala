@@ -78,7 +78,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
 
         val facets: List[AppliedFacet] = bindFacetsFromRequest(entityFacets)
         AsyncRest {
-          solrDispatcher.list(sp, facets, entityFacets, filters).map { resOrErr =>
+          solrDispatcher.search(sp, facets, entityFacets, filters).map { resOrErr =>
             resOrErr.right.map { res =>
               val ids = res.items.map(_.id)
               val itemIds = res.items.map(_.itemId)
