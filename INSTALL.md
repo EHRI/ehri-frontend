@@ -35,7 +35,7 @@ Add the "play" command to your path (and your personal .bashrc/.profile if desir
 
     export PATH=$PATH:$HOME/apps/play-${PLAY_VERSION}
     
-### Setting up the development code:
+## Setting up the development code:
 
 Download the source from Github:
 
