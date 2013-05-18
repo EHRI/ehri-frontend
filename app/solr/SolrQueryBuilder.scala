@@ -164,11 +164,17 @@ object SolrQueryBuilder {
     val queryString = params.query.getOrElse("*").trim
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
+
+    // Always facet on item type
     req.setFacet(new FacetParams(
       enabled=true,
       params=List(new FacetParam(Param("facet.field"), Value("type")))
     ))
+
+    // Use edismax to parse the user query
     req.setQueryParserType(QueryParserType("edismax"))
+
+    // Highlight, which will at some point be implemented...
     req.setHighlighting(HighlightingParams(
         enabled=true,
         isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
@@ -190,6 +196,7 @@ object SolrQueryBuilder {
     }
 
     // Mmmn, speckcheck
+    // TODO: Add quality params here...
     req.set("spellcheck", "true")
     req.set("spellcheck.q", queryString)
     req.set("spellcheck.extendedResults", "true")
@@ -200,7 +207,9 @@ object SolrQueryBuilder {
     // if we're using a specific index, constrain on that as well
     constrainEntities(req, params.entities)
 
-    // Testing...
+    // Only return what we immediately need to build a SearchDescription. We
+    // ignore nearly everything currently stored in Solr, instead fetching the
+    // data from the DB, but this might change in future.
     req.setFieldsToReturn(FieldsToReturn("id itemId type"))
 
     // Return only fields we care about...
