@@ -275,6 +275,7 @@ submitButton.createHistoricalAgent=Create Authority
 submitButton.createUserProfile=Create User
 submitButton.createGroup=Create Group
 submitButton.updateDocumentaryUnit=Update Collection
+submitButton.updateDescription=Update Description
 submitButton.updateRepository=Update Repository
 submitButton.updateHistoricalAgent=Update Authority
 submitButton.updateUserProfile=Update Profile

@@ -14,7 +14,7 @@ jQuery(function($) {
 
       function shouldStick() {
         var vpend = $(window).outerHeight() + $(window).scrollTop();
-        var sticky = top > vpend + innerHeight;
+        var sticky = top > vpend + innerHeight - height;
 
         if (sticky) {
           if (!that.isSticky === sticky) {
@@ -22,7 +22,7 @@ jQuery(function($) {
               position: "fixed",
               left: 0,
               width: $(window).width(),
-              top: $(window).outerHeight() - height
+              top: $(window).height() - height - 15 // Unfortunate fudge factor!
             }).addClass("sticky");
             that.isSticky = sticky;
           }
