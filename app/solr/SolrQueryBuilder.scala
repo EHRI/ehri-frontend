@@ -161,7 +161,7 @@ object SolrQueryBuilder {
   def buildQuery(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
-    val queryString = "%s".format(params.query.getOrElse("*").trim)
+    val queryString = params.query.getOrElse("*").trim
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
     req.setFacet(new FacetParams(
