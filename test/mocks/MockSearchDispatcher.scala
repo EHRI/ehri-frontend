@@ -32,7 +32,7 @@ case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
     }
   }
 
-  def list(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val items = params.entities.foldLeft(List[solr.SearchDescription]()) { case (listOfItems, et) =>
       et match {
