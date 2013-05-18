@@ -75,7 +75,7 @@ We can now see if the app actually works:
 
     play run
 
-Now, visit http://localhost:9000 in your browser. The app should show a screen saying it needs to apply a migration to the database. ** Click the "Apply This Script Now" button.**
+Now, visit http://localhost:9000 in your browser. The app should show a screen saying it needs to apply a migration to the database. **Click the "Apply This Script Now" button.**
 
 Next, we have a little problem because we need to create the login details of our administrative user in the authorisation database. Unfortunately there is no way at present to do this without mucking with the database directly.
 
