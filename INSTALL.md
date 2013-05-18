@@ -23,7 +23,7 @@ You should now able able to start the Solr server in another shell:
 If that starts without spewing out any dodgy-looking stack traces all should be well. You can verify this by going to http://localhost:8983/solr which should display the Solr admin page.
 
 
-## Installing Play 2.1:
+### Installing Play 2.1:
 
 Download and install Play 2.1:
 
@@ -35,7 +35,7 @@ Add the "play" command to your path (and your personal .bashrc/.profile if desir
 
     export PATH=$PATH:$HOME/apps/play-${PLAY_VERSION}
     
-## Setting up the development code:
+### Setting up the development code:
 
 Download the source from Github:
 
