@@ -1,7 +1,7 @@
-!(function () {
-  var linker = angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead', 'ui.bootstrap.pagination' ], function ($provide) {
-    $provide.factory('$search', function ($http, $log) {
-      var search = function (type, searchTerm, page) {
+!(function() {
+  var linker = angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead', 'ui.bootstrap.pagination' ], function($provide) {
+    $provide.factory('$search', function($http, $log) {
+      var search = function(type, searchTerm, page) {
         var params = "?limit=10&q=" + (searchTerm || "");
         if (type) {
           params = params + "&type=" + type;
@@ -9,17 +9,16 @@
         if (page) {
           params = params + "&page=" + page;
         }
-        $log.log("Searching with: ", "/search/" + params)
         return $http.get("/filter" + params);
       }
 
       return {
         search: search,
-        filter: function (type, searchTerm, page) {
+        filter: function(type, searchTerm, page) {
           return search(type, (searchTerm || "PLACEHOLDER_NO_RESULTS"), page);
         },
 
-        detail: function (type, id) {
+        detail: function(type, id) {
           return $http.get("/api/" + type + "/" + id);
         }
       };
@@ -41,12 +40,32 @@
         }
       };
     });
+
   });
 
-  linker.directive('selectOnClick', function () {
+  //
+  // Directives for testing, these aren't used yet...
+  //
+  linker.directive('ngEnter', function() {
+    return function(scope, elem, attrs) {
+      elem.bind('keypress', function(e) {
+        if (e.charCode === 13) scope.$apply(attrs.ngEnter);
+      });
+    };
+  });
+
+  linker.directive('ngKeyNav', function() {
+    return function(scope, elem, attrs) {
+      elem.bind('keypress', function(e) {
+        if (e.charCode === 38) scope.$apply(attrs.ngKeyNav);
+        else if (e.charCode === 40) scope.$apply(attrs.ngKeyNav);
+      });
+    };
+  });
+  linker.directive('selectOnClick', function() {
     // Linker function
-    return function (scope, element, attrs) {
-      element.click(function () {
+    return function(scope, element, attrs) {
+      element.click(function() {
         element.select();
       });
     };
@@ -68,7 +87,7 @@ function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
   $scope.numPages = false; // Number of pages (get from query)
 
   // Trigger moreResults if current page changes
-  $scope.$watch("currentPage", function (newValue, oldValue) {
+  $scope.$watch("currentPage", function(newValue, oldValue) {
     if (!$scope.results[newValue]) {
       $scope.moreResults($scope.q);
     }
@@ -90,8 +109,8 @@ function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
    * @param page
    * @returns {*}
    */
-  $scope.doSearch = function (searchTerm, page) {
-    return $search.search($scope.type, searchTerm, page).then(function (response) {
+  $scope.doSearch = function(searchTerm, page) {
+    return $search.search($scope.type, searchTerm, page).then(function(response) {
       $scope.results = [];
       $scope.currentPage = response.data.page;
       $scope.results[$scope.currentPage] = response.data.items;
@@ -104,8 +123,8 @@ function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
    * @param searchTerm
    * @returns {*}
    */
-  $scope.moreResults = function (searchTerm) {
-    return $search.search($scope.type, searchTerm, $scope.currentPage).then(function (response) {
+  $scope.moreResults = function(searchTerm) {
+    return $search.search($scope.type, searchTerm, $scope.currentPage).then(function(response) {
       // Append results instead of replacing them...
       $scope.currentPage = response.data.page;
       $scope.results[$scope.currentPage] = response.data.items;
@@ -118,7 +137,7 @@ function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
    * Narrow the search to a particular type of item.
    * @param type
    */
-  $scope.setType = function (type) {
+  $scope.setType = function(type) {
     $scope.type = type;
     $scope.doSearch($scope.q);
   }
@@ -129,12 +148,12 @@ function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
    * @param item
    * @returns {*}
    */
-  $scope.setItem = function (item) {
+  $scope.setItem = function(item) {
     if ($scope.item === item) {
       $scope.item = $scope.itemData = null;
     } else {
       $scope.item = item;
-      return $search.detail(item[2], item[0]).then(function (response) {
+      return $search.detail(item[2], item[0]).then(function(response) {
         $scope.itemData = response.data;
         console.log($scope.itemData)
       });
@@ -144,7 +163,7 @@ function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
   /**
    * Select an item, closing the dialog.
    */
-  $scope.selectItem = function () {
+  $scope.selectItem = function() {
     if ($scope.item)
       $scope.close($scope.item);
   }
@@ -153,11 +172,10 @@ function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
    * Close the dialog.
    * @param result
    */
-  $scope.close = function (result) {
+  $scope.close = function(result) {
     dialog.close(result);
   };
 }
-
 
 
 function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
@@ -246,7 +264,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
    * @param accessLinkId
    * @param accessLinkText
    */
-  $scope.deleteAccessPointWithLink = function (accessPointId, accessLinkId, accessLinkText) {
+  $scope.deleteAccessPointWithLink = function(accessPointId, accessLinkId, accessLinkText) {
     var title = 'Delete link for access point';
     var msg = 'Are you sure you want to delete the link for ' + accessLinkText + ' ?';
     var btns = [
@@ -255,26 +273,26 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
     ];
 
     $dialog.messageBox(title, msg, btns)
-        .open()
-        .then(function (result) {
-          if (result == 1) {
-            $service.deleteLink(accessLinkId).ajax({
-              headers: {"Accept": "application/json; charset=utf-8"},
-              success: function (data) {
-                if (data === true) {
-                  $service.deleteAccessPoint($scope.itemId, accessPointId).ajax({
-                    headers: {"Accept": "application/json; charset=utf-8"},
-                    success: function (data) {
-                      if (data === true) {
-                        $scope.getAccessPointList();
-                      }
+      .open()
+      .then(function(result) {
+        if (result == 1) {
+          $service.deleteLink(accessLinkId).ajax({
+            headers: {"Accept": "application/json; charset=utf-8"},
+            success: function(data) {
+              if (data === true) {
+                $service.deleteAccessPoint($scope.itemId, accessPointId).ajax({
+                  headers: {"Accept": "application/json; charset=utf-8"},
+                  success: function(data) {
+                    if (data === true) {
+                      $scope.getAccessPointList();
                     }
-                  });
-                }
+                  }
+                });
               }
-            });
-          }
-        });
+            }
+          });
+        }
+      });
   };
 
   /**
@@ -282,7 +300,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
    */
   $scope.openBrowseDialog = function() {
     var d = $dialog.dialog($scope.modalLink);
-    d.open().then(function (result) {
+    d.open().then(function(result) {
       if (result) {
         $scope.selectLinkMatch(result);
       }
@@ -314,7 +332,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
    * @param accessPointId
    * @param accessLinkText
    */
-  $scope.deleteAccessPoint = function (accessPointId, accessLinkText) {
+  $scope.deleteAccessPoint = function(accessPointId, accessLinkText) {
     var title = 'Delete access point';
     var msg = 'Are you sure you want to delete this access point: ' + accessLinkText + ' ?';
     var btns = [
@@ -323,19 +341,19 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
     ];
 
     $dialog.messageBox(title, msg, btns)
-        .open()
-        .then(function (result) {
-          if (result == 1) {
-            $service.deleteAccessPoint($scope.itemId, accessPointId).ajax({
-              headers: {"Accept": "application/json; charset=utf-8"},
-              success: function (data) {
-                if (data === true) {
-                  $scope.getAccessPointList();
-                }
+      .open()
+      .then(function(result) {
+        if (result == 1) {
+          $service.deleteAccessPoint($scope.itemId, accessPointId).ajax({
+            headers: {"Accept": "application/json; charset=utf-8"},
+            success: function(data) {
+              if (data === true) {
+                $scope.getAccessPointList();
               }
-            });
-          }
-        });
+            }
+          });
+        }
+      });
   };
 
   /**
@@ -386,30 +404,30 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
    */
   $scope.saveNewAccessPoint = function() {
     $service.createAccessPoint($scope.itemId, $scope.descriptionId).ajax({
-      data: JSON.stringify({
+      data: angular.toJson({
         name: $scope.tempAccessPoint.name,
         type: $scope.tempAccessPoint.type,
         description: $scope.tempAccessPoint.description
       }),
       headers: ajaxHeaders
     }).done(function(data) {
-      if ($scope.tempAccessPoint.link === null) {
-        $scope.cancelAddAccessPoint();
-        $scope.getAccessPointList();
-      } else {
-        $service.createLink($scope.itemId, data.id).ajax({
-           data: JSON.stringify({
-             target: $scope.tempAccessPoint.link.target,
-             type: $scope.tempAccessPoint.link.type,
-             description: $scope.tempAccessPoint.description
-           }),
-           headers: ajaxHeaders
-        }).done(function(data) {
+        if ($scope.tempAccessPoint.link === null) {
           $scope.cancelAddAccessPoint();
           $scope.getAccessPointList();
-        });
-      }
-    });
+        } else {
+          $service.createLink($scope.itemId, data.id).ajax({
+            data: angular.toJson({
+              target: $scope.tempAccessPoint.link.target,
+              type: $scope.tempAccessPoint.link.type,
+              description: $scope.tempAccessPoint.description
+            }),
+            headers: ajaxHeaders
+          }).done(function(data) {
+              $scope.cancelAddAccessPoint();
+              $scope.getAccessPointList();
+            });
+        }
+      });
   }
 
   /**
@@ -452,9 +470,9 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
    * Fetch the current list of access points for the current item and description.
    * The list is configured like so:
    */
-  $scope.getAccessPointList = function () {
+  $scope.getAccessPointList = function() {
     $service.getAccessPoints($scope.itemId, $scope.descriptionId).ajax({
-      success: function (data) {
+      success: function(data) {
         for (var i in data) {
           if (data[i].id === $scope.descriptionId) {
             $scope.accesslist = data[i];
