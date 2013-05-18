@@ -28,13 +28,11 @@ case class SolrQueryParser(response: Elem) {
     )
   }
 
-  lazy val spellcheckSuggestions: Option[String] =
-      (response \ "lst" \ "lst" \ "lst" \ "arr").filter(hasAttr("name", "suggestion")).map { suggest =>
-        (suggest \\ "str").text
-      }.headOption
-
+  /**
+   * Get the *first* spellcheck suggestion offered. Ultimately, more might be useful,
+   * but the first is okay for now...
+   */
   lazy val spellcheckSuggestion: Option[(String,String)] = {
-    // This
     for {
       suggestion <- (response \ "lst" \ "lst").filter(hasAttr("name", "suggestions")).headOption
       name <- (suggestion \ "lst" \ "@name").headOption
