@@ -4,22 +4,9 @@ import models.base._
 import play.api.libs.json.{JsValue, Json}
 import defines.EntityType
 
-
-case class RepositoryDescription(val e: Entity) extends Description with Formable[RepositoryDescriptionF] {
-
-  import RepositoryDescriptionF._
-  import Isdiah._
-
-  lazy val item: Option[Repository] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Repository(_))
-  def addresses: List[Address] = e.relations(RepositoryF.ADDRESS_REL).map(Address(_))
-
-  import json.IsdiahFormat._
-  lazy val formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF]
-  lazy val formableOpt: Option[RepositoryDescriptionF] = Json.toJson(e).asOpt[RepositoryDescriptionF]
-}
-
-
 object RepositoryDescriptionF {
+
+  implicit val repositoryDescriptionFormat = json.IsdiahFormat.isdiahFormat
 
   case class Details(
     history: Option[String] = None,
@@ -74,6 +61,18 @@ case class RepositoryDescriptionF(
   ) extends Persistable {
   val isA = EntityType.RepositoryDescription
 
-  import json.IsdiahFormat._
   def toJson: JsValue = Json.toJson(this)
+}
+
+
+case class RepositoryDescription(val e: Entity) extends Description with Formable[RepositoryDescriptionF] {
+
+  import RepositoryDescriptionF._
+  import Isdiah._
+
+  lazy val item: Option[Repository] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Repository(_))
+  def addresses: List[Address] = e.relations(RepositoryF.ADDRESS_REL).map(Address(_))
+
+  lazy val formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF]
+  lazy val formableOpt: Option[RepositoryDescriptionF] = Json.toJson(e).asOpt[RepositoryDescriptionF]
 }

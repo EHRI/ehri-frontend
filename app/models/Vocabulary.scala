@@ -12,9 +12,13 @@ object VocabularyType extends Enumeration {
 }
 
 object VocabularyF {
+
+  implicit val vocabularyFormat = json.VocabularyFormat.vocabularyFormat
+
   val NAME = "name"
   val DESCRIPTION = "description"
 }
+
 
 case class VocabularyF(
   val id: Option[String],
@@ -24,7 +28,6 @@ case class VocabularyF(
 ) extends Persistable {
   val isA = EntityType.Vocabulary
 
-  import json.VocabularyFormat._
   def toJson = Json.toJson(this)
 }
 
@@ -39,7 +42,6 @@ case class Vocabulary(e: Entity)
   with AnnotatableEntity
   with Formable[VocabularyF] {
 
-  import json.VocabularyFormat._
   lazy val formable: VocabularyF = Json.toJson(e).as[VocabularyF]
   lazy val formableOpt: Option[VocabularyF] = Json.toJson(e).asOpt[VocabularyF]
 }

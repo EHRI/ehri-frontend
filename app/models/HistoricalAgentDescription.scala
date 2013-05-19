@@ -4,21 +4,9 @@ import models.base._
 import play.api.libs.json.{JsValue, Json}
 import defines.EntityType
 
-case class HistoricalAgentDescription(val e: Entity) extends Description with Formable[HistoricalAgentDescriptionF] {
-  lazy val item: Option[HistoricalAgent] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(HistoricalAgent(_))
-
-  import json.IsaarFormat._
-
-  lazy val formable: HistoricalAgentDescriptionF = {
-    val json = Json.toJson(e)
-    println("JSON: " + json)
-    json.as[HistoricalAgentDescriptionF]
-  }
-
-  lazy val formableOpt: Option[HistoricalAgentDescriptionF] = Json.toJson(e).asOpt[HistoricalAgentDescriptionF]
-}
-
 object HistoricalAgentDescriptionF {
+
+  implicit val historicalAgentDescriptionFormat = json.IsaarFormat.isaarFormat
 
   case class Details(
     datesOfExistence: Option[String] = None,
@@ -59,9 +47,17 @@ case class HistoricalAgentDescriptionF(
   ) extends Persistable {
   val isA = EntityType.HistoricalAgentDescription
 
-  import json.IsaarFormat._
-
   def toJson: JsValue = Json.toJson(this)
 }
 
+case class HistoricalAgentDescription(val e: Entity) extends Description with Formable[HistoricalAgentDescriptionF] {
+  lazy val item: Option[HistoricalAgent] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(HistoricalAgent(_))
 
+  lazy val formable: HistoricalAgentDescriptionF = {
+    val json = Json.toJson(e)
+    println("JSON: " + json)
+    json.as[HistoricalAgentDescriptionF]
+  }
+
+  lazy val formableOpt: Option[HistoricalAgentDescriptionF] = Json.toJson(e).asOpt[HistoricalAgentDescriptionF]
+}

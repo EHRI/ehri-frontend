@@ -15,6 +15,9 @@ object DatePeriodType extends Enumeration {
 
 
 object DatePeriodF {
+
+  implicit val datePeriodFormat = json.DatePeriodFormat.datePeriodFormat
+
   val TYPE = "type"
   val START_DATE = "startDate"
   val END_DATE = "endDate"
@@ -39,7 +42,6 @@ case class DatePeriodF(
 
 
 case class DatePeriod(val e: Entity) extends Formable[DatePeriodF] {
-  import json.DatePeriodFormat._
   lazy val formable: DatePeriodF = Json.toJson(e).as[DatePeriodF]
   lazy val formableOpt: Option[DatePeriodF] = Json.toJson(e).asOpt[DatePeriodF]
 }

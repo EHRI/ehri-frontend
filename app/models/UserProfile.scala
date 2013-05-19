@@ -12,6 +12,8 @@ import defines.EnumUtils.enumWrites
 
 object UserProfileF {
 
+  implicit val userProfileFormat = json.UserProfileFormat.userProfileFormat
+
   val FIELD_PREFIX = "profile"
 
   final val PLACEHOLDER_TITLE = "[No Title Found]"
@@ -32,8 +34,6 @@ case class UserProfileF(
 ) extends Persistable {
   val isA = EntityType.UserProfile
 
-  import Entity._
-  import json.UserProfileFormat._
   def toJson = Json.toJson(this)
 }
 
@@ -62,7 +62,6 @@ case class UserProfile(
     }.getOrElse(false)
   }
 
-  import json.UserProfileFormat._
   lazy val formable: UserProfileF = Json.toJson(e).as[UserProfileF]
   lazy val formableOpt: Option[UserProfileF] = Json.toJson(e).asOpt[UserProfileF]
 }

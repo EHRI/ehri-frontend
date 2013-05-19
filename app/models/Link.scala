@@ -7,6 +7,9 @@ import models.LinkF.LinkType
 
 
 object LinkF {
+
+  implicit val linkFormat = json.LinkFormat.linkFormat
+
   val LINK_TYPE = "type"
   val DESCRIPTION = "description"
 
@@ -26,7 +29,6 @@ case class LinkF(
 ) extends Persistable {
   val isA = EntityType.Link
 
-  import json.LinkFormat._
   def toJson = Json.toJson(this)
 }
 
@@ -46,7 +48,6 @@ case class Link(val e: Entity) extends AccessibleEntity
   lazy val accessor: Option[Accessor] = e.relations(Link.ACCESSOR_REL).headOption.map(Accessor(_))
   lazy val bodies: List[AccessPoint] = e.relations(Link.BODY_REL).map(AccessPoint(_))
 
-  import json.LinkFormat._
   lazy val formable: LinkF = Json.toJson(e).as[LinkF]
   lazy val formableOpt: Option[LinkF] = Json.toJson(e).asOpt[LinkF]
 

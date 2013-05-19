@@ -7,6 +7,9 @@ import models.base.Persistable
 import play.api.libs.json.Json
 import models.base.DescribedEntity
 
+object ConceptDescriptionF {
+  implicit val conceptDescriptionFormat = json.ConceptDescriptionFormat.conceptDescriptionFormat
+}
 
 case class ConceptDescriptionF(
   val id: Option[String],
@@ -18,7 +21,6 @@ case class ConceptDescriptionF(
 ) extends Persistable {
   val isA = EntityType.ConceptDescription
 
-  import json.ConceptDescriptionFormat._
   def toJson = Json.toJson(this)
 }
 
@@ -29,7 +31,6 @@ case class ConceptDescription(val e: Entity)
 
   lazy val item: Option[Concept] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Concept(_))
 
-  import json.ConceptDescriptionFormat._
   def formable: ConceptDescriptionF = Json.toJson(e).as[ConceptDescriptionF]
   def formableOpt: Option[ConceptDescriptionF] = Json.toJson(e).asOpt[ConceptDescriptionF]
 }

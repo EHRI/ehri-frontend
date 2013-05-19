@@ -6,6 +6,8 @@ import play.api.libs.json.Json
 
 object GroupF {
 
+  implicit val groupFormat = json.GroupFormat.groupFormat
+
   final val BELONGS_REL = "belongsTo"
 
   val NAME = "name"
@@ -20,14 +22,11 @@ case class GroupF(
 ) extends Persistable {
   val isA = EntityType.Group
 
-  import json.GroupFormat._
   def toJson = Json.toJson(this)
 }
 
 
 case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[GroupF] {
-
-  import json.GroupFormat._
   lazy val formable: GroupF = Json.toJson(e).as[GroupF]
   lazy val formableOpt: Option[GroupF] = Json.toJson(e).asOpt[GroupF]
 }

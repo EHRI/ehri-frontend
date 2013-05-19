@@ -41,6 +41,8 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
 
 object DocumentaryUnitF {
 
+  implicit val jsonFormat = json.DocumentaryUnitFormat.documentaryUnitFormat
+
   object CopyrightStatus extends Enumeration {
     val Yes = Value("yes")
     val No = Value("no")
@@ -103,6 +105,5 @@ case class DocumentaryUnitF(
     withDescription(d)
   }
 
-  import json.DocumentaryUnitFormat._
   def toJson: JsValue = Json.toJson(this)
 }

@@ -5,15 +5,12 @@ import models.base.{Formable, AccessibleEntity}
 import play.api.libs.json.Json
 
 
-case class Address(val e: Entity) extends AccessibleEntity with Formable[AddressF] {
-  import json.AddressFormat._
-  lazy val formable: AddressF = Json.toJson(e).as[AddressF]
-  lazy val formableOpt: Option[AddressF] = Json.toJson(e).asOpt[AddressF]
-}
-
 object AddressF {
+  implicit val addressFormat = json.AddressFormat.addressFormat
+
   val UNNAMED_ADDRESS = "Unnamed Address"
 }
+
 
 case class AddressF(
   id: Option[String],
@@ -32,3 +29,8 @@ case class AddressF(
   val isA = EntityType.Address
 }
 
+
+case class Address(val e: Entity) extends AccessibleEntity with Formable[AddressF] {
+  lazy val formable: AddressF = Json.toJson(e).as[AddressF]
+  lazy val formableOpt: Option[AddressF] = Json.toJson(e).asOpt[AddressF]
+}

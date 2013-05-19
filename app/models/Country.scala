@@ -10,6 +10,7 @@ import play.api.i18n.Lang
 import java.util.Locale
 
 object CountryF {
+  implicit val countryFormat = json.CountryFormat.countryFormat
 }
 
 case class CountryF(
@@ -18,7 +19,6 @@ case class CountryF(
 ) extends Persistable {
   val isA = EntityType.Country
 
-  import json.CountryFormat._
   def toJson = Json.toJson(this)
 }
 
@@ -32,7 +32,6 @@ case class Country(e: Entity)
   with AnnotatableEntity
   with Formable[CountryF] {
 
-  import json.CountryFormat._
   lazy val formable: CountryF = Json.toJson(e).as[CountryF]
   lazy val formableOpt: Option[CountryF] = Json.toJson(e).asOpt[CountryF]
 

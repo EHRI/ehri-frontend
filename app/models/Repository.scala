@@ -14,6 +14,8 @@ import play.api.i18n.Lang
 
 object RepositoryF {
 
+  implicit val repositoryFormat = json.RepositoryFormat.repositoryFormat
+
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
   final val COUNTRY_REL = "hasCountry"
@@ -31,7 +33,6 @@ case class RepositoryF(
 ) extends Persistable {
   val isA = EntityType.Repository
 
-  import json.RepositoryFormat._
   def toJson: JsValue = Json.toJson(this)
 }
 
@@ -50,7 +51,6 @@ case class Repository(val e: Entity)
 
   val country: Option[Country] = e.relations(RepositoryF.COUNTRY_REL).headOption.map(Country(_))
 
-  import json.RepositoryFormat._
   lazy val formable: RepositoryF = Json.toJson(e).as[RepositoryF]
   lazy val formableOpt: Option[RepositoryF] = Json.toJson(e).asOpt[RepositoryF]
 

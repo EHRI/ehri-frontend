@@ -43,5 +43,5 @@ object HistoricalAgentFormat {
         Reads.list[HistoricalAgentDescriptionF])
     )(HistoricalAgentF.apply _)
 
-  implicit val actorFormat: Format[HistoricalAgentF] = Format(actorReads,actorWrites)
+  implicit val historicalAgentFormat: Format[HistoricalAgentF] = Format(actorReads,actorWrites)
 }
