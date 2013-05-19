@@ -112,7 +112,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(routes.HistoricalAgents.list())
+    Redirect(routes.HistoricalAgents.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
