@@ -1,0 +1,30 @@
+@(item: Repository, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(item.country.toList ::: List(item)), scripts = scripts, styles = styles) {
+    @html
+} {
+    @common.latestAction(item, routes.Repositories.history(item.id))
+    @common.visibility(item, routes.Repositories.visibility(item.id), ContentType.Repository)
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+        @maybeUser.map { user =>
+        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
+            <li><a href="@routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
+            }
+        @if(user.hasPermission(ContentType.Repository, PermissionType.Update)) {
+            <li><a href="@routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+        @if(user.hasPermission(ContentType.Repository, PermissionType.Delete)) {
+            <li><a href="@routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+        @if(user.hasPermission(ContentType.Repository, PermissionType.Grant)) {
+            <li><a href="@routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+            }
+        <li><a href="@routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a></li>
+        }
+    </ul>
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+        <li><a href="@routes.ApiController.getItem(ContentType.Repository.toString, item.id)">@Messages("actions.exportJson")</a></li>
+    </ul>
+}
