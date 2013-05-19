@@ -41,6 +41,15 @@
                 overflow: hidden;
             }
 
+            /* Prettification for unknown-data-section collapsable trigger */
+            .unknown-data-toggle:after {
+                content: '\u25BC';
+            }
+
+            .unknown-data-toggle.collapsed:after {
+                font-size: 0.9em;
+                content: '\u25B6';
+            }
 
             /** 'Sticky' footers which pin themselves to the
                 botton of the viewport when initially outside it. */
@@ -180,7 +189,7 @@
         <div id="wrap" class="page-container">
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
-                    <div class="nav-collapse collapse">
+                    <div class="nav-collapse collapse responsive-collapse">
                         <ul class="nav">
                             @activeIfCurrent(routes.Search.search(), Messages("pages.search"))
                             @activeIfCurrent(routes.DocumentaryUnits.search(), Messages("contentTypes." + EntityType.DocumentaryUnit))

@@ -59,16 +59,6 @@ jQuery(function($) {
       });
   });
 
-
-
-  // Click to expand additonal data sections
-  $("table.unknown-data").hide();
-  $(".expand-unknown-data").click(function(e) {
-    $(this).closest(".unknown-data-section").find("table.unknown-data").toggle();
-    console.log("click...")
-    e.preventDefault();
-  });
-
   // Chosen selects - makes multi-select pretty
   $(".chzn-select").chosen();
 

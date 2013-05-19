@@ -1,28 +1,29 @@
 @(e: Entity)(implicit userOpt: Option[UserProfile], lang: Lang, req: RequestHeader)
 
 @if(!e.data.isEmpty) {
-    <small class="unknown-data-section muted" id="@e.id">
+    <small class="unknown-data-section muted">
         <h5>
-            <a class="alt expand-unknown-data">
+            <a class="alt unknown-data-toggle collapsed" data-toggle="collapse" data-target="#@(e.id)-unknown-data">
                 @Messages("describedEntity.additionalData")
-                <i class="icon icon-chevron-down"></i>
             </a>
         </h5>
-        <table class="hidden hidden-desktop unknown-data table table-bordered table-striped table-condensed">
-            <thead>
-                <tr>
-                    <th>@Messages("describedEntity.additionalData.key")</th>
-                    <th>@Messages("describedEntity.additionalData.value")</th>
-                </tr>
-            </thead>
-            <tbody>
-                @e.data.map { case (key, value) =>
+        <div id="@(e.id)-unknown-data" class="collapse unknown-data">
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
                     <tr>
-                        <td class="key">@key</td>
-                        <td>@value</td>
+                        <th>@Messages("describedEntity.additionalData.key")</th>
+                        <th>@Messages("describedEntity.additionalData.value")</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @e.data.map { case (key, value) =>
+                        <tr>
+                            <td class="key">@key</td>
+                            <td>@value</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </small>
 }
