@@ -12,7 +12,7 @@ object Utils {
   def joinQueryString(qs: Map[String, Seq[String]]): String = {
     import java.net.URLEncoder
     qs.map { case (key, vals) => {
-      vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))    
+      vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
     }}.flatten.mkString("&")
   }
 
@@ -86,31 +86,24 @@ case class Facet(
  *                example, i18n lookups.
  * @param facets  a list of individual Facet values
  */
-sealed abstract class FacetClass (
-  val key: String,
-  val name: String,
-  val param: String,
-  val render: (String) => String = s => s,
-  private val facets: List[Facet] = Nil,
-  val sort: FacetSort.Value = FacetSort.Count
-) {
+sealed trait FacetClass {
+  val key: String
+  val name: String
+  val param: String
+  val render: (String) => String
+  val facets: List[Facet]
+  val sort: FacetSort.Value
   val fieldType: String
+
   def count: Int = facets.length
   def sortedByName = facets.sortWith((a, b) => a.sortVal < b.sortVal)
   def sortedByCount = facets.sortWith((a, b) => b.count < a.count)
-
-
-
   def sorted: List[Facet] = sort match {
     case FacetSort.Name => sortedByName
     case FacetSort.Count => sortedByCount
     case _ => facets
   }
-  
   def asParams: List[FacetParam]
-  
-  def populateFromSolr(data: xml.Elem, current: List[AppliedFacet]): FacetClass
-  
   def pretty(f: Facet): String = f.humanVal match {
     case Some(desc) => render(desc)
     case None => render(f.paramVal)
@@ -129,71 +122,40 @@ sealed abstract class FacetClass (
  * @param sort
  */
 case class FieldFacetClass(
-  override val key: String,
-  override val name: String,
-  override val param: String,
-  override val render: (String) => String = s=>s,
-  val facets: List[Facet] = Nil,
-  override val sort: FacetSort.Value = FacetSort.Count
-) extends FacetClass(key,name, param,render,facets,sort) {
-  override val fieldType: String = "facet.field"
-  
+  key: String,
+  name: String,
+  param: String,
+  render: (String) => String = s=>s,
+  facets: List[Facet] = Nil,
+  sort: FacetSort.Value = FacetSort.Count
+) extends FacetClass {
+  val fieldType: String = "facet.field"
+
   def asParams: List[FacetParam] = {
     List(new FacetParam(
       Param(fieldType),
       Value(key)
-    ))      
-  }
-  
-  override def populateFromSolr(data: xml.Elem, current: List[AppliedFacet]): FacetClass = {
-    val applied: List[String] = current.filter(_.name == key).headOption.map(_.values).getOrElse(List[String]())
-    val nodes = data.descendant.filter(n => (n \ "@name").text == "facet_fields") 
-    var facets = List[Facet]()
-    if (nodes.length > 0) {
-      val my = nodes.head.descendant.filter(n => (n \ "@name").text == key)
-      my.head.descendant.foreach(n => {
-        val name = n \ "@name"
-        if (name.length > 0) {
-          facets = facets ::: List(Facet(name.text, name.text, None, n.text.toInt, applied.contains(name.text)))
-        }
-      })
-    }
-    FieldFacetClass(key, name, param, render, facets, sort)  
+    ))
   }
 }
 
 case class QueryFacetClass(
-  override val key: String,
-  override val name: String,
-  override val param: String,
-  override val render: (String) => String = s=>s,
+  key: String,
+  name: String,
+  param: String,
+  render: (String) => String = s=>s,
   facets: List[Facet] = Nil,
-  override val sort: FacetSort.Value = FacetSort.Name
-) extends FacetClass(key,name,param,render,facets,sort) {
-  override val fieldType: String = "facet.query"
-  
+  sort: FacetSort.Value = FacetSort.Name
+) extends FacetClass {
+  val fieldType: String = "facet.query"
+
   def asParams: List[FacetParam] = {
     facets.map(p =>
       new FacetParam(
         Param(fieldType),
         Value("%s:%s".format(key, p.solrVal))
       )
-    )      
-  }
-  
-  override def populateFromSolr(data: xml.Elem, current: List[AppliedFacet]): FacetClass = {
-    val applied: List[String] = current.filter(_.name == key).headOption.map(_.values).getOrElse(List[String]())
-    val popfacets = facets.flatMap(f => {
-      var nameval = "%s:%s".format(key, f.solrVal)
-      data.descendant.filter(n => (n \\ "@name").text == nameval).text match {
-        case "" => Nil
-        case v => List(
-          Facet(f.solrVal, f.paramVal, f.humanVal, v.toInt,
-            applied.contains(f.paramVal))
-        )
-      }
-    })
-    QueryFacetClass(key, name, param, render, popfacets, sort)
+    )
   }
 }
 

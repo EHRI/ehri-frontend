@@ -138,7 +138,7 @@ object SolrQueryBuilder {
     constrainEntities(req, entityType.toList)
     applyAccessFilter(req, userOpt)
     setGrouping(req)
-    req.set("qf", "name^2.0 name_ngram")
+    req.set("qf", "title^2.0 name_ngram")
     req.setFieldsToReturn(FieldsToReturn("id itemId name type"))
     if (alphabetical) req.setSort(Sort("name_sort asc"))
     req.setQueryParserType(QueryParserType("edismax"))
@@ -192,7 +192,7 @@ object SolrQueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", "name^3.0 text")
+      req.set("qf", "title^3.0 text")
     }
 
     // Mmmn, speckcheck

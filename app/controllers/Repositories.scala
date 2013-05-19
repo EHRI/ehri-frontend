@@ -146,7 +146,7 @@ object Repositories extends EntityRead[Repository]
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(routes.Repositories.list())
+    Redirect(routes.Repositories.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 

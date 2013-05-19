@@ -135,7 +135,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(routes.Concepts.list())
+    Redirect(routes.Concepts.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 

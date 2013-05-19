@@ -1,6 +1,6 @@
-@(item: HistoricalAgent)(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: HistoricalAgent, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)), scripts = scripts, styles = styles) {
 
     @html
 
@@ -24,5 +24,9 @@
             }
             <li><a href="@routes.HistoricalAgents.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
+    </ul>
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+        <li><a href="@routes.ApiController.getItem(ContentType.HistoricalAgent.toString, item.id)">@Messages("actions.exportJson")</a></li>
     </ul>
 }

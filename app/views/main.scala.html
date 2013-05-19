@@ -41,6 +41,15 @@
                 overflow: hidden;
             }
 
+            /* Prettification for unknown-data-section collapsable trigger */
+            .unknown-data-toggle:after {
+                content: '\u25BC';
+            }
+
+            .unknown-data-toggle.collapsed:after {
+                font-size: 0.9em;
+                content: '\u25B6';
+            }
 
             /** 'Sticky' footers which pin themselves to the
                 botton of the viewport when initially outside it. */
@@ -164,6 +173,17 @@
                 padding-right: 20px;
             }
 
+            /** Experimental! Collapse username under 900px */
+            .navbar-inner {
+                min-width: 800px;
+            }
+            @@media (max-width: 900px) {
+               .nav-collapse.collapse{
+                    height:0 !important;
+                    overflow:hidden !important;
+                }
+            }
+
         </style>
 
         <!-- Temporary var for Angular file location -->
@@ -180,61 +200,61 @@
         <div id="wrap" class="page-container">
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
-                    <div class="nav-collapse collapse">
-                        <ul class="nav">
-                            @activeIfCurrent(routes.Search.search(), Messages("pages.search"))
-                            @activeIfCurrent(routes.DocumentaryUnits.search(), Messages("contentTypes." + EntityType.DocumentaryUnit))
-                            @activeIfCurrent(routes.HistoricalAgents.search(), Messages("contentTypes." + EntityType.HistoricalAgent))
-                            @activeIfCurrent(routes.Repositories.search(), Messages("contentTypes." + EntityType.Repository))
-                            @activeIfCurrent(routes.Concepts.search(), Messages("contentTypes." + EntityType.Concept))
-                            @userOpt.map { user =>
-                                @if(user.isAdmin) {
-                                    <li class="dropdown @{if(req.path.startsWith(routes.Admin.adminActions.toString)) "active" else ""}">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                            @Messages("pages.admin")
-                                            <b class="caret"></b>
-                                        </a>
-                                        <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                            @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
-                                            @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
-                                            @activeIfCurrent(routes.Countries.search(), Messages("contentTypes." + EntityType.Country))
-                                            @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
-                                            @activeIfCurrent(routes.AuthoritativeSets.list(), Messages("contentTypes." + EntityType.AuthoritativeSet))
-                                            @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
-                                            <li role="presentation" class="divider"></li>
-                                            @activeIfCurrent(routes.Search.updateIndex, Messages("search.updateIndex"))
-                                        </ul>
-                                    </li>
-                                }
-                            }
-                        </ul>
-                        <ul class="nav pull-right">
-                            @userOpt.flatMap(_.account).map { account =>
-                                <li class="dropdown">
+                    <ul class="nav">
+                        @activeIfCurrent(routes.Search.search(), Messages("pages.search"))
+                        @activeIfCurrent(routes.DocumentaryUnits.search(), Messages("contentTypes." + EntityType.DocumentaryUnit))
+                        @activeIfCurrent(routes.HistoricalAgents.search(), Messages("contentTypes." + EntityType.HistoricalAgent))
+                        @activeIfCurrent(routes.Repositories.search(), Messages("contentTypes." + EntityType.Repository))
+                        @activeIfCurrent(routes.Concepts.search(), Messages("contentTypes." + EntityType.Concept))
+                        @userOpt.map { user =>
+                            @if(user.isAdmin) {
+                                <li class="dropdown @{if(req.path.startsWith(routes.Admin.adminActions.toString)) "active" else ""}">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                        @Messages("pages.admin")
+                                        <b class="caret"></b>
+                                    </a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+                                        @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
+                                        @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
+                                        @activeIfCurrent(routes.Countries.search(), Messages("contentTypes." + EntityType.Country))
+                                        @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
+                                        @activeIfCurrent(routes.AuthoritativeSets.list(), Messages("contentTypes." + EntityType.AuthoritativeSet))
+                                        @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
+                                        <li role="presentation" class="divider"></li>
+                                        @activeIfCurrent(routes.Search.updateIndex, Messages("search.updateIndex"))
+                                    </ul>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <ul class="nav pull-right">
+                        @userOpt.flatMap(_.account).map { account =>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <span class="nav-collapse collapse responsive-collapse">
                                         @account.email
                                         @if(userOpt.map(_.isAdmin).getOrElse(false)) {
                                             [@Messages("group.admin")]
                                         }
-                                        <b class="caret"></b>
-                                    </a>
-                                    <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="@routes.UserProfiles.get(account.profile_id)">@Messages("actions.viewProfile")</a> </li>
-                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="@routes.Admin.changePassword">@Messages("login.changePassword")</a></li>
-                                        <li role="presentation" class="divider"></li>
-                                        <li>
-                                            <a href="/logout" id="signout">
-                                                @Messages("banner.signout")
-                                                <i class="icon icon-off"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            }.getOrElse {
-                                <li><a href="/login" id="signin">@Messages("banner.signin")</a></li>
-                            }
-                        </ul>
-                    </div>
+                                    </span>
+                                    <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@routes.UserProfiles.get(account.profile_id)">@Messages("actions.viewProfile")</a> </li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@routes.Admin.changePassword">@Messages("login.changePassword")</a></li>
+                                    <li role="presentation" class="divider"></li>
+                                    <li>
+                                        <a href="/logout" id="signout">
+                                            @Messages("banner.signout")
+                                            <i class="icon icon-off"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }.getOrElse {
+                            <li><a href="/login" id="signin">@Messages("banner.signin")</a></li>
+                        }
+                    </ul>
                 </div>
             </div>
             <div class="page-content">

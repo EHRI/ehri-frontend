@@ -229,7 +229,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(routes.DocumentaryUnits.list())
+    Redirect(routes.DocumentaryUnits.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
