@@ -1,42 +1,6 @@
 package solr.facet
 
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParam, Param, Value}
-import play.api.mvc.{AnyContent, Request}
-
-object Utils {
-
-  def joinPath(path: String, qs: Map[String, Seq[String]]): String = {
-    List(path, joinQueryString(qs)).filterNot(_=="").mkString("?")
-  }
-
-  def joinQueryString(qs: Map[String, Seq[String]]): String = {
-    import java.net.URLEncoder
-    qs.map { case (key, vals) => {
-      vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
-    }}.flatten.mkString("&")
-  }
-
-  def pathWithoutFacet(fc: FacetClass, f: Facet, path: String, qs: Map[String, Seq[String]]): String = {
-    joinPath(path, qs.map(qv => {
-      qv._1 match {
-        case fc.param => (qv._1, qv._2.filter(_!=f.paramVal))
-        case _ => qv
-      }
-    }))
-  }
-
-  def pathWithFacet(fc: FacetClass, f: Facet, path: String, qs: Map[String, Seq[String]]): String = {
-    joinPath(path, if (qs.contains(fc.param)) {
-        qs.map(qv => {
-          qv._1 match {
-            case fc.param => (qv._1, qv._2.union(Seq(f.paramVal)).distinct)
-            case _ => qv
-          }
-        })
-      } else qs.updated(fc.param, Seq(f.paramVal))
-    )
-  }
-}
 
 
 case object FacetSort extends Enumeration {
@@ -77,14 +41,6 @@ case class Facet(
 /**
  * Encapulates rendering a facet to the response. Transforms
  * various Solr-internal values into i18n and human-readable ones.
- *
- * @param key     the name of the Solr field being faceted on
- * @param name    the 'pretty' human name of the Solr field
- * @param param   the name of the HTTP param used to apply this facet
- * @param render  a function (String => String) used to transform the
- *                facet values into human-readable ones, using, for
- *                example, i18n lookups.
- * @param facets  a list of individual Facet values
  */
 sealed trait FacetClass {
   val key: String

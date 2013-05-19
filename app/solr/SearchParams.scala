@@ -1,7 +1,6 @@
 package solr
 
 import defines.EntityType
-import models.UserProfile
 
 /**
  * Helper for pagination.

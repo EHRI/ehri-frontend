@@ -4,11 +4,12 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import play.api.libs.ws.WS
 import play.api.Logger
-import concurrent.Future
 import defines.EntityType
 import rest.RestError
 import solr.facet.{FacetClass, AppliedFacet}
 import com.github.seratch.scalikesolr.request.QueryRequest
+import play.api.libs.json.{Json, Format}
+import scala.concurrent.Future
 
 /**
  * Page of search result items
@@ -27,6 +28,7 @@ case class ItemPage[A](
   facets: List[FacetClass],
   spellcheck: Option[(String,String)] = None
 ) extends utils.AbstractPage[A]
+
 
 /**
  * A paged list of facets.

@@ -1,6 +1,5 @@
 package solr
 
-import play.api.libs.json.Reads
 import defines.EntityType
 
 /**

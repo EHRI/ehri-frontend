@@ -1,6 +1,6 @@
 @(page: solr.ItemPage[_])(implicit req: RequestHeader, lang: Lang)
 
-@import solr.facet.Utils
+@import solr.Utils
 
 <p class="selected-facets muted">
     @page.facets.map{ fclass =>

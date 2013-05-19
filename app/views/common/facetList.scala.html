@@ -1,6 +1,6 @@
 @(facets: List[solr.facet.FacetClass], call: Call)(implicit req: RequestHeader, lang: Lang)
 
-@import solr.facet.Utils
+@import solr.Utils
 
 @facets.map { fc =>
     @if(fc.count > 0) {

@@ -2,13 +2,11 @@ package rest
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
-import play.api.libs.ws.{WS,Response => WSResponse}
-import play.api.libs.json.{ JsArray, JsValue }
+import play.api.libs.ws.WS
+import play.api.libs.json.JsValue
 import defines.{EntityType,ContentType}
 import models.Entity
-import play.api.libs.json.Json
 import models.UserProfile
-import java.net.ConnectException
 import models.base.Persistable
 import play.api.Logger
 
