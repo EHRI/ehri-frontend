@@ -1,11 +1,6 @@
 package solr.facet
 
-import java.util.Locale
-
-import com.github.seratch.scalikesolr.request.query.facet.{FacetParams, FacetParam, Param, Value}
-import defines.EntityType
-import views.Helpers
-import play.api.i18n.{Lang, Messages}
+import com.github.seratch.scalikesolr.request.query.facet.{FacetParam, Param, Value}
 import play.api.mvc.{AnyContent, Request}
 
 object Utils {
