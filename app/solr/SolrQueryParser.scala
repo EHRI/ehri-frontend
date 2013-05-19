@@ -61,10 +61,62 @@ case class SolrQueryParser(response: Elem) {
    * @return
    */
   def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): List[FacetClass] = {
-    allFacets.map(_.populateFromSolr(response, appliedFacets))
+    //allFacets.map(_.populateFromSolr(response, appliedFacets))
+    allFacets.map { fc => fc match {
+      case ffc: solr.facet.FieldFacetClass => extractFieldFacet(ffc, appliedFacets)
+      case qfc: solr.facet.QueryFacetClass => extractQueryFacet(qfc, appliedFacets)
+    }}
   }
 
-  private def hasAttr(name: String, value: String)(node: Node) = {
+  /**
+   * Extract field facets from XML which looks like:
+   *
+   * <lst name="facet_counts">
+   *  <lst name="facet_queries"/>
+   *   <lst name="facet_fields">
+   *     <lst name="languageCode">
+   *       <int name="en">697</int>
+   *       <int name="de">1</int>
+   *       <int name="nl">1</int>
+   *   ...
+   */
+  private def extractFieldFacet(fc: solr.facet.FieldFacetClass, appliedFacets: List[AppliedFacet]): solr.facet.FieldFacetClass = {
+    val applied: List[String] = appliedFacets.filter(_.name == fc.key).headOption.map(_.values).getOrElse(List[String]())
+    val nodeOpt = response.descendant.filter(n => (n \ "@name").text == "facet_fields").headOption
+    val facets = nodeOpt.toList.flatMap { node =>
+      val children = node.descendant.filter(n => (n \ "@name").text == fc.key)
+      children.flatMap(_.descendant).flatMap { c =>
+        val nameNode = (c \ "@name")
+        if (nameNode.length == 0) Nil
+        else
+           List(solr.facet.Facet(
+              nameNode.text, nameNode.text, None,
+              c.text.toInt, applied.contains(nameNode.text)))
+      }
+    }
+
+    fc.copy(facets = facets)
+  }
+
+  /**
+   * Extract query facets from Solr XML response.
+   */
+  private def extractQueryFacet(fc: solr.facet.QueryFacetClass, appliedFacets: List[AppliedFacet]): solr.facet.QueryFacetClass = {
+    val applied: List[String] = appliedFacets.filter(_.name == fc.key).headOption.map(_.values).getOrElse(List[String]())
+    val facets = fc.facets.flatMap(f => {
+      var nameval = "%s:%s".format(fc.key, f.solrVal)
+      response.descendant.filter(n => (n \\ "@name").text == nameval).text match {
+        case "" => Nil
+        case v => List(
+          solr.facet.Facet(f.solrVal, f.paramVal, f.humanVal, v.toInt,
+            applied.contains(f.paramVal))
+        )
+      }
+    })
+    fc.copy(facets = facets)
+  }
+
+  private def hasAttr(name: String, value: String)(node: Node): Boolean = {
     node.attributes.exists(attr => attr.key == name && attr.value.text == value)
   }
 }
