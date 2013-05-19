@@ -19,3 +19,6 @@ fonts
 .fonts
 .idea
 .idea_modules
+
+# stupid Mac stuff
+.DS_Store
