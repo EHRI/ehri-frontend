@@ -10,7 +10,7 @@ import play.api.i18n.Lang
 import java.util.Locale
 
 object CountryF {
-  implicit val countryFormat = json.CountryFormat.countryFormat
+  lazy implicit val countryFormat = json.CountryFormat.countryFormat
 }
 
 case class CountryF(

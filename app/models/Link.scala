@@ -8,8 +8,6 @@ import models.LinkF.LinkType
 
 object LinkF {
 
-  implicit val linkFormat = json.LinkFormat.linkFormat
-
   val LINK_TYPE = "type"
   val DESCRIPTION = "description"
 
@@ -20,6 +18,8 @@ object LinkF {
     val Family = Value("family")
     val Temporal = Value("temporal")
   }
+
+  lazy implicit val linkFormat = json.LinkFormat.linkFormat
 }
 
 case class LinkF(

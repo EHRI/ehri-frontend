@@ -5,9 +5,6 @@ import play.api.libs.json.{JsValue, Json}
 import defines.EntityType
 
 object RepositoryDescriptionF {
-
-  implicit val repositoryDescriptionFormat = json.IsdiahFormat.isdiahFormat
-
   case class Details(
     history: Option[String] = None,
     generalContext: Option[String] = None,
@@ -44,6 +41,7 @@ object RepositoryDescriptionF {
     maintenanceNotes: Option[String] = None
     ) extends AttributeSet
 
+  lazy implicit val repositoryDescriptionFormat = json.IsdiahFormat.isdiahFormat
 }
 
 

@@ -12,8 +12,6 @@ import defines.EnumUtils.enumWrites
 
 object UserProfileF {
 
-  implicit val userProfileFormat = json.UserProfileFormat.userProfileFormat
-
   val FIELD_PREFIX = "profile"
 
   final val PLACEHOLDER_TITLE = "[No Title Found]"
@@ -22,6 +20,8 @@ object UserProfileF {
   val LOCATION = "location"
   val ABOUT = "about"
   val LANGUAGES = "languages"
+
+  lazy implicit val userProfileFormat = json.UserProfileFormat.userProfileFormat
 }
 
 case class UserProfileF(

@@ -6,12 +6,12 @@ import play.api.libs.json.Json
 
 object GroupF {
 
-  implicit val groupFormat = json.GroupFormat.groupFormat
-
   final val BELONGS_REL = "belongsTo"
 
   val NAME = "name"
   val DESCRIPTION = "description"
+
+  lazy implicit val groupFormat = json.GroupFormat.groupFormat
 }
 
 case class GroupF(

@@ -3,29 +3,27 @@ package models
 import models.base.Formable
 import org.joda.time.DateTime
 
-import models.base.Persistable
 import defines.EntityType
 import play.api.libs.json.Json
 
 
-object DatePeriodType extends Enumeration {
-  type Type = Value
-  val Creation = Value("creation")
-}
-
-
 object DatePeriodF {
-
-  implicit val datePeriodFormat = json.DatePeriodFormat.datePeriodFormat
 
   val TYPE = "type"
   val START_DATE = "startDate"
   val END_DATE = "endDate"
+
+  object DatePeriodType extends Enumeration {
+    type Type = Value
+    val Creation = Value("creation")
+  }
+
+  lazy implicit val datePeriodFormat = json.DatePeriodFormat.datePeriodFormat
 }
 
 case class DatePeriodF(
   val id: Option[String],
-  val `type`: Option[DatePeriodType.Type],
+  val `type`: Option[DatePeriodF.DatePeriodType.Type],
   val startDate: DateTime,
   val endDate: DateTime
 ) {

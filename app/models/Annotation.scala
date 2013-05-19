@@ -6,30 +6,30 @@ import defines.EntityType
 import play.api.libs.json.Json
 
 
-object AnnotationType extends Enumeration {
-  type Type = Value
-  val Comment = Value("comment")
-  val Aggregation = Value("aggregation")
-
-}
-
 object AnnotationF {
   val BODY = "body"
   val FIELD = "field"
   val ANNOTATION_TYPE = "annotationType"
   val COMMENT = "comment"
+
+  object AnnotationType extends Enumeration {
+    type Type = Value
+    val Comment = Value("comment")
+    val Aggregation = Value("aggregation")
+  }
+
+  lazy implicit val annotationFormat = json.AnnotationFormat.annotationFormat
 }
 
 case class AnnotationF(
   val id: Option[String],
-  val annotationType: Option[AnnotationType.Type] = Some(AnnotationType.Comment),
+  val annotationType: Option[AnnotationF.AnnotationType.Type] = Some(AnnotationF.AnnotationType.Comment),
   val body: String,
   val field: Option[String] = None,
   val comment: Option[String] = None
 ) extends Persistable {
   val isA = EntityType.Annotation
 
-  import json.AnnotationFormat._
   def toJson = Json.toJson(this)
 }
 
@@ -61,7 +61,6 @@ case class Annotation(val e: Entity) extends AccessibleEntity
     )
   }
 
-  import json.AnnotationFormat._
   lazy val formable: AnnotationF = Json.toJson(e).as[AnnotationF]
   lazy val formableOpt: Option[AnnotationF] = Json.toJson(e).asOpt[AnnotationF]
 }

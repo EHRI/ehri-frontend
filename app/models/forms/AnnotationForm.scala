@@ -2,7 +2,7 @@ package models.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{AnnotationF, AnnotationType, Entity}
+import models.{AnnotationF, Entity}
 
 /**
  * User: michaelb

@@ -6,8 +6,6 @@ import defines.EntityType
 
 object HistoricalAgentDescriptionF {
 
-  implicit val historicalAgentDescriptionFormat = json.IsaarFormat.isaarFormat
-
   case class Details(
     datesOfExistence: Option[String] = None,
     history: Option[String] = None,
@@ -32,6 +30,7 @@ object HistoricalAgentDescriptionF {
     maintenanceNotes: Option[String] = None
     ) extends AttributeSet
 
+  lazy implicit val historicalAgentDescriptionFormat = json.IsaarFormat.isaarFormat
 }
 
 case class HistoricalAgentDescriptionF(

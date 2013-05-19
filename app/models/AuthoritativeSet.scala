@@ -10,10 +10,10 @@ import defines.EnumUtils.enumWrites
 
 object AuthoritativeSetF {
 
-  implicit val authoritativeSetFormat = json.AuthoritativeSetFormat.authoritativeSetFormat
-
   val NAME = "name"
   val DESCRIPTION = "description"
+
+  lazy implicit val authoritativeSetFormat = json.AuthoritativeSetFormat.authoritativeSetFormat
 }
 
 case class AuthoritativeSetF(

@@ -28,11 +28,11 @@ case class AppliedFacet(name: String, values: List[String])
  * @param applied   whether or not this facet is activated in the response
  */
 case class Facet(
-  val solrVal: String,
-  val paramVal: String,
-  val humanVal: Option[String] = None,
-  val count: Int = 0,
-  val applied: Boolean = false
+  solrVal: String,
+  paramVal: String,
+  humanVal: Option[String] = None,
+  count: Int = 0,
+  applied: Boolean = false
 ) {
   def sortVal = humanVal.getOrElse(paramVal)
 }

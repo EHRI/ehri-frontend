@@ -7,8 +7,6 @@ import defines.EntityType
 
 object DocumentaryUnitDescriptionF {
 
-  implicit val documentaryUnitDescriptionFormat = json.IsadGFormat.isadGFormat
-
   case class Context(
     val adminBiogHistory: Option[String] = None,
     val archivalHistory: Option[String] = None,
@@ -43,6 +41,8 @@ object DocumentaryUnitDescriptionF {
     val rulesAndConventions: Option[String] = None,
     val datesOfDescriptions: Option[String] = None
     )
+
+  lazy implicit val documentaryUnitDescriptionFormat = json.IsadGFormat.isadGFormat
 }
 
 case class DocumentaryUnitDescriptionF(

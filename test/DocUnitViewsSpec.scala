@@ -306,7 +306,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val testItem = "c1"
       val body = "This is a neat annotation"
       val testData: Map[String, Seq[String]] = Map(
-        AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationType.Comment.toString),
+        AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationF.AnnotationType.Comment.toString),
         AnnotationF.BODY -> Seq(body)
       )
       // Now try again to update the item, which should succeed

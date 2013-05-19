@@ -10,8 +10,6 @@ import play.api.i18n.Lang
 
 object ConceptF {
 
-  implicit val conceptFormat = json.ConceptFormat.conceptFormat
-
   val LANGUAGE = "languageCode"
   val PREFLABEL = "name"
   val ALTLABEL = "altLabel"
@@ -22,6 +20,8 @@ object ConceptF {
   object ConceptType extends Enumeration {
     type Type = Value
   }
+
+  implicit val conceptFormat = json.ConceptFormat.conceptFormat
 }
 
 case class ConceptF(

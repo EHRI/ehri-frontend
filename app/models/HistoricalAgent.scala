@@ -12,8 +12,6 @@ import play.api.libs.json._
 
 object HistoricalAgentF {
 
-  implicit val jsonFormat = json.HistoricalAgentFormat.historicalAgentFormat
-
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
   final val IN_SET_REL = "inAuthoritativeSet"
@@ -21,6 +19,8 @@ object HistoricalAgentF {
   final val UNNAMED_PLACEHOLDER = "UNNAMED Authority"
 
   val PUBLICATION_STATUS = "publicationStatus"
+
+  lazy implicit val jsonFormat = json.HistoricalAgentFormat.historicalAgentFormat
 }
 
 case class HistoricalAgentF(

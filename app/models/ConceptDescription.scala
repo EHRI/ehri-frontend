@@ -8,7 +8,7 @@ import play.api.libs.json.Json
 import models.base.DescribedEntity
 
 object ConceptDescriptionF {
-  implicit val conceptDescriptionFormat = json.ConceptDescriptionFormat.conceptDescriptionFormat
+  lazy implicit val conceptDescriptionFormat = json.ConceptDescriptionFormat.conceptDescriptionFormat
 }
 
 case class ConceptDescriptionF(

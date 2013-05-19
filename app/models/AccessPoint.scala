@@ -9,8 +9,6 @@ import java.util.NoSuchElementException
 
 object AccessPointF {
 
-  implicit val accessPointFormat = json.AccessPointFormat.accessPointFormat
-
   val TYPE = "type"
   val DESCRIPTION = "description"
   val TARGET = "name" // Change to something better!
@@ -24,6 +22,8 @@ object AccessPointF {
     val PlaceAccess = Value("placeAccess")
     val Other = Value("otherAccess")
   }
+
+  lazy implicit val accessPointFormat = json.AccessPointFormat.accessPointFormat
 }
 
 case class AccessPointF(

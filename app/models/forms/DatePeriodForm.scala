@@ -2,7 +2,7 @@ package models.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{DatePeriodF, DatePeriodType, Entity}
+import models.{DatePeriodF, Entity}
 
 /**
  * Date period model form.

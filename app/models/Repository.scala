@@ -14,14 +14,14 @@ import play.api.i18n.Lang
 
 object RepositoryF {
 
-  implicit val repositoryFormat = json.RepositoryFormat.repositoryFormat
-
   final val DESC_REL = "describes"
   final val ADDRESS_REL = "hasAddress"
   final val COUNTRY_REL = "hasCountry"
 
   val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
+
+  implicit val repositoryFormat = json.RepositoryFormat.repositoryFormat
 }
 
 case class RepositoryF(

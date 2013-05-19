@@ -12,11 +12,10 @@ object VocabularyType extends Enumeration {
 }
 
 object VocabularyF {
-
-  implicit val vocabularyFormat = json.VocabularyFormat.vocabularyFormat
-
   val NAME = "name"
   val DESCRIPTION = "description"
+
+  lazy implicit val vocabularyFormat = json.VocabularyFormat.vocabularyFormat
 }
 
 

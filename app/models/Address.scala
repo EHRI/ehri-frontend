@@ -6,9 +6,9 @@ import play.api.libs.json.Json
 
 
 object AddressF {
-  implicit val addressFormat = json.AddressFormat.addressFormat
-
   val UNNAMED_ADDRESS = "Unnamed Address"
+
+  implicit val addressFormat = json.AddressFormat.addressFormat
 }
 
 

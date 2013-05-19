@@ -3,12 +3,12 @@ package models.json
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import models.{AnnotationF,AnnotationType}
+import models.AnnotationF
 import defines.EntityType
 import defines.EnumUtils._
 
 object AnnotationFormat {
-  import models.AnnotationF._
+  import AnnotationF._
   import models.Entity._
 
   implicit val annotationTypeReads = enumReads(AnnotationType)
