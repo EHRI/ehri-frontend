@@ -68,6 +68,7 @@ contentTypes.cvocConcept=Terms
 contentTypes.annotation=Annotations
 contentTypes.country=Countries
 contentTypes.link=Links
+contentTypes.systemEvent=History
 
 #
 # Permission Types
