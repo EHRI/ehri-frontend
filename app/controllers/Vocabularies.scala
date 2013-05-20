@@ -27,11 +27,11 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   val form = models.forms.VocabularyForm.form
   val childForm = models.forms.ConceptForm.form
-  val builder = Vocabulary.apply _
 
-  def get(id: String) = getWithChildrenAction(id, Concept.apply _) {
+  def get(id: String) = getWithChildrenAction(id) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.show(Vocabulary(item), page, params, annotations))
+    Ok(views.html.vocabulary.show(
+        Vocabulary(item), page.copy(items = page.items.map(Concept.apply)), params, annotations))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

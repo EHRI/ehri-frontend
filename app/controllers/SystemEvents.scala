@@ -10,8 +10,6 @@ object SystemEvents extends EntityRead[SystemEvent] {
   val entityType = EntityType.SystemEvent
   val contentType = ContentType.SystemEvent
 
-  val builder = SystemEvent
-
   def get(id: String) = getAction(id) { 
       item => annotations => links => implicit userOpt => implicit request =>
     // In addition to the item itself, we also want to fetch the subjects associated with it.

@@ -27,15 +27,15 @@ object Countries extends CRUD[CountryF,Country]
 
   val form = models.forms.CountryForm.form
   val childForm = models.forms.RepositoryForm.form
-  val builder = Country.apply _
 
   // Search memebers
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
-  def get(id: String) = getWithChildrenAction(id, Repository.apply _) {
+  def get(id: String) = getWithChildrenAction(id) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.country.show(Country(item), page, params, annotations))
+    Ok(views.html.country.show(
+        Country(item), page.copy(items = page.items.map(Repository.apply)), params, annotations))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

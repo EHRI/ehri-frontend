@@ -28,7 +28,6 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
 
   val form = models.forms.AuthoritativeSetForm.form
   val childForm = models.forms.HistoricalAgentForm.form
-  val builder = AuthoritativeSet.apply _
 
   // Search params
   val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))

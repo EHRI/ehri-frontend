@@ -78,7 +78,6 @@ object Repositories extends EntityRead[Repository]
 
   val form = models.forms.RepositoryForm.form
   val childForm = models.forms.DocumentaryUnitForm.form
-  val builder = Repository
 
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
@@ -89,9 +88,10 @@ object Repositories extends EntityRead[Repository]
 
   }
 
-  def get(id: String) = getWithChildrenAction(id, DocumentaryUnit.apply _) {
+  def get(id: String) = getWithChildrenAction(id) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.repository.show(Repository(item), page, params, annotations, links))
+    Ok(views.html.repository.show(
+        Repository(item),page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

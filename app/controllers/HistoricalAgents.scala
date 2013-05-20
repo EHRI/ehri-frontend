@@ -27,7 +27,6 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   val contentType = ContentType.HistoricalAgent
 
   val form = models.forms.HistoricalAgentForm.form
-  val builder = HistoricalAgent
 
   val listFilterMappings = ListMap[String,String](
     AccessibleEntity.NAME -> s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}",

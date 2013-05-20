@@ -52,7 +52,6 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   val form = models.forms.ConceptForm.form
   val childForm = models.forms.ConceptForm.form
-  val builder = Concept.apply _
 
 
   override val entityFacets = List(
@@ -74,9 +73,10 @@ object Concepts extends CreationContext[ConceptF, Concept]
   val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities = List(entityType))
 
 
-  def get(id: String) = getWithChildrenAction(id, builder) { item => page => params => annotations => links =>
+  def get(id: String) = getWithChildrenAction(id) { item => page => params => annotations => links =>
     implicit userOpt => implicit request =>
-      Ok(views.html.concept.show(Concept(item), page, params, annotations))
+      Ok(views.html.concept.show(
+          Concept(item), page.copy(items = page.items.map(Concept.apply)), params, annotations))
   }
 
   def search = {

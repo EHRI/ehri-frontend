@@ -8,7 +8,7 @@ import models.Entity
 trait EntityController[T <: AccessibleEntity] extends Controller with AuthController with ControllerHelpers {
   val entityType: EntityType.Value
   val contentType: ContentType.Value
-  def builder: Entity => T
+  //def builder: Entity => T
 
   final val LOG_MESSAGE_PARAM = "logMessage"
 

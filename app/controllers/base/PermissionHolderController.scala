@@ -17,6 +17,8 @@ import play.api.libs.concurrent.Execution.Implicits._
  */
 trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
 
+  val builder: Entity => T
+
   /**
    * Display a list of permissions that have been granted to the given accessor.
    * @param id

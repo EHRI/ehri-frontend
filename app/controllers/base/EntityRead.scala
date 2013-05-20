@@ -4,10 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AccessibleEntity
 import play.api.mvc._
 import models._
-import rest.{EntityDAO, Page}
-import play.api.data.Form
 import rest.RestPageParams
-import play.api.Logger
 import controllers.ListParams
 import models.SystemEvent
 
@@ -80,8 +77,8 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def getWithChildrenAction[C <: AccessibleEntity](id: String, builder: Entity => C)(
-      f: Entity => rest.Page[C] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def getWithChildrenAction(id: String)(
+      f: Entity => rest.Page[Entity] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
     itemPermissionAction(contentType, id) { item => implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
@@ -92,7 +89,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
           val cReq = rest.EntityDAO(entityType, userOpt).pageChildren(id, processChildParams(params))
           for { annOrErr <- annsReq ; cOrErr <- cReq ; linkOrErr <- linkReq } yield {
             for { anns <- annOrErr.right ; children <- cOrErr.right ; links <- linkOrErr.right } yield {
-              f(item)(children.copy(items = children.items.map(builder(_))))(params)(anns)(links)(userOpt)(request)
+              f(item)(children)(params)(anns)(links)(userOpt)(request)
             }
           }
         }

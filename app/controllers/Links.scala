@@ -21,8 +21,6 @@ object Links extends EntityRead[Link]
   val entityType = EntityType.Link
   val contentType = ContentType.Link
 
-  val builder = Link.apply _
-
   def get(id: String) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
     Ok(views.html.link.show(Link(item), links))
 
