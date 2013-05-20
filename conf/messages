@@ -13,6 +13,7 @@ pages.admin.title=EHRI Admin
 pages.admin.message=Administration actions - careful now!
 pages.admin.userManagement=Manage Users
 pages.admin.searchAdmin=Manage Search Index
+pages.more=More
 
 forms.adminArea=Administration Area
 forms.logMessagePlaceholder=Tell people what you''re doing (optional)...

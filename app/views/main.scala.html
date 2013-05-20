@@ -206,26 +206,26 @@
                         @activeIfCurrent(routes.HistoricalAgents.search(), Messages("contentTypes." + EntityType.HistoricalAgent))
                         @activeIfCurrent(routes.Repositories.search(), Messages("contentTypes." + EntityType.Repository))
                         @activeIfCurrent(routes.Concepts.search(), Messages("contentTypes." + EntityType.Concept))
-                        @userOpt.map { user =>
-                            @if(user.isAdmin) {
-                                <li class="dropdown @{if(req.path.startsWith(routes.Admin.adminActions.toString)) "active" else ""}">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                        @Messages("pages.admin")
-                                        <b class="caret"></b>
-                                    </a>
-                                    <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                        @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
-                                        @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
-                                        @activeIfCurrent(routes.Countries.search(), Messages("contentTypes." + EntityType.Country))
-                                        @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
-                                        @activeIfCurrent(routes.AuthoritativeSets.list(), Messages("contentTypes." + EntityType.AuthoritativeSet))
-                                        @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                @Messages("pages.more")
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+                                @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
+                                @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
+                                @activeIfCurrent(routes.Countries.search(), Messages("contentTypes." + EntityType.Country))
+                                @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
+                                @activeIfCurrent(routes.AuthoritativeSets.list(), Messages("contentTypes." + EntityType.AuthoritativeSet))
+                                @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
+                                @userOpt.map { user =>
+                                    @if(user.isAdmin) {
                                         <li role="presentation" class="divider"></li>
                                         @activeIfCurrent(routes.Search.updateIndex, Messages("search.updateIndex"))
-                                    </ul>
-                                </li>
-                            }
-                        }
+                                    }
+                                }
+                            </ul>
+                        </li>
                     </ul>
                     <ul class="nav pull-right">
                         @userOpt.flatMap(_.account).map { account =>
