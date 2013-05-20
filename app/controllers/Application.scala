@@ -84,4 +84,11 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
       case _ => None
     }
   }
+
+  /**
+    Endpoint for experimental Angular-JS stuff...
+   */
+  def portal = userProfileAction { implicit userProfile => implicit request =>
+    Ok(views.html.portal())
+  }
 }
