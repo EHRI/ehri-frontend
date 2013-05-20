@@ -18,10 +18,13 @@
 					</div>
 					<div class="form-options form-filter">
 						<div class="btn-group pull-right" style="margin-top: 10px">
-							<a class="btn btn-mini current-search-sort" href="/search"> Relevance </a>
-							<a class="btn btn-mini" href="/search?sort=name_sort.asc"> Name </a>
-							<a class="btn btn-mini" href="/search?sort=lastUpdated.desc"> Recently Updated </a>
+							<a class="btn btn-mini current-search-sort" ng-click="setQuery('sort', 'score.desc')"> Relevance </a>
+							<a class="btn btn-mini"ng-click="setQuery('sort', 'name_sort.asc')"> Name </a>
+							<a class="btn btn-mini"ng-click="setQuery('sort', 'lastUpdated.desc')"> Recently Updated </a>
 						</div>
+					</div>
+					<div>
+						<a class="btn btn-info" ng-repeat="param in searchParams | noButtonFilter" ng-click="removeFilter(param)">{{param}} <i class="icon-remove"></i></a>
 					</div>
 				</form>
 				

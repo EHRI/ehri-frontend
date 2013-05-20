@@ -3,13 +3,15 @@ var portal = angular.module('portalSearch', []).
 	$routeProvider.
 		when('/', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
 		when('/:searchTerm', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
+		/*
+		when('/:searchTerm', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
 		when('/:searchTerm/:lang/', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
 		when('/:searchTerm/:lang/:type', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
+		*/
 		otherwise({redirectTo: '/'});
 }]);
 
 //Filters
-
 portal
 	.filter('descLang', function() {
 		return function(descriptions, lang) {
@@ -32,6 +34,17 @@ portal
 					return descriptions[0];
 				}
 			}
+		}
+	}).filter('noButtonFilter', function () {
+		return function(array) {
+			var response = {};
+			angular.forEach(array, function(v,k) {
+				if(k != 'q' && k != 'sort')
+				{
+					response[k] = v;
+				}
+			});
+			return response;
 		}
 	}).filter('extraHeader', function() {
 		function extraHeader(extras) {
@@ -65,84 +78,62 @@ portal
 		return function(array, chunkSize) {
 			var result = extraHeader(array);
 			defineHashKeys(result);
-			// console.log(result);
 			return result;
 		}
 	});
 
 function SearchCtrl($scope, $http) {
-	$scope.searchParams = [];
+	//Scope var
+	$scope.searchParams = {};
+	$scope.langFilter = "en";
 	
+	if($scope.searchTerm)
+	{
+		console.log($scope.searchTerm);
+	}
+	
+	//Query functions
 	$scope.setQuery = function(type, q) {
 		$scope.searchParams[type] = q;
-		
-		console.log($scope.searchParams);
-		
 		$scope.doSearch();
 	}
 	
-	$scope.getUrl = function(url) {	
-		var param = $scope.searchParams;
-		console.log(param);
+	$scope.getUrl = function(url) {			
+		url = url + '?';
 		
-		console.log("Element in searchParams : " + param.length);
+		var urlArr = [];
+		angular.forEach($scope.searchParams, function(value, key) {
+			urlArr.push(key + "=" + value);
+		});
 		
-		// if(param.length > 0)
-		// {
-			url = url + '?';
-			
-			var urlArr = [];
-			angular.forEach(param, function(value, key) {
-				console.log(value);
-				urlArr.push(key + "=" + value);
-			});
-			
-			return url + urlArr.join('&');
-		// }
-		return url;
-		
+		return url + urlArr.join('&');
 	}
 	
-	$scope.doSearch = function() {		
-		console.log($scope.searchParams);
-		
+	$scope.doSearch = function() {				
 		url = $scope.getUrl('/search');
-		
 		console.log("Url for Query : " + url);
-		
-		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
-			// console.log(data);
+				$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
 			$scope.page = data.page;
-			// console.log($scope.page);
 		});
 	}
 	
-	
-	
-	//Tests function, including mockup
-	$scope.initiate = function () { 
-		/*
-		$http.get('/search').success(function(data) {
-			// console.log(data);
-			$scope.page = data.page;
-			// console.log($scope.page);
+	$scope.removeFilter = function (value) {
+		angular.forEach($scope.searchParams, function(v,k) {
+			if(v == value)
+			{
+				delete $scope.searchParams[k];
+			}
 		});
-		*/
+		$scope.doSearch();
+		return true;
 	}
-	$scope.doSearch();
-	
-	
-	
-	//Description functions
-	$scope.langFilter = "en";
-	
-	$scope.extraDataParser = function (item) {
-		temp = {};
-		// console.log(item);
-		// return item.relationships.describes[0].data;
-		return false;
-	}
-	
+/**********
+**
+**
+**
+**
+*/
+	//Description functions	
 	$scope.getTitleAction = function(item) {
 		//2013-05-15 15:42:23 Mike Bryant: Imported from command-line
 		event = item.relationships.lifecycleEvent[0];
@@ -157,9 +148,5 @@ function SearchCtrl($scope, $http) {
 		return event.data.timestamp;
 	}
 	
+	$scope.doSearch();
 }
-
-
-
-
-//"Accept: application/json" "http://10.88.12.4:9000/search?q=hitler"
