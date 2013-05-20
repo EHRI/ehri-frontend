@@ -1,14 +1,14 @@
 package solr
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.UserProfile
+import models.{Entity, UserProfile}
 import play.api.libs.ws.WS
 import play.api.Logger
 import defines.EntityType
 import rest.RestError
 import solr.facet.{FacetClass, AppliedFacet}
 import com.github.seratch.scalikesolr.request.QueryRequest
-import play.api.libs.json.{Json, Format}
+import play.api.libs.json.{Writes, Json, Format}
 import scala.concurrent.Future
 
 /**
@@ -29,6 +29,25 @@ case class ItemPage[A](
   spellcheck: Option[(String,String)] = None
 ) extends utils.AbstractPage[A]
 
+object ItemPage {
+
+  import play.api.libs.functional.syntax._
+  import play.api.libs.json._
+  import play.api.libs.json.util._
+
+  implicit def itemPageWrites: Writes[ItemPage[Entity]] = (
+    (__ \ "items").lazyWrite(Writes.traversableWrites[Entity]) and
+      (__ \ "offset").write[Int] and
+      (__ \ "limit").write[Int] and
+      (__ \ "total").write[Long] and
+      (__ \ "facets").lazyWrite(Writes.traversableWrites[FacetClass]) and
+      (__ \ "spellcheck").writeNullable(
+        (__ \ "given").write[String] and
+          (__ \ "correction").write[String]
+        tupled
+      )
+  )(unlift(ItemPage.unapply[Entity]))
+}
 
 /**
  * A paged list of facets.

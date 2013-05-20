@@ -23,7 +23,7 @@ object Utils {
   def pathWithoutFacet(fc: FacetClass, f: Facet, path: String, qs: Map[String, Seq[String]]): String = {
     joinPath(path, qs.map(qv => {
       qv._1 match {
-        case fc.param => (qv._1, qv._2.filter(_!=f.paramVal))
+        case fc.param => (qv._1, qv._2.filter(_!=f.param))
         case _ => qv
       }
     }))
@@ -33,11 +33,11 @@ object Utils {
     joinPath(path, if (qs.contains(fc.param)) {
       qs.map(qv => {
         qv._1 match {
-          case fc.param => (qv._1, qv._2.union(Seq(f.paramVal)).distinct)
+          case fc.param => (qv._1, qv._2.union(Seq(f.param)).distinct)
           case _ => qv
         }
       })
-    } else qs.updated(fc.param, Seq(f.paramVal))
+    } else qs.updated(fc.param, Seq(f.param))
     )
   }
 }

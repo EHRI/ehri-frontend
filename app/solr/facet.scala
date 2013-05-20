@@ -1,6 +1,7 @@
 package solr.facet
 
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParam, Param, Value}
+import play.api.libs.json.{JsNumber, Json, Writes}
 
 
 case object FacetSort extends Enumeration {
@@ -17,24 +18,31 @@ case object FacetSort extends Enumeration {
  * @param values
  */
 case class AppliedFacet(name: String, values: List[String])
+object AppliedFacet {
+  implicit val appliedFacetWrites = Json.writes[AppliedFacet]
+}
 
 /**
  * Encapsulates a single facet.
  *
- * @param solrVal   the value of this facet to Solr
- * @param paramVal  the value as a web parameter
+ * @param solr   the value of this facet to Solr
+ * @param param  the value as a web parameter
  * @param humanVal  the human-readable value
  * @param count     the number of objects to which this facet applies
  * @param applied   whether or not this facet is activated in the response
  */
 case class Facet(
-  solrVal: String,
-  paramVal: String,
+  solr: String,
+  param: String,
   humanVal: Option[String] = None,
   count: Int = 0,
   applied: Boolean = false
 ) {
-  def sortVal = humanVal.getOrElse(paramVal)
+  def sort = humanVal.getOrElse(param)
+}
+
+object Facet {
+  implicit val facetWrites = Json.writes[Facet]
 }
 
 
@@ -52,7 +60,7 @@ sealed trait FacetClass {
   val fieldType: String
 
   def count: Int = facets.length
-  def sortedByName = facets.sortWith((a, b) => a.sortVal < b.sortVal)
+  def sortedByName = facets.sortWith((a, b) => a.sort < b.sort)
   def sortedByCount = facets.sortWith((a, b) => b.count < a.count)
   def sorted: List[Facet] = sort match {
     case FacetSort.Name => sortedByName
@@ -62,7 +70,21 @@ sealed trait FacetClass {
   def asParams: List[FacetParam]
   def pretty(f: Facet): String = f.humanVal match {
     case Some(desc) => render(desc)
-    case None => render(f.paramVal)
+    case None => render(f.param)
+  }
+}
+
+object FacetClass {
+  implicit def facetClassWrites: Writes[FacetClass] = new Writes[FacetClass] {
+    def writes(fc: FacetClass) = Json.obj(
+      "count" -> JsNumber(fc.count),
+      "param" -> Json.toJson(fc.param),
+      "name" -> Json.toJson(fc.name),
+      "key" -> Json.toJson(fc.key),
+      "facets" -> Json.arr(
+          fc.sorted.map(Json.toJson(_))
+      )
+    )
   }
 }
 
@@ -109,7 +131,7 @@ case class QueryFacetClass(
     facets.map(p =>
       new FacetParam(
         Param(fieldType),
-        Value("%s:%s".format(key, p.solrVal))
+        Value("%s:%s".format(key, p.solr))
       )
     )
   }

@@ -6,7 +6,7 @@
     @page.facets.map{ fclass =>
         @fclass.sorted.map{ facet =>
             @if(facet.applied) {
-                <input type="hidden" name="@fclass.param" value="@facet.paramVal" />
+                <input type="hidden" name="@fclass.param" value="@facet.param" />
                 <span class="label label-info">
                     @fclass.name: @fclass.pretty(facet) <a class="remove-filter"
                         href="@Utils.pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">

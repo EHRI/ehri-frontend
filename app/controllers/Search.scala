@@ -12,7 +12,7 @@ import models.{IsadG,Entity}
 import play.api.Logger
 import concurrent.Future
 import solr.SolrIndexer.{SolrErrorResponse, SolrResponse, SolrUpdateResponse}
-import solr.{SearchOrder, SearchParams, SolrIndexer}
+import solr.{ItemPage, SearchOrder, SearchParams, SolrIndexer}
 import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
 import views.Helpers
@@ -58,12 +58,14 @@ object Search extends EntitySearch {
       page => params => facets => implicit userOpt => implicit request =>
     request match {
       case Accepts.Html() => Ok(views.html.search.search(page, params, facets, routes.Search.search))
-      case Accepts.Json() => Ok(Json.toJson(Json.obj(
-        "numPages" -> page.numPages,
-        "page" -> page.page,
-        "items" -> page.items.map(_._1)
+      case Accepts.Json() => {
+        Ok(Json.toJson(Json.obj(
+          "numPages" -> page.numPages,
+          "page" -> page.copy(items = page.items.map(_._1)),
+          "facets" -> facets
         ))
-      )
+        )
+      }
     }
   }
 

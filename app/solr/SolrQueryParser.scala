@@ -104,12 +104,12 @@ case class SolrQueryParser(response: Elem) {
   private def extractQueryFacet(fc: solr.facet.QueryFacetClass, appliedFacets: List[AppliedFacet]): solr.facet.QueryFacetClass = {
     val applied: List[String] = appliedFacets.filter(_.name == fc.key).headOption.map(_.values).getOrElse(List[String]())
     val facets = fc.facets.flatMap(f => {
-      var nameval = "%s:%s".format(fc.key, f.solrVal)
+      var nameval = "%s:%s".format(fc.key, f.solr)
       response.descendant.filter(n => (n \\ "@name").text == nameval).text match {
         case "" => Nil
         case v => List(
-          solr.facet.Facet(f.solrVal, f.paramVal, f.humanVal, v.toInt,
-            applied.contains(f.paramVal))
+          solr.facet.Facet(f.solr, f.param, f.humanVal, v.toInt,
+            applied.contains(f.param))
         )
       }
     })
