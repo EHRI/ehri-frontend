@@ -1,3 +1,20 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash)
 
-<h1>Hello, world...</h1>
+@title = { Portal }
+@extrascripts = {
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
+	<script src="@routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/Search.js")" type="text/javascript"></script>
+}
+
+@extrastyles = { 
+	<link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")">
+}
+
+@noSidebarLayout(title, extrascripts, extrastyles) {
+	<div ng-app="portalSearch">
+		<div ng-view ng-initiate="initiate()">
+		</div>
+	</div>
+}
