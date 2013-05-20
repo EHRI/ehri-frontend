@@ -13,60 +13,124 @@ var portal = angular.module('portalSearch', []).
 portal
 	.filter('descLang', function() {
 		return function(descriptions, lang) {
-			var filtered = [];
-			angular.forEach(descriptions, function (description) {
-				// console.log(description);
-				if(description.data.languageCode == lang)
+			if(descriptions)
+			{
+				var filtered = [];
+				angular.forEach(descriptions, function (description) {
+					if(description.data.languageCode == lang)
+					{
+						filtered[0] = description;
+					}
+				});
+				if(filtered[0])
 				{
-					// console.log("Language option match description language")
-					filtered[0] = description;
+					return filtered;
 				}
-			});
-			if(filtered[0])
-			{
-				return filtered;
-			}
-			else
-			{
-				filtered[0] = descriptions[0];
-				return descriptions[0];
+				else
+				{
+					filtered[0] = descriptions[0];
+					return descriptions[0];
+				}
 			}
 		}
 	}).filter('extraHeader', function() {
-		return function(extras) {
-			var filtered = [];
-			angular.forEach(extras, function(extra, key) {
-				switch(key)
+		function extraHeader(extras) {
+				
+				var filtered = [];
+				
+				angular.forEach(extras, function(extra, key) {
+					switch(key)
+					{
+						case "datesOfExistence":
+						case "parallelFormsOfName":
+						case "place":
+							filtered.push({'content': extra, 'key':key})
+							break;
+					}
+				});
+				
+				if(filtered.length > 0)
 				{
-					case "datesOfExistence":
-					// case "typeOfEntity":
-					case "parallelFormsOfName":
-					case "place":
-						filtered.push({'content': extra, 'key':key});
-						break;
+					return filtered;
 				}
-				// console.log(key);
-			});
-			// console.log("Nothing");
-			
-			if(filtered.length > 0)
-			{
-				// console.log(filtered.length);
-				return filtered;
+				return false;
+		}
+		
+		function defineHashKeys(array) {
+			for (var i=0; i<array.length; i++) {
+				array[i].$$hashKey = i;
 			}
+		}
+
+		return function(array, chunkSize) {
+			var result = extraHeader(array);
+			defineHashKeys(result);
+			// console.log(result);
+			return result;
 		}
 	});
 
 function SearchCtrl($scope, $http) {
-	//Tests function, including mockup
-	$scope.initiate = function () { 
-		$http.get(ANGULAR_ROOT + '/search/mock-results.json').success(function(data) {
+	$scope.searchParams = [];
+	
+	$scope.setQuery = function(type, q) {
+		$scope.searchParams[type] = q;
+		
+		console.log($scope.searchParams);
+		
+		$scope.doSearch();
+	}
+	
+	$scope.getUrl = function(url) {	
+		var param = $scope.searchParams;
+		console.log(param);
+		
+		console.log("Element in searchParams : " + param.length);
+		
+		// if(param.length > 0)
+		// {
+			url = url + '?';
+			
+			var urlArr = [];
+			angular.forEach(param, function(value, key) {
+				console.log(value);
+				urlArr.push(key + "=" + value);
+			});
+			
+			return url + urlArr.join('&');
+		// }
+		return url;
+		
+	}
+	
+	$scope.doSearch = function() {		
+		console.log($scope.searchParams);
+		
+		url = $scope.getUrl('/search');
+		
+		console.log("Url for Query : " + url);
+		
+		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
 			// console.log(data);
 			$scope.page = data.page;
 			// console.log($scope.page);
 		});
 	}
-	$scope.initiate();
+	
+	
+	
+	//Tests function, including mockup
+	$scope.initiate = function () { 
+		/*
+		$http.get('/search').success(function(data) {
+			// console.log(data);
+			$scope.page = data.page;
+			// console.log($scope.page);
+		});
+		*/
+	}
+	$scope.doSearch();
+	
 	
 	
 	//Description functions
@@ -94,3 +158,8 @@ function SearchCtrl($scope, $http) {
 	}
 	
 }
+
+
+
+
+//"Accept: application/json" "http://10.88.12.4:9000/search?q=hitler"

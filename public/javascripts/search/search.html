@@ -1,5 +1,6 @@
 <div class=="container-fluid">
 	<section class="row-fluid">
+	
 		<section class="span9 result-column">
 		
 				<article>
@@ -10,7 +11,7 @@
 				<form id="search-form">
 					<div class="input-append search-query">
 						<input class="input-block-level span9" type="text" autofocus="" ng-model="searchTerm">
-						<button class="btn">
+						<button class="btn" ng-click="setQuery('q', searchTerm)">
 							<i class="icon-search"></i>
 							Search
 						</button>
@@ -25,7 +26,7 @@
 				</form>
 				
 				<article ng-repeat="item in page.items" id="{{item.id}}" class="search-item">
-					<div ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+					<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
 						<header class="search-item-heading">
 							<a href="/cpf/show/ehri-pers-6959">{{desc.data.name}}</a>
 							<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
@@ -43,15 +44,30 @@
 							</ul>
 						</footer>
 					</div>
+					<div ng-show="(!item.relationships.describes)">
+						<article>
+							<header>
+								<a href="/cpf/show/ehri-pers-6959">{{item.data.name}}</a>
+							</header>
+							<footer>
+								<ul class="unstyled muted inline inline-separator">
+									<li>{{item.type}}</li>
+									<li title="{{getTitleAction(item)}}">{{getSimpleTimeDesc(item)}}</li>
+								</ul>
+							</footer>
+						</article>
+					</div>
 				</article>
 		</section>
+		
 		<aside class="span3 facets-column">
 			<dl ng-repeat="facet in page.facets">
 				<dt id="facet-{{facet.key}}">{{facet.name}}</dt>
 				<dd ng-repeat="option in facet.facets.0">
-					<a ng-click="setFacet(facet.key, option.param)">{{option.param}}</a>
+					<a ng-click="setQuery(facet.key, option.param)">{{option.param}}</a>
 				</dd>
 			</dl>
 		</aside>
+		
 	</section>
 </div>
