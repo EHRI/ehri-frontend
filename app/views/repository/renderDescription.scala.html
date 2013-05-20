@@ -14,11 +14,19 @@
 
     @descriptionSection(ADDRESS_AREA) {
         @desc.addresses.map { address =>
-            <address title="@address.stringProperty(ADDRESS_NAME)">
+            <address class="well well-small" title="@address.stringProperty(ADDRESS_NAME)">
                 @address.stringProperty(ADDRESS_NAME).map { an =>
                     <strong>@an</strong><br/>
                 }
-                @List(CONTACT_PERSON, STREET_ADDRESS,CITY,REGION,POSTAL_CODE).map { addressPart =>
+                @address.stringProperty(CONTACT_PERSON).map { an =>
+                    <i>@an</i><br/>
+                }
+                @address.stringProperty(STREET_ADDRESS).map { an =>
+                    @an.split("\\n").map { addressLine =>
+                        @addressLine<br />
+                    }
+                }
+                @List(CITY,REGION,POSTAL_CODE).map { addressPart =>
                     @address.stringProperty(addressPart).map { addressPartValue =>
                         @addressPartValue<br />
                     }
