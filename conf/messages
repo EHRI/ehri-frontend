@@ -62,12 +62,12 @@ contentTypes.repository=Repositories
 contentTypes.historicalAgent=Authorities
 contentTypes.documentaryUnit=Collections
 contentTypes.action=User Events
-contentTypes.systemEvent=History
 contentTypes.cvocVocabulary=Vocabularies
 contentTypes.authoritativeSet=Authority Sets
 contentTypes.cvocConcept=Terms
 contentTypes.annotation=Annotations
 contentTypes.country=Countries
+contentTypes.link=Links
 
 #
 # Permission Types

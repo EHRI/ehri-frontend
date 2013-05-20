@@ -25,7 +25,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
                       }
 					}
 				</tr>
-				@ContentType.values.toList.map { entity =>
+				@ContentType.values.filterNot(_ == ContentType.SystemEvent).toList.sortBy(_.toString).map { entity =>
 				  	<tr>
 						<td>@Messages("contentTypes." + entity.toString)</td>
 						@PermissionType.values.toList.map { perm =>
