@@ -104,7 +104,8 @@ package object Helpers {
     case EntityType.Concept => routes.Concepts.get(e.id)
     case EntityType.ContentType => Call("GET", "#")
     case EntityType.Country => routes.Countries.get(e.id)
-    case i => sys.error("Cannot fetch URL for entity type: " + i)
+      // Anything we can't figure out, give an API ref
+    case i => routes.ApiController.getAny(e.id)
   }
 
   /**

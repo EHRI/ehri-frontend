@@ -288,6 +288,7 @@ POST    /link/delete/:id     controllers.Links.deletePost(id: String)
 
 # API
 
+GET     /api/:id                 controllers.ApiController.getAny(id: String)
 GET     /api/:contentType/list          controllers.ApiController.listItems(contentType: String)
 GET     /api/:contentType/:id           controllers.ApiController.getItem(contentType: String, id: String)
 GET     /api/*path               controllers.ApiController.get(path: String)
