@@ -14,13 +14,14 @@ import models.UserProfile
 import defines.EntityType
 
 
-
 /**
- * Helpers for dealing with Solr responses.
+ * Build a Solr query. This class uses the (mutable) scalikesolr
+ * QueryRequest class.
  */
 object SolrQueryBuilder {
 
-  import SolrIndexer._
+  //
+  import SolrConstants._
 
   private def setRequestFacets(request: QueryRequest, flist: List[FacetClass]): Unit = {
     request.setFacet(new FacetParams(
@@ -72,6 +73,12 @@ object SolrQueryBuilder {
     setRequestFilters(request, allFacets, appliedFacets)
   }
 
+  /**
+   * Constrain the search to entities of a given type, applying an fq
+   * parameter to the "type" field.
+   * @param request
+   * @param entities
+   */
   private def constrainEntities(request: QueryRequest, entities: List[EntityType.Value]): Unit = {
     if (!entities.isEmpty) {
       val filter = entities.map(_.toString).mkString(" OR ")

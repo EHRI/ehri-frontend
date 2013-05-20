@@ -26,8 +26,7 @@ import play.api.i18n.Lang
  */
 object SolrIndexer extends RestDAO {
 
-  final val ACCESSOR_ALL_PLACEHOLDER = "ALLUSERS"
-  final val ACCESSOR_FIELD = "accessibleTo"
+  import SolrConstants._
 
   // We don't need a user here yet unless we want to log
   // when the Solr index is changed.
