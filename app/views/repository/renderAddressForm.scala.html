@@ -7,7 +7,7 @@
     @formHelpers.hiddenInput(field(Entity.ID))
     @formHelpers.lineInput(field, ADDRESS_NAME)
     @formHelpers.lineInput(field, CONTACT_PERSON)
-    @formHelpers.lineInput(field, STREET_ADDRESS)
+    @formHelpers.textInput(field, STREET_ADDRESS)
     @formHelpers.lineInput(field, CITY)
     @formHelpers.lineInput(field, REGION)
     @formHelpers.choiceInput(field(COUNTRY_CODE), COUNTRY_CODE, views.Helpers.countryPairList, blank=true)
