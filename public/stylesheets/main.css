@@ -2,7 +2,7 @@ dl.inline-separator dd:last-child:after {
     content: "";
 }
 dl.inline-separator dd:after {
-    content: " | ";
+   /* content: " | ";*/
 }
 dl.inline dd {
     display: inline;
@@ -14,6 +14,8 @@ dl.inline > dd {
     padding-right: 5px;
 	font-weight:bold;
 	margin:0;
+	
+
 }
 dl.inline > dt {
 	display:inline-block;
@@ -26,4 +28,32 @@ dl.inline > dt {
 
 .hide {
 	display:none !important;
+}
+/*
+.nav-no-link > li {
+    padding: 10px 15px;
+}*/
+select.nav-select {
+	padding:0;
+	margin:0;
+	line-height:20px;
+	height:20px;
+	border:none;
+	background:none;
+	width:auto;
+}
+select.nav-select > option {
+	lin-height:inherit;
+	padding:0;
+	margin:0;
+}
+.nav-bar-input {
+	line-height:inherit;
+}
+.search-item p { 
+	text-align:justify;
+	max-height:60px;
+	text-overflow: ellipsis;
+	width:90%;
+	overflow:hidden;
 }

@@ -9,7 +9,7 @@ var portal = angular.module('portalSearch', ['ui.bootstrap' ], function ($provid
   }).
 	config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
-		when('/', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl, reloadOnSearch: false}).
+		when('/', {templateUrl: ANGULAR_ROOT + '/search/searchlikeg.html', controller: SearchCtrl, reloadOnSearch: false}).
 		//when('/:searchTerm', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
 		/*
 		when('/:searchTerm', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
@@ -41,7 +41,7 @@ portal
 				else
 				{
 					// filtered[0] = descriptions;
-					console.log(filtered);
+					// console.log(filtered);
 					return descriptions;
 				}
 			}
@@ -95,10 +95,9 @@ portal
 
 function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 	//Scope var
-	$scope.searchParams = {};
+	$scope.searchParams = {'page' : 1, 'sort' : 'score.desc'};
 	$scope.langFilter = "en";
 	
-	$scope.searchParams['sort'] = 'score.desc';
 	
 	$scope.currentPage = 1; //Current page of pagination
 	$scope.justLoaded = false;
@@ -109,14 +108,7 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 	
 	//Watch for page click
 	$scope.$watch("currentPage", function (newValue) {
-		if($scope.justLoaded == false)
-		{
-			$scope.justLoaded = true;
-		}
-		else
-		{
-			$scope.setQuery("page", newValue);
-		}
+		$scope.setQuery("page", newValue);
 	});
 	
 	
@@ -140,7 +132,7 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 		if($scope.searchParams[type] == q && type != 'page' && type != 'q' && type != 'sort')
 		{
 			$scope.removeFilterByKey(type);
-			$location.search('page', null);
+			$location.search('page', 1);
 		}
 		else
 		{
@@ -148,6 +140,9 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 			{
 				$location.search('page', null);
 				delete $scope.searchParams.page;
+			}
+			else {
+				q = parseInt(q);
 			}
 			$scope.lastFilter = type;
 			$scope.searchParams[type] = q;

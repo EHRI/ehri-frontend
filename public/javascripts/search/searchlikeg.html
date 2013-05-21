@@ -1,0 +1,101 @@
+<div class=="container-fluid">
+	<section class="row-fluid">
+	
+		<section class="span12 result-column">
+		
+				<article>
+					<header>
+						<!--<h1>Search</h1>-->
+				
+					<form id="search-form">
+						<div class="input-append search-query">
+							<input class="input-block-level span11" type="text" autofocus="" ng-change="setQuery('q', searchTerm)" ng-model="searchTerm">
+							<button class="btn" ng-click="setQuery('q', searchTerm)">
+								<i class="icon-search"></i>
+								Search
+							</button>
+						</div>
+						<nav class="navbar">
+							<div class="navbar-inner">
+								<ul class="nav">
+									<li class="dropdown">
+										<a class="dropdown-toggle">Sort <b class="caret"></b></a> 
+										<ul class="dropdown-menu">
+											<li>
+												<a ng-click="setQuery('sort', 'score.desc')"> Relevance </a>
+												<a ng-click="setQuery('sort', 'name_sort.desc')"> Name </a>
+												<a ng-click="setQuery('sort', 'lastUpdated.desc')"> Recently Updated </a>
+											</li>
+										</ul>
+									</li>
+									<li class="divider-vertical"></li>
+									<li ng-repeat="facet in page.facets" ng-show="facet.count > 1"  class="dropdown">
+										<a class="dropdown-toggle">{{(searchParams[facet.param]) || facet.name}}
+										<b class="caret"></b></a> 
+										<ul class="dropdown-menu">
+											<li ng-click="removeFilterByKey(facet.param)"><a>All</a></li>
+											<li ng-repeat="option in facet.facets.0" ng-show="option.count != 0" ng-click="setQuery(facet.param, option.param)" ng-class="(option.applied && 'disabled')">
+												<a>{{option.param}} ({{option.count}})</a>
+											</li>
+										</ul>
+									</li>
+								</ul>
+								<div class="navbar-form pull-right span1">
+									<input class="span12" type="text" placeholder="Go To" ng-model="currentPage" />
+								</div>
+							</div>
+						</nav>	
+					</form>
+					<p class="muted">
+						<small>
+							<em>
+								Displaying item {{(page.offset + 1)}} to {{(page.limit + page.offset)}} of {{page.total}}
+							</em>
+						</small>
+					</p>
+				</header>
+				<article ng-repeat="item in page.items" id="{{item.id}}" class="search-item">
+					
+					<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+						<header>
+							<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+							<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a>
+							
+						</header>
+						
+						<p>
+							<b>{{item.type}}</b> - 
+							{{(desc.data.biographicalHistory.length > 360 && (desc.data.biographicalHistory.substring(0, 360) + '...')) || desc.data.biographicalHistory}}
+						</p>
+						
+						<footer>
+							<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
+								<dt class="hide">Extra datas : </dt> 
+								<dd ng-repeat="extraText in desc.data | extraHeader" class="{{extraText.key}}" title="{{extraText.key}}">{{extraText.content}}</dd>
+							</dl>
+						</footer>
+					</div>
+					
+					<div ng-show="(!item.relationships.describes)">
+						<article>
+							<header>
+								<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+								<a ng-click="getLink(item.type, item.id)">
+									<b>{{item.data.name || item.data.identifier}}</b>
+								</a>
+							</header>
+								<p><b>{{item.type}}</b></p>
+						</article>
+					</div>
+				</article>
+				
+				<footer>
+					<pagination num-pages="numPages" current-page="currentPage" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
+				</footer>
+				
+			</article>
+				
+		</section>
+		
+	</section>
+</div>

@@ -22,8 +22,12 @@
 							<a class="btn btn-mini" ng-class="(searchParams.sort == 'lastUpdated.desc' && 'current-search-sort')" ng-click="setQuery('sort', 'lastUpdated.desc')"> Recently Updated </a>
 						</div>
 					</div>
-					<div>
-						<a class="btn btn-info" ng-repeat="param in searchParams | noButtonFilter" ng-click="removeFilter(param)">{{param}} <i class="icon-remove"></i></a>
+					<div ng-show="false">
+						<ul class="inline">
+							<li ng-repeat="param in searchParams | noButtonFilter">
+								<a class="btn btn-info" ng-click="removeFilter(param)">{{param}} <i class="icon-remove"></i></a>
+							</li>
+						</ul>
 					</div>
 				</form>
 				
