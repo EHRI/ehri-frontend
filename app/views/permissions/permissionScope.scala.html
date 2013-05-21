@@ -3,7 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageScopedPermissionsForAccessor", item)) {
+@rightSidebarLayout(Messages("actions.manageScopedPermissionsForAccessor", item), breadcrumbs = common.breadcrumbs(List(item))) {
     <div class="well well-small muted">
         <i class="icon-info-sign"></i>
         @Messages("actions.manageScopedPermissionsText")

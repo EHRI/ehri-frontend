@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.removeUserFromGroup", item.name, group.name)) {
+@rightSidebarLayout(Messages("actions.removeUserFromGroup", item, group), breadcrumbs = common.breadcrumbs(List(item))) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		<div class="form-actions">

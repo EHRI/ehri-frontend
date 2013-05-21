@@ -2,7 +2,7 @@
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 @import defines.PermissionType
 
-@rightSidebarLayout(Messages("actions.grantPermissionsInScope", item, accessor)) {
+@rightSidebarLayout(Messages("actions.grantPermissionsInScope", item, accessor), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

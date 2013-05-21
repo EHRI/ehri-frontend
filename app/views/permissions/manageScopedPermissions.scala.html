@@ -3,7 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.managePermissions", item)) {
+@rightSidebarLayout(Messages("actions.managePermissions", item), breadcrumbs = common.breadcrumbs(List(item))) {
 
 
     <h3>@Messages("actions.manageItemPermissions")</h3>
