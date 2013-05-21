@@ -270,7 +270,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         contentAsString(show) must contain(routes.UserProfiles.delete(id).url)
         contentAsString(show) must contain(routes.UserProfiles.permissions(id).url)
         contentAsString(show) must contain(routes.UserProfiles.grantList(id).url)
-        contentAsString(show) must contain(routes.UserProfiles.list().url)
+        contentAsString(show) must contain(routes.UserProfiles.search().url)
         contentAsString(show) must contain(routes.Groups.membership(EntityType.UserProfile.toString, id).url)
       }
 

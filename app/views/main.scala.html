@@ -212,7 +212,7 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                @activeIfCurrent(routes.UserProfiles.list(), Messages("contentTypes." + EntityType.UserProfile))
+                                @activeIfCurrent(routes.UserProfiles.search(), Messages("contentTypes." + EntityType.UserProfile))
                                 @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
                                 @activeIfCurrent(routes.Countries.search(), Messages("contentTypes." + EntityType.Country))
                                 @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))

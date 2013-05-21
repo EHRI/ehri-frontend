@@ -227,6 +227,7 @@ object SolrIndexer extends RestDAO {
       "id" -> d.id,
       "itemId" -> d.id, // Duplicate, because the 'description' IS the item.
       "type" -> d.isA,
+      "name" -> d.stringProperty("name"),
       ACCESSOR_FIELD -> getAccessorValues(d),
       "lastUpdated" -> d.relations(AccessibleEntity.EVENT_REL).map(a => SystemEvent(a).dateTime)
     )

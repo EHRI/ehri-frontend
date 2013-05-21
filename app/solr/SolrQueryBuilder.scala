@@ -199,7 +199,7 @@ object SolrQueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", "title^3.0 text")
+      req.set("qf", "title^3.0 name_sort^1.0 text")
     }
 
     // Mmmn, speckcheck

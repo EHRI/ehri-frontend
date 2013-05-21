@@ -167,6 +167,7 @@ users.realname=Full Name
 users.password=Password
 users.passwordConfirm=Confirm Password
 users.groups=Group Membership
+users.search=Search Users
 
 #
 # Groups

@@ -70,7 +70,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   )
 
   // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities = List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
   def get(id: String) = getWithChildrenAction(id) { item => page => params => annotations => links =>
