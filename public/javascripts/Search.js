@@ -1,8 +1,8 @@
-var portal = angular.module('portalSearch', []).
+var portal = angular.module('portalSearch', ['ui.bootstrap' ]).
 	config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
-		when('/', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
-		when('/:searchTerm', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
+		when('/', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl, reloadOnSearch: false}).
+		//when('/:searchTerm', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
 		/*
 		when('/:searchTerm', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
 		when('/:searchTerm/:lang/', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
@@ -15,6 +15,7 @@ var portal = angular.module('portalSearch', []).
 portal
 	.filter('descLang', function() {
 		return function(descriptions, lang) {
+			// console.log(descriptions);			
 			if(descriptions)
 			{
 				var filtered = [];
@@ -26,12 +27,14 @@ portal
 				});
 				if(filtered[0])
 				{
+					// console.log(filtered.data);
 					return filtered;
 				}
 				else
 				{
-					filtered[0] = descriptions[0];
-					return descriptions[0];
+					// filtered[0] = descriptions;
+					console.log(filtered);
+					return descriptions;
 				}
 			}
 		}
@@ -39,7 +42,7 @@ portal
 		return function(array) {
 			var response = {};
 			angular.forEach(array, function(v,k) {
-				if(k != 'q' && k != 'sort')
+				if(k != 'q' && k != 'sort' && k != 'page')
 				{
 					response[k] = v;
 				}
@@ -82,20 +85,58 @@ portal
 		}
 	});
 
-function SearchCtrl($scope, $http) {
+function SearchCtrl($scope, $http, $routeParams, $location) {
 	//Scope var
 	$scope.searchParams = {};
 	$scope.langFilter = "en";
 	
-	if($scope.searchTerm)
-	{
-		console.log($scope.searchTerm);
+	$scope.currentPage = 1; //Current page of pagination
+	$scope.justLoaded = false;
+	$scope.maxSize = 10; // Number of pagination buttons shown
+	$scope.numPages = false; // Number of pages (get from query)
+	
+	//Watch for page click
+	$scope.$watch("currentPage", function (newValue) {
+		if($scope.justLoaded == false)
+		{
+			$scope.justLoaded = true;
+		}
+		else
+		{
+			$scope.setQuery("page", newValue);
+		}
+	});
+	
+	
+	$scope.fromSearch = function() {
+		angular.forEach($location.search(), function(value, key) {
+			$scope.searchParams[key] = value;
+			if(key == "q")
+			{
+				$scope.searchTerm = value;
+			}
+		});
 	}
 	
 	//Query functions
 	$scope.setQuery = function(type, q) {
-		$scope.searchParams[type] = q;
-		$scope.doSearch();
+		if($scope.searchParams[type] == q)
+		{
+			$scope.removeFilterByKey(type);
+			$location.search('page', null);
+		}
+		else
+		{
+			if(type != 'page')
+			{
+				$location.search('page', null);
+				delete $scope.searchParams.page;
+			}
+			$scope.searchParams[type] = q;
+			$location.search(type, q);
+			
+			$scope.doSearch();
+		}
 	}
 	
 	$scope.getUrl = function(url) {			
@@ -111,10 +152,19 @@ function SearchCtrl($scope, $http) {
 	
 	$scope.doSearch = function() {				
 		url = $scope.getUrl('/search');
-		console.log("Url for Query : " + url);
-				$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
+		// console.log("Url for Query : " + url);
+		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
 			$scope.page = data.page;
+			$scope.facets = data.facets;
+			$scope.numPages = data.numPages;
 		});
+	}
+	
+	$scope.removeFilterByKey = function(key){
+		delete $scope.searchParams[key];
+		$location.search(key, null);
+		$scope.doSearch();
+		return true;
 	}
 	
 	$scope.removeFilter = function (value) {
@@ -124,9 +174,16 @@ function SearchCtrl($scope, $http) {
 				delete $scope.searchParams[k];
 			}
 		});
+		angular.forEach($location.search(), function(v, k) {
+			if(v == value)
+			{
+				$location.search(k, null);
+			}
+		});
 		$scope.doSearch();
 		return true;
 	}
+	
 /**********
 **
 **
@@ -148,5 +205,6 @@ function SearchCtrl($scope, $http) {
 		return event.data.timestamp;
 	}
 	
+	$scope.fromSearch();
 	$scope.doSearch();
 }
