@@ -1,11 +1,10 @@
 package controllers.base
 
-import defines.ContentType
+import defines.{EntityType, ContentType, PermissionType}
 import acl.GlobalPermissionSet
 import models.base.Persistable
 import models.base.Accessor
 import play.api.mvc._
-import defines.PermissionType
 import models.{Entity, PermissionGrant, UserProfile}
 
 import play.api.libs.concurrent.Execution.Implicits._
@@ -68,6 +67,34 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
         } yield {
           for { perms <- newpermsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
+          }
+        }
+      }
+    }
+  }
+
+  def revokePermissionAction(id: String, permId: String)(f: Entity => Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      AsyncRest {
+        for {
+          permOrErr <- rest.EntityDAO(EntityType.PermissionGrant, userOpt).get(permId)
+        } yield {
+          for { perm <- permOrErr.right } yield {
+            f(item)(perm)(userOpt)(request)
+          }
+        }
+      }
+    }
+  }
+
+  def revokePermissionActionPost(id: String, permId: String)(f: Entity => Boolean => Option[UserProfile] => Request[AnyContent] => Result) = {
+    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      AsyncRest {
+        for {
+          boolOrErr <- rest.EntityDAO(EntityType.PermissionGrant, userOpt).delete(permId)
+        } yield {
+          for { bool <- boolOrErr.right } yield {
+            f(item)(bool)(userOpt)(request)
           }
         }
       }

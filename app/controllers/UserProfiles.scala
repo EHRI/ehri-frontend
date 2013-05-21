@@ -2,7 +2,7 @@ package controllers
 
 import _root_.models.base.AccessibleEntity
 import models.forms.{VisibilityForm}
-import _root_.models.{Entity, UserProfile, UserProfileF}
+import _root_.models.{PermissionGrant, Entity, UserProfile, UserProfileF}
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
@@ -103,6 +103,18 @@ object UserProfiles extends PermissionHolderController[UserProfile]
       item => perms => implicit userOpt => implicit request =>
     Redirect(routes.UserProfiles.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
+      item => perm => implicit userOpt => implicit request =>
+        Ok(views.html.permissions.revokePermission(UserProfile(item), PermissionGrant(perm),
+          routes.UserProfiles.revokePermissionPost(id, permId), routes.UserProfiles.grantList(id)))
+  }
+
+  def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
+    item => bool => implicit userOpt => implicit request =>
+      Redirect(routes.UserProfiles.grantList(id))
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }
 

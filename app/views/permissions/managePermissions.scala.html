@@ -1,15 +1,12 @@
 @(item: AccessibleEntity, page: rest.Page[PermissionGrant], itemPermAction: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@import defines._
-
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("actions.manageItemPermissionsForItem", item)) {
 
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 
-    @permissions._permissionList(page, "page")
-
+    @permissions.permissionList(None, page, "page")
 } {
 
 }

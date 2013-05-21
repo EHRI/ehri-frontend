@@ -2,32 +2,8 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("permissionGrant.heading", item.name)) {
-    <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
-
-    <ul>
-    @page.items.map { item =>
-        <div class="list-item">
-            <h4>@item.permission.toString</h4>
-            <ul>
-                @item.accessor.map { accessor =>
-                    <li>@Messages("permissionGrant.accessor"): @accessor</li>
-                }
-                @item.targets.map { t =>
-                    <li>@Messages("permissionGrant.targets"): @t</li>
-                }
-                @item.scope.map { s =>
-                    <li>@Messages("permissionGrant.scope"): @s</li>
-                }
-                @item.grantee.map { s =>
-                    <li>@Messages("permissionGrant.grantedBy"): @s</li>
-                }
-            </ul>
-        </div>
-    }
-    </ul>
-    @common.pagination(page)
-
+@rightSidebarLayout(Messages("permissionGrant.heading", item)) {
+    @permissions.permissionList(Some(item), page)
 } {
 
 }
