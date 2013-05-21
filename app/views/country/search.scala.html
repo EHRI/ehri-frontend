@@ -1,0 +1,15 @@
+@(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("country.search")) {
+    @views.html.search.searchForm(result, params, action)
+} {
+    @common.sidebarSection(None) {
+        @userOpt.map { user =>
+            @if(user.hasPermission(ContentType.Country, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@routes.Countries.create">@Messages("actions.createCountry")</a>
+            }
+        }
+    }
+    @common.facetList(result.facets, action)
+}
