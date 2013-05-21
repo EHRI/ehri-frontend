@@ -5,7 +5,7 @@
 		
 				<article>
 					<header><h1>Search</h1><header>
-					<p>Displaying item {{page.offset}} to {{page.limit}} of {{page.total}}</p>
+					<p>Displaying item {{(page.offset + 1)}} to {{(page.limit + page.offset)}} of {{page.total}}</p>
 				
 				<form id="search-form">
 					<div class="input-append search-query">
@@ -17,9 +17,9 @@
 					</div>
 					<div class="form-options form-filter">
 						<div class="btn-group pull-right" style="margin-top: 10px">
-							<a class="btn btn-mini current-search-sort" ng-click="setQuery('sort', 'score.desc')"> Relevance </a>
-							<a class="btn btn-mini"ng-click="setQuery('sort', 'name_sort.asc')"> Name </a>
-							<a class="btn btn-mini"ng-click="setQuery('sort', 'lastUpdated.desc')"> Recently Updated </a>
+							<a class="btn btn-mini" ng-class="(searchParams.sort == 'score.desc' && 'current-search-sort')" ng-click="setQuery('sort', 'score.desc')"> Relevance </a>
+							<a class="btn btn-mini" ng-class="(searchParams.sort == 'name_sort.desc' && 'current-search-sort')" ng-click="setQuery('sort', 'name_sort.desc')"> Name </a>
+							<a class="btn btn-mini" ng-class="(searchParams.sort == 'lastUpdated.desc' && 'current-search-sort')" ng-click="setQuery('sort', 'lastUpdated.desc')"> Recently Updated </a>
 						</div>
 					</div>
 					<div>
@@ -30,7 +30,7 @@
 				<article ng-repeat="item in page.items" id="{{item.id}}" class="search-item">
 					<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
 						<header class="search-item-heading">
-							<a ng-show="desc.data.name" href="/cpf/show/ehri-pers-6959">{{desc.data.name}}</a>
+							<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)">{{desc.data.name}}</a>
 							<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
 								<dt class="hide">Extra datas : </dt> 
 								<dd ng-repeat="extraText in desc.data | extraHeader" class="{{extraText.key}}" title="{{extraText.key}}">{{extraText.content}}</dd>
@@ -49,8 +49,8 @@
 					<div ng-show="(!item.relationships.describes)">
 						<article>
 							<header>
-								<a ng-show="item.data.name" href="/cpf/show/ehri-pers-6959">{{item.data.name}}</a>
-								<a ng-show="!(item.data.name)" href="/cpf/show/ehri-pers-6959">{{item.data.identifier}}</a>
+								<a ng-show="item.data.name" ng-click="getLink(item.type, item.id)">{{item.data.name}}</a>
+								<a ng-show="!(item.data.name)" ng-click="getLink(item.type, item.id)">{{item.data.identifier}}</a>
 							</header>
 							<footer>
 								<ul class="unstyled muted inline inline-separator">

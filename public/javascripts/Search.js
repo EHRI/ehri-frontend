@@ -1,4 +1,12 @@
-var portal = angular.module('portalSearch', ['ui.bootstrap' ]).
+var portal = angular.module('portalSearch', ['ui.bootstrap' ], function ($provide) {
+    $provide.factory('$service', function() {
+      return {
+        redirectUrl: function(type, id) {
+          return jsRoutes.controllers.Application.getType(type, id).url;
+        }
+      };
+    });
+  }).
 	config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
 		when('/', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl, reloadOnSearch: false}).
@@ -85,15 +93,19 @@ portal
 		}
 	});
 
-function SearchCtrl($scope, $http, $routeParams, $location) {
+function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 	//Scope var
 	$scope.searchParams = {};
 	$scope.langFilter = "en";
+	
+	$scope.searchParams['sort'] = 'score.desc';
 	
 	$scope.currentPage = 1; //Current page of pagination
 	$scope.justLoaded = false;
 	$scope.maxSize = 10; // Number of pagination buttons shown
 	$scope.numPages = false; // Number of pages (get from query)
+	
+	$scope.lastFilter = false;
 	
 	//Watch for page click
 	$scope.$watch("currentPage", function (newValue) {
@@ -115,12 +127,17 @@ function SearchCtrl($scope, $http, $routeParams, $location) {
 			{
 				$scope.searchTerm = value;
 			}
+			else if(key == "page")
+			{
+				$scope.currentPage = parseInt(value);
+				//console.log($scope.currentPage);
+			}
 		});
 	}
 	
 	//Query functions
 	$scope.setQuery = function(type, q) {
-		if($scope.searchParams[type] == q)
+		if($scope.searchParams[type] == q && type != 'page' && type != 'q' && type != 'sort')
 		{
 			$scope.removeFilterByKey(type);
 			$location.search('page', null);
@@ -132,6 +149,7 @@ function SearchCtrl($scope, $http, $routeParams, $location) {
 				$location.search('page', null);
 				delete $scope.searchParams.page;
 			}
+			$scope.lastFilter = type;
 			$scope.searchParams[type] = q;
 			$location.search(type, q);
 			
@@ -157,6 +175,9 @@ function SearchCtrl($scope, $http, $routeParams, $location) {
 			$scope.page = data.page;
 			$scope.facets = data.facets;
 			$scope.numPages = data.numPages;
+		}).error(function() { 
+			$scope.removeFilterByKey($scope.lastFilter);
+			alert('Server error, reloading datas');
 		});
 	}
 	
@@ -182,6 +203,12 @@ function SearchCtrl($scope, $http, $routeParams, $location) {
 		});
 		$scope.doSearch();
 		return true;
+	}
+	
+	$scope.getLink = function(type,id) {
+		console.log(type);
+		console.log($service.redirectUrl(type, id));
+        location.href = $service.redirectUrl(type, id);
 	}
 	
 /**********
