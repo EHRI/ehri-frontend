@@ -48,7 +48,7 @@ object Countries extends CRUD[CountryF,Country]
 
   def search = searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.search.search(page, params, facets, routes.Countries.search))
+    Ok(views.html.country.search(page, params, facets, routes.Countries.search))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
