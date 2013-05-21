@@ -12,28 +12,24 @@
         <tr>
         <th></th>
         @PermissionType.values.toList.map { perm =>
-            @if(perm != PermissionType.Owner) {
-                <th>@Messages("permissionTypes." + perm.toString)</th>
-            }
+            <th>@Messages("permissionTypes." + perm.toString)</th>
         }
         </tr>
         @contentTypes.map { ct =>
             <tr>
                 <td>@Messages("contentTypes." + ct)</td>
                 @PermissionType.values.toList.map { perm =>
-                    @if(perm != PermissionType.Owner) {
-                        <td>
-                        @defining(perms.get(ct, perm)) { permOpt =>
-                            <input type="checkbox" name="@ct" value="@perm"
-                            @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
-                                checked
-                            } />
-                            @permOpt.flatMap(_.inheritedFrom).map { user =>
-                                <span title="@Messages("permissions.inheritedFrom", user)">*</span>
-                            }
+                    <td>
+                    @defining(perms.get(ct, perm)) { permOpt =>
+                        <input type="checkbox" name="@ct" value="@perm"
+                        @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
+                            checked
+                        } />
+                        @permOpt.flatMap(_.inheritedFrom).map { user =>
+                            <span title="@Messages("permissions.inheritedFrom", user)">*</span>
                         }
-                        </td>
                     }
+                    </td>
                 }
             </tr>
         }
