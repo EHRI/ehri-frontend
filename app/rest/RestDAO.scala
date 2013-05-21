@@ -131,6 +131,7 @@ trait RestDAO {
 
         case UNAUTHORIZED => response.json.validate[PermissionDenied].fold(
           valid = { perm =>
+            Logger.logger.error("Permission denied error! : {}", response.json)
             Left(perm)
           },
           invalid = { e =>

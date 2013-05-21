@@ -269,5 +269,21 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] {
       }
     }
   }
+
+  /**
+   * Delete a link.
+   * @param id
+   * @return
+   */
+  def deleteLink(id: String, linkId: String) = withItemPermission(id, PermissionType.Annotate, contentType) { bool => implicit userOpt => implicit request =>
+    AsyncRest {
+      LinkDAO(userOpt).deleteLink(id, linkId).map { boolOrErr =>
+        boolOrErr.right.map { ok =>
+          Ok(Json.toJson(ok))
+        }
+      }
+    }
+  }
+
 }
 

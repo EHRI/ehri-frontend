@@ -89,6 +89,7 @@ GET     /docs/accessPoints/:id/:desc   controllers.DocumentaryUnits.manageAccess
 POST    /docs/accessPoints/create/:id/:desc   controllers.DocumentaryUnits.createAccessPoint(id: String, desc: String)
 GET     /docs/accessPointsJs/:id   controllers.DocumentaryUnits.getAccessPointsJson(id: String)
 POST    /docs/deleteAccessPoint/:id/:accessPoint  controllers.DocumentaryUnits.deleteAccessPoint(id: String, accessPoint: String)
+POST    /docs/deleteLink/:id/:link  controllers.DocumentaryUnits.deleteLink(id: String, link: String)
 
 GET     /admin/users                controllers.UserProfiles.search
 GET     /admin/users/list           controllers.UserProfiles.list

@@ -63,6 +63,18 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
   }
 
   /**
+   * Remove a link on an item.
+   */
+  def deleteLink(id: String, linkId: String): Future[Either[RestError,Boolean]] = {
+    WS.url(enc(requestUrl, "for", id, linkId))
+      .withHeaders(authHeaders.toSeq: _*)
+      .delete.map { response =>
+      checkError(response).right.map(r => true)
+    }
+  }
+
+
+  /**
    * Remove an access point for a given item.
    * TODO: When the linking api gets sorted out, move
    * this somewhere better.

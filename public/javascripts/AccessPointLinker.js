@@ -33,7 +33,7 @@
         createMultipleLinks: jsRoutes.controllers.DocumentaryUnits.createMultipleLinks,
         createAccessPoint: jsRoutes.controllers.DocumentaryUnits.createAccessPoint,
         getAccessPoints: jsRoutes.controllers.DocumentaryUnits.getAccessPointsJson,
-        deleteLink: jsRoutes.controllers.Links.deletePost,
+        deleteLink: jsRoutes.controllers.DocumentaryUnits.deleteLink,
         deleteAccessPoint: jsRoutes.controllers.DocumentaryUnits.deleteAccessPoint,
         redirectUrl: function(id) {
           return jsRoutes.controllers.DocumentaryUnits.get(id).url;
@@ -276,7 +276,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
       .open()
       .then(function(result) {
         if (result == 1) {
-          $service.deleteLink(accessLinkId).ajax({
+          $service.deleteLink($scope.itemId, accessLinkId).ajax({
             headers: {"Accept": "application/json; charset=utf-8"},
             success: function(data) {
               if (data === true) {
