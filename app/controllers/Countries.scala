@@ -15,7 +15,7 @@ object Countries extends CRUD[CountryF,Country]
   with EntityAnnotate[Country]
   with EntitySearch {
 
-  val targetContentTypes = Seq(ContentType.Repository)
+  val targetContentTypes = Seq(ContentType.Repository, ContentType.DocumentaryUnit)
 
   override def processParams(params: ListParams): rest.RestPageParams = {
     params.toRestParams(Repositories.listFilterMappings, Repositories.orderMappings, Some(Repositories.DEFAULT_SORT))
