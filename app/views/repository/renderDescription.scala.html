@@ -13,8 +13,9 @@
     }
 
     @descriptionSection(ADDRESS_AREA) {
-        @desc.addresses.map { address =>
-            <address class="well well-small" title="@address.stringProperty(ADDRESS_NAME)">
+        <div class="inline-block well well-small" style="display: inline-block">
+        @desc.addresses.zipWithIndex.map { case (address, i) =>
+            <address title="@address.stringProperty(ADDRESS_NAME)">
                 @address.stringProperty(ADDRESS_NAME).map { an =>
                     <strong>@an</strong><br/>
                 }
@@ -41,6 +42,7 @@
                 }
             </address>
         }
+        </div>
     }
 
     @descriptionSection(DESCRIPTION_AREA) {
