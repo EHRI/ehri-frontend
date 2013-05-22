@@ -1,20 +1,23 @@
-<div class=="container-fluid">
-	<section class="row-fluid">
+<div>
+	<section >
 	
-		<section class="span12 result-column">
+		<section class="result-column">
 		
-				<article>
+			<article>
 					<header>
 						<!--<h1>Search</h1>-->
 				
-					<form id="search-form">
-						<div class="input-append search-query">
-							<input class="input-block-level span11" type="text" autofocus="" ng-change="setQuery('q', searchTerm)" ng-model="searchTerm">
-							<button class="btn" ng-click="setQuery('q', searchTerm)">
-								<i class="icon-search"></i>
-								Search
-							</button>
+					<form class="search-bar">
+						<!--
+						<div class="search-bar-wrapper">
+							<div class="search-bar">
+								<input type="text" autofocus="" ng-change="setQuery('q', searchTerm)" ng-model="searchTerm" placeholder="Type your query here"/>
+								<button>
+									<i class="icon-search"></i>
+								</button>
+							</div>
 						</div>
+						-->
 						<nav class="navbar">
 							<div class="navbar-inner">
 								<ul class="nav">
@@ -40,58 +43,69 @@
 										</ul>
 									</li>
 								</ul>
-								<div class="navbar-form pull-right span1">
-									<input class="span12" type="text" placeholder="Go To" ng-model="currentPage" />
+								<div class="navbar-form pull-right">
+									<input type="text" class="input input-small" placeholder="Go To" ng-model="currentPage" />
 								</div>
 							</div>
-						</nav>	
+						</nav>
+						</div>
+						
 					</form>
-					<p class="muted">
-						<small>
-							<em>
-								Displaying item {{(page.offset + 1)}} to {{(page.limit + page.offset)}} of {{page.total}}
-							</em>
-						</small>
-					</p>
-				</header>
-				<article ng-repeat="item in page.items" id="{{item.id}}" class="search-item">
-					
-					<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
-						<header>
-							<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
-							<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a>
-							
-						</header>
-						
-						<p>
-							<b>{{item.type}}</b> - 
-							{{(desc.data.biographicalHistory.length > 360 && (desc.data.biographicalHistory.substring(0, 360) + '...')) || desc.data.biographicalHistory}}
+					<div class="container">
+						<div class="row" style="position:relative;">
+							<input type="text" class="span12" autofocus="" ng-change="setQuery('q', searchTerm)" ng-model="searchTerm" placeholder="Type your query here"/>
+							<button class="btn" style="position:absolute; top:0; line-height:20px; height:20px; right:20px; background:transparent; padding:4; border:0; box-shadow:none;">
+								<i class="icon-search"></i>
+							</button>
+						</div>
+						<p class="muted">
+							<small>
+								<em>
+									Displaying item {{(page.offset + 1)}} to {{(page.limit + page.offset)}} of {{page.total}}
+								</em>
+							</small>
 						</p>
-						
-						<footer>
-							<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
-								<dt class="hide">Extra datas : </dt> 
-								<dd ng-repeat="extraText in desc.data | extraHeader" class="{{extraText.key}}" title="{{extraText.key}}">{{extraText.content}}</dd>
-							</dl>
-						</footer>
 					</div>
-					
-					<div ng-show="(!item.relationships.describes)">
-						<article>
-							<header>
-								<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
-								<a ng-click="getLink(item.type, item.id)">
-									<b>{{item.data.name || item.data.identifier}}</b>
-								</a>
-							</header>
-								<p><b>{{item.type}}</b></p>
+					</header>
+					<footer class="pull-right">
+						<pagination num-pages="numPages" current-page="currentPage" class="pagination-vertical" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
+					</footer>
+					<div class="container-fluid">
+						<article ng-repeat="item in page.items" id="{{item.id}}" class="search-item">
+							
+							<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+								<header>
+									<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+									<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a>
+									
+								</header>
+								
+								<p>
+									<b>{{item.type}}</b> - 
+									{{(desc.data.biographicalHistory.length > 360 && (desc.data.biographicalHistory.substring(0, 360) + '...')) || desc.data.biographicalHistory}}
+								</p>
+								
+								<footer>
+									<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
+										<dt class="hide">Extra datas : </dt> 
+										<dd ng-repeat="extraText in desc.data | extraHeader" class="{{extraText.key}}" title="{{extraText.key}}">{{extraText.content}}</dd>
+									</dl>
+								</footer>
+							</div>
+							
+							<div ng-show="(!item.relationships.describes)">
+								<article>
+									<header>
+										<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+										<a ng-click="getLink(item.type, item.id)">
+											<b>{{item.data.name || item.data.identifier}}</b>
+										</a>
+									</header>
+										<p><b>{{item.type}}</b></p>
+								</article>
+							</div>
 						</article>
 					</div>
-				</article>
-				
-				<footer>
-					<pagination num-pages="numPages" current-page="currentPage" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
-				</footer>
 				
 			</article>
 				

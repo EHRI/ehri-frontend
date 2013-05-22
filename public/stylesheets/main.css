@@ -50,10 +50,20 @@ select.nav-select > option {
 .nav-bar-input {
 	line-height:inherit;
 }
+.search-item {
+	width:80%;
+}
 .search-item p { 
 	text-align:justify;
 	max-height:60px;
 	text-overflow: ellipsis;
 	width:90%;
 	overflow:hidden;
+}
+body { 
+margin-top: 95px;
+}
+
+div.search-bar {
+	
 }

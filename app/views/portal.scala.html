@@ -2,8 +2,11 @@
 
 @title = { }
 @extrascripts = {
-	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
+	<script>
+		var ANGULAR_ROOT = "/assets/javascripts";
+	</script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/Search.js")" type="text/javascript"></script>
 	
@@ -13,12 +16,101 @@
 }
 
 @extrastyles = { 
-	<link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")">
 }
 
-@noSidebarLayout(title, extrascripts, extrastyles) {
-	<div ng-app="portalSearch">
-		<div ng-view ng-initiate="initiate()">
+<!DOCTYPE html>
+<html lang="en" >
+	<head>
+	<title> </title>
+		<link rel="stylesheet" href="@routes.Assets.at("stylesheets/portal.css")" >
+		<link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")" >
+	</head>
+	<body ng-app="portalSearch"> 
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<ul class="nav">
+				
+	<li class=""><a href="/search">Search</a></li>
+
+				
+	<li class="active"><a href="/docs">Collections</a></li>
+
+				
+	<li class=""><a href="/cpf">Authorities</a></li>
+
+				
+	<li class=""><a href="/repository">Repositories</a></li>
+
+				
+	<li class=""><a href="/concepts">Terms</a></li>
+
+				
+					
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								Admin
+								<b class="caret"></b>
+							</a>
+							<ul aria-labelledby="drop3" role="menu" class="dropdown-menu">
+								
+	<li class=""><a href="/admin/users">Users</a></li>
+
+								
+	<li class=""><a href="/admin/group">Groups</a></li>
+
+								
+	<li class=""><a href="/country">Countries</a></li>
+
+								
+	<li class=""><a href="/vocabs">Vocabularies</a></li>
+
+								
+	<li class=""><a href="/sets">Authority Sets</a></li>
+
+								
+	<li class=""><a href="/admin/action">History</a></li>
+
+								<li class="divider" role="presentation"></li>
+								
+	<li class=""><a href="/admin/updateIndex">Refresh Search Index</a></li>
+
+							</ul>
+						</li>
+					
+				
+			</ul>
+			<ul class="nav pull-right">
+				
+					<li class="dropdown">
+						<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+							<span class="nav-collapse collapse responsive-collapse">
+								leponteineptiquegmail.com
+								
+									[Admin]
+								
+							</span>
+							<b class="caret"></b>
+						</a>
+						<ul aria-labelledby="drop3" role="menu" class="dropdown-menu">
+							<li role="presentation"><a href="/admin/users/show/thibault" tabindex="-1" role="menuitem">View Profile</a> </li>
+							<li role="presentation"><a href="/admin/changePassword" tabindex="-1" role="menuitem">Change Password</a></li>
+							<li class="divider" role="presentation"></li>
+							<li>
+								<a id="signout" href="/logout">
+									Sign Out
+									<i class="icon icon-off"></i>
+								</a>
+							</li>
+						</ul>
+					</li>
+				
+			</ul>
 		</div>
 	</div>
-}
+			
+	<div ng-view>
+	
+	</div>
+	@extrascripts
+	</body>
+</html>
