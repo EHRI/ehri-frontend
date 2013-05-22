@@ -11,12 +11,17 @@ import play.api.libs.iteratee.{Concurrent, Enumerator}
 import models.{IsadG,Entity}
 import play.api.Logger
 import concurrent.Future
-import solr.SolrIndexer.{SolrErrorResponse, SolrResponse, SolrUpdateResponse}
+import solr.SolrIndexer._
 import solr.{ItemPage, SearchOrder, SearchParams, SolrIndexer}
 import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.Json
+import solr.SolrIndexer.SolrHeader
+import solr.facet.FieldFacetClass
+import scala.Some
+import solr.SolrIndexer.SolrUpdateResponse
+import solr.SolrIndexer.SolrErrorResponse
 
 
 object Search extends EntitySearch {
@@ -130,15 +135,20 @@ object Search extends EntitySearch {
       solr.SolrIndexer.updateItems(list.toStream, commit = false).map { jobs =>
         jobs.map { response =>
           response match {
+            case r@SolrUpdateResponse(SolrHeader(code, time), Some(SolrError(msg, _))) => {
+              Logger.logger.error(msg)
+              chan.push(wrapMsg(msg))
+              r
+            }
+            case r@SolrUpdateResponse(SolrHeader(code, time), None) => {
+              val msg = s"Batch complete: $entityType (${params.range}, time: ${time})"
+              Logger.logger.info(msg)
+              chan.push(wrapMsg(msg))
+              r
+            }
             case e: SolrErrorResponse => {
               Logger.logger.error(s"Unable to page page data for entity: $entityType, page: ${list}: {}", e.err)
               e
-            }
-            case ok: SolrUpdateResponse => {
-              val msg = s"Batch complete: $entityType (${params.range}, time: ${ok.time})"
-              Logger.logger.info(msg)
-              chan.push(wrapMsg(msg))
-              ok
             }
           }
         }
@@ -157,7 +167,7 @@ object Search extends EntitySearch {
         listOrErr match {
           case Left(err) => {
             Logger.logger.error(s"Unable to page page data for entity: $entityType, page: ${pageNum}: {}", err)
-            Future.successful(List(SolrErrorResponse(listOrErr.left.get)))
+            Future.successful(List(SolrErrorResponse(listOrErr.left.get.getMessage)))
           }
           case Right(page) => updatePage(entityType, params, listOrErr.right.get, chan)
         }
@@ -170,6 +180,7 @@ object Search extends EntitySearch {
       var all: List[Future[List[SolrResponse]]] = entities.map { entity =>
         EntityDAO(entity, userOpt).count().flatMap { countOrErr =>
           if (countOrErr.isLeft) {
+            Logger.logger.error("Unable to fetch first page of data for $entity: " + countOrErr.left.get)
             sys.error(s"Unable to fetch first page of data for $entity: " + countOrErr.left.get)
           }
           val count = countOrErr.right.get
@@ -203,7 +214,12 @@ object Search extends EntitySearch {
       Future.sequence(all).map { results =>
         val totaltime = results.flatten.foldLeft(0) { case (total, result) =>
           result match {
-            case r: SolrUpdateResponse => total + r.time
+            case SolrUpdateResponse(SolrHeader(code, time), None) => {
+              total + time
+            }
+            case SolrUpdateResponse(SolrHeader(code, time), Some(SolrError(msg, _))) => {
+              total
+            }
             case e => total
           }
         }
@@ -214,7 +230,8 @@ object Search extends EntitySearch {
               chan.push(wrapMsg("Error committing Solr data: " + e.err))
             }
             case ok: SolrUpdateResponse => {
-              chan.push(wrapMsg("Committed in " + ok.time))
+              Logger.logger.info("Committing...")
+              chan.push(wrapMsg("Committed in " + ok.responseHeader.time))
             }
           }
           chan.push(wrapMsg(DONE_MESSAGE))
