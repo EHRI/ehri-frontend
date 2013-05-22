@@ -69,7 +69,10 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
     WS.url(enc(requestUrl, "for", id, linkId))
       .withHeaders(authHeaders.toSeq: _*)
       .delete.map { response =>
-      checkError(response).right.map(r => true)
+      checkError(response).right.map { r =>
+        EntityDAO.handleDelete(linkId)
+        true
+      }
     }
   }
 
@@ -80,11 +83,13 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
    * this somewhere better.
    */
   def deleteAccessPoint(id: String): Future[Either[RestError,Boolean]] = {
-    println("DELETEING ACCESS POINT " + enc(requestUrl, "accessPoint", id))
     WS.url(enc(requestUrl, "accessPoint", id))
       .withHeaders(authHeaders.toSeq: _*)
       .delete.map { response =>
-      checkError(response).right.map(r => true)
+      checkError(response).right.map { r =>
+        EntityDAO.handleDelete(id)
+        true
+      }
     }
   }
 
