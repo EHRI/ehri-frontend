@@ -6,12 +6,11 @@ import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json.{ JsArray, JsValue }
 import defines.{EntityType,ContentType}
 import models.Entity
-import play.api.libs.json.Json
 import models.UserProfile
-import java.net.ConnectException
 import models.base.Persistable
-import play.api.Logger
 import play.api.http.Status
+import play.api.Play.current
+import play.api.cache.Cache
 
 
 /**
@@ -32,14 +31,24 @@ case class DescriptionDAO(userProfile: Option[UserProfile] = None) extends RestD
     WS.url(enc(requestUrl, id))
       .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
-      checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
+      checkError(response).right.map { r =>
+        val entity = jsonToEntity(r.json)
+        EntityDAO.handleUpdate(entity)
+        Cache.remove(id)
+        entity
+      }
     }
   }
 
   def updateDescription(id: String, did: String, item: Persistable, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
-      checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
+      checkError(response).right.map { r =>
+        val entity = jsonToEntity(r.json)
+        EntityDAO.handleUpdate(entity)
+        Cache.remove(id)
+        entity
+      }
     }
   }
 
@@ -50,6 +59,7 @@ case class DescriptionDAO(userProfile: Option[UserProfile] = None) extends RestD
         // FIXME: This is unfortunate. Since descriptions are indexed as individual
         // items, deleting one means deleting it individually by ID
         EntityDAO.handleDelete(did)
+        Cache.remove(id)
         r.status == Status.OK
       })
     }
@@ -61,7 +71,10 @@ case class DescriptionDAO(userProfile: Option[UserProfile] = None) extends RestD
     WS.url(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
       .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
-      checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
+      checkError(response).right.map { r =>
+        Cache.remove(id)
+        EntityDAO.handleUpdate(jsonToEntity(r.json))
+      }
     }
   }
 
@@ -72,6 +85,7 @@ case class DescriptionDAO(userProfile: Option[UserProfile] = None) extends RestD
         // FIXME: This is unfortunate. Since descriptions are indexed as individual
         // items, deleting one means deleting it individually by ID
         EntityDAO.handleDelete(did)
+        Cache.remove(id)
         jsonToEntity(r.json)
       })
     }

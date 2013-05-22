@@ -7,9 +7,10 @@ import acl._
 import models.base.Accessor
 import defines._
 import models.{Entity, UserProfile}
-import play.api.libs.json.{Json,JsValue,JsArray}
+import play.api.libs.json.Json
+import play.api.Play.current
+import play.api.cache.Cache
 
-object PermissionDAO
 
 case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extends RestDAO {
 
@@ -20,8 +21,13 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
 
   def get: Future[Either[RestError, GlobalPermissionSet[UserProfile]]] = {
     userProfile.map { up =>
-        WS.url(enc(requestUrl)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-          checkError(response).right.map(r => GlobalPermissionSet(up, r.json))
+        val url = enc(requestUrl, up.id)
+        WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+          checkError(response).right.map { r =>
+            val globalPerms = GlobalPermissionSet(up, r.json)
+            Cache.set(url, globalPerms, cacheTime)
+            globalPerms
+          }
         }
       } getOrElse {
       // If we don't have a user we can't get our own profile, so just return PermissionDenied
@@ -57,24 +63,43 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
   }
 
   def get(user: T): Future[Either[RestError, GlobalPermissionSet[T]]] = {
-    WS.url(enc(requestUrl, user.id))
+    val url = enc(requestUrl, user.id)
+    WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-        checkError(response).right.map(r => GlobalPermissionSet[T](user, r.json))
+        checkError(response).right.map { r =>
+          val gperms = GlobalPermissionSet[T](user, r.json)
+          Cache.set(url, gperms, cacheTime)
+          gperms
+        }
       }
   }
 
   def set(user: T, data: Map[String, List[String]]): Future[Either[RestError, GlobalPermissionSet[T]]] = {
-    WS.url(enc(requestUrl, user.id))
+    val url = enc(requestUrl, user.id)
+    WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
-      checkError(response).right.map(r => GlobalPermissionSet[T](user, r.json))
+      checkError(response).right.map { r =>
+        val gperms = GlobalPermissionSet[T](user, r.json)
+        Cache.set(url, gperms, cacheTime)
+        gperms
+      }
     }
   }
 
   def getItem(contentType: ContentType.Value, id: String): Future[Either[RestError, ItemPermissionSet[UserProfile]]] = {
     userProfile.map { up =>
-      WS.url(enc(requestUrl, up.id, id))
-        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-        checkError(response).right.map(r => ItemPermissionSet[UserProfile](up, contentType, r.json))
+      val url = enc(requestUrl, up.id, id)
+      val cached = Cache.getAs[ItemPermissionSet[UserProfile]](url)
+      if (cached.isDefined) Future.successful(Right(cached.get))
+      else {
+        WS.url(url)
+          .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+          checkError(response).right.map { r =>
+            val iperms = ItemPermissionSet[UserProfile](up, contentType, r.json)
+            Cache.set(url, iperms, cacheTime)
+            iperms
+          }
+        }
       }
     } getOrElse {
       Future.successful(Left(PermissionDenied()))
@@ -82,24 +107,43 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
   }
 
   def getItem(user: T, contentType: ContentType.Value, id: String): Future[Either[RestError, ItemPermissionSet[T]]] = {
-    WS.url(enc(requestUrl, user.id, id))
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-        checkError(response).right.map(r => ItemPermissionSet[T](user, contentType, r.json))
+    val url = enc(requestUrl, user.id, id)
+    val cached = Cache.getAs[ItemPermissionSet[T]](url)
+    if (cached.isDefined) Future.successful(Right(cached.get))
+    else {
+      WS.url(url)
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        checkError(response).right.map { r =>
+          val iperms = ItemPermissionSet[T](user, contentType, r.json)
+          Cache.set(url, iperms, cacheTime)
+          iperms
+        }
       }
+    }
   }
 
   def setItem(user: T, contentType: ContentType.Value, id: String, data: List[String]): Future[Either[RestError, ItemPermissionSet[T]]] = {
-    WS.url(enc(requestUrl, user.id, id))
+    val url = enc(requestUrl, user.id, id)
+    WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
-      checkError(response).right.map(r => ItemPermissionSet[T](user, contentType, r.json))
+      checkError(response).right.map { r =>
+        val iperms = ItemPermissionSet[T](user, contentType, r.json)
+        Cache.set(url, iperms, cacheTime)
+        iperms
+      }
     }
   }
 
   def getScope(id: String): Future[Either[RestError, GlobalPermissionSet[UserProfile]]] = {
     userProfile.map { up =>
-      WS.url(enc(requestUrl, up.id, "scope", id))
+      val url = enc(requestUrl, up.id, "scope", id)
+      WS.url(url)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-        checkError(response).right.map(r => GlobalPermissionSet[UserProfile](up, r.json))
+        checkError(response).right.map { r =>
+          val sperms = GlobalPermissionSet[UserProfile](up, r.json)
+          Cache.set(url, sperms, cacheTime)
+          sperms
+        }
       }
     } getOrElse {
       Future.successful(Left(PermissionDenied()))
@@ -107,30 +151,46 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
   }
 
   def getScope(user: T, id: String): Future[Either[RestError, GlobalPermissionSet[T]]] = {
-    WS.url(enc(requestUrl, user.id, "scope", id))
+    val url = enc(requestUrl, user.id, "scope", id)
+    WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => GlobalPermissionSet[T](user, r.json))
+      checkError(response).right.map { r =>
+        val sperms = GlobalPermissionSet[T](user, r.json)
+        Cache.set(url, sperms, cacheTime)
+        sperms
+      }
     }
   }
 
   def setScope(user: T, id: String, data: Map[String,List[String]]): Future[Either[RestError, GlobalPermissionSet[T]]] = {
-    WS.url(enc(requestUrl, user.id, "scope", id))
+    val url = enc(requestUrl, user.id, "scope", id)
+    WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
-      checkError(response).right.map(r => GlobalPermissionSet[T](user, r.json))
+      checkError(response).right.map { r =>
+        val sperms = GlobalPermissionSet[T](user, r.json)
+        Cache.set(url, sperms, cacheTime)
+        sperms
+      }
     }
   }
 
   def addGroup(groupId: String, userId: String): Future[Either[RestError, Boolean]] = {
     WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
       .withHeaders(authHeaders.toSeq: _*).post(Map[String, List[String]]()).map { response =>
-        checkError(response).right.map(r => r.status == OK)
+        checkError(response).right.map { r =>
+          Cache.remove(userId)
+          r.status == OK
+        }
       }
   }
 
   def removeGroup(groupId: String, userId: String): Future[Either[RestError, Boolean]] = {
     WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
       .withHeaders(authHeaders.toSeq: _*).delete.map { response =>
-        checkError(response).right.map(r => r.status == OK)
+        checkError(response).right.map { r =>
+          Cache.remove(userId)
+          r.status == OK
+        }
       }
   }
 }

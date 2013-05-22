@@ -9,6 +9,8 @@ import models.Entity
 import models.UserProfile
 import models.base.Persistable
 import play.api.Logger
+import play.api.Play.current
+import play.api.cache.Cache
 
 /**
  * Class representing a page of data.
@@ -146,8 +148,16 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
 
   def get(id: String): Future[Either[RestError, Entity]] = {
     Logger.logger.debug(enc(requestUrl, id))
-    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => jsonToEntity(r.json))
+    val cached = Cache.getAs[Entity](id)
+    if (cached.isDefined) Future.successful(Right(cached.get))
+    else {
+      WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        checkError(response).right.map { r =>
+          val entity = jsonToEntity(r.json)
+          Cache.set(id, entity, cacheTime)
+          entity
+        }
+      }
     }
   }
 
@@ -184,7 +194,12 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     Logger.logger.debug("Posting update: {}", item)
     WS.url(enc(requestUrl, id)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
-        checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
+        checkError(response).right.map { r =>
+          val entity = jsonToEntity(r.json)
+          EntityDAO.handleUpdate(entity)
+          Cache.set(id, entity, cacheTime)
+          entity
+        }
     }
   }
 
@@ -193,6 +208,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
         EntityDAO.handleDelete(id)
+        Cache.remove(id)
         r.status == OK
       })
     }
