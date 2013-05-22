@@ -20,7 +20,7 @@
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.Country, PermissionType.Create)) {
+            @if(user.hasPermission(ContentType.Repository, PermissionType.Create)) {
                 <li><a href="@routes.Countries.createRepository(item.id)">@Messages("actions.createRepository")</a></li>
             }
             @if(user.hasPermission(ContentType.Country, PermissionType.Update)) {
