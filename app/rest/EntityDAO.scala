@@ -147,10 +147,10 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
   def get(id: String): Future[Either[RestError, Entity]] = {
-    Logger.logger.debug(enc(requestUrl, id))
     val cached = Cache.getAs[Entity](id)
     if (cached.isDefined) Future.successful(Right(cached.get))
     else {
+      Logger.logger.debug("GET {} ", enc(requestUrl, id))
       WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkError(response).right.map { r =>
           val entity = jsonToEntity(r.json)
