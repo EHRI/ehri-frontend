@@ -61,51 +61,58 @@
 						<p class="muted">
 							<small>
 								<em>
-									Displaying item {{(page.offset + 1)}} to {{(page.limit + page.offset)}} of {{page.total}}
+									Displaying item {{(page.offset + 1)}} to {{((page.limit + page.offset) && ((page.limit + page.offset) < page.total)) || page.total}} of {{page.total}}
 								</em>
 							</small>
 						</p>
 					</div>
 					</header>
-					<footer class="pull-right">
-						<pagination num-pages="numPages" current-page="currentPage" class="pagination-vertical" previous-text="&laquo;" next-text="&raquo;" max-size="maxSize"></pagination>
-					</footer>
 					<div class="container-fluid">
-						<article ng-repeat="item in page.items" id="{{item.id}}" class="search-item">
-							
-							<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
-								<header>
-									<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
-									<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a>
-									
-								</header>
-								
-								<p>
-									<b>{{item.type}}</b> - 
-									{{(desc.data.biographicalHistory.length > 360 && (desc.data.biographicalHistory.substring(0, 360) + '...')) || desc.data.biographicalHistory}}
-								</p>
-								
-								<footer>
-									<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
-										<dt class="hide">Extra datas : </dt> 
-										<dd ng-repeat="extraText in desc.data | extraHeader" class="{{extraText.key}}" title="{{extraText.key}}">{{extraText.content}}</dd>
-									</dl>
-								</footer>
+						<div class="row-fluid">
+							<div class="span2">
+								Notes/Document Browser ?
 							</div>
-							
-							<div ng-show="(!item.relationships.describes)">
-								<article>
-									<header>
-										<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
-										<a ng-click="getLink(item.type, item.id)">
-											<b>{{item.data.name || item.data.identifier}}</b>
-										</a>
-									</header>
-										<p><b>{{item.type}}</b></p>
+							<div id="content" class="span8">
+								<article id="{{item.id}}" class="search-item" ng-repeat="item in page.items">
+									<!-- If desc inside relationship -->
+									<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+										<header>
+											<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+											<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a>
+											
+										</header>
+										
+										<p>
+											<b>{{item.type}}</b> - 
+											{{(desc.data.biographicalHistory.length > 360 && (desc.data.biographicalHistory.substring(0, 360) + '...')) || desc.data.biographicalHistory}}
+										</p>
+										
+										<footer>
+											<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
+												<dt class="hide">Extra datas : </dt> 
+												<dd ng-repeat="extraText in desc.data | extraHeader" class="{{extraText.key}}" title="{{extraText.key}}">{{extraText.content}}</dd>
+											</dl>
+										</footer>
+									</div>
+									
+									<!-- If desc not inside relationship -->
+									<div ng-show="(!item.relationships.describes)">
+										<header>
+											<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+											<a ng-click="getLink(item.type, item.id)">
+												<b>{{item.data.name || item.data.identifier}}</b>
+											</a>
+										</header>
+											<p><b>{{item.type}}</b></p>
+									</div>
 								</article>
 							</div>
-						</article>
+							<div class="span2">
+								DETAILS ?
+							</div>
+						</div>
 					</div>
+						
 				
 			</article>
 				

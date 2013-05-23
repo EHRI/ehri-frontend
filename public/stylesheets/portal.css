@@ -3738,6 +3738,19 @@ input[type="submit"].btn.btn-mini {
 .navbar .brand:focus {
   text-decoration: none;
 }
+.navbar-fixed-top .brand {
+  float: left;
+  display: block;
+  padding: 37.5px 20px 37.5px;
+  margin-left: -20px;
+  font-size: 20px;
+  font-weight: 200;
+  color: #777777;
+}
+.navbar-fixed-top .brand:hover,
+.navbar-fixed-top .brand:focus {
+  text-decoration: none;
+}
 .navbar-text {
   margin-bottom: 0;
   line-height: 40px;
@@ -3847,7 +3860,7 @@ input[type="submit"].btn.btn-mini {
 .navbar-static-top .navbar-inner {
   border-width: 0 0 1px;
   min-height: 95px;
-  background-color: #59008c;
+  background-color: #36114f;
   color: #ffffff;
   border: none;
   -webkit-border-radius: 4px;
@@ -3867,6 +3880,9 @@ form.search-bar .navbar .navbar-inner {
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
+}
+.navbar-fixed-bottom .navbar-inner {
+  background-color: #ffffff;
 }
 .navbar-static-top .container,
 .navbar-fixed-top .container,
@@ -3906,13 +3922,16 @@ form.search-bar .navbar .navbar-inner {
   float: left;
 }
 .navbar-fixed-top .nav > li > a {
-  padding: 37.5px 15px 37.5px !important;
+  min-width: 95px;
+  text-align: center;
+  padding: 27.5px 15px 27.5px !important;
 }
 .navbar .nav > li > a {
   float: none;
   padding: 10px 15px 10px;
   color: #777777;
   text-decoration: none;
+  font-weight: bold;
 }
 .navbar-fixed-top .nav > li > a {
   float: none;
@@ -3950,7 +3969,7 @@ form.search-bar .navbar .navbar-inner {
 .navbar-fixed-top .nav > .active > a:focus {
   color: #ffffff;
   text-decoration: none;
-  background-color: #490073;
+  background-color: #280c3a;
   -webkit-box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
   -moz-box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
   box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
@@ -4057,7 +4076,7 @@ form.search-bar .navbar .navbar-inner {
 .navbar-fixed-top .nav li.dropdown.open > .dropdown-toggle,
 .navbar-fixed-top .nav li.dropdown.active > .dropdown-toggle,
 .navbar-fixed-top .nav li.dropdown.open.active > .dropdown-toggle {
-  background-color: #490073;
+  background-color: #280c3a;
   color: #ffffff;
 }
 .search-bar .nav li.dropdown.open > .dropdown-toggle,
@@ -4393,9 +4412,13 @@ form.search-bar .navbar .navbar-inner {
 .pagination-vertical ul > li > span {
   display: block;
   float: none;
+  margin: 0;
+  width: 40px;
+  padding: 0;
 }
 .pagination-vertical ul {
   width: 40px;
+  margin: 0;
 }
 .pagination-vertical ul > li > a,
 .pagination-vertical ul > li > span {
@@ -5360,6 +5383,85 @@ div.search-bar > input {
 
   width: 100%;
   border: none;
+}
+.alternative {
+  margin-right: 10px!important;
+}
+.alternative .alternative-hover {
+  padding: 0;
+  margin: 0;
+  width: 95px;
+  height: 95px;
+}
+.alternative .alternative-hover .alternative-content {
+  display: none;
+}
+.alternative .alternative-hover .alternative-content > a {
+  color: #ffffff !important;
+}
+.alternative .alternative-hover .alternative-content > a:hover,
+.alternative .alternative-hover .alternative-content > a:active {
+  text-decoration: none;
+}
+.alternative .alternative-hover .alternative-title {
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+.alternative .alternative-hover .alternative-title > a {
+  color: #ffffff !important;
+}
+.alternative .alternative-hover .alternative-title > a:hover,
+.alternative .alternative-hover .alternative-title > a:active {
+  text-decoration: none;
+}
+.alternative .alternative-hover:hover .alternative-content {
+  display: block;
+}
+.alternative .alternative-hover:hover .alternative-title {
+  display: none;
+}
+.navbar-fixed-top table.groupicon {
+  width: 85px;
+  margin: 0 5px;
+  height: 95px;
+  border: 0;
+  padding: 0;
+}
+.navbar-fixed-top table.groupicon > tbody > tr {
+  padding: 0;
+  margin: 0;
+}
+.navbar-fixed-top table.groupicon > tbody > tr > td {
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+.navbar-fixed-top table.groupicon > tbody > tr > td > a {
+  color: #ffffff !important;
+}
+.navbar-fixed-top table.groupicon > tbody > tr > td > a:hover,
+.navbar-fixed-top table.groupicon > tbody > tr > td > a:active {
+  text-decoration: none;
+}
+.navbar-fixed-top table.groupicon > tbody > tr > td > ul {
+  color: #333333;
+}
+.navbar-fixed-top table.groupicon > tbody > tr.icon > td {
+  width: 33%;
+}
+.navbar-fixed-top table.groupicon > tbody > tr.text > td {
+  width: 100%;
+}
+.navbar-fixed-top table.groupicon > tbody > tr.text-x2 {
+  height: 63.333333333333336px;
+}
+.navbar-fixed-top table.groupicon > tbody > tr.text-x2 > td {
+  width: 100%;
+  vertical-align: middle;
+}
+.navbar-fixed-top .groupicon a [class="icon-"] {
+  color: #fff!important;
 }
 .pull-right {
   float: right;

@@ -51,7 +51,7 @@ select.nav-select > option {
 	line-height:inherit;
 }
 .search-item {
-	width:80%;
+	/*width:80%;*/
 }
 .search-item p { 
 	text-align:justify;
@@ -62,8 +62,8 @@ select.nav-select > option {
 }
 body { 
 margin-top: 95px;
+margin-bottom:65px;
 }
-
 div.search-bar {
 	
 }

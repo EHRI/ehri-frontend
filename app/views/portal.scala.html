@@ -24,92 +24,130 @@
 	<title> </title>
 		<link rel="stylesheet" href="@routes.Assets.at("stylesheets/portal.css")" >
 		<link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")" >
+		<link rel="stylesheet" href="@routes.Assets.at("stylesheets/font-awesome.css")" >
 	</head>
-	<body ng-app="portalSearch"> 
+	<body ng-app="portalSearch" > 
 	<div class="navbar navbar-fixed-top">
 		<div class="navbar-inner">
+			<img src="@routes.Assets.at("images/logo2.png")" alt="EHRI" class="pull-left" />
 			<ul class="nav">
-				
-	<li class=""><a href="/search">Search</a></li>
-
-				
-	<li class="active"><a href="/docs">Collections</a></li>
-
-				
-	<li class=""><a href="/cpf">Authorities</a></li>
-
-				
-	<li class=""><a href="/repository">Repositories</a></li>
-
-				
-	<li class=""><a href="/concepts">Terms</a></li>
-
-				
-					
-						<li class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
-								Admin
-								<b class="caret"></b>
-							</a>
-							<ul aria-labelledby="drop3" role="menu" class="dropdown-menu">
-								
-	<li class=""><a href="/admin/users">Users</a></li>
-
-								
-	<li class=""><a href="/admin/group">Groups</a></li>
-
-								
-	<li class=""><a href="/country">Countries</a></li>
-
-								
-	<li class=""><a href="/vocabs">Vocabularies</a></li>
-
-								
-	<li class=""><a href="/sets">Authority Sets</a></li>
-
-								
-	<li class=""><a href="/admin/action">History</a></li>
-
-								<li class="divider" role="presentation"></li>
-								
-	<li class=""><a href="/admin/updateIndex">Refresh Search Index</a></li>
-
-							</ul>
-						</li>
-					
-				
+				<li>
+					<a href="/">
+						<div style="text-align:center;"><i class="icon-search"></i></div>
+						Search
+					</a>
+				</li>
+				<li class="">
+					<a href="/">
+						<div style="text-align:center;"><i class="icon-map-marker"></i></div>
+						Map
+					</a>
+				</li>
 			</ul>
-			<ul class="nav pull-right">
-				
-					<li class="dropdown">
-						<a data-toggle="dropdown" class="dropdown-toggle" href="#">
-							<span class="nav-collapse collapse responsive-collapse">
-								leponteineptiquegmail.com
-								
-									[Admin]
-								
-							</span>
-							<b class="caret"></b>
-						</a>
-						<ul aria-labelledby="drop3" role="menu" class="dropdown-menu">
-							<li role="presentation"><a href="/admin/users/show/thibault" tabindex="-1" role="menuitem">View Profile</a> </li>
-							<li role="presentation"><a href="/admin/changePassword" tabindex="-1" role="menuitem">Change Password</a></li>
-							<li class="divider" role="presentation"></li>
-							<li>
-								<a id="signout" href="/logout">
-									Sign Out
-									<i class="icon icon-off"></i>
-								</a>
-							</li>
-						</ul>
-					</li>
-				
+			<ul class="nav pull-right alternative">
+				<!--
+				<li>
+					<table class="groupicon">
+						<tbody>
+							<tr class="text-x2">
+								<td colspan="3">Account</td>
+							</tr>
+							<tr class="icon">
+								<td class="dropdown">
+									<a class="dropdown-toggle"><i class="icon-edit"></i></a>
+									<ul class="dropdown-menu">
+										<li><h5>My notes</h5></li>
+										<li class="divider"></li> 
+										<li><a href="">Test text</a></li>
+										<li><a href="">Test text</a></li>
+										<li><a href="">Test text</a></li>
+										<li><a href="">Test text</a></li>
+										<li><a href="">Test text</a></li>
+									</ul>
+								</td>
+								<td class="dropdown">
+									<a class="dropdown-toggle"><i class="icon-briefcase"></i></a>
+									<ul class="dropdown-menu">
+										<li><h5>My Folders</h5></li>
+										<li class="divider"></li> 
+										<li><a href="">Test text</a></li>
+										<li><a href="">Test text</a></li>
+										<li><a href="">Test text</a></li>
+										<li><a href="">Test text</a></li>
+										<li><a href="">Test text</a></li>
+									</ul>
+								</td>
+								<td>
+									<i class="icon-group"></i>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</li>
+				-->
+				<li>
+					<a>
+						<div style="text-align:center;"><i class="icon-user"></i></div>
+						leponteineptique[at]gmail.com
+					</a>
+				</li>
+				<li class="alternative-hover">
+					<a class="alternative-title" href="">
+						<div style="text-align:center;"><i class="icon-user"></i></div>
+						Sign In
+					</a>
+					<div class="alternative-content">
+						<table class="groupicon">
+							<tbody>
+								<tr class="icon">
+									<td><i class="icon-facebook"></i></td>
+									<td><i class="icon-twitter"></i></td>
+									<td><i class="icon-linkedin"></i></td>
+								</tr>
+								<tr class="icon">
+									<td><i class="icon-google-plus"></i></td>
+									<td><i class="icon-pinterest"></i></td>
+									<td><i class="icon-plus"></i></td>
+								</tr>
+								<tr class="text">
+									<td colspan="3">Login</td>
+								</tr>
+							</tbody>
+						</table>
+						
+					</div>
+				</li>
 			</ul>
 		</div>
 	</div>
 			
 	<div ng-view>
 	
+	</div>
+	
+	<div class="navbar navbar-fixed-bottom">
+		<div class="navbar-inner">
+			<ul class="nav">
+				<li>
+					<a href="/"><i class="icon-edit"></i> Notes</a>
+				</li>
+				<li class="divider-vertical"></li>
+				<li class="">
+					<a href="/"><i class="icon-briefcase"></i> Saved Documents</a>
+				</li>
+				<li class="divider-vertical"></li>
+				<li class="">
+					<a href="/"><i class="icon-group"></i> People</a>
+				</li>
+			</ul>
+			<ul class="nav pull-right">
+				<li class="divider-vertical"></li>
+				<li><a><i><small>Drop your document here</small></i></a></li>
+				<li>
+					<a href="/"><i class="icon-folder-open"></i> Basket</a>
+				</li>
+			</ul>
+		</div>
 	</div>
 	@extrascripts
 	</body>
