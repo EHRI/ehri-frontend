@@ -1,4 +1,4 @@
-@(item: Vocabulary, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Vocabulary, result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
@@ -8,12 +8,9 @@
         }
     }
 
-    @common.filterableList("vocabulary.toplevelTermsPageHeader", page, params, Concepts.listFilterMappings.keys, Concepts.orderMappings.keys) {
-        <ul>
-            @page.items.map(c => concept.listItem(c))
-        </ul>
+    @views.html.search.searchSection(Messages("vocabulary.items")) {
+        @views.html.search.searchForm(result, params, action, autofocus = false)
     }
-
 } {
     @common.visibility(item, routes.Vocabularies.visibility(item.id), ContentType.Vocabulary)
     @common.latestAction(item, routes.Vocabularies.history(item.id))

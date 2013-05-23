@@ -33,11 +33,6 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))
 
 
-  /*def get(id: String) = getWithChildrenAction(id, HistoricalAgent.apply _) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.authoritativeSet.show(AuthoritativeSet(item), page, params, annotations))
-  }*/
-
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
         page => params => facets => implicit userOpt => implicit request =>

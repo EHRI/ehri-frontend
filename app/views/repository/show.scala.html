@@ -14,6 +14,6 @@
     }
 
     @views.html.search.searchSection(Messages("repository.searchInside", item.toStringAbbr(lang))) {
-        @views.html.search.searchForm(result, params, action)
+        @views.html.search.searchForm(result, params, action, autofocus = false)
     }
 }
