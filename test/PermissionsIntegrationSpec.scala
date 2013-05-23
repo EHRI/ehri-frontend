@@ -37,6 +37,8 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       val countryId = "gb"
       // Country we should NOT be able to write in...
       val otherCountryId = "nl"
+      val otherRepoId = "r1"
+      val otherDocId = "c4"
 
 
       // Create a new group, as our initial (admin) user
@@ -124,6 +126,13 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
         .withHeaders(formPostHeaders.toSeq: _*), repoData).get
       status(repoCreatePost) must equalTo(SEE_OTHER)
 
+      // Test we can NOT create a repository in the other country...
+      val otherRepoCreatePost = route(fakeLoggedInRequest(fakeAccount, POST,
+        routes.Countries.createRepositoryPost(otherCountryId).url)
+          .withHeaders(formPostHeaders.toSeq: _*), repoData).get
+      status(otherRepoCreatePost) must equalTo(UNAUTHORIZED)
+
+
       // Test we can read the new repository
       val repoUrl = redirectLocation(repoCreatePost).get
       val repoId = repoUrl.substring(repoUrl.lastIndexOf("/") + 1)
@@ -132,7 +141,15 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
           controllers.routes.Repositories.get(repoId).url)).get
       status(repoRead) must equalTo(OK)
       contentAsString(repoRead) must contain("A Test Repository")
+
+      // Test we can create docs in this repository
       contentAsString(repoRead) must contain(controllers.routes.Repositories.createDoc(repoId).url)
+
+      // Test we can NOT create docs in repository r1, which is in country NL
+      val otherRepoRead = route(fakeLoggedInRequest(fakeAccount, GET,
+          controllers.routes.Repositories.get(otherRepoId).url)).get
+      status(otherRepoRead) must equalTo(OK)
+      contentAsString(otherRepoRead) must not contain(controllers.routes.Repositories.createDoc(otherRepoId).url)
 
       // Now create a documentary unit...
       val docData = Map(
@@ -154,8 +171,14 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
           controllers.routes.DocumentaryUnits.get(docId).url)).get
       status(docRead) must equalTo(OK)
       contentAsString(docRead) must contain("A new document")
-      contentAsString(docRead) must contain(controllers.routes.DocumentaryUnits.createDoc(repoId).url)
+      contentAsString(docRead) must contain(controllers.routes.DocumentaryUnits.createDoc(docId).url)
 
+      // Test we CAN'T create extra docs in an existing doc (c1)
+      println("Checking cannot create in other doc...")
+      val otherDocRead = route(fakeLoggedInRequest(fakeAccount, GET,
+          controllers.routes.DocumentaryUnits.get(otherDocId).url)).get
+      status(otherDocRead) must equalTo(OK)
+      contentAsString(otherDocRead) must not contain(controllers.routes.DocumentaryUnits.createDoc(otherDocId).url)
 
     }
 
