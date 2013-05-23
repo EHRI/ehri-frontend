@@ -35,7 +35,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
-        page => params => facets => implicit userOpt => implicit request =>
+        page => params => facets => _ => _ =>
       Ok(views.html.authoritativeSet.show(
           AuthoritativeSet(item), page, params, facets, routes.AuthoritativeSets.get(id), annotations, links))
     }(request)

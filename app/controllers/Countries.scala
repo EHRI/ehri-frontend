@@ -39,7 +39,7 @@ object Countries extends CRUD[CountryF,Country]
    */
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction(Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
-        page => params => facets => implicit userOpt => implicit request =>
+        page => params => facets => _ => _ =>
       Ok(views.html.country.show(Country(item), page, params, facets, routes.Countries.get(id), annotations, links))
     }(request)
   }

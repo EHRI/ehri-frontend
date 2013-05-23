@@ -32,7 +32,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
-      page => params => facets => implicit userOpt => implicit request =>
+      page => params => facets => _ => _ =>
         Ok(views.html.vocabulary.show(
           Vocabulary(item), page, params, facets, routes.Vocabularies.get(id), annotations, links))
     }(request)

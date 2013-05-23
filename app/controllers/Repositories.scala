@@ -95,7 +95,7 @@ object Repositories extends EntityRead[Repository]
    */
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
-      page => params => facets => implicit userOpt => implicit request =>
+      page => params => facets => _ => _ =>
         Ok(views.html.repository.show(Repository(item), page, params, facets, routes.Repositories.get(id), annotations, links))
     }(request)
   }
