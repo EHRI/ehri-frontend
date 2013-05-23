@@ -29,7 +29,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
   val userProfile = UserProfile(Entity.fromString(privilegedUser.profile_id, EntityType.UserProfile)
     .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
 
-  "Full-service permissions test should" should {
+  "Full-service permissions test" should {
 
     "run correctly" in new FakeApp {
 
