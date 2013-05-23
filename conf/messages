@@ -36,6 +36,7 @@ search.identifier=Identifier
 search.lastUpdated.desc=Recently Updated
 search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descriptions}
 search.spellingSuggestion=Did you mean
+search.queryPlaceholder=Search...
 
 footer.footerText=This is a development version of the EHRI data entry interface.
 
@@ -131,8 +132,13 @@ concept.narrowerTerms=Narrower Terms
 concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.description=Description
+
+#
+# Countries
+#
 country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
 country.search=Search Countries
+country.searchInside=Search Repositories
 
 #
 # Authority set
@@ -353,6 +359,7 @@ documentaryUnit.search=Search Top-level Descriptions
 # Repositories
 #
 repository.search=Search Repositories
+repository.searchInside=Search items held by {0}
 
 #
 # Historical Agents

@@ -32,10 +32,16 @@ object Countries extends CRUD[CountryF,Country]
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
-  def get(id: String) = getWithChildrenAction(id) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.country.show(
-        Country(item), page.copy(items = page.items.map(Repository.apply)), params, annotations))
+  /**
+   * Search repositories inside this country.
+   * @param id
+   * @return
+   */
+  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+    searchAction(Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
+        page => params => facets => implicit userOpt => implicit request =>
+      Ok(views.html.country.show(Country(item), page, params, facets, routes.Countries.get(id), annotations, links))
+    }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
