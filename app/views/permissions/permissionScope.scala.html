@@ -1,7 +1,7 @@
 @(item: AccessibleEntity, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("actions.manageScopedPermissionsForAccessor", item), breadcrumbs = common.breadcrumbs(List(item))) {
     <div class="well well-small muted">

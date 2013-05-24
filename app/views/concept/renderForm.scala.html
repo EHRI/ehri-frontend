@@ -2,7 +2,7 @@
 
 @import models.ConceptF._
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @helper.inputText(f(Entity.IDENTIFIER), '_label -> Messages(Entity.IDENTIFIER))
 

@@ -1,7 +1,7 @@
 @(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("actions.updateGlobalPermissions", item.name), breadcrumbs = common.breadcrumbs(List(item))) {
 	

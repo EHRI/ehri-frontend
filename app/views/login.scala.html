@@ -1,6 +1,6 @@
 @(form: Form[(String)], action: Call)(implicit userOpt: Option[sql.User], request: RequestHeader, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @openIdJquery = {
     <script type="application/javascript">

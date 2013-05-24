@@ -3,7 +3,7 @@
 @import Isaar._
 @import formHelpers._
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @lineInput(f(""), IDENTIFIER)(prefix = FIELD_PREFIX)
 

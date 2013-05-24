@@ -1,7 +1,7 @@
 @(item: AccessibleEntity, itemPage: rest.Page[PermissionGrant], scopePage: rest.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("actions.managePermissions", item), breadcrumbs = common.breadcrumbs(List(item))) {
 

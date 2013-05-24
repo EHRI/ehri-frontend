@@ -1,6 +1,6 @@
 @(item: Accessor, page: rest.Page[PermissionGrant])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("permissionGrant.heading", item), breadcrumbs = common.breadcrumbs(List(item))) {
     @permissions.permissionList(Some(item), page)
