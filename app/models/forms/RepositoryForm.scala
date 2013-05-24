@@ -15,7 +15,7 @@ object RepositoryForm {
   val form = Form(
     mapping(
       Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText,
+      Entity.IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures
       PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
       DescribedEntity.DESCRIPTIONS -> list(IsdiahForm.form.mapping),
       PRIORITY -> optional(number(min = -1, max = 5))

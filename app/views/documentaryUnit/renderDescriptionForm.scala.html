@@ -5,12 +5,14 @@
 @import formHelpers._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
 <div class="description-form" id="@desc("form").id">
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
 
     @descriptionFormSection(IDENTITY_AREA) {
         @hiddenInput(desc(Entity.ID))
         @lineInput(desc, TITLE)
+
         <div class="inline-element-set control-group">
             <!-- Template for adding inline date forms via JS -->
             <label class="control-label">@Messages(fieldPrefix + "." + DATES)</label>

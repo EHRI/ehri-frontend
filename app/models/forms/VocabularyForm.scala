@@ -14,7 +14,7 @@ object VocabularyForm {
   val form = Form(
     mapping(
       Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText,
+      Entity.IDENTIFIER -> nonEmptyText(minLength=3),
       NAME -> optional(nonEmptyText),
       DESCRIPTION -> optional(nonEmptyText)
     )(VocabularyF.apply)(VocabularyF.unapply)

@@ -21,6 +21,8 @@ forms.search=Search
 
 # Form errors.
 error.date=Date is incorrect or badly formatted
+error.required=Required
+constraint.required=*
 
 search.type=Item Type
 search.filterItems=Filter Items

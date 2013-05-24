@@ -29,7 +29,7 @@ package object json {
             "accruals" : "",
             "archivalHistory" : "",
             "acquisition" : "Jewish Central Information Office",
-            "title" : "Jüdische Volkspartei:  Appeal regarding leadership",
+            "name" : "Jüdische Volkspartei:  Appeal regarding leadership",
             "languageCode" : "en",
             "depthOfDescription" : 0,
             "extentAndMedium" : "1 item",

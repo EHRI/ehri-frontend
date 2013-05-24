@@ -1,6 +1,6 @@
 @(item: AccessibleEntity, f: Form[DocumentaryUnitF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
- 
+
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @breadcrumbs = {
@@ -29,5 +29,5 @@
 		@common.submitButtonWithLogMessageInput(Messages("submitButton.createDocumentaryUnit"))
 	}
 } {
-   @documentaryUnit.formNav();
+   @documentaryUnit.formNav()
 }

@@ -184,7 +184,10 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
     "give a form error when creating items with an existing identifier" in new FakeApp {
       val testData: Map[String, Seq[String]] = Map(
-        "identifier" -> Seq("a1")
+        "identifier" -> Seq("a1"),
+        "descriptions[0].name" -> Seq("A test"),
+        "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
+        "descriptions[0].languageCode" -> Seq("en")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
         routes.AuthoritativeSets
