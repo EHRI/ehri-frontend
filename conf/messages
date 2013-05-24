@@ -339,10 +339,15 @@ visibility.chooseGroups=Choose Groups
 # User Profile Field definitions
 #
 profile.identifier=Identifier
+profile.identifier.description=Your user name
 profile.name=Name
+profile.name.description=Your full name
 profile.about=About
+profile.about.description=
 profile.languages=Languages
+profile.languages.description=Languages you speak.
 profile.location=Location
+profile.location.description=
 profile.noLocationGiven=No location given
 profile.noLanguagesGiven=No languages given
 profile.noBioGiven=No biography given
