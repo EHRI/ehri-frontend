@@ -1,5 +1,6 @@
 package controllers
 
+import play.api.mvc._
 import models.{Repository,Country,CountryF,RepositoryF}
 import models.forms.{AnnotationForm, VisibilityForm}
 import play.api._
@@ -15,6 +16,14 @@ object Countries extends CRUD[CountryF,Country]
   with EntityAnnotate[Country]
   with EntitySearch {
 
+  /**
+   * Since we generate IDs ourself, set the format.
+   */
+  final val idFormat = "%06d"
+
+  /**
+   * Content types that relate to this controller.
+   */
   val targetContentTypes = Seq(ContentType.Repository, ContentType.DocumentaryUnit)
 
   override def processParams(params: ListParams): rest.RestPageParams = {
@@ -86,10 +95,50 @@ object Countries extends CRUD[CountryF,Country]
     }
   }
 
+  /**
+   * Fetch the existing set of repository ids. Remove the non-numeric (country code)
+   * prefix, and increment to form a new id.
+   * @type {[type]}
+   */
+  private def getNextRepositoryId(f: String => Result)(implicit userOpt: Option[models.UserProfile], request: RequestHeader) = {
+    import play.api.libs.concurrent.Execution.Implicits._
+    import play.api.libs.json.Json
+    import play.api.libs.json.JsValue
+
+    def safeInt(s : String) : Option[Int] = try {
+      Some(s.toInt)
+    } catch {
+      case _ : java.lang.NumberFormatException => None
+    }
+
+    AsyncRest {
+      val allIds = """START n = node:entities("__ISA__:%s") RETURN n.__ID__""".format(EntityType.Repository)
+      rest.cypher.CypherDAO(userOpt).cypher(allIds).map { r =>
+        r.right.map { json =>
+          val result = json.as[Map[String,JsValue]]
+          val data: JsValue = result.getOrElse("data", Json.arr())
+          val id = data.as[List[List[String]]].flatten.flatMap { rid =>
+            rid.split("\\D+").filterNot(_ == "").headOption.flatMap(safeInt)
+          }.padTo(1, 0).max + 1 // ensure we get '1' with an empty list
+
+          f(idFormat.format(id))
+        }
+      }
+    }
+  }
+
   def createRepository(id: String) = childCreateAction(id, ContentType.Repository) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.repository.create(
-      Country(item), childForm, VisibilityForm.form, users, groups, routes.Countries.createRepositoryPost(id)))
+
+    // Beware! This is dubious because there could easily be contention
+    // if two repositories get created at the same time.
+    // Currently there is not way to notify the user that they should just
+    // reset the form or increment the ID manually.
+    getNextRepositoryId { newid =>
+      val form = childForm.bind(Map("identifier" -> newid))
+      Ok(views.html.repository.create(
+        Country(item), form, VisibilityForm.form, users, groups, routes.Countries.createRepositoryPost(id)))
+    }
   }
 
   def createRepositoryPost(id: String) = childCreatePostAction(id, childForm, ContentType.Repository) {

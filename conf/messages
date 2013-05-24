@@ -427,10 +427,7 @@ isdiah.services=Services Area
 # Identity Section
 isdiah.identityArea=Identity Area
 isdiah.identifier=Identifier
-isdiah.identifier.description=To provide a unique numeric or alpha-numeric code identifying the\
-  institution with archival holdings.\n\n\
-Record the numeric or alpha-numeric code identifying the institution with archival\
- holdings in accordance with the relevant international and national standards.
+isdiah.identifier.description=EHRI identifier field. This is an auto-generated number.
 
 isdiah.name=Authorized Form Of Name
 isdiah.name.description=To create an authorised access point that uniquely identifies the institution with\
