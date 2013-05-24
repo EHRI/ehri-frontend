@@ -44,7 +44,7 @@ jQuery(function($) {
 
   // Add Bootstrap tooltip on input boxes with a title.
   // Filter items with an empty title.
-  $("input[title!=''],textarea[title!='']").each(function() {
+  $("input[type=text][title!=''],textarea[title!='']").each(function() {
       var that = $(this);
       that.attr("data-content", that.attr("title"));
       that.attr("title", that.parents(".control-group").find(".control-label").text());
