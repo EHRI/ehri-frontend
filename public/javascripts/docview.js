@@ -76,6 +76,7 @@ jQuery(function($) {
     var template = $(".inline-element-template", container);
     var idx = $(".inline-element", container).length;
     var elem = $(template.html().replace(/IDX/g, idx));
+    console.log("Appending elem: ", elem, "Template: ", template)
     container.append(elem);
     event.preventDefault();
   });

@@ -17,6 +17,12 @@
 
         <style>
 
+            /** Template fields for inline formset items should be display: none;
+                This will prevent them being submitted like normal values. */
+            .form-template {
+                display: none;
+            }
+
             /** Required inputs */
             .required-input {
                 color: #FF0000;

@@ -7,13 +7,13 @@
     @formHelpers.hiddenInput(desc(Entity.ID))
     @formHelpers.choiceInput(desc(LANGUAGE), LANGUAGE, views.Helpers.languagePairList, blank=true)
     @formHelpers.lineInput(desc, PREFLABEL)
-    @*concept.renderInlineNameSet(desc, ALTLABEL)*@
+    @concept.renderInlineNameSet(desc, ALTLABEL)
 
 
     @implicitField = @{  }
 
     @* Fixme - not allowing more than one altlabel, scopenote, definition for now... *@
-    @defining(desc(SCOPENOTE + "[0]")) {  desc =>
+    @helper.repeat(desc(SCOPENOTE), min = 1) { desc =>
         <div class="control-group ">
             <label class="control-label" for="@desc.id">@Messages(prefix + ".scopeNote")</label>
             <div class="controls controls-row">
@@ -22,7 +22,7 @@
             </div>
         </div>
     }
-    @defining(desc(DEFINITION + "[0]")) {  desc =>
+    @helper.repeat(desc(DEFINITION), min = 1) { desc =>
         <div class="control-group ">
             <label class="control-label" for="@desc.id">@Messages(prefix + ".definition")</label>
             <div class="controls controls-row">
