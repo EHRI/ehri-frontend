@@ -66,17 +66,16 @@ jQuery(function($) {
   $(".success-pullup").fadeOut(3000);
 
   // Delete inline date period tables
-  $(".inline-element-set").on("click", ".remove-inline-element", function(event) {
+  $(".remove-inline-element").live("click", function(event) {
     $(this).closest(".inline-element").remove();
     event.preventDefault();
   });
 
-  $(".inline-element-set").on("click", ".add-inline-element", function(event) {
+  $(".add-inline-element").live("click", function(event) {
     var container = $(event.target).closest(".inline-element-set");
     var template = $(".inline-element-template", container);
-    var idx = $(".inline-element", container).length;
+    var idx = $(".inline-element:visible", container).length;
     var elem = $(template.html().replace(/IDX/g, idx));
-    console.log("Appending elem: ", elem, "Template: ", template)
     container.append(elem);
     event.preventDefault();
   });
