@@ -281,6 +281,8 @@ actions.annotateThisItem=Annotate Item
 actions.manageGroups=Manage Groups
 actions.manageAccessPoints=Manage Access Points
 actions.revokePermission=Revoke
+actions.addNewConceptDescription=Add Concept Description
+actions.deleteConceptDescription=Delete Description
 
 # Submit buttons
 submitButton.createDocumentaryUnit=Create Collection

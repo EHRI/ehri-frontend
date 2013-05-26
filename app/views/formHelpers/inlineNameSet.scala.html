@@ -5,12 +5,15 @@
     <div class="controls controls-row">
         <a href="#"
             title="@views.Helpers.renderMarkdown(Messages(fieldPrefix + "." + name + ".description"))"
-            class="add-inline-element btn btn-mini">@Messages("actions.addNew")</a>
+            class="add-inline-element">
+            <i class="icon-plus-sign"></i>
+                @Messages("actions.addNew")
+        </a>
     </div>
 
-    <script type="application/x-js-template" class="inline-element-template">
+    <div class="inline-element-template form-template">
         @formHelpers.inlineName(field(name + "[IDX]"))
-    </script>
+    </div>
     @helper.repeat(field(name), min = 0) { field =>
         @formHelpers.inlineName(field)
     }

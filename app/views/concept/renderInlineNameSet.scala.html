@@ -2,7 +2,8 @@
 
 <div class="inline-element-set">
     <label>
-        @Messages(fieldPrefix + "." + name) | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a>
+        @Messages(fieldPrefix + "." + name)
+        <a href="#" class="add-inline-element"><i class="icon-plus-sign"></i></a>
     </label>
     <div class="form-template inline-element-template">
         @concept.renderInlineName(field(name + "[IDX]"))

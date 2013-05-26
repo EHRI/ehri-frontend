@@ -60,7 +60,7 @@ jQuery(function($) {
   });
 
   // Chosen selects - makes multi-select pretty
-  $(".chzn-select").chosen();
+  $(".chzn-select:visible").chosen();
 
   // Fade success flash message after 3 seconds
   $(".success-pullup").fadeOut(3000);
@@ -75,8 +75,14 @@ jQuery(function($) {
     var container = $(event.target).closest(".inline-element-set");
     var template = $(".inline-element-template", container);
     var idx = $(".inline-element:visible", container).length;
+    console.log("click: ", idx, $(".inline-element:last", container).length)
     var elem = $(template.html().replace(/IDX/g, idx));
-    container.append(elem);
+    //container.append(elem);
+    var insertAfter = container.children(".inline-element:visible:last");
+    insertAfter.length > 0 ? insertAfter.after(elem) : template.after(elem);
+
+    // Add chosen support to loaded content...
+    elem.find(".chzn-select").chosen();
     event.preventDefault();
   });
 

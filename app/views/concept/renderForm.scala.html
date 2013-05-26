@@ -10,14 +10,22 @@
     <fieldset id="descriptions-area">
         <div class="inline-element-set">
             <label>
-                @Messages(prefix + ".descriptions") | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a>
+                <strong>@Messages(prefix + ".descriptions")</strong>
             </label>
-            <script type="application/x-js-template" class="inline-element-template">
+            <hr />
+            <div class="inline-element-template form-template">
                 @concept.renderDescriptionForm(f("descriptions[IDX]"))
-            </script>
+            </div>
             @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
                 @concept.renderDescriptionForm(desc)
             }
+
+            <div class="pull-right">
+                <a href="#" class="add-inline-element">
+                    <i class="icon-plus-sign"></i>
+                    @Messages("actions.addNewConceptDescription")
+                </a>
+            </div>
         </div>
     </fieldset>
 }

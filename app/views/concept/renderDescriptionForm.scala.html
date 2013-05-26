@@ -3,16 +3,16 @@
 @import ConceptF._
 
 <div class="concept-description-form inline-element">
-    <a class="close remove-inline-element pull-right" tabindex="-1" href="#">&times;</a>
+    <a class="remove-inline-element pull-right" tabindex="-1" href="#">
+        <i class="icon-remove-sign"></i>
+        @Messages("actions.deleteConceptDescription")
+    </a>
     @formHelpers.hiddenInput(desc(Entity.ID))
     @formHelpers.choiceInput(desc(LANGUAGE), LANGUAGE, views.Helpers.languagePairList, blank=true)
     @formHelpers.lineInput(desc, PREFLABEL)
     @concept.renderInlineNameSet(desc, ALTLABEL)
 
-
-    @implicitField = @{  }
-
-    @* Fixme - not allowing more than one altlabel, scopenote, definition for now... *@
+    @* Fixme - not allowing more than one scopenote, definition for now... *@
     @helper.repeat(desc(SCOPENOTE), min = 1) { desc =>
         <div class="control-group ">
             <label class="control-label" for="@desc.id">@Messages(prefix + ".scopeNote")</label>
