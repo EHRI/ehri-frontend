@@ -11,5 +11,5 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @common.submitButtonWithLogMessageInput(Messages("submitButton.updateRepository"))
     }
 } {
-
+	@formNav()
 }

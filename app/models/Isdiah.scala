@@ -20,6 +20,7 @@ case object Isdiah {
 
   val IDENTIFIER = "identifier"
   val LANG_CODE = "languageCode"
+  val ADMINISTRATION_AREA = "administrationArea"
 
   // Field set
   val IDENTITY_AREA = "identityArea"

@@ -432,6 +432,7 @@ isdiah.contact=Contact Area
 isdiah.addresses=Address Area
 isdiah.access=Access Area
 isdiah.services=Services Area
+isdiah.administrationArea=Administration
 
 # Identity Section
 isdiah.identityArea=Identity Area
@@ -694,6 +695,7 @@ Record notes pertinent to the creation and maintenance of the description. For\
 isaar.descriptionArea=Description Area
 isaar.identity=Identity Area
 isaar.services=Services Area
+isaar.administrationArea=Administration
 
 # Identity Section
 isaar.identityArea=Identity Area
