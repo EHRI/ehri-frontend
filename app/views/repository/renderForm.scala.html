@@ -20,16 +20,21 @@
         }
 
         @descriptionFormSection(ADDRESS_AREA) {
-            <div class="inline-element-set">
+            <div class="inline-formset">
                 <label>
-                    @Messages(fieldPrefix + "." + ADDRESS_AREA) | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a>
+                    <a href="#" class="add-inline-element">
+                        @Messages(fieldPrefix + "." + ADDRESS_AREA)
+                        <i class="icon-plus-sign"></i>
+                    </a>
                 </label>
                 <script type="application/x-js-template" class="inline-element-template">
                     @repository.renderAddressForm(desc(ADDRESS_AREA + "[IDX]"))
                 </script>
-                @helper.repeat(desc(ADDRESS_AREA), min = 0) { desc =>
-                    @repository.renderAddressForm(desc)
-                }
+                <div class="inline-element-list">
+                    @helper.repeat(desc(ADDRESS_AREA), min = 0) { desc =>
+                        @repository.renderAddressForm(desc)
+                    }
+                </div>
             </div>
         }
 

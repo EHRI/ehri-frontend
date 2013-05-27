@@ -72,14 +72,13 @@ jQuery(function($) {
   });
 
   $(".add-inline-element").live("click", function(event) {
-    var container = $(event.target).closest(".inline-element-set");
+    var container = $(event.target).closest(".inline-formset");
+    var set = container.children(".inline-element-list");
     var template = $(".inline-element-template", container);
-    var idx = $(".inline-element:visible", container).length;
-    console.log("click: ", idx, $(".inline-element:last", container).length)
+    var idx = set.children().length;
     var elem = $(template.html().replace(/IDX/g, idx));
     //container.append(elem);
-    var insertAfter = container.children(".inline-element:visible:last");
-    insertAfter.length > 0 ? insertAfter.after(elem) : template.after(elem);
+    set.append(elem);
 
     // Add chosen support to loaded content...
     elem.find(".chzn-select").chosen();

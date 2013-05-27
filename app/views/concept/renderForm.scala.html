@@ -8,7 +8,7 @@
 
 @defining("concept") { implicit prefix =>
     <fieldset id="descriptions-area">
-        <div class="inline-element-set">
+        <div class="inline-formset">
             <label>
                 <strong>@Messages(prefix + ".descriptions")</strong>
             </label>
@@ -16,9 +16,11 @@
             <div class="inline-element-template form-template">
                 @concept.renderDescriptionForm(f("descriptions[IDX]"))
             </div>
-            @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-                @concept.renderDescriptionForm(desc)
-            }
+            <div class="inline-element-list">
+                @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+                    @concept.renderDescriptionForm(desc)
+                }
+            </div>
 
             <div class="pull-right">
                 <a href="#" class="add-inline-element">

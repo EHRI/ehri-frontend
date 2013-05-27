@@ -446,7 +446,7 @@ Record the standardised form of name of the institution with archival holdings, 
  in the Rules and/or conventions used element (5.6.3) which set of rules has been\
  applied for this element. (5.1.2)
 
-isdiah.parallelFormsOfName=Parallel Form(s) of Name
+isdiah.parallelFormsOfName=Parallel Forms of Name
 isdiah.parallelFormsOfName.description=To indicate the various forms in which the authorised form \
   of name of an institution with archival holdings occurs in other languages or script form(s).\n\n\
 Record the parallel form(s) of name of the institution with archival holdings in\
@@ -455,7 +455,7 @@ Record the parallel form(s) of name of the institution with archival holdings in
  qualifiers required by those conventions or rules. Specify in the Rules and/or\
  conventions used element (5.6.3) which rules have been applied. (5.1.3)
 
-isdiah.otherFormsOfName=Other Form(s) of Name
+isdiah.otherFormsOfName=Other Forms of Name
 isdiah.otherFormsOfName.description=To indicate any other name(s) for the institution with \
   archival holdings not used elsewhere in the Identity Area.\n\n\
 Record any other name(s) by which the institution with archival holdings may be\
@@ -496,6 +496,8 @@ isdiah.email=Email
 isdiah.email.description=
 isdiah.telephone=Telephone
 isdiah.telephone.description=
+isdiah.postalcode=Post Code
+isdiah.postalcode.description=
 isdiah.fax=Fax
 isdiah.fax.description=
 isdiah.url=Website Address
@@ -710,7 +712,7 @@ Record the standardized form of name for the entity being described in accordanc
  entities with similar names. Specify separately in the Rules and/or conventions element\
  (5.4.3) which set of rules has been applied for this element.
 
-isaar.parallelFormsOfName=Parallel Form(s) of Name
+isaar.parallelFormsOfName=Parallel Forms of Name
 isaar.parallelFormsOfName.description=To indicate the various forms in which the Authorized\
   form of name occurs in other languages or script forms(s).\n\n\
 Record the parallel form(s) of name in accordance with any relevant national or\

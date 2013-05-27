@@ -1,20 +1,21 @@
 @(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, lang: Lang)
 
-<div class="inline-element-set control-group">
-    <label class="control-label">@Messages(fieldPrefix + "." + name)</label>
-    <div class="controls controls-row">
+<div class="inline-formset control-group clearfix">
+    <label class="control-label">
+        @Messages(fieldPrefix + "." + name)
         <a href="#"
             title="@views.Helpers.renderMarkdown(Messages(fieldPrefix + "." + name + ".description"))"
             class="add-inline-element">
             <i class="icon-plus-sign"></i>
-                @Messages("actions.addNew")
         </a>
-    </div>
+    </label>
 
     <div class="inline-element-template form-template">
         @formHelpers.inlineName(field(name + "[IDX]"))
     </div>
-    @helper.repeat(field(name), min = 0) { field =>
-        @formHelpers.inlineName(field)
-    }
+    <div class="inline-element-list">
+        @helper.repeat(field(name), min = 0) { field =>
+            @formHelpers.inlineName(field)
+        }
+    </div>
 </div>

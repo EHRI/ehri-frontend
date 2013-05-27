@@ -2,7 +2,6 @@
 
 <div class="inline-element">
     <div class="control-group @{if(field.hasErrors) "error"}">
-        <label class="control-label"></label>
         <div class="controls controls-row">
             <input type="text" class="span8" name="@field.name" id="@field.id" value="@field.value" />
             <span class="help-inline errors">@field.errors.map(_.message).mkString(", ")</span>
