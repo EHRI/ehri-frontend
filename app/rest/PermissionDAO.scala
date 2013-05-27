@@ -64,14 +64,18 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
 
   def get(user: T): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id)
-    WS.url(url)
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    var cached = Cache.getAs[GlobalPermissionSet[T]](url)
+    if (cached.isDefined) Future.successful(Right(cached.get))
+    else {
+      WS.url(url)
+          .withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkError(response).right.map { r =>
           val gperms = GlobalPermissionSet[T](user, r.json)
           Cache.set(url, gperms, cacheTime)
           gperms
         }
       }
+    }
   }
 
   def set(user: T, data: Map[String, List[String]]): Future[Either[RestError, GlobalPermissionSet[T]]] = {
@@ -111,8 +115,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     val cached = Cache.getAs[ItemPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(Right(cached.get))
     else {
-      WS.url(url)
-        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkError(response).right.map { r =>
           val iperms = ItemPermissionSet[T](user, contentType, r.json)
           Cache.set(url, iperms, cacheTime)
@@ -135,14 +138,20 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
   }
 
   def getScope(id: String): Future[Either[RestError, GlobalPermissionSet[UserProfile]]] = {
+    // FIXME: WHOA - might not be able to invalidate this cache properly
+    // other than just waiting it out, since, like global perms, they can
+    // be inherited.
     userProfile.map { up =>
       val url = enc(requestUrl, up.id, "scope", id)
-      WS.url(url)
-        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-        checkError(response).right.map { r =>
-          val sperms = GlobalPermissionSet[UserProfile](up, r.json)
-          Cache.set(url, sperms, cacheTime)
-          sperms
+      var cached = Cache.getAs[GlobalPermissionSet[UserProfile]](url)
+      if (cached.isDefined) Future.successful(Right(cached.get))
+      else {
+        WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+          checkError(response).right.map { r =>
+            val sperms = GlobalPermissionSet[UserProfile](up, r.json)
+            Cache.set(url, sperms, cacheTime)
+            sperms
+          }
         }
       }
     } getOrElse {
@@ -152,20 +161,22 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
 
   def getScope(user: T, id: String): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id, "scope", id)
-    WS.url(url)
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        val sperms = GlobalPermissionSet[T](user, r.json)
-        Cache.set(url, sperms, cacheTime)
-        sperms
+    var cached = Cache.getAs[GlobalPermissionSet[T]](url)
+    if (cached.isDefined) Future.successful(Right(cached.get))
+    else {
+      WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        checkError(response).right.map { r =>
+          val sperms = GlobalPermissionSet[T](user, r.json)
+          Cache.set(url, sperms, cacheTime)
+          sperms
+        }
       }
     }
   }
 
   def setScope(user: T, id: String, data: Map[String,List[String]]): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id, "scope", id)
-    WS.url(url)
-      .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
+    WS.url(url).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
       checkError(response).right.map { r =>
         val sperms = GlobalPermissionSet[T](user, r.json)
         Cache.set(url, sperms, cacheTime)
@@ -176,21 +187,21 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
 
   def addGroup(groupId: String, userId: String): Future[Either[RestError, Boolean]] = {
     WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
-      .withHeaders(authHeaders.toSeq: _*).post(Map[String, List[String]]()).map { response =>
-        checkError(response).right.map { r =>
-          Cache.remove(userId)
-          r.status == OK
-        }
+        .withHeaders(authHeaders.toSeq: _*).post(Map[String, List[String]]()).map { response =>
+      checkError(response).right.map { r =>
+        Cache.remove(userId)
+        r.status == OK
       }
+    }
   }
 
   def removeGroup(groupId: String, userId: String): Future[Either[RestError, Boolean]] = {
     WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
-      .withHeaders(authHeaders.toSeq: _*).delete.map { response =>
-        checkError(response).right.map { r =>
-          Cache.remove(userId)
-          r.status == OK
-        }
+        .withHeaders(authHeaders.toSeq: _*).delete.map { response =>
+      checkError(response).right.map { r =>
+        Cache.remove(userId)
+        r.status == OK
       }
+    }
   }
 }
