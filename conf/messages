@@ -446,7 +446,7 @@ Record the standardised form of name of the institution with archival holdings, 
  in the Rules and/or conventions used element (5.6.3) which set of rules has been\
  applied for this element. (5.1.2)
 
-isdiah.parallelFormsOfName=Parallel Forms of Name
+isdiah.parallelFormsOfName=Parallel Names
 isdiah.parallelFormsOfName.description=To indicate the various forms in which the authorised form \
   of name of an institution with archival holdings occurs in other languages or script form(s).\n\n\
 Record the parallel form(s) of name of the institution with archival holdings in\
@@ -455,7 +455,7 @@ Record the parallel form(s) of name of the institution with archival holdings in
  qualifiers required by those conventions or rules. Specify in the Rules and/or\
  conventions used element (5.6.3) which rules have been applied. (5.1.3)
 
-isdiah.otherFormsOfName=Other Forms of Name
+isdiah.otherFormsOfName=Other Names
 isdiah.otherFormsOfName.description=To indicate any other name(s) for the institution with \
   archival holdings not used elsewhere in the Identity Area.\n\n\
 Record any other name(s) by which the institution with archival holdings may be\
@@ -712,7 +712,7 @@ Record the standardized form of name for the entity being described in accordanc
  entities with similar names. Specify separately in the Rules and/or conventions element\
  (5.4.3) which set of rules has been applied for this element.
 
-isaar.parallelFormsOfName=Parallel Forms of Name
+isaar.parallelFormsOfName=Parallel Names
 isaar.parallelFormsOfName.description=To indicate the various forms in which the Authorized\
   form of name occurs in other languages or script forms(s).\n\n\
 Record the parallel form(s) of name in accordance with any relevant national or\
@@ -721,7 +721,7 @@ Record the parallel form(s) of name in accordance with any relevant national or\
  rules. Specify in the Rules and/or conventions element (5.4.3) which rules have been\
  applied
 
-isaar.standardisedFormsOfName=Standardized Forms of Name According to Other Rules
+isaar.standardisedFormsOfName=Standardized Names According to Other Rules
 isaar.standarisedFormsOfName.description=To indicate standardized forms of name for the corporate\
   body, person or family that have been constructed according to rules other than those\
   used to construct the authorised form of name. This can facilitate the sharing of authority\
@@ -730,7 +730,7 @@ Record the standardized form of name for the entity being described in accordanc
   other conventions or rules. Specify the rules and/or if appropriate the name of the agency\
   by which these standardized forms of name have been constructed.
 
-isaar.otherFormsOfName=Other Forms of Name
+isaar.otherFormsOfName=Other Names
 isaar.otherFormsOfName.description=To indicate any other name(s) for the corporate body, person or\
   family not used elsewhere in the Identity Area.\n\n\
 Record other names by which the entity may be known, such as:\n\n\

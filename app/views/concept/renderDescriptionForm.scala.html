@@ -18,7 +18,7 @@
             <label class="control-label" for="@desc.id">@Messages(prefix + ".scopeNote")</label>
             <div class="controls controls-row">
                 <textarea id="@desc.id" name="@desc.name" rows="4" class="span8">@desc.value</textarea>
-                <span class="help-inline errors"> </span>
+                <span class="help-inline errors">@desc.errors.mkString(", ") </span>
             </div>
         </div>
     }
@@ -27,7 +27,7 @@
             <label class="control-label" for="@desc.id">@Messages(prefix + ".definition")</label>
             <div class="controls controls-row">
                 <textarea id="@desc.id" name="@desc.name" rows="4" class="span8">@desc.value</textarea>
-                <span class="help-inline errors"> </span>
+                <span class="help-inline errors">@desc.errors.mkString(", ") </span>
             </div>
         </div>
     }
