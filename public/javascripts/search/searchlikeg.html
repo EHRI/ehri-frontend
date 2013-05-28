@@ -70,9 +70,20 @@
 					<div class="container-fluid">
 						<div class="row-fluid">
 							<div class="span2">
-								Notes/Document Browser ?
+								<ul class="listTree">
+									<li><i class="icon-folder-open"></i> Folder
+										<ul>
+											<li><i class="icon-file"></i> File</li>
+											<li><i class="icon-folder-open"></i> Folder
+												<ul>
+													<li><i class="icon-file"></i> File</li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+								</ul>
 							</div>
-							<div id="content" class="span8">
+							<div id="content" class="span8" when-scrolled="loadMore()" >
 								<article id="{{item.id}}" class="search-item" ng-repeat="item in page.items">
 									<!-- If desc inside relationship -->
 									<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">

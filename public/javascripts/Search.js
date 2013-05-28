@@ -19,6 +19,7 @@ var portal = angular.module('portalSearch', ['ui.bootstrap' ], function ($provid
 		otherwise({redirectTo: '/'});
 }]);
 
+
 //Filters
 portal
 	.filter('descLang', function() {
@@ -93,6 +94,43 @@ portal
 		}
 	});
 
+portal.directive('whenScrolled', function ($window) {
+    return function(scope, element, attrs) {
+		console.log(element);
+		var bottomPos = (element[0].offsetTop + element[0].clientHeight);
+        angular.element($window).bind("scroll", function() {
+			if (document.documentElement.scrollTop) { var currentScroll = document.documentElement.scrollTop; } else { var currentScroll = document.body.scrollTop; }
+			var totalHeight = document.body.offsetHeight;
+			var visibleHeight = document.documentElement.clientHeight;
+			// console.log("offsetHeight : " + element[0].offsetHeight); // Height of the element
+			// console.log("scrollTop : " + element[0].offsetTop); //Distance between body and this element
+			// console.log("pageYOffset : " + this.pageYOffset); //Y of the scroll point
+			// console.log("window.innerHeight:" + this.innerHeight); //innerHeight = height in browser
+			// console.log(totalHeight);
+			// console.log("Addition:" +(currentScroll + visibleHeight + 150));
+			// console.log("OffsetTop et Heigh : " + (element[0].offsetTop + element[0].offsetHeight));
+			//Bottom = 65
+			//Top = 95
+			
+			//Taille totale de du document = (currentScroll + visibleHeight + 150)
+			//Position du bottom de la div = (element[0].offsetTop + element[0].offsetHeight)
+			//
+			var currentScrollHeight = currentScroll + visibleHeight + 95;
+			console.log(bottomPos +" <= "+currentScrollHeight);
+             if (bottomPos  <= currentScrollHeight) {
+				//alert("Hello");
+				// console.log("Scrolled to bottom");
+				//scope.$apply(attr.whenScrolled);
+             }
+			 else
+			 {
+				// console.log("not scrolled");
+			 }
+        });
+    }
+});
+	
+	
 function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 	//Scope var
 	$scope.searchParams = {'page' : 1, 'sort' : 'score.desc'};
@@ -107,9 +145,9 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 	$scope.lastFilter = false;
 	
 	//Watch for page click
-	$scope.$watch("currentPage", function (newValue) {
+	/*$scope.$watch("currentPage", function (newValue) {
 		$scope.setQuery("page", newValue);
-	});
+	});*/
 	
 	
 	$scope.fromSearch = function() {
@@ -174,6 +212,11 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 			$scope.removeFilterByKey($scope.lastFilter);
 			alert('Server error, reloading datas');
 		});
+	}
+	
+	$scope.loadMore = function () {
+		$scope.currentPage = $scope.currentPage + 1;
+		alert('Hello');
 	}
 	
 	$scope.removeFilterByKey = function(key){
