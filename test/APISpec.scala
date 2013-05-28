@@ -3,11 +3,11 @@ package test
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.AccessPointF
+import models.{AnnotationF, AccessPointF}
 import controllers.routes
 import helpers._
 import play.api.libs.json.Json
-import controllers.base.AccessPointLink
+import controllers.base.{EntityAnnotate, AccessPointLink}
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
@@ -16,7 +16,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
 
   import mocks.UserFixtures.{privilegedUser, unprivilegedUser}
 
-  "Link JSON endpoints should" should {
+  "Link JSON endpoints" should {
     "allow creating and reading" in new FakeApp {
       val json = Json.toJson(new AccessPointLink("a1", description = Some("Test link")))
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
@@ -46,6 +46,24 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
         routes.DocumentaryUnits.createLink("c1", "ur1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
+      println(contentAsString(cr))
+    }
+  }
+
+  "Annotation JSON endpoints" should {
+    "allow creating annotations" in new FakeApp {
+      val json = Json.toJson(new AnnotationF(id = None, body = "Hello, world!"))(
+        EntityAnnotate.clientAnnotationFormat)
+      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+          routes.Annotations.createAnnotationJsonPost("c1").url)
+        .withHeaders(jsonPostHeaders.toSeq: _*), json).get
+      status(cr) must equalTo(CREATED)
+    }
+
+    "be able to fetch annotations for an item" in new FakeApp {
+      val cr = route(fakeLoggedInRequest(privilegedUser, GET,
+        routes.Annotations.getAnnotationJson("c1").url)).get
+      status(cr) must equalTo(OK)
       println(contentAsString(cr))
     }
   }

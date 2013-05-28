@@ -283,6 +283,10 @@ POST    /annotation/annotate/:id     controllers.Annotations.annotatePost(id: St
 GET     /annotation/delete/:id     controllers.Annotations.delete(id: String)
 POST    /annotation/delete/:id     controllers.Annotations.deletePost(id: String)
 
+# Ugh, ugly REST violation - create an annotation on *another* entity
+POST    /annotation/create/:id      controllers.Annotations.createAnnotationJsonPost(id: String)
+GET     /annotation/getFor/:id      controllers.Annotations.getAnnotationJson(id: String)
+
 GET     /link/show/:id       controllers.Links.get(id: String)
 GET     /link/history/:id       controllers.Links.history(id: String)
 GET     /link/visibility/:id     controllers.Links.visibility(id: String)
