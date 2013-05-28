@@ -10,8 +10,8 @@
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Annotate)) {
-                <li><a href="@routes.HistoricalAgents.linkTo(item.id)">@Messages("actions.linkTo")</a></li>
+            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Update)) {
+                <li><a href="@routes.HistoricalAgents.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
             @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Delete)) {
                 <li><a href="@routes.HistoricalAgents.delete(item.id)">@Messages("actions.deleteItem")</a></li>
