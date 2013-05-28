@@ -1,9 +1,9 @@
 @(item: AccessibleEntity, itemPage: rest.Page[PermissionGrant], scopePage: rest.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.managePermissions", item)) {
+@rightSidebarLayout(Messages("actions.managePermissions", item), breadcrumbs = common.breadcrumbs(List(item))) {
 
 
     <h3>@Messages("actions.manageItemPermissions")</h3>
@@ -13,7 +13,7 @@
     </div>
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 
-    @permissions._permissionList(itemPage, "page")
+    @permissions.permissionList(None, itemPage, "page")
 
     <hr />
 
@@ -24,7 +24,7 @@
     </div>
     <a href="@scopePermAction">@Messages("actions.manageScopedPermissions")</a>
 
-    @permissions._permissionList(scopePage, "spage")
+    @permissions.permissionList(None, scopePage, "spage")
 
 } {
 

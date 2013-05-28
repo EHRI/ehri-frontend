@@ -2,19 +2,21 @@ package controllers
 
 import _root_.models.base.AccessibleEntity
 import models.forms.{VisibilityForm}
-import _root_.models.{Entity, UserProfile, UserProfileF}
+import _root_.models.{PermissionGrant, Entity, UserProfile, UserProfileF}
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
 import base._
 import collection.immutable.ListMap
+import solr.{SearchOrder, SearchParams}
 
 
 object UserProfiles extends PermissionHolderController[UserProfile]
   with EntityRead[UserProfile]
   with EntityUpdate[UserProfileF,UserProfile]
-  with EntityDelete[UserProfile] {
+  with EntityDelete[UserProfile]
+  with EntitySearch {
 
   val DEFAULT_SORT = AccessibleEntity.NAME
 
@@ -38,6 +40,9 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   val entityType = EntityType.UserProfile
   val contentType = ContentType.UserProfile
 
+  // Search params
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
+
   val form = models.forms.UserProfileForm.form
 
   // NB: Because the UserProfile class has more optional
@@ -47,6 +52,13 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   def get(id: String) = getAction(id) {
       item => annotations => links => implicit userOptOpt => implicit request =>
     Ok(views.html.userProfile.show(UserProfile(item), annotations))
+  }
+
+  def search = {
+    searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+      page => params => facets => implicit userOpt => implicit request =>
+        Ok(views.html.userProfile.search(page, params, facets, routes.UserProfiles.search))
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOptOpt => implicit request =>
@@ -84,7 +96,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     // For the users we need to clean up by deleting their profile id, if any...
     userFinder.findByProfileId(id).map(_.delete())
-    Redirect(routes.UserProfiles.list())
+    Redirect(routes.UserProfiles.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
@@ -103,6 +115,18 @@ object UserProfiles extends PermissionHolderController[UserProfile]
       item => perms => implicit userOpt => implicit request =>
     Redirect(routes.UserProfiles.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
+      item => perm => implicit userOpt => implicit request =>
+        Ok(views.html.permissions.revokePermission(UserProfile(item), PermissionGrant(perm),
+          routes.UserProfiles.revokePermissionPost(id, permId), routes.UserProfiles.grantList(id)))
+  }
+
+  def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
+    item => bool => implicit userOpt => implicit request =>
+      Redirect(routes.UserProfiles.grantList(id))
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }
 

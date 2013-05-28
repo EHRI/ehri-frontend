@@ -1,12 +1,13 @@
-@(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, action: Call)(
-    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, action: Call, autofocus: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import solr.SearchParams
 
 @helper.form(action = action, 'class -> "") {
     <div class="controls-row">
         <div class="input-append search-query span10">
-            <input type="text" class="input-block-level span15" name="@SearchParams.QUERY" value="@params.query" autofocus />
+            <input type="text"
+                placeholder="@Messages("search.queryPlaceholder")"
+                class="input-block-level span15" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
             <button class="btn">
                 <i class="icon-search"></i>
                 @Messages("forms.search")

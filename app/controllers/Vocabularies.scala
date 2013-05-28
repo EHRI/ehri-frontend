@@ -7,12 +7,14 @@ import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
+import solr.SearchParams
 
 object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   with CreationContext[ConceptF, Vocabulary]
   with VisibilityController[Vocabulary]
   with PermissionScopeController[Vocabulary]
-  with EntityAnnotate[Vocabulary] {
+  with EntityAnnotate[Vocabulary]
+  with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.Concept)
 
@@ -28,10 +30,12 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   val form = models.forms.VocabularyForm.form
   val childForm = models.forms.ConceptForm.form
 
-  def get(id: String) = getWithChildrenAction(id) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.show(
-        Vocabulary(item), page.copy(items = page.items.map(Concept.apply)), params, annotations))
+  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+    searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
+      page => params => facets => _ => _ =>
+        Ok(views.html.vocabulary.show(
+          Vocabulary(item), page, params, facets, routes.Vocabularies.get(id), annotations, links))
+    }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

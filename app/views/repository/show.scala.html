@@ -1,4 +1,4 @@
-    @(item: Repository, page: rest.Page[DocumentaryUnit], params: ListParams, annotations: Map[String,List[Annotation]], links: List[Link])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Repository, result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @repository.itemPage(item) {
 
@@ -13,7 +13,7 @@
         }
     }
 
-    @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
-        @documentaryUnit.itemList(page)
+    @views.html.search.searchSection(Messages("repository.searchInside", item.toStringAbbr(lang))) {
+        @views.html.search.searchForm(result, params, action, autofocus = false)
     }
 }

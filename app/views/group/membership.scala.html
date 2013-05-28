@@ -1,8 +1,8 @@
 @(item: Accessor, groups: List[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageGroups")) {
+@rightSidebarLayout(Messages("actions.manageGroups"), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@if(!item.groups.isEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;

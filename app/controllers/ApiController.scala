@@ -21,11 +21,16 @@ object ApiController extends Controller with AuthController with ControllerHelpe
     get(s"$contentType/$id")(request)
   }
 
+  def getAny(id: String) = Action { implicit request =>
+    get(s"entities?id=$id")(request)
+  }
+
   def get(urlpart: String) = userProfileAction { implicit maybeUser =>
     implicit request =>
       Async {
+        val url = urlpart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
         rest.ApiDAO(maybeUser)
-          .get(List(urlpart, request.rawQueryString).mkString("?"), request.headers).map { r =>
+          .get(url, request.headers).map { r =>
             Status(r.status)
               .stream(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
               .as(r.ahcResponse.getContentType)

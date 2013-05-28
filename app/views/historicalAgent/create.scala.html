@@ -1,7 +1,7 @@
 @(item: AuthoritativeSet, f: Form[HistoricalAgentF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @rightSidebarLayout(Messages("actions.createHistoricalAgent")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
@@ -18,5 +18,5 @@
         @common.submitButtonWithLogMessageInput(Messages("submitButton.createHistoricalAgent"))
 	}
 } {
-
+    @formNav()
 }

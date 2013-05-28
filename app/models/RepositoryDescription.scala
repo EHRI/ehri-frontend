@@ -48,7 +48,7 @@ object RepositoryDescriptionF {
 case class RepositoryDescriptionF(
   id: Option[String],
   languageCode: String,
-  name: Option[String] = None,
+  name: String,
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
   @Annotations.Relation(RepositoryF.ADDRESS_REL) addresses: List[AddressF] = Nil,

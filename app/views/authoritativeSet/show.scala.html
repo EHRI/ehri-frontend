@@ -1,4 +1,4 @@
-@(item: AuthoritativeSet, page: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AuthoritativeSet, page: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
@@ -6,8 +6,9 @@
         @common.stringValue(item, models.AuthoritativeSetF.DESCRIPTION)
     }
 
-    @views.html.search.searchForm(page, params, action)
-
+    @views.html.search.searchSection(Messages("authoritativeSet.items")) {
+        @views.html.search.searchForm(page, params, action, autofocus = false)
+    }
 } {
     @common.facetList(page.facets, action)
 

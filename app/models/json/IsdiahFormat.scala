@@ -62,7 +62,7 @@ object IsdiahFormat {
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.RepositoryDescription)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
-      (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).readNullable[String] and
+      (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String] and
       ((__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] orElse
         (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse

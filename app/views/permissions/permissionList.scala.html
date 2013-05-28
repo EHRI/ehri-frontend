@@ -1,0 +1,42 @@
+@(accessorOpt: Option[Accessor], page: rest.Page[PermissionGrant], pageParamName: String = "page")(implicit req: RequestHeader)
+
+<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+<ul>
+@page.items.map { perm =>
+    <div class="list-item">
+        <h4>
+            @perm.permission.getOrElse("?")
+            @accessorOpt.map { accessor =>
+                @accessor match {
+                    case u: UserProfile => {
+                        <a href="@routes.UserProfiles.revokePermission(accessor.id, perm.id)">
+                            <i title="@Messages("actions.revokePermission")" class="icon-remove"></i>
+                        </a>
+                    }
+                    case u: Group => {
+                        <a href="@routes.Groups.revokePermission(accessor.id, perm.id)">
+                            <i title="@Messages("actions.revokePermission")" class="icon-remove"></i>
+                        </a>
+                    }
+                }
+            }
+        </h4>
+        <ul>
+            @perm.accessor.map { accessor =>
+                <li>@Messages("permissionGrant.accessor"): @accessor</li>
+            }
+            @perm.targets.map { t =>
+                <li>@Messages("permissionGrant.targets"): @t</li>
+            }
+            @perm.scope.map { s =>
+                <li>@Messages("permissionGrant.scope"): @s</li>
+            }
+            @perm.grantee.map { s =>
+                <li>@Messages("permissionGrant.grantedBy"): @s</li>
+            }
+        </ul>
+    </div>
+}
+</ul>
+@common.pagination(page, pageParamName)
+

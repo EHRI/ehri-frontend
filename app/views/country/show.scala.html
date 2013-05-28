@@ -1,26 +1,23 @@
-@(item: Country, page: rest.Page[Repository], params: ListParams, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Country, result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(
+        implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations, routes.Countries.annotate(item.id)) {
-        @defining("country") { implicit  prefix =>
-            @*put details here*@
-        }
+        <p class="alert-info">TODO: Add country information here</p>
     }
 
-    @common.filterableList("country.repositoriesPageHeader", page, params, Repositories.listFilterMappings.keys, Repositories.orderMappings.keys) {
-        <ul>
-            @page.items.map(r => repository.listItem(r))
-        </ul>
+    @views.html.search.searchSection(Messages("country.searchInside", item.toStringAbbr)) {
+        @views.html.search.searchForm(result, params, action, autofocus = false)
     }
-
 } {
+    @common.facetList(result.facets, action)
     @common.visibility(item, routes.Countries.visibility(item.id), ContentType.Country)
     @common.latestAction(item, routes.Countries.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @maybeUser.map { user =>
-            @if(user.hasPermission(ContentType.Country, PermissionType.Create)) {
+            @if(user.hasPermission(ContentType.Repository, PermissionType.Create)) {
                 <li><a href="@routes.Countries.createRepository(item.id)">@Messages("actions.createRepository")</a></li>
             }
             @if(user.hasPermission(ContentType.Country, PermissionType.Update)) {

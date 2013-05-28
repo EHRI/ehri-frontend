@@ -13,22 +13,37 @@
     }
 
     @descriptionSection(ADDRESS_AREA) {
-        @desc.addresses.map { address =>
-            <address title="@address.stringProperty(ADDRESS_NAME)">
-                @List(CONTACT_PERSON, STREET_ADDRESS,CITY,REGION).map { addressPart =>
-                    @address.stringProperty(addressPart).map { addressPartValue =>
-                        @addressPartValue<br />
+        @if(!desc.addresses.isEmpty) {
+            <div class="inline-block well well-small" style="display: inline-block">
+            @desc.addresses.zipWithIndex.map { case (address, i) =>
+                <address title="@address.stringProperty(ADDRESS_NAME)">
+                    @address.stringProperty(ADDRESS_NAME).map { an =>
+                        <strong>@an</strong><br/>
                     }
-                }
-                @address.stringProperty(COUNTRY_CODE).map { cc =>
-                    @views.Helpers.countryCodeToName(cc)<br />
-                }
-                @List(EMAIL, TELEPHONE, FAX, URL).map { addressPart =>
-                    @address.stringProperty(addressPart).map { addressPartValue =>
-                        @addressPartValue<br />
+                    @address.stringProperty(CONTACT_PERSON).map { an =>
+                        <i>@an</i><br/>
                     }
-                }
-            </address>
+                    @address.stringProperty(STREET_ADDRESS).map { an =>
+                        @an.split("\\n").map { addressLine =>
+                            @addressLine<br />
+                        }
+                    }
+                    @List(CITY,REGION,POSTAL_CODE).map { addressPart =>
+                        @address.stringProperty(addressPart).map { addressPartValue =>
+                            @addressPartValue<br />
+                        }
+                    }
+                    @address.stringProperty(COUNTRY_CODE).map { cc =>
+                        @views.Helpers.countryCodeToName(cc)<br />
+                    }
+                    @List(EMAIL, TELEPHONE, FAX, URL).map { addressPart =>
+                        @address.stringProperty(addressPart).map { addressPartValue =>
+                            @addressPartValue<br />
+                        }
+                    }
+                </address>
+            }
+            </div>
         }
     }
 

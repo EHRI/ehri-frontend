@@ -88,10 +88,16 @@ object Repositories extends EntityRead[Repository]
 
   }
 
-  def get(id: String) = getWithChildrenAction(id) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.repository.show(
-        Repository(item),page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
+  /**
+   * Search documents inside repository.
+   * @param id
+   * @return
+   */
+  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+    searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
+      page => params => facets => _ => _ =>
+        Ok(views.html.repository.show(Repository(item), page, params, facets, routes.Repositories.get(id), annotations, links))
+    }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

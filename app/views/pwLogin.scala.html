@@ -1,6 +1,6 @@
 @(form: Form[(String,String)], action: Call)(implicit request: RequestHeader, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @noSidebarLayout(Messages("login.login")) {
 

@@ -21,6 +21,7 @@ case object Isaar {
   val PUBLICATION_STATUS = "publicationStatus"
 
   val LANG_CODE = "languageCode"
+  val ADMINISTRATION_AREA = "administrationArea"
 
   // Field set
   val IDENTITY_AREA = "identityArea"

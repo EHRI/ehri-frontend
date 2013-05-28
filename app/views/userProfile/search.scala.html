@@ -1,0 +1,15 @@
+@(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("users.search")) {
+    @views.html.search.searchForm(result, params, action)
+} {
+    @userOpt.map { user =>
+        @if(user.isAdmin) {
+            @if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@routes.Admin.createUser">@Messages("actions.createUserProfile")</a>
+            }
+        }
+    }
+    @common.facetList(result.facets, action)
+}

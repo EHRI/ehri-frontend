@@ -46,10 +46,10 @@ case class ItemPermissionSet[+T <: Accessor](user: T, contentType: ContentType.V
 	extends PermissionSet {
 
   /**
-   * Check if this permission set has the given permission (hackily expanded
-   * to account for owner permissions.
+   * Check if this permission set has the given permission.
    */
-  def has(permission: PermissionType.Value): Boolean = expandOwnerPerms(data.flatMap(t => t._2)).contains(permission)
+  def has(permission: PermissionType.Value): Boolean =
+      data.flatMap(t => t._2).exists(p => PermissionType.in(p, permission))
 
   /**
    * Get the permission grant for a given permission (if any), which contains
@@ -57,7 +57,7 @@ case class ItemPermissionSet[+T <: Accessor](user: T, contentType: ContentType.V
    */  
   def get(permission: PermissionType.Value): Option[Permission[T]] = {
     val accessors = data.flatMap { case (uid, perms) =>
-        if (expandOwnerPerms(perms).contains(permission)) Some((uid, permission))
+        if (perms.exists(p => PermissionType.in(p, permission))) Some((uid, permission))
         else None
     }
     accessors.headOption.map {

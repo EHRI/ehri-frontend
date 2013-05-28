@@ -57,7 +57,7 @@ case class OpenIDUser(id: Long, email: String, profile_id: String) extends User 
 
   def delete(): Boolean = DB.withConnection { implicit connection =>
     val res: Int = SQL(
-      """DELETE FROM user WHERE id = {id}""").on('id -> id).executeUpdate()
+      """DELETE FROM users WHERE id = {id}""").on('id -> id).executeUpdate()
     res == 1
   }
 

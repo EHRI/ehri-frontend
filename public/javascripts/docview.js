@@ -44,7 +44,7 @@ jQuery(function($) {
 
   // Add Bootstrap tooltip on input boxes with a title.
   // Filter items with an empty title.
-  $("input[title!=''],textarea[title!='']").each(function() {
+  $("input[type=text][title!=''],textarea[title!='']").each(function() {
       var that = $(this);
       that.attr("data-content", that.attr("title"));
       that.attr("title", that.parents(".control-group").find(".control-label").text());
@@ -60,23 +60,28 @@ jQuery(function($) {
   });
 
   // Chosen selects - makes multi-select pretty
-  $(".chzn-select").chosen();
+  $(".chzn-select:visible").chosen();
 
   // Fade success flash message after 3 seconds
   $(".success-pullup").fadeOut(3000);
 
   // Delete inline date period tables
-  $(".inline-element-set").on("click", ".remove-inline-element", function(event) {
+  $(".remove-inline-element").live("click", function(event) {
     $(this).closest(".inline-element").remove();
     event.preventDefault();
   });
 
-  $(".inline-element-set").on("click", ".add-inline-element", function(event) {
-    var container = $(event.target).closest(".inline-element-set");
+  $(".add-inline-element").live("click", function(event) {
+    var container = $(event.target).closest(".inline-formset");
+    var set = container.children(".inline-element-list");
     var template = $(".inline-element-template", container);
-    var idx = $(".inline-element", container).length;
+    var idx = set.children().length;
     var elem = $(template.html().replace(/IDX/g, idx));
-    container.append(elem);
+    //container.append(elem);
+    set.append(elem);
+
+    // Add chosen support to loaded content...
+    elem.find(".chzn-select").chosen();
     event.preventDefault();
   });
 

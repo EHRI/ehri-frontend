@@ -32,7 +32,7 @@
         }
 
         @item.parent.map { parent =>
-            <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
+            <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
         }
 
         @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
@@ -56,7 +56,7 @@
                                 @actions("Actions", item.id, desc.id)
                                 @documentaryUnit.renderDescription(item, desc, links)
                             </div>
-							
+
                         }
                         @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                             <div class="tab-pane" id="desc-@desc.id">

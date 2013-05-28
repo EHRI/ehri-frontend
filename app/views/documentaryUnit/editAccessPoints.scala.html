@@ -6,19 +6,19 @@
         <script src="@routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/AccessPointLinker.js")" type="text/javascript"></script>
 
-    @helper.javascriptRouter("jsRoutes")(
-        routes.javascript.Application.get,
-        routes.javascript.Application.getType,
-        routes.javascript.Search.filterType,
-        routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
-        routes.javascript.DocumentaryUnits.get,
-        routes.javascript.DocumentaryUnits.createLink,
-        routes.javascript.DocumentaryUnits.createAccessPoint,
-        routes.javascript.DocumentaryUnits.getLink,
-        routes.javascript.DocumentaryUnits.getAccessPointsJson,
-        routes.javascript.DocumentaryUnits.deleteAccessPoint,
-        routes.javascript.Links.deletePost
-    )
+        @helper.javascriptRouter("jsRoutes")(
+            routes.javascript.Application.get,
+            routes.javascript.Application.getType,
+            routes.javascript.Search.filterType,
+            routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
+            routes.javascript.DocumentaryUnits.get,
+            routes.javascript.DocumentaryUnits.createLink,
+            routes.javascript.DocumentaryUnits.createAccessPoint,
+            routes.javascript.DocumentaryUnits.getLink,
+            routes.javascript.DocumentaryUnits.getAccessPointsJson,
+            routes.javascript.DocumentaryUnits.deleteAccessPoint,
+            routes.javascript.DocumentaryUnits.deleteLink
+        )
     }
 
 @import AccessPointF._

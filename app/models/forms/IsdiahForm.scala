@@ -17,7 +17,7 @@ object IsdiahForm {
     mapping(
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
-      AUTHORIZED_FORM_OF_NAME -> optional(text),
+      AUTHORIZED_FORM_OF_NAME -> text,
       OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       ADDRESS_AREA -> list(AddressForm.form.mapping),

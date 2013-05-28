@@ -48,7 +48,7 @@ object DocumentaryUnitDescriptionF {
 case class DocumentaryUnitDescriptionF(
   val id: Option[String],
   val languageCode: String,
-  val title: Option[String] = None,
+  val name: String,
   @Annotations.Relation(TemporalEntity.DATE_REL)
   val dates: List[DatePeriodF] = Nil,
   val levelOfDescription: Option[IsadG.LevelOfDescription.Value] = None,

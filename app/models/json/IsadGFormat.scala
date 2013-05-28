@@ -21,7 +21,7 @@ object IsadGFormat {
         ID -> d.id,
         TYPE -> d.isA,
         DATA -> Json.obj(
-          TITLE -> d.title,
+          TITLE -> d.name,
           LANG_CODE -> d.languageCode,
           LEVEL_OF_DESCRIPTION -> d.levelOfDescription,
           EXTENT_MEDIUM -> d.extentAndMedium,
@@ -62,7 +62,7 @@ object IsadGFormat {
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnitDescription)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
-      (__ \ DATA \ TITLE).readNullable[String] and
+      (__ \ DATA \ TITLE).read[String] and
       ((__ \ RELATIONSHIPS \ TemporalEntity.DATE_REL).lazyRead[List[DatePeriodF]](
         Reads.list[DatePeriodF]) orElse Reads.pure(Nil)) and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[LevelOfDescription.Value] and

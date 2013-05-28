@@ -2,15 +2,16 @@
 
 @import Isdiah._
 
-<div class="address-form inline-element">
+<div class="address-form inline-element well well-small">
     <a class="close remove-inline-element pull-right" tabindex="-1" href="#">&times;</a>
     @formHelpers.hiddenInput(field(Entity.ID))
     @formHelpers.lineInput(field, ADDRESS_NAME)
     @formHelpers.lineInput(field, CONTACT_PERSON)
-    @formHelpers.lineInput(field, STREET_ADDRESS)
+    @formHelpers.textInput(field, STREET_ADDRESS)
     @formHelpers.lineInput(field, CITY)
     @formHelpers.lineInput(field, REGION)
     @formHelpers.choiceInput(field(COUNTRY_CODE), COUNTRY_CODE, views.Helpers.countryPairList, blank=true)
+    @formHelpers.lineInput(field, POSTAL_CODE)
     @formHelpers.lineInput(field, EMAIL)
     @formHelpers.lineInput(field, TELEPHONE)
     @formHelpers.lineInput(field, FAX)

@@ -2,7 +2,7 @@
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 @import defines.PermissionType
 
-@rightSidebarLayout(Messages("actions.grantPermissionsInScope", item, accessor)) {
+@rightSidebarLayout(Messages("actions.grantPermissionsInScope", item, accessor), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
@@ -12,28 +12,24 @@
         <tr>
         <th></th>
         @PermissionType.values.toList.map { perm =>
-            @if(perm != PermissionType.Owner) {
-                <th>@Messages("permissionTypes." + perm.toString)</th>
-            }
+            <th>@Messages("permissionTypes." + perm.toString)</th>
         }
         </tr>
         @contentTypes.map { ct =>
             <tr>
                 <td>@Messages("contentTypes." + ct)</td>
                 @PermissionType.values.toList.map { perm =>
-                    @if(perm != PermissionType.Owner) {
-                        <td>
-                        @defining(perms.get(ct, perm)) { permOpt =>
-                            <input type="checkbox" name="@ct" value="@perm"
-                            @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
-                                checked
-                            } />
-                            @permOpt.flatMap(_.inheritedFrom).map { user =>
-                                <span title="@Messages("permissions.inheritedFrom", user)">*</span>
-                            }
+                    <td>
+                    @defining(perms.get(ct, perm)) { permOpt =>
+                        <input type="checkbox" name="@ct" value="@perm"
+                        @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
+                            checked
+                        } />
+                        @permOpt.flatMap(_.inheritedFrom).map { user =>
+                            <span title="@Messages("permissions.inheritedFrom", user)">*</span>
                         }
-                        </td>
                     }
+                    </td>
                 }
             </tr>
         }

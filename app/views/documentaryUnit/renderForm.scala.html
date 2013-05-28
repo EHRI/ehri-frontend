@@ -3,7 +3,7 @@
 @import models.IsadG._
 @import models.DocumentaryUnitF._
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
 
