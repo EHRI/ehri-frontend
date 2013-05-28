@@ -2,7 +2,9 @@
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("forms.search")) {
-    @searchForm(result, params, action)
+    @searchForm(result, params, action) {
+        @searchItemList(result)
+    }
 } {
     @common.facetList(result.facets, action)
 }

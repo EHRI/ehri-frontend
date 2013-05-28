@@ -21,8 +21,8 @@ object Links extends EntityRead[Link]
   val entityType = EntityType.Link
   val contentType = ContentType.Link
 
-  def get(id: String) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
-    Ok(views.html.link.show(Link(item), links))
+  def get(id: String, redirect: Option[String] = None) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
+    Ok(views.html.link.show(Link(item), links, redirect))
 
   }
 
@@ -43,15 +43,15 @@ object Links extends EntityRead[Link]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
+  def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-      Link(item), routes.Links.deletePost(id), routes.Concepts.get(id)))
+      Link(item), routes.Links.deletePost(id, redirect), routes.Application.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) {
+  def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
     // TODO: Work out how to redirect to somewhere useful...
     ok => implicit userOpt => implicit request =>
-      Redirect(routes.Application.index)
+      Redirect(redirect.map(r => routes.Application.get(r)).getOrElse(routes.Search.search))
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }

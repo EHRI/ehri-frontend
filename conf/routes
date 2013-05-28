@@ -271,12 +271,12 @@ POST    /annotation/delete/:id     controllers.Annotations.deletePost(id: String
 POST    /annotation/create/:id      controllers.Annotations.createAnnotationJsonPost(id: String)
 GET     /annotation/getFor/:id      controllers.Annotations.getAnnotationJson(id: String)
 
-GET     /link/show/:id       controllers.Links.get(id: String)
+GET     /link/show/:id       controllers.Links.get(id: String, redirect: Option[String] ?= None)
 GET     /link/history/:id       controllers.Links.history(id: String)
 GET     /link/visibility/:id     controllers.Links.visibility(id: String)
 POST    /link/visibility/:id     controllers.Links.visibilityPost(id: String)
-GET     /link/delete/:id     controllers.Links.delete(id: String)
-POST    /link/delete/:id     controllers.Links.deletePost(id: String)
+GET     /link/delete/:id     controllers.Links.delete(id: String, redirect: Option[String] ?= None)
+POST    /link/delete/:id     controllers.Links.deletePost(id: String, redirect: Option[String] ?= None)
 
 # API
 

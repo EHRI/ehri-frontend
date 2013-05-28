@@ -4,8 +4,8 @@ implicit userOpt: Option[UserProfile], request: RequestHeader, flash: Flash, tok
 @rightSidebarLayout(Messages("actions.deleteItem", item), breadcrumbs = common.breadcrumbs(List(item))) {
 
     <p>@Messages("deleting.deleteConfirmationMessage", item.toString)</p>
-    @helper.form(action = helper.CSRF(action), 'class -> "form-actions") {
-
+    @helper.form(action = action, 'class -> "form-actions") {
+        @formHelpers.csrfToken()
         @common.submitButtonWithLogMessageInput(Messages("submitButton.deleteItem")) {
             <a href="@cancel.url" class="btn">@Messages("actions.cancel")</a>
         }

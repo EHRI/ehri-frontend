@@ -11,6 +11,8 @@ import controllers.ListParams
 import models.forms.LinkForm
 import play.api.mvc.Result
 import play.api.libs.json.{JsError, Json}
+import solr.SearchParams
+import solr.facet.AppliedFacet
 
 /**
  * Class representing an access point link.
@@ -38,25 +40,15 @@ object AccessPointLink {
  *
  * @tparam T the entity's build class
  */
-trait EntityLink[T <: LinkableEntity] extends EntityRead[T] {
+trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
 
-  def linkSelectAction(id: String, toType: String)(f: LinkableEntity => rest.Page[LinkableEntity] => ListParams => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def linkSelectAction(id: String, toType: String)(f: LinkableEntity => solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
       LinkableEntity.fromEntity(item).map { ann =>
-        val params = ListParams.bind(request)
-
-        // Need to process params!
-
-        val rp = params.toRestParams(EntityAnnotate.listFilterMappings, EntityAnnotate.orderMappings, Some(EntityAnnotate.DEFAULT_SORT))
-
-        AsyncRest {
-          EntityDAO(linkSrcEntityType, userOpt).page(rp).map { pageOrErr =>
-            pageOrErr.right.map { page =>
-              f(ann)(page.copy(items = page.items.flatMap(e => LinkableEntity.fromEntity(e))))(params)(userOpt)(request)
-            }
-          }
-        }
+        searchAction(defaultParams = Some(SearchParams(entities = List(linkSrcEntityType)))) { page => params => facets => _ => _ =>
+          f(ann)(page)(params)(facets)(linkSrcEntityType)(userOpt)(request)
+        }(request)
       } getOrElse {
         NotFound(views.html.errors.itemNotFound())
       }

@@ -1,4 +1,4 @@
-@(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, action: Call, autofocus: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, action: Call, autofocus: Boolean = true)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import solr.SearchParams
 
@@ -47,45 +47,6 @@
         @common.selectedFacets(result)
     </p>
 
-    <ul class="unstyled">
-    @result.items.map { case(item, id) =>
-        @defining(Some(id)) { implicit descriptionId =>
-            <li>
-                @item.isA match {
-                    case EntityType.DocumentaryUnit => {
-                        @documentaryUnit.listItem(DocumentaryUnit(item))
-                    }
-                    case EntityType.HistoricalAgent => {
-                        @historicalAgent.listItem(HistoricalAgent(item))
-                    }
-                    case EntityType.Repository => {
-                        @repository.listItem(Repository(item))
-                    }
-                    case EntityType.Concept => {
-                        @concept.listItem(Concept(item))
-                    }
-                    case EntityType.Country => {
-                        @country.searchItem(Country(item))
-                    }
-                    case EntityType.UserProfile => {
-                        @userProfile.searchItem(UserProfile(item))
-                    }
-                    case EntityType.Group => {
-                        @group.searchItem(Group(item))
-                    }
-                    case EntityType.AuthoritativeSet => {
-                        @authoritativeSet.searchItem(AuthoritativeSet(item))
-                    }
-                    case EntityType.Vocabulary => {
-                        @vocabulary.searchItem(Vocabulary(item))
-                    }
-                    case _ => {
-                        @common.searchItem(item)
-                    }
-                }
-            </li>
-        }
-    }
-    </ul>
+    @html
     @common.pagination(result)
 }

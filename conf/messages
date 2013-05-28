@@ -160,7 +160,12 @@ annotation.emptyBodyText=[Missing Annotation Text]
 #
 # Linking
 #
-linking.linkTo=Links to Other Items
+link.linkTo=Links to Other Items
+link.items=Linked Items
+link.itemLink=Item Link
+link.creator=Link Created By
+link.description=Link Body
+link.description.description=Some text that describes how these items are related.
 
 #
 # Admin
@@ -283,6 +288,7 @@ actions.manageAccessPoints=Manage Access Points
 actions.revokePermission=Revoke
 actions.addNewConceptDescription=Add Concept Description
 actions.deleteConceptDescription=Delete Description
+actions.deleteLink=Delete Link
 
 # Submit buttons
 submitButton.createDocumentaryUnit=Create Collection

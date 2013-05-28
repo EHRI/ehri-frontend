@@ -7,7 +7,9 @@
     }
 
     @views.html.search.searchSection(Messages("authoritativeSet.items")) {
-        @views.html.search.searchForm(page, params, action, autofocus = false)
+        @views.html.search.searchForm(page, params, action, autofocus = false) {
+            @views.html.search.searchItemList(page)
+        }
     }
 } {
     @common.facetList(page.facets, action)

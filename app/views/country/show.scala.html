@@ -8,7 +8,9 @@
     }
 
     @views.html.search.searchSection(Messages("country.searchInside", item.toStringAbbr)) {
-        @views.html.search.searchForm(result, params, action, autofocus = false)
+        @views.html.search.searchForm(result, params, action, autofocus = false) {
+            @views.html.search.searchItemList(result)
+        }
     }
 } {
     @common.facetList(result.facets, action)

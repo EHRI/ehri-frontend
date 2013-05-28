@@ -157,9 +157,10 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   }
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
-      item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.linking.linkSourceList(item, page, params,
-        EntityType.withName(toType), routes.HistoricalAgents.linkAnnotate _))
+      item => page => params => facets => etype => implicit userOpt => implicit request =>
+    Ok(views.html.linking.linkSourceList(item, page, params, facets, etype,
+        routes.HistoricalAgents.linkAnnotateSelect(id, toType),
+        routes.HistoricalAgents.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {

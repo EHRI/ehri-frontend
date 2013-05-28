@@ -3,35 +3,15 @@ package controllers.base
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
-import models.base.Persistable
 import defines._
 import models._
 import play.api.data.Form
-import rest.{AnnotationDAO, RestError, RestPageParams, EntityDAO}
-import collection.immutable.ListMap
-import controllers.ListParams
-import models.forms.{LinkForm, AnnotationForm}
-import scala.concurrent.Future
+import rest.AnnotationDAO
+import models.forms.AnnotationForm
 import play.api.libs.json.{Format, Json, JsError}
 
 
 object EntityAnnotate {
-  /**
-   * Mapping between incoming list filter parameters
-   * and the data values accessed via the server.
-   */
-  val DEFAULT_SORT = AccessibleEntity.NAME
-
-  val listFilterMappings: ListMap[String,String] = ListMap(
-    AccessibleEntity.NAME -> s"<-describes.${AccessibleEntity.NAME}"
-  )
-
-  val orderMappings: ListMap[String,String] = ListMap(
-    AccessibleEntity.NAME -> AccessibleEntity.NAME
-  )
-
-
-
   // Create a format for client read/writes
   implicit val annotationTypeFormat = defines.EnumUtils.enumFormat(AnnotationF.AnnotationType)
   implicit val clientAnnotationFormat: Format[AnnotationF] = Json.format[AnnotationF]

@@ -1,9 +1,22 @@
-@(item: Link, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Link, annotations: Map[String,List[Annotation]], src: Option[String] = None)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+@rightSidebarLayout(Messages("link.itemLink"), breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
-        TODO
+        @common.stringValue(item, LinkF.DESCRIPTION)
+
+        <h4>@Messages("link.items")</h4>
+        <ul>
+        @item.targets.map { item =>
+            <li><a href="@routes.Application.getType(item.isA, item.id)">@item.toStringLang</a></li>
+        }
+        </ul>
+
+        @item.accessor.map { u =>
+            <h4>@Messages("link.creator")</h4>
+            <a href="@routes.Application.getType(u.isA, u.id)">@u</a>
+        }
+
     }
 } {
     @common.visibility(item, routes.Links.visibility(item.id), ContentType.Link)
@@ -12,7 +25,7 @@
     <ul class="item-actions nav nav-tabs nav-stacked">
     @maybeUser.map { user =>
         @if(user.hasPermission(ContentType.Link, PermissionType.Delete)) {
-            <li><a href="@routes.Links.delete(item.id)">@Messages("actions.deleteLink")</a></li>
+            <li><a href="@routes.Links.delete(item.id, src)">@Messages("actions.deleteLink")</a></li>
         }
     }
     </ul>

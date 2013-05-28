@@ -9,7 +9,9 @@
     }
 
     @views.html.search.searchSection(Messages("vocabulary.items")) {
-        @views.html.search.searchForm(result, params, action, autofocus = false)
+        @views.html.search.searchForm(result, params, action, autofocus = false) {
+            @views.html.search.searchItemList(result)
+        }
     }
 } {
     @common.visibility(item, routes.Vocabularies.visibility(item.id), ContentType.Vocabulary)

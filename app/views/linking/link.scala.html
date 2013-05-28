@@ -3,17 +3,18 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.linkAnnotate", item, src)) {
+@rightSidebarLayout(Messages("actions.linkAnnotate", item.toStringLang, src.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		<fieldset id="annotate-area">
-
-        <legend>@Messages("Identity")</legend>
-            @helper.inputText(form(LinkF.DESCRIPTION), '_label -> Messages("link.description"))
-            <input type="hidden" value="@LinkF.LinkType.Associative" name="@form(LinkF.LINK_TYPE).name" />
+            <legend>@Messages("actions.linkTo")</legend>
+            @defining("link") { implicit fieldPrefix =>
+                @formHelpers.textInput(form(""), LinkF.DESCRIPTION)
+                <input type="hidden" value="@LinkF.LinkType.Associative" name="@form(LinkF.LINK_TYPE).name" />
+            }
 		</fieldset>
-	  
+
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">@Messages("submitButton.linkAnnotate")</button>
 		</div>
