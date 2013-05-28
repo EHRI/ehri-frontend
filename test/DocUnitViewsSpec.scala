@@ -302,23 +302,6 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       status(getR) must equalTo(OK)
     }
 
-    "allow commenting via annotations" in new FakeApp {
-      val testItem = "c1"
-      val body = "This is a neat annotation"
-      val testData: Map[String, Seq[String]] = Map(
-        AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationF.AnnotationType.Comment.toString),
-        AnnotationF.BODY -> Seq(body)
-      )
-      // Now try again to update the item, which should succeed
-      // Check we can update the item
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.annotatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must contain(body)
-    }
-
     "allow linking to items via annotation" in new FakeApp {
       val testItem = "c1"
       val linkSrc = "cvocc1"

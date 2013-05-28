@@ -1,6 +1,6 @@
 @(item: HistoricalAgent)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-.itemPage(item) {
+@historicalAgent.itemPage(item) {
 
     <h3>@Messages("actions.linkTo")</h3>
 

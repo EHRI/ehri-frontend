@@ -209,23 +209,4 @@ object Repositories extends EntityRead[Repository]
     Redirect(routes.Repositories.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
-
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Repository(item), AnnotationForm.form, routes.Repositories.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(Repository(item),
-          errorForm, routes.Repositories.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.Repositories.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
-  }
 }

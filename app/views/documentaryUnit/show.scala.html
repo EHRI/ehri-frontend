@@ -25,7 +25,7 @@
 }
 
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
-    @common.annotated(item, annotations, routes.DocumentaryUnits.annotate(item.id)) {
+    @common.annotated(item, annotations) {
 
         @item.holder.map { holder =>
             <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>

@@ -2,7 +2,7 @@
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
-    @common.annotated(item, annotations, routes.Vocabularies.annotate(item.id)) {
+    @common.annotated(item, annotations) {
         @defining("vocabulary") { implicit  prefix =>
             @common.stringValue(item, models.VocabularyF.DESCRIPTION)
         }

@@ -157,26 +157,6 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
     Redirect(routes.Vocabularies.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
-
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Vocabulary(item),
-      AnnotationForm.form, routes.Vocabularies.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(Vocabulary(item),
-            errorForm, routes.Vocabularies.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.Vocabularies.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
-  }
 }
 
 

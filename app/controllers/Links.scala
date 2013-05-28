@@ -54,23 +54,4 @@ object Links extends EntityRead[Link]
       Redirect(routes.Application.index)
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
-
-  def annotate(id: String) = annotationAction(id) {
-      item => form => implicit userOpt => implicit request =>
-    Ok(views.html.link.annotate(Link(item), form, routes.Links.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) { formOrLink => implicit userOpt =>
-    implicit request =>
-      formOrLink match {
-        case Left(errorForm) => getEntity(id, userOpt) { item =>
-          BadRequest(views.html.link.annotate(Link(item),
-            errorForm, routes.Links.annotatePost(id)))
-        }
-        case Right(link) => {
-          Redirect(routes.Links.get(id))
-            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-        }
-      }
-  }
 }

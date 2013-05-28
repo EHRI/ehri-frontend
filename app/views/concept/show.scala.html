@@ -35,8 +35,13 @@
                 </div>
             }
 
-            @common.annotated(item, annotations, routes.Concepts.annotate(item.id)) {
-                TODO
+            @common.annotated(item, annotations) {
+
+                @defining("concept") { implicit fieldPrefix =>
+                    @common.listValue(item, ALTLABEL)
+                    @common.listValue(item, DEFINITION)
+                    @common.listValue(item, SCOPENOTE)
+                }
             }
 
         </div>

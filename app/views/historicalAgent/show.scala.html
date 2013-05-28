@@ -5,7 +5,7 @@
 
 @historicalAgent.itemPage(item) {
 
-    @common.annotated(item, annotations, routes.HistoricalAgents.annotate(item.id)) {
+    @common.annotated(item, annotations) {
         @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
             @common.stringValue(item, IDENTIFIER)
             @if(!item.descriptions.isEmpty) {

@@ -289,26 +289,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = annotationAction(id) {
-      item => form => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(DocumentaryUnit(item),
-          form, routes.DocumentaryUnits.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(DocumentaryUnit(item),
-            errorForm, routes.DocumentaryUnits.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.DocumentaryUnits.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
-  }
-
   def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.linkTo(DocumentaryUnit(item)))
