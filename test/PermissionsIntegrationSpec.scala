@@ -29,9 +29,9 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
   val userProfile = UserProfile(Entity.fromString(privilegedUser.profile_id, EntityType.UserProfile)
     .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
 
-  "Full-service permissions test" should {
+  "The application" should {
 
-    "run correctly" in new FakeApp {
+    "support read/write on Repositories and Doc Units with country scope" in new FakeApp {
 
       // Target country
       val countryId = "gb"
@@ -179,6 +179,264 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
           controllers.routes.DocumentaryUnits.get(otherDocId).url)).get
       status(otherDocRead) must equalTo(OK)
       contentAsString(otherDocRead) must not contain(controllers.routes.DocumentaryUnits.createDoc(otherDocId).url)
+
+    }
+
+    "support supervisor CUD and user COD" in new FakeApp {
+
+      // Target country
+      val countryId = "gb"
+
+      // Create a new subject repository as the admin user
+      val repoData = Map(
+        "identifier" -> Seq("testrepo"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].name" -> Seq("A Test Repository"),
+        "descriptions[0].descriptionArea.history" -> Seq("A repository with a long history")
+      )
+      val repoCreatePost = route(fakeLoggedInRequest(privilegedUser, POST,
+        routes.Countries.createRepositoryPost(countryId).url)
+        .withHeaders(formPostHeaders.toSeq: _*), repoData).get
+      status(repoCreatePost) must equalTo(SEE_OTHER)
+
+      // Test we can read the new repository
+      val repoUrl = redirectLocation(repoCreatePost).get
+      val repoId = repoUrl.substring(repoUrl.lastIndexOf("/") + 1)
+
+      val repoRead = route(fakeLoggedInRequest(privilegedUser, GET,
+          controllers.routes.Repositories.get(repoId).url)).get
+      status(repoRead) must equalTo(OK)
+      contentAsString(repoRead) must contain("A Test Repository")
+
+      // Create a new group to represent the *head archivist role*
+      val headArchivistsGroupId = "head-archivists"
+      val headArchivistsGroupData = Map(
+        "identifier" -> Seq(headArchivistsGroupId),
+        "name" -> Seq("Test Repo Head Archivists"),
+        "description" -> Seq("Group for the Head Archivists in Test Repo")
+      )
+      val headArchivistsGroupCreatePost = route(fakeLoggedInRequest(privilegedUser, POST,
+        controllers.routes.Groups.create.url)
+        .withHeaders(formPostHeaders.toSeq: _*), headArchivistsGroupData).get
+      status(headArchivistsGroupCreatePost) must equalTo(SEE_OTHER)
+
+      val archivistsGroupId = "archivists"
+      val archivistsGroupData = Map(
+        "identifier" -> Seq(archivistsGroupId),
+        "name" -> Seq("Test Repo Archivists"),
+        "description" -> Seq("Group for the Archivists in Test Repo")
+      )
+      val archivistsGroupCreatePost = route(fakeLoggedInRequest(privilegedUser, POST,
+        controllers.routes.Groups.create.url)
+        .withHeaders(formPostHeaders.toSeq: _*), archivistsGroupData).get
+      status(archivistsGroupCreatePost) must equalTo(SEE_OTHER)
+
+      // Check we can read both groups
+      val groupRead1 = route(fakeLoggedInRequest(privilegedUser, GET,
+        controllers.routes.Groups.get(headArchivistsGroupId).url)).get
+      status(groupRead1) must equalTo(OK)
+
+      val groupRead2 = route(fakeLoggedInRequest(privilegedUser, GET,
+        controllers.routes.Groups.get(archivistsGroupId).url)).get
+      status(groupRead2) must equalTo(OK)
+
+      // Grant scoped permissions for the head archivists to create, update, and delete
+      // documentary units with repository repoId
+      val haPermissionsToGrant = List(
+        PermissionType.Create, PermissionType.Update, PermissionType.Delete, PermissionType.Annotate
+      )
+      val haPermData: Map[String, List[String]] = Map(
+        EntityType.DocumentaryUnit.toString -> haPermissionsToGrant.map(_.toString)
+      )
+      val haPermSetPost = route(fakeLoggedInRequest(privilegedUser, POST,
+          controllers.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group.toString, headArchivistsGroupId).url)
+      .withHeaders(formPostHeaders.toSeq: _*), haPermData).get
+      status(haPermSetPost) must equalTo(SEE_OTHER)
+
+      // Grant scoped permissions for the archivists to create and delete
+      // documentary units with repository repoId (NOT update or delete -
+      // these will be provided on the user's own docs with the implicit Owner perm)
+      val aPermissionsToGrant = List(
+        PermissionType.Create, PermissionType.Annotate
+      )
+      val aPermData: Map[String, List[String]] = Map(
+        EntityType.DocumentaryUnit.toString -> aPermissionsToGrant.map(_.toString)
+      )
+      val aPermSetPost = route(fakeLoggedInRequest(privilegedUser, POST,
+          controllers.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group.toString, archivistsGroupId).url)
+      .withHeaders(formPostHeaders.toSeq: _*), aPermData).get
+      status(aPermSetPost) must equalTo(SEE_OTHER)
+
+
+      // Okay, now create a new user and add them to the head-archivists group. Do this
+      // in one go using the groups parameter
+      val headArchivistUserId = "head-archivist-user"
+      val haUserData = Map(
+        "username" -> Seq(headArchivistUserId),
+        "name" -> Seq("Bob Important"),
+        "email" -> Seq("head-archivist@example.com"),
+        "password" -> Seq("changeme"),
+        "confirm" -> Seq("changeme"),
+        "group[]" -> Seq(headArchivistsGroupId, archivistsGroupId) // NB: Note brackets on param name!!!
+      )
+      val haUserCreatePost = route(fakeLoggedInRequest(privilegedUser, POST,
+        controllers.routes.Admin.createUserPost.url)
+        .withHeaders(formPostHeaders.toSeq: _*), haUserData).get
+      status(haUserCreatePost) must equalTo(SEE_OTHER)
+
+      // Check we can read the user's page
+      val haUserRead =  route(fakeLoggedInRequest(privilegedUser, GET,
+        controllers.routes.UserProfiles.get(headArchivistUserId).url)).get
+      status(haUserRead) must equalTo(OK)
+
+      // Fetch the user's profile to perform subsequent logins
+      val haFetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get(headArchivistUserId))
+
+      haFetchProfile must beRight
+      val headArchivistProfile = UserProfile(haFetchProfile.right.get)
+
+      // Add their account to the mocks
+      val haAccount = new models.sql.OpenIDUser(1L, "head-archivist@example.com", headArchivistUserId)
+      mocks.UserFixtures.all.append(haAccount)
+
+
+      // Now create a new user and add them to the archivists group. Do this
+      // in one go using the groups parameter
+      val archivistUserId = "archivist-user1"
+      val aUserData = Map(
+        "username" -> Seq(archivistUserId),
+        "name" -> Seq("Jim Nobody"),
+        "email" -> Seq("archivist1@example.com"),
+        "password" -> Seq("changeme"),
+        "confirm" -> Seq("changeme"),
+        "group[]" -> Seq(archivistsGroupId) // NB: Note brackets on param name!!!
+      )
+      val aUserCreatePost = route(fakeLoggedInRequest(privilegedUser, POST,
+        controllers.routes.Admin.createUserPost.url)
+        .withHeaders(formPostHeaders.toSeq: _*), aUserData).get
+      status(aUserCreatePost) must equalTo(SEE_OTHER)
+
+      // Check we can read the user's page
+      val aUserRead =  route(fakeLoggedInRequest(privilegedUser, GET,
+        controllers.routes.UserProfiles.get(archivistUserId).url)).get
+      status(aUserRead) must equalTo(OK)
+
+      // Fetch the user's profile to perform subsequent logins
+      val aFetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get(archivistUserId))
+
+      aFetchProfile must beRight
+      val archivistProfile = UserProfile(aFetchProfile.right.get)
+
+      // Add the archivists group to the account mocks
+      val aAccount = new models.sql.OpenIDUser(2L, "archivist1@example.com", archivistUserId)
+      mocks.UserFixtures.all.append(aAccount)
+
+
+      // Check each user can read their profile as themselves...
+      val haUserReadAsSelf =  route(fakeLoggedInRequest(haAccount, GET,
+        controllers.routes.UserProfiles.get(headArchivistUserId).url)).get
+      status(haUserReadAsSelf) must equalTo(OK)
+
+      val aUserReadAsSelf =  route(fakeLoggedInRequest(aAccount, GET,
+        controllers.routes.UserProfiles.get(archivistUserId).url)).get
+      status(aUserReadAsSelf) must equalTo(OK)
+
+      // Test the Head Archivist can Create, Update, and Delete documentary units within repoId
+      // Now create a documentary unit...
+      val doc1Data = Map(
+        "identifier" -> Seq("testdoc1"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].name" -> Seq("A new document, made by the head archivist"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
+      )
+
+      val createDoc1Post = route(fakeLoggedInRequest(haAccount, POST,
+        routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc1Data).get
+      status(createDoc1Post) must equalTo(SEE_OTHER)
+
+      // Test we can read the new repository
+      val doc1Url = redirectLocation(createDoc1Post).get
+      val doc1Id = doc1Url.substring(doc1Url.lastIndexOf("/") + 1)
+      val doc1Read = route(fakeLoggedInRequest(haAccount, GET,
+          controllers.routes.DocumentaryUnits.get(doc1Id).url)).get
+      status(doc1Read) must equalTo(OK)
+      contentAsString(doc1Read) must contain("A new document")
+      contentAsString(doc1Read) must contain(controllers.routes.DocumentaryUnits.createDoc(doc1Id).url)
+
+      val doc1UpdateData = Map(
+        "identifier" -> Seq("testdoc1"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].name" -> Seq("A different name"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
+      )
+
+      val updateDoc1Post = route(fakeLoggedInRequest(haAccount, POST,
+        routes.DocumentaryUnits.update(doc1Id).url).withHeaders(formPostHeaders.toSeq: _*), doc1UpdateData).get
+      status(updateDoc1Post) must equalTo(SEE_OTHER)
+
+      // Test the update doc contains the new info...
+      val doc1UpdateRead = route(fakeLoggedInRequest(haAccount, GET,
+          controllers.routes.DocumentaryUnits.get(doc1Id).url)).get
+      status(doc1UpdateRead) must equalTo(OK)
+      contentAsString(doc1UpdateRead) must contain("A different name")
+
+      // Test we can delete the new document...
+      val doc1DeleteRead = route(fakeLoggedInRequest(haAccount, POST,
+          routes.DocumentaryUnits.delete(doc1Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+      status(doc1DeleteRead) must equalTo(SEE_OTHER)
+      val doc1CheckDeleteRead = route(fakeLoggedInRequest(haAccount, GET,
+          routes.DocumentaryUnits.get(doc1Id).url)).get
+      status(doc1CheckDeleteRead) must equalTo(NOT_FOUND)
+
+      // ---------------------------------------------
+      //
+      // Test the Archivist can Create, Update, and Delete documentary units within repoId
+      // She should be able to Update them because she owns them...
+      val doc2Data = Map(
+        "identifier" -> Seq("testdoc2"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].name" -> Seq("A new document, made by an ordinary schmo archivist"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
+      )
+
+      val createDoc2Post = route(fakeLoggedInRequest(aAccount, POST,
+        routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc2Data).get
+      status(createDoc2Post) must equalTo(SEE_OTHER)
+
+      // Test we can read the new repository
+      val doc2Url = redirectLocation(createDoc2Post).get
+      val doc2Id = doc2Url.substring(doc2Url.lastIndexOf("/") + 1)
+      val doc2Read = route(fakeLoggedInRequest(aAccount, GET,
+          controllers.routes.DocumentaryUnits.get(doc2Id).url)).get
+      status(doc2Read) must equalTo(OK)
+      contentAsString(doc2Read) must contain("A new document")
+      contentAsString(doc2Read) must contain(controllers.routes.DocumentaryUnits.createDoc(doc2Id).url)
+
+      val doc2UpdateData = Map(
+        "identifier" -> Seq("testdoc2"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].name" -> Seq("A different name"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
+      )
+
+      val updateDoc2Post = route(fakeLoggedInRequest(aAccount, POST,
+        routes.DocumentaryUnits.update(doc2Id).url).withHeaders(formPostHeaders.toSeq: _*), doc2UpdateData).get
+      status(updateDoc2Post) must equalTo(SEE_OTHER)
+
+      // Test the update doc contains the new info...
+      val doc2UpdateRead = route(fakeLoggedInRequest(aAccount, GET,
+          controllers.routes.DocumentaryUnits.get(doc2Id).url)).get
+      status(doc2UpdateRead) must equalTo(OK)
+      contentAsString(doc2UpdateRead) must contain("A different name")
+
+      // Test we can delete the new document...
+      val doc2DeleteRead = route(fakeLoggedInRequest(aAccount, POST,
+          routes.DocumentaryUnits.delete(doc2Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+      status(doc2DeleteRead) must equalTo(SEE_OTHER)
+      val doc2CheckDeleteRead = route(fakeLoggedInRequest(aAccount, GET,
+          routes.DocumentaryUnits.get(doc2Id).url)).get
+      status(doc2CheckDeleteRead) must equalTo(NOT_FOUND)
+
 
     }
 
