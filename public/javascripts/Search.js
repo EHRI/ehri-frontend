@@ -23,8 +23,7 @@ var portal = angular.module('portalSearch', ['ui.bootstrap' ], function ($provid
 //Filters
 portal
 	.filter('descLang', function() {
-		return function(descriptions, lang) {
-			// console.log(descriptions);			
+		return function(descriptions, lang) {	
 			if(descriptions)
 			{
 				var filtered = [];
@@ -36,13 +35,10 @@ portal
 				});
 				if(filtered[0])
 				{
-					// console.log(filtered.data);
 					return filtered;
 				}
 				else
 				{
-					// filtered[0] = descriptions;
-					// console.log(filtered);
 					return descriptions;
 				}
 			}
@@ -96,36 +92,25 @@ portal
 
 portal.directive('whenScrolled', function ($window) {
     return function(scope, element, attrs) {
-		console.log(element);
-		var bottomPos = (element[0].offsetTop + element[0].clientHeight);
         angular.element($window).bind("scroll", function() {
+		
+			var bottomPos = parseInt(element[0].offsetTop) + parseInt(element[0].offsetHeight) + 95;
 			if (document.documentElement.scrollTop) { var currentScroll = document.documentElement.scrollTop; } else { var currentScroll = document.body.scrollTop; }
 			var totalHeight = document.body.offsetHeight;
 			var visibleHeight = document.documentElement.clientHeight;
-			// console.log("offsetHeight : " + element[0].offsetHeight); // Height of the element
-			// console.log("scrollTop : " + element[0].offsetTop); //Distance between body and this element
-			// console.log("pageYOffset : " + this.pageYOffset); //Y of the scroll point
-			// console.log("window.innerHeight:" + this.innerHeight); //innerHeight = height in browser
-			// console.log(totalHeight);
-			// console.log("Addition:" +(currentScroll + visibleHeight + 150));
-			// console.log("OffsetTop et Heigh : " + (element[0].offsetTop + element[0].offsetHeight));
+			
+			// Particularities : we have margin on top and bot
 			//Bottom = 65
 			//Top = 95
 			
-			//Taille totale de du document = (currentScroll + visibleHeight + 150)
-			//Position du bottom de la div = (element[0].offsetTop + element[0].offsetHeight)
-			//
+			//Total height of doc = (currentScroll + visibleHeight + 150)
+			//Div's Bottom position = (element[0].offsetTop + element[0].offsetHeight)
+			//Take care of calling it in angular.element. In any other case you would have its height before datas has been loaded
+			
 			var currentScrollHeight = currentScroll + visibleHeight + 95;
-			console.log(bottomPos +" <= "+currentScrollHeight);
              if (bottomPos  <= currentScrollHeight) {
-				//alert("Hello");
-				// console.log("Scrolled to bottom");
-				//scope.$apply(attr.whenScrolled);
+				scope.$apply(attrs.whenScrolled);
              }
-			 else
-			 {
-				// console.log("not scrolled");
-			 }
         });
     }
 });
@@ -143,11 +128,7 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 	$scope.numPages = false; // Number of pages (get from query)
 	
 	$scope.lastFilter = false;
-	
-	//Watch for page click
-	/*$scope.$watch("currentPage", function (newValue) {
-		$scope.setQuery("page", newValue);
-	});*/
+	$scope.loadingPage = false;
 	
 	
 	$scope.fromSearch = function() {
@@ -160,7 +141,6 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 			else if(key == "page")
 			{
 				$scope.currentPage = parseInt(value);
-				//console.log($scope.currentPage);
 			}
 		});
 	}
@@ -201,13 +181,26 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 		return url + urlArr.join('&');
 	}
 	
-	$scope.doSearch = function() {				
+	$scope.doSearch = function(push) {				
 		url = $scope.getUrl('/search');
-		// console.log("Url for Query : " + url);
 		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
-			$scope.page = data.page;
-			$scope.facets = data.facets;
-			$scope.numPages = data.numPages;
+			if(push)
+			{
+				angular.forEach(data.page.items, function(value){
+					$scope.items.push(value);
+				});
+				$scope.facets = data.facets;
+			}
+			else
+			{
+				$scope.page = data.page;
+				$scope.items = data.page.items;
+				$scope.facets = data.facets;
+				$scope.numPages = data.numPages;
+			}
+			// console.log($scope.items);
+			//Get the loading possible again
+			$scope.loadingPage = false;
 		}).error(function() { 
 			$scope.removeFilterByKey($scope.lastFilter);
 			alert('Server error, reloading datas');
@@ -215,8 +208,14 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 	}
 	
 	$scope.loadMore = function () {
-		$scope.currentPage = $scope.currentPage + 1;
-		alert('Hello');
+		if($scope.loadingPage == false && $scope.currentPage != $scope.numPages)
+		{
+			$scope.loadingPage = true;
+			$scope.currentPage = $scope.currentPage + 1;
+			$scope.searchParams.page = $scope.currentPage;
+			$scope.doSearch(true);
+			console.log("ScrolltoCall for page " + $scope.currentPage);
+		}
 	}
 	
 	$scope.removeFilterByKey = function(key){
