@@ -29,6 +29,11 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
   val userProfile = UserProfile(Entity.fromString(privilegedUser.profile_id, EntityType.UserProfile)
     .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
 
+  /**
+   * Get the id from an URL where the ID is the last component...
+   */
+  private def idFromUrl(url: String) = url.substring(url.lastIndexOf("/") + 1)
+
   "The application" should {
 
     "support read/write on Repositories and Doc Units with country scope" in new FakeApp {
@@ -134,9 +139,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
 
 
       // Test we can read the new repository
-      val repoUrl = redirectLocation(repoCreatePost).get
-      val repoId = repoUrl.substring(repoUrl.lastIndexOf("/") + 1)
-
+      val repoId = idFromUrl(redirectLocation(repoCreatePost).get)
       val repoRead = route(fakeLoggedInRequest(fakeAccount, GET,
           controllers.routes.Repositories.get(repoId).url)).get
       status(repoRead) must equalTo(OK)
@@ -164,9 +167,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(createDocPost) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
-      val docUrl = redirectLocation(createDocPost).get
-      val docId = docUrl.substring(docUrl.lastIndexOf("/") + 1)
-      println(docUrl)
+      val docId = idFromUrl(redirectLocation(createDocPost).get)
       val docRead = route(fakeLoggedInRequest(fakeAccount, GET,
           controllers.routes.DocumentaryUnits.get(docId).url)).get
       status(docRead) must equalTo(OK)
@@ -200,8 +201,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(repoCreatePost) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
-      val repoUrl = redirectLocation(repoCreatePost).get
-      val repoId = repoUrl.substring(repoUrl.lastIndexOf("/") + 1)
+      val repoId = idFromUrl(redirectLocation(repoCreatePost).get)
 
       val repoRead = route(fakeLoggedInRequest(privilegedUser, GET,
           controllers.routes.Repositories.get(repoId).url)).get
@@ -355,8 +355,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(createDoc1Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
-      val doc1Url = redirectLocation(createDoc1Post).get
-      val doc1Id = doc1Url.substring(doc1Url.lastIndexOf("/") + 1)
+      val doc1Id = idFromUrl(redirectLocation(createDoc1Post).get)
       val doc1Read = route(fakeLoggedInRequest(haAccount, GET,
           controllers.routes.DocumentaryUnits.get(doc1Id).url)).get
       status(doc1Read) must equalTo(OK)
@@ -404,8 +403,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(createDoc2Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
-      val doc2Url = redirectLocation(createDoc2Post).get
-      val doc2Id = doc2Url.substring(doc2Url.lastIndexOf("/") + 1)
+      val doc2Id = idFromUrl(redirectLocation(createDoc2Post).get)
       val doc2Read = route(fakeLoggedInRequest(aAccount, GET,
           controllers.routes.DocumentaryUnits.get(doc2Id).url)).get
       status(doc2Read) must equalTo(OK)
@@ -437,6 +435,73 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
           routes.DocumentaryUnits.get(doc2Id).url)).get
       status(doc2CheckDeleteRead) must equalTo(NOT_FOUND)
 
+      // HOORAY! Basic stuff seems to work - now onto the difficult things...
+      // Create a doc as the head archivist, then check it can't be deleted
+      // by the pleb....
+      //
+      // Test the Head Archivist can Create a documentary units within repoId
+      // and the ordinary archivist can't delete it...
+      val doc3Data = Map(
+        "identifier" -> Seq("testdoc3"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].name" -> Seq("Another new document, made by the head archivist"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
+      )
+
+      val createDoc3Post = route(fakeLoggedInRequest(haAccount, POST,
+        routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc3Data).get
+      status(createDoc3Post) must equalTo(SEE_OTHER)
+
+      // Test we can read the new doc...
+      val doc3Id = idFromUrl(redirectLocation(createDoc3Post).get)
+      val doc3Read = route(fakeLoggedInRequest(haAccount, GET,
+          controllers.routes.DocumentaryUnits.get(doc3Id).url)).get
+      status(doc3Read) must equalTo(OK)
+      contentAsString(doc3Read) must contain("Another new document")
+      contentAsString(doc3Read) must contain(controllers.routes.DocumentaryUnits.createDoc(doc3Id).url)
+
+      // Now ensure the ordinary archivist cannot update it!
+      val doc3UpdateRead = route(fakeLoggedInRequest(aAccount, POST,
+          routes.DocumentaryUnits.update(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*),
+          doc3Data.updated("descriptions[0].name", Seq("Foobar"))).get
+      status(doc3UpdateRead) must equalTo(UNAUTHORIZED)
+
+      // Now ensure the ordinary archivist cannot delete it!
+      val doc3DeleteRead = route(fakeLoggedInRequest(aAccount, POST,
+          routes.DocumentaryUnits.delete(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+      status(doc3DeleteRead) must equalTo(UNAUTHORIZED)
+
+      // Test the ordinary archivist can Create a documentary units within repoId
+      // and the head archivist CAN delete it...
+      val doc4Data = Map(
+        "identifier" -> Seq("testdoc4"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].name" -> Seq("Another new document, made by the head archivist"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
+      )
+
+      val createDoc4Post = route(fakeLoggedInRequest(aAccount, POST,
+      routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc4Data).get
+      status(createDoc4Post) must equalTo(SEE_OTHER)
+
+      // Test we can read the new repository
+      val doc4Id = idFromUrl(redirectLocation(createDoc4Post).get)
+      val doc4Read = route(fakeLoggedInRequest(aAccount, GET,
+          controllers.routes.DocumentaryUnits.get(doc4Id).url)).get
+      status(doc4Read) must equalTo(OK)
+      contentAsString(doc4Read) must contain("Another new document")
+      contentAsString(doc4Read) must contain(controllers.routes.DocumentaryUnits.createDoc(doc4Id).url)
+
+      // Now ensure the head archivist CAN update it!
+      val doc4UpdateRead = route(fakeLoggedInRequest(haAccount, POST,
+          routes.DocumentaryUnits.update(doc4Id).url).withHeaders(formPostHeaders.toSeq: _*),
+          doc4Data.updated("descriptions[0].name", Seq("A different name"))).get
+      status(doc4UpdateRead) must equalTo(SEE_OTHER)
+
+     // Now ensure the head archivist CAN delete it!
+      val doc4DeleteRead = route(fakeLoggedInRequest(haAccount, POST,
+          routes.DocumentaryUnits.delete(doc4Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+      status(doc4DeleteRead) must equalTo(SEE_OTHER)
 
     }
 
