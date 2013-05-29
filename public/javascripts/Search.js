@@ -20,13 +20,6 @@ portal.factory('myPaginationService', function($rootScope) {
     var paginationService = {};
     
     paginationService.paginationDatas = {'current' : 1, 'max': 5, 'num': false};
-	
-	/*
-	 $scope.currentPage = 1; //Current page of pagination
-		$scope.justLoaded = false;
-		$scope.maxSize = 10; // Number of pagination buttons shown
-		$scope.numPages = false; // Number of pages (get from query) 
-	*/
 
     paginationService.prepForBroadcast = function(msg) {
         this.paginationDatas = msg;
@@ -193,6 +186,8 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 		}
 		else
 		{
+		
+			$scope.searchParams.page = $scope.currentPage;	
 			$scope.doSearch(true, (prev < $scope.currentPage));
 			console.log("load new page");
 		}
@@ -205,13 +200,16 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 		{
 			$scope.removeFilterByKey(type);
 			$location.search('page', 1);
+			$scope.searchParams.page = 1;
+			$scope.currentPage = 1;
 		}
 		else
 		{
 			if(type != 'page')
 			{
-				$location.search('page', null);
-				delete $scope.searchParams.page;
+				$location.search('page', 1);
+				$scope.searchParams.page = 1;
+				$scope.currentPage = 1;
 			}
 			else {
 				q = parseInt(q);
@@ -224,8 +222,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 		}
 	}
 	
-	$scope.getUrl = function(url) {		
-		$scope.searchParams.page = $scope.currentPage;	
+	$scope.getUrl = function(url) {
 		url = url + '?';
 		
 		var urlArr = [];
@@ -236,7 +233,8 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 		return url + urlArr.join('&');
 	}
 	
-	$scope.doSearch = function(push, scroll) {				
+	$scope.doSearch = function(push, scroll) {	
+		if(!push) { $scope.searchParams.page = 1; $scope.currentPage = 1; }
 		url = $scope.getUrl('/search');
 		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
 			if(push)
@@ -259,11 +257,12 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 			}
 			else
 			{
-				console.log(data.page.items);
 				//Datas
+				$scope.currentPage = 1;
+				$scope.loadedPage = {1 : true};
 				$scope.page = data.page;
+				$scope.pages = {};
 				$scope.pages[$scope.currentPage] = {};
-				console.log($scope.pages);
 				$scope.pages[$scope.currentPage].items = data.page.items;
 				$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
 				$scope.facets = data.facets;
@@ -271,7 +270,6 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 				//Pagination
 				$scope.loadedPage = {};
 				$scope.loadedPage[$scope.currentPage] = true;
-				console.log($scope.currentPage);
 				$scope.numPages = data.numPages;
 			}
 			// console.log($scope.items);
@@ -284,13 +282,13 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	}
 	
 	$scope.loadMore = function () {
-		if($scope.loadingPage == false && $scope.currentPage != $scope.numPages)
+		if($scope.loadingPage == false && $scope.currentPage != $scope.numPages && (!$scope.loadedPage[($scope.currentPage + 1)]))
 		{
 			$scope.loadingPage = true;
 			$scope.currentPage = $scope.currentPage + 1;
 			$scope.searchParams.page = $scope.currentPage;
 			$scope.doSearch(true);
-			console.log("ScrolltoCall for page " + $scope.currentPage);
+			//console.log("ScrolltoCall for page " + $scope.currentPage);
 		}
 	}
 	
