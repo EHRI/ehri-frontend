@@ -135,7 +135,7 @@ object SolrIndexer extends RestDAO {
       case any => entityToSolr(item)
     }
   }
-  
+
   private def docToSolr(d: DocumentaryUnit): List[JsObject] = {
     val descriptions = describedEntityToSolr(d)
     descriptions.map { desc =>
@@ -164,6 +164,7 @@ object SolrIndexer extends RestDAO {
     val descriptions = describedEntityToSolr(d)
     descriptions.map { desc =>
       ((desc
+        + ("addresses" -> Json.toJson(d.descriptions.flatMap(_.addresses.flatMap(_.formableOpt)).map(_.toString).distinct))
         + ("countryCode" -> Json.toJson(d.country.map(_.id)))
         + ("priority" -> Json.toJson(d.priority))))
     }
