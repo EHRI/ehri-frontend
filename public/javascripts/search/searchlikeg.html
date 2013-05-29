@@ -84,43 +84,50 @@
 								</ul>
 							</div>
 							<div id="content" class="span8" when-scrolled="loadMore()" >
-								<article id="{{item.id}}" class="search-item" ng-repeat="item in items">
-									<!-- If desc inside relationship -->
-									<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
-										<header>
-											<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
-											<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a>
-											
-										</header>
-										
-										<p>
-											<b>{{item.type}}</b> - 
-											{{(desc.data.biographicalHistory.length > 360 && (desc.data.biographicalHistory.substring(0, 360) + '...')) || desc.data.biographicalHistory}}
-										</p>
-										
-										<footer>
-											<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
-												<dt class="hide">Extra datas : </dt> 
-												<dd ng-repeat="extraText in desc.data | extraHeader" class="{{extraText.key}}" title="{{extraText.key}}">{{extraText.content}}</dd>
-											</dl>
-										</footer>
-									</div>
-									
-									<!-- If desc not inside relationship -->
-									<div ng-show="(!item.relationships.describes)">
-										<header>
-											<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
-											<a ng-click="getLink(item.type, item.id)">
-												<b>{{item.data.name || item.data.identifier}}</b>
+								<div ng-repeat="pagify in pages">
+									<article id="{{item.id}}" class="search-item" ng-repeat="item in pagify.items">
+										<div ng-show="item.page" class="pagination-page muted" id="page-{{item.page}}">
+											<a title="Page {{item.page}}">
+												{{item.page}}
 											</a>
-										</header>
-											<p><b>{{item.type}}</b></p>
-									</div>
-								</article>
+										</div>
+										<!-- If desc inside relationship -->
+										<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+											<header>
+												<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+												<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a>
+												
+											</header>
+											
+											<p>
+												<b>{{item.type}}</b> - 
+												{{(desc.data.biographicalHistory.length > 360 && (desc.data.biographicalHistory.substring(0, 360) + '...')) || desc.data.biographicalHistory}}
+											</p>
+											
+											<footer>
+												<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
+													<dt class="hide">Extra datas : </dt> 
+													<dd ng-repeat="extraText in desc.data | extraHeader" class="{{extraText.key}}" title="{{extraText.key}}">{{extraText.content}}</dd>
+												</dl>
+											</footer>
+										</div>
+										
+										<!-- If desc not inside relationship -->
+										<div ng-show="(!item.relationships.describes)">
+											<header>
+												<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+												<a ng-click="getLink(item.type, item.id)">
+													<b>{{item.data.name || item.data.identifier}}</b>
+												</a>
+											</header>
+												<p><b>{{item.type}}</b></p>
+										</div>
+									</article>
+								</div>
 								<div ng-show="loadingPage" class="well" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></div>
 							</div>
 							<div class="span2">
-								DETAILS ?
+								&nbsp;
 							</div>
 						</div>
 					</div>

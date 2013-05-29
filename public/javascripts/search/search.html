@@ -5,7 +5,7 @@
 		
 				<article>
 					<header><h1>Search</h1><header>
-					<p>Displaying item {{(page.offset + 1)}} to {{(page.limit + page.offset)}} of {{page.total}}</p>
+					<p>Displaying item {{(page.offset + 1)}} to {{(parseInt(page.limit) + parseInt(page.offset))}} of {{page.total}}</p>
 				
 				<form id="search-form">
 					<div class="input-append search-query">

@@ -126,7 +126,7 @@
 	
 	</div>
 	
-	<div class="navbar navbar-fixed-bottom">
+	<div class="navbar navbar-fixed-bottom" ng-controller="BottomBar">
 		<div class="navbar-inner">
 			<ul class="nav">
 				<li>
@@ -139,6 +139,10 @@
 				<li class="divider-vertical"></li>
 				<li class="">
 					<a href="/"><i class="icon-group"></i> People</a>
+				</li>
+				<li class="divider-vertical"></li> 
+				<li ng-show="pagination.num" style="padding-top:7px;">
+					<pagination num-pages="pagination.num" current-page="pagination.current" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="pagination.max"></pagination>
 				</li>
 			</ul>
 			<ul class="nav pull-right">

@@ -6,20 +6,47 @@ var portal = angular.module('portalSearch', ['ui.bootstrap' ], function ($provid
         }
       };
     });
-  }).
+  });
+
+
+portal.
 	config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
-		when('/', {templateUrl: ANGULAR_ROOT + '/search/searchlikeg.html', controller: SearchCtrl, reloadOnSearch: false}).
-		//when('/:searchTerm', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
-		/*
-		when('/:searchTerm', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
-		when('/:searchTerm/:lang/', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
-		when('/:searchTerm/:lang/:type', {templateUrl: ANGULAR_ROOT + '/search/search.html', controller: SearchCtrl}).
-		*/
+		when('/', {templateUrl: ANGULAR_ROOT + '/search/searchlikeg.html', controller:"SearchCtrl", reloadOnSearch: false}).
 		otherwise({redirectTo: '/'});
 }]);
 
+portal.factory('myPaginationService', function($rootScope) {
+    var paginationService = {};
+    
+    paginationService.paginationDatas = {'current' : 1, 'max': 5, 'num': false};
+	
+	/*
+	 $scope.currentPage = 1; //Current page of pagination
+		$scope.justLoaded = false;
+		$scope.maxSize = 10; // Number of pagination buttons shown
+		$scope.numPages = false; // Number of pages (get from query) 
+	*/
 
+    paginationService.prepForBroadcast = function(msg) {
+        this.paginationDatas = msg;
+        this.broadcastItem();
+    };
+
+    paginationService.broadcastItem = function() {
+        $rootScope.$broadcast('handlePaginationBroadcast');
+    };
+	
+    paginationService.changePage = function(page) {
+        this.page = page;
+        this.broadcastBottomItem();
+    };
+
+    paginationService.broadcastBottomItem = function() {
+        $rootScope.$broadcast('handlePaginationBottomBroadcast');
+    };
+    return paginationService;
+});
 //Filters
 portal
 	.filter('descLang', function() {
@@ -115,21 +142,22 @@ portal.directive('whenScrolled', function ($window) {
     }
 });
 	
-	
-function SearchCtrl($scope, $http, $routeParams, $location, $service) {
+portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', function($scope, $http, $routeParams, $location, $service, $anchorScroll, paginationService) {
 	//Scope var
 	$scope.searchParams = {'page' : 1, 'sort' : 'score.desc'};
 	$scope.langFilter = "en";
 	
+	$scope.pages = {};
 	
 	$scope.currentPage = 1; //Current page of pagination
 	$scope.justLoaded = false;
-	$scope.maxSize = 10; // Number of pagination buttons shown
+	$scope.maxSize = 5; // Number of pagination buttons shown
 	$scope.numPages = false; // Number of pages (get from query)
+	$scope.loadedPage = {1 : true};
+	
 	
 	$scope.lastFilter = false;
 	$scope.loadingPage = false;
-	
 	
 	$scope.fromSearch = function() {
 		angular.forEach($location.search(), function(value, key) {
@@ -141,10 +169,36 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 			else if(key == "page")
 			{
 				$scope.currentPage = parseInt(value);
+				$scope.loadedPage[parseInt(value)] = true;
 			}
 		});
 	}
 	
+	//<----
+	//Pagination System with outside pagination render
+	$scope.$watch('currentPage + numPages', function(newValue) {
+		//console.log("Change ! " ) ;
+		//{'current' : 1, 'max': 10, 'num': false}
+		paginationService.prepForBroadcast({'current' : $scope.currentPage, 'max': 5, 'num': $scope.numPages});
+	});
+	
+    $scope.$on('handlePaginationBottomBroadcast', function() {
+		var prev = $scope.currentPage;
+        $scope.currentPage = paginationService.page;
+		//console.log($scope.loadedPage);
+		if($scope.loadedPage[$scope.currentPage])
+		{
+			$location.hash('page-' + $scope.currentPage);
+			$anchorScroll();
+		}
+		else
+		{
+			$scope.doSearch(true, (prev < $scope.currentPage));
+			console.log("load new page");
+		}
+    });
+	
+	//---->
 	//Query functions
 	$scope.setQuery = function(type, q) {
 		if($scope.searchParams[type] == q && type != 'page' && type != 'q' && type != 'sort')
@@ -170,7 +224,8 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 		}
 	}
 	
-	$scope.getUrl = function(url) {			
+	$scope.getUrl = function(url) {		
+		$scope.searchParams.page = $scope.currentPage;	
 		url = url + '?';
 		
 		var urlArr = [];
@@ -181,21 +236,42 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 		return url + urlArr.join('&');
 	}
 	
-	$scope.doSearch = function(push) {				
+	$scope.doSearch = function(push, scroll) {				
 		url = $scope.getUrl('/search');
 		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
 			if(push)
 			{
-				angular.forEach(data.page.items, function(value){
-					$scope.items.push(value);
-				});
+				//Data themself
+				$scope.pages[$scope.currentPage] = {};
+				$scope.pages[$scope.currentPage].items = data.page.items;
+				$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
+				
+				//Facets
 				$scope.facets = data.facets;
+				
+				//Pagination
+				$scope.loadedPage[$scope.currentPage] = true;
+				if(scroll)
+				{
+					$location.hash('page-' + $scope.currentPage);
+					$anchorScroll();
+				}
 			}
 			else
 			{
+				console.log(data.page.items);
+				//Datas
 				$scope.page = data.page;
-				$scope.items = data.page.items;
+				$scope.pages[$scope.currentPage] = {};
+				console.log($scope.pages);
+				$scope.pages[$scope.currentPage].items = data.page.items;
+				$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
 				$scope.facets = data.facets;
+				
+				//Pagination
+				$scope.loadedPage = {};
+				$scope.loadedPage[$scope.currentPage] = true;
+				console.log($scope.currentPage);
 				$scope.numPages = data.numPages;
 			}
 			// console.log($scope.items);
@@ -263,6 +339,7 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 	}
 	
 	$scope.getSimpleTimeDesc = function(item) {
+		//console.log(item);
 		//Updated 5 days ago
 		event = item.relationships.lifecycleEvent[0];
 		//d = new Date(event.data.timestamp);
@@ -271,4 +348,15 @@ function SearchCtrl($scope, $http, $routeParams, $location, $service) {
 	
 	$scope.fromSearch();
 	$scope.doSearch();
-}
+}]);
+
+portal.controller('BottomBar', ['$scope', 'myPaginationService', function($scope, paginationService) {
+    $scope.$on('handlePaginationBroadcast', function() {
+        $scope.pagination = paginationService.paginationDatas;
+		//{'current' : 1, 'max': 10, 'num': false}
+    });
+	$scope.$watch('pagination.current', function(newVal) {
+		console.log(newVal);
+		paginationService.changePage(newVal);
+	});
+}]);
