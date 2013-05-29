@@ -27,6 +27,9 @@ case class AddressF(
   url: Option[String] = None
   ) {
   val isA = EntityType.Address
+
+  override def toString
+      = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
 }
 
 
