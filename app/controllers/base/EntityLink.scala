@@ -46,7 +46,8 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
     withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
       LinkableEntity.fromEntity(item).map { ann =>
-        searchAction(defaultParams = Some(SearchParams(entities = List(linkSrcEntityType)))) { page => params => facets => _ => _ =>
+        searchAction(defaultParams = Some(SearchParams(entities = List(linkSrcEntityType), excludes=Some(List(id))))) {
+            page => params => facets => _ => _ =>
           f(ann)(page)(params)(facets)(linkSrcEntityType)(userOpt)(request)
         }(request)
       } getOrElse {

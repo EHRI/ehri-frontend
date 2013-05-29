@@ -168,7 +168,9 @@ object SolrQueryBuilder {
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
-    val queryString = params.query.getOrElse("*").trim
+    val excludeIds = params.excludes.toList.flatten.map(id => s" -itemId:$id").mkString
+
+    val queryString = params.query.getOrElse("*").trim + excludeIds
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
 
