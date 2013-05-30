@@ -371,7 +371,7 @@ portal.controller('BottomBar', ['$scope', '$http', 'myPaginationService', functi
 	}
 	
 	//DropUp
-	$scope.savedOpen = "open";
+	$scope.savedOpen = "";
 	$scope.notesOpen = "";
 	$scope.savedContainer = function() {
 		if($scope.savedOpen === "open")
