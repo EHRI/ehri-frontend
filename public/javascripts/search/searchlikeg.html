@@ -61,7 +61,7 @@
 						<p class="muted">
 							<small>
 								<em>
-									Displaying item {{(page.offset + 1)}} to {{((page.limit + page.offset) && ((page.limit + page.offset) < page.total)) || page.total}} of {{page.total}}
+									Displaying item {{(page.offset + 1)}} to {{page.limit + page.offset}} of {{page.total}}
 								</em>
 							</small>
 						</p>
@@ -70,18 +70,7 @@
 					<div class="container-fluid">
 						<div class="row-fluid">
 							<div class="span2">
-								<ul class="listTree">
-									<li><i class="icon-folder-open"></i> Folder
-										<ul>
-											<li><i class="icon-file"></i> File</li>
-											<li><i class="icon-folder-open"></i> Folder
-												<ul>
-													<li><i class="icon-file"></i> File</li>
-												</ul>
-											</li>
-										</ul>
-									</li>
-								</ul>
+								&nbsp;
 							</div>
 							<div id="content" class="span8" when-scrolled="loadMore()" >
 								<div ng-repeat="pagify in pages">

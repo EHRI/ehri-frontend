@@ -264,7 +264,10 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 				$scope.pages = {};
 				$scope.pages[$scope.currentPage] = {};
 				$scope.pages[$scope.currentPage].items = data.page.items;
-				$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
+				if(data.page.total > 0)
+				{
+					$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
+				}
 				$scope.facets = data.facets;
 				
 				//Pagination
@@ -357,4 +360,28 @@ portal.controller('BottomBar', ['$scope', 'myPaginationService', function($scope
 		console.log(newVal);
 		paginationService.changePage(newVal);
 	});
+	
+	//DropUp
+	$scope.savedOpen = "open";
+	$scope.notesOpen = "";
+	$scope.savedContainer = function() {
+		if($scope.savedOpen === "open")
+		{
+			$scope.savedOpen = "";
+		}
+		else
+		{
+			$scope.savedOpen = "open";
+		}
+	}
+	$scope.notesContainer = function() {
+		if($scope.notesOpen === "open")
+		{
+			$scope.notesOpen = "";
+		}
+		else
+		{
+			$scope.notesOpen = "open";
+		}
+	}
 }]);

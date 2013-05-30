@@ -129,12 +129,29 @@
 	<div class="navbar navbar-fixed-bottom" ng-controller="BottomBar">
 		<div class="navbar-inner">
 			<ul class="nav">
-				<li>
-					<a href="/"><i class="icon-edit"></i> Notes</a>
+				<li class="dropup-container" ng-class="notesOpen">
+					<a class="dropup-toggle" ng-click="notesContainer()"><i class="icon-edit"></i> Notes</a>
+					<div class="dropup left">NOTES
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus elit diam, venenatis dignissim cursus ut, aliquet sed tortor. Integer metus velit, pellentesque a luctus a, fringilla ac mauris. Sed nec tellus nisl. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id massa elementum dolor interdum posuere a ut risus. Morbi nec turpis sit amet metus lacinia aliquam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin turpis quam, egestas sed aliquam non, scelerisque et dolor. Donec ac ipsum arcu. Curabitur aliquam arcu sed mi tristique cursus. Aenean nisi erat, sagittis fringilla pulvinar ac, pellentesque id odio. 
+					</div>
 				</li>
 				<li class="divider-vertical"></li>
-				<li class="">
-					<a href="/"><i class="icon-briefcase"></i> Saved Documents</a>
+				<li class="dropup-container" ng-class="savedOpen">
+					<a class="dropup-toggle" ng-click="savedContainer()"><i class="icon-briefcase"></i> Saved Documents</a>
+					<div class="dropup left">SAVED
+						<ul class="listTree">
+							<li><i class="icon-folder-open"></i> Folder
+								<ul>
+									<li><i class="icon-file"></i> File</li>
+									<li><i class="icon-folder-open"></i> Folder
+										<ul>
+											<li><i class="icon-file"></i> File</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
 				</li>
 				<li class="divider-vertical"></li>
 				<li class="">
