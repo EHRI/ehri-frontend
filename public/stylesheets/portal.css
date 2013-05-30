@@ -5345,45 +5345,6 @@ a.badge:focus {
 .hero-unit li {
   line-height: 30px;
 }
-div.search-bar-wrapper {
-  margin: 0;
-  display: block;
-  height: 30px;
-  width: 100%;
-  background-color: #6b854b;
-}
-div.search-bar {
-  position: relative;
-}
-div.search-bar > button {
-  position: absolute;
-  right: 10px;
-  top: 0;
-  border: none;
-  padding: 0;
-  margin: 0;
-  background-color: #6b854b;
-  height: 30px;
-  line-height: 30px;
-}
-div.search-bar > input {
-  display: block;
-  height: 30px;
-  line-height: 30px;
-  background-color: #6b854b;
-  color: #000;
-  -webkit-box-sizing: border-box;
-  /* Safari/Chrome, other WebKit */
-
-  -moz-box-sizing: border-box;
-  /* Firefox, other Gecko */
-
-  box-sizing: border-box;
-  /* Opera/IE 8+ */
-
-  width: 100%;
-  border: none;
-}
 .alternative {
   margin-right: 10px!important;
 }
@@ -5472,7 +5433,7 @@ ul.listTree li {
   margin: 0;
   padding: 0;
 }
-ul.listTree li > ul {
+ul.listTree li ul {
   margin-left: 18px;
   list-style-type: none;
 }
@@ -5512,7 +5473,6 @@ ul.listTree li > ul {
   bottom: 43px;
   height: 400px;
   width: 340px;
-  padding: 5px;
   border: 1px solid rgba(0, 0, 0, 0.2);
   margin: 2px 0;
   background-color: #ffffff;
@@ -5525,6 +5485,38 @@ ul.listTree li > ul {
 }
 .dropup-container.open > .dropup.right {
   right: 2px;
+}
+.dropup-container.open > .dropup > .dropup-divided {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+.dropup-container.open > .dropup > .dropup-divided > .dropup-80prct {
+  overflow-y: auto;
+  height: 300px;
+  display: block;
+  padding: 5px;
+}
+.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  height: 60px;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+  line-height: 16px;
+  padding: 0;
+  background-color: #dee6d5;
+}
+.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 {
+  padding: 5px;
+}
+.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 input {
+  margin: 0;
+}
+.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 h5 {
+  margin: 0 5px 2px 0;
 }
 .dropup-container.open:before {
   content: "";

@@ -351,7 +351,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	$scope.doSearch();
 }]);
 
-portal.controller('BottomBar', ['$scope', 'myPaginationService', function($scope, paginationService) {
+portal.controller('BottomBar', ['$scope', '$http', 'myPaginationService', function($scope, $http, paginationService) {
     $scope.$on('handlePaginationBroadcast', function() {
         $scope.pagination = paginationService.paginationDatas;
 		//{'current' : 1, 'max': 10, 'num': false}
@@ -360,6 +360,15 @@ portal.controller('BottomBar', ['$scope', 'myPaginationService', function($scope
 		console.log(newVal);
 		paginationService.changePage(newVal);
 	});
+	
+	$scope.loadSavedFiles = function () {
+		$http.get(ANGULAR_ROOT + "/files.json")
+			.success(function(data) {
+			$scope.items = data.items;
+		}).error(function() { 
+			alert('Server error, ctrl+f5 page please');
+		});
+	}
 	
 	//DropUp
 	$scope.savedOpen = "open";
@@ -372,6 +381,7 @@ portal.controller('BottomBar', ['$scope', 'myPaginationService', function($scope
 		else
 		{
 			$scope.savedOpen = "open";
+			$scope.loadSavedFiles();
 		}
 	}
 	$scope.notesContainer = function() {
