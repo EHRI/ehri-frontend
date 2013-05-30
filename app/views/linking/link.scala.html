@@ -15,9 +15,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
             }
 		</fieldset>
 
-		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">@Messages("submitButton.linkAnnotate")</button>
-		</div>
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.linkAnnotate"), cancel = Some(item))
 	}
 } {
 
