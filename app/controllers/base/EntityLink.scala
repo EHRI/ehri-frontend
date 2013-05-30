@@ -6,8 +6,7 @@ import models.base._
 import defines._
 import models._
 import play.api.data.Form
-import rest.{LinkDAO, EntityDAO}
-import controllers.ListParams
+import rest.LinkDAO
 import models.forms.LinkForm
 import play.api.mvc.Result
 import play.api.libs.json.{JsError, Json}
@@ -42,7 +41,8 @@ object AccessPointLink {
  */
 trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
 
-  def linkSelectAction(id: String, toType: String)(f: LinkableEntity => solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def linkSelectAction(id: String, toType: String)(
+      f: LinkableEntity => solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
       LinkableEntity.fromEntity(item).map { ann =>

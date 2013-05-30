@@ -23,23 +23,21 @@ object Links extends EntityRead[Link]
 
   def get(id: String, redirect: Option[String] = None) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
     Ok(views.html.link.show(Link(item), links, redirect))
-
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
     Ok(views.html.systemEvents.itemList(Link(item), page, ListParams()))
   }
 
-  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt =>
-    implicit request =>
-      Ok(views.html.permissions.visibility(Link(item),
+  def visibility(id: String) = visibilityAction(id) {
+      item => users => groups => implicit userOpt => implicit request =>
+    Ok(views.html.permissions.visibility(Link(item),
         models.forms.VisibilityForm.form.fill(Link(item).accessors.map(_.id)),
         users, groups, routes.Links.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt =>
-    implicit request =>
-      Redirect(routes.Links.get(id))
+  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
+    Redirect(routes.Links.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
@@ -49,9 +47,8 @@ object Links extends EntityRead[Link]
   }
 
   def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
-    // TODO: Work out how to redirect to somewhere useful...
-    ok => implicit userOpt => implicit request =>
-      Redirect(redirect.map(r => routes.Application.get(r)).getOrElse(routes.Search.search))
+      ok => implicit userOpt => implicit request =>
+    Redirect(redirect.map(r => routes.Application.get(r)).getOrElse(routes.Search.search))
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }
