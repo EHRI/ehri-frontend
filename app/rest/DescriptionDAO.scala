@@ -45,6 +45,7 @@ case class DescriptionDAO(userProfile: Option[UserProfile] = None) extends RestD
       .put(item.toJson).map { response =>
       checkError(response).right.map { r =>
         val entity = jsonToEntity(r.json)
+        // Since we have description json returned, we need to update it...
         EntityDAO.handleUpdate(entity)
         Cache.remove(id)
         entity
@@ -73,7 +74,7 @@ case class DescriptionDAO(userProfile: Option[UserProfile] = None) extends RestD
       .post(item.toJson).map { response =>
       checkError(response).right.map { r =>
         Cache.remove(id)
-        EntityDAO.handleUpdate(jsonToEntity(r.json))
+        jsonToEntity(r.json)
       }
     }
   }
