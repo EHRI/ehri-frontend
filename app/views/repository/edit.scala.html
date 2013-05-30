@@ -8,7 +8,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.csrfToken()
         @repository.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateRepository"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateRepository"), cancel = Some(item))
     }
 } {
 	@formNav()

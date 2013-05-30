@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.csrfToken()
         @authoritativeSet.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateAuthoritativeSet"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateAuthoritativeSet"), cancel = Some(item))
 	}
 } {
 

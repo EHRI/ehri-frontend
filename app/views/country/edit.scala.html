@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.csrfToken()
         @country.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateCountry"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateCountry"), cancel = Some(item))
 	}
 } {
 

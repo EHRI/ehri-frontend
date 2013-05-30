@@ -8,7 +8,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.csrfToken()
         @group.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateGroup"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateGroup"), cancel = Some(item))
 	}
 } {
 

@@ -1,47 +1,46 @@
 @(item: AccessibleEntity, accessor: Accessor, perms: GlobalPermissionSet[Accessor], contentTypes: Seq[ContentType.Value], action: Call)(
-    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+        implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token
+        )
 @import defines.PermissionType
 
 @rightSidebarLayout(Messages("actions.grantPermissionsInScope", item, accessor), breadcrumbs = common.breadcrumbs(List(item))) {
-	
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+
+    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-		<fieldset id="permissionScope-area">
+        <fieldset id="permissionScope-area">
 
-        <table class="table table-bordered permissions-matrix">
-        <tr>
-        <th></th>
-        @PermissionType.values.toList.map { perm =>
-            <th>@Messages("permissionTypes." + perm.toString)</th>
-        }
-        </tr>
-        @contentTypes.map { ct =>
-            <tr>
-                <td>@Messages("contentTypes." + ct)</td>
-                @PermissionType.values.toList.map { perm =>
-                    <td>
-                    @defining(perms.get(ct, perm)) { permOpt =>
-                        <input type="checkbox" name="@ct" value="@perm"
-                        @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
-                            checked
-                        } />
-                        @permOpt.flatMap(_.inheritedFrom).map { user =>
-                            <span title="@Messages("permissions.inheritedFrom", user)">*</span>
-                        }
+            <table class="table table-bordered permissions-matrix">
+                <tr>
+                    <th></th>
+                    @PermissionType.values.toList.map { perm =>
+                        <th>@Messages("permissionTypes." + perm.toString)</th>
                     }
-                    </td>
+                </tr>
+                @contentTypes.map { ct =>
+                    <tr>
+                        <td>@Messages("contentTypes." + ct)</td>
+                        @PermissionType.values.toList.map { perm =>
+                            <td>
+                                @defining(perms.get(ct, perm)) { permOpt =>
+                                    <input type="checkbox" name="@ct" value="@perm"
+                                @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
+                                    checked
+                                } />
+                                @permOpt.flatMap(_.inheritedFrom).map { user =>
+                                    <span title="@Messages("permissions.inheritedFrom", user)">*</span>
+                                }
+                                }
+                            </td>
+                        }
+                    </tr>
                 }
-            </tr>
-        }
-    </table>
+            </table>
 
 
-		</fieldset>
-	  
-		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">@Messages("actions.updatePermissions")</button>
-		</div>
-	}
+        </fieldset>
+
+        @common.submitButtonWithLogMessageInput(Messages("actions.updatePermissions"), cancel = Some(item))
+    }
 } {
 
 }

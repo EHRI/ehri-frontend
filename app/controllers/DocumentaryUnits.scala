@@ -138,13 +138,13 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.edit(
-        Some(DocumentaryUnit(item)), form.fill(DocumentaryUnit(item).formable),routes.DocumentaryUnits.updatePost(id)))
+        DocumentaryUnit(item), form.fill(DocumentaryUnit(item).formable),routes.DocumentaryUnits.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.documentaryUnit.edit(
-          Some(DocumentaryUnit(olditem)), errorForm, routes.DocumentaryUnits.updatePost(id)))
+          DocumentaryUnit(olditem), errorForm, routes.DocumentaryUnits.updatePost(id)))
       case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }
