@@ -180,8 +180,23 @@
 			<ul class="nav pull-right">
 				<li class="divider-vertical"></li>
 				<li><a><i><small>Drop your document here</small></i></a></li>
-				<li>
-					<a href="/"><i class="icon-folder-open"></i> Basket</a>
+				<li class="dropup-container"" ng-class="basketOpen">
+					<a class="dropup-toggle" ng-click="basketContainer()"><i class="icon-folder-open"></i> Basket ({{basket.length}})</a>
+					<div class="dropup right dropup-padded">
+						<article id="{{item.id}}" class="search-item" ng-repeat="item in basket">
+							<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+								<header>
+									<a ng-show="desc.data.name"><b>{{desc.data.name}}</b></a> - {{item.type}}								
+								</header>
+							</div>
+							<!-- If desc not inside relationship -->
+							<div ng-show="(!item.relationships.describes)">
+								<header>
+									<a ng-click="getLink(item.type, item.id)"><b>{{item.data.name || item.data.identifier}}</b></a> - {{item.type}}
+								</header>
+							</div>
+						</article>
+					</div>
 				</li>
 			</ul>
 		</div>

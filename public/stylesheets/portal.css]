@@ -5466,8 +5466,6 @@ ul.listTree li ul {
 }
 .search-item header .toolbar-inline > .iconwithtooltip {
   position: relative;
-  color: #000000;
-  text-decoration: none;
 }
 .search-item header .toolbar-inline > .iconwithtooltip:hover {
   cursor: pointer;
@@ -5476,38 +5474,23 @@ ul.listTree li ul {
   position: absolute;
   z-index: 1030;
   display: block;
-  top: -22px;
-  left: -75px;
-  width: 150px;
-  height: 20px;
-  color: #ffffff;
-  text-align: center;
-  text-decoration: none;
+  visibility: visible;
   font-size: 11px;
   line-height: 20px;
   opacity: 0.8;
   filter: alpha(opacity=80);
+  top: -45px;
+  left: 0;
+  padding: 5px 0;
+  max-width: 200px;
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
   background-color: #000000;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
   content: attr(title);
-}
-.search-item header .toolbar-inline > .iconwithtooltip:hover:after {
-  content: "";
-  display: block;
-  /* reduce the damage in FF3.0 */
-
-  position: absolute;
-  top: -3px;
-  left: 0;
-  width: 0;
-  border-width: 5px 5px 0;
-  border-style: solid;
-  border-color: #000000 transparent;
-  background-color: transparent;
-  opacity: 0.8;
-  filter: alpha(opacity=80);
 }
 .dropup-container {
   position: relative;
@@ -5540,9 +5523,6 @@ ul.listTree li ul {
 }
 .dropup-container.open > .dropup.right {
   right: 2px;
-}
-.dropup-container.open > .dropup.dropup-padded {
-  padding: 5px;
 }
 .dropup-container.open > .dropup > .dropup-divided {
   height: 100%;

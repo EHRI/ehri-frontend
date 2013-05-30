@@ -84,7 +84,12 @@
 										<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
 											<header>
 												<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
-												<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a>
+												<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a> 
+												<span class="toolbar-inline">
+													<a class=" iconwithtooltip" title="Add to basket" ng-click="addBasket(item)">
+														<i class="icon-bookmark"></i>
+													</a>
+												</span>
 												
 											</header>
 											
@@ -108,6 +113,11 @@
 												<a ng-click="getLink(item.type, item.id)">
 													<b>{{item.data.name || item.data.identifier}}</b>
 												</a>
+												<span class="toolbar-inline">
+													<a class=" iconwithtooltip" title="Add to basket" ng-click="addBasket(item)">
+														<i class="icon-bookmark"></i>
+													</a>
+												</span>
 											</header>
 												<p><b>{{item.type}}</b></p>
 										</div>

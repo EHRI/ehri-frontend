@@ -39,6 +39,22 @@ portal.factory('myPaginationService', function($rootScope) {
         $rootScope.$broadcast('handlePaginationBottomBroadcast');
     };
     return paginationService;
+}).factory('myBasketService', function($rootScope) {
+    var basketservice = {};
+    
+    basketservice.list = [];
+
+    basketservice.add = function(item) {
+		// console.log(this);
+        this.list.push(item);
+        this.broadcastBasket();
+    };
+	
+    basketservice.broadcastBasket = function() {
+        $rootScope.$broadcast('handleBasketBroadcast');
+    };
+	
+    return basketservice;
 });
 //Filters
 portal
@@ -135,7 +151,7 @@ portal.directive('whenScrolled', function ($window) {
     }
 });
 	
-portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', function($scope, $http, $routeParams, $location, $service, $anchorScroll, paginationService) {
+portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', 'myBasketService', function($scope, $http, $routeParams, $location, $service, $anchorScroll, paginationService, $basket) {
 	//Scope var
 	$scope.searchParams = {'page' : 1, 'sort' : 'score.desc'};
 	$scope.langFilter = "en";
@@ -170,7 +186,6 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	//<----
 	//Pagination System with outside pagination render
 	$scope.$watch('currentPage + numPages', function(newValue) {
-		//console.log("Change ! " ) ;
 		//{'current' : 1, 'max': 10, 'num': false}
 		paginationService.prepForBroadcast({'current' : $scope.currentPage, 'max': 5, 'num': $scope.numPages});
 	});
@@ -194,6 +209,15 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
     });
 	
 	//---->
+	
+	//<--- Basket function
+	$scope.addBasket = function(item) {
+		$basket.add(item);
+	}
+	//Basket Function --->
+	
+	
+	//<---QUERY FUNCTIONS
 	//Query functions
 	$scope.setQuery = function(type, q) {
 		if($scope.searchParams[type] == q && type != 'page' && type != 'q' && type != 'sort')
@@ -318,12 +342,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 		$scope.doSearch();
 		return true;
 	}
-	
-	$scope.getLink = function(type,id) {
-		console.log(type);
-		console.log($service.redirectUrl(type, id));
-        location.href = $service.redirectUrl(type, id);
-	}
+	//QUERY FUNCTIONS ---->
 	
 /**********
 **
@@ -331,33 +350,42 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 **
 **
 */
+	$scope.getLink = function(type,id) {
+        location.href = $service.redirectUrl(type, id);
+	}
 	//Description functions	
 	$scope.getTitleAction = function(item) {
 		//2013-05-15 15:42:23 Mike Bryant: Imported from command-line
-		event = item.relationships.lifecycleEvent[0];
-		message = event.data.logMessage;
-		return message;
+		if(item.relationships.lifecycleEvent && item.relationships.lifecycleEvent[0])
+		{
+			event = item.relationships.lifecycleEvent[0];
+			message = event.data.logMessage;
+			return message;
+		}
 	}
 	
 	$scope.getSimpleTimeDesc = function(item) {
 		//console.log(item);
 		//Updated 5 days ago
-		event = item.relationships.lifecycleEvent[0];
-		//d = new Date(event.data.timestamp);
-		return event.data.timestamp;
+		if(item.relationships.lifecycleEvent && item.relationships.lifecycleEvent[0])
+		{
+			event = item.relationships.lifecycleEvent[0];
+			//d = new Date(event.data.timestamp);
+			return event.data.timestamp;
+		}
 	}
 	
 	$scope.fromSearch();
 	$scope.doSearch();
 }]);
 
-portal.controller('BottomBar', ['$scope', '$http', 'myPaginationService', function($scope, $http, paginationService) {
+portal.controller('BottomBar', ['$scope', '$http', 'myPaginationService', 'myBasketService', function($scope, $http, paginationService, $basket) {
     $scope.$on('handlePaginationBroadcast', function() {
         $scope.pagination = paginationService.paginationDatas;
 		//{'current' : 1, 'max': 10, 'num': false}
     });
 	$scope.$watch('pagination.current', function(newVal) {
-		console.log(newVal);
+		//console.log(newVal);
 		paginationService.changePage(newVal);
 	});
 	
@@ -370,9 +398,28 @@ portal.controller('BottomBar', ['$scope', '$http', 'myPaginationService', functi
 		});
 	}
 	
-	//DropUp
+	//<--- Basket
+	$scope.basket = [];
+    $scope.$on('handleBasketBroadcast', function() {
+        $scope.basket = $basket.list;
+		console.log($scope.basket);
+    });
+	//Basket --->
+	
+	//<--- DropUp
 	$scope.savedOpen = "";
 	$scope.notesOpen = "";
+	$scope.basketOpen= "";
+	$scope.basketContainer = function() {
+		if($scope.basketOpen === "open")
+		{
+			$scope.basketOpen = "";
+		}
+		else
+		{
+			$scope.basketOpen = "open";
+		}
+	}
 	$scope.savedContainer = function() {
 		if($scope.savedOpen === "open")
 		{
@@ -394,4 +441,5 @@ portal.controller('BottomBar', ['$scope', '$http', 'myPaginationService', functi
 			$scope.notesOpen = "open";
 		}
 	}
+	//Dropup --->
 }]);
