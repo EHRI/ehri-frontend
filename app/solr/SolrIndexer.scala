@@ -95,6 +95,17 @@ object SolrIndexer extends RestDAO {
     solrUpdate(deleteJson, commit = commit)
   }
 
+  /**
+   * Delete everything in the index. USE WITH CAUTION!!!
+   * @return
+   */
+  def deleteAll(commit: Boolean = false): Future[SolrResponse] = {
+    val deleteJson = Json.obj(
+      "delete" -> Json.obj("query" -> ("id:*"))
+    )
+    solrUpdate(deleteJson, commit = commit)
+  }
+
   /*
    * Update a list of Solr models. The actual list is broken up
    * into batches of a fixed size so this function can accept

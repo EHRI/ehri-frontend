@@ -98,12 +98,24 @@ object Search extends EntitySearch {
    */
   val DONE_MESSAGE = "Done"
 
+
+  import play.api.data.Form
+  import play.api.data.Forms._
+  import models.forms.enum
+
+  private val updateIndexForm = Form(
+    tuple(
+      "all" -> default(boolean, false),
+      "type" -> list(enum(defines.EntityType))
+    )
+  )
+
   /**
    * Render the update form
    * @return
    */
   def updateIndex = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.search.updateIndex(action=routes.Search.updateIndexPost))
+    Ok(views.html.search.updateIndex(form = updateIndexForm, action=routes.Search.updateIndexPost))
   }
 
   /**
@@ -119,13 +131,19 @@ object Search extends EntitySearch {
 
     val batchSize = application.configuration.getInt("solr.update.batchSize")
 
-    import play.api.data.Form
-    import play.api.data.Forms._
-    import models.forms.enum
+    val (deleteAll, entities) = updateIndexForm.bindFromRequest.value.get
 
-    val entities = Form(single("type" -> list(enum(defines.EntityType)))).bindFromRequest.value.get
+    println("Delete all!: " + deleteAll)
 
     def wrapMsg(m: String) = s"<message>$m</message>"
+
+    /**
+     * Clear everything from the index...
+     */
+    def optionallyClearIndex(doit: Boolean): Future[Option[SolrResponse]] = {
+      if (!doit) Future.successful(None)
+      else solr.SolrIndexer.deleteAll().map(r => Some(r))
+    }
 
     /**
      * Update a single page of data
@@ -176,66 +194,72 @@ object Search extends EntitySearch {
 
     // Create an unicast channel in which to feed progress messages
     val channel = Concurrent.unicast[String] { chan =>
-      chan.push(wrapMsg(s"Initiating update for entities: ${entities.mkString(", ")}"))
-      var all: List[Future[List[SolrResponse]]] = entities.map { entity =>
-        EntityDAO(entity, userOpt).count().flatMap { countOrErr =>
-          if (countOrErr.isLeft) {
-            Logger.logger.error("Unable to fetch first page of data for $entity: " + countOrErr.left.get)
-            sys.error(s"Unable to fetch first page of data for $entity: " + countOrErr.left.get)
+      optionallyClearIndex(deleteAll).flatMap { maybeResponse =>
+        maybeResponse.map { r =>
+          chan.push(wrapMsg(s"deleted index: $r"))
+        }
+
+        // Now get on with the real work...
+        chan.push(wrapMsg(s"Initiating update for entities: ${entities.mkString(", ")}"))
+        var all: List[Future[List[SolrResponse]]] = entities.map { entity =>
+          EntityDAO(entity, userOpt).count().flatMap { countOrErr =>
+            if (countOrErr.isLeft) {
+              Logger.logger.error("Unable to fetch first page of data for $entity: " + countOrErr.left.get)
+              sys.error(s"Unable to fetch first page of data for $entity: " + countOrErr.left.get)
+            }
+            val count = countOrErr.right.get
+            chan.push(wrapMsg(s"Indexing: $entity (total count: $count)"))
+
+            val pageCount = (count / batchSize) + (count % batchSize).min(1)
+
+            // Clear all Entities from the index...
+            var allUpdateResponses: Future[List[SolrResponse]] = solr.SolrIndexer.deleteItemsByType(entity, commit = false).flatMap { response =>
+              response match {
+                case e: SolrErrorResponse => {
+                  chan.push(wrapMsg(s"Error deleting items for entity: $entity: ${e.err}"))
+                  Future.successful(List(response))
+                }
+                case ok => {
+                  // Run each page in sequence...
+                  var pages: List[Future[List[SolrResponse]]] = 1L.to(pageCount).map { p =>
+                      updateItemSet(entity, p.toInt, chan)
+                  }.toList
+
+                  // Flatten the inner batch results into a single list
+                  Future.sequence(pages).map(l => l.flatMap(i => i))
+                }
+              }
+            }
+            allUpdateResponses
           }
-          val count = countOrErr.right.get
-          chan.push(wrapMsg(s"Indexing: $entity (total count: $count)"))
-
-          val pageCount = (count / batchSize) + (count % batchSize).min(1)
-
-          // Clear all Entities from the index...
-          var allUpdateResponses: Future[List[SolrResponse]] = solr.SolrIndexer.deleteItemsByType(entity, commit = false).flatMap { response =>
-            response match {
+        }
+        // When all updates have finished, commit the results
+        Future.sequence(all).map { results =>
+          val totaltime = results.flatten.foldLeft(0) { case (total, result) =>
+            result match {
+              case SolrUpdateResponse(SolrHeader(code, time), None) => {
+                total + time
+              }
+              case SolrUpdateResponse(SolrHeader(code, time), Some(SolrError(msg, _))) => {
+                total
+              }
+              case e => total
+            }
+          }
+          chan.push(wrapMsg("Completed indexing in: " + totaltime + " - committing..."))
+          SolrIndexer.commit.map { resOrErr =>
+            resOrErr match {
               case e: SolrErrorResponse => {
-                chan.push(wrapMsg(s"Error deleting items for entity: $entity: ${e.err}"))
-                Future.successful(List(response))
+                chan.push(wrapMsg("Error committing Solr data: " + e.err))
               }
-              case ok => {
-                // Run each page in sequence...
-                var pages: List[Future[List[SolrResponse]]] = 1L.to(pageCount).map { p =>
-                    updateItemSet(entity, p.toInt, chan)
-                }.toList
-
-                // Flatten the inner batch results into a single list
-                Future.sequence(pages).map(l => l.flatMap(i => i))
+              case ok: SolrUpdateResponse => {
+                Logger.logger.info("Committing...")
+                chan.push(wrapMsg("Committed in " + ok.responseHeader.time))
               }
             }
+            chan.push(wrapMsg(DONE_MESSAGE))
+            chan.eofAndEnd()
           }
-          allUpdateResponses
-        }
-      }
-
-      // When all updates have finished, commit the results
-      Future.sequence(all).map { results =>
-        val totaltime = results.flatten.foldLeft(0) { case (total, result) =>
-          result match {
-            case SolrUpdateResponse(SolrHeader(code, time), None) => {
-              total + time
-            }
-            case SolrUpdateResponse(SolrHeader(code, time), Some(SolrError(msg, _))) => {
-              total
-            }
-            case e => total
-          }
-        }
-        chan.push(wrapMsg("Completed indexing in: " + totaltime + " - committing..."))
-        SolrIndexer.commit.map { resOrErr =>
-          resOrErr match {
-            case e: SolrErrorResponse => {
-              chan.push(wrapMsg("Error committing Solr data: " + e.err))
-            }
-            case ok: SolrUpdateResponse => {
-              Logger.logger.info("Committing...")
-              chan.push(wrapMsg("Committed in " + ok.responseHeader.time))
-            }
-          }
-          chan.push(wrapMsg(DONE_MESSAGE))
-          chan.eofAndEnd()
         }
       }
     }
