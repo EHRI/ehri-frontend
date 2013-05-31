@@ -1,4 +1,4 @@
-@(form: Form[(Boolean,List[EntityType.Value])], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(form: Form[(Boolean,Int,List[EntityType.Value])], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 @import defines.EntityType
 
@@ -83,6 +83,7 @@
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
         @helper.checkbox(form("all"), '_label -> Messages("search.clearEntireIndex"))
+        @helper.inputText(form("batchSize"), '_label -> Messages("search.batchSize"))
 
         <div class="control-group">
             <label class="control-label">@Messages("search.selectAllTypes")</label>

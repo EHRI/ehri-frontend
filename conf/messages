@@ -41,6 +41,7 @@ search.lastUpdated.desc=Recently Updated
 search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descriptions}
 search.spellingSuggestion=Did you mean
 search.queryPlaceholder=Search...
+search.batchSize=Batch size for reindexing
 
 footer.footerText=This is a development version of the EHRI data entry interface.
 

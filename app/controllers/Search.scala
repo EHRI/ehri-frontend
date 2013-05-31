@@ -103,9 +103,13 @@ object Search extends EntitySearch {
   import play.api.data.Forms._
   import models.forms.enum
 
+  private lazy val defaultBatchSize: Int
+      = application.configuration.getInt("solr.update.batchSize")
+
   private val updateIndexForm = Form(
     tuple(
       "all" -> default(boolean, false),
+      "batchSize" -> default(number, defaultBatchSize),
       "type" -> list(enum(defines.EntityType))
     )
   )
@@ -129,11 +133,7 @@ object Search extends EntitySearch {
    */
   def updateIndexPost = adminAction { implicit userOpt => implicit request =>
 
-    val batchSize = application.configuration.getInt("solr.update.batchSize")
-
-    val (deleteAll, entities) = updateIndexForm.bindFromRequest.value.get
-
-    println("Delete all!: " + deleteAll)
+    val (deleteAll, batchSize, entities) = updateIndexForm.bindFromRequest.value.get
 
     def wrapMsg(m: String) = s"<message>$m</message>"
 
