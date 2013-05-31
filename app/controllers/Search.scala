@@ -62,7 +62,6 @@ object Search extends EntitySearch {
       defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score)))) {
       page => params => facets => implicit userOpt => implicit request =>
     request match {
-      case Accepts.Html() => Ok(views.html.search.search(page, params, facets, routes.Search.search))
       case Accepts.Json() => {
         Ok(Json.toJson(Json.obj(
           "numPages" -> page.numPages,
@@ -71,6 +70,7 @@ object Search extends EntitySearch {
         ))
         )
       }
+      case _ => Ok(views.html.search.search(page, params, facets, routes.Search.search))
     }
   }
 
