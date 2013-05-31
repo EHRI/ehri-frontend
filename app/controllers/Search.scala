@@ -222,11 +222,19 @@ object Search extends EntitySearch {
                 case ok => {
                   // Run each page in sequence...
                   var pages: List[Future[List[SolrResponse]]] = 1L.to(pageCount).map { p =>
-                      updateItemSet(entity, p.toInt, chan)
+                    val page = updateItemSet(entity, p.toInt, chan)
+                    page onFailure {
+                      case e => chan.push(wrapMsg(e.getMessage))
+                    }
+                    page
                   }.toList
 
                   // Flatten the inner batch results into a single list
-                  Future.sequence(pages).map(l => l.flatMap(i => i))
+                  val all = Future.sequence(pages).map(l => l.flatMap(i => i))
+                  all onFailure {
+                    case e => chan.push(wrapMsg(e.getMessage))
+                  }
+                  all
                 }
               }
             }

@@ -113,7 +113,14 @@ object SolrIndexer extends RestDAO {
    */
   def updateItems(items: Stream[Entity], commit: Boolean = true): Future[List[SolrResponse]] = {
     Future.sequence(items.grouped(batchSize).toList.map { batch =>
-      solrUpdate(Json.toJson(batch.toList.flatMap(itemToJson)), commit = commit)
+      try {
+        solrUpdate(Json.toJson(batch.toList.flatMap(itemToJson)), commit = commit)
+      } catch {
+        case e: Throwable => {
+          Logger.logger.error(e.getMessage, e)
+          throw e
+        }
+      }
     })
   }
 
@@ -123,7 +130,8 @@ object SolrIndexer extends RestDAO {
    * @return
    */
   private def solrUpdate(updateJson: JsValue, commit: Boolean = true): Future[SolrResponse] = {
-    WS.url(updateUrl(commit)).withHeaders(headers.toList: _*).post(updateJson).map { response =>
+    WS.url(updateUrl(commit)).withHeaders(headers.toList: _*)
+        .post(updateJson).map { response =>
       response.json.validate[SolrUpdateResponse].fold({ err =>
           SolrErrorResponse(response.body)
         }, { sur => sur }
