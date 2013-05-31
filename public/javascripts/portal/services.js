@@ -24,11 +24,12 @@ portal.factory('myPaginationService', function($rootScope) {
 }).factory('myBasketService', function($rootScope) {
     var basketservice = {};
     
-    basketservice.list = [];
+    basketservice.toBasket = {};
 
     basketservice.add = function(item) {
 		// console.log(this);
-        this.list.push(item);
+		this.toBasket = item;
+        //this.list.push(item);
         this.broadcastBasket();
     };
 	

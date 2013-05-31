@@ -12,6 +12,7 @@
 	
 	
 	<script src="@routes.Assets.at("javascripts/portal/app.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/helpers.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/portal/directives.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/portal/services.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/portal/filters.js")" type="text/javascript"></script>
@@ -184,9 +185,9 @@
 			</ul>
 			<ul class="nav pull-right">
 				<li class="divider-vertical"></li>
-				<li><a><i><small>Drop your document here</small></i></a></li>
+				<li drop="basket" dropStyle="drop"><a><i><small>Drop your document here</small></i></a></li>
 				<li class="dropup-container"" ng-class="basketOpen">
-					<a class="dropup-toggle" ng-click="basketContainer()"><i class="icon-folder-open"></i> Basket ({{basket.length}})</a>
+					<a class="dropup-toggle" ng-click="basketContainer()"><i class="icon-folder-open"></i> Basket ({{basketSize()}})</a>
 					<div class="dropup right dropup-padded">
 						<article id="{{item.id}}" class="search-item" ng-repeat="item in basket">
 							<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">

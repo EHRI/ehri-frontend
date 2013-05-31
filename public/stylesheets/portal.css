@@ -5606,6 +5606,14 @@ ul.listTree li ul {
   border-color: #ffffff transparent;
   background-color: transparent;
 }
+.drag {
+  cursor: -moz-grabbing;
+  cursor: grabbing;
+  background-color: #edf5fa;
+}
+.drop {
+  background-color: #edf5fa;
+}
 .pull-right {
   float: right;
 }
