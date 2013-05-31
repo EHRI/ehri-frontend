@@ -82,4 +82,30 @@ portal.directive('whenScrolled', function ($window) {
       });
     }
   }
+}]).directive("annotate", ['$rootScope', function($rootScope) {
+  function getSelected(evt) {
+	if (window.getSelection) {
+		ret =  window.getSelection().toString();
+	} else if (document.selection) {
+		ret = document.selection.createRange().text;
+	}
+	if(ret) { return ret; }
+	else { return false; }
+  };
+  
+  return {
+    restrict: 'A',
+    link: function(scope, element, attrs)  {
+      scope.annotateData = scope[attrs["annotate"]];
+      element.bind('mouseup', function(evt) {
+        scope.selectedText = getSelected(evt);
+		//console.log(scope.selectedText);
+		//console.log(scope.annotateData);
+		if(scope.selectedText != false)
+		{
+			$rootScope.$broadcast('getAnnotation', scope.annotateData, scope.selectedText);
+		}
+      });
+    }
+  }
 }]);

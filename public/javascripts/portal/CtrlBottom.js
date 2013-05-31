@@ -24,32 +24,15 @@ portal.controller('BottomBar', ['$scope', '$http', '$rootScope', 'myPaginationSe
 	}
     $scope.$on('handleBasketBroadcast', function() {
         $scope.basket[$basket.toBasket.id] = $basket.toBasket;
-		console.log($scope.basket);
+		//console.log($scope.basket);
     });
 	//Basket --->
 	
 	//<-- Drag & Drop to basket
 	$rootScope.$on('dropEvent', function(evt, dragged, dropped) {
-		//dropped.push(dragged);
         dropped[dragged.id] = dragged;
 		console.log(Object.size(dropped));
         $scope.$apply();
-		//console.log($scope.basket);
-		/*
-        var i, oldIndex1, oldIndex2;
-        for(i=0; i<$scope.columns.length; i++) {
-            var c = $scope.columns[i];
-            if(dragged.title === c.title) {
-                oldIndex1 = i;
-            }
-            if(dropped.title === c.title) {
-                oldIndex2 = i;
-            }
-        }
-        var temp = $scope.columns[oldIndex1];
-        $scope.columns[oldIndex1] = $scope.columns[oldIndex2];
-        $scope.columns[oldIndex2] = temp;
-		*/
     });
 	//-->
 	
@@ -57,6 +40,17 @@ portal.controller('BottomBar', ['$scope', '$http', '$rootScope', 'myPaginationSe
 	$scope.savedOpen = "";
 	$scope.notesOpen = "";
 	$scope.basketOpen= "";
+	$scope.peopleOpen= "";
+	$scope.peopleContainer = function() {
+		if($scope.peopleOpen === "open")
+		{
+			$scope.peopleOpen = "";
+		}
+		else
+		{
+			$scope.peopleOpen = "open";
+		}
+	}
 	$scope.basketContainer = function() {
 		if($scope.basketOpen === "open")
 		{
@@ -89,4 +83,29 @@ portal.controller('BottomBar', ['$scope', '$http', '$rootScope', 'myPaginationSe
 		}
 	}
 	//Dropup --->
+	
+	//<-- People Form
+	$scope.loadingPeople = false;
+	$scope.peoples
+	$scope.searchPeople = function(people) {
+		$scope.loadingPeople = true;
+		url = '/search?type=userProfile&q=' + people;
+		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
+			$scope.peoples = data.page.items;
+			$scope.loadingPeople = false;
+		});
+	}
+	// People Form -->
+	
+	//<-- Annotation
+	$scope.annotation = {'userText' : ""}
+	$rootScope.$on('getAnnotation', function(evt, item, text) {
+	console.log(text);
+		$scope.annotation.selText = text;
+		$scope.annotation.item = item;
+		$scope.notesOpen = "open";
+        $scope.$apply();
+    });
+	
+	// Annotation-->
 }]);

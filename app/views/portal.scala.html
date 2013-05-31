@@ -63,46 +63,6 @@
 				</li>
 			</ul>
 			<ul class="nav pull-right alternative">
-				<!--
-				<li>
-					<table class="groupicon">
-						<tbody>
-							<tr class="text-x2">
-								<td colspan="3">Account</td>
-							</tr>
-							<tr class="icon">
-								<td class="dropdown">
-									<a class="dropdown-toggle"><i class="icon-edit"></i></a>
-									<ul class="dropdown-menu">
-										<li><h5>My notes</h5></li>
-										<li class="divider"></li> 
-										<li><a href="">Test text</a></li>
-										<li><a href="">Test text</a></li>
-										<li><a href="">Test text</a></li>
-										<li><a href="">Test text</a></li>
-										<li><a href="">Test text</a></li>
-									</ul>
-								</td>
-								<td class="dropdown">
-									<a class="dropdown-toggle"><i class="icon-briefcase"></i></a>
-									<ul class="dropdown-menu">
-										<li><h5>My Folders</h5></li>
-										<li class="divider"></li> 
-										<li><a href="">Test text</a></li>
-										<li><a href="">Test text</a></li>
-										<li><a href="">Test text</a></li>
-										<li><a href="">Test text</a></li>
-										<li><a href="">Test text</a></li>
-									</ul>
-								</td>
-								<td>
-									<i class="icon-group"></i>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</li>
-				-->
 				<li>
 					<a>
 						<div style="text-align:center;"><i class="icon-user"></i></div>
@@ -148,8 +108,13 @@
 			<ul class="nav">
 				<li class="dropup-container" ng-class="notesOpen">
 					<a class="dropup-toggle" ng-click="notesContainer()"><i class="icon-edit"></i> Notes</a>
-					<div class="dropup left">NOTES
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus elit diam, venenatis dignissim cursus ut, aliquet sed tortor. Integer metus velit, pellentesque a luctus a, fringilla ac mauris. Sed nec tellus nisl. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id massa elementum dolor interdum posuere a ut risus. Morbi nec turpis sit amet metus lacinia aliquam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin turpis quam, egestas sed aliquam non, scelerisque et dolor. Donec ac ipsum arcu. Curabitur aliquam arcu sed mi tristique cursus. Aenean nisi erat, sagittis fringilla pulvinar ac, pellentesque id odio. 
+					<div class="dropup left dropup-padded">NOTES
+						<div class="well">
+							{{annotation.selText}}
+						</div>
+						<textarea style="width:85%; display:block; margin:0 auto; height:120px;" ng-model="annotation.userText" title="Annotation">
+						</textarea>
+						<input type="button" class="btn btn-primary" value="Save" />
 					</div>
 				</li>
 				<li class="divider-vertical"></li>
@@ -175,8 +140,25 @@
 					</div>
 				</li>
 				<li class="divider-vertical"></li>
-				<li class="">
-					<a href="/"><i class="icon-group"></i> People</a>
+				<li class="dropup-container" ng-class="peopleOpen">
+					<a class="dropup-toggle" ng-click="peopleContainer()"><i class="icon-group"></i> People</a>
+					<div class="dropup left">
+						<div class="dropup-divided">
+							<ul class="dropup-80prct unstyled">
+								<li ng-show="loadingPeople" class="well" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></li>
+								<li id="people-{{item.id}}" class="people" ng-repeat="people in peoples">
+									<img src="/assets/images/logo2.png" alt="Logo" />
+									<a class="people-desc"><b>{{people.data.name || people.data.identifier}}</b></a>
+								</li>
+							</ul>
+							<form class="dropup-bottom">
+								<div class="padding-5">
+									<h5>Search People</h5>
+									<input type="text" placeholder="Name" ng-model="peopleInput" ng-change="searchPeople(peopleInput)" />
+								</div>
+							</form>
+						</div>
+					</div>
 				</li>
 				<li class="divider-vertical"></li> 
 				<li ng-show="pagination.num" style="padding-top:7px;">

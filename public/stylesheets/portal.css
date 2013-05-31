@@ -5439,6 +5439,17 @@ ul.listTree li ul {
 }
 .search-item {
   position: relative;
+  /*
+	> .draggable {
+		display:none;
+	}
+	&:hover > .draggable {
+		display:inline-block;
+		height:20px;
+		width:20px;
+		cursor:pointer;
+	}*/
+
 }
 .search-item > .pagination-page {
   text-align: center;
@@ -5585,7 +5596,7 @@ ul.listTree li ul {
 
   position: absolute;
   top: -5px;
-  left: 50px;
+  left: 5px;
   width: 0;
   border-width: 5px 7px 0;
   border-style: solid;
@@ -5599,7 +5610,7 @@ ul.listTree li ul {
 
   position: absolute;
   top: -5px;
-  left: 51px;
+  left: 6px;
   width: 0;
   border-width: 4px 6px 0;
   border-style: solid;
@@ -5613,6 +5624,20 @@ ul.listTree li ul {
 }
 .drop {
   background-color: #edf5fa;
+}
+.people {
+  height: 60px;
+}
+.people > img {
+  margin-top: 5px;
+  height: 50px;
+  width: 50px;
+}
+.people > .people-desc {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 20px 0;
+  line-height: 20px;
 }
 .pull-right {
   float: right;

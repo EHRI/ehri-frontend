@@ -74,7 +74,7 @@
 							</div>
 							<div id="content" class="span8" when-scrolled="loadMore()" >
 								<div ng-repeat="pagify in pages">
-									<article id="{{item.id}}" class="search-item" ng-repeat="item in pagify.items"  drag="item" dragStyle="drag">
+									<article annotate="item" id="{{item.id}}" class="search-item" ng-repeat="item in pagify.items" >
 										<div ng-show="item.page" class="pagination-page muted" id="page-{{item.page}}">
 											<a title="Page {{item.page}}">
 												{{item.page}}
@@ -88,6 +88,9 @@
 												<span class="toolbar-inline">
 													<a class=" iconwithtooltip" title="Add to basket" ng-click="addBasket(item)">
 														<i class="icon-bookmark"></i>
+													</a>
+													<a class=" iconwithtooltip" title="Drag this item" drag="item" dragStyle="drag">
+														<i class="icon-move"></i>
 													</a>
 												</span>
 												
@@ -107,7 +110,7 @@
 										</div>
 										
 										<!-- If desc not inside relationship -->
-										<div ng-show="(!item.relationships.describes)">
+										<div class="content" ng-show="(!item.relationships.describes)">
 											<header>
 												<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
 												<a ng-click="getLink(item.type, item.id)">

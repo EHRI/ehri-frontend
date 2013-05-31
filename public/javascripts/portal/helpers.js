@@ -3,7 +3,5 @@ Object.size = function(obj) {
     for (key in obj) {
         if (obj.hasOwnProperty(key)) size++;
     }
-	console.log(obj);
-	console.log(size);
     return size;
 };
