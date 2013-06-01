@@ -19,7 +19,6 @@ import views.Helpers
 import play.api.libs.json.Json
 import solr.SolrIndexer.SolrHeader
 import solr.facet.FieldFacetClass
-import scala.Some
 import solr.SolrIndexer.SolrUpdateResponse
 import solr.SolrIndexer.SolrErrorResponse
 
