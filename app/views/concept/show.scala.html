@@ -50,17 +50,14 @@
                 <div class="well well-small">
                 @item.vocabulary.map { v =>
                     <h5>@Messages("concept.inVocabulary")</h5>
-                    <p class="muted"><a href="@routes.Vocabularies.get(v.id)">@v</a></p>
+                    <p class="muted"><a href="@routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
                 }
                 @if(!item.broaderTerms.isEmpty) {
                     <hr />
                     <h5>@Messages("concept.broaderTerms")</h5>
                     <ul>
                     @item.broaderTerms.sortBy(_.toString).map { t =>
-                        <li><a href="@routes.Concepts.get(t.id)">
-                            @t.descriptions.headOption.map(_.stringProperty(models.ConceptF.PREFLABEL))
-                        </a>
-                        </li>
+                        <li><a href="@routes.Concepts.get(t.id)">@t.toStringLang</a></li>
                     }
                     </ul>
                 }
