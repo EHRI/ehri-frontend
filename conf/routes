@@ -39,7 +39,7 @@ GET /item/:id                           controllers.Application.get(id: String)
 GET /item/:type/:id                           controllers.Application.getType(type: String, id: String)
 
 # Get JSON (id,name) pair for a given type
-GET /filter                       controllers.Search.filterType(type: Option[String])
+GET /filter                       controllers.Search.filter
 
 # Change locale
 GET     /locale                         controllers.Application.changeLocale

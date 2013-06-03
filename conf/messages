@@ -292,6 +292,7 @@ actions.revokePermission=Revoke
 actions.addNewConceptDescription=Add Concept Description
 actions.deleteConceptDescription=Delete Description
 actions.deleteLink=Delete Link
+actions.save=Save
 
 # Submit buttons
 submitButton.createDocumentaryUnit=Create Collection

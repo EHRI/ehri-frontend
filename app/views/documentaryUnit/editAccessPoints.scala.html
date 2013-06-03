@@ -9,7 +9,7 @@
         @helper.javascriptRouter("jsRoutes")(
             routes.javascript.Application.get,
             routes.javascript.Application.getType,
-            routes.javascript.Search.filterType,
+            routes.javascript.Search.filter,
             routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
             routes.javascript.DocumentaryUnits.get,
             routes.javascript.DocumentaryUnits.createLink,
@@ -79,13 +79,13 @@
                                     </div>
                                 </div>
                                 <button class="btn btn-small btn-primary" ng-click="saveNewAccessPoint()" ng-disabled="!hasValidNewAccessPoint('@accessPointType')">
-                                    Save</button>
-                                <button class="btn btn-small" ng-click="cancelAddAccessPoint()">Cancel</button>
+                                    @Messages("actions.save")</button>
+                                <button class="btn btn-small" ng-click="cancelAddAccessPoint()">@Messages("actions.cancel")</button>
                                 <p>
                                     <small class="control-group">
                                         <ul class="potential-matches" style="overflow: auto; max-height: 200px">
                                             <li ng-repeat="item in matches">
-                                                <a ng-click="selectLinkMatch(item)">{{item[1]}} <span class="badge pull-right">{{item[2]}}</span></a>
+                                                <a ng-click="selectLinkMatch(item)">{{item[1]}} <span class="badge pull-right">{{readableType(item[2])}}</span></a>
                                             </li>
                                         </ul>
                                     </small>

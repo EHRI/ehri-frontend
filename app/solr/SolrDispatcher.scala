@@ -91,10 +91,8 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
 
   /**
    * Filter items on name only, returning minimal data.
-   * @param q
-   * @param entityType
-   * @param page
-   * @param limitOpt
+   * @param params
+   * @param filters
    * @param userOpt
    * @return a tuple of id, name, and type
    */

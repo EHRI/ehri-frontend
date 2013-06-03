@@ -101,7 +101,6 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
     userProfileAction { implicit userOpt => implicit request =>
 
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
-
       // Override the entity type with the controller entity type
       val sp = solr.SearchParams.form.bindFromRequest
         .value.getOrElse(SearchParams())

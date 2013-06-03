@@ -137,7 +137,6 @@ object SolrQueryBuilder {
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -itemId:$id").mkString
-
     val queryString = params.query.getOrElse("*").trim + excludeIds
 
     val req: QueryRequest = new QueryRequest(Query(queryString))

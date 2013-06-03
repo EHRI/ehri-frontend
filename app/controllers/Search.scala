@@ -76,12 +76,9 @@ object Search extends EntitySearch {
   /**
    * Quick filter action that searches applies a 'q' string filter to
    * only the name_ngram field and returns an id/name pair.
-   * @param entityType
    * @return
    */
-  def filterType(entityType: Option[String]) = filterAction(
-        defaultParams = Some(SearchParams(entities = entityType.map(EntityType.withName(_)).toList))) {
-      page => implicit userOpt => implicit request =>
+  def filter = filterAction() { page => implicit userOpt => implicit request =>
     Ok(Json.obj(
       "numPages" -> page.numPages,
       "page" -> page.page,
