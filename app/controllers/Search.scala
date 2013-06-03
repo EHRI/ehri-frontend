@@ -79,7 +79,8 @@ object Search extends EntitySearch {
    * @param entityType
    * @return
    */
-  def filterType(entityType: Option[String]) = filterAction(entityType.map(EntityType.withName(_))) {
+  def filterType(entityType: Option[String]) = filterAction(
+        defaultParams = Some(SearchParams(entities = entityType.map(EntityType.withName(_)).toList))) {
       page => implicit userOpt => implicit request =>
     Ok(Json.obj(
       "numPages" -> page.numPages,

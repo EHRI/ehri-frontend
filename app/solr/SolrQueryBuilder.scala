@@ -20,7 +20,6 @@ import defines.EntityType
  */
 object SolrQueryBuilder {
 
-  //
   import SolrConstants._
 
   private def setRequestFacets(request: QueryRequest, flist: List[FacetClass]): Unit = {
@@ -128,21 +127,21 @@ object SolrQueryBuilder {
   /**
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
-   * @param q
-   * @param entityType
-   * @param page
-   * @param limitOpt
+   * @param params
+   * @param filters
+   * @param alphabetical
    * @param userOpt
    * @return
    */
-  def simpleFilter(q: String, entityType: Option[EntityType.Value], page: Option[Int] = Some(1), limitOpt: Option[Int] = Some(100),
-                    alphabetical: Boolean = false)(
-    implicit userOpt: Option[UserProfile]): QueryRequest = {
+  def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
+      implicit userOpt: Option[UserProfile]): QueryRequest = {
 
-    val queryString = if(q.trim.isEmpty) "*" else q
+    val excludeIds = params.excludes.toList.flatten.map(id => s" -itemId:$id").mkString
+
+    val queryString = params.query.getOrElse("*").trim + excludeIds
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
-    constrainEntities(req, entityType.toList)
+    constrainEntities(req, params.entities)
     applyAccessFilter(req, userOpt)
     setGrouping(req)
     req.set("qf", "title^2.0 name_ngram")
@@ -150,9 +149,10 @@ object SolrQueryBuilder {
     if (alphabetical) req.setSort(Sort("name_sort asc"))
     req.setQueryParserType(QueryParserType("edismax"))
     // Setup start and number of objects returned
-    val limit = limitOpt.getOrElse(SearchParams.DEFAULT_LIMIT)
-    page.map { page =>
-      req.setStartRow(StartRow((Math.max(page, 1) - 1) * limit))
+    // Setup start and number of objects returned
+    val limit = params.limit.getOrElse(SearchParams.DEFAULT_LIMIT)
+    params.page.map { page =>
+      req.setStartRow(StartRow((Math.max(page, 1) - 1) * params.limit.getOrElse(100)))
     }
     req.setMaximumRowsReturned(MaximumRowsReturned(limit))
 

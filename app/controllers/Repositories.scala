@@ -16,6 +16,7 @@ import collection.immutable.ListMap
 import views.Helpers
 import scala.Some
 import solr.{SearchOrder, SearchParams}
+import scala.concurrent.Future
 
 object Repositories extends EntityRead[Repository]
   with EntityUpdate[RepositoryF, Repository]
@@ -25,6 +26,10 @@ object Repositories extends EntityRead[Repository]
   with PermissionScopeController[Repository]
   with EntityAnnotate[Repository]
   with EntitySearch {
+
+  /*private def getRepositoryTypes: Future[List[(String,String,String)]] = {
+
+  }*/
 
   val listFilterMappings = ListMap[String,String](
     AccessibleEntity.NAME -> AccessibleEntity.NAME,

@@ -96,19 +96,19 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
     }
   }
 
-  def filterAction(entityType: Option[EntityType.Value] = None)(
-      f: ItemPage[(String,String,EntityType.Value)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def filterAction(filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
+        f: ItemPage[(String,String,EntityType.Value)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
-      import play.api.data.Form
-      import play.api.data.Forms._
-      val (q, page, limit) = Form(tuple(
-        "q" -> text,
-        "page" -> optional(number),
-        "limit" -> optional(number)
-      )).bindFromRequest.value.getOrElse(("",None,None))
+
+      val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
+
+      // Override the entity type with the controller entity type
+      val sp = solr.SearchParams.form.bindFromRequest
+        .value.getOrElse(SearchParams())
+        .setDefault(params)
 
       AsyncRest {
-        solrDispatcher.filter(q, entityType, page, limit).map { resOrErr =>
+        solrDispatcher.filter(sp, filters).map { resOrErr =>
           resOrErr.right.map { res =>
             f(res)(userOpt)(request)
           }

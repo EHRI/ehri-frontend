@@ -98,12 +98,12 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
    * @param userOpt
    * @return a tuple of id, name, and type
    */
-  def filter(q: String, entityType: Option[EntityType.Value] = None, page: Option[Int] = Some(1), limitOpt: Option[Int] = Some(100))(
+  def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
     implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String,EntityType.Value)]]] = {
-    val limit = limitOpt.getOrElse(100)
-    val offset = (Math.max(page.getOrElse(1), 1) - 1) * limit
+    val limit = params.limit.getOrElse(100)
+    val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = SolrQueryBuilder.simpleFilter(q, entityType, page, limitOpt)
+    val queryRequest = SolrQueryBuilder.simpleFilter(params, filters)
     Logger.logger.debug(queryRequest.queryString())
 
     WS.url(buildSearchUrl(queryRequest)).get.map { response =>
