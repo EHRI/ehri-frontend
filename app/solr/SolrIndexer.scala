@@ -76,7 +76,7 @@ object SolrIndexer extends RestDAO {
     val deleteJson = items.foldLeft(Json.obj()) { case (obj,id) =>
       // NB: Because we delete logical items, but descriptions are indexed
       // we use a slightly dodgy query to delete stuff...
-      obj + ("delete" -> Json.obj("query" -> "id:\"%s\" OR itemId:\"%s\"".format(id, id)))
+      obj + ("delete" -> Json.obj("query" -> "id:\"%s\" OR %s:\"%s\"".format(id, ITEM_ID, id)))
     }
     solrUpdate(deleteJson, commit = commit)
   }
@@ -90,7 +90,7 @@ object SolrIndexer extends RestDAO {
 
   def deleteItemsByType(entityType: EntityType.Value, commit: Boolean = true): Future[SolrResponse] = {
     val deleteJson = Json.obj(
-      "delete" -> Json.obj("query" -> ("type:" + entityType.toString))
+      "delete" -> Json.obj("query" -> (TYPE + ":" + entityType.toString))
     )
     solrUpdate(deleteJson, commit = commit)
   }
@@ -221,11 +221,11 @@ object SolrIndexer extends RestDAO {
   private def describedEntityToSolr[D <: Description](d: DescribedEntity[D]): List[JsObject] = {
     d.descriptions.map { desc =>
       val baseData = Json.obj(
-        "itemId" -> d.id,
+        ITEM_ID -> d.id,
         "id" -> desc.id,
         "identifier" -> d.stringProperty("identifier"),
-        "name" -> desc.stringProperty("name"), // All descriptions should have a 'name' property
-        "type" -> d.isA,
+        NAME_EXACT -> desc.stringProperty("name"), // All descriptions should have a 'name' property
+        TYPE -> d.isA,
         ACCESSOR_FIELD -> getAccessorValues(d.e),
         "lastUpdated" -> d.latestEvent.map(_.dateTime),
         "languageCode" -> desc.stringProperty(IsadG.LANG_CODE)
@@ -249,11 +249,11 @@ object SolrIndexer extends RestDAO {
   private def entityToSolr(d: Entity): List[JsObject] = {
     val baseData = Json.obj(
       "id" -> d.id,
-      "itemId" -> d.id, // Duplicate, because the 'description' IS the item.
-      "type" -> d.isA,
-      "name" -> d.stringProperty("name"),
+      ITEM_ID -> d.id, // Duplicate, because the 'description' IS the item.
+      TYPE -> d.isA,
+      NAME_EXACT -> d.stringProperty("name"),
       ACCESSOR_FIELD -> getAccessorValues(d),
-      "lastUpdated" -> d.relations(AccessibleEntity.EVENT_REL).map(a => SystemEvent(a).dateTime)
+      LAST_MODIFIED -> d.relations(AccessibleEntity.EVENT_REL).map(a => SystemEvent(a).dateTime)
     )
     // Merge in all the additional data already in the entity
     // Don't overwrite keys added specifically

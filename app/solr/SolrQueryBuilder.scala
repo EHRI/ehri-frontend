@@ -22,6 +22,19 @@ object SolrQueryBuilder {
 
   import SolrConstants._
 
+  /**
+   * Convert a page value to an offset, given a particular limit.
+   * @param page
+   * @param limit
+   * @return
+   */
+  private def page2offset(page: Int, limit: Int) = (Math.max(page, 1) - 1) * limit
+
+  /**
+   * Set a list of facets on a request.
+   * @param request
+   * @param flist
+   */
   private def setRequestFacets(request: QueryRequest, flist: List[FacetClass]): Unit = {
     request.setFacet(new FacetParams(
       enabled=true,
@@ -45,13 +58,11 @@ object SolrQueryBuilder {
     val fqstrings = facetClasses.flatMap(fclass => {
       appliedFacets.filter(_.name == fclass.key).map(_.values).map( paramVals =>
         fclass match {
-          case fc: FieldFacetClass => {
-            paramVals.map("%s:\"%s\"".format(fc.key, _))
-          }
+          case fc: FieldFacetClass => paramVals.map(v => fc.key + ":\"" + v + "\"") // Grr, interpolation...
           case fc: QueryFacetClass => {
             fc.facets.flatMap(facet => {
               if (paramVals.contains(facet.param)) {
-                List("%s:%s".format(fc.key, facet.solr))
+                List(s"${fc.key}:${facet.solr}")
               } else Nil
             })
           }
@@ -82,7 +93,7 @@ object SolrQueryBuilder {
     if (!entities.isEmpty) {
       val filter = entities.map(_.toString).mkString(" OR ")
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq(s"type:($filter)")))
+        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq(s"$TYPE:($filter)")))
     }
   }
 
@@ -117,7 +128,7 @@ object SolrQueryBuilder {
    */
   private def setGrouping(request: QueryRequest): Unit = {
     request.set("group", true)
-    request.set("group.field", "itemId")
+    request.set("group.field", ITEM_ID)
     request.set("group.facet", true)
     request.set("group.format", "simple")
     request.set("group.ngroups", true)
@@ -136,22 +147,22 @@ object SolrQueryBuilder {
   def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
-    val excludeIds = params.excludes.toList.flatten.map(id => s" -itemId:$id").mkString
+    val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
     val queryString = params.query.getOrElse("*").trim + excludeIds
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
     constrainEntities(req, params.entities)
     applyAccessFilter(req, userOpt)
     setGrouping(req)
-    req.set("qf", "title^2.0 name_ngram")
-    req.setFieldsToReturn(FieldsToReturn("id itemId name type"))
-    if (alphabetical) req.setSort(Sort("name_sort asc"))
+    req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
+    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE"))
+    if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
     req.setQueryParserType(QueryParserType("edismax"))
+
     // Setup start and number of objects returned
-    // Setup start and number of objects returned
-    val limit = params.limit.getOrElse(SearchParams.DEFAULT_LIMIT)
+    val limit = params.limit.getOrElse(DEFAULT_FILTER_LIMIT)
     params.page.map { page =>
-      req.setStartRow(StartRow((Math.max(page, 1) - 1) * params.limit.getOrElse(100)))
+      req.setStartRow(StartRow(page2offset(page, limit)))
     }
     req.setMaximumRowsReturned(MaximumRowsReturned(limit))
 
@@ -167,7 +178,7 @@ object SolrQueryBuilder {
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
-    val excludeIds = params.excludes.toList.flatten.map(id => s" -itemId:$id").mkString
+    val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 
     val queryString = params.query.getOrElse("*").trim + excludeIds
 
@@ -176,7 +187,7 @@ object SolrQueryBuilder {
     // Always facet on item type
     req.setFacet(new FacetParams(
       enabled=true,
-      params=List(new FacetParam(Param("facet.field"), Value("type")))
+      params=List(new FacetParam(Param("facet.field"), Value(TYPE)))
     ))
 
     // Use edismax to parse the user query
@@ -200,7 +211,7 @@ object SolrQueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", "title^3.0 name_sort^1.0 text")
+      req.set("qf", s"$NAME_MATCH^3.0 $NAME_SORT^1.0 $TEXT")
     }
 
     // Mmmn, speckcheck
@@ -218,7 +229,7 @@ object SolrQueryBuilder {
     // Only return what we immediately need to build a SearchDescription. We
     // ignore nearly everything currently stored in Solr, instead fetching the
     // data from the DB, but this might change in future.
-    req.setFieldsToReturn(FieldsToReturn("id itemId type"))
+    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE"))
 
     // Return only fields we care about...
     applyAccessFilter(req, userOpt)
@@ -236,9 +247,9 @@ object SolrQueryBuilder {
     //req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
 
     // Setup start and number of objects returned
-    val limit = params.limit.getOrElse(SearchParams.DEFAULT_LIMIT)
+    val limit = params.limit.getOrElse(DEFAULT_SEARCH_LIMIT)
     params.page.map { page =>
-      req.setStartRow(StartRow((Math.max(page, 1) - 1) * params.limit.getOrElse(20)))
+      req.setStartRow(StartRow(page2offset(page, limit)))
     }
     req.setMaximumRowsReturned(MaximumRowsReturned(limit))
 
