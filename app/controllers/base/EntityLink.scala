@@ -12,6 +12,9 @@ import play.api.mvc.Result
 import play.api.libs.json.{JsError, Json}
 import solr.SearchParams
 import solr.facet.AppliedFacet
+import play.api.Play.current
+import play.api.cache.Cache
+
 
 /**
  * Class representing an access point link.
@@ -257,6 +260,7 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
     AsyncRest {
       LinkDAO(userOpt).deleteAccessPoint(accessPointId).map { boolOrErr =>
         boolOrErr.right.map { ok =>
+          Cache.remove(id)
           Ok(Json.toJson(ok))
         }
       }
@@ -272,6 +276,7 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
     AsyncRest {
       LinkDAO(userOpt).deleteLink(id, linkId).map { boolOrErr =>
         boolOrErr.right.map { ok =>
+          Cache.remove(id)
           Ok(Json.toJson(ok))
         }
       }
