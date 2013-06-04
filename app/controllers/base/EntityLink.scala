@@ -46,7 +46,8 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
 
   def linkSelectAction(id: String, toType: String)(
       f: LinkableEntity => solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission(id, PermissionType.Annotate, contentType) {
+        item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
       LinkableEntity.fromEntity(item).map { ann =>
         searchAction(defaultParams = Some(SearchParams(entities = List(linkSrcEntityType), excludes=Some(List(id))))) {
@@ -60,7 +61,8 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
   }
 
   def linkAction(id: String, toType: String, to: String)(f: LinkableEntity => LinkableEntity => Option[UserProfile] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission(id, PermissionType.Annotate, contentType) {
+        item => implicit userOpt => implicit request =>
       getEntity(EntityType.withName(toType), to) { srcitem =>
         // If neither items are annotatable throw a 404
         val res: Option[Result] = for {
@@ -76,7 +78,8 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
 
   def linkPostAction(id: String, toType: String, to: String)(
       f: Either[(LinkableEntity, LinkableEntity,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission(id, PermissionType.Annotate, contentType) {
+        item => implicit userOpt => implicit request =>
       LinkForm.form.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
           getEntity(EntityType.withName(toType), to) { srcitem =>
@@ -104,7 +107,8 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
   }
 
   def linkMultiAction(id: String)(f: LinkableEntity => Option[UserProfile] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission(id, PermissionType.Annotate, contentType) {
+        item => implicit userOpt => implicit request =>
       val res: Option[Result] = for {
         target <- LinkableEntity.fromEntity(item)
       } yield {
@@ -153,7 +157,8 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
         BadRequest(JsError.toFlatJson(errors))
       },
       ann => {
-        withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+        withItemPermission(id, PermissionType.Annotate, contentType) {
+            item => implicit userOpt => implicit request =>
           AsyncRest {
             val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
             rest.LinkDAO(userOpt).link(id, ann.target, link, Some(apid)).map { annOrErr =>
@@ -182,7 +187,8 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
         BadRequest(JsError.toFlatJson(errors))
       },
       anns => {
-        withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+        withItemPermission(id, PermissionType.Annotate, contentType) {
+            item => implicit userOpt => implicit request =>
           AsyncRest {
             val links = anns.map(ann =>
               (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
@@ -232,13 +238,19 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
    * @param apid
    * @return
    */
-  def getLink(id: String, apid: String) = withItemPermission(id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+  def getLink(id: String, apid: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
+      item => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).getFor(id).map { linksOrErr =>
         linksOrErr.right.map { linkList =>
           val linkOpt = linkList.find(link => link.bodies.exists(b => b.id == apid))
           val itemOpt = LinkableEntity.fromEntity(item)
-          val res = for (link <- linkOpt ; item <- itemOpt ; linkData <- link.formableOpt ; target <- link.opposingTarget(item)) yield {
+          val res = for {
+            link <- linkOpt
+            item <- itemOpt
+            linkData <- link.formableOpt
+            target <- link.opposingTarget(item)
+          } yield {
             new AccessPointLink(
               target = target.id,
               `type` = None, // TODO: Add
@@ -256,7 +268,8 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
    * @param id
    * @return
    */
-  def deleteAccessPoint(id: String, accessPointId: String) = withItemPermission(id, PermissionType.Update, contentType) { bool => implicit userOpt => implicit request =>
+  def deleteAccessPoint(id: String, accessPointId: String) = withItemPermission(id, PermissionType.Update, contentType) {
+      bool => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).deleteAccessPoint(accessPointId).map { boolOrErr =>
         boolOrErr.right.map { ok =>
@@ -272,7 +285,8 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
    * @param id
    * @return
    */
-  def deleteLink(id: String, linkId: String) = withItemPermission(id, PermissionType.Annotate, contentType) { bool => implicit userOpt => implicit request =>
+  def deleteLink(id: String, linkId: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
+      bool => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).deleteLink(id, linkId).map { boolOrErr =>
         boolOrErr.right.map { ok =>
