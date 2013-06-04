@@ -18,6 +18,8 @@
 	<script src="@routes.Assets.at("javascripts/portal/filters.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/portal/CtrlSearch.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/portal/CtrlBottom.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/CtrlRepo.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/CtrlDoc.js")" type="text/javascript"></script>
 
 	
 	
@@ -33,9 +35,76 @@
 <html lang="en" >
 	<head>
 	<title> </title>
-		<link rel="stylesheet" href="@routes.Assets.at("stylesheets/portal.css")" >
-		<link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")" >
-		<link rel="stylesheet" href="@routes.Assets.at("stylesheets/font-awesome.css")" >
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/portal.css")' />
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")' />
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/font-awesome.css")' />
+		<style>
+		.document h1 {
+			color:#330033;
+			font-size:20px;
+			font-weight:bolder;
+			line-height:25px;
+			margin:10px;
+			padding:0;
+		}
+		.document h2 {
+			font-family:"Arial Black", Gadget, sans-serif;
+			text-transform:uppercase;
+			color:#330033;
+			border-bottom:1px solid #330033;
+			padding:0;
+			font-size:18px;
+			font-weight:bolder;
+			line-height:18px;
+			margin:6px 0;
+		}
+		.document h3 {
+			font-variant:small-caps;
+			/*float:left;*/
+			margin:0 15px 0 0;
+			padding:0;
+			font-size:16px;
+			line-height:16px;
+			font-weight:bold;
+			color:#330033;
+			margin:3px 0;
+		}
+		.document p {
+			text-align:justify;
+			text-indent:1em;
+			padding:3px;
+		}
+		.document .well {
+			padding:6px;
+			font-size:12px;
+			background-color:#F5FAF5;
+			position:relative;
+		}
+		.document .well:before {
+			background-color: #FFFFFF;
+			content: "";
+			height: 100%;
+			left: -6px;
+			position: absolute;
+			top: 0;
+			width: 5px;
+		}
+		.document .well .dl-horizontal {
+			margin-bottom:0;
+		}
+		.document .well .dl-horizontal:last-child {
+			margin-bottom:20px;
+		}
+		.document .well .dl-horizontal dt {
+			text-align:left;
+			font-weight:normal;
+			width:38%;
+			color:#6c003b;
+		}
+		.document well .dl-horizontal dd {
+			margin-left: 40%;
+		}
+		</style>
 	</head>
 	<body ng-app="portalSearch" > 
 		<script type="text/ng-template" id="fileTree.html">

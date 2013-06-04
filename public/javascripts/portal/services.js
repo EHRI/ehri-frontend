@@ -38,4 +38,14 @@ portal.factory('myPaginationService', function($rootScope) {
     };
 	
     return basketservice;
-});
+}).factory('Item', function($http){
+	var Item = {}
+	
+	Item.query = function(type, item) {
+		return $http.get('./api/'+type+'/'+item).success(function(data) {
+			Item.data = data;
+		});
+	}
+	
+	return Item;
+}); 

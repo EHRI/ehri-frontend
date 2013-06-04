@@ -198,7 +198,8 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 **
 */
 	$scope.getLink = function(type,id) {
-        location.href = $service.redirectUrl(type, id);
+        //location.href = $service.redirectUrl(type, id);
+		console.log($service.redirectUrl(type, id));
 	}
 	//Description functions	
 	$scope.getTitleAction = function(item) {

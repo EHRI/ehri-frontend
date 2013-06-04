@@ -84,9 +84,9 @@
 										<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
 											<header>
 												<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
-												<a ng-show="desc.data.name" ng-click="getLink(item.type, item.id)"><b>{{desc.data.name}}</b></a> 
+												<a ng-show="desc.data.name" href="#/item/{{item.type}}/{{item.id}}"><b>{{desc.data.name}}</b></a> 
 												<span class="toolbar-inline">
-													<a class=" iconwithtooltip" title="Add to basket" ng-click="addBasket(item)">
+													<a class="iconwithtooltip" title="Add to basket" ng-click="addBasket(item)">
 														<i class="icon-bookmark"></i>
 													</a>
 													<a class=" iconwithtooltip" title="Drag this item" drag="item" dragStyle="drag">
