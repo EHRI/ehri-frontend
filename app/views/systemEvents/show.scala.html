@@ -1,18 +1,33 @@
 @(item: SystemEvent, page: rest.Page[ItemWithId], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+@title(item: SystemEvent) = {
+    @item.scope.map(s => views.Helpers.itemForEntity(s.e) + " - ")
+    @item
+}
+
+@rightSidebarLayout(title(item), breadcrumbs = common.breadcrumbs(List(item))) {
 
     <p>
-	@item.actioner.map { accessor =>
-        <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a>:
-	}
-	@item.logMessage
+    @item.actioner.map { accessor =>
+        <a href="@views.Helpers.urlFor(accessor)">@accessor</a>:
+    }
+        <time>@item.time</time>
+        (@views.Helpers.prettyDate(item.timeStamp))
     </p>
-    <h3>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)}</h3>
+
+    @item.logMessage.map { lm =>
+        <blockquote>@lm</blockquote>
+    }
+
+    @item.scope.map { scope =>
+        @Messages("systemEvents.scope"):  <a href="@views.Helpers.urlFor(scope)">@views.Helpers.itemForEntity(scope.e)</a>
+    }
+
+    <h4>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)}</h4>
     @common.pagination(page)
     <ul class="unstyled">
     @page.items.map { item =>
-        <li><a href="@views.Helpers.urlFor(item)">@item</a></li>
+        <li><a href="@views.Helpers.urlFor(item)">@views.Helpers.itemForEntity(item.e)</a></li>
     }
     </ul>
 

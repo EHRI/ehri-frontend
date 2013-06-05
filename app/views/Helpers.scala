@@ -3,14 +3,18 @@ package views
 import java.util.Locale
 
 import views.html.helper.FieldConstructor
-import models.base.{DescribedEntity, AccessibleEntity}
+import models.base.{WrappedEntity, DescribedEntity, AccessibleEntity}
 import play.api.mvc.Call
 import play.api.i18n.Lang
 
 import com.petebevin.markdown.MarkdownProcessor
 import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
-import models.Entity
+import models._
+import models.HistoricalAgent
+import scala.Some
+import play.api.mvc.Call
+import models.DocumentaryUnit
 
 
 package object Helpers {
@@ -106,6 +110,21 @@ package object Helpers {
     case EntityType.Country => routes.Countries.get(e.id)
       // Anything we can't figure out, give an API ref
     case i => routes.ApiController.getAny(e.id)
+  }
+
+  def itemForEntity(e: Entity): WrappedEntity = e.isA match {
+    case EntityType.SystemEvent => SystemEvent(e)
+    case EntityType.DocumentaryUnit => DocumentaryUnit(e)
+    case EntityType.HistoricalAgent => HistoricalAgent(e)
+    case EntityType.Repository => Repository(e)
+    case EntityType.Group => Group(e)
+    case EntityType.UserProfile => UserProfile(e)
+    case EntityType.Annotation => Annotation(e)
+    case EntityType.Vocabulary => Vocabulary(e)
+    case EntityType.AuthoritativeSet => AuthoritativeSet(e)
+    case EntityType.Concept => Concept(e)
+    case EntityType.Country => Country(e)
+    case i => ItemWithId(e)
   }
 
   /**

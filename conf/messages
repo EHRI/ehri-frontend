@@ -200,6 +200,19 @@ group.description=Group Description
 #
 systemEvents.itemAtTime=Action at {0}
 systemEvents.lastUpdated=Updated {0}
+systemEvents.creation=Item created
+systemEvents.modification=Item modified
+systemEvents.deletion=Item deleted
+systemEvents.link=Link created
+systemEvents.annotation=Annotation created
+systemEvents.setGlobalPermissions=Global permissions modified
+systemEvents.setItemPermissions=Item-level permissions modified
+systemEvents.setVisibility=Visibility modified
+systemEvents.addGroup=Member added to group
+systemEvents.removeGroup=Member removed from group
+systemEvents.ingest=Items imported
+systemEvents.unknown=Unknown action
+systemEvents.scope=Scope
 
 # Actions
 actions.edit=Edit
