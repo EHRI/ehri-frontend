@@ -112,6 +112,11 @@ package object Helpers {
     case i => routes.ApiController.getAny(e.id)
   }
 
+  /**
+   * Get the 'wrapped' instantiation of a given entity.
+   * @param e
+   * @return
+   */
   def itemForEntity(e: Entity): WrappedEntity = e.isA match {
     case EntityType.SystemEvent => SystemEvent(e)
     case EntityType.DocumentaryUnit => DocumentaryUnit(e)
