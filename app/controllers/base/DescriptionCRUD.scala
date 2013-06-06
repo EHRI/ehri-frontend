@@ -34,7 +34,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
       },
       { desc =>
         AsyncRest {
-          DescriptionDAO(userOpt).createDescription(id, desc, logMsg = getLogMessage).map { itemOrErr =>
+          DescriptionDAO(entityType, userOpt).createDescription(id, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
                 case err: rest.ValidationError => {
@@ -69,7 +69,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
       },
       { desc =>
         AsyncRest {
-          DescriptionDAO(userOpt)
+          DescriptionDAO(entityType, userOpt)
               .updateDescription(id, did, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
@@ -100,7 +100,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
     withItemPermission(id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
-        DescriptionDAO(userOpt)
+        DescriptionDAO(entityType, userOpt)
             .deleteDescription(id, did, logMsg = getLogMessage).map { itemOrErr =>
           itemOrErr.right.map { ok =>
             f(ok)(userOpt)(request)
