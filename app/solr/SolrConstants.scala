@@ -31,6 +31,16 @@ object SolrConstants {
   final val NAME_EXACT = "name"
 
   /**
+   * Other forms of name
+   */
+  final val OTHER_NAMES = "otherFormsOfName"
+
+  /**
+   * Parallel forms of name
+   */
+  final val PARALLEL_NAMES = "parallelFormsOfName"
+
+  /**
    * Name field for word matches
    */
   final val NAME_MATCH = "title" // FIXME???

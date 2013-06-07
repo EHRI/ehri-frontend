@@ -184,6 +184,8 @@ object SolrIndexer extends RestDAO {
     descriptions.map { desc =>
       ((desc
         + ("addresses" -> Json.toJson(d.descriptions.flatMap(_.addresses.flatMap(_.formableOpt)).map(_.toString).distinct))
+        + (OTHER_NAMES -> Json.toJson(d.descriptions.flatMap(_.listProperty(Isdiah.OTHER_FORMS_OF_NAME)).distinct))
+        + (PARALLEL_NAMES -> Json.toJson(d.descriptions.flatMap(_.listProperty(Isdiah.PARALLEL_FORMS_OF_NAME)).distinct))
         + ("countryCode" -> Json.toJson(d.country.map(_.id)))
         + ("priority" -> Json.toJson(d.priority))))
     }
