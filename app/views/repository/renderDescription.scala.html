@@ -36,11 +36,18 @@
                     @address.stringProperty(COUNTRY_CODE).map { cc =>
                         @views.Helpers.countryCodeToName(cc)<br />
                     }
-                    @List(EMAIL, TELEPHONE, FAX, URL).map { addressPart =>
+                    <dl class="dl-horizontal">
+                    @address.listProperty(TELEPHONE).map { t =>
+                        <dt>@Messages("isdiah.telephone")</dt>
+                        <dd>@t</dd>
+                    }
+                    @List(EMAIL, FAX, URL).map { addressPart =>
                         @address.stringProperty(addressPart).map { addressPartValue =>
-                            @addressPartValue<br />
+                            <dt>@Messages("isdiah." + addressPart)</dt>
+                            <dd>@addressPartValue</dd>
                         }
                     }
+                    </dl>
                 </address>
             }
             </div>

@@ -54,6 +54,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "descriptions[0].descriptionArea.history" -> Seq("Some history"),
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("Some content"),
         "descriptions[0].addressArea[0].addressName" -> Seq("An Address"),
+        "descriptions[0].addressArea[0].telephone[0]" -> Seq("12345 546395"),
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
@@ -66,6 +67,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain("Some history")
       contentAsString(show) must contain("Some content")
       contentAsString(show) must contain("An Address")
+      contentAsString(show) must contain("12345 546395")
     }
 
     "error if missing mandatory values" in new FakeApp {

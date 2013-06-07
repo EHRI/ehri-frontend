@@ -13,7 +13,7 @@ object SystemEvent {
 
   final val TIMESTAMP = "timestamp"
   final val LOG_MESSAGE = "logMessage"
-  final val ACTION_TYPE = "eventType"
+  final val EVENT_TYPE = "eventType"
 }
 
 case class SystemEvent(val e: Entity) extends AccessibleEntity {
@@ -27,7 +27,7 @@ case class SystemEvent(val e: Entity) extends AccessibleEntity {
   val scope: Option[ItemWithId] = e.relations(SCOPE_REL).headOption.map(ItemWithId(_))
 
   implicit val eventTypeReads = defines.EnumUtils.enumReads(EventType)
-  val eventType: Option[EventType.Value] = e.property(ACTION_TYPE).flatMap(_.asOpt[EventType.Value])
+  val eventType: Option[EventType.Value] = e.property(EVENT_TYPE).flatMap(_.asOpt[EventType.Value])
 
   /**
    * Standard time output.

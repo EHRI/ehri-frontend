@@ -13,7 +13,7 @@
     @formHelpers.choiceInput(field(COUNTRY_CODE), COUNTRY_CODE, views.Helpers.countryPairList, blank=true)
     @formHelpers.lineInput(field, POSTAL_CODE)
     @formHelpers.lineInput(field, EMAIL)
-    @formHelpers.lineInput(field, TELEPHONE)
+    @formHelpers.singleArrayInput(field, TELEPHONE)
     @formHelpers.lineInput(field, FAX)
     @formHelpers.lineInput(field, URL)
 </div>
