@@ -16,7 +16,7 @@
 <small>
     <ul class="unstyled muted inline inline-separator">
         @item.holder.map { holder =>
-            <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder</a></li>
+            <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
         }
         <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
 
