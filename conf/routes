@@ -30,6 +30,9 @@ POST    /admin/changePassword           controllers.Admin.changePasswordPost
 GET     /admin/updateIndex              controllers.Search.updateIndex
 POST    /admin/updateIndex              controllers.Search.updateIndexPost
 
+# API Sparql queries - TESTING
+GET /sparql                             controllers.ApiController.sparql
+GET /sparqlQuery                        controllers.ApiController.sparqlQuery
 
 # Search testing
 GET /search                             controllers.Search.search
