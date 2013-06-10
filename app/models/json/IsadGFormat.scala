@@ -42,6 +42,7 @@ object IsadGFormat {
           LOCATION_COPIES -> d.materials.locationOfCopies,
           RELATED_UNITS -> d.materials.relatedUnitsOfDescription,
           PUBLICATION_NOTE -> d.materials.publicationNote,
+          NOTES -> d.notes,
           ARCHIVIST_NOTE -> d.control.archivistNote,
           RULES_CONVENTIONS -> d.control.rulesAndConventions,
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions
@@ -92,6 +93,7 @@ object IsadGFormat {
           (__ \ RELATED_UNITS).readNullable[String] and
           (__ \ PUBLICATION_NOTE).readNullable[String]
         )(Materials.apply _)) and
+      (__ \ DATA \ NOTES).readNullable[List[String]] and
       (__ \ DATA).read[Control]((
         (__ \ ARCHIVIST_NOTE).readNullable[String] and
           (__ \ RULES_CONVENTIONS).readNullable[String] and

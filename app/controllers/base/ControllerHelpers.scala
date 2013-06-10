@@ -49,6 +49,17 @@ trait ControllerHelpers {
   }
 
   /**
+   * Join params into a query string
+   */
+  def joinQueryString(qs: Map[String, Seq[String]]): String = {
+    import java.net.URLEncoder
+    qs.map { case (key, vals) => {
+      vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
+    }}.flatten.mkString("&")
+  }
+
+
+  /**
    * Wrapper function which takes a promise of either a result
    * or a throwable. If the throwable exists it is handled in
    * an appropriate manner and returned as a AsyncResult

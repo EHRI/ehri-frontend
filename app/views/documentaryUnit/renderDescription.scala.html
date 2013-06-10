@@ -43,6 +43,7 @@
     @descriptionSection(CONDITIONS_AREA) {
         @common.stringValue(desc, ACCESS_COND)
         @common.stringValue(desc, REPROD_COND)
+
         @common.listValue(desc, LANG_MATERIALS, transformFunc = {s => views.Helpers.languageCodeToName(s)})
         @common.listValue(desc, SCRIPT_MATERIALS, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
         @common.stringValue(desc, PHYSICAL_CHARS)
@@ -54,6 +55,10 @@
         @common.stringValue(desc, LOCATION_COPIES)
         @common.stringValue(desc, RELATED_UNITS)
         @common.stringValue(desc, PUBLICATION_NOTE)
+    }
+
+    @descriptionSection(NOTES_AREA) {
+        @common.listValue(desc, NOTES)
     }
 
     @descriptionSection(CONTROL_AREA) {

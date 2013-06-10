@@ -4,6 +4,19 @@
 @import models.DatePeriodF._
 @import formHelpers._
 
+@inlineNote(desc: Field) = {
+    <div class="inline-element">
+        <div class="control-group @{if(desc.hasErrors) "error"}">
+            <div class="controls controls-row">
+                <textarea class="span8" name="@desc.name" id="@desc.id">@desc.value</textarea>
+                <span class="help-inline errors">@desc.errors.map(e => Messages(e.message)).mkString(", ")</span>
+                <a class="remove-inline-element" tabindex="-1" href="#">&times;</a>
+            </div>
+        </div>
+    </div>
+}
+
+
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 <div class="description-form" id="@desc("form").id">
@@ -67,6 +80,24 @@
             @textInput(desc, RELATED_UNITS)
             @textInput(desc, PUBLICATION_NOTE)
         }
+    }
+
+    @descriptionFormSection(NOTES_AREA) {
+        <div class="inline-formset control-group clearfix">
+                <!-- Template for adding inline date forms via JS -->
+            <label class="control-label">
+                @Messages(fieldPrefix + "." + NOTES)
+                <a href="#" class="add-inline-element"><i class="icon-plus-sign"></i></a>
+            </label>
+            <div class="inline-element-template form-template">
+                @inlineNote(desc(NOTES + "[IDX]"))
+            </div>
+            <div class="inline-element-list">
+                @helper.repeat(desc(NOTES), min = 0) { field =>
+                    @inlineNote(field)
+                }
+            </div>
+        </div>
     }
 
     @descriptionFormSection(CONTROL_AREA) {

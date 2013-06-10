@@ -50,6 +50,7 @@ object IsadGForm {
         RELATED_UNITS -> optional(text),
         PUBLICATION_NOTE -> optional(text)
       )(Materials.apply)(Materials.unapply),
+      NOTES -> optional(list(nonEmptyText)),
       CONTROL_AREA -> mapping(
         ARCHIVIST_NOTE -> optional(text),
         RULES_CONVENTIONS -> optional(text),

@@ -909,6 +909,9 @@ isaar.accessPoints.creatorAccess.description=
 isaar.accessPoints.corporateBodyAccess=Corporate Bodies
 isaar.accessPoints.corporateBodyAccess.description=
 
+isaar.accessPoints.familyAccess=Families
+isaar.accessPoints.family.description=
+
 isaar.accessPoints.personAccess=Persons
 isaar.accessPoints.personAccess.description=
 
@@ -934,6 +937,7 @@ isadg.contextArea=Context Area
 isadg.contentArea=Content Area
 isadg.conditionsArea=Conditions Area
 isadg.materialsArea=Materials Area
+isadg.notesArea=Notes Area
 isadg.controlArea=Control Area
 
 isadg.name=Title
@@ -1059,13 +1063,13 @@ Give information about conditions, such as copyright, governing the reproduction
  unit of description after access has been provided. If the existence of such conditions is\
  unknown, record this. If there are no conditions, no statement is necessary. (3.4.2)
 
-isadg.languageOfMaterials=Language(s) of Materials
-isadg.languageOfMaterials.description=To identify the language(s) employed in the unit of description.\n\n\
+isadg.languageOfMaterial=Language(s) of Materials
+isadg.languageOfMaterial.description=To identify the language(s) employed in the unit of description.\n\n\
 Record the language(s) and/or script(s) of the materials comprising the unit of description.\
  Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (3.4.3)
 
-isadg.scriptOfMaterials=Script(s) of Materials
-isadg.scriptOfMaterials.description=To identify the script(s) employed in the unit of description.\n\n\
+isadg.scriptOfMaterial=Script(s) of Materials
+isadg.scriptOfMaterial.description=To identify the script(s) employed in the unit of description.\n\n\
 Record the language(s) and/or script(s) of the materials comprising the unit of description.\
  Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (3.4.3)
 
@@ -1109,8 +1113,8 @@ Record a citation to, and/or information about a publication that is about or ba
  use, study, or analysis of the unit of description. Include references to published facsimiles\
  or transcriptions. (3.5.4)
 
-isadg.note=Note(s)
-isadg.note.description=To provide information that cannot be accommodated in any of the other areas.\n\n\
+isadg.notes=Note(s)
+isadg.notes.description=To provide information that cannot be accommodated in any of the other areas.\n\n\
 Record specialized or other important information not accommodated by any of the\
  defined elements of description. (3.6.1)
 
@@ -1130,6 +1134,7 @@ Record the date(s) the entry was prepared and/or revised. (3.7.3)
 isadg.accessPoints=Access Points
 isadg.accessPoints.creatorAccess=Creators
 isadg.accessPoints.corporateBodyAccess=Corporate Bodies
+isadg.accessPoints.familyAccess=Families
 isadg.accessPoints.personAccess=Persons
 isadg.accessPoints.subjectAccess=Subject Access Points
 isadg.accessPoints.placeAccess=Place Access Points
