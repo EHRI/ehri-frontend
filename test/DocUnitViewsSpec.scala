@@ -146,11 +146,12 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(cr2) must contain("exists and must be unique")
     }
 
-    "give a form error when saving an invalid date" in new FakeApp {
+    "give a form error when saving an item with no description name" in new FakeApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
+        "descriptions[0].name" -> Seq(), // BAD!
         "descriptions[0].dates[0].startDate" -> Seq("1945-01-01"),
-        "descriptions[0].dates[0].endDate" -> Seq("1945-13-32") // THIS SHOULD FAIL!
+        "descriptions[0].dates[0].endDate" -> Seq("1945-12-31")
       )
       // Since the item id is derived from the identifier field,
       // a form error should result from using the same identifier
@@ -159,9 +160,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
       val cr = route(call, testData).get
       status(cr) must equalTo(BAD_REQUEST)
-      // NB: This error string comes from the server, so might
-      // not match if changed there - single quotes surround the value
-      contentAsString(cr) must contain(Messages("error.date"))
+      // If we were still validating dates we'd use:
+      //contentAsString(cr) must contain(Messages("error.date"))
     }
 
     "allow updating items when logged in as privileged user" in new FakeApp {
