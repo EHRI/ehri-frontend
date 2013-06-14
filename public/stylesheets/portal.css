@@ -2699,8 +2699,6 @@ button.close {
   background-color: transparent;
   border: 2px solid #000000;
   *border: 0;
-  border-top-color: #333333;
-  border-left-color: #333333;
   -webkit-border-radius: 2px 2px 2px 2px;
   -moz-border-radius: 2px 2px 2px 2px;
   border-radius: 2px 2px 2px 2px;
@@ -2827,8 +2825,6 @@ input[type="button"].btn-block {
 .btn-primary {
   color: black;
   border-color: #6c0017;
-  border-top-color: #d2002d;
-  border-left-color: #d2002d;
 }
 .btn-primary:hover {
   color: #ffffff;
@@ -2840,8 +2836,6 @@ input[type="button"].btn-block {
 .btn-warning {
   color: black;
   border-color: #f89406;
-  border-top-color: #fbbf69;
-  border-left-color: #fbbf69;
 }
 .btn-warning:hover {
   background-color: #f89406;
@@ -2853,8 +2847,6 @@ input[type="button"].btn-block {
 .btn-danger {
   color: black;
   border-color: #bd362f;
-  border-top-color: #dd7a75;
-  border-left-color: #dd7a75;
 }
 .btn-danger:hover {
   background-color: #bd362f;
@@ -2866,8 +2858,6 @@ input[type="button"].btn-block {
 .btn-success {
   color: black;
   border-color: #51a351;
-  border-top-color: #91c991;
-  border-left-color: #91c991;
 }
 .btn-success:hover {
   background-color: #51a351;
@@ -2879,8 +2869,6 @@ input[type="button"].btn-block {
 .btn-info {
   color: black;
   border-color: #2f96b4;
-  border-top-color: #6fc2da;
-  border-left-color: #6fc2da;
 }
 .btn-info:hover {
   background-color: #2f96b4;
@@ -2892,8 +2880,6 @@ input[type="button"].btn-block {
 .btn-inverse {
   color: #000000;
   border-color: #222222;
-  border-top-color: #555555;
-  border-left-color: #555555;
 }
 .btn-inverse:hover {
   color: #ffffff;
