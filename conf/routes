@@ -37,6 +37,9 @@ GET /sparqlQuery                        controllers.ApiController.sparqlQuery
 # Search testing
 GET /search                             controllers.Search.search
 
+# Test endpoint for Angular portal dev
+GET /portal                             controllers.Application.portal
+
 # Generic item redirection
 GET /item/:id                           controllers.Application.get(id: String)
 GET /item/:type/:id                           controllers.Application.getType(type: String, id: String)
