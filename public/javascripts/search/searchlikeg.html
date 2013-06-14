@@ -70,8 +70,22 @@
 					<div class="container-fluid">
 						<div class="row-fluid">
 							<div class="span2">
-								&nbsp;
+								<span class="btn">Test</span>
+								<span class="btn btn-primary">Test</span>
+								<span class="btn btn-primary disabled">Test</span>
+								<span class="btn btn-info">Test</span>
+								<span class="btn btn-success">Test</span>
+								<span class="btn btn-warning">Test</span>
+								<span class="btn btn-danger">Test</span>
+								<span class="btn btn-inverse">Test</span>
+								<span class="btn btn-link">Test</span>
+								
+								<div class="btn-group">
+									<button class="btn btn-primary"><i class="icon-search"></i></button>
+									<button class="btn btn-primary">Left</button>
+								</div>
 							</div>
+							
 							<div id="content" class="span8" when-scrolled="loadMore()" >
 								<div ng-repeat="pagify in pages">
 									<article annotate="item" id="{{item.id}}" class="search-item" ng-repeat="item in pagify.items" >
