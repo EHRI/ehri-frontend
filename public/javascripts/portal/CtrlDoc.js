@@ -18,28 +18,37 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$rout
 		if($scope.descId)
 		{
 			$scope.desc = $filter("descLang")($scope.item.relationships.describes, false, {"id" : $scope.descId})[0];
+			$scope.alt = [];
 		}
 		else
 		{
 			$scope.desc = $filter("descLang")($scope.item.relationships.describes)[0];
+			$scope.alt = [];
 		}
-		console.log($scope.desc);
+		//console.log($scope.desc);
 		//$scope.$apply();
 	}
 	// Select good desc -->
 	
 	//<-- No Desc ? GOT ONE !
-	$scope.getAlt = function (path, ret)
+	$scope.getAlt = function (check, path, ret)
 	{
-		// console.log("ret :");
-		// console.log(ret);
-		var alt = $filter("descLang")($scope.item.relationships.describes, false, {"not" : $scope.descId, "property": path, "returnProp" : ret});
-		$scope.alt[path] = alt;
-		// console.log("alt : ");
-		// console.log(alt);
-		return alt;
+		if($scope.desc != undefined) {
+			// console.log("-----------------------");
+			// console.log("Check : "+check);
+			// console.log($scope.desc.data[check]);
+			// console.log($scope.alt[path]);
+			// console.log("-----------------------");
+			if($scope.desc.data[check] == undefined && !$scope.alt[path]) {
+				var alt = $filter("descLang")($scope.item.relationships.describes, false, {"not" : $scope.descId, "property": path, "returnProp" : ret});
+				$scope.alt[path] = alt;
+				return alt;
+			}
+			else {
+				return $scope.alt[path];
+			}
+		}
 	}
-	// console.log($scope.getAlt("data.name", true));
 	// No desc -->
 	
 	//<-- Date format

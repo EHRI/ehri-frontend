@@ -38,13 +38,13 @@ portal
 					if(!filtered[0]) // Would break the foreach if we found an answer
 					{
 					++i;
-					console.log(i);
+					// console.log(i);
 							//If ask for a certain property
 						if(opt.property)
 						{
 							var deepVal = deepFind(description, opt.property);
 							// console.log(opt);
-							console.log(deepVal);
+							// console.log(deepVal);
 						} else {
 							// console.log(opt);
 							// console.log("Deep val to undefined");
@@ -52,8 +52,8 @@ portal
 						}
 						
 						if((opt.property) && (deepVal != undefined) && (opt.not) && (description.id != opt.not)) {
-							console.log("not called");
-							console.log(opt.returnProp);
+							// console.log("not called");
+							// console.log(opt.returnProp);
 							if(opt.returnProp) {
 								filtered[0] = {"text" : deepVal, "id" : description.id, "name" : description.data.name};
 							} else {
@@ -63,8 +63,8 @@ portal
 							// console.log(filtered[0]);
 							//If ask for not a certain id
 						} else if((opt.property) && (deepVal != undefined) && (!opt.not)) {
-							console.log("not not called");
-							console.log(opt.returnProp);
+							// console.log("not not called");
+							// console.log(opt.returnProp);
 							if(opt.returnProp) {
 								filtered[0] = {"text" : deepVal, "id" : description.id, "name" : description.data.name};
 							} else {

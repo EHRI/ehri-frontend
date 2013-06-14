@@ -1,7 +1,0 @@
-<ul>
-	<li ng-repeat="item in item.children" id="{{item.id}}">
-		<i ng-show="item.type=='Folder'" class="icon-folder-open" ></i>
-		<i ng-show="item.type=='File'" class="icon-folder-open" ></i> {{item.name}}
-		<div ng-show="(item.children.length > 0)"><filetree></filetree></div>
-	</li>
-</ul>
