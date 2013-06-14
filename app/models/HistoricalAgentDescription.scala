@@ -49,7 +49,10 @@ case class HistoricalAgentDescriptionF(
   def toJson: JsValue = Json.toJson(this)
 }
 
-case class HistoricalAgentDescription(val e: Entity) extends Description with Formable[HistoricalAgentDescriptionF] {
+case class HistoricalAgentDescription(val e: Entity)
+  extends Description
+  with TemporalEntity
+  with Formable[HistoricalAgentDescriptionF] {
   lazy val item: Option[HistoricalAgent] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(HistoricalAgent(_))
 
   lazy val formable: HistoricalAgentDescriptionF = {

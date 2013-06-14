@@ -18,8 +18,8 @@ object DatePeriodFormat {
     (__ \ ETYPE).read[EntityType.Value](equalsReads(EntityType.DatePeriod)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ TYPE).readNullable[DatePeriodType.Value] and
-      (__ \ DATA \ START_DATE).read[DateTime] and
-      (__ \ DATA \ END_DATE).read[DateTime]
+      (__ \ DATA \ START_DATE).readNullable[String] and
+      (__ \ DATA \ END_DATE).readNullable[String]
     )(DatePeriodF.apply _)
 
   import defines.EnumUtils.enumWrites

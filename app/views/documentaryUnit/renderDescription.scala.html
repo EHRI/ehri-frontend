@@ -6,24 +6,7 @@
 
 @common.descriptionOutline(desc, desc.languageCode) {
     @descriptionSection(IDENTITY_AREA) {
-        @if(!desc.dates.isEmpty) {
-            <h4>@Messages(fieldPrefix + "." + DATES)</h4>
-            <table>
-                @desc.dates.map(_.formable).map { dp =>
-                <tr id="@dp.id">
-                    <td>
-                        @defining(dp.`type`) { typeOpt =>
-                            @typeOpt.map { t =>
-                                @Messages(fieldPrefix + "." + t)
-                            }
-                        }
-                    </td>
-                    <td>@dp.years.trim</td>
-                </tr>
-                }
-            </table>
-        }
-
+        @common.renderDates(desc, DATES)
         @common.stringValue(desc, LEVEL_OF_DESCRIPTION)
         @common.stringValue(desc, EXTENT_MEDIUM)
     }

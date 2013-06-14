@@ -12,6 +12,8 @@
                 @item.descriptions.map { desc =>
                     @common.descriptionOutline(desc, desc.languageCode) {
 
+                        @common.renderDates(desc, DATES_OF_EXISTENCE)
+
                         @descriptionSection(IDENTITY_AREA) {
                             @common.stringValue(desc, ENTITY_TYPE)
                             @common.stringValue(desc, AUTHORIZED_FORM_OF_NAME)

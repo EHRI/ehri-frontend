@@ -24,8 +24,8 @@ object DatePeriodF {
 case class DatePeriodF(
   val id: Option[String],
   val `type`: Option[DatePeriodF.DatePeriodType.Type],
-  val startDate: DateTime,
-  val endDate: DateTime
+  val startDate: Option[String] = None,
+  val endDate: Option[String] = None
 ) {
   val isA = EntityType.DatePeriod
 
@@ -33,8 +33,14 @@ case class DatePeriodF(
    * Get a string representing the year-range of this period,
    * i.e. 1939-1945
    */
-  def years: String = {
-    List(startDate, endDate).map(_.getYear).distinct.mkString("-")
+  lazy val years: String = {
+    List(startDate, endDate).filter(_.isDefined).flatten.map { dateString =>
+      try {
+        new DateTime(dateString).getYear
+      } catch {
+        case _ => dateString
+      }
+    }.distinct.mkString("-")
   }
 }
 

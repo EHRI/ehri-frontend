@@ -14,7 +14,7 @@ object DatePeriodForm {
   val form = Form(mapping(
     Entity.ID -> optional(nonEmptyText),
     TYPE -> optional(models.forms.enum(DatePeriodType)),
-    START_DATE -> jodaDate("yyyy-MM-dd"),
-    END_DATE -> jodaDate("yyyy-MM-dd")
+    START_DATE -> optional(text),
+    END_DATE -> optional(text)
   )(DatePeriodF.apply)(DatePeriodF.unapply))
 }
