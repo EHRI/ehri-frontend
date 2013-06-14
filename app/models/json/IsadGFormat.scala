@@ -93,7 +93,8 @@ object IsadGFormat {
           (__ \ RELATED_UNITS).readNullable[String] and
           (__ \ PUBLICATION_NOTE).readNullable[String]
         )(Materials.apply _)) and
-      (__ \ DATA \ NOTES).readNullable[List[String]] and
+      ((__ \ NOTES).readNullable[List[String]] orElse
+        (__ \ NOTES).readNullable[String].map(os => os.map(List(_))) ) and
       (__ \ DATA).read[Control]((
         (__ \ ARCHIVIST_NOTE).readNullable[String] and
           (__ \ RULES_CONVENTIONS).readNullable[String] and

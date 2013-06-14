@@ -98,7 +98,8 @@ object IsdiahFormat {
           (__ \ DATES_CVD).readNullable[String] and
           (__ \ LANGUAGES_USED).readNullable[List[String]] and
           (__ \ SCRIPTS_USED).readNullable[List[String]] and
-          (__ \ SOURCES).readNullable[String] and
+          ((__ \ SOURCES).readNullable[List[String]] orElse
+            (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
           (__ \ MAINTENANCE_NOTES).readNullable[String]
         )(Control.apply _))
     )(RepositoryDescriptionF.apply _)

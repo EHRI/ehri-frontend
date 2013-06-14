@@ -26,7 +26,7 @@ object HistoricalAgentDescriptionF {
     datesCDR: Option[String] = None,
     languages: Option[List[String]] = None,
     scripts: Option[List[String]] = None,
-    sources: Option[String] = None,
+    sources: Option[List[String]] = None,
     maintenanceNotes: Option[String] = None
     ) extends AttributeSet
 
@@ -40,6 +40,8 @@ case class HistoricalAgentDescriptionF(
   name: String,
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
+  @Annotations.Relation(TemporalEntity.DATE_REL)
+  dates: List[DatePeriodF] = Nil,
   details: HistoricalAgentDescriptionF.Details,
   control: HistoricalAgentDescriptionF.Control,
   accessPoints: List[AccessPointF]

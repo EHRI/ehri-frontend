@@ -50,7 +50,7 @@ object IsdiahForm {
         DATES_CVD -> optional(text),
         LANGUAGES_USED -> optional(list(nonEmptyText)),
         SCRIPTS_USED -> optional(list(nonEmptyText)),
-        SOURCES -> optional(text),
+        SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(Control.apply)(Control.unapply)
     )(RepositoryDescriptionF.apply)(RepositoryDescriptionF.unapply)
