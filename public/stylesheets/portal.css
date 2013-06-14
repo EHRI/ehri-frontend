@@ -5457,6 +5457,35 @@ ul.listTree li ul {
 }
 .dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 input {
   margin: 0;
+  border: 0 none;
+  font-weight: bolder;
+  box-shadow: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  height: 30px;
+  padding-left: 10px;
+  line-height: 30px;
+}
+.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 input[type="text"] {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 button.btn-success {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  margin-left: 10px!important;
+  margin-top: 0px;
+  height: 28px!important;
+  line-height: 28px;
+}
+.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 button.btn-success:hover:after {
+  font-family: "FontAwesome";
+  content: "";
+  z-index: auto;
+  line-height: 100%;
+  font-size: 18px;
+  line-height: 28px;
 }
 .dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 h5 {
   margin: 0 5px 2px 0;

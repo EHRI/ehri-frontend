@@ -110,13 +110,13 @@
 			<ul class="nav">
 				<li class="dropup-container" ng-class="notesOpen">
 					<a class="dropup-toggle" ng-click="notesContainer()"><i class="icon-edit"></i> Notes</a>
-					<div class="dropup left dropup-padded">NOTES
+					<div class="dropup left dropup-padded">
 						<div class="well">
 							{{annotation.selText}}
 						</div>
 						<textarea style="width:85%; display:block; margin:0 auto; height:120px;" ng-model="annotation.userText" title="Annotation">
 						</textarea>
-						<input type="button" class="btn btn-primary" value="Save" />
+						<input type="button" class="btn btn-success" value="Save" />
 					</div>
 				</li>
 				<li class="divider-vertical"></li>
@@ -135,7 +135,7 @@
 								<div class="padding-5">
 									<h5>Save this page</h5>
 									<input type="text" placeholder="Name" /> 
-									<input type="button" class="btn btn-primary" value="Save" />
+									<button class="btn btn-success">Save</button>
 								</div>
 							</form>
 						</div>
