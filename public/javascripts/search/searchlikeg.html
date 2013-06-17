@@ -1,0 +1,157 @@
+<div>
+	<section >
+	
+		<section class="result-column">
+		
+			<article>
+					<header>
+						<!--<h1>Search</h1>-->
+				
+					<form class="search-bar">
+						<!--
+						<div class="search-bar-wrapper">
+							<div class="search-bar">
+								<input type="text" autofocus="" ng-change="setQuery('q', searchTerm)" ng-model="searchTerm" placeholder="Type your query here"/>
+								<button>
+									<i class="icon-search"></i>
+								</button>
+							</div>
+						</div>
+						-->
+						<nav class="navbar">
+							<div class="navbar-inner">
+								<ul class="nav">
+									<li class="dropdown">
+										<a class="dropdown-toggle">Sort <b class="caret"></b></a> 
+										<ul class="dropdown-menu">
+											<li>
+												<a ng-click="setQuery('sort', 'score.desc')"> Relevance </a>
+												<a ng-click="setQuery('sort', 'name_sort.desc')"> Name </a>
+												<a ng-click="setQuery('sort', 'lastUpdated.desc')"> Recently Updated </a>
+											</li>
+										</ul>
+									</li>
+									<li class="divider-vertical"></li>
+									<li ng-repeat="facet in page.facets" ng-show="facet.count > 1"  class="dropdown">
+										<a class="dropdown-toggle">{{(searchParams[facet.param]) || facet.name}}
+										<b class="caret"></b></a> 
+										<ul class="dropdown-menu">
+											<li ng-click="removeFilterByKey(facet.param)"><a>All</a></li>
+											<li ng-repeat="option in facet.facets.0" ng-show="option.count != 0" ng-click="setQuery(facet.param, option.param)" ng-class="(option.applied && 'disabled')">
+												<a>{{option.param}} ({{option.count}})</a>
+											</li>
+										</ul>
+									</li>
+								</ul>
+								<div class="navbar-form pull-right">
+									<input type="text" class="input input-small" placeholder="Go To" ng-model="currentPage" />
+								</div>
+							</div>
+						</nav>
+						</div>
+						
+					</form>
+					<div class="container">
+						<div class="row" style="position:relative;">
+							<input type="text" class="span12" autofocus="" ng-change="setQuery('q', searchTerm)" ng-model="searchTerm" placeholder="Type your query here"/>
+							<button class="btn" style="position:absolute; top:0; line-height:20px; height:20px; right:20px; background:transparent; padding:4; border:0; box-shadow:none;">
+								<i class="icon-search"></i>
+							</button>
+						</div>
+						<p class="muted">
+							<small>
+								<em>
+									Displaying item {{(page.offset + 1)}} to {{page.limit + page.offset}} of {{page.total}}
+								</em>
+							</small>
+						</p>
+					</div>
+					</header>
+					<div class="container-fluid">
+						<div class="row-fluid">
+							<div class="span2">
+								<span class="btn">Test</span>
+								<span class="btn btn-primary">Test</span>
+								<span class="btn btn-primary disabled">Test</span>
+								<span class="btn btn-info">Test</span>
+								<span class="btn btn-success">Test</span>
+								<span class="btn btn-warning">Test</span>
+								<span class="btn btn-danger">Test</span>
+								<span class="btn btn-inverse">Test</span>
+								<span class="btn btn-link">Test</span>
+								
+								<div class="btn-group">
+									<button class="btn btn-primary"><i class="icon-search"></i></button>
+									<button class="btn btn-primary">Left</button>
+								</div>
+							</div>
+							
+							<div id="content" class="span8" when-scrolled="loadMore()" >
+								<div ng-repeat="pagify in pages">
+									<article annotate="item" id="{{item.id}}" class="search-item" ng-repeat="item in pagify.items" >
+										<div ng-show="item.page" class="pagination-page muted" id="page-{{item.page}}">
+											<a title="Page {{item.page}}">
+												{{item.page}}
+											</a>
+										</div>
+										<!-- If desc inside relationship -->
+										<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+											<header>
+												<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+												<a ng-show="desc.data.name" href="#/item/{{item.type}}/{{item.id}}"><b>{{desc.data.name}}</b></a> 
+												<span class="toolbar-inline">
+													<a class="iconwithtooltip" title="Add to basket" ng-click="addBasket(item)">
+														<i class="icon-bookmark"></i>
+													</a>
+													<a class=" iconwithtooltip" title="Drag this item" drag="item" dragStyle="drag">
+														<i class="icon-move"></i>
+													</a>
+												</span>
+												
+											</header>
+											
+											<p>
+												<b>{{item.type}}</b> - 
+												{{(desc.data.biographicalHistory.length > 360 && (desc.data.biographicalHistory.substring(0, 360) + '...')) || desc.data.biographicalHistory}}
+											</p>
+											
+											<footer>
+												<dl id="{{item.id}}-datas" class="inline inline-separator extra-data">
+													<dt class="hide">Extra datas : </dt> 
+													<dd ng-repeat="extraText in desc.data | extraHeader" class="{{extraText.key}}" title="{{extraText.key}}">{{extraText.content}}</dd>
+												</dl>
+											</footer>
+										</div>
+										
+										<!-- If desc not inside relationship -->
+										<div class="content" ng-show="(!item.relationships.describes)">
+											<header>
+												<span class="muted pull-right" title="{{getTitleAction(item)}}"><small><em>{{getSimpleTimeDesc(item)}}</em></small></span>
+												<a ng-click="getLink(item.type, item.id)">
+													<b>{{item.data.name || item.data.identifier}}</b>
+												</a>
+												<span class="toolbar-inline">
+													<a class=" iconwithtooltip" title="Add to basket" ng-click="addBasket(item)">
+														<i class="icon-bookmark"></i>
+													</a>
+												</span>
+											</header>
+												<p><b>{{item.type}}</b></p>
+										</div>
+									</article>
+								</div>
+								<div ng-show="loadingPage" class="well" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></div>
+							</div>
+							<div class="span2">
+								&nbsp;
+							</div>
+						</div>
+					</div>
+						
+				
+			</article>
+				
+		</section>
+		
+	</section>
+</div>

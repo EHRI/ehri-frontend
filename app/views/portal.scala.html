@@ -1,0 +1,196 @@
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash)
+
+@title = { }
+@extrascripts = {
+	<script>
+		var ANGULAR_ROOT = "/assets/javascripts";
+	</script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/ng-infinite-scroll.min.js")" type="text/javascript"></script>
+	
+	
+	<script src="@routes.Assets.at("javascripts/portal/app.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/helpers.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/directives.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/services.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/filters.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/CtrlSearch.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/CtrlBottom.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/CtrlRepo.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/CtrlDoc.js")" type="text/javascript"></script>
+
+	
+	
+	@helper.javascriptRouter("jsRoutes")(
+        routes.javascript.Application.getType
+    )
+}
+
+@extrastyles = { 
+}
+
+<!DOCTYPE html>
+<html lang="en" >
+	<head>
+	<title> </title>
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/portal.css")' />
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")' />
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/font-awesome.css")' />
+	</head>
+	<body ng-app="portalSearch" > 
+		<script type="text/ng-template" id="fileTree.html">
+				<li ng-repeat="item in item.children" id="{{item.id}}">
+					<i ng-show="item.type=='Folder'" class="icon-folder-open" ></i>
+					<i ng-show="item.type=='File'" class="icon-file" ></i> {{item.name}} ( {{item.children.length}} )
+					<ul ng-show="item.children.length > 0" ng-include src="'fileTree.html'"></ul>
+				</li>
+		</script>
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<img src="@routes.Assets.at("images/logo2.png")" alt="EHRI" class="pull-left" />
+			<ul class="nav">
+				<li>
+					<a href="/">
+						<div style="text-align:center;"><i class="icon-search"></i></div>
+						Search
+					</a>
+				</li>
+				<li class="">
+					<a href="/">
+						<div style="text-align:center;"><i class="icon-map-marker"></i></div>
+						Map
+					</a>
+				</li>
+			</ul>
+			<ul class="nav pull-right alternative">
+				<li>
+					<a>
+						<div style="text-align:center;"><i class="icon-user"></i></div>
+						leponteineptique[at]gmail.com
+					</a>
+				</li>
+				<li class="alternative-hover">
+					<a class="alternative-title" href="">
+						<div style="text-align:center;"><i class="icon-user"></i></div>
+						Sign In
+					</a>
+					<div class="alternative-content">
+						<table class="groupicon">
+							<tbody>
+								<tr class="icon">
+									<td><i class="icon-facebook"></i></td>
+									<td><i class="icon-twitter"></i></td>
+									<td><i class="icon-linkedin"></i></td>
+								</tr>
+								<tr class="icon">
+									<td><i class="icon-google-plus"></i></td>
+									<td><i class="icon-pinterest"></i></td>
+									<td><i class="icon-plus"></i></td>
+								</tr>
+								<tr class="text">
+									<td colspan="3">Login</td>
+								</tr>
+							</tbody>
+						</table>
+						
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+			
+	<div ng-view>
+	
+	</div>
+	
+	<div class="navbar navbar-fixed-bottom" ng-controller="BottomBar">
+		<div class="navbar-inner">
+			<ul class="nav">
+				<li class="dropup-container" ng-class="notesOpen">
+					<a class="dropup-toggle" ng-click="notesContainer()"><i class="icon-edit"></i> Notes</a>
+					<div class="dropup left dropup-padded">
+						<div class="well">
+							{{annotation.selText}}
+						</div>
+						<textarea style="width:85%; display:block; margin:0 auto; height:120px;" ng-model="annotation.userText" title="Annotation">
+						</textarea>
+						<input type="button" class="btn btn-success" value="Save" />
+					</div>
+				</li>
+				<li class="divider-vertical"></li>
+				<li class="dropup-container" ng-class="savedOpen">
+					<a class="dropup-toggle" ng-click="savedContainer()"><i class="icon-briefcase"></i> Saved Documents</a>
+					<div class="dropup left">
+						<div class="dropup-divided">
+							<ul class="listTree dropup-80prct">
+								<li ng-repeat="item in items" id="{{item.id}}">
+									<i ng-show="item.type=='Folder'" class="icon-folder-open" ></i>
+									<i ng-show="item.type=='File'" class="icon-file" ></i> {{item.name}} ( {{item.children.length}} )
+									<ul ng-show="item.children.length > 0" ng-include src="'fileTree.html'"></ul>
+								</li>
+							</ul>
+							<form class="dropup-bottom">
+								<div class="padding-5">
+									<h5>Save this page</h5>
+									<input type="text" placeholder="Name" /> 
+									<button class="btn btn-success">Save</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</li>
+				<li class="divider-vertical"></li>
+				<li class="dropup-container" ng-class="peopleOpen">
+					<a class="dropup-toggle" ng-click="peopleContainer()"><i class="icon-group"></i> People</a>
+					<div class="dropup left">
+						<div class="dropup-divided">
+							<ul class="dropup-80prct unstyled">
+								<li ng-show="loadingPeople" class="well" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></li>
+								<li id="people-{{item.id}}" class="people" ng-repeat="people in peoples">
+									<img src="/assets/images/logo2.png" alt="Logo" />
+									<a class="people-desc"><b>{{people.data.name || people.data.identifier}}</b></a>
+								</li>
+							</ul>
+							<form class="dropup-bottom">
+								<div class="padding-5">
+									<h5>Search People</h5>
+									<input type="text" placeholder="Name" ng-model="peopleInput" ng-change="searchPeople(peopleInput)" />
+								</div>
+							</form>
+						</div>
+					</div>
+				</li>
+				<li class="divider-vertical"></li> 
+				<li ng-show="pagination.num" style="padding-top:7px;">
+					<pagination num-pages="pagination.num" current-page="pagination.current" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="pagination.max"></pagination>
+				</li>
+			</ul>
+			<ul class="nav pull-right">
+				<li class="divider-vertical"></li>
+				<li drop="basket" dropStyle="drop"><a><i><small>Drop your document here</small></i></a></li>
+				<li class="dropup-container"" ng-class="basketOpen">
+					<a class="dropup-toggle" ng-click="basketContainer()"><i class="icon-folder-open"></i> Basket ({{basketSize()}})</a>
+					<div class="dropup right dropup-padded">
+						<article id="{{item.id}}" class="search-item" ng-repeat="item in basket">
+							<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+								<header>
+									<a ng-show="desc.data.name"><b>{{desc.data.name}}</b></a> - {{item.type}}								
+								</header>
+							</div>
+							<!-- If desc not inside relationship -->
+							<div ng-show="(!item.relationships.describes)">
+								<header>
+									<a ng-click="getLink(item.type, item.id)"><b>{{item.data.name || item.data.identifier}}</b></a> - {{item.type}}
+								</header>
+							</div>
+						</article>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+	@extrascripts
+	</body>
+</html>
