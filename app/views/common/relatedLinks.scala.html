@@ -17,8 +17,8 @@
                     <li class="resolved-access-point" id="@accessPoint.id">
                          <a href="@views.Helpers.urlForEntity(other.e)">@accessPoint.targetName</a> [<a href="@routes.Links.get(link.id)">*</a>]
                         @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
-                        <small><p class="muted">@desc</p></small>
-                    }
+                            <small><p class="muted">@desc</p></small>
+                        }
                     </li>
                 }.getOrElse {
                     <li class="unresolved-access-point" id=" @accessPoint.id">

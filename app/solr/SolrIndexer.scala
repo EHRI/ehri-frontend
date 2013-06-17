@@ -26,8 +26,7 @@ import play.api.i18n.Lang
  */
 object SolrIndexer extends RestDAO {
 
-  final val ACCESSOR_ALL_PLACEHOLDER = "ALLUSERS"
-  final val ACCESSOR_FIELD = "accessibleTo"
+  import SolrConstants._
 
   // We don't need a user here yet unless we want to log
   // when the Solr index is changed.
@@ -45,14 +44,23 @@ object SolrIndexer extends RestDAO {
   /**
    * Possible responses from Solr calls.
    */
-  sealed trait SolrResponse
-  case class SolrErrorResponse(err: RestError) extends SolrResponse
-  case class SolrUpdateResponse(status: Int, time: Int) extends SolrResponse
 
+  case class SolrError(msg: String, code: Int)
+  implicit val solrErrorReads = Json.reads[SolrError]
+
+  case class SolrHeader(status: Int, time: Int)
   import play.api.libs.functional.syntax._
+  implicit val solrHeaderReads: Reads[SolrHeader] = (
+    (__ \ "status").read[Int] and
+    (__ \ "QTime").read[Int]
+  )(SolrHeader.apply _)
+
+  sealed trait SolrResponse
+  case class SolrErrorResponse(err: String) extends SolrResponse
+  case class SolrUpdateResponse(responseHeader: SolrHeader, error: Option[SolrError] = None) extends SolrResponse
   implicit val solrUpdateResponseReads: Reads[SolrUpdateResponse] = (
-    (__ \ "responseHeader" \ "status").read[Int] and
-    (__ \ "responseHeader"\ "QTime").read[Int]
+    (__ \ "responseHeader").read[SolrHeader] and
+    (__ \ "error").readNullable[SolrError]
   )(SolrUpdateResponse.apply _)
 
   /**
@@ -68,7 +76,7 @@ object SolrIndexer extends RestDAO {
     val deleteJson = items.foldLeft(Json.obj()) { case (obj,id) =>
       // NB: Because we delete logical items, but descriptions are indexed
       // we use a slightly dodgy query to delete stuff...
-      obj + ("delete" -> Json.obj("query" -> "id:\"%s\" OR itemId:\"%s\"".format(id, id)))
+      obj + ("delete" -> Json.obj("query" -> "id:\"%s\" OR %s:\"%s\"".format(id, ITEM_ID, id)))
     }
     solrUpdate(deleteJson, commit = commit)
   }
@@ -82,7 +90,18 @@ object SolrIndexer extends RestDAO {
 
   def deleteItemsByType(entityType: EntityType.Value, commit: Boolean = true): Future[SolrResponse] = {
     val deleteJson = Json.obj(
-      "delete" -> Json.obj("query" -> ("type:" + entityType.toString))
+      "delete" -> Json.obj("query" -> (TYPE + ":" + entityType.toString))
+    )
+    solrUpdate(deleteJson, commit = commit)
+  }
+
+  /**
+   * Delete everything in the index. USE WITH CAUTION!!!
+   * @return
+   */
+  def deleteAll(commit: Boolean = false): Future[SolrResponse] = {
+    val deleteJson = Json.obj(
+      "delete" -> Json.obj("query" -> ("id:*"))
     )
     solrUpdate(deleteJson, commit = commit)
   }
@@ -94,7 +113,14 @@ object SolrIndexer extends RestDAO {
    */
   def updateItems(items: Stream[Entity], commit: Boolean = true): Future[List[SolrResponse]] = {
     Future.sequence(items.grouped(batchSize).toList.map { batch =>
-      solrUpdate(Json.toJson(batch.toList.flatMap(itemToJson)), commit = commit)
+      try {
+        solrUpdate(Json.toJson(batch.toList.flatMap(itemToJson)), commit = commit)
+      } catch {
+        case e: Throwable => {
+          Logger.logger.error(e.getMessage, e)
+          throw e
+        }
+      }
     })
   }
 
@@ -104,17 +130,12 @@ object SolrIndexer extends RestDAO {
    * @return
    */
   private def solrUpdate(updateJson: JsValue, commit: Boolean = true): Future[SolrResponse] = {
-    WS.url(updateUrl(commit)).withHeaders(headers.toList: _*).post(updateJson).map { response =>
-      val jsonOrErr = checkError(response)
-      if (jsonOrErr.isLeft) {
-        SolrErrorResponse(jsonOrErr.left.get)
-      } else {
-        jsonOrErr.right.get.json.validate[SolrUpdateResponse].fold({ err =>
-          Logger.logger.error("Unexpected Solr response: {}", response.body)
-          sys.error(err.toString)
+    WS.url(updateUrl(commit)).withHeaders(headers.toList: _*)
+        .post(updateJson).map { response =>
+      response.json.validate[SolrUpdateResponse].fold({ err =>
+          SolrErrorResponse(response.body)
         }, { sur => sur }
         )
-      }
     }
   }
 
@@ -133,7 +154,7 @@ object SolrIndexer extends RestDAO {
       case any => entityToSolr(item)
     }
   }
-  
+
   private def docToSolr(d: DocumentaryUnit): List[JsObject] = {
     val descriptions = describedEntityToSolr(d)
     descriptions.map { desc =>
@@ -162,6 +183,9 @@ object SolrIndexer extends RestDAO {
     val descriptions = describedEntityToSolr(d)
     descriptions.map { desc =>
       ((desc
+        + ("addresses" -> Json.toJson(d.descriptions.flatMap(_.addresses.flatMap(_.formableOpt)).map(_.toString).distinct))
+        + (OTHER_NAMES -> Json.toJson(d.descriptions.flatMap(_.listProperty(Isdiah.OTHER_FORMS_OF_NAME)).distinct))
+        + (PARALLEL_NAMES -> Json.toJson(d.descriptions.flatMap(_.listProperty(Isdiah.PARALLEL_FORMS_OF_NAME)).distinct))
         + ("countryCode" -> Json.toJson(d.country.map(_.id)))
         + ("priority" -> Json.toJson(d.priority))))
     }
@@ -170,7 +194,8 @@ object SolrIndexer extends RestDAO {
   private def countryToSolr(d: Country): List[JsObject] = {
     val docs = entityToSolr(d.e)
     docs.map { desc =>
-      (desc + ("name" -> Json.toJson(views.Helpers.countryCodeToName(d.id)(new Lang("en")))))
+      // Ugh, do a deepMerge here so we overwrite any existing (null?) name value...
+      (desc.deepMerge(Json.obj("name" -> Json.toJson(views.Helpers.countryCodeToName(d.id)(new Lang("en"))))))
     }
   }
 
@@ -198,11 +223,11 @@ object SolrIndexer extends RestDAO {
   private def describedEntityToSolr[D <: Description](d: DescribedEntity[D]): List[JsObject] = {
     d.descriptions.map { desc =>
       val baseData = Json.obj(
-        "itemId" -> d.id,
+        ITEM_ID -> d.id,
         "id" -> desc.id,
         "identifier" -> d.stringProperty("identifier"),
-        "name" -> desc.stringProperty("name"), // All descriptions should have a 'name' property
-        "type" -> d.isA,
+        NAME_EXACT -> desc.stringProperty("name"), // All descriptions should have a 'name' property
+        TYPE -> d.isA,
         ACCESSOR_FIELD -> getAccessorValues(d.e),
         "lastUpdated" -> d.latestEvent.map(_.dateTime),
         "languageCode" -> desc.stringProperty(IsadG.LANG_CODE)
@@ -226,10 +251,11 @@ object SolrIndexer extends RestDAO {
   private def entityToSolr(d: Entity): List[JsObject] = {
     val baseData = Json.obj(
       "id" -> d.id,
-      "itemId" -> d.id, // Duplicate, because the 'description' IS the item.
-      "type" -> d.isA,
+      ITEM_ID -> d.id, // Duplicate, because the 'description' IS the item.
+      TYPE -> d.isA,
+      NAME_EXACT -> d.stringProperty("name"),
       ACCESSOR_FIELD -> getAccessorValues(d),
-      "lastUpdated" -> d.relations(AccessibleEntity.EVENT_REL).map(a => SystemEvent(a).dateTime)
+      LAST_MODIFIED -> d.relations(AccessibleEntity.EVENT_REL).map(a => SystemEvent(a).dateTime)
     )
     // Merge in all the additional data already in the entity
     // Don't overwrite keys added specifically

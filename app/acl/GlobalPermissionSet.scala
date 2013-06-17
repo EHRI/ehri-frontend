@@ -60,11 +60,11 @@ case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPerm
   extends PermissionSet {
 
   /**
-   * Check if this permission set has the given permission (hackily expanded
-   * to account for owner permissions.
+   * Check if this permission set has the given permission.
    */
   def has(sub: ContentType.Value, permission: PermissionType.Value): Boolean =
-    !data.flatMap(_._2.get(sub)).filter(expandOwnerPerms(_).contains(permission)).isEmpty
+    !data.flatMap(_._2.get(sub)).filter( plist => plist.exists( p =>
+        PermissionType.in(p, permission))).isEmpty
 
   /**
    * Get the permission grant for a given permission (if any), which contains
@@ -74,7 +74,7 @@ case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPerm
     val accessors = data.flatMap {
       case (user, perms) =>
         perms.get(contentType).flatMap { permSet =>
-          if (expandOwnerPerms(permSet).contains(permission)) Some((user, permission))
+          if (permSet.exists(p => PermissionType.in(p, permission))) Some((user, permission))
           else None
         }
     }

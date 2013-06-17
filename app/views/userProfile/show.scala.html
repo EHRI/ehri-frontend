@@ -2,7 +2,7 @@
 
 @import UserProfileF._
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+@userProfile.itemPage(item) {
 
     @defining(FIELD_PREFIX) { implicit fieldPrefix =>
         @common.stringValue(item, Entity.IDENTIFIER)
@@ -22,26 +22,4 @@
             <a class="badge" href="@routes.Groups.get(group.id)">@group.name</a>
         }
     }
-} {
-    <hr />
-    @common.latestAction(item, routes.UserProfiles.history(item.id))
-
-    <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
-            <li><a href="@routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a></li>
-        }
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
-            <li><a href="@routes.UserProfiles.permissions(item.id)">@Messages("actions.manageGlobalPermissions")</a></li>
-            <li><a href="@routes.UserProfiles.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
-        }
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
-            <li><a href="@routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>
-        }
-        @if(user.isAdmin) {
-            <li><a href="@routes.UserProfiles.delete(item.id)">@Messages("actions.deleteItem")</a></li>
-        }
-        <li><a href="@routes.UserProfiles.history(item.id)">@Messages("actions.showHistory")</a></li>
-        }
-    </ul>
 }

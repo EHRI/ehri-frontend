@@ -15,4 +15,9 @@ case class ApiDAO(val userProfile: Option[UserProfile]) extends RestDAO {
     WS.url(enc(requestUrl, urlpart))
     	.withHeaders(authHeaders.toSeq: _*).get
   }
+
+  def get(urlpart: String, params: Map[String,Seq[String]] = Map.empty, headers: Headers): Future[Response] = {
+    WS.url(enc(requestUrl, urlpart) + "?" + joinQueryString(params))
+      .withHeaders(authHeaders.toSeq: _*).get
+  }
 }

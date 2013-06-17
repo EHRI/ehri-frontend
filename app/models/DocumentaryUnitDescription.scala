@@ -8,57 +8,59 @@ import defines.EntityType
 object DocumentaryUnitDescriptionF {
 
   case class Context(
-    val adminBiogHistory: Option[String] = None,
-    val archivalHistory: Option[String] = None,
-    val acquisition: Option[String] = None
-    ) extends AttributeSet
+    adminBiogHistory: Option[String] = None,
+    archivalHistory: Option[String] = None,
+    acquisition: Option[String] = None
+  ) extends AttributeSet
 
   case class Content(
-    val scopeAndContent: Option[String] = None,
-    val appraisal: Option[String] = None,
-    val accruals: Option[String] = None,
-    val systemOfArrangement: Option[String] = None
-    ) extends AttributeSet
+    scopeAndContent: Option[String] = None,
+    appraisal: Option[String] = None,
+    accruals: Option[String] = None,
+    systemOfArrangement: Option[String] = None
+  ) extends AttributeSet
 
   case class Conditions(
-    val conditionsOfAccess: Option[String] = None,
-    val conditionsOfReproduction: Option[String] = None,
-    val languageOfMaterials: Option[List[String]] = None,
-    val scriptOfMaterials: Option[List[String]] = None,
-    val physicalCharacteristics: Option[String] = None,
-    val findingAids: Option[String] = None
-    ) extends AttributeSet
+    conditionsOfAccess: Option[String] = None,
+    conditionsOfReproduction: Option[String] = None,
+    languageOfMaterials: Option[List[String]] = None,
+    scriptOfMaterials: Option[List[String]] = None,
+    physicalCharacteristics: Option[String] = None,
+    findingAids: Option[String] = None
+  ) extends AttributeSet
 
   case class Materials(
-    val locationOfOriginals: Option[String] = None,
-    val locationOfCopies: Option[String] = None,
-    val relatedUnitsOfDescription: Option[String] = None,
-    val publicationNote: Option[String] = None
-    ) extends AttributeSet
+    locationOfOriginals: Option[String] = None,
+    locationOfCopies: Option[String] = None,
+    relatedUnitsOfDescription: Option[String] = None,
+    publicationNote: Option[String] = None
+  ) extends AttributeSet
+
 
   case class Control(
-    val archivistNote: Option[String] = None,
-    val rulesAndConventions: Option[String] = None,
-    val datesOfDescriptions: Option[String] = None
+    archivistNote: Option[String] = None,
+    rulesAndConventions: Option[String] = None,
+    datesOfDescriptions: Option[String] = None
     )
 
   lazy implicit val documentaryUnitDescriptionFormat = json.IsadGFormat.isadGFormat
 }
 
 case class DocumentaryUnitDescriptionF(
-  val id: Option[String],
-  val languageCode: String,
-  val title: Option[String] = None,
+  id: Option[String],
+  languageCode: String,
+  name: String,
   @Annotations.Relation(TemporalEntity.DATE_REL)
-  val dates: List[DatePeriodF] = Nil,
-  val levelOfDescription: Option[IsadG.LevelOfDescription.Value] = None,
-  val extentAndMedium: Option[String] = None,
-  val context: DocumentaryUnitDescriptionF.Context,
-  val content: DocumentaryUnitDescriptionF.Content,
-  val conditions: DocumentaryUnitDescriptionF.Conditions,
-  val materials: DocumentaryUnitDescriptionF.Materials,
-  val control: DocumentaryUnitDescriptionF.Control,
-  val accessPoints: List[AccessPointF]
+  dates: List[DatePeriodF] = Nil,
+  levelOfDescription: Option[IsadG.LevelOfDescription.Value] = None,
+  extentAndMedium: Option[String] = None,
+  context: DocumentaryUnitDescriptionF.Context,
+  content: DocumentaryUnitDescriptionF.Content,
+  conditions: DocumentaryUnitDescriptionF.Conditions,
+  materials: DocumentaryUnitDescriptionF.Materials,
+  notes: Option[List[String]] = None,
+  control: DocumentaryUnitDescriptionF.Control,
+  accessPoints: List[AccessPointF]
   ) extends Persistable {
   val isA = EntityType.DocumentaryUnitDescription
 

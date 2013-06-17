@@ -4,26 +4,30 @@
 @import models.DatePeriodF._
 @import formHelpers._
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
 <div class="description-form" id="@desc("form").id">
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
 
     @descriptionFormSection(IDENTITY_AREA) {
         @hiddenInput(desc(Entity.ID))
         @lineInput(desc, TITLE)
-        <div class="inline-element-set control-group">
-            <!-- Template for adding inline date forms via JS -->
-            <label class="control-label">@Messages(fieldPrefix + "." + DATES)</label>
-            <div class="controls controls-row">
-                <a href="#" class="add-inline-element btn btn-mini">@Messages("actions.addNew")</a>
-            </div>
-            <script type="application/x-js-template" class="inline-element-template">
-                @documentaryUnit.renderDateRow(desc(DATES + "[IDX]"))
-            </script>
 
-            @helper.repeat(desc(DATES), min = 0) { desc =>
-                @documentaryUnit.renderDateRow(desc)
-            }
+        <div class="inline-formset control-group clearfix">
+            <!-- Template for adding inline date forms via JS -->
+            <label class="control-label">
+                @Messages(fieldPrefix + "." + DATES)
+                <a href="#" class="add-inline-element"><i class="icon-plus-sign"></i></a>
+            </label>
+            <div class="inline-element-template form-template">
+                @common.renderDateSetForm(desc(DATES + "[IDX]"))
+            </div>
+            <div class="inline-element-list">
+                @helper.repeat(desc(DATES), min = 0) { desc =>
+                    @common.renderDateSetForm(desc)
+                }
+            </div>
         </div>
         @enumChoiceInput(desc(LEVEL_OF_DESCRIPTION), LevelOfDescription, LEVEL_OF_DESCRIPTION, blank=true)
         @textInput(desc, EXTENT_MEDIUM)
@@ -64,6 +68,10 @@
             @textInput(desc, RELATED_UNITS)
             @textInput(desc, PUBLICATION_NOTE)
         }
+    }
+
+    @descriptionFormSection(NOTES_AREA) {
+        @inlineTextSet(desc, NOTES)
     }
 
     @descriptionFormSection(CONTROL_AREA) {

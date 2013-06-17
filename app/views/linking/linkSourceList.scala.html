@@ -1,14 +1,21 @@
-@(item: models.base.LinkableEntity, page: rest.Page[models.base.LinkableEntity], params: ListParams, entityType: defines.EntityType.Value, action: (String,String,String) => Call)(
+@(item: models.base.LinkableEntity, page: solr.ItemPage[(models.Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], entityType: EntityType.Value, action: Call, linkAction: (String,String,String) => Call)(
 implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@import controllers.base.EntityAnnotate
+@rightSidebarLayout(Messages("actions.linkTo"), breadcrumbs = common.breadcrumbs(List(item))) {
+    @views.html.search.searchSection(Messages("contentTypes." + entityType.toString)) {
+        @views.html.search.searchForm(page, params, action, autofocus = false) {
+            <ul>
+                @page.items.map { case (otherItem, descId) =>
 
-@noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
-    @common.filterableList("pagination.displayingItems", page, params, EntityAnnotate.listFilterMappings.keys, EntityAnnotate.orderMappings.keys) {
-        <ul>
-            @page.items.map { e =>
-                <li><a href="@action(item.id, entityType.toString, e.id)">@e</a></li>
-            }
-        </ul>
+                    <li>
+                        <a href="@linkAction(item.id, entityType.toString, otherItem.id)">
+                            @LinkableEntity.fromEntity(otherItem).map(_.toStringLang).getOrElse(item)
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
     }
+} {
+
 }

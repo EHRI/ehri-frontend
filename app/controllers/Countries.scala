@@ -1,5 +1,6 @@
 package controllers
 
+import play.api.mvc._
 import models.{Repository,Country,CountryF,RepositoryF}
 import models.forms.{AnnotationForm, VisibilityForm}
 import play.api._
@@ -15,7 +16,15 @@ object Countries extends CRUD[CountryF,Country]
   with EntityAnnotate[Country]
   with EntitySearch {
 
-  val targetContentTypes = Seq(ContentType.Repository)
+  /**
+   * Since we generate IDs ourself, set the format.
+   */
+  final val idFormat = "%06d"
+
+  /**
+   * Content types that relate to this controller.
+   */
+  val targetContentTypes = Seq(ContentType.Repository, ContentType.DocumentaryUnit)
 
   override def processParams(params: ListParams): rest.RestPageParams = {
     params.toRestParams(Repositories.listFilterMappings, Repositories.orderMappings, Some(Repositories.DEFAULT_SORT))
@@ -32,10 +41,16 @@ object Countries extends CRUD[CountryF,Country]
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
-  def get(id: String) = getWithChildrenAction(id) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.country.show(
-        Country(item), page.copy(items = page.items.map(Repository.apply)), params, annotations))
+  /**
+   * Search repositories inside this country.
+   * @param id
+   * @return
+   */
+  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+    searchAction(Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
+        page => params => facets => _ => _ =>
+      Ok(views.html.country.show(Country(item), page, params, facets, routes.Countries.get(id), annotations, links))
+    }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
@@ -48,7 +63,7 @@ object Countries extends CRUD[CountryF,Country]
 
   def search = searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.search.search(page, params, facets, routes.Countries.search))
+    Ok(views.html.country.search(page, params, facets, routes.Countries.search))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
@@ -80,10 +95,50 @@ object Countries extends CRUD[CountryF,Country]
     }
   }
 
+  /**
+   * Fetch the existing set of repository ids. Remove the non-numeric (country code)
+   * prefix, and increment to form a new id.
+   * @type {[type]}
+   */
+  private def getNextRepositoryId(f: String => Result)(implicit userOpt: Option[models.UserProfile], request: RequestHeader) = {
+    import play.api.libs.concurrent.Execution.Implicits._
+    import play.api.libs.json.Json
+    import play.api.libs.json.JsValue
+
+    def safeInt(s : String) : Option[Int] = try {
+      Some(s.toInt)
+    } catch {
+      case _ : java.lang.NumberFormatException => None
+    }
+
+    AsyncRest {
+      val allIds = """START n = node:entities("__ISA__:%s") RETURN n.__ID__""".format(EntityType.Repository)
+      rest.cypher.CypherDAO(userOpt).cypher(allIds).map { r =>
+        r.right.map { json =>
+          val result = json.as[Map[String,JsValue]]
+          val data: JsValue = result.getOrElse("data", Json.arr())
+          val id = data.as[List[List[String]]].flatten.flatMap { rid =>
+            rid.split("\\D+").filterNot(_ == "").headOption.flatMap(safeInt)
+          }.padTo(1, 0).max + 1 // ensure we get '1' with an empty list
+
+          f(idFormat.format(id))
+        }
+      }
+    }
+  }
+
   def createRepository(id: String) = childCreateAction(id, ContentType.Repository) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.repository.create(
-      Country(item), childForm, VisibilityForm.form, users, groups, routes.Countries.createRepositoryPost(id)))
+
+    // Beware! This is dubious because there could easily be contention
+    // if two repositories get created at the same time.
+    // Currently there is not way to notify the user that they should just
+    // reset the form or increment the ID manually.
+    getNextRepositoryId { newid =>
+      val form = childForm.bind(Map("identifier" -> newid))
+      Ok(views.html.repository.create(
+        Country(item), form, VisibilityForm.form, users, groups, routes.Countries.createRepositoryPost(id)))
+    }
   }
 
   def createRepositoryPost(id: String) = childCreatePostAction(id, childForm, ContentType.Repository) {
@@ -161,26 +216,6 @@ object Countries extends CRUD[CountryF,Country]
       perms => implicit userOpt => implicit request =>
     Redirect(routes.Countries.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-  }
-
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Country(item),
-      AnnotationForm.form, routes.Countries.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(Country(item),
-            errorForm, routes.Countries.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.Countries.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
   }
 }
 

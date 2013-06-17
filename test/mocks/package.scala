@@ -4,7 +4,7 @@ import play.api.Play.current
 package object mocks {
 
   val MOCK_EMAIL = "example@example.com"
-    
+
   // Profile ID must be passed in configuration
   def MOCK_USER = new models.sql.OpenIDUser(
       id=1L,
@@ -16,6 +16,7 @@ package object mocks {
     val privilegedUser = new OpenIDUser(1L, "example1@example.com", "mike")
     val unprivilegedUser = new OpenIDUser(1L, "example2@example.com", "reto")
 
-    val all = Seq(privilegedUser, unprivilegedUser)
+    // This is mutable so we can add users to it dynamically
+    val all = collection.mutable.ArrayBuffer[OpenIDUser](privilegedUser, unprivilegedUser)
   }
 }

@@ -31,9 +31,11 @@
                             <li>@part</li>
                         }
                     }
-                    @item.latestEvent.map { event =>
-                        <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</li>
-                    }
+                }
+                @item.latestEvent.map { event =>
+                    <li title="@common.eventTitle(event)">
+                        <time datetime="@event.timeStamp">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</time>
+                    </li>
                 }
             </ul>
         </small>

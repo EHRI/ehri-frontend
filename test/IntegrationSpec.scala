@@ -14,18 +14,12 @@ class IntegrationSpec extends Specification {
       additionalPlugins = Seq("mocks.MockUserDAO", "mocks.MockLoginHandler")
     )
 
-    // FIXME: This seems to be hanging on Play 2.1-RC3 so disabling it for now...
-
-    /*"work from within a browser" in {
-      running(TestServer(3333, application = app), HTMLUNIT) { browser =>
-
-        browser.goTo("http://localhost:3333/")
-        // NB: This tests the Mock login form.
-        browser.pageSource must contain("test login")
-
-      }
+    // Cannot get this working property, still says url is on about:blank...
+    /*"run in a browser" in new WithBrowser(port = 3333, app = app) {
+      browser.goTo("http://localhost:3333")
+      browser.$("a#signin").click()
+      browser.url must equalTo("http://localhost:3333/login")
     }*/
-
   }
 
 }

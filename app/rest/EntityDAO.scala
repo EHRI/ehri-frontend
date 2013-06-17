@@ -9,6 +9,8 @@ import models.Entity
 import models.UserProfile
 import models.base.Persistable
 import play.api.Logger
+import play.api.Play.current
+import play.api.cache.Cache
 
 /**
  * Class representing a page of data.
@@ -145,9 +147,17 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
   def get(id: String): Future[Either[RestError, Entity]] = {
-    Logger.logger.debug(enc(requestUrl, id))
-    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map(r => jsonToEntity(r.json))
+    val cached = Cache.getAs[Entity](id)
+    if (cached.isDefined) Future.successful(Right(cached.get))
+    else {
+      Logger.logger.debug("GET {} ", enc(requestUrl, id))
+      WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        checkError(response).right.map { r =>
+          val entity = jsonToEntity(r.json)
+          Cache.set(id, entity, cacheTime)
+          entity
+        }
+      }
     }
   }
 
@@ -163,7 +173,10 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
       params: Map[String,Seq[String]] = Map(),
       logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     val qs = utils.joinQueryString(params)
-    WS.url(enc(requestUrl, "?%s".format((accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}") ++ List(qs)).mkString("&"))))
+    val url = enc(requestUrl, "?%s".format(
+        (accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}") ++ List(qs)).mkString("&")))
+    Logger.logger.debug("CREATE {} ", url)
+    WS.url(url)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => EntityDAO.handleCreate(jsonToEntity(r.json)))
@@ -173,7 +186,10 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   def createInContext(id: String, contentType: ContentType.Value,
       item: Persistable, accessors: List[String] = Nil,
       logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
-    WS.url(enc(requestUrl, id, contentType, "?%s".format(accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&"))))
+    val url = enc(requestUrl, id, contentType, "?%s".format(
+        accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&")))
+    Logger.logger.debug("CREATE-IN {} ", url)
+    WS.url(url)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(item.toJson).map { response =>
         checkError(response).right.map(r => EntityDAO.handleCreate(jsonToEntity(r.json)))
@@ -181,25 +197,36 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   }
 
   def update(id: String, item: Persistable, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
-    Logger.logger.debug("Posting update: {}", item)
-    WS.url(enc(requestUrl, id)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
+    val url = enc(requestUrl, id)
+    Logger.logger.debug("UPDATE: {}", url)
+    WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .put(item.toJson).map { response =>
-        checkError(response).right.map(r => EntityDAO.handleUpdate(jsonToEntity(r.json)))
+        checkError(response).right.map { r =>
+          val entity = jsonToEntity(r.json)
+          EntityDAO.handleUpdate(entity)
+          Cache.set(id, entity, cacheTime)
+          entity
+        }
     }
   }
 
   def delete(id: String, logMsg: Option[String] = None): Future[Either[RestError, Boolean]] = {
-    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
+    val url = enc(requestUrl, id)
+    Logger.logger.debug("DELETE {}", url)
+    WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
         EntityDAO.handleDelete(id)
+        Cache.remove(id)
         r.status == OK
       })
     }
   }
 
   def list(params: RestPageParams = RestPageParams()): Future[Either[RestError, List[Entity]]] = {
-    WS.url(enc(requestUrl, "list" + params.toString))
+    val url = enc(requestUrl, "list" + params.toString)
+    Logger.logger.debug("LIST: {}", url)
+    WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[List[models.Entity]].fold(
@@ -227,7 +254,9 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   }
 
   def page(params: RestPageParams = RestPageParams()): Future[Either[RestError, Page[Entity]]] = {
-    WS.url(enc(requestUrl, "page" + params.toString))
+    val url = enc(requestUrl, "page" + params.toString)
+    Logger.logger.debug("PAGE: {}", url)
+    WS.url(url)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[models.Entity]].fold(

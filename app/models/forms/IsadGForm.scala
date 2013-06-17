@@ -21,7 +21,7 @@ object IsadGForm {
     mapping(
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
-      TITLE -> optional(nonEmptyText),
+      TITLE -> nonEmptyText,
       DATES -> list(DatePeriodForm.form.mapping),
       LEVEL_OF_DESCRIPTION -> optional(enum(LevelOfDescription)),
       EXTENT_MEDIUM -> optional(nonEmptyText),
@@ -50,6 +50,7 @@ object IsadGForm {
         RELATED_UNITS -> optional(text),
         PUBLICATION_NOTE -> optional(text)
       )(Materials.apply)(Materials.unapply),
+      NOTES -> optional(list(nonEmptyText)),
       CONTROL_AREA -> mapping(
         ARCHIVIST_NOTE -> optional(text),
         RULES_CONVENTIONS -> optional(text),

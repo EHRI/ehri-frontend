@@ -11,6 +11,8 @@ object Description {
 
   final val ACCESS_REL = "relatesTo"
   final val UNKNOWN_PROP = "hasUnknownProperty"
+  final val NAME = "name"
+  final val LANGUAGE_CODE = "languageCode"
 
   def apply(e: Entity): Description = e.isA match {
     case EntityType.DocumentaryUnitDescription => DocumentaryUnitDescription(e)
@@ -25,8 +27,8 @@ trait Description extends WrappedEntity {
 	val e: Entity
 
   val item: Option[AccessibleEntity]
-  val name = e.stringProperty(AccessibleEntity.NAME).getOrElse(id)
-	val languageCode: String = e.stringProperty("languageCode").getOrElse("Unknown language")
+  val name = e.stringProperty(Description.NAME).getOrElse(id)
+	val languageCode: String = e.stringProperty(Description.LANGUAGE_CODE).getOrElse("Unknown language")
 
 
 

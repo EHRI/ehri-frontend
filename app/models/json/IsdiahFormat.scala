@@ -62,7 +62,7 @@ object IsdiahFormat {
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.RepositoryDescription)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
-      (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).readNullable[String] and
+      (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String] and
       ((__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] orElse
         (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
@@ -98,7 +98,8 @@ object IsdiahFormat {
           (__ \ DATES_CVD).readNullable[String] and
           (__ \ LANGUAGES_USED).readNullable[List[String]] and
           (__ \ SCRIPTS_USED).readNullable[List[String]] and
-          (__ \ SOURCES).readNullable[String] and
+          ((__ \ SOURCES).readNullable[List[String]] orElse
+            (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
           (__ \ MAINTENANCE_NOTES).readNullable[String]
         )(Control.apply _))
     )(RepositoryDescriptionF.apply _)

@@ -1,4 +1,4 @@
-@(page: utils.AbstractPage[_])(implicit req: RequestHeader)
+@(page: utils.AbstractPage[_], pageParam: String = "page")(implicit req: RequestHeader)
 
 @if(page.hasMultiplePages) {
     <div id="pagination" class="pagination pull-right">
@@ -8,7 +8,7 @@
                 @if(cp == page.page.toInt) {
                     <li class="disabled"><a>@cp</a></li>
                 } else {
-                    <li><a href="@utils.joinPath(req.path, req.queryString.updated("page", Seq(cp.toString)))">@cp</a></li>
+                    <li><a href="@utils.joinPath(req.path, req.queryString.updated(pageParam, Seq(cp.toString)))">@cp</a></li>
                 }
             }
             @if(range.last != page.numPages) {

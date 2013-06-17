@@ -29,5 +29,10 @@ case class PermissionGrant(val e: Entity) extends WrappedEntity {
   val grantee: Option[Accessor] = e.relations(GRANTEE_REL).headOption.map(Accessor(_))
   val scope: Option[ItemWithId] = e.relations(SCOPE_REL).headOption.map(ItemWithId(_))
 
+  override def toString =
+    "%s -> %s -> %s%s".format(
+      accessor.getOrElse("?"), permission.getOrElse("?"),
+      targets.headOption.getOrElse("?"), if(targets.length > 1) " ..." else "")
+
 }
 

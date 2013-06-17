@@ -3,7 +3,7 @@
 @import Isaar._
 @import formHelpers._
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @lineInput(f(""), IDENTIFIER)(prefix = FIELD_PREFIX)
 
@@ -15,11 +15,27 @@
             @hiddenInput(desc(Entity.ID))
             @enumChoiceInput(desc(ENTITY_TYPE), HistoricalAgentType, ENTITY_TYPE, blank=true)
             @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
-            @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
             @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+            @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
         }
 
         @descriptionFormSection(DESCRIPTION_AREA) {
+            <div class="inline-formset control-group clearfix">
+                <!-- Template for adding inline date forms via JS -->
+                <label class="control-label">
+                    @Messages(fieldPrefix + "." + DATES)
+                    <a href="#" class="add-inline-element"><i class="icon-plus-sign"></i></a>
+                </label>
+                <div class="inline-element-template form-template">
+                    @common.renderDateSetForm(desc(DATES + "[IDX]"))
+                </div>
+                <div class="inline-element-list">
+                    @helper.repeat(desc(DATES), min = 0) { desc =>
+                    @common.renderDateSetForm(desc)
+                    }
+                </div>
+            </div>
+
             @defining(desc(DESCRIPTION_AREA)) { desc =>
                 @textInput(desc, DATES_OF_EXISTENCE)
                 @textInput(desc, HISTORY)
@@ -42,7 +58,7 @@
                 @textInput(desc, DATES_CVD)
                 @multiselectInput(desc(LANGUAGES_USED), LANGUAGES_USED, views.Helpers.languagePairList)
                 @multiselectInput(desc(SCRIPTS_USED), SCRIPTS_USED, views.Helpers.scriptPairList)
-                @textInput(desc, SOURCES)
+                @inlineTextSet(desc, SOURCES)
                 @textInput(desc, MAINTENANCE_NOTES)
             }
         }

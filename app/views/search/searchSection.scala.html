@@ -1,0 +1,7 @@
+@(title: String)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+<div class="search-section" id="search-items">
+    <hr />
+    <h4>@title</h4>
+    @html
+</div>

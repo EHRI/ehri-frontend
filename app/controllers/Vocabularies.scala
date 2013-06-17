@@ -7,12 +7,14 @@ import play.api._
 import play.api.i18n.Messages
 import base._
 import defines.{PermissionType, ContentType, EntityType}
+import solr.SearchParams
 
 object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   with CreationContext[ConceptF, Vocabulary]
   with VisibilityController[Vocabulary]
   with PermissionScopeController[Vocabulary]
-  with EntityAnnotate[Vocabulary] {
+  with EntityAnnotate[Vocabulary]
+  with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.Concept)
 
@@ -28,10 +30,12 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   val form = models.forms.VocabularyForm.form
   val childForm = models.forms.ConceptForm.form
 
-  def get(id: String) = getWithChildrenAction(id) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.show(
-        Vocabulary(item), page.copy(items = page.items.map(Concept.apply)), params, annotations))
+  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+    searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
+      page => params => facets => _ => _ =>
+        Ok(views.html.vocabulary.show(
+          Vocabulary(item), page, params, facets, routes.Vocabularies.get(id), annotations, links))
+    }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
@@ -152,26 +156,6 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
       perms => implicit userOpt => implicit request =>
     Redirect(routes.Vocabularies.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-  }
-
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Vocabulary(item),
-      AnnotationForm.form, routes.Vocabularies.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(Vocabulary(item),
-            errorForm, routes.Vocabularies.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.Vocabularies.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
   }
 }
 

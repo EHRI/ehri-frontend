@@ -25,15 +25,17 @@
 }
 
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
-    @common.annotated(item, annotations, routes.DocumentaryUnits.annotate(item.id)) {
+    @common.annotated(item, annotations) {
 
         @item.holder.map { holder =>
             <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
         }
 
         @item.parent.map { parent =>
-            <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.name</a></h4>
+            <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
         }
+
+        <h4>@item.stringProperty(Entity.IDENTIFIER  )</h4>
 
         @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {
@@ -56,7 +58,7 @@
                                 @actions("Actions", item.id, desc.id)
                                 @documentaryUnit.renderDescription(item, desc, links)
                             </div>
-							
+
                         }
                         @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                             <div class="tab-pane" id="desc-@desc.id">

@@ -17,7 +17,7 @@ object IsdiahForm {
     mapping(
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
-      AUTHORIZED_FORM_OF_NAME -> optional(text),
+      AUTHORIZED_FORM_OF_NAME -> text,
       OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       ADDRESS_AREA -> list(AddressForm.form.mapping),
@@ -50,7 +50,7 @@ object IsdiahForm {
         DATES_CVD -> optional(text),
         LANGUAGES_USED -> optional(list(nonEmptyText)),
         SCRIPTS_USED -> optional(list(nonEmptyText)),
-        SOURCES -> optional(text),
+        SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(Control.apply)(Control.unapply)
     )(RepositoryDescriptionF.apply)(RepositoryDescriptionF.unapply)

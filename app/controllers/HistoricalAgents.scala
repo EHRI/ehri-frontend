@@ -151,34 +151,16 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = annotationAction(id) {
-      item => form => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(HistoricalAgent(item), form, routes.HistoricalAgents.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(HistoricalAgent(item),
-          errorForm, routes.HistoricalAgents.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.HistoricalAgents.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
-  }
-
   def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.linkTo(HistoricalAgent(item)))
   }
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
-      item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.linking.linkSourceList(item, page, params,
-        EntityType.withName(toType), routes.HistoricalAgents.linkAnnotate _))
+      item => page => params => facets => etype => implicit userOpt => implicit request =>
+    Ok(views.html.linking.linkSourceList(item, page, params, facets, etype,
+        routes.HistoricalAgents.linkAnnotateSelect(id, toType),
+        routes.HistoricalAgents.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {

@@ -15,7 +15,7 @@ object HistoricalAgentForm {
   val form = Form(
     mapping(
       Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText,
+      Entity.IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures,
       PUBLICATION_STATUS -> optional(enum(defines.PublicationStatus)),
       DescribedEntity.DESCRIPTIONS -> list(IsaarForm.form.mapping)
     )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)

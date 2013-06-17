@@ -146,11 +146,11 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(cr2) must contain("exists and must be unique")
     }
 
-    "give a form error when saving an invalid date" in new FakeApp {
+    "give a form error when saving an item with with a bad date" in new FakeApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
         "descriptions[0].dates[0].startDate" -> Seq("1945-01-01"),
-        "descriptions[0].dates[0].endDate" -> Seq("1945-13-32") // THIS SHOULD FAIL!
+        "descriptions[0].dates[0].endDate" -> Seq("1945-12-32") // BAD!
       )
       // Since the item id is derived from the identifier field,
       // a form error should result from using the same identifier
@@ -159,8 +159,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
       val cr = route(call, testData).get
       status(cr) must equalTo(BAD_REQUEST)
-      // NB: This error string comes from the server, so might
-      // not match if changed there - single quotes surround the value
+      // If we were doing validating dates we'd use:
       contentAsString(cr) must contain(Messages("error.date"))
     }
 
@@ -300,23 +299,6 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       status(cr2) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
       status(getR) must equalTo(OK)
-    }
-
-    "allow commenting via annotations" in new FakeApp {
-      val testItem = "c1"
-      val body = "This is a neat annotation"
-      val testData: Map[String, Seq[String]] = Map(
-        AnnotationF.ANNOTATION_TYPE -> Seq(AnnotationF.AnnotationType.Comment.toString),
-        AnnotationF.BODY -> Seq(body)
-      )
-      // Now try again to update the item, which should succeed
-      // Check we can update the item
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.annotatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must contain(body)
     }
 
     "allow linking to items via annotation" in new FakeApp {

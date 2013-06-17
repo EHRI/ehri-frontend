@@ -20,6 +20,7 @@ object IsaarForm {
       AUTHORIZED_FORM_OF_NAME -> nonEmptyText,
       OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
+      DATES -> list(DatePeriodForm.form.mapping),
       DESCRIPTION_AREA -> mapping(
         DATES_OF_EXISTENCE -> optional(text),
         HISTORY -> optional(text),
@@ -39,7 +40,7 @@ object IsaarForm {
         DATES_CVD -> optional(text),
         LANGUAGES_USED -> optional(list(nonEmptyText)),
         SCRIPTS_USED -> optional(list(nonEmptyText)),
-        SOURCES -> optional(text),
+        SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(Control.apply)(Control.unapply),
       ACCESS_POINTS -> list(AccessPointForm.form.mapping)

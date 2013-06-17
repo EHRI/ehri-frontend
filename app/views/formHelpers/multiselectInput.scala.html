@@ -1,7 +1,7 @@
 @(f: play.api.data.Field, label: String, options: List[(String,String)])(implicit fieldPrefix: String = "", lang: Lang)
 
 @import java.util.Locale
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @defining(views.Helpers.fieldValues(f)) { values =>
     @helper.input(f, 'title -> views.Helpers.renderMarkdown(Messages(fieldPrefix + "." + label + ".description")), '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label)) { (id, name, value, htmlArgs) =>

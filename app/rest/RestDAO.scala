@@ -86,8 +86,24 @@ trait RestDAO {
   val AUTH_HEADER_NAME = "Authorization"
   private final val LOG_MESSAGE_HEADER_NAME = "logMessage"
 
+  /**
+   * Time to cache rest requests for...
+   * @param msg
+   * @return
+   */
+  val cacheTime = 60 * 5 // 5 minutes
+
   def msgHeader(msg: Option[String]): Seq[(String,String)] = msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq[(String,String)]())
 
+  /**
+   * Join params into a query string
+   */
+  def joinQueryString(qs: Map[String, Seq[String]]): String = {
+    import java.net.URLEncoder
+    qs.map { case (key, vals) => {
+      vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
+    }}.flatten.mkString("&")
+  }
 
   /**
    * Standard headers we sent to every Neo4j/EHRI Server request.
@@ -131,6 +147,7 @@ trait RestDAO {
 
         case UNAUTHORIZED => response.json.validate[PermissionDenied].fold(
           valid = { perm =>
+            Logger.logger.error("Permission denied error! : {}", response.json)
             Left(perm)
           },
           invalid = { e =>

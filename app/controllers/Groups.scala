@@ -1,7 +1,7 @@
 package controllers
 
 import models.base.Accessor
-import models.{UserProfile, Group,GroupF}
+import _root_.models.{PermissionGrant, UserProfile, Group, GroupF}
 import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
@@ -96,6 +96,18 @@ object Groups extends PermissionHolderController[Group]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
+
+  def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
+      item => perm => implicit userOpt => implicit request =>
+    Ok(views.html.permissions.revokePermission(Group(item), PermissionGrant(perm),
+        routes.Groups.revokePermissionPost(id, permId), routes.Groups.grantList(id)))
+  }
+
+  def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
+    item => bool => implicit userOpt => implicit request =>
+      Redirect(routes.Groups.grantList(id))
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+  }
 
   /*
    *	Membership

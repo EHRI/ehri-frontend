@@ -21,56 +21,34 @@ object Links extends EntityRead[Link]
   val entityType = EntityType.Link
   val contentType = ContentType.Link
 
-  def get(id: String) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
-    Ok(views.html.link.show(Link(item), links))
-
+  def get(id: String, redirect: Option[String] = None) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
+    Ok(views.html.link.show(Link(item), links, redirect))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
     Ok(views.html.systemEvents.itemList(Link(item), page, ListParams()))
   }
 
-  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt =>
-    implicit request =>
-      Ok(views.html.permissions.visibility(Link(item),
+  def visibility(id: String) = visibilityAction(id) {
+      item => users => groups => implicit userOpt => implicit request =>
+    Ok(views.html.permissions.visibility(Link(item),
         models.forms.VisibilityForm.form.fill(Link(item).accessors.map(_.id)),
         users, groups, routes.Links.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt =>
-    implicit request =>
-      Redirect(routes.Links.get(id))
+  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
+    Redirect(routes.Links.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
+  def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-      Link(item), routes.Links.deletePost(id), routes.Concepts.get(id)))
+      Link(item), routes.Links.deletePost(id, redirect), routes.Application.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) {
-    // TODO: Work out how to redirect to somewhere useful...
-    ok => implicit userOpt => implicit request =>
-      Redirect(routes.Application.index)
+  def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
+      ok => implicit userOpt => implicit request =>
+    Redirect(redirect.map(r => routes.Application.get(r)).getOrElse(routes.Search.search))
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
-  }
-
-  def annotate(id: String) = annotationAction(id) {
-      item => form => implicit userOpt => implicit request =>
-    Ok(views.html.link.annotate(Link(item), form, routes.Links.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) { formOrLink => implicit userOpt =>
-    implicit request =>
-      formOrLink match {
-        case Left(errorForm) => getEntity(id, userOpt) { item =>
-          BadRequest(views.html.link.annotate(Link(item),
-            errorForm, routes.Links.annotatePost(id)))
-        }
-        case Right(link) => {
-          Redirect(routes.Links.get(id))
-            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-        }
-      }
   }
 }

@@ -12,6 +12,9 @@
                     @item.stringProperty(ENTITY_TYPE).map { et =>
                         <li>@Messages("isaar." + et)</li>
                     }
+                    @item.dates.headOption.flatMap(_.formableOpt).map { dp =>
+                        <li>@dp.years</li>
+                    }
                 </ul>
             </small>
             @item.stringProperty(DATES_OF_EXISTENCE)

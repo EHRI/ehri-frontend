@@ -2,22 +2,32 @@
 
 @import models.ConceptF._
 
-@implicitField = @{ views.html.helper.FieldConstructor(common.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @helper.inputText(f(Entity.IDENTIFIER), '_label -> Messages(Entity.IDENTIFIER))
 
 @defining("concept") { implicit prefix =>
     <fieldset id="descriptions-area">
-        <div class="inline-element-set">
+        <div class="inline-formset">
             <label>
-                @Messages(prefix + ".descriptions") | <a href="#" class="add-inline-element">@Messages("actions.addNew")</a>
+                <strong>@Messages(prefix + ".descriptions")</strong>
             </label>
-            <script type="application/x-js-template" class="inline-element-template">
+            <hr />
+            <div class="inline-element-template form-template">
                 @concept.renderDescriptionForm(f("descriptions[IDX]"))
-            </script>
-            @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-                @concept.renderDescriptionForm(desc)
-            }
+            </div>
+            <div class="inline-element-list">
+                @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+                    @concept.renderDescriptionForm(desc)
+                }
+            </div>
+
+            <div class="pull-right">
+                <a href="#" class="add-inline-element">
+                    <i class="icon-plus-sign"></i>
+                    @Messages("actions.addNewConceptDescription")
+                </a>
+            </div>
         </div>
     </fieldset>
 }

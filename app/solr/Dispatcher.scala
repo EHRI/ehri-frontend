@@ -11,7 +11,7 @@ import defines.EntityType
  * User: mikebryant
  */
 trait Dispatcher extends Plugin {
-  def filter(q: String, entityType: Option[EntityType.Value] = None, page: Option[Int] = Some(1), limit: Option[Int] = Some(100))(
+  def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String,EntityType.Value)]]]
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]]

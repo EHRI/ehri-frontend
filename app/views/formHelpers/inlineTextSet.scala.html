@@ -1,0 +1,17 @@
+@(desc: Field, label: String)(implicit fieldPrefix: String, lang: Lang)
+
+<div class="inline-formset control-group clearfix">
+    <!-- Template for adding inline date forms via JS -->
+    <label class="control-label">
+        @Messages(fieldPrefix + "." + label)
+        <a href="#" class="add-inline-element"><i class="icon-plus-sign"></i></a>
+    </label>
+    <div class="inline-element-template form-template">
+        @inlineText(desc(label + "[IDX]"))
+    </div>
+    <div class="inline-element-list">
+        @helper.repeat(desc(label), min = 0) { field =>
+            @inlineText(field)
+        }
+    </div>
+</div>

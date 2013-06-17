@@ -14,10 +14,10 @@ object UserProfileForm {
   val form = Form(
     mapping(
       Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText,
+      Entity.IDENTIFIER -> nonEmptyText(minLength=3),
       NAME -> nonEmptyText,
-      LOCATION -> optional(nonEmptyText),
-      ABOUT -> optional(nonEmptyText),
+      LOCATION -> optional(text),
+      ABOUT -> optional(text),
       LANGUAGES -> optional(list(nonEmptyText))
     )(UserProfileF.apply)(UserProfileF.unapply)
   )

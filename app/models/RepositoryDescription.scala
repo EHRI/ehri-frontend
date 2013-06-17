@@ -37,7 +37,7 @@ object RepositoryDescriptionF {
     datesCDR: Option[String] = None,
     languages: Option[List[String]] = None,
     scripts: Option[List[String]] = None,
-    sources: Option[String] = None,
+    sources: Option[List[String]] = None,
     maintenanceNotes: Option[String] = None
     ) extends AttributeSet
 
@@ -48,7 +48,7 @@ object RepositoryDescriptionF {
 case class RepositoryDescriptionF(
   id: Option[String],
   languageCode: String,
-  name: Option[String] = None,
+  name: String,
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
   @Annotations.Relation(RepositoryF.ADDRESS_REL) addresses: List[AddressF] = Nil,

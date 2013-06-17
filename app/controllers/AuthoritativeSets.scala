@@ -33,17 +33,11 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))
 
 
-  /*def get(id: String) = getWithChildrenAction(id, HistoricalAgent.apply _) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.authoritativeSet.show(AuthoritativeSet(item), page, params, annotations))
-  }*/
-
-  def get(id: String) = itemPermissionAction(contentType, id) {
-      item => implicit userOpt => implicit request =>
+  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
-      page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.authoritativeSet.show(
-          AuthoritativeSet(item), page, params, facets, routes.AuthoritativeSets.get(id)))
+        page => params => facets => _ => _ =>
+      Ok(views.html.authoritativeSet.show(
+          AuthoritativeSet(item), page, params, facets, routes.AuthoritativeSets.get(id), annotations, links))
     }(request)
   }
 
@@ -166,26 +160,6 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
       perms => implicit userOpt => implicit request =>
     Redirect(routes.AuthoritativeSets.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-  }
-
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(AuthoritativeSet(item),
-      AnnotationForm.form, routes.AuthoritativeSets.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(AuthoritativeSet(item),
-            errorForm, routes.AuthoritativeSets.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.AuthoritativeSets.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
   }
 }
 
