@@ -82,8 +82,10 @@ object IsadGFormat {
       (__ \ DATA).read[Conditions]((
         (__ \ ACCESS_COND).readNullable[String] and
           (__ \ REPROD_COND).readNullable[String] and
-          (__ \ LANG_MATERIALS).readNullable[List[String]] and
-          (__ \ SCRIPT_MATERIALS).readNullable[List[String]] and
+          ((__ \ LANG_MATERIALS).readNullable[List[String]] orElse
+            (__ \ LANG_MATERIALS).readNullable[String].map(os => os.map(List(_))) ) and
+          ((__ \ SCRIPT_MATERIALS).readNullable[List[String]] orElse
+            (__ \ SCRIPT_MATERIALS).readNullable[String].map(os => os.map(List(_))) ) and
           (__ \ PHYSICAL_CHARS).readNullable[String] and
           (__ \ FINDING_AIDS).readNullable[String]
         )(Conditions.apply _)) and
