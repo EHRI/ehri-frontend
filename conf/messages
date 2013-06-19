@@ -23,6 +23,7 @@ forms.search=Search
 error.date=Date is incorrect or badly formatted
 error.required=Required
 constraint.required=*
+format.boolean=On/Off
 
 search.type=Item Type
 search.filterItems=Filter Items
@@ -387,6 +388,7 @@ documentaryUnit.parentItem=Parent Item
 documentaryUnit.availableDescriptions=Available Descriptions
 documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD(G) description info.
 documentaryUnit.search=Search Top-level Descriptions
+documentaryUnit.searchInside=Child Items
 
 #
 # Repositories

@@ -5,11 +5,11 @@
 @if(!item.ancestors.isEmpty) {
     <small>
         <ul class="unstyled muted inline inline-separator">
-            <li>
-                @item.ancestors.map(DocumentaryUnit).reverse.map { parent =>
-                    <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toString,100)</a>
-                }
-            </li>
+            @item.ancestors.map(DocumentaryUnit).reverse.map { parent =>
+                <li>
+                    <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
+                </li>
+            }
         </ul>
     </small>
 }

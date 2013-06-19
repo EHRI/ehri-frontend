@@ -115,16 +115,27 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def searchChildren(id: String) = itemPermissionAction(contentType, id) {
       item => implicit userOpt => implicit request =>
+
     searchAction(Map("parentId" -> item.id)) {
       page => params => facets => implicit userOpt => implicit request =>
         Ok(views.html.search.search(page, params, facets, routes.DocumentaryUnits.search))
     }(request)
   }
 
-  def get(id: String) = getWithChildrenAction(id) {
+  /*def get(id: String) = getWithChildrenAction(id) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
+
     Ok(views.html.documentaryUnit.show(
       DocumentaryUnit(item), page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
+  }*/
+
+  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+    val doc = DocumentaryUnit(item)
+    searchAction(Map("parentId" -> item.id, "depthOfDescription" -> (doc.ancestors.size + 1).toString),
+          defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
+      page => params => facets => _ => _ =>
+        Ok(views.html.documentaryUnit.show(doc, page, params, facets, routes.DocumentaryUnits.get(id), annotations, links))
+    }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

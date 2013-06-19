@@ -1,8 +1,6 @@
 package controllers
 
 import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits._
-
 import base.EntitySearch
 import defines.{EntityType}
 import play.Play.application
@@ -133,6 +131,9 @@ object Search extends EntitySearch {
     val (deleteAll, batchSize, entities) = updateIndexForm.bindFromRequest.value.get
 
     def wrapMsg(m: String) = s"<message>$m</message>"
+
+    // Override default execution context
+    implicit val executionContext = solr.Contexts.searchIndexExecutionContext
 
     /**
      * Clear everything from the index...
