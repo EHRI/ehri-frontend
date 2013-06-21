@@ -6,9 +6,14 @@ import models.base.Description
 import models.base.Persistable
 import play.api.libs.json.{Format, Json}
 import models.base.DescribedEntity
+import models.json.Convertable
 
 object ConceptDescriptionF {
   lazy implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = json.ConceptDescriptionFormat.restFormat
+
+  implicit object Converter extends Convertable[ConceptDescriptionF] {
+    lazy val restFormat = models.json.ConceptDescriptionFormat.restFormat
+  }
 }
 
 case class ConceptDescriptionF(

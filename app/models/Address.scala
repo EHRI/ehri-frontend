@@ -3,12 +3,17 @@ package models
 import defines.EntityType
 import models.base.{Formable, AccessibleEntity}
 import play.api.libs.json.{Format, Json}
+import models.json.Convertable
 
 
 object AddressF {
   val UNNAMED_ADDRESS = "Unnamed Address"
 
   implicit val addressFormat: Format[AddressF] = json.AddressFormat.restFormat
+
+  implicit object Converter extends Convertable[AddressF] {
+    val restFormat = models.json.AddressFormat.restFormat
+  }
 }
 
 

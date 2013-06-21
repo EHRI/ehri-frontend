@@ -7,7 +7,7 @@ import models.AnnotationF
 import defines.EntityType
 import defines.EnumUtils._
 
-object AnnotationFormat extends JsonConverter[AnnotationF] {
+object AnnotationFormat {
   import AnnotationF._
   import models.Entity._
 

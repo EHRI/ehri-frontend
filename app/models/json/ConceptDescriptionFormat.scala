@@ -7,7 +7,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object ConceptDescriptionFormat extends JsonConverter[ConceptDescriptionF] {
+object ConceptDescriptionFormat {
   import Entity._
   import ConceptF._
 

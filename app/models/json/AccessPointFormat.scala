@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object AccessPointFormat extends JsonConverter[AccessPointF] {
+object AccessPointFormat {
   import Entity.{TYPE => ETYPE,_}
   import AccessPointF._
 

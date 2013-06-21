@@ -9,7 +9,7 @@ import models._
 import defines.EnumUtils._
 
 
-object ConceptFormat extends JsonConverter[ConceptF] {
+object ConceptFormat {
   import models.json.ConceptDescriptionFormat._
   import models.Entity._
 
@@ -37,6 +37,10 @@ object ConceptFormat extends JsonConverter[ConceptF] {
     )(ConceptF.apply _)
 
   implicit val restFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
+
+  implicit object Converter extends Convertable[ConceptF] {
+    lazy val restFormat = models.json.ConceptFormat.restFormat
+  }
 }
 
 //object ConceptMetaFormat extends JsonConverter[ConceptMetaF] {

@@ -7,6 +7,7 @@ import models.base.DescribedEntity
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
 import play.api.i18n.Lang
+import models.json.Convertable
 
 object ConceptF {
 
@@ -22,6 +23,10 @@ object ConceptF {
   }
 
   implicit val conceptFormat: Format[ConceptF] = json.ConceptFormat.restFormat
+
+  implicit object Converter extends Convertable[ConceptF] {
+    lazy val restFormat = models.json.ConceptFormat.restFormat
+  }
 }
 
 case class ConceptF(

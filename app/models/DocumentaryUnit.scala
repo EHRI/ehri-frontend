@@ -6,6 +6,7 @@ import models.base._
 
 import models.base.{DescribedEntity, AttributeSet, Persistable, TemporalEntity}
 import play.api.libs.json.{Json, JsString, JsValue}
+import models.json.Convertable
 
 
 object DocumentaryUnitF {
@@ -32,6 +33,11 @@ object DocumentaryUnitF {
   final val CHILD_REL = "childOf"
 
   lazy implicit val restFormat = json.DocumentaryUnitFormat.restFormat
+
+
+  implicit object Converter extends Convertable[DocumentaryUnitF] {
+    lazy val restFormat = models.json.DocumentaryUnitFormat.restFormat
+  }
 }
 
 case class DocumentaryUnitF(

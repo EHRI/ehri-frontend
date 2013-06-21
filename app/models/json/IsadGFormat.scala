@@ -9,7 +9,7 @@ import defines.EnumUtils._
 import play.api.libs
 
 
-object IsadGFormat extends JsonConverter[DocumentaryUnitDescriptionF] {
+object IsadGFormat extends Convertable[DocumentaryUnitDescriptionF] {
   import Entity._
   import IsadG._
   import DatePeriodFormat._

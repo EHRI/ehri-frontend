@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object GroupFormat extends JsonConverter[GroupF] {
+object GroupFormat {
   import models.GroupF._
   import models.Entity._
 

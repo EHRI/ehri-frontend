@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
+import models.json.Convertable
 
 
 object DatePeriodF {
@@ -19,6 +20,11 @@ object DatePeriodF {
   }
 
   lazy implicit val datePeriodFormat: Format[DatePeriodF] = json.DatePeriodFormat.restFormat
+
+
+  implicit object Converter extends Convertable[DatePeriodF] {
+    lazy val restFormat = models.json.DatePeriodFormat.restFormat
+  }
 }
 
 case class DatePeriodF(

@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object CountryFormat extends JsonConverter[CountryF] {
+object CountryFormat {
   import models.Entity._
 
   implicit val countryWrites: Writes[CountryF] = new Writes[CountryF] {

@@ -3,6 +3,7 @@ package models
 import models.base._
 import play.api.libs.json.{JsValue, Json}
 import defines.EntityType
+import models.json.Convertable
 
 object RepositoryDescriptionF {
   case class Details(
@@ -42,6 +43,10 @@ object RepositoryDescriptionF {
     ) extends AttributeSet
 
   lazy implicit val repositoryDescriptionFormat = json.IsdiahFormat.restFormat
+
+  implicit object Converter extends Convertable[RepositoryDescriptionF] {
+    lazy val restFormat = models.json.IsdiahFormat.restFormat
+  }
 }
 
 

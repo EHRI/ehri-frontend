@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object DatePeriodFormat extends JsonConverter[DatePeriodF] {
+object DatePeriodFormat {
   import Entity.{TYPE => ETYPE,_}
   import DatePeriodF._
 

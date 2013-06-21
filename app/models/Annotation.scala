@@ -4,6 +4,7 @@ import base.{AnnotatableEntity, AccessibleEntity, Accessor, Formable}
 import models.base.Persistable
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
+import models.json.Convertable
 
 
 object AnnotationF {
@@ -19,6 +20,11 @@ object AnnotationF {
   }
 
   lazy implicit val annotationFormat: Format[AnnotationF] = json.AnnotationFormat.restFormat
+
+
+  implicit object Converter extends Convertable[AnnotationF] {
+    lazy val restFormat = models.json.AnnotationFormat.restFormat
+  }
 }
 
 case class AnnotationF(

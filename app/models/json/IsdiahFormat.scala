@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object IsdiahFormat extends JsonConverter[RepositoryDescriptionF] {
+object IsdiahFormat extends Convertable[RepositoryDescriptionF] {
 
   import AddressFormat._
   import Entity._

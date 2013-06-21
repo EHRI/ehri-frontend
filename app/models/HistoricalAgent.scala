@@ -9,6 +9,7 @@ import defines.EnumUtils._
 import base._
 
 import play.api.libs.json._
+import models.json.Convertable
 
 object HistoricalAgentF {
 
@@ -21,6 +22,11 @@ object HistoricalAgentF {
   val PUBLICATION_STATUS = "publicationStatus"
 
   lazy implicit val jsonFormat = json.HistoricalAgentFormat.restFormat
+
+
+  implicit object Converter extends Convertable[HistoricalAgentF] {
+    lazy val restFormat = models.json.HistoricalAgentFormat.restFormat
+  }
 }
 
 case class HistoricalAgentF(

@@ -8,7 +8,7 @@ import defines.EnumUtils._
 import models.base.{TemporalEntity, Description}
 
 
-object IsaarFormat extends JsonConverter[HistoricalAgentDescriptionF] {
+object IsaarFormat extends Convertable[HistoricalAgentDescriptionF] {
   import Entity._
   import HistoricalAgentF._
   import AccessPointFormat._

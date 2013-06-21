@@ -3,6 +3,7 @@ package models
 import models.base._
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
+import models.json.Convertable
 
 object GroupF {
 
@@ -12,6 +13,10 @@ object GroupF {
   val DESCRIPTION = "description"
 
   lazy implicit val groupFormat: Format[GroupF] = json.GroupFormat.restFormat
+
+  implicit object Converter extends Convertable[GroupF] {
+    lazy val restFormat = models.json.GroupFormat.restFormat
+  }
 }
 
 case class GroupF(

@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object UserProfileFormat extends JsonConverter[UserProfileF] {
+object UserProfileFormat extends Convertable[UserProfileF] {
   import models.UserProfileF._
   import models.Entity._
 

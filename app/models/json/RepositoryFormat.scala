@@ -10,7 +10,7 @@ import models._
 import defines.EnumUtils._
 
 
-object RepositoryFormat extends JsonConverter[RepositoryF] {
+object RepositoryFormat extends Convertable[RepositoryF] {
   import models.json.IsdiahFormat._
   import models.Entity._
   import models.RepositoryF._

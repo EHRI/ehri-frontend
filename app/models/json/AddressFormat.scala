@@ -7,7 +7,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object AddressFormat extends JsonConverter[AddressF] {
+object AddressFormat {
   import AddressF._
   import Entity._
   import Isdiah._

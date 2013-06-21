@@ -5,6 +5,7 @@ import models.base._
 import defines.EntityType
 import play.api.libs.json.{Format, JsValue, Json}
 import java.util.NoSuchElementException
+import models.json.Convertable
 
 
 object AccessPointF {
@@ -25,6 +26,10 @@ object AccessPointF {
   }
 
   lazy implicit val accessPointFormat: Format[AccessPointF] = json.AccessPointFormat.restFormat
+
+  implicit object Converter extends Convertable[AccessPointF] {
+    lazy val restFormat = models.json.AccessPointFormat.restFormat
+  }
 }
 
 case class AccessPointF(

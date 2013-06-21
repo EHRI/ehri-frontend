@@ -4,6 +4,7 @@ import models.base._
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
 import models.LinkF.LinkType
+import models.json.Convertable
 
 
 object LinkF {
@@ -20,6 +21,10 @@ object LinkF {
   }
 
   lazy implicit val linkFormat: Format[LinkF] = json.LinkFormat.restFormat
+
+  implicit object Converter extends Convertable[LinkF] {
+    lazy val restFormat = models.json.LinkFormat.restFormat
+  }
 }
 
 case class LinkF(

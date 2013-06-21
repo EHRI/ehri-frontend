@@ -11,7 +11,7 @@ import play.api.data.validation.ValidationError
 import defines.EnumUtils._
 
 
-object HistoricalAgentFormat extends JsonConverter[HistoricalAgentF] {
+object HistoricalAgentFormat {
   import models.json.IsaarFormat._
   import models.Entity._
   import models.HistoricalAgentF._

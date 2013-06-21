@@ -7,7 +7,7 @@ import models._
 import defines.EntityType
 
 
-object AuthoritativeSetFormat extends JsonConverter[AuthoritativeSetF] {
+object AuthoritativeSetFormat {
   import models.AuthoritativeSetF._
   import models.Entity._
 

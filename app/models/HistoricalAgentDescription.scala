@@ -3,6 +3,7 @@ package models
 import models.base._
 import play.api.libs.json.{JsValue, Json}
 import defines.EntityType
+import models.json.Convertable
 
 object HistoricalAgentDescriptionF {
 
@@ -31,6 +32,10 @@ object HistoricalAgentDescriptionF {
     ) extends AttributeSet
 
   lazy implicit val historicalAgentDescriptionFormat = json.IsaarFormat.restFormat
+
+  implicit object Converter extends Convertable[HistoricalAgentDescriptionF] {
+    lazy val restFormat = models.json.IsaarFormat.restFormat
+  }
 }
 
 case class HistoricalAgentDescriptionF(

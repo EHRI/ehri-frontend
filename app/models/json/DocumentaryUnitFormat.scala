@@ -11,7 +11,7 @@ import models.base.DescribedEntity
 import models.{DocumentaryUnitDescriptionF, DocumentaryUnitF}
 
 
-object DocumentaryUnitFormat extends JsonConverter[DocumentaryUnitF] {
+object DocumentaryUnitFormat {
   import models.json.IsadGFormat._
   import models.Entity._
   import models.DocumentaryUnitF._

@@ -9,6 +9,6 @@ import play.api.libs.json.Format
  * Time: 13:07
  * To change this template use File | Settings | File Templates.
  */
-trait JsonConverter[T] {
+trait Convertable[T] {
   implicit val restFormat: Format[T]
 }
