@@ -38,8 +38,9 @@ object ConceptFormat {
 
   implicit val restFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
 
-  implicit object Converter extends Convertable[ConceptF] {
-    lazy val restFormat = models.json.ConceptFormat.restFormat
+  implicit object Converter extends RestConvertable[ConceptF] with ClientConvertable[ConceptF] {
+    lazy val restFormat = models.json.rest.conceptFormat
+    lazy val clientFormat = models.json.client.conceptFormat
   }
 }
 

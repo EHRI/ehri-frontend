@@ -6,7 +6,7 @@ import models.base._
 
 import models.base.{DescribedEntity, AttributeSet, Persistable, TemporalEntity}
 import play.api.libs.json.{Json, JsString, JsValue}
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 
 object DocumentaryUnitF {
@@ -15,12 +15,16 @@ object DocumentaryUnitF {
     val Yes = Value("yes")
     val No = Value("no")
     val Unknown = Value("unknown")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
   object Scope extends Enumeration {
     val High = Value("high")
     val Medium = Value("medium")
     val Low = Value("low")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
   val PUBLICATION_STATUS = "publicationStatus"
@@ -34,9 +38,9 @@ object DocumentaryUnitF {
 
   lazy implicit val restFormat = json.DocumentaryUnitFormat.restFormat
 
-
-  implicit object Converter extends Convertable[DocumentaryUnitF] {
-    lazy val restFormat = models.json.DocumentaryUnitFormat.restFormat
+  implicit object Converter extends RestConvertable[DocumentaryUnitF] with ClientConvertable[DocumentaryUnitF] {
+    lazy val restFormat = models.json.rest.documentaryUnitFormat
+    lazy val clientFormat = models.json.client.documentaryUnitFormat
   }
 }
 

@@ -10,7 +10,7 @@ import models.{Entity, UserProfile}
 import models.forms.VisibilityForm
 import rest.EntityDAO
 import play.api.libs.json.Writes
-import models.json.Convertable
+import models.json.RestConvertable
 
 /**
  * Controller trait for creating AccessibleEntities.
@@ -36,7 +36,7 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
   }
 
   def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit fmt: Convertable[F]) = {
+      implicit fmt: RestConvertable[F]) = {
     withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),

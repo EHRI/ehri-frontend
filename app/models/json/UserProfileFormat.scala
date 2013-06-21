@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object UserProfileFormat extends Convertable[UserProfileF] {
+object UserProfileFormat {
   import models.UserProfileF._
   import models.Entity._
 

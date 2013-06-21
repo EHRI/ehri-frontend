@@ -7,7 +7,7 @@ import play.api.libs.json.{Writes, Json, JsValue}
 import defines.{EntityType,ContentType}
 import models.Entity
 import models.UserProfile
-import models.json.Convertable
+import models.json.RestConvertable
 import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
@@ -175,7 +175,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
 
   def create[PT](item: PT, accessors: List[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
-      logMsg: Option[String] = None)(implicit fmt: Convertable[PT]): Future[Either[RestError, Entity]] = {
+      logMsg: Option[String] = None)(implicit fmt: RestConvertable[PT]): Future[Either[RestError, Entity]] = {
     val qs = utils.joinQueryString(params)
     val url = enc(requestUrl, "?%s".format(
         (accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}") ++ List(qs)).mkString("&")))
@@ -189,7 +189,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
 
   def createInContext[PT](id: String, contentType: ContentType.Value,
       item: PT, accessors: List[String] = Nil,
-      logMsg: Option[String] = None)(implicit fmt: Convertable[PT]): Future[Either[RestError, Entity]] = {
+      logMsg: Option[String] = None)(implicit fmt: RestConvertable[PT]): Future[Either[RestError, Entity]] = {
     val url = enc(requestUrl, id, contentType, "?%s".format(
         accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&")))
     Logger.logger.debug("CREATE-IN {} ", url)
@@ -201,7 +201,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   }
 
   def update[PT](id: String, item: PT, logMsg: Option[String] = None)(
-      implicit fmt: Convertable[PT]): Future[Either[RestError, Entity]] = {
+      implicit fmt: RestConvertable[PT]): Future[Either[RestError, Entity]] = {
     val url = enc(requestUrl, id)
     Logger.logger.debug("UPDATE: {}", url)
     WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)

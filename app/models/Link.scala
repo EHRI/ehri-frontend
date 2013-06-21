@@ -3,8 +3,7 @@ package models
 import models.base._
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
-import models.LinkF.LinkType
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 
 object LinkF {
@@ -18,18 +17,21 @@ object LinkF {
     val Associative = Value("associative")
     val Family = Value("family")
     val Temporal = Value("temporal")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
   lazy implicit val linkFormat: Format[LinkF] = json.LinkFormat.restFormat
 
-  implicit object Converter extends Convertable[LinkF] {
-    lazy val restFormat = models.json.LinkFormat.restFormat
+  implicit object Converter extends RestConvertable[LinkF] with ClientConvertable[LinkF] {
+    lazy val restFormat = models.json.rest.linkFormat
+    lazy val clientFormat = models.json.client.linkFormat
   }
 }
 
 case class LinkF(
   val id: Option[String],
-  val linkType: LinkType.Type,
+  val linkType: LinkF.LinkType.Type,
   val description: Option[String]
 ) extends Persistable {
   val isA = EntityType.Link

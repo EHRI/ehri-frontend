@@ -3,38 +3,41 @@ package models
 import models.base._
 import play.api.libs.json.{JsValue, Json}
 import defines.EntityType
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
+
+case class IsaarDetail(
+  datesOfExistence: Option[String] = None,
+  history: Option[String] = None,
+  places: Option[String] = None,
+  legalStatus: Option[String] = None,
+  functions: Option[String] = None,
+  mandates: Option[String] = None,
+  internalStructure: Option[String] = None,
+  generalContext: Option[String] = None
+) extends AttributeSet
+
+case class IsaarControl(
+  descriptionIdentifier: Option[String] = None,
+  institutionIdentifier: Option[String] = None,
+  rulesAndConventions: Option[String] = None,
+  status: Option[String] = None,
+  levelOfDetail: Option[String] = None,
+  datesCDR: Option[String] = None,
+  languages: Option[List[String]] = None,
+  scripts: Option[List[String]] = None,
+  sources: Option[List[String]] = None,
+  maintenanceNotes: Option[String] = None
+) extends AttributeSet
+
+
 
 object HistoricalAgentDescriptionF {
 
-  case class Details(
-    datesOfExistence: Option[String] = None,
-    history: Option[String] = None,
-    places: Option[String] = None,
-    legalStatus: Option[String] = None,
-    functions: Option[String] = None,
-    mandates: Option[String] = None,
-    internalStructure: Option[String] = None,
-    generalContext: Option[String] = None
-    ) extends AttributeSet
-
-  case class Control(
-    descriptionIdentifier: Option[String] = None,
-    institutionIdentifier: Option[String] = None,
-    rulesAndConventions: Option[String] = None,
-    status: Option[String] = None,
-    levelOfDetail: Option[String] = None,
-    datesCDR: Option[String] = None,
-    languages: Option[List[String]] = None,
-    scripts: Option[List[String]] = None,
-    sources: Option[List[String]] = None,
-    maintenanceNotes: Option[String] = None
-    ) extends AttributeSet
-
   lazy implicit val historicalAgentDescriptionFormat = json.IsaarFormat.restFormat
 
-  implicit object Converter extends Convertable[HistoricalAgentDescriptionF] {
-    lazy val restFormat = models.json.IsaarFormat.restFormat
+  implicit object Converter extends RestConvertable[HistoricalAgentDescriptionF] with ClientConvertable[HistoricalAgentDescriptionF] {
+    lazy val restFormat = models.json.rest.isaarFormat
+    lazy val clientFormat = models.json.client.isaarFormat
   }
 }
 
@@ -47,8 +50,8 @@ case class HistoricalAgentDescriptionF(
   parallelFormsOfName: Option[List[String]] = None,
   @Annotations.Relation(TemporalEntity.DATE_REL)
   dates: List[DatePeriodF] = Nil,
-  details: HistoricalAgentDescriptionF.Details,
-  control: HistoricalAgentDescriptionF.Control,
+  details: IsaarDetail,
+  control: IsaarControl,
   accessPoints: List[AccessPointF]
   ) extends Persistable {
   val isA = EntityType.HistoricalAgentDescription

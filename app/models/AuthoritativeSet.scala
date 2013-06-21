@@ -6,7 +6,7 @@ import models.base.Persistable
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
 import defines.EnumUtils.enumWrites
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 
 object AuthoritativeSetF {
@@ -16,8 +16,9 @@ object AuthoritativeSetF {
 
   lazy implicit val authoritativeSetFormat: Format[AuthoritativeSetF] = json.AuthoritativeSetFormat.restFormat
 
-  implicit object Converter extends Convertable[AuthoritativeSetF] {
-    lazy val restFormat = models.json.AuthoritativeSetFormat.restFormat
+  implicit object Converter extends RestConvertable[AuthoritativeSetF] with ClientConvertable[AuthoritativeSetF] {
+    lazy val restFormat = models.json.rest.authoritativeSetFormat
+    lazy val clientFormat = models.json.client.authoritativeSetFormat
   }
 }
 

@@ -8,14 +8,15 @@ import play.api.libs.json.{Format, Json}
 import defines.EnumUtils.enumWrites
 import play.api.i18n.Lang
 import java.util.Locale
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 object CountryF {
   lazy implicit val countryFormat: Format[CountryF] = json.CountryFormat.restFormat
 
 
-  implicit object Converter extends Convertable[CountryF] {
-    lazy val restFormat = models.json.CountryFormat.restFormat
+  implicit object Converter extends RestConvertable[CountryF] with ClientConvertable[CountryF] {
+    lazy val restFormat = models.json.rest.countryFormat
+    lazy val clientFormat = models.json.client.countryFormat
   }
 }
 

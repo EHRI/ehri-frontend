@@ -8,7 +8,7 @@ import base.Persistable
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
 import defines.EnumUtils.enumWrites
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 
 object UserProfileF {
@@ -24,8 +24,9 @@ object UserProfileF {
 
   lazy implicit val userProfileFormat: Format[UserProfileF] = json.UserProfileFormat.restFormat
 
-  implicit object Converter extends Convertable[UserProfileF] {
-    lazy val restFormat = models.json.UserProfileFormat.restFormat
+  implicit object Converter extends RestConvertable[UserProfileF] with ClientConvertable[UserProfileF] {
+    lazy val restFormat = models.json.rest.userProfileFormat
+    lazy val clientFormat = models.json.client.userProfileFormat
   }
 }
 

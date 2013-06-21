@@ -3,7 +3,7 @@ package models
 import defines.EntityType
 import models.base.{Formable, AccessibleEntity}
 import play.api.libs.json.{Format, Json}
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 
 object AddressF {
@@ -11,8 +11,9 @@ object AddressF {
 
   implicit val addressFormat: Format[AddressF] = json.AddressFormat.restFormat
 
-  implicit object Converter extends Convertable[AddressF] {
-    val restFormat = models.json.AddressFormat.restFormat
+  implicit object Converter extends RestConvertable[AddressF] with ClientConvertable[AddressF] {
+    val restFormat = models.json.rest.addressFormat
+    val clientFormat = models.json.client.addressFormat
   }
 }
 

@@ -10,6 +10,8 @@ case object Isaar {
     val Person = Value("person")
     val Family = Value("family")
     val CorporateBody = Value("corporateBody")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
   val FIELD_PREFIX = "isaar"

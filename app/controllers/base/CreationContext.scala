@@ -10,7 +10,7 @@ import models.{Entity, UserProfile}
 import models.forms.VisibilityForm
 import rest.EntityDAO
 import play.api.libs.json.Writes
-import models.json.Convertable
+import models.json.RestConvertable
 
 /**
  * Controller trait for extending Entity classes which server as
@@ -29,7 +29,7 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRe
 
   def childCreatePostAction[CT<:Persistable](id: String, form: Form[CT], ct: ContentType.Value)(
         f: Entity => Either[(Form[CT],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
-              implicit fmt: Convertable[CT]) = {
+              implicit fmt: RestConvertable[CT]) = {
     withItemPermission(id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         errorForm => f(item)(Left((errorForm,VisibilityForm.form)))(userOpt)(request),

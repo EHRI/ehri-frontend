@@ -2,13 +2,7 @@ package models.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{DocumentaryUnitDescriptionF, Entity, IsadG}
-import models.DocumentaryUnitDescriptionF._
-import models.DocumentaryUnitDescriptionF.Materials
-import models.DocumentaryUnitDescriptionF.Context
-import models.DocumentaryUnitDescriptionF.Content
-import models.DocumentaryUnitDescriptionF.Conditions
-import models.json.AccessPointFormat
+import models._
 
 /**
  * IsadG description form.
@@ -29,13 +23,13 @@ object IsadGForm {
         ADMIN_BIOG -> optional(text),
         ARCH_HIST -> optional(text),
         ACQUISITION -> optional(text)
-      )(Context.apply)(Context.unapply),
+      )(IsadGContext.apply)(IsadGContext.unapply),
       CONTENT_AREA -> mapping(
         SCOPE_CONTENT -> optional(text),
         APPRAISAL -> optional(text),
         ACCRUALS -> optional(text),
         SYS_ARR -> optional(text)
-      )(Content.apply)(Content.unapply),
+      )(IsadGContent.apply)(IsadGContent.unapply),
       CONDITIONS_AREA -> mapping(
         ACCESS_COND -> optional(text),
         REPROD_COND -> optional(text),
@@ -43,19 +37,19 @@ object IsadGForm {
         SCRIPT_MATERIALS -> optional(list(nonEmptyText)),
         PHYSICAL_CHARS -> optional(text),
         FINDING_AIDS -> optional(text)
-      )(Conditions.apply)(Conditions.unapply),
+      )(IsadGConditions.apply)(IsadGConditions.unapply),
       MATERIALS_AREA -> mapping(
         LOCATION_ORIGINALS -> optional(text),
         LOCATION_COPIES -> optional(text),
         RELATED_UNITS -> optional(text),
         PUBLICATION_NOTE -> optional(text)
-      )(Materials.apply)(Materials.unapply),
+      )(IsadGMaterials.apply)(IsadGMaterials.unapply),
       NOTES -> optional(list(nonEmptyText)),
       CONTROL_AREA -> mapping(
         ARCHIVIST_NOTE -> optional(text),
         RULES_CONVENTIONS -> optional(text),
         DATES_DESCRIPTIONS -> optional(text)
-      )(Control.apply)(Control.unapply),
+      )(IsadGControl.apply)(IsadGControl.unapply),
       ACCESS_POINTS -> list(AccessPointForm.form.mapping)
     )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
   )

@@ -2,9 +2,7 @@ package models.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.Forms._
-import models.{RepositoryDescriptionF, AddressF, Isdiah, Entity}
-import models.RepositoryDescriptionF.{Control, Services, Access, Details}
+import models._
 
 /**
  * Isdiah description form.
@@ -30,17 +28,17 @@ object IsdiahForm {
         BUILDINGS -> optional(nonEmptyText),
         HOLDINGS -> optional(nonEmptyText),
         FINDING_AIDS -> optional(nonEmptyText)
-      )(Details.apply)(Details.unapply),
+      )(IsdiahDetails.apply)(IsdiahDetails.unapply),
       ACCESS_AREA -> mapping(
         OPENING_TIMES -> optional(text),
         CONDITIONS -> optional(text),
         ACCESSIBILITY -> optional(text)
-      )(Access.apply)(Access.unapply),
+      )(IsdiahAccess.apply)(IsdiahAccess.unapply),
       SERVICES_AREA -> mapping(
         RESEARCH_SERVICES -> optional(text),
         REPROD_SERVICES -> optional(text),
         PUBLIC_AREAS -> optional(text)
-      )(Services.apply)(Services.unapply),
+      )(IsdiahServices.apply)(IsdiahServices.unapply),
       CONTROL_AREA -> mapping(
         DESCRIPTION_IDENTIFIER -> optional(text),
         INSTITUTION_IDENTIFIER -> optional(text),
@@ -52,7 +50,7 @@ object IsdiahForm {
         SCRIPTS_USED -> optional(list(nonEmptyText)),
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
-      )(Control.apply)(Control.unapply)
+      )(IsdiahControl.apply)(IsdiahControl.unapply)
     )(RepositoryDescriptionF.apply)(RepositoryDescriptionF.unapply)
   )
 }

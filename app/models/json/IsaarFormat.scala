@@ -8,7 +8,7 @@ import defines.EnumUtils._
 import models.base.{TemporalEntity, Description}
 
 
-object IsaarFormat extends Convertable[HistoricalAgentDescriptionF] {
+object IsaarFormat {
   import Entity._
   import HistoricalAgentF._
   import AccessPointFormat._
@@ -68,7 +68,7 @@ object IsaarFormat extends Convertable[HistoricalAgentDescriptionF] {
         (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       ((__ \ RELATIONSHIPS \ TemporalEntity.DATE_REL).lazyRead[List[DatePeriodF]](
         Reads.list[DatePeriodF]) orElse Reads.pure(Nil)) and
-      (__ \ DATA).read[Details]((
+      (__ \ DATA).read[IsaarDetail]((
         (__ \ DATES_OF_EXISTENCE).readNullable[String] and
         (__ \ HISTORY).readNullable[String] and
         (__ \ PLACES).readNullable[String] and
@@ -77,8 +77,8 @@ object IsaarFormat extends Convertable[HistoricalAgentDescriptionF] {
         (__ \ MANDATES).readNullable[String] and
         (__ \ INTERNAL_STRUCTURE).readNullable[String] and
         (__ \ GENERAL_CONTEXT).readNullable[String]
-      )(Details.apply _)) and
-      (__ \ DATA).read[Control]((
+      )(IsaarDetail.apply _)) and
+      (__ \ DATA).read[IsaarControl]((
         (__ \ DESCRIPTION_IDENTIFIER).readNullable[String] and
         (__ \ INSTITUTION_IDENTIFIER).readNullable[String] and
         (__ \ RULES_CONVENTIONS).readNullable[String] and
@@ -90,7 +90,7 @@ object IsaarFormat extends Convertable[HistoricalAgentDescriptionF] {
         ((__ \ SOURCES).readNullable[List[String]] orElse
           (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
         (__ \ MAINTENANCE_NOTES).readNullable[String]
-      )(Control.apply _)) and
+      )(IsaarControl.apply _)) and
       ((__ \ RELATIONSHIPS \ Description.ACCESS_REL).lazyRead[List[AccessPointF]](
           Reads.list[AccessPointF]) orElse Reads.pure(Nil))
   )(HistoricalAgentDescriptionF.apply _)

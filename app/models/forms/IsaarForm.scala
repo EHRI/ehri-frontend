@@ -2,8 +2,7 @@ package models.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{Isaar, HistoricalAgentDescriptionF, Entity}
-import models.HistoricalAgentDescriptionF.{Control, Details}
+import models._
 
 /**
  * ISAAR description form.
@@ -30,7 +29,7 @@ object IsaarForm {
         MANDATES -> optional(text),
         INTERNAL_STRUCTURE -> optional(text),
         GENERAL_CONTEXT -> optional(text)
-      )(Details.apply)(Details.unapply),
+      )(IsaarDetail.apply)(IsaarDetail.unapply),
       CONTROL_AREA -> mapping(
         DESCRIPTION_IDENTIFIER -> optional(text),
         INSTITUTION_IDENTIFIER -> optional(text),
@@ -42,7 +41,7 @@ object IsaarForm {
         SCRIPTS_USED -> optional(list(nonEmptyText)),
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
-      )(Control.apply)(Control.unapply),
+      )(IsaarControl.apply)(IsaarControl.unapply),
       ACCESS_POINTS -> list(AccessPointForm.form.mapping)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )

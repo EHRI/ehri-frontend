@@ -9,7 +9,7 @@ import defines.EnumUtils._
 import base._
 
 import play.api.libs.json._
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 object HistoricalAgentF {
 
@@ -24,8 +24,9 @@ object HistoricalAgentF {
   lazy implicit val jsonFormat = json.HistoricalAgentFormat.restFormat
 
 
-  implicit object Converter extends Convertable[HistoricalAgentF] {
-    lazy val restFormat = models.json.HistoricalAgentFormat.restFormat
+  implicit object Converter extends RestConvertable[HistoricalAgentF] with ClientConvertable[HistoricalAgentF] {
+    lazy val restFormat = models.json.rest.historicalAgentFormat
+    lazy val clientFormat = models.json.client.historicalAgentFormat
   }
 }
 

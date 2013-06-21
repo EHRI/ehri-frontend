@@ -11,6 +11,8 @@ case object IsadG {
     val Subseries = Value("subseries")
     val File = Value("file")
     val Item = Value("item")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
 

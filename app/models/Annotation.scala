@@ -4,7 +4,7 @@ import base.{AnnotatableEntity, AccessibleEntity, Accessor, Formable}
 import models.base.Persistable
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 
 object AnnotationF {
@@ -17,13 +17,16 @@ object AnnotationF {
     type Type = Value
     val Comment = Value("comment")
     val Aggregation = Value("aggregation")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
   lazy implicit val annotationFormat: Format[AnnotationF] = json.AnnotationFormat.restFormat
 
 
-  implicit object Converter extends Convertable[AnnotationF] {
-    lazy val restFormat = models.json.AnnotationFormat.restFormat
+  implicit object Converter extends RestConvertable[AnnotationF] with ClientConvertable[AnnotationF] {
+    lazy val restFormat = models.json.rest.annotationFormat
+    lazy val clientFormat = models.json.client.annotationFormat
   }
 }
 

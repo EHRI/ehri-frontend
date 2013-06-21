@@ -7,6 +7,7 @@ import models._
 import rest.RestPageParams
 import controllers.ListParams
 import models.SystemEvent
+import models.json.ClientConvertable
 
 
 /**

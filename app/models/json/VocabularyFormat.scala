@@ -9,7 +9,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object VocabularyFormat extends Convertable[VocabularyF] {
+object VocabularyFormat {
   import models.VocabularyF._
   import models.Entity._
 

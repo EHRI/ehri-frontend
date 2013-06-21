@@ -9,7 +9,7 @@ import defines.EnumUtils._
 import play.api.libs
 
 
-object IsadGFormat extends Convertable[DocumentaryUnitDescriptionF] {
+object IsadGFormat {
   import Entity._
   import IsadG._
   import DatePeriodFormat._
@@ -68,18 +68,18 @@ object IsadGFormat extends Convertable[DocumentaryUnitDescriptionF] {
         Reads.list[DatePeriodF]) orElse Reads.pure(Nil)) and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[LevelOfDescription.Value] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String] and
-      (__ \ DATA).read[Context]((
+      (__ \ DATA).read[IsadGContext]((
         (__ \ ADMIN_BIOG).readNullable[String] and
           (__ \ ARCH_HIST).readNullable[String] and
           (__ \ ACQUISITION).readNullable[String]
-        )(Context.apply _)) and
-      (__ \ DATA).read[Content]((
+        )(IsadGContext.apply _)) and
+      (__ \ DATA).read[IsadGContent]((
         (__ \ SCOPE_CONTENT).readNullable[String] and
           (__ \ APPRAISAL).readNullable[String] and
           (__ \ ACCRUALS).readNullable[String] and
           (__ \ SYS_ARR).readNullable[String]
-        )(Content.apply _)) and
-      (__ \ DATA).read[Conditions]((
+        )(IsadGContent.apply _)) and
+      (__ \ DATA).read[IsadGConditions]((
         (__ \ ACCESS_COND).readNullable[String] and
           (__ \ REPROD_COND).readNullable[String] and
           ((__ \ LANG_MATERIALS).readNullable[List[String]] orElse
@@ -88,20 +88,20 @@ object IsadGFormat extends Convertable[DocumentaryUnitDescriptionF] {
             (__ \ SCRIPT_MATERIALS).readNullable[String].map(os => os.map(List(_))) ) and
           (__ \ PHYSICAL_CHARS).readNullable[String] and
           (__ \ FINDING_AIDS).readNullable[String]
-        )(Conditions.apply _)) and
-      (__ \ DATA).read[Materials]((
+        )(IsadGConditions.apply _)) and
+      (__ \ DATA).read[IsadGMaterials]((
         (__ \ LOCATION_ORIGINALS).readNullable[String] and
           (__ \ LOCATION_COPIES).readNullable[String] and
           (__ \ RELATED_UNITS).readNullable[String] and
           (__ \ PUBLICATION_NOTE).readNullable[String]
-        )(Materials.apply _)) and
+        )(IsadGMaterials.apply _)) and
       ((__ \ NOTES).readNullable[List[String]] orElse
         (__ \ NOTES).readNullable[String].map(os => os.map(List(_))) ) and
-      (__ \ DATA).read[Control]((
+      (__ \ DATA).read[IsadGControl]((
         (__ \ ARCHIVIST_NOTE).readNullable[String] and
           (__ \ RULES_CONVENTIONS).readNullable[String] and
           (__ \ DATES_DESCRIPTIONS).readNullable[String]
-        )(Control.apply _)) and
+        )(IsadGControl.apply _)) and
       ((__ \ RELATIONSHIPS \ Description.ACCESS_REL).lazyRead[List[AccessPointF]](
         Reads.list[AccessPointF]) orElse Reads.pure(Nil))
   )(DocumentaryUnitDescriptionF.apply _)

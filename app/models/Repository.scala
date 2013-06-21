@@ -10,7 +10,7 @@ import play.api.libs.json._
 import defines.EnumUtils._
 import models.base._
 import play.api.i18n.Lang
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 
 object RepositoryF {
@@ -24,8 +24,9 @@ object RepositoryF {
 
   implicit val repositoryFormat: Format[RepositoryF] = json.RepositoryFormat.restFormat
 
-  implicit object Converter extends Convertable[RepositoryF] {
-    lazy val restFormat = models.json.RepositoryFormat.restFormat
+  implicit object Converter extends RestConvertable[RepositoryF] with ClientConvertable[RepositoryF] {
+    lazy val restFormat = models.json.rest.repositoryFormat
+    lazy val clientFormat = models.json.client.repositoryFormat
   }
 }
 

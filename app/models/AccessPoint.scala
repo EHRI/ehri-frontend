@@ -5,7 +5,7 @@ import models.base._
 import defines.EntityType
 import play.api.libs.json.{Format, JsValue, Json}
 import java.util.NoSuchElementException
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 
 object AccessPointF {
@@ -23,12 +23,15 @@ object AccessPointF {
     val SubjectAccess = Value("subjectAccess")
     val PlaceAccess = Value("placeAccess")
     val Other = Value("otherAccess")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
   lazy implicit val accessPointFormat: Format[AccessPointF] = json.AccessPointFormat.restFormat
 
-  implicit object Converter extends Convertable[AccessPointF] {
-    lazy val restFormat = models.json.AccessPointFormat.restFormat
+  implicit object Converter extends RestConvertable[AccessPointF] with ClientConvertable[AccessPointF] {
+    lazy val restFormat = models.json.rest.accessPointFormat
+    lazy val clientFormat = models.json.client.accessPointFormat
   }
 }
 

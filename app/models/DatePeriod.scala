@@ -5,7 +5,7 @@ import org.joda.time.DateTime
 
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
-import models.json.Convertable
+import models.json.{ClientConvertable, RestConvertable}
 
 
 object DatePeriodF {
@@ -17,13 +17,16 @@ object DatePeriodF {
   object DatePeriodType extends Enumeration {
     type Type = Value
     val Creation = Value("creation")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
   lazy implicit val datePeriodFormat: Format[DatePeriodF] = json.DatePeriodFormat.restFormat
 
 
-  implicit object Converter extends Convertable[DatePeriodF] {
-    lazy val restFormat = models.json.DatePeriodFormat.restFormat
+  implicit object Converter extends RestConvertable[DatePeriodF] with ClientConvertable[DatePeriodF] {
+    lazy val restFormat = models.json.rest.datePeriodFormat
+    lazy val clientFormat = models.json.client.datePeriodFormat
   }
 }
 

@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object IsdiahFormat extends Convertable[RepositoryDescriptionF] {
+object IsdiahFormat {
 
   import AddressFormat._
   import Entity._
@@ -69,7 +69,7 @@ object IsdiahFormat extends Convertable[RepositoryDescriptionF] {
         (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       ((__ \ RELATIONSHIPS \ RepositoryF.ADDRESS_REL).lazyRead[List[AddressF]](Reads.list[AddressF])
           orElse Reads.pure(Nil)) and
-      (__ \ DATA).read[Details]((
+      (__ \ DATA).read[IsdiahDetails]((
         (__ \ HISTORY).readNullable[String] and
           (__ \ GEOCULTURAL_CONTEXT).readNullable[String] and
           (__ \ MANDATES).readNullable[String] and
@@ -78,18 +78,18 @@ object IsdiahFormat extends Convertable[RepositoryDescriptionF] {
           (__ \ BUILDINGS).readNullable[String] and
           (__ \ HOLDINGS).readNullable[String] and
           (__ \ FINDING_AIDS).readNullable[String]
-        )(Details.apply _)) and
-      (__ \ DATA).read[Access]((
+        )(IsdiahDetails.apply _)) and
+      (__ \ DATA).read[IsdiahAccess]((
         (__ \ OPENING_TIMES).readNullable[String] and
           (__ \ CONDITIONS).readNullable[String] and
           (__ \ ACCESSIBILITY).readNullable[String]
-        )(Access.apply _)) and
-      (__ \ DATA).read[Services]((
+        )(IsdiahAccess.apply _)) and
+      (__ \ DATA).read[IsdiahServices]((
         (__ \ RESEARCH_SERVICES).readNullable[String] and
           (__ \ REPROD_SERVICES).readNullable[String] and
           (__ \ PUBLIC_AREAS).readNullable[String]
-        )(Services.apply _)) and
-      (__ \ DATA).read[Control]((
+        )(IsdiahServices.apply _)) and
+      (__ \ DATA).read[IsdiahControl]((
         (__ \ DESCRIPTION_IDENTIFIER).readNullable[String] and
           (__ \ INSTITUTION_IDENTIFIER).readNullable[String] and
           (__ \ RULES_CONVENTIONS).readNullable[String] and
@@ -101,7 +101,7 @@ object IsdiahFormat extends Convertable[RepositoryDescriptionF] {
           ((__ \ SOURCES).readNullable[List[String]] orElse
             (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
           (__ \ MAINTENANCE_NOTES).readNullable[String]
-        )(Control.apply _))
+        )(IsdiahControl.apply _))
     )(RepositoryDescriptionF.apply _)
 
   implicit val restFormat: Format[RepositoryDescriptionF] = Format(isdiahReads, isdiahWrites)

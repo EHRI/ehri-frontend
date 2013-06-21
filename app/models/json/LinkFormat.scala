@@ -7,7 +7,7 @@ import models.LinkF
 import defines.EntityType
 import defines.EnumUtils._
 
-object LinkFormat extends Convertable[LinkF] {
+object LinkFormat {
   import models.LinkF._
   import models.Entity._
 
