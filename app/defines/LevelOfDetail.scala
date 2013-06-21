@@ -5,4 +5,6 @@ object LevelOfDetail extends Enumeration {
   val High = Value("high")
   val Medium = Value("medium")
   val Low = Value("low")
+
+  implicit val format = defines.EnumUtils.enumFormat(this)
 }

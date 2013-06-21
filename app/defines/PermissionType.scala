@@ -9,6 +9,8 @@ object PermissionType extends Enumeration {
 	val Grant = Value("grant")
 	val Annotate = Value("annotate")
 
+  implicit val format = defines.EnumUtils.enumFormat(this)
+
   /**
    * Unfortunately Scala enums can't have proper
    * methods/data so we have to use this hacky function
