@@ -7,7 +7,7 @@ import models._
 import defines.EntityType
 
 
-object AuthoritativeSetFormat {
+object AuthoritativeSetFormat extends JsonConverter[AuthoritativeSetF] {
   import models.AuthoritativeSetF._
   import models.Entity._
 
@@ -33,5 +33,5 @@ object AuthoritativeSetFormat {
       (__ \ DATA \ DESCRIPTION).readNullable[String]
     )(AuthoritativeSetF.apply _)
 
-  implicit val authoritativeSetFormat: Format[AuthoritativeSetF] = Format(authoritativeSetReads,authoritativeSetWrites)
+  implicit val restFormat: Format[AuthoritativeSetF] = Format(authoritativeSetReads,authoritativeSetWrites)
 }

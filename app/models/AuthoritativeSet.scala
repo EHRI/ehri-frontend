@@ -4,7 +4,7 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import defines.EnumUtils.enumWrites
 
 
@@ -13,7 +13,7 @@ object AuthoritativeSetF {
   val NAME = "name"
   val DESCRIPTION = "description"
 
-  lazy implicit val authoritativeSetFormat = json.AuthoritativeSetFormat.authoritativeSetFormat
+  lazy implicit val authoritativeSetFormat: Format[AuthoritativeSetF] = json.AuthoritativeSetFormat.restFormat
 }
 
 case class AuthoritativeSetF(

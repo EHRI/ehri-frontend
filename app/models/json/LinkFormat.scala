@@ -7,7 +7,7 @@ import models.LinkF
 import defines.EntityType
 import defines.EnumUtils._
 
-object LinkFormat {
+object LinkFormat extends JsonConverter[LinkF] {
   import models.LinkF._
   import models.Entity._
 
@@ -34,5 +34,5 @@ object LinkFormat {
       (__ \ DATA \ DESCRIPTION).readNullable[String]
     )(LinkF.apply _)
 
-  implicit val linkFormat: Format[LinkF] = Format(linkReads,linkWrites)
+  implicit val restFormat: Format[LinkF] = Format(linkReads,linkWrites)
 }

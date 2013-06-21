@@ -4,11 +4,11 @@ import defines.EntityType
 import models.base.Formable
 import models.base.Description
 import models.base.Persistable
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import models.base.DescribedEntity
 
 object ConceptDescriptionF {
-  lazy implicit val conceptDescriptionFormat = json.ConceptDescriptionFormat.conceptDescriptionFormat
+  lazy implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = json.ConceptDescriptionFormat.restFormat
 }
 
 case class ConceptDescriptionF(

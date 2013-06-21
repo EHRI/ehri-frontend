@@ -21,7 +21,7 @@ object RepositoryF {
   val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
 
-  implicit val repositoryFormat = json.RepositoryFormat.repositoryFormat
+  implicit val repositoryFormat: Format[RepositoryF] = json.RepositoryFormat.restFormat
 }
 
 case class RepositoryF(

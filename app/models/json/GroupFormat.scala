@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object GroupFormat {
+object GroupFormat extends JsonConverter[GroupF] {
   import models.GroupF._
   import models.Entity._
 
@@ -34,5 +34,5 @@ object GroupFormat {
       (__ \ DATA \ DESCRIPTION).readNullable[String]
     )(GroupF.apply _)
 
-  implicit val groupFormat: Format[GroupF] = Format(groupReads,groupWrites)
+  implicit val restFormat: Format[GroupF] = Format(groupReads,groupWrites)
 }

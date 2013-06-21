@@ -5,7 +5,7 @@ import base._
 import models.base.Persistable
 import models.base.DescribedEntity
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import play.api.i18n.Lang
 
 object ConceptF {
@@ -21,7 +21,7 @@ object ConceptF {
     type Type = Value
   }
 
-  implicit val conceptFormat = json.ConceptFormat.conceptFormat
+  implicit val conceptFormat: Format[ConceptF] = json.ConceptFormat.restFormat
 }
 
 case class ConceptF(

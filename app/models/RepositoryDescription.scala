@@ -41,7 +41,7 @@ object RepositoryDescriptionF {
     maintenanceNotes: Option[String] = None
     ) extends AttributeSet
 
-  lazy implicit val repositoryDescriptionFormat = json.IsdiahFormat.isdiahFormat
+  lazy implicit val repositoryDescriptionFormat = json.IsdiahFormat.restFormat
 }
 
 

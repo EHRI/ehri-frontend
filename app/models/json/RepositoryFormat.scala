@@ -10,7 +10,7 @@ import models._
 import defines.EnumUtils._
 
 
-object RepositoryFormat {
+object RepositoryFormat extends JsonConverter[RepositoryF] {
   import models.json.IsdiahFormat._
   import models.Entity._
   import models.RepositoryF._
@@ -47,5 +47,5 @@ object RepositoryFormat {
       (__ \ DATA \ PRIORITY).readNullable[Int]
     )(RepositoryF.apply _)
 
-  implicit val repositoryFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
+  implicit val restFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
 }

@@ -20,7 +20,7 @@ object HistoricalAgentF {
 
   val PUBLICATION_STATUS = "publicationStatus"
 
-  lazy implicit val jsonFormat = json.HistoricalAgentFormat.historicalAgentFormat
+  lazy implicit val jsonFormat = json.HistoricalAgentFormat.restFormat
 }
 
 case class HistoricalAgentF(

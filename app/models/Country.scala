@@ -4,13 +4,13 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import defines.EnumUtils.enumWrites
 import play.api.i18n.Lang
 import java.util.Locale
 
 object CountryF {
-  lazy implicit val countryFormat = json.CountryFormat.countryFormat
+  lazy implicit val countryFormat: Format[CountryF] = json.CountryFormat.restFormat
 }
 
 case class CountryF(

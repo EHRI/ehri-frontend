@@ -2,7 +2,7 @@ package models
 
 import models.base._
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 object GroupF {
 
@@ -11,7 +11,7 @@ object GroupF {
   val NAME = "name"
   val DESCRIPTION = "description"
 
-  lazy implicit val groupFormat = json.GroupFormat.groupFormat
+  lazy implicit val groupFormat: Format[GroupF] = json.GroupFormat.restFormat
 }
 
 case class GroupF(

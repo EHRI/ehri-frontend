@@ -9,7 +9,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object VocabularyFormat {
+object VocabularyFormat extends JsonConverter[VocabularyF] {
   import models.VocabularyF._
   import models.Entity._
 
@@ -35,7 +35,7 @@ object VocabularyFormat {
       (__ \ DATA \ DESCRIPTION).readNullable[String]
     )(VocabularyF.apply _)
 
-  implicit val vocabularyFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
+  implicit val restFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
 }
 
 //object VocabularyMetaReads {

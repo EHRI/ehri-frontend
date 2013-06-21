@@ -9,7 +9,7 @@ import defines.EnumUtils._
 import play.api.libs
 
 
-object IsadGFormat {
+object IsadGFormat extends JsonConverter[DocumentaryUnitDescriptionF] {
   import Entity._
   import IsadG._
   import DatePeriodFormat._
@@ -106,5 +106,5 @@ object IsadGFormat {
         Reads.list[AccessPointF]) orElse Reads.pure(Nil))
   )(DocumentaryUnitDescriptionF.apply _)
 
-  implicit val isadGFormat: Format[DocumentaryUnitDescriptionF] = Format(isadGReads,isadGWrites)
+  implicit val restFormat: Format[DocumentaryUnitDescriptionF] = Format(isadGReads,isadGWrites)
 }

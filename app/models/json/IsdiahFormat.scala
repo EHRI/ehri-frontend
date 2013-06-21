@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object IsdiahFormat {
+object IsdiahFormat extends JsonConverter[RepositoryDescriptionF] {
 
   import AddressFormat._
   import Entity._
@@ -104,5 +104,5 @@ object IsdiahFormat {
         )(Control.apply _))
     )(RepositoryDescriptionF.apply _)
 
-  implicit val isdiahFormat: Format[RepositoryDescriptionF] = Format(isdiahReads, isdiahWrites)
+  implicit val restFormat: Format[RepositoryDescriptionF] = Format(isdiahReads, isdiahWrites)
 }

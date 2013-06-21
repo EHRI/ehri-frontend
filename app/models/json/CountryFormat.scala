@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object CountryFormat {
+object CountryFormat extends JsonConverter[CountryF] {
   import models.Entity._
 
   implicit val countryWrites: Writes[CountryF] = new Writes[CountryF] {
@@ -29,5 +29,5 @@ object CountryFormat {
       (__ \ DATA \ IDENTIFIER).read[String]
     )(CountryF.apply _)
 
-  implicit val countryFormat: Format[CountryF] = Format(countryReads,countryWrites)
+  implicit val restFormat: Format[CountryF] = Format(countryReads,countryWrites)
 }

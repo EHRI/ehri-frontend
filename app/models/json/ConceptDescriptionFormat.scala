@@ -7,7 +7,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object ConceptDescriptionFormat {
+object ConceptDescriptionFormat extends JsonConverter[ConceptDescriptionF] {
   import Entity._
   import ConceptF._
 
@@ -38,5 +38,5 @@ object ConceptDescriptionFormat {
       (__ \ DATA \ SCOPENOTE).readNullable[List[String]]
   )(ConceptDescriptionF.apply _)
 
-  implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
+  implicit val restFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
 }

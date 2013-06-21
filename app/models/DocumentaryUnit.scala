@@ -31,7 +31,7 @@ object DocumentaryUnitF {
   final val HELD_REL = "heldBy"
   final val CHILD_REL = "childOf"
 
-  lazy implicit val jsonFormat = json.DocumentaryUnitFormat.documentaryUnitFormat
+  lazy implicit val restFormat = json.DocumentaryUnitFormat.restFormat
 }
 
 case class DocumentaryUnitF(

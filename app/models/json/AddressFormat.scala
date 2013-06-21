@@ -7,7 +7,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object AddressFormat {
+object AddressFormat extends JsonConverter[AddressF] {
   import AddressF._
   import Entity._
   import Isdiah._
@@ -52,6 +52,6 @@ object AddressFormat {
     (__ \ DATA \ URL).readNullable[String]
   )(AddressF.apply _)
 
-  implicit val addressFormat: Format[AddressF] = Format(addressReads,addressWrites)
+  implicit val restFormat: Format[AddressF] = Format(addressReads,addressWrites)
 
 }

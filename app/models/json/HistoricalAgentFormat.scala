@@ -11,7 +11,7 @@ import play.api.data.validation.ValidationError
 import defines.EnumUtils._
 
 
-object HistoricalAgentFormat {
+object HistoricalAgentFormat extends JsonConverter[HistoricalAgentF] {
   import models.json.IsaarFormat._
   import models.Entity._
   import models.HistoricalAgentF._
@@ -43,5 +43,5 @@ object HistoricalAgentFormat {
         Reads.list[HistoricalAgentDescriptionF])
     )(HistoricalAgentF.apply _)
 
-  implicit val historicalAgentFormat: Format[HistoricalAgentF] = Format(actorReads,actorWrites)
+  implicit val restFormat: Format[HistoricalAgentF] = Format(actorReads,actorWrites)
 }

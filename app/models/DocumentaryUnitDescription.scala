@@ -43,7 +43,7 @@ object DocumentaryUnitDescriptionF {
     datesOfDescriptions: Option[String] = None
     )
 
-  lazy implicit val documentaryUnitDescriptionFormat = json.IsadGFormat.isadGFormat
+  lazy implicit val documentaryUnitDescriptionFormat = json.IsadGFormat.restFormat
 }
 
 case class DocumentaryUnitDescriptionF(

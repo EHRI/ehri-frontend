@@ -8,7 +8,7 @@ import defines.EnumUtils._
 import models.base.{TemporalEntity, Description}
 
 
-object IsaarFormat {
+object IsaarFormat extends JsonConverter[HistoricalAgentDescriptionF] {
   import Entity._
   import HistoricalAgentF._
   import AccessPointFormat._
@@ -95,5 +95,5 @@ object IsaarFormat {
           Reads.list[AccessPointF]) orElse Reads.pure(Nil))
   )(HistoricalAgentDescriptionF.apply _)
 
-  implicit val isaarFormat: Format[HistoricalAgentDescriptionF] = Format(isaarReads,isaarWrites)
+  implicit val restFormat: Format[HistoricalAgentDescriptionF] = Format(isaarReads,isaarWrites)
 }

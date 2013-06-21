@@ -7,7 +7,7 @@ import models.AnnotationF
 import defines.EntityType
 import defines.EnumUtils._
 
-object AnnotationFormat {
+object AnnotationFormat extends JsonConverter[AnnotationF] {
   import AnnotationF._
   import models.Entity._
 
@@ -38,5 +38,5 @@ object AnnotationFormat {
       (__ \ DATA \ COMMENT).readNullable[String]
     )(AnnotationF.apply _)
 
-  implicit val annotationFormat: Format[AnnotationF] = Format(annotationReads,annotationWrites)
+  implicit val restFormat: Format[AnnotationF] = Format(annotationReads,annotationWrites)
 }

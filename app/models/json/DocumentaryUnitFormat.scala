@@ -11,7 +11,7 @@ import models.base.DescribedEntity
 import models.{DocumentaryUnitDescriptionF, DocumentaryUnitF}
 
 
-object DocumentaryUnitFormat {
+object DocumentaryUnitFormat extends JsonConverter[DocumentaryUnitF] {
   import models.json.IsadGFormat._
   import models.Entity._
   import models.DocumentaryUnitF._
@@ -49,5 +49,5 @@ object DocumentaryUnitFormat {
         Reads.list[DocumentaryUnitDescriptionF])
     )(DocumentaryUnitF.apply _)
 
-  implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
+  implicit val restFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
 }

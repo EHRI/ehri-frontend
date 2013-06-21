@@ -2,7 +2,7 @@ package models
 
 import models.base._
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import models.LinkF.LinkType
 
 
@@ -19,7 +19,7 @@ object LinkF {
     val Temporal = Value("temporal")
   }
 
-  lazy implicit val linkFormat = json.LinkFormat.linkFormat
+  lazy implicit val linkFormat: Format[LinkF] = json.LinkFormat.restFormat
 }
 
 case class LinkF(

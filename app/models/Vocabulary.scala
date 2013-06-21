@@ -4,7 +4,7 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import defines.EnumUtils.enumWrites
 
 object VocabularyType extends Enumeration {
@@ -15,7 +15,7 @@ object VocabularyF {
   val NAME = "name"
   val DESCRIPTION = "description"
 
-  lazy implicit val vocabularyFormat = json.VocabularyFormat.vocabularyFormat
+  lazy implicit val vocabularyFormat: Format[VocabularyF] = json.VocabularyFormat.restFormat
 }
 
 

@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object AccessPointFormat {
+object AccessPointFormat extends JsonConverter[AccessPointF] {
   import Entity.{TYPE => ETYPE,_}
   import AccessPointF._
 
@@ -39,5 +39,5 @@ object AccessPointFormat {
     }
   }
 
-  implicit val accessPointFormat: Format[AccessPointF] = Format(accessPointReads,accessPointWrites)
+  implicit val restFormat: Format[AccessPointF] = Format(accessPointReads,accessPointWrites)
 }

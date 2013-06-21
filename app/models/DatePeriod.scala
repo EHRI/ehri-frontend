@@ -4,7 +4,7 @@ import models.base.Formable
 import org.joda.time.DateTime
 
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 
 object DatePeriodF {
@@ -18,7 +18,7 @@ object DatePeriodF {
     val Creation = Value("creation")
   }
 
-  lazy implicit val datePeriodFormat = json.DatePeriodFormat.datePeriodFormat
+  lazy implicit val datePeriodFormat: Format[DatePeriodF] = json.DatePeriodFormat.restFormat
 }
 
 case class DatePeriodF(

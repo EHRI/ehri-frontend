@@ -6,7 +6,7 @@ import models.base._
 
 import base.Persistable
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import defines.EnumUtils.enumWrites
 
 
@@ -21,7 +21,7 @@ object UserProfileF {
   val ABOUT = "about"
   val LANGUAGES = "languages"
 
-  lazy implicit val userProfileFormat = json.UserProfileFormat.userProfileFormat
+  lazy implicit val userProfileFormat: Format[UserProfileF] = json.UserProfileFormat.restFormat
 }
 
 case class UserProfileF(

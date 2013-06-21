@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object UserProfileFormat {
+object UserProfileFormat extends JsonConverter[UserProfileF] {
   import models.UserProfileF._
   import models.Entity._
 
@@ -38,5 +38,5 @@ object UserProfileFormat {
       (__ \ DATA \ LANGUAGES).readNullable[List[String]]
     )(UserProfileF.apply _)
 
-  implicit val userProfileFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
+  implicit val restFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
 }

@@ -3,7 +3,7 @@ package models
 import base.{AnnotatableEntity, AccessibleEntity, Accessor, Formable}
 import models.base.Persistable
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 
 object AnnotationF {
@@ -18,7 +18,7 @@ object AnnotationF {
     val Aggregation = Value("aggregation")
   }
 
-  lazy implicit val annotationFormat = json.AnnotationFormat.annotationFormat
+  lazy implicit val annotationFormat: Format[AnnotationF] = json.AnnotationFormat.restFormat
 }
 
 case class AnnotationF(

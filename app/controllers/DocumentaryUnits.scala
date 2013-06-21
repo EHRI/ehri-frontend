@@ -371,8 +371,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def getAccessPointsJson(id: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
 
-    import models.json.AccessPointFormat.accessPointFormat
-    import models.json.LinkFormat.linkFormat
     import models.json.entityTypeFormat
 
     implicit val targetWrites = Json.format[Target]

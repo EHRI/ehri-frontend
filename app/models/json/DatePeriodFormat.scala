@@ -8,7 +8,7 @@ import defines.EntityType
 import defines.EnumUtils._
 
 
-object DatePeriodFormat {
+object DatePeriodFormat extends JsonConverter[DatePeriodF] {
   import Entity.{TYPE => ETYPE,_}
   import DatePeriodF._
 
@@ -37,5 +37,5 @@ object DatePeriodFormat {
     }
   }
 
-  implicit val datePeriodFormat: Format[DatePeriodF] = Format(datePeriodReads,datePeriodWrites)
+  implicit val restFormat: Format[DatePeriodF] = Format(datePeriodReads,datePeriodWrites)
 }

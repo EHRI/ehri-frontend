@@ -3,7 +3,7 @@ package models
 import models.base._
 
 import defines.EntityType
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{Format, JsValue, Json}
 import java.util.NoSuchElementException
 
 
@@ -24,7 +24,7 @@ object AccessPointF {
     val Other = Value("otherAccess")
   }
 
-  lazy implicit val accessPointFormat = json.AccessPointFormat.accessPointFormat
+  lazy implicit val accessPointFormat: Format[AccessPointF] = json.AccessPointFormat.restFormat
 }
 
 case class AccessPointF(

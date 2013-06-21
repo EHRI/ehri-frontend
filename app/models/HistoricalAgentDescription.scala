@@ -30,7 +30,7 @@ object HistoricalAgentDescriptionF {
     maintenanceNotes: Option[String] = None
     ) extends AttributeSet
 
-  lazy implicit val historicalAgentDescriptionFormat = json.IsaarFormat.isaarFormat
+  lazy implicit val historicalAgentDescriptionFormat = json.IsaarFormat.restFormat
 }
 
 case class HistoricalAgentDescriptionF(
