@@ -129,8 +129,6 @@ trait Persistable {
   def id: Option[String]
   def isA: EntityType.Value
 
-  def toJson: JsValue
-
   /**
    * Map a tree of errors from the server into form errors.
    * 

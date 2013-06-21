@@ -2,6 +2,7 @@ package models.json
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import play.api.libs.functional._
 
 import models._
 import defines.EntityType
@@ -36,3 +37,11 @@ object VocabularyFormat {
 
   implicit val vocabularyFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
 }
+
+//object VocabularyMetaReads {
+//  import models.Entity._
+//  implicit val vocabularyMetaReads: Reads[VocabularyMeta] = (
+//    (__ \ ID).read[String] and
+//    __.read[VocabularyF](VocabularyFormat.vocabularyReads)
+//  )(VocabularyMeta.apply _)
+//}

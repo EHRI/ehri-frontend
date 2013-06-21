@@ -26,8 +26,6 @@ case class VocabularyF(
   val description: Option[String]
 ) extends Persistable {
   val isA = EntityType.Vocabulary
-
-  def toJson = Json.toJson(this)
 }
 
 

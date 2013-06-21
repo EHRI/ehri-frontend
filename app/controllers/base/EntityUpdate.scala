@@ -10,6 +10,7 @@ import defines.PermissionType
 import models.{UserProfile, Entity}
 import play.api.Logger
 import play.api.data.FormError
+import play.api.libs.json.Writes
 
 /**
  * Controller trait which updates an AccessibleEntity.
@@ -25,7 +26,8 @@ trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] ext
     }
   }
 
-  def updatePostAction(id: String, form: Form[F])(f: Entity => Either[Form[F],Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def updatePostAction(id: String, form: Form[F])(f: Entity => Either[Form[F],Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
+    implicit ow: Writes[F]) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
 
       form.bindFromRequest.fold(

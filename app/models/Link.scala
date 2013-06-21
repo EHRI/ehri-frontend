@@ -28,8 +28,6 @@ case class LinkF(
   val description: Option[String]
 ) extends Persistable {
   val isA = EntityType.Link
-
-  def toJson = Json.toJson(this)
 }
 
 

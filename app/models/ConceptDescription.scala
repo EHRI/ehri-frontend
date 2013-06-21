@@ -20,8 +20,6 @@ case class ConceptDescriptionF(
   val scopeNote: Option[List[String]] = None
 ) extends Persistable {
   val isA = EntityType.ConceptDescription
-
-  def toJson = Json.toJson(this)
 }
 
 

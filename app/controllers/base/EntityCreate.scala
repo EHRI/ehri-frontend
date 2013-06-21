@@ -9,6 +9,7 @@ import defines.PermissionType
 import models.{Entity, UserProfile}
 import models.forms.VisibilityForm
 import rest.EntityDAO
+import play.api.libs.json.Writes
 
 /**
  * Controller trait for creating AccessibleEntities.
@@ -33,7 +34,8 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
     }
   }
 
-  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
+      implicit ow: Writes[F]) = {
     withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),

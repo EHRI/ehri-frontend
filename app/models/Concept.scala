@@ -30,8 +30,6 @@ case class ConceptF(
   @Annotations.Relation(DescribedEntity.DESCRIBES_REL) val descriptions: List[ConceptDescriptionF] = Nil
 ) extends Persistable {
   val isA = EntityType.Concept
-
-  def toJson = Json.toJson(this)
 }
 
 object Concept {

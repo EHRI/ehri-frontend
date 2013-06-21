@@ -3,7 +3,7 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
-import play.api.libs.json.{ JsArray, JsValue }
+import play.api.libs.json.{Json, Writes, JsArray, JsValue}
 import defines.{EntityType,ContentType}
 import models.Entity
 import models.UserProfile
@@ -26,11 +26,11 @@ case class DescriptionDAO(entityType: EntityType.Type, userProfile: Option[UserP
 
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
-  def createDescription(id: String, item: Persistable,
-      logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
+  def createDescription[DT](id: String, item: DT,
+      logMsg: Option[String] = None)(implicit ow: Writes[DT]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-        .post(item.toJson).flatMap { response =>
+        .post(Json.toJson(item)).flatMap { response =>
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
@@ -47,9 +47,10 @@ case class DescriptionDAO(entityType: EntityType.Type, userProfile: Option[UserP
     }
   }
 
-  def updateDescription(id: String, did: String, item: Persistable, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
+  def updateDescription[DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
+      implicit ow: Writes[DT]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-        .put(item.toJson).flatMap { response =>
+        .put(Json.toJson(item)).flatMap { response =>
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
@@ -81,11 +82,11 @@ case class DescriptionDAO(entityType: EntityType.Type, userProfile: Option[UserP
   }
 
   // FIXME: Move these elsewhere...
-  def createAccessPoint(id: String, did: String, item: Persistable,
-                        logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
+  def createAccessPoint[DT](id: String, did: String, item: DT,
+                        logMsg: Option[String] = None)(implicit ow: Writes[DT]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-        .post(item.toJson).flatMap { response =>
+        .post(Json.toJson(item)).flatMap { response =>
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {

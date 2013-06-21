@@ -21,8 +21,6 @@ case class GroupF(
   val description: Option[String] = None
 ) extends Persistable {
   val isA = EntityType.Group
-
-  def toJson = Json.toJson(this)
 }
 
 

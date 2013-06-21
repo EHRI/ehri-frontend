@@ -29,8 +29,6 @@ case class AnnotationF(
   val comment: Option[String] = None
 ) extends Persistable {
   val isA = EntityType.Annotation
-
-  def toJson = Json.toJson(this)
 }
 
 

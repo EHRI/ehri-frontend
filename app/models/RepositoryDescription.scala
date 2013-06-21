@@ -58,8 +58,6 @@ case class RepositoryDescriptionF(
   control: RepositoryDescriptionF.Control
   ) extends Persistable {
   val isA = EntityType.RepositoryDescription
-
-  def toJson: JsValue = Json.toJson(this)
 }
 
 

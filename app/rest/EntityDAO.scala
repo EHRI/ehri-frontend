@@ -3,7 +3,7 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Writes, Json, JsValue}
 import defines.{EntityType,ContentType}
 import models.Entity
 import models.UserProfile
@@ -139,10 +139,14 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
 
   import EntityDAO._
   import play.api.http.Status._
-  import Entity.entityReads
+
+  // Import Json formats for REST server
+  import models.json.rest._
+
+  implicit val entityReads = Entity.entityReads
 
   // Implicit reader for pages of items
-  implicit val entityPageReads = PageReads.pageReads
+  implicit val entityPageReads = PageReads.pageReads[Entity]
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
@@ -169,38 +173,38 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def create(item: Persistable, accessors: List[String] = Nil,
+  def create[PT](item: PT, accessors: List[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
-      logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
+      logMsg: Option[String] = None)(implicit ow: Writes[PT]): Future[Either[RestError, Entity]] = {
     val qs = utils.joinQueryString(params)
     val url = enc(requestUrl, "?%s".format(
         (accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}") ++ List(qs)).mkString("&")))
     Logger.logger.debug("CREATE {} ", url)
     WS.url(url)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .post(item.toJson).map { response =>
+      .post(Json.toJson(item)).map { response =>
         checkError(response).right.map(r => EntityDAO.handleCreate(jsonToEntity(r.json)))
     }
   }
 
-  def createInContext(id: String, contentType: ContentType.Value,
-      item: Persistable, accessors: List[String] = Nil,
-      logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
+  def createInContext[PT](id: String, contentType: ContentType.Value,
+      item: PT, accessors: List[String] = Nil,
+      logMsg: Option[String] = None)(implicit ow: Writes[PT]): Future[Either[RestError, Entity]] = {
     val url = enc(requestUrl, id, contentType, "?%s".format(
         accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&")))
     Logger.logger.debug("CREATE-IN {} ", url)
     WS.url(url)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .post(item.toJson).map { response =>
+      .post(Json.toJson(item)).map { response =>
         checkError(response).right.map(r => EntityDAO.handleCreate(jsonToEntity(r.json)))
     }
   }
 
-  def update(id: String, item: Persistable, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
+  def update[PT](id: String, item: PT, logMsg: Option[String] = None)(implicit ow: Writes[PT]): Future[Either[RestError, Entity]] = {
     val url = enc(requestUrl, id)
     Logger.logger.debug("UPDATE: {}", url)
     WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .put(item.toJson).map { response =>
+      .put(Json.toJson(item)).map { response =>
         checkError(response).right.map { r =>
           val entity = jsonToEntity(r.json)
           EntityDAO.handleUpdate(entity)
@@ -270,7 +274,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   }
 
   def pageChildren(id: String, params: RestPageParams = RestPageParams()): Future[Either[RestError, Page[Entity]]] = {
-    implicit val entityPageReads = PageReads.pageReads
+    implicit val entityPageReads = PageReads.pageReads[Entity]
     WS.url(enc(requestUrl, id, "page" + params.toString))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>

@@ -18,8 +18,6 @@ case class CountryF(
   val identifier: String
 ) extends Persistable {
   val isA = EntityType.Country
-
-  def toJson = Json.toJson(this)
 }
 
 

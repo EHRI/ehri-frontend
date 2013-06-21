@@ -48,7 +48,7 @@ case class AnnotationDAO(userProfile: Option[UserProfile] = None) extends RestDA
 
   def create(id: String, ann: AnnotationF): Future[Either[RestError, Annotation]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
-      .post(ann.toJson).map { response =>
+      .post(Json.toJson(ann)).map { response =>
       checkError(response).right.map(r => Annotation(jsonToEntity(r.json)))
     }
   }

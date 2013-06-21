@@ -32,8 +32,6 @@ case class RepositoryF(
   priority: Option[Int] = None
 ) extends Persistable {
   val isA = EntityType.Repository
-
-  def toJson: JsValue = Json.toJson(this)
 }
 
 

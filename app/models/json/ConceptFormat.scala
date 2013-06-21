@@ -38,3 +38,16 @@ object ConceptFormat {
 
   implicit val conceptFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
 }
+
+//object ConceptMetaFormat {
+//  import models.Entity._
+//  import VocabularyMetaReads.vocabularyMetaReads
+//
+//  implicit val conceptMetaReads: Reads[ConceptMeta] = (
+//    (__ \ ID).read[String] and
+//    (__).read[ConceptF] and
+//      ((__ \ RELATIONSHIPS \ Concept.IN_SET_REL).lazyRead(Reads.list[VocabularyMeta])
+//        orElse Reads.pure(Nil)) and
+//      ((__ \ RELATIONSHIPS \ Concept.BT_REL).lazyRead(Reads.list[ConceptMeta]) orElse Reads.pure(Nil))
+//  )(ConceptMeta.apply _)
+//}

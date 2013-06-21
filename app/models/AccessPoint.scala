@@ -34,8 +34,6 @@ case class AccessPointF(
   val description: Option[String] = None
 ) extends Persistable {
   val isA = EntityType.AccessPoint
-
-  def toJson: JsValue = Json.toJson(this)
 }
 
 

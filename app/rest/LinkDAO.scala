@@ -5,6 +5,7 @@ import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
 import defines.EntityType
 import models._
+import play.api.libs.json.Json
 
 
 /**
@@ -51,13 +52,13 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
    * Create a single link.
    * @param id
    * @param src
-   * @param ann
+   * @param link
    * @return
    */
-  def link(id: String, src: String, ann: LinkF, accessPoint: Option[String] = None): Future[Either[RestError, Link]] = {
+  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None): Future[Either[RestError, Link]] = {
     WS.url(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
       .withHeaders(authHeaders.toSeq: _*)
-      .post(ann.toJson).map { response =>
+      .post(Json.toJson(link)).map { response =>
       checkError(response).right.map(r => Link(jsonToEntity(r.json)))
     }
   }

@@ -23,8 +23,6 @@ case class AuthoritativeSetF(
   val description: Option[String]
 ) extends Persistable {
   val isA = EntityType.AuthoritativeSet
-
-  def toJson = Json.toJson(this)
 }
 
 

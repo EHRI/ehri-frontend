@@ -9,7 +9,7 @@ import play.api.data.Form
 import rest.LinkDAO
 import models.forms.LinkForm
 import play.api.mvc.Result
-import play.api.libs.json.{JsError, Json}
+import play.api.libs.json.{Writes, JsError, Json}
 import solr.SearchParams
 import solr.facet.AppliedFacet
 import play.api.Play.current
@@ -78,6 +78,9 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
 
   def linkPostAction(id: String, toType: String, to: String)(
       f: Either[(LinkableEntity, LinkableEntity,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
+
+    implicit val linkWrites: Writes[LinkF] = models.json.rest.linkFormat
+
     withItemPermission(id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       LinkForm.form.bindFromRequest.fold(
@@ -121,7 +124,7 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
   def linkPostMultiAction(id: String)(
       f: Either[(LinkableEntity,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      println("Form data: " + request.body.asFormUrlEncoded)
+      implicit val linkWrites: Writes[LinkF] = models.json.rest.linkFormat
       val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...

@@ -32,7 +32,7 @@ object DocumentaryUnitFormat {
           SCOPE -> d.scope
         ),
         RELATIONSHIPS -> Json.obj(
-          DESC_REL -> Json.toJson(d.descriptions.map(_.toJson).toSeq)
+          DESC_REL -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
         )
       )
     }

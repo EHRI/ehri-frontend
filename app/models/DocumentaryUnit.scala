@@ -72,8 +72,6 @@ case class DocumentaryUnitF(
   } getOrElse {
     withDescription(d)
   }
-
-  def toJson: JsValue = Json.toJson(this)
 }
 
 

@@ -30,8 +30,6 @@ case class HistoricalAgentF(
   @Annotations.Relation(HistoricalAgentF.DESC_REL) descriptions: List[HistoricalAgentDescriptionF] = Nil
 ) extends Persistable {
   val isA = EntityType.HistoricalAgent
-
-  def toJson: JsValue = Json.toJson(this)
 }
 
 case class HistoricalAgent(val e: Entity)

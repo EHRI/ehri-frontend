@@ -63,8 +63,6 @@ case class DocumentaryUnitDescriptionF(
   accessPoints: List[AccessPointF]
   ) extends Persistable {
   val isA = EntityType.DocumentaryUnitDescription
-
-  def toJson: JsValue = Json.toJson(this)
 }
 
 case class DocumentaryUnitDescription(val e: Entity)

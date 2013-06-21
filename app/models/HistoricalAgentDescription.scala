@@ -47,8 +47,6 @@ case class HistoricalAgentDescriptionF(
   accessPoints: List[AccessPointF]
   ) extends Persistable {
   val isA = EntityType.HistoricalAgentDescription
-
-  def toJson: JsValue = Json.toJson(this)
 }
 
 case class HistoricalAgentDescription(val e: Entity)

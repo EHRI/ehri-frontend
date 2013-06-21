@@ -33,8 +33,6 @@ case class UserProfileF(
   val languages: Option[List[String]] = None
 ) extends Persistable {
   val isA = EntityType.UserProfile
-
-  def toJson = Json.toJson(this)
 }
 
 
