@@ -43,8 +43,6 @@ case class IsdiahControl(
 
 object RepositoryDescriptionF {
 
-  lazy implicit val repositoryDescriptionFormat = json.IsdiahFormat.restFormat
-
   implicit object Converter extends RestConvertable[RepositoryDescriptionF] with ClientConvertable[RepositoryDescriptionF] {
     lazy val restFormat = models.json.rest.isdiahFormat
     lazy val clientFormat = models.json.client.isdiahFormat
@@ -76,6 +74,6 @@ case class RepositoryDescription(val e: Entity) extends Description with Formabl
   lazy val item: Option[Repository] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(Repository(_))
   def addresses: List[Address] = e.relations(RepositoryF.ADDRESS_REL).map(Address(_))
 
-  lazy val formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF]
-  lazy val formableOpt: Option[RepositoryDescriptionF] = Json.toJson(e).asOpt[RepositoryDescriptionF]
+  lazy val formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF](json.IsdiahFormat.restFormat)
+  lazy val formableOpt: Option[RepositoryDescriptionF] = Json.toJson(e).asOpt[RepositoryDescriptionF](json.IsdiahFormat.restFormat)
 }

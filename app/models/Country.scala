@@ -52,3 +52,9 @@ case class Country(e: Entity)
     case _ => id
   }
 }
+
+// Stub
+case class CountryMeta(
+  model: CountryF,
+  latestEvent: Option[SystemEventMeta] = None
+)

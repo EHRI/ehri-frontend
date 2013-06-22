@@ -5,7 +5,7 @@ import defines.EnumUtils._
 import models.base._
 
 import models.base.{DescribedEntity, AttributeSet, Persistable, TemporalEntity}
-import play.api.libs.json.{Json, JsString, JsValue}
+import play.api.libs.json.{JsObject, Json, JsString, JsValue}
 import models.json.{ClientConvertable, RestConvertable}
 
 
@@ -36,7 +36,7 @@ object DocumentaryUnitF {
   final val HELD_REL = "heldBy"
   final val CHILD_REL = "childOf"
 
-  lazy implicit val restFormat = json.DocumentaryUnitFormat.restFormat
+  //lazy implicit val restFormat = json.DocumentaryUnitFormat.restFormat
 
   implicit object Converter extends RestConvertable[DocumentaryUnitF] with ClientConvertable[DocumentaryUnitF] {
     lazy val restFormat = models.json.rest.documentaryUnitFormat
@@ -45,14 +45,15 @@ object DocumentaryUnitF {
 }
 
 case class DocumentaryUnitF(
-  val id: Option[String],
-  val identifier: String,
-  val publicationStatus: Option[PublicationStatus.Value] = None,
-  val copyrightStatus: Option[DocumentaryUnitF.CopyrightStatus.Value] = Some(DocumentaryUnitF.CopyrightStatus.Unknown),
-  val scope: Option[DocumentaryUnitF.Scope.Value] = Some(DocumentaryUnitF.Scope.Low),
+  rawJson: JsObject,
+  id: Option[String] = None,
+  identifier: String,
+  publicationStatus: Option[PublicationStatus.Value] = None,
+  copyrightStatus: Option[DocumentaryUnitF.CopyrightStatus.Value] = Some(DocumentaryUnitF.CopyrightStatus.Unknown),
+  scope: Option[DocumentaryUnitF.Scope.Value] = Some(DocumentaryUnitF.Scope.Low),
 
   @Annotations.Relation(DocumentaryUnitF.DESC_REL)
-  val descriptions: List[DocumentaryUnitDescriptionF] = Nil
+  descriptions: List[DocumentaryUnitDescriptionF] = Nil
 ) extends Persistable {
   val isA = EntityType.DocumentaryUnit
 
@@ -111,6 +112,15 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
 
 
   import json.DocumentaryUnitFormat._
-  lazy val formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF]
-  lazy val formableOpt: Option[DocumentaryUnitF] = Json.toJson(e).asOpt[DocumentaryUnitF]
+  lazy val formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF](json.DocumentaryUnitFormat.restFormat)
+  lazy val formableOpt: Option[DocumentaryUnitF] = Json.toJson(e).asOpt[DocumentaryUnitF](json.DocumentaryUnitFormat.restFormat)
 }
+
+
+case class DocumentaryUnitMeta(
+  rawData: JsValue,
+  model: DocumentaryUnitF,
+  //holder: Option[RepositoryMeta] = None,
+  parent: Option[DocumentaryUnitMeta] = None,
+  latestEvent: Option[SystemEventMeta] = None
+)

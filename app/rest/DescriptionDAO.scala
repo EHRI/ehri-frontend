@@ -11,6 +11,7 @@ import models.base.Persistable
 import play.api.http.Status
 import play.api.Play.current
 import play.api.cache.Cache
+import models.json.RestConvertable
 
 
 /**
@@ -27,10 +28,10 @@ case class DescriptionDAO(entityType: EntityType.Type, userProfile: Option[UserP
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
   def createDescription[DT](id: String, item: DT,
-      logMsg: Option[String] = None)(implicit ow: Writes[DT]): Future[Either[RestError, Entity]] = {
+      logMsg: Option[String] = None)(implicit fmt: RestConvertable[DT]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-        .post(Json.toJson(item)).flatMap { response =>
+        .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
@@ -48,9 +49,9 @@ case class DescriptionDAO(entityType: EntityType.Type, userProfile: Option[UserP
   }
 
   def updateDescription[DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-      implicit ow: Writes[DT]): Future[Either[RestError, Entity]] = {
+      implicit fmt: RestConvertable[DT]): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-        .put(Json.toJson(item)).flatMap { response =>
+        .put(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {

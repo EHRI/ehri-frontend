@@ -27,8 +27,6 @@ object AccessPointF {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
-  lazy implicit val accessPointFormat: Format[AccessPointF] = json.AccessPointFormat.restFormat
-
   implicit object Converter extends RestConvertable[AccessPointF] with ClientConvertable[AccessPointF] {
     lazy val restFormat = models.json.rest.accessPointFormat
     lazy val clientFormat = models.json.client.accessPointFormat
@@ -47,8 +45,8 @@ case class AccessPointF(
 
 case class AccessPoint(val e: Entity) extends AnnotatableEntity with NamedEntity with Formable[AccessPointF] {
 
-  lazy val formable: AccessPointF = Json.toJson(e).as[AccessPointF]
-  lazy val formableOpt: Option[AccessPointF] = Json.toJson(e).asOpt[AccessPointF]
+  lazy val formable: AccessPointF = Json.toJson(e).as[AccessPointF](json.AccessPointFormat.restFormat)
+  lazy val formableOpt: Option[AccessPointF] = Json.toJson(e).asOpt[AccessPointF](json.AccessPointFormat.restFormat)
 
   lazy val targetName = e.stringProperty(AccessPointF.TARGET)
 

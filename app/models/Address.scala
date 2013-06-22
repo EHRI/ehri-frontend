@@ -9,8 +9,6 @@ import models.json.{ClientConvertable, RestConvertable}
 object AddressF {
   val UNNAMED_ADDRESS = "Unnamed Address"
 
-  implicit val addressFormat: Format[AddressF] = json.AddressFormat.restFormat
-
   implicit object Converter extends RestConvertable[AddressF] with ClientConvertable[AddressF] {
     val restFormat = models.json.rest.addressFormat
     val clientFormat = models.json.client.addressFormat
@@ -40,6 +38,6 @@ case class AddressF(
 
 
 case class Address(val e: Entity) extends AccessibleEntity with Formable[AddressF] {
-  lazy val formable: AddressF = Json.toJson(e).as[AddressF]
-  lazy val formableOpt: Option[AddressF] = Json.toJson(e).asOpt[AddressF]
+  lazy val formable: AddressF = Json.toJson(e).as[AddressF](json.AddressFormat.restFormat)
+  lazy val formableOpt: Option[AddressF] = Json.toJson(e).asOpt[AddressF](json.AddressFormat.restFormat)
 }

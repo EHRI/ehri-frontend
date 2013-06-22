@@ -11,17 +11,13 @@ import play.api.libs.json.Json
  */
 package object client {
 
+  // NB: Since models depend on each other, order or declaration
+  // is significant.
+
   implicit val accessPointFormat = Json.format[AccessPointF]
   implicit val addressFormat = Json.format[AddressF]
   implicit val annotationFormat = Json.format[AnnotationF]
-  implicit val authoritativeSetFormat = Json.format[AuthoritativeSetF]
-  implicit val conceptFormat = Json.format[ConceptF]
-  implicit val conceptDescriptionFormat = Json.format[ConceptDescriptionF]
-  implicit val countryFormat = Json.format[CountryF]
   implicit val datePeriodFormat = Json.format[DatePeriodF]
-  implicit val documentaryUnitFormat = Json.format[DocumentaryUnitF]
-  implicit val groupFormat = Json.format[GroupF]
-  implicit val historicalAgentFormat = Json.format[HistoricalAgentF]
 
   private implicit val isaarDetailsFormat = Json.format[IsaarDetail]
   private implicit val isaarControlFormat = Json.format[IsaarControl]
@@ -40,9 +36,25 @@ package object client {
   private implicit val isdiahControlFormat = Json.format[IsdiahControl]
   implicit val isdiahFormat = Json.format[RepositoryDescriptionF]
 
+  implicit val authoritativeSetFormat = Json.format[AuthoritativeSetF]
+  implicit val conceptFormat = Json.format[ConceptF]
+  implicit val conceptDescriptionFormat = Json.format[ConceptDescriptionF]
+  implicit val countryFormat = Json.format[CountryF]
+  implicit val documentaryUnitFormat = Json.format[DocumentaryUnitF]
+  implicit val groupFormat = Json.format[GroupF]
+  implicit val historicalAgentFormat = Json.format[HistoricalAgentF]
+
   implicit val linkFormat = Json.format[LinkF]
   implicit val repositoryFormat = Json.format[RepositoryF]
   implicit val userProfileFormat = Json.format[UserProfileF]
   implicit val vocabularyFormat = Json.format[VocabularyF]
+
+  implicit val systemEventFormat = Json.format[SystemEventF]
+
+  // Meta models
+  implicit val systemEventMetaFormat = Json.format[SystemEventMeta]
+  implicit val countryMetaFormat = Json.format[CountryMeta]
+  implicit val repositoryMetaFormat = Json.format[RepositoryMeta]
+  implicit val documentaryUnitMetaFormat = Json.format[DocumentaryUnitMeta]
 
 }

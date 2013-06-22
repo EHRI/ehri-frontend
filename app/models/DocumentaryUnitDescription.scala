@@ -43,7 +43,7 @@ case class IsadGControl(
 
 object DocumentaryUnitDescriptionF {
 
-  lazy implicit val documentaryUnitDescriptionFormat = json.IsadGFormat.restFormat
+  //lazy implicit val documentaryUnitDescriptionFormat = json.IsadGFormat.restFormat
 
   implicit object Converter extends RestConvertable[DocumentaryUnitDescriptionF] with ClientConvertable[DocumentaryUnitDescriptionF] {
     lazy val restFormat = models.json.rest.isadGFormat
@@ -78,6 +78,6 @@ case class DocumentaryUnitDescription(val e: Entity)
   // This should have one logical object
   val item: Option[DocumentaryUnit] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(DocumentaryUnit(_))
 
-  lazy val formable = Json.toJson(e).as[DocumentaryUnitDescriptionF]
-  lazy val formableOpt = Json.toJson(e).asOpt[DocumentaryUnitDescriptionF]
+  lazy val formable = Json.toJson(e).as[DocumentaryUnitDescriptionF](json.IsadGFormat.restFormat)
+  lazy val formableOpt = Json.toJson(e).asOpt[DocumentaryUnitDescriptionF](json.IsadGFormat.restFormat)
 }

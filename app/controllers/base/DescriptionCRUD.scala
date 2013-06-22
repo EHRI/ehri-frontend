@@ -10,6 +10,7 @@ import models.forms.VisibilityForm
 import rest.{DescriptionDAO, ValidationError, EntityDAO}
 import play.api.i18n.Messages
 import play.api.libs.json.Writes
+import models.json.RestConvertable
 
 /**
  * Controller trait for creating, updating, and deleting auxiliary descriptions
@@ -28,7 +29,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
    */
   def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[FD])(
       f: Entity => Either[Form[FD],Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
-        implicit ow: Writes[FD]) = {
+        implicit fmt: RestConvertable[FD]) = {
     withItemPermission(id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold({ ef =>
@@ -64,7 +65,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
    */
   def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[FD])(
     f: Entity => Either[Form[FD],Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
-           implicit ow: Writes[FD]) = {
+           implicit fmt: RestConvertable[FD]) = {
     withItemPermission(id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold({ ef =>

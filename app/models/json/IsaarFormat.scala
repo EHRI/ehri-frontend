@@ -53,6 +53,8 @@ object IsaarFormat {
     }
   }
 
+  private implicit val datePeriodReads = DatePeriodFormat.datePeriodReads
+
   import HistoricalAgentDescriptionF._
   implicit val isaarReads: Reads[HistoricalAgentDescriptionF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgentDescription)) andKeep

@@ -57,7 +57,8 @@ object IsadGFormat {
 
   import DocumentaryUnitDescriptionF._
 
-  implicit val levelOfDescriptionReads = enumReads(LevelOfDescription)
+  private implicit val levelOfDescriptionReads = enumReads(LevelOfDescription)
+  implicit val datePeriodReads = DatePeriodFormat.restFormat
 
   implicit val isadGReads: Reads[DocumentaryUnitDescriptionF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnitDescription)) andKeep
@@ -65,7 +66,7 @@ object IsadGFormat {
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).read[String] and
       ((__ \ RELATIONSHIPS \ TemporalEntity.DATE_REL).lazyRead[List[DatePeriodF]](
-        Reads.list[DatePeriodF]) orElse Reads.pure(Nil)) and
+        Reads.list[DatePeriodF](datePeriodReads)) orElse Reads.pure(Nil)) and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[LevelOfDescription.Value] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String] and
       (__ \ DATA).read[IsadGContext]((

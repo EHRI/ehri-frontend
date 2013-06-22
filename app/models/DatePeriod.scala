@@ -21,9 +21,6 @@ object DatePeriodF {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
-  lazy implicit val datePeriodFormat: Format[DatePeriodF] = json.DatePeriodFormat.restFormat
-
-
   implicit object Converter extends RestConvertable[DatePeriodF] with ClientConvertable[DatePeriodF] {
     lazy val restFormat = models.json.rest.datePeriodFormat
     lazy val clientFormat = models.json.client.datePeriodFormat
@@ -55,7 +52,7 @@ case class DatePeriodF(
 
 
 case class DatePeriod(val e: Entity) extends Formable[DatePeriodF] {
-  lazy val formable: DatePeriodF = Json.toJson(e).as[DatePeriodF]
-  lazy val formableOpt: Option[DatePeriodF] = Json.toJson(e).asOpt[DatePeriodF]
+  lazy val formable: DatePeriodF = Json.toJson(e).as[DatePeriodF](json.DatePeriodFormat.restFormat)
+  lazy val formableOpt: Option[DatePeriodF] = Json.toJson(e).asOpt[DatePeriodF](json.DatePeriodFormat.restFormat)
 }
 

@@ -22,8 +22,6 @@ object RepositoryF {
   val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
 
-  implicit val repositoryFormat: Format[RepositoryF] = json.RepositoryFormat.restFormat
-
   implicit object Converter extends RestConvertable[RepositoryF] with ClientConvertable[RepositoryF] {
     lazy val restFormat = models.json.rest.repositoryFormat
     lazy val clientFormat = models.json.client.repositoryFormat
@@ -55,8 +53,8 @@ case class Repository(val e: Entity)
 
   val country: Option[Country] = e.relations(RepositoryF.COUNTRY_REL).headOption.map(Country(_))
 
-  lazy val formable: RepositoryF = Json.toJson(e).as[RepositoryF]
-  lazy val formableOpt: Option[RepositoryF] = Json.toJson(e).asOpt[RepositoryF]
+  lazy val formable: RepositoryF = Json.toJson(e).as[RepositoryF](json.RepositoryFormat.restFormat)
+  lazy val formableOpt: Option[RepositoryF] = Json.toJson(e).asOpt[RepositoryF](json.RepositoryFormat.restFormat)
 
   override def toStringAbbr(implicit lang: Lang) = {
     val otherNames: List[String] = descriptions.flatMap(_.listProperty(Isdiah.OTHER_FORMS_OF_NAME).getOrElse(Nil))
@@ -70,3 +68,8 @@ case class Repository(val e: Entity)
   }
 }
 
+case class RepositoryMeta(
+  model: RepositoryF,
+  country: Option[CountryMeta] = None,
+  latestEvent: Option[SystemEventMeta] = None
+)

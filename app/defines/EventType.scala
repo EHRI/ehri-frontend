@@ -14,4 +14,6 @@ object EventType extends Enumeration() {
     addGroup,
     removeGroup,
     ingest = Value
+
+  implicit val format = defines.EnumUtils.enumFormat(this)
 }

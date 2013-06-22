@@ -6,6 +6,7 @@ import play.api.libs.json._
 import models._
 import defines.EntityType
 import defines.EnumUtils._
+import models.base.AccessibleEntity
 
 
 object CountryFormat {
@@ -23,11 +24,20 @@ object CountryFormat {
     }
   }
 
-  implicit val countryReads: Reads[CountryF] = (
+  lazy implicit val countryReads: Reads[CountryF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Country)) andKeep
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String]
     )(CountryF.apply _)
 
   implicit val restFormat: Format[CountryF] = Format(countryReads,countryWrites)
+
+  private implicit val systemEventReads = SystemEventFormat.metaReads
+  implicit val metaReads: Reads[CountryMeta] = (
+    __.read[CountryF] and
+      // Latest event
+      (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyRead[List[SystemEventMeta]](
+        Reads.list[SystemEventMeta]).map(_.headOption)
+    )(CountryMeta.apply _)
+
 }

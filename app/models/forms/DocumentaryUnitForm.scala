@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models.{Entity, DocumentaryUnitF}
 import models.base.DescribedEntity
+import play.api.libs.json.{Json, JsNull}
 
 /**
  * Documentary unit model form.
@@ -14,6 +15,7 @@ object DocumentaryUnitForm {
 
   val form = Form(
     mapping(
+      "rawJson" -> ignored(Json.obj()),
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText,
       PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),

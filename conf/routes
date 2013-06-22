@@ -51,6 +51,9 @@ GET     /locale                         controllers.Application.changeLocale
 GET     /                           controllers.Application.index
 GET     /docs                controllers.DocumentaryUnits.search
 GET     /docs/list           controllers.DocumentaryUnits.list
+# Testing
+GET     /docs/meta/:id       controllers.DocumentaryUnits.getMeta(id: String)
+
 GET     /docs/show/:id       controllers.DocumentaryUnits.get(id: String)
 GET     /docs/history/:id    controllers.DocumentaryUnits.history(id: String)
 GET     /docs/json/:id       controllers.DocumentaryUnits.getJson(id: String)

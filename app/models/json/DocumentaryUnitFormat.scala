@@ -7,8 +7,8 @@ import defines.EnumUtils._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.DescribedEntity
-import models.{DocumentaryUnitDescriptionF, DocumentaryUnitF}
+import models.base.{AccessibleEntity, DescribedEntity}
+import models.{SystemEventMeta, RepositoryMeta, SystemEvent, DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnitMeta}
 
 
 object DocumentaryUnitFormat {
@@ -40,6 +40,7 @@ object DocumentaryUnitFormat {
 
   implicit val documentaryUnitReads: Reads[DocumentaryUnitF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnit)) andKeep
+    __.read[JsObject] and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
@@ -50,4 +51,20 @@ object DocumentaryUnitFormat {
     )(DocumentaryUnitF.apply _)
 
   implicit val restFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
+
+  private lazy implicit val repoReads = RepositoryFormat.metaReads
+  private lazy implicit val systemEventReads = SystemEventFormat.metaReads
+
+  implicit val metaReads: Reads[DocumentaryUnitMeta] = (
+    __.read[JsValue] and // capture the full JS data
+    __.read[DocumentaryUnitF] and
+    // Holder
+    //(__ \ RELATIONSHIPS \ DocumentaryUnitF.HELD_REL).lazyReadNullable[List[RepositoryMeta]](
+    //  Reads.list[RepositoryMeta]).map(_.flatMap(_.headOption)) and
+    //
+    (__ \ RELATIONSHIPS \ DocumentaryUnitF.CHILD_REL).lazyReadNullable[List[DocumentaryUnitMeta]](
+      Reads.list[DocumentaryUnitMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
+  )(DocumentaryUnitMeta.apply _)
 }

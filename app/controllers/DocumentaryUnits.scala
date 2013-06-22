@@ -129,6 +129,24 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       DocumentaryUnit(item), page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
   }*/
 
+  def getMeta(id: String) = userProfileAction {
+      implicit userOpt => implicit request =>
+    Async {
+      play.api.libs.ws.WS.url("http://localhost:7474/ehri/documentaryUnit/" + id).get.map { r =>
+        println(Json.prettyPrint(r.json))
+        r.json.validate[DocumentaryUnitMeta](models.json.DocumentaryUnitFormat.metaReads).fold(
+          invalid = { err =>
+            println(err.toString)
+            Ok(err.toString)
+          },
+          valid = { dm =>
+            Ok(Json.toJson(dm)(models.json.client.documentaryUnitMetaFormat))
+          }
+        )
+      }
+    }
+  }
+
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     val doc = DocumentaryUnit(item)
     searchAction(Map("parentId" -> item.id, "depthOfDescription" -> (doc.ancestors.size + 1).toString),
@@ -373,6 +391,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
     import models.json.entityTypeFormat
 
+    implicit val accessPointFormat = models.json.client.accessPointFormat
     implicit val targetWrites = Json.format[Target]
     implicit val itemWrites = Json.format[LinkItem]
 

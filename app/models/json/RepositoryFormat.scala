@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.DescribedEntity
+import models.base.{AccessibleEntity, DescribedEntity}
 import models._
 import defines.EnumUtils._
 
@@ -48,4 +48,17 @@ object RepositoryFormat {
     )(RepositoryF.apply _)
 
   implicit val restFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
+
+  private implicit val systemEventReads = SystemEventFormat.metaReads
+  private implicit val countryReads = CountryFormat.metaReads
+
+  implicit val metaReads: Reads[RepositoryMeta] = (
+    __.read[RepositoryF] and
+    // Country
+    (__ \ RELATIONSHIPS \ RepositoryF.COUNTRY_REL).lazyReadNullable[List[CountryMeta]](
+      Reads.list[CountryMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+        Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
+    )(RepositoryMeta.apply _)
+
 }
