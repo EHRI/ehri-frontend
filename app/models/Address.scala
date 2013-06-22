@@ -17,6 +17,7 @@ object AddressF {
 
 
 case class AddressF(
+  isA: EntityType.Value = EntityType.Address,
   id: Option[String],
   name: Option[String],
   contactPerson: Option[String] = None,
@@ -30,8 +31,6 @@ case class AddressF(
   fax: Option[String] = None,
   url: Option[String] = None
   ) {
-  val isA = EntityType.Address
-
   override def toString
       = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
 }

@@ -31,15 +31,14 @@ object UserProfileF {
 }
 
 case class UserProfileF(
-  val id: Option[String],
-  val identifier: String,
-  val name: String,
-  val location: Option[String] = None,
-  val about: Option[String] = None,
-  val languages: Option[List[String]] = None
-) extends Persistable {
-  val isA = EntityType.UserProfile
-}
+  isA: EntityType.Value = EntityType.UserProfile,
+  id: Option[String],
+  identifier: String,
+  name: String,
+  location: Option[String] = None,
+  about: Option[String] = None,
+  languages: Option[List[String]] = None
+) extends Persistable
 
 
 object UserProfile {

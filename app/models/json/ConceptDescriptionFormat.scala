@@ -29,7 +29,7 @@ object ConceptDescriptionFormat {
 
   import ConceptDescriptionF._
   implicit val conceptDescriptionReads: Reads[ConceptDescriptionF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.ConceptDescription)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.ConceptDescription)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANGUAGE).read[String] and
       (__ \ DATA \ PREFLABEL).read[String] and

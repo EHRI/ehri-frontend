@@ -42,6 +42,7 @@ object HistoricalAgentDescriptionF {
 }
 
 case class HistoricalAgentDescriptionF(
+  isA: EntityType.Value = EntityType.HistoricalAgentDescription,
   id: Option[String],
   languageCode: String,
   entityType: Isaar.HistoricalAgentType.Value,
@@ -53,9 +54,8 @@ case class HistoricalAgentDescriptionF(
   details: IsaarDetail,
   control: IsaarControl,
   accessPoints: List[AccessPointF]
-  ) extends Persistable {
-  val isA = EntityType.HistoricalAgentDescription
-}
+  ) extends Persistable
+
 
 case class HistoricalAgentDescription(val e: Entity)
   extends Description

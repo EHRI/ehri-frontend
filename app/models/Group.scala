@@ -21,13 +21,12 @@ object GroupF {
 }
 
 case class GroupF(
-  val id: Option[String],
-  val identifier: String,
-  val name: String,
-  val description: Option[String] = None
-) extends Persistable {
-  val isA = EntityType.Group
-}
+  isA: EntityType.Value = EntityType.Group,
+  id: Option[String],
+  identifier: String,
+  name: String,
+  description: Option[String] = None
+) extends Persistable
 
 
 case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[GroupF] {

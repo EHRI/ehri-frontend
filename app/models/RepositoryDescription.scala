@@ -51,6 +51,7 @@ object RepositoryDescriptionF {
 
 
 case class RepositoryDescriptionF(
+  isA: EntityType.Value = EntityType.RepositoryDescription,
   id: Option[String],
   languageCode: String,
   name: String,
@@ -61,9 +62,7 @@ case class RepositoryDescriptionF(
   access: IsdiahAccess,
   services: IsdiahServices,
   control: IsdiahControl
-  ) extends Persistable {
-  val isA = EntityType.RepositoryDescription
-}
+  ) extends Persistable
 
 
 case class RepositoryDescription(val e: Entity) extends Description with Formable[RepositoryDescriptionF] {

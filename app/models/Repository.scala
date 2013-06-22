@@ -29,14 +29,13 @@ object RepositoryF {
 }
 
 case class RepositoryF(
+  isA: EntityType.Value = EntityType.Repository,
   id: Option[String],
   identifier: String,
   publicationStatus: Option[PublicationStatus.Value] = None,
   @Annotations.Relation(RepositoryF.DESC_REL) descriptions: List[RepositoryDescriptionF] = Nil,
   priority: Option[Int] = None
-) extends Persistable {
-  val isA = EntityType.Repository
-}
+) extends Persistable
 
 
 case class Repository(val e: Entity)

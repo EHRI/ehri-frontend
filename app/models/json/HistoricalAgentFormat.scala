@@ -35,7 +35,7 @@ object HistoricalAgentFormat {
   }
 
   implicit val actorReads: Reads[HistoricalAgentF] = (
-      (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgent)) andKeep
+      (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgent)) and
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and

@@ -3,6 +3,7 @@ package models.forms
 import play.api.data.Form
 import play.api.data.Forms._
 import models.{Isdiah, AddressF, Entity}
+import defines.EntityType
 
 /**
  * Address model form.
@@ -14,6 +15,7 @@ object AddressForm {
 
   val form = Form(
     mapping(
+      Entity.ISA -> ignored(EntityType.Address),
       Entity.ID -> optional(nonEmptyText),
       ADDRESS_NAME -> optional(nonEmptyText),
       CONTACT_PERSON -> optional(nonEmptyText),

@@ -27,7 +27,7 @@ object GroupFormat {
   }
 
   implicit val groupReads: Reads[GroupF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Group)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Group)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).read[String] and

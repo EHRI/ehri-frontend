@@ -21,11 +21,10 @@ object CountryF {
 }
 
 case class CountryF(
-  val id: Option[String],
-  val identifier: String
-) extends Persistable {
-  val isA = EntityType.Country
-}
+  isA:EntityType.Value = EntityType.Country,
+  id: Option[String],
+  identifier: String
+) extends Persistable
 
 
 object Country {

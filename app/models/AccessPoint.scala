@@ -34,13 +34,12 @@ object AccessPointF {
 }
 
 case class AccessPointF(
-  val id: Option[String],
-  val `type`: AccessPointF.AccessPointType.Value,
-  val name: String,
-  val description: Option[String] = None
-) extends Persistable {
-  val isA = EntityType.AccessPoint
-}
+  isA: EntityType.Value = EntityType.AccessPoint,
+  id: Option[String],
+  `type`: AccessPointF.AccessPointType.Value,
+  name: String,
+  description: Option[String] = None
+) extends Persistable
 
 
 case class AccessPoint(val e: Entity) extends AnnotatableEntity with NamedEntity with Formable[AccessPointF] {

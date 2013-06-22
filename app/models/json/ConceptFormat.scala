@@ -29,7 +29,7 @@ object ConceptFormat {
   }
 
   implicit val conceptReads: Reads[ConceptF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Concept)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Concept)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[ConceptDescriptionF]](

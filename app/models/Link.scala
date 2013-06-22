@@ -30,13 +30,11 @@ object LinkF {
 }
 
 case class LinkF(
-  val id: Option[String],
-  val linkType: LinkF.LinkType.Type,
-  val description: Option[String]
-) extends Persistable {
-  val isA = EntityType.Link
-}
-
+  isA: EntityType.Value = EntityType.Link,
+  id: Option[String],
+  linkType: LinkF.LinkType.Type,
+  description: Option[String]
+) extends Persistable
 
 
 object Link {

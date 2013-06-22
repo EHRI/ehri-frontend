@@ -27,7 +27,7 @@ object LinkFormat {
   }
 
   implicit val linkReads: Reads[LinkF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Link)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Link)) and
     (__ \ ID).readNullable[String] and
       ((__ \ DATA \ LINK_TYPE).read[LinkType.Value]
           orElse Reads.pure(LinkType.Associative)) and

@@ -31,12 +31,12 @@ object ConceptF {
 }
 
 case class ConceptF(
-  val id: Option[String],
-  val identifier: String,
+  isA: EntityType.Value = EntityType.Concept,
+  id: Option[String],
+  identifier: String,
   @Annotations.Relation(DescribedEntity.DESCRIBES_REL) val descriptions: List[ConceptDescriptionF] = Nil
-) extends Persistable {
-  val isA = EntityType.Concept
-}
+) extends Persistable
+
 
 object Concept {
   final val IN_SET_REL = "inAuthoritativeSet"

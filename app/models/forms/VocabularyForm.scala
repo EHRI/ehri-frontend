@@ -3,6 +3,7 @@ package models.forms
 import play.api.data.Form
 import play.api.data.Forms._
 import models.{VocabularyF, Entity}
+import defines.EntityType
 
 /**
  * Vocabulary model form.
@@ -13,6 +14,7 @@ object VocabularyForm {
 
   val form = Form(
     mapping(
+      Entity.ISA -> ignored(EntityType.Vocabulary),
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText(minLength=3),
       NAME -> optional(nonEmptyText),

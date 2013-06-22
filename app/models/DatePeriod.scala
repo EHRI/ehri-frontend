@@ -28,13 +28,12 @@ object DatePeriodF {
 }
 
 case class DatePeriodF(
-  val id: Option[String],
-  val `type`: Option[DatePeriodF.DatePeriodType.Type],
-  val startDate: Option[String] = None,
-  val endDate: Option[String] = None
+  isA: EntityType.Value = EntityType.DatePeriod,
+  id: Option[String],
+  `type`: Option[DatePeriodF.DatePeriodType.Type],
+  startDate: Option[String] = None,
+  endDate: Option[String] = None
 ) {
-  val isA = EntityType.DatePeriod
-
   /**
    * Get a string representing the year-range of this period,
    * i.e. 1939-1945

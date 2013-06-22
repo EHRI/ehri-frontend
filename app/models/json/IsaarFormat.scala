@@ -57,7 +57,7 @@ object IsaarFormat {
 
   import HistoricalAgentDescriptionF._
   implicit val isaarReads: Reads[HistoricalAgentDescriptionF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgentDescription)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgentDescription)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       ((__ \ DATA \ ENTITY_TYPE).read[HistoricalAgentType.Value]

@@ -28,7 +28,7 @@ object VocabularyFormat {
   }
 
   implicit val vocabularyReads: Reads[VocabularyF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Vocabulary)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Vocabulary)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).readNullable[String] and

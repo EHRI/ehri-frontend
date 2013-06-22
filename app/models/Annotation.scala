@@ -31,15 +31,13 @@ object AnnotationF {
 }
 
 case class AnnotationF(
-  val id: Option[String],
-  val annotationType: Option[AnnotationF.AnnotationType.Type] = Some(AnnotationF.AnnotationType.Comment),
-  val body: String,
-  val field: Option[String] = None,
-  val comment: Option[String] = None
-) extends Persistable {
-  val isA = EntityType.Annotation
-}
-
+  isA: EntityType.Value = EntityType.Annotation,
+  id: Option[String],
+  annotationType: Option[AnnotationF.AnnotationType.Type] = Some(AnnotationF.AnnotationType.Comment),
+  body: String,
+  field: Option[String] = None,
+  comment: Option[String] = None
+) extends Persistable
 
 
 object Annotation {

@@ -15,13 +15,12 @@ object SystemEventF {
 }
 
 case class SystemEventF(
+  isA: EntityType.Value = EntityType.SystemEvent,
   id: String,
   timestamp: DateTime,
   logMessage: Option[String] = None,
   eventType: Option[EventType.Value] = None
-) {
-  val isA = EntityType.SystemEvent
-}
+)
 
 object SystemEvent {
   val ACTIONER_REL = "hasActioner"

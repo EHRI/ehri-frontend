@@ -13,6 +13,7 @@ object AccessPointForm {
   import AccessPointF._
 
   val form = Form(mapping(
+    Entity.ISA -> ignored(EntityType.AccessPoint),
     Entity.ID -> optional(nonEmptyText),
     TYPE -> models.forms.enum(AccessPointType),
     TARGET -> nonEmptyText, // TODO: Validate this server side

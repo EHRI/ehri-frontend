@@ -15,7 +15,7 @@ object DatePeriodFormat {
   implicit val datePeriodTypeReads = enumReads(DatePeriodType)
 
   implicit val datePeriodReads: Reads[DatePeriodF] = (
-    (__ \ ETYPE).read[EntityType.Value](equalsReads(EntityType.DatePeriod)) andKeep
+    (__ \ ETYPE).read[EntityType.Value](equalsReads(EntityType.DatePeriod)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ TYPE).readNullable[DatePeriodType.Value] and
       (__ \ DATA \ START_DATE).readNullable[String] and

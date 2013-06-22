@@ -29,7 +29,7 @@ object UserProfileFormat {
   }
 
   implicit val userProfileReads: Reads[UserProfileF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.UserProfile)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.UserProfile)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).read[String] and

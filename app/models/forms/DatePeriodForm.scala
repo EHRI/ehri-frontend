@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models.{DatePeriodF, Entity}
 import org.joda.time.DateTime
+import defines.EntityType
 
 /**
  * Date period model form.
@@ -22,6 +23,7 @@ object DatePeriodForm {
   }
 
   val form = Form(mapping(
+    Entity.ISA -> ignored(EntityType.DatePeriod),
     Entity.ID -> optional(nonEmptyText),
     TYPE -> optional(models.forms.enum(DatePeriodType)),
     START_DATE -> optional(text verifying("error.date", dateValidator)),

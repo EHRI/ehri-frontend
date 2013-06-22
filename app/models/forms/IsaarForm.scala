@@ -3,6 +3,7 @@ package models.forms
 import play.api.data.Form
 import play.api.data.Forms._
 import models._
+import defines.EntityType
 
 /**
  * ISAAR description form.
@@ -13,6 +14,7 @@ object IsaarForm {
 
   val form = Form(
     mapping(
+      Entity.ISA -> ignored(EntityType.HistoricalAgentDescription),
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
       ENTITY_TYPE -> enum(HistoricalAgentType),

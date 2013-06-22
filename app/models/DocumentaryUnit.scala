@@ -45,7 +45,7 @@ object DocumentaryUnitF {
 }
 
 case class DocumentaryUnitF(
-  rawJson: JsObject,
+  isA: EntityType.Value = EntityType.DocumentaryUnit,
   id: Option[String] = None,
   identifier: String,
   publicationStatus: Option[PublicationStatus.Value] = None,
@@ -55,8 +55,6 @@ case class DocumentaryUnitF(
   @Annotations.Relation(DocumentaryUnitF.DESC_REL)
   descriptions: List[DocumentaryUnitDescriptionF] = Nil
 ) extends Persistable {
-  val isA = EntityType.DocumentaryUnit
-
   def withDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = copy(descriptions = descriptions ++ List(d))
 
   /**

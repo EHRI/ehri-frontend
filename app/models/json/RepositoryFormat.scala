@@ -35,7 +35,7 @@ object RepositoryFormat {
   }
 
   implicit val repositoryReads: Reads[RepositoryF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Repository)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Repository)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and

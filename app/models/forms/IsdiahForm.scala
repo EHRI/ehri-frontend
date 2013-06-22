@@ -3,6 +3,7 @@ package models.forms
 import play.api.data.Form
 import play.api.data.Forms._
 import models._
+import defines.EntityType
 
 /**
  * Isdiah description form.
@@ -13,6 +14,7 @@ object IsdiahForm {
 
   val form = Form(
     mapping(
+      Entity.ISA -> ignored(EntityType.RepositoryDescription),
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
       AUTHORIZED_FORM_OF_NAME -> text,

@@ -52,6 +52,7 @@ object DocumentaryUnitDescriptionF {
 }
 
 case class DocumentaryUnitDescriptionF(
+  isA: EntityType.Value = EntityType.DocumentaryUnitDescription,
   id: Option[String],
   languageCode: String,
   name: String,
@@ -66,9 +67,7 @@ case class DocumentaryUnitDescriptionF(
   notes: Option[List[String]] = None,
   control: IsadGControl,
   accessPoints: List[AccessPointF]
-  ) extends Persistable {
-  val isA = EntityType.DocumentaryUnitDescription
-}
+  ) extends Persistable
 
 case class DocumentaryUnitDescription(val e: Entity)
   extends Description

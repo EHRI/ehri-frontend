@@ -31,7 +31,7 @@ object SystemEventFormat {
   }
 
   implicit val systemEventReads: Reads[SystemEventF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.SystemEvent)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.SystemEvent)) and
       (__ \ ID).read[String] and
       (__ \ DATA \ TIMESTAMP).read[String].map(new DateTime(_)) and
       (__ \ DATA \ LOG_MESSAGE).readNullable[String] and

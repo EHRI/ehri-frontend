@@ -15,7 +15,7 @@ object AccessPointFormat {
   implicit val accessPointTypeReads = enumReads(AccessPointType)
 
   implicit val accessPointReads: Reads[AccessPointF] = (
-    (__ \ ETYPE).read[EntityType.Value](equalsReads(EntityType.AccessPoint)) andKeep
+    (__ \ ETYPE).read[EntityType.Value](equalsReads(EntityType.AccessPoint)) and
     (__ \ ID).readNullable[String] and
     ((__ \ DATA \ TYPE).read[AccessPointType.Value] orElse Reads.pure(AccessPointType.Other)) and
       // FIXME: Target should be consistent!!!

@@ -26,7 +26,7 @@ object AuthoritativeSetFormat {
   }
 
   implicit val authoritativeSetReads: Reads[AuthoritativeSetF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.AuthoritativeSet)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.AuthoritativeSet)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).readNullable[String] and

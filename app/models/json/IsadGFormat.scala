@@ -61,7 +61,7 @@ object IsadGFormat {
   implicit val datePeriodReads = DatePeriodFormat.restFormat
 
   implicit val isadGReads: Reads[DocumentaryUnitDescriptionF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnitDescription)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnitDescription)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).read[String] and

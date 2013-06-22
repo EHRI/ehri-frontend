@@ -23,13 +23,13 @@ object AuthoritativeSetF {
 }
 
 case class AuthoritativeSetF(
-  val id: Option[String],
-  val identifier: String,
-  val name: Option[String],
-  val description: Option[String]
-) extends Persistable {
-  val isA = EntityType.AuthoritativeSet
-}
+  isA: EntityType.Value = EntityType.AuthoritativeSet,
+  id: Option[String],
+  identifier: String,
+  name: Option[String],
+  description: Option[String]
+) extends Persistable
+
 
 
 object AuthoritativeSet {

@@ -26,13 +26,12 @@ object VocabularyF {
 
 
 case class VocabularyF(
-  val id: Option[String],
-  val identifier: String,
-  val name: Option[String],
-  val description: Option[String]
-) extends Persistable {
-  val isA = EntityType.Vocabulary
-}
+  isA: EntityType.Value = EntityType.Vocabulary,
+  id: Option[String],
+  identifier: String,
+  name: Option[String],
+  description: Option[String]
+) extends Persistable
 
 
 object Vocabulary {

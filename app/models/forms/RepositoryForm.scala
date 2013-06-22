@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models.{RepositoryF, Entity}
 import models.base.DescribedEntity
+import defines.EntityType
 
 /**
  * Repository model form.
@@ -14,6 +15,7 @@ object RepositoryForm {
 
   val form = Form(
     mapping(
+      Entity.ISA -> ignored(EntityType.Repository),
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures
       PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),

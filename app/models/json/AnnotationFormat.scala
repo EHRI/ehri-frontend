@@ -29,7 +29,7 @@ object AnnotationFormat {
   }
 
   implicit val annotationReads: Reads[AnnotationF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Annotation)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Annotation)) and
     (__ \ ID).readNullable[String] and
       ((__ \ DATA \ ANNOTATION_TYPE).readNullable[AnnotationType.Value]
           orElse Reads.pure(Some(AnnotationType.Comment))) and

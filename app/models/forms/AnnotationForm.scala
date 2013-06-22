@@ -3,6 +3,7 @@ package models.forms
 import play.api.data.Form
 import play.api.data.Forms._
 import models.{AnnotationF, Entity}
+import defines.EntityType
 
 /**
  * User: michaelb
@@ -12,6 +13,7 @@ object AnnotationForm {
   import AnnotationF._
 
   val form = Form(mapping(
+    Entity.ISA -> ignored(EntityType.Annotation),
     Entity.ID -> optional(nonEmptyText),
     ANNOTATION_TYPE -> optional(models.forms.enum(AnnotationType)),
     BODY -> nonEmptyText, // TODO: Validate this server side

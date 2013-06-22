@@ -25,7 +25,7 @@ object CountryFormat {
   }
 
   lazy implicit val countryReads: Reads[CountryF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Country)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Country)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String]
     )(CountryF.apply _)

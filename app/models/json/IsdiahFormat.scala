@@ -59,7 +59,7 @@ object IsdiahFormat {
   import RepositoryDescriptionF._
 
   implicit val isdiahReads: Reads[RepositoryDescriptionF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.RepositoryDescription)) andKeep
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.RepositoryDescription)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String] and

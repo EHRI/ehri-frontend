@@ -3,6 +3,7 @@ package models.forms
 import play.api.data.Form
 import play.api.data.Forms._
 import models._
+import defines.EntityType
 
 /**
  * IsadG description form.
@@ -13,6 +14,7 @@ object IsadGForm {
 
   val form = Form(
     mapping(
+      Entity.ISA -> ignored(EntityType.DocumentaryUnitDescription),
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
       TITLE -> nonEmptyText,

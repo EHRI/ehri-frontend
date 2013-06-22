@@ -39,8 +39,7 @@ object DocumentaryUnitFormat {
   }
 
   implicit val documentaryUnitReads: Reads[DocumentaryUnitF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnit)) andKeep
-    __.read[JsObject] and
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnit)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
