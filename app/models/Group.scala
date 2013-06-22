@@ -34,3 +34,8 @@ case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with A
   lazy val formableOpt: Option[GroupF] = Json.toJson(e).asOpt[GroupF]
 }
 
+case class GroupMeta(
+  model: GroupF,
+  groups: List[GroupMeta] = Nil
+)
+

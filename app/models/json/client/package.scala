@@ -52,6 +52,8 @@ package object client {
   implicit val systemEventFormat = Json.format[SystemEventF]
 
   // Meta models
+  implicit val groupMetaFormat = Json.format[GroupMeta]
+  implicit val userProfileMetaFormat = Json.format[UserProfileMeta]
   implicit val systemEventMetaFormat = Json.format[SystemEventMeta]
   implicit val countryMetaFormat = Json.format[CountryMeta]
   implicit val repositoryMetaFormat = Json.format[RepositoryMeta]

@@ -62,6 +62,6 @@ case class SystemEvent(val e: Entity) extends AccessibleEntity {
 
 case class SystemEventMeta(
   model: SystemEventF,
-  actioner: Option[UserProfileF] = None
+  actioner: Option[UserProfileMeta] = None
 )
 

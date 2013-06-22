@@ -6,6 +6,7 @@ import play.api.libs.json._
 import models._
 import defines.EntityType
 import defines.EnumUtils._
+import models.base.Accessor
 
 
 object UserProfileFormat {
@@ -39,4 +40,12 @@ object UserProfileFormat {
     )(UserProfileF.apply _)
 
   implicit val restFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
+
+  private implicit val groupReads = GroupFormat.metaReads
+
+  implicit val metaReads: Reads[UserProfileMeta] = (
+    __.read[UserProfileF] and
+    (__ \ Accessor.BELONGS_REL).lazyReadNullable[List[GroupMeta]](
+      Reads.list[GroupMeta]).map(_.getOrElse(List.empty[GroupMeta]))
+  )(UserProfileMeta.apply _)
 }

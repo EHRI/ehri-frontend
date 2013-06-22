@@ -1,7 +1,7 @@
 package models
 
 import defines.EntityType
-import play.api.libs.json.Reads
+import play.api.libs.json.{Json, Writes, Format, Reads}
 import play.api.data.validation.ValidationError
 
 /**
@@ -19,5 +19,5 @@ package object json {
    * Reads combinator that checks if a value is equal to the expected value.
    */
   def equalsReads[T](t: T)(implicit r: Reads[T]): Reads[T] = Reads.filter(ValidationError("validate.error.incorrectType", t))(_ == t)
-
+  def equalsFormat[T](t: T)(implicit r: Format[T]): Format[T] = Format(equalsReads(t), r)
 }

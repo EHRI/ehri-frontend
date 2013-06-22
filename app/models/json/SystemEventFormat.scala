@@ -40,10 +40,11 @@ object SystemEventFormat {
 
   implicit val restFormat: Format[SystemEventF] = Format(systemEventReads,systemEventWrites)
 
-  private implicit val userReads = UserProfileFormat.userProfileReads
+  private implicit val groupReads = GroupFormat.metaReads
+  private implicit val userReads = UserProfileFormat.metaReads
 
   implicit val metaReads: Reads[SystemEventMeta] = (
     __.read[SystemEventF] and
-    (__ \ SystemEvent.ACTIONER_REL).readNullable[UserProfileF]
+    (__ \ SystemEvent.ACTIONER_REL).readNullable[UserProfileMeta]
   )(SystemEventMeta.apply _)
 }

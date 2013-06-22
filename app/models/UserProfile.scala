@@ -68,3 +68,9 @@ case class UserProfile(
   lazy val formable: UserProfileF = Json.toJson(e).as[UserProfileF]
   lazy val formableOpt: Option[UserProfileF] = Json.toJson(e).asOpt[UserProfileF]
 }
+
+
+case class UserProfileMeta(
+  model: UserProfileF,
+  groups: List[GroupMeta] = Nil
+)
