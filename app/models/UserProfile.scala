@@ -6,9 +6,9 @@ import models.base._
 
 import base.Persistable
 import defines.EntityType
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{JsObject, Format, Json}
 import defines.EnumUtils.enumWrites
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 
 object UserProfileF {
@@ -69,8 +69,16 @@ case class UserProfile(
   lazy val formableOpt: Option[UserProfileF] = Json.toJson(e).asOpt[UserProfileF]
 }
 
+object UserProfileMeta {
+  implicit object Converter extends ClientConvertable[UserProfileMeta] with RestReadable[UserProfileMeta] {
+    val restReads = models.json.UserProfileFormat.metaReads
+    val clientFormat = models.json.client.userProfileMetaFormat
+  }
+}
+
 
 case class UserProfileMeta(
+  json: JsObject,
   model: UserProfileF,
   groups: List[GroupMeta] = Nil
 )

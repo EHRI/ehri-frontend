@@ -27,7 +27,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   with EntityAnnotate[DocumentaryUnit]
   with EntityLink[DocumentaryUnit]
   with DescriptionCRUD[DocumentaryUnit, DocumentaryUnitDescriptionF]
-  with EntitySearch {
+  with EntitySearch
+  with ApiBase[DocumentaryUnitMeta] {
 
   val DEFAULT_SORT = AccessibleEntity.NAME
 
@@ -128,24 +129,6 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     Ok(views.html.documentaryUnit.show(
       DocumentaryUnit(item), page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
   }*/
-
-  def getMeta(id: String) = userProfileAction {
-      implicit userOpt => implicit request =>
-    Async {
-      play.api.libs.ws.WS.url("http://localhost:7474/ehri/documentaryUnit/" + id).get.map { r =>
-        println(Json.prettyPrint(r.json))
-        r.json.validate[DocumentaryUnitMeta](models.json.DocumentaryUnitFormat.metaReads).fold(
-          invalid = { err =>
-            println(err.toString)
-            Ok(err.toString)
-          },
-          valid = { dm =>
-            Ok(Json.toJson(dm)(models.json.client.documentaryUnitMetaFormat))
-          }
-        )
-      }
-    }
-  }
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     val doc = DocumentaryUnit(item)

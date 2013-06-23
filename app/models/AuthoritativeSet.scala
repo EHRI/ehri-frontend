@@ -4,9 +4,9 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{JsObject, Format, Json}
 import defines.EnumUtils.enumWrites
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 
 object AuthoritativeSetF {
@@ -45,3 +45,18 @@ case class AuthoritativeSet(e: Entity)
   lazy val formable: AuthoritativeSetF = Json.toJson(e).as[AuthoritativeSetF]
   lazy val formableOpt: Option[AuthoritativeSetF] = Json.toJson(e).asOpt[AuthoritativeSetF]
 }
+
+
+object AuthoritativeSetMeta {
+  implicit object Converter extends ClientConvertable[AuthoritativeSetMeta] with RestReadable[AuthoritativeSetMeta] {
+    val restReads = models.json.AuthoritativeSetFormat.metaReads
+    val clientFormat = models.json.client.authoritativeSetMetaFormat
+  }
+}
+
+
+case class AuthoritativeSetMeta(
+  json: JsObject,
+  model: AuthoritativeSetF,
+  latestEvent: Option[SystemEventMeta]
+)

@@ -4,9 +4,9 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{JsObject, Format, Json}
 import defines.EnumUtils.enumWrites
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 object VocabularyType extends Enumeration {
   type Type = Value
@@ -47,3 +47,17 @@ case class Vocabulary(e: Entity)
   lazy val formable: VocabularyF = Json.toJson(e).as[VocabularyF]
   lazy val formableOpt: Option[VocabularyF] = Json.toJson(e).asOpt[VocabularyF]
 }
+
+object VocabularyMeta {
+  implicit object Converter extends ClientConvertable[VocabularyMeta] with RestReadable[VocabularyMeta] {
+    val restReads = models.json.VocabularyFormat.metaReads
+    val clientFormat = models.json.client.vocabularyMetaFormat
+  }
+}
+
+
+case class VocabularyMeta(
+  json: JsObject,
+  model: VocabularyF,
+  latestEvent: Option[SystemEventMeta]
+)

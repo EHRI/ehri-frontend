@@ -4,7 +4,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 import defines.EntityType
-import models.base.DescribedEntity
+import models.base.{AccessibleEntity, DescribedEntity}
 import models._
 import defines.EnumUtils._
 
@@ -38,21 +38,17 @@ object ConceptFormat {
 
   implicit val restFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
 
-  implicit object Converter extends RestConvertable[ConceptF] with ClientConvertable[ConceptF] {
-    lazy val restFormat = models.json.rest.conceptFormat
-    lazy val clientFormat = models.json.client.conceptFormat
-  }
-}
+  private implicit val systemEventReads = SystemEventFormat.metaReads
+  private implicit val vocabularyReads = VocabularyFormat.metaReads
 
-//object ConceptMetaFormat extends JsonConverter[ConceptMetaF] {
-//  import models.Entity._
-//  import VocabularyMetaReads.vocabularyMetaReads
-//
-//  implicit val conceptMetaReads: Reads[ConceptMeta] = (
-//    (__ \ ID).read[String] and
-//    (__).read[ConceptF] and
-//      ((__ \ RELATIONSHIPS \ Concept.IN_SET_REL).lazyRead(Reads.list[VocabularyMeta])
-//        orElse Reads.pure(Nil)) and
-//      ((__ \ RELATIONSHIPS \ Concept.BT_REL).lazyRead(Reads.list[ConceptMeta]) orElse Reads.pure(Nil))
-//  )(ConceptMeta.apply _)
-//}
+  implicit val metaReads: Reads[ConceptMeta] = (
+    __.read[JsObject] and // capture the full JS data
+    __.read[ConceptF] and
+    (__ \ RELATIONSHIPS \ Concept.IN_SET_REL).lazyReadNullable[List[VocabularyMeta]](
+      Reads.list[VocabularyMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ Concept.BT_REL).lazyReadNullable[List[ConceptMeta]](
+      Reads.list[ConceptMeta]).map(_.getOrElse(List.empty[ConceptMeta])) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
+  )(ConceptMeta.apply _)
+}

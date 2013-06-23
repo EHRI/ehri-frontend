@@ -2,8 +2,8 @@ package models
 
 import models.base._
 import defines.EntityType
-import play.api.libs.json.{Format, Json}
-import models.json.{ClientConvertable, RestConvertable}
+import play.api.libs.json.{JsObject, Format, Json}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 object GroupF {
 
@@ -34,7 +34,16 @@ case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with A
   lazy val formableOpt: Option[GroupF] = Json.toJson(e).asOpt[GroupF]
 }
 
+object GroupMeta {
+  implicit object Converter extends ClientConvertable[GroupMeta] with RestReadable[GroupMeta] {
+    val restReads = models.json.GroupFormat.metaReads
+    val clientFormat = models.json.client.groupMetaFormat
+  }
+}
+
+
 case class GroupMeta(
+  json: JsObject,
   model: GroupF,
   groups: List[GroupMeta] = Nil
 )

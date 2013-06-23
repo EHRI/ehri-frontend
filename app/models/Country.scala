@@ -4,11 +4,11 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{JsObject, Format, Json}
 import defines.EnumUtils.enumWrites
 import play.api.i18n.Lang
 import java.util.Locale
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 object CountryF {
   lazy implicit val countryFormat: Format[CountryF] = json.CountryFormat.restFormat
@@ -52,8 +52,17 @@ case class Country(e: Entity)
   }
 }
 
+object CountryMeta {
+  implicit object Converter extends ClientConvertable[CountryMeta] with RestReadable[CountryMeta] {
+    val restReads = models.json.CountryFormat.metaReads
+    val clientFormat = models.json.client.countryMetaFormat
+  }
+}
+
+
 // Stub
 case class CountryMeta(
+  json: JsObject,
   model: CountryF,
   latestEvent: Option[SystemEventMeta] = None
 )

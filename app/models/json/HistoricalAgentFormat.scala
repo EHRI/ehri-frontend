@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.DescribedEntity
+import models.base.{AccessibleEntity, DescribedEntity}
 import models._
 import play.api.data.validation.ValidationError
 import defines.EnumUtils._
@@ -44,4 +44,17 @@ object HistoricalAgentFormat {
     )(HistoricalAgentF.apply _)
 
   implicit val restFormat: Format[HistoricalAgentF] = Format(actorReads,actorWrites)
+
+
+  private implicit val systemEventReads = SystemEventFormat.metaReads
+  private implicit val authoritativeSetReads = AuthoritativeSetFormat.metaReads
+
+  implicit val metaReads: Reads[HistoricalAgentMeta] = (
+    __.read[JsObject] and // capture the full JS data
+    __.read[HistoricalAgentF] and
+    (__ \ RELATIONSHIPS \ HistoricalAgentF.IN_SET_REL).lazyReadNullable[List[AuthoritativeSetMeta]](
+      Reads.list[AuthoritativeSetMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
+  )(HistoricalAgentMeta.apply _)
 }

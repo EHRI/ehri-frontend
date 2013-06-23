@@ -6,7 +6,7 @@ import models.base._
 
 import models.base.{DescribedEntity, AttributeSet, Persistable, TemporalEntity}
 import play.api.libs.json.{JsObject, Json, JsString, JsValue}
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, DocumentaryUnitFormat, ClientConvertable, RestConvertable}
 
 
 object DocumentaryUnitF {
@@ -114,11 +114,17 @@ case class DocumentaryUnit(val e: Entity) extends NamedEntity
   lazy val formableOpt: Option[DocumentaryUnitF] = Json.toJson(e).asOpt[DocumentaryUnitF](json.DocumentaryUnitFormat.restFormat)
 }
 
+object DocumentaryUnitMeta {
+  implicit object Converter extends ClientConvertable[DocumentaryUnitMeta] with RestReadable[DocumentaryUnitMeta] {
+    val restReads = models.json.DocumentaryUnitFormat.metaReads
+    val clientFormat = models.json.client.documentaryUnitMetaFormat
+  }
+}
 
 case class DocumentaryUnitMeta(
-  rawData: JsValue,
+  json: JsObject,
   model: DocumentaryUnitF,
   //holder: Option[RepositoryMeta] = None,
   parent: Option[DocumentaryUnitMeta] = None,
   latestEvent: Option[SystemEventMeta] = None
-)
+) extends MetaModel

@@ -9,7 +9,7 @@ import defines.EnumUtils._
 import base._
 
 import play.api.libs.json._
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 object HistoricalAgentF {
 
@@ -60,5 +60,19 @@ case class HistoricalAgent(val e: Entity)
 }
 
 
+object HistoricalAgentMeta {
+  implicit object Converter extends ClientConvertable[HistoricalAgentMeta] with RestReadable[HistoricalAgentMeta] {
+    val restReads = models.json.HistoricalAgentFormat.metaReads
+    val clientFormat = models.json.client.historicalAgentMetaFormat
+  }
+}
+
+
+case class HistoricalAgentMeta(
+  json: JsObject,
+  model: HistoricalAgentF,
+  set: Option[AuthoritativeSetMeta],
+  latestEvent: Option[SystemEventMeta]
+)
 
 

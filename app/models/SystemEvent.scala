@@ -6,6 +6,8 @@ import org.joda.time.DateTime
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import play.api.i18n.Messages
 import defines.{EntityType, EventType}
+import play.api.libs.json.JsObject
+import models.json.{RestReadable, ClientConvertable}
 
 object SystemEventF {
   final val TIMESTAMP = "timestamp"
@@ -60,7 +62,15 @@ case class SystemEvent(val e: Entity) extends AccessibleEntity {
   }
 }
 
+object SystemEventMeta {
+  implicit object Converter extends ClientConvertable[SystemEventMeta] with RestReadable[SystemEventMeta] {
+    val restReads = models.json.SystemEventFormat.metaReads
+    val clientFormat = models.json.client.systemEventMetaFormat
+  }
+}
+
 case class SystemEventMeta(
+  json: JsObject,
   model: SystemEventF,
   actioner: Option[UserProfileMeta] = None
 )

@@ -5,7 +5,6 @@ import play.api.mvc.{Action, Controller}
 import controllers.base.ControllerHelpers
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Execution.Implicits._
-import java.net.URLEncoder
 
 /**
  * Simple proxy controller that authorizes users and passes a request

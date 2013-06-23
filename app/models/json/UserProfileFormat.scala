@@ -44,8 +44,9 @@ object UserProfileFormat {
   private implicit val groupReads = GroupFormat.metaReads
 
   implicit val metaReads: Reads[UserProfileMeta] = (
+    __.read[JsObject] and
     __.read[UserProfileF] and
-    (__ \ Accessor.BELONGS_REL).lazyReadNullable[List[GroupMeta]](
+    (__ \ RELATIONSHIPS \ Accessor.BELONGS_REL).lazyReadNullable[List[GroupMeta]](
       Reads.list[GroupMeta]).map(_.getOrElse(List.empty[GroupMeta]))
   )(UserProfileMeta.apply _)
 }

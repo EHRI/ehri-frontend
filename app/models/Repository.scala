@@ -10,7 +10,7 @@ import play.api.libs.json._
 import defines.EnumUtils._
 import models.base._
 import play.api.i18n.Lang
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 
 object RepositoryF {
@@ -67,7 +67,15 @@ case class Repository(val e: Entity)
   }
 }
 
+object RepositoryMeta {
+  implicit object Converter extends ClientConvertable[RepositoryMeta] with RestReadable[RepositoryMeta] {
+    val restReads = models.json.RepositoryFormat.metaReads
+    val clientFormat = models.json.client.repositoryMetaFormat
+  }
+}
+
 case class RepositoryMeta(
+  json: JsObject,
   model: RepositoryF,
   country: Option[CountryMeta] = None,
   latestEvent: Option[SystemEventMeta] = None

@@ -3,11 +3,11 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import play.api.libs.json.{Writes, Json, JsValue}
+import play.api.libs.json.{JsResult, Writes, Json, JsValue}
 import defines.{EntityType,ContentType}
 import models.Entity
 import models.UserProfile
-import models.json.RestConvertable
+import models.json.{RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
@@ -161,6 +161,14 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
           Cache.set(id, entity, cacheTime)
           entity
         }
+      }
+    }
+  }
+
+  def getJson[TM](id: String)(implicit rw: RestReadable[TM]): Future[Either[RestError, JsResult[TM]]] = {
+    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkError(response).right.map { r =>
+        r.json.validate[TM](rw.restReads)
       }
     }
   }

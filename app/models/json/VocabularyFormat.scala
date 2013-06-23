@@ -7,6 +7,7 @@ import play.api.libs.functional._
 import models._
 import defines.EntityType
 import defines.EnumUtils._
+import models.base.AccessibleEntity
 
 
 object VocabularyFormat {
@@ -36,12 +37,12 @@ object VocabularyFormat {
     )(VocabularyF.apply _)
 
   implicit val restFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
-}
 
-//object VocabularyMetaReads {
-//  import models.Entity._
-//  implicit val vocabularyMetaReads: Reads[VocabularyMeta] = (
-//    (__ \ ID).read[String] and
-//    __.read[VocabularyF](VocabularyFormat.vocabularyReads)
-//  )(VocabularyMeta.apply _)
-//}
+  private implicit val systemEventReads = SystemEventFormat.metaReads
+  implicit val metaReads: Reads[VocabularyMeta] = (
+    __.read[JsObject] and // capture the full JS data
+    __.read[VocabularyF] and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
+  )(VocabularyMeta.apply _)
+}

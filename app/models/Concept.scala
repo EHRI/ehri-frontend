@@ -5,9 +5,9 @@ import base._
 import models.base.Persistable
 import models.base.DescribedEntity
 import defines.EntityType
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{JsObject, Format, Json}
 import play.api.i18n.Lang
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 object ConceptF {
 
@@ -73,3 +73,19 @@ case class Concept(e: Entity)
   override def toString = descriptions.headOption.flatMap(_.stringProperty(ConceptF.PREFLABEL))
       .orElse(e.stringProperty(Entity.IDENTIFIER)).getOrElse(e.id)
 }
+
+object ConceptMeta {
+  implicit object Converter extends ClientConvertable[ConceptMeta] with RestReadable[ConceptMeta] {
+    val restReads = models.json.ConceptFormat.metaReads
+    val clientFormat = models.json.client.conceptMetaFormat
+  }
+}
+
+
+case class ConceptMeta(
+  json: JsObject,
+  model: ConceptF,
+  vocabulary: Option[VocabularyMeta],
+  broaderTerms: List[ConceptMeta],
+  latestEvent: Option[SystemEventMeta]
+)
