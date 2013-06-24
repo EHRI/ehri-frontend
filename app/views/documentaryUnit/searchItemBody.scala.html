@@ -33,7 +33,7 @@
         }
     </ul>
 </small>
-@desc.stringProperty(IsadG.SCOPE_CONTENT).map(StringUtils.abbreviate(_, 600)).map { sc =>
+@desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
     <p>@sc</p>
 }
 

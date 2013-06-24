@@ -73,8 +73,13 @@ case class DocumentaryUnitDescription(val e: Entity)
   with TemporalEntity
   with Formable[DocumentaryUnitDescriptionF] {
 
+  import IsadG._
+
   // This should have one logical object
   val item: Option[DocumentaryUnit] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(DocumentaryUnit(_))
+
+  // What to display on search listings
+  lazy val displayText: Option[String] = e.stringProperty(ABSTRACT) orElse e.stringProperty(SCOPE_CONTENT)
 
   lazy val formable = Json.toJson(e).as[DocumentaryUnitDescriptionF]
   lazy val formableOpt = Json.toJson(e).asOpt[DocumentaryUnitDescriptionF]
