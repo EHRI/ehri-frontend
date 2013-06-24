@@ -50,6 +50,7 @@ case class DocumentaryUnitDescriptionF(
   id: Option[String],
   languageCode: String,
   name: String,
+  `abstract`: Option[String],
   @Annotations.Relation(TemporalEntity.DATE_REL)
   dates: List[DatePeriodF] = Nil,
   levelOfDescription: Option[IsadG.LevelOfDescription.Value] = None,

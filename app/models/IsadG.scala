@@ -24,6 +24,7 @@ case object IsadG {
   val EXTENT_MEDIUM = "extentAndMedium"
   val PUB_STATUS = "publicationStatus"
   val LANG_CODE = "languageCode"
+  val ABSTRACT = "abstract"
 
   val IDENTITY_AREA = "identityArea"
   val DESCRIPTIONS_AREA = "descriptionsArea"

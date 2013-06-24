@@ -22,6 +22,7 @@ object IsadGForm {
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
       TITLE -> nonEmptyText,
+      ABSTRACT -> optional(nonEmptyText),
       DATES -> list(DatePeriodForm.form.mapping),
       LEVEL_OF_DESCRIPTION -> optional(enum(LevelOfDescription)),
       EXTENT_MEDIUM -> optional(nonEmptyText),
