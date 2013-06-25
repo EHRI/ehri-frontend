@@ -12,14 +12,14 @@ import solr.facet.{FacetSort, FieldFacetClass}
 import views.Helpers
 import solr.{SearchOrder, SearchParams}
 
-object Concepts extends CreationContext[ConceptF, Concept]
-  with VisibilityController[Concept]
-  with EntityRead[Concept]
-  with EntityUpdate[ConceptF, Concept]
-  with EntityDelete[Concept]
-  with PermissionScopeController[Concept]
-  with EntityLink[Concept]
-  with EntityAnnotate[Concept]
+object Concepts extends CreationContext[ConceptF, ConceptMeta]
+  with VisibilityController[ConceptMeta]
+  with EntityRead[ConceptMeta]
+  with EntityUpdate[ConceptF, ConceptMeta]
+  with EntityDelete[ConceptMeta]
+  with PermissionScopeController[ConceptMeta]
+  with EntityLink[ConceptMeta]
+  with EntityAnnotate[ConceptMeta]
   with EntitySearch
   with ApiBase[ConceptMeta] {
 
@@ -77,7 +77,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
   def get(id: String) = getWithChildrenAction(id) { item => page => params => annotations => links =>
     implicit userOpt => implicit request =>
       Ok(views.html.concept.show(
-          Concept(item), page.copy(items = page.items.map(Concept.apply)), params, annotations))
+          item, page.copy(items = page.items.map(Concept.apply)), params, annotations))
   }
 
   def search = {
@@ -88,17 +88,17 @@ object Concepts extends CreationContext[ConceptF, Concept]
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(Concept(item), page, ListParams()))
+    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.concept.list(page.copy(items = page.items.map(Concept(_))), params))
+    Ok(views.html.concept.list(page, params))
   }
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.concept.edit(
-        Concept(item), form.fill(Concept(item).formable),routes.Concepts.updatePost(id)))
+        item, form.fill(item.formable),routes.Concepts.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
@@ -114,14 +114,14 @@ object Concepts extends CreationContext[ConceptF, Concept]
   def createConcept(id: String) = childCreateAction(id, ContentType.Concept) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.concept.create(
-        Concept(item), childForm, VisibilityForm.form, users, groups, routes.Concepts.createConceptPost(id)))
+        item, childForm, VisibilityForm.form, users, groups, routes.Concepts.createConceptPost(id)))
   }
 
   def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.concept.create(Concept(item),
+        BadRequest(views.html.concept.create(item,
           errorForm, accForm, users, groups, routes.Concepts.createConceptPost(id)))
       }
       case Right(citem) => Redirect(routes.Concepts.get(id))
@@ -131,7 +131,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        Concept(item), routes.Concepts.deletePost(id), routes.Concepts.get(id)))
+        item, routes.Concepts.deletePost(id), routes.Concepts.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) {
@@ -142,8 +142,8 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(Concept(item),
-        models.forms.VisibilityForm.form.fill(Concept(item).accessors.map(_.id)),
+    Ok(views.html.permissions.visibility(item,
+        models.forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, routes.Concepts.visibilityPost(id)))
   }
 
@@ -156,25 +156,25 @@ object Concepts extends CreationContext[ConceptF, Concept]
   def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
     manageScopedPermissionsAction(id, page, spage, limit) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(Concept(item), perms, sperms,
+    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         routes.Concepts.addItemPermissions(id), routes.Concepts.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(Concept(item), users, groups,
+    Ok(views.html.permissions.permissionItem(item, users, groups,
         routes.Concepts.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(Concept(item), users, groups,
+    Ok(views.html.permissions.permissionScope(item, users, groups,
         routes.Concepts.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(Concept(item), accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
         routes.Concepts.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -186,7 +186,7 @@ object Concepts extends CreationContext[ConceptF, Concept]
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(Concept(item), accessor, perms, targetContentTypes,
+    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         routes.Concepts.setScopedPermissionsPost(id, userType, userId)))
   }
 

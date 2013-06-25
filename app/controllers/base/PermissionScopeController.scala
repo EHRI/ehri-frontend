@@ -13,13 +13,13 @@ import acl.GlobalPermissionSet
  *
  * @tparam T the entity's build class
  */
-trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemController[T] {
+trait PermissionScopeController[MT <: MetaModel] extends PermissionItemController[MT] {
 
   val targetContentTypes: Seq[ContentType.Value]
 
   def manageScopedPermissionsAction(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT)(
-      f: Entity => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      f: MT => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
           permGrantsOrErr <- rest.PermissionDAO(userOpt).listForItem(id, math.max(page, 1), math.max(limit, 1))
@@ -34,8 +34,8 @@ trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemCon
   }
 
   def setScopedPermissionsAction(id: String, userType: String, userId: String)(
-      f: Entity => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt =>
+      f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt =>
       implicit request =>
         AsyncRest {
           for {
@@ -57,7 +57,7 @@ trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemCon
 
   def setScopedPermissionsPostAction(id: String, userType: String, userId: String)(
       f: acl.GlobalPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = targetContentTypes.map { ct =>
         (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))

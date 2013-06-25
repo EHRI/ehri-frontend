@@ -1,4 +1,4 @@
-@(item: SystemEvent, page: rest.Page[ItemWithId], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: SystemEvent, page: rest.Page[ItemWithId], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @title(item: SystemEvent) = {
     @item.scope.map(s => views.Helpers.itemForEntity(s.e) + " - ")

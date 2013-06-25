@@ -1,4 +1,4 @@
-@(item: UserProfile)(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: UserProfile)(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import UserProfileF._
 

@@ -2,20 +2,22 @@ package controllers.base
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.AccessibleEntity
+import models.base.MetaModel
 import defines.PermissionType
-import models.{Entity, UserProfile}
+import models.UserProfileMeta
 import play.api.libs.json.Json
+import models.json.RestReadable
 
 /**
  * Controller trait for deleting AccessibleEntities.
  *
- * @tparam T the Entity's built representation
+ * @tparam MT the Entity's meta representation
  */
-trait EntityDelete[T <: AccessibleEntity] extends EntityRead[T] {
+trait EntityDelete[MT <: MetaModel[_]] extends EntityRead[MT] {
 
-  def deleteAction(id: String)(f: Entity => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
+  def deleteAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }

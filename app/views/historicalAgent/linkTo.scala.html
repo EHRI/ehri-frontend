@@ -1,4 +1,4 @@
-@(item: HistoricalAgent)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: HistoricalAgent)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @historicalAgent.itemPage(item) {
 

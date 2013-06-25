@@ -9,13 +9,13 @@ import models.{PermissionGrant, Entity, UserProfile}
 /**
  * Trait for setting permissions on an individual item.
  *
- * @tparam T the entity's build class
+ * @tparam MT the entity's meta class
  */
-trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
+trait PermissionItemController[MT <: MetaModel] extends EntityRead[MT] {
 
   def manageItemPermissionsAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
-      f: Entity => rest.Page[PermissionGrant] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      f: MT => rest.Page[PermissionGrant] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
           permGrantsOrErr <- rest.PermissionDAO(userOpt).listForItem(id, math.max(page, 1), math.max(limit, 1))
@@ -28,8 +28,8 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
     }
   }
 
-  def addItemPermissionsAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+  def addItemPermissionsAction(id: String)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
           itemOrErr <- rest.EntityDAO(entityType, userOpt).get(id)
@@ -46,8 +46,8 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
 
   def setItemPermissionsAction(id: String, userType: String, userId: String)(
-      f: Entity => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      f: MT => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
           userOrErr <- rest.EntityDAO(EntityType.withName(userType), userOpt).get(userId)
@@ -68,7 +68,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def setItemPermissionsPostAction(id: String, userType: String, userId: String)(
       f: acl.ItemPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
       getEntity(EntityType.withName(userType), userId) { accessor =>

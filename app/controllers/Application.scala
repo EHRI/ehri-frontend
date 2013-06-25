@@ -7,7 +7,7 @@ import play.api.Play.current
 import base.{Authorizer,AuthController,LoginHandler}
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{UserProfile, Entity}
+import models.Entity
 import defines.EntityType
 
 

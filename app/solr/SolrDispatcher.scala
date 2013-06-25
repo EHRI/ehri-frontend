@@ -1,7 +1,7 @@
 package solr
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{Entity, UserProfile}
+import models.UserProfileMeta
 import play.api.libs.ws.WS
 import play.api.Logger
 import defines.EntityType
@@ -10,6 +10,7 @@ import solr.facet.{FacetClass, AppliedFacet}
 import com.github.seratch.scalikesolr.request.QueryRequest
 import play.api.libs.json.{Writes, Json, Format}
 import scala.concurrent.Future
+import models.json.ClientConvertable
 
 /**
  * Page of search result items
@@ -35,8 +36,8 @@ object ItemPage {
   import play.api.libs.json._
   import play.api.libs.json.util._
 
-  implicit def itemPageWrites: Writes[ItemPage[Entity]] = (
-    (__ \ "items").lazyWrite(Writes.traversableWrites[Entity]) and
+  implicit def itemPageWrites[MT](implicit rd: ClientConvertable[MT]): Writes[ItemPage[MT]] = (
+    (__ \ "items").lazyWrite(Writes.traversableWrites[MT])(Writes.list(rd.clientFormat)) and
       (__ \ "offset").write[Int] and
       (__ \ "limit").write[Int] and
       (__ \ "total").write[Long] and
@@ -46,7 +47,7 @@ object ItemPage {
           (__ \ "correction").write[String]
         tupled
       )
-  )(unlift(ItemPage.unapply[Entity]))
+  )(unlift(ItemPage.unapply[MT]))
 }
 
 /**

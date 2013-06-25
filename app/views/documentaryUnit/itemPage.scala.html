@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item.toStringLang, breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = scripts, styles = styles) {
     @html

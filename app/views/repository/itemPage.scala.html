@@ -1,4 +1,4 @@
-@(item: Repository, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Repository, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(item.country.toList ::: List(item)), scripts = scripts, styles = styles) {
     @html

@@ -31,7 +31,8 @@ trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
     }
   }
 
-  def getEntity(otherType: defines.EntityType.Type, id: String)(f: Entity => Result)(implicit userOpt: Option[UserProfileMeta], request: RequestHeader) = {
+  def getEntity[T](otherType: defines.EntityType.Type, id: String)(f: Entity => Result)(
+      implicit userOpt: Option[UserProfileMeta], request: RequestHeader, rd: RestReadable[T]) = {
     AsyncRest {
       rest.EntityDAO(otherType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
@@ -64,7 +65,7 @@ trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
 
   def getAction(id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
-    itemPermissionAction(contentType, id) { item => implicit maybeUser => implicit request =>
+    itemPermissionAction[MT](contentType, id) { item => implicit maybeUser => implicit request =>
       Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
@@ -80,16 +81,17 @@ trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
     }
   }
 
-  def getWithChildrenAction(id: String)(
-      f: Entity => rest.Page[Entity] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    itemPermissionAction(contentType, id) { item => implicit userOpt => implicit request =>
+  def getWithChildrenAction[CT](id: String)(
+      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+          implicit rd: RestReadable[MT], crd: RestReadable[CT]) = {
+    itemPermissionAction[MT](contentType, id) { item => implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
           // NB: Effectively disable paging here by using a high limit
           val params = ListParams.bind(request)
           val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
           val linkReq = rest.LinkDAO(userOpt).getFor(id)
-          val cReq = rest.EntityDAO(entityType, userOpt).pageChildren(id, processChildParams(params))
+          val cReq = rest.EntityDAO(entityType, userOpt).pageChildren[CT](id, processChildParams(params))
           for { annOrErr <- annsReq ; cOrErr <- cReq ; linkOrErr <- linkReq } yield {
             for { anns <- annOrErr.right ; children <- cOrErr.right ; links <- linkOrErr.right } yield {
               f(item)(children)(params)(anns)(links)(userOpt)(request)
@@ -100,12 +102,13 @@ trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
     }
   }
 
-  def listAction(f: rest.Page[Entity] => ListParams => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+  def listAction(f: rest.Page[MT] => ListParams => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
           val params = ListParams.bind(request)
-          rest.EntityDAO(entityType, userOpt).page(processParams(params)).map { itemOrErr =>
+          rest.EntityDAO(entityType, userOpt).page[MT](processParams(params)).map { itemOrErr =>
             itemOrErr.right.map {
               page => f(page)(params)(userOpt)(request)
             }
@@ -116,18 +119,17 @@ trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
   }
 
 
-  def historyAction[C <: AccessibleEntity](id: String)(
-      f: Entity => rest.Page[SystemEvent] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+  def historyAction(id: String)(
+      f: MT => rest.Page[SystemEventMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
+      implicit val rd = SystemEventMeta.Converter.restReads
       Secured {
         AsyncRest {
-          val itemReq = rest.EntityDAO(entityType, userOpt).get(id)
-          // NOTE: we do not use the controller's RestPageParams here because
-          // they won't apply to Event items...???
+          val itemReq = rest.EntityDAO(entityType, userOpt).get[MT](id)
           val alReq = rest.SystemEventDAO(userOpt).history(id, RestPageParams())
           for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
             for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {
-              f(item)(al.copy(items = al.items.map(SystemEvent(_))))(userOpt)(request)
+              f(item)(al)(userOpt)(request)
             }
           }
         }

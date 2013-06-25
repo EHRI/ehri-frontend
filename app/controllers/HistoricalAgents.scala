@@ -12,11 +12,11 @@ import collection.immutable.ListMap
 import solr.SearchParams
 
 
-object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
-	with VisibilityController[HistoricalAgent]
-  with PermissionItemController[HistoricalAgent]
-  with EntityLink[HistoricalAgent]
-  with EntityAnnotate[HistoricalAgent]
+object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgentMeta]
+	with VisibilityController[HistoricalAgentMeta]
+  with PermissionItemController[HistoricalAgentMeta]
+  with EntityLink[HistoricalAgentMeta]
+  with EntityAnnotate[HistoricalAgentMeta]
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
@@ -75,12 +75,12 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   def get(id: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.show(HistoricalAgent(item), annotations, links))
+    Ok(views.html.historicalAgent.show(item, annotations, links))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
     // TODO: Add relevant params
-    Ok(views.html.systemEvents.itemList(HistoricalAgent(item), page, ListParams()))
+    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
@@ -89,14 +89,14 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.edit(HistoricalAgent(item), form.fill(HistoricalAgent(item).formable), routes.HistoricalAgents.updatePost(id)))
+    Ok(views.html.historicalAgent.edit(item, form.fill(item.formable), routes.HistoricalAgents.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.historicalAgent.edit(HistoricalAgent(item), errorForm, routes.HistoricalAgents.updatePost(id)))
+        BadRequest(views.html.historicalAgent.edit(item, errorForm, routes.HistoricalAgents.updatePost(id)))
       case Right(item) => Redirect(routes.HistoricalAgents.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
@@ -104,7 +104,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(HistoricalAgent(item), routes.HistoricalAgents.deletePost(id),
+    Ok(views.html.delete(item, routes.HistoricalAgents.deletePost(id),
         routes.HistoricalAgents.get(id)))
   }
 
@@ -114,8 +114,8 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(HistoricalAgent(item),
-      VisibilityForm.form.fill(HistoricalAgent(item).accessors.map(_.id)),
+    Ok(views.html.permissions.visibility(item,
+      VisibilityForm.form.fill(item.accessors.map(_.id)),
       users, groups, routes.HistoricalAgents.visibilityPost(id)))
   }
 
@@ -127,19 +127,19 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
       item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.managePermissions(HistoricalAgent(item), perms,
+    Ok(views.html.permissions.managePermissions(item, perms,
         routes.HistoricalAgents.addItemPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(HistoricalAgent(item), users, groups,
+    Ok(views.html.permissions.permissionItem(item, users, groups,
         routes.HistoricalAgents.setItemPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(HistoricalAgent(item), accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
         routes.HistoricalAgents.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -151,7 +151,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.linkTo(HistoricalAgent(item)))
+    Ok(views.html.historicalAgent.linkTo(item))
   }
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {

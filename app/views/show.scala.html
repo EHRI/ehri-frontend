@@ -1,4 +1,4 @@
-@(item: models.base.AccessibleEntity)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: models.base.AccessibleEntity)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @accView(item: models.base.AccessibleEntity) = {
 	<table>

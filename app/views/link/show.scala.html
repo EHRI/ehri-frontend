@@ -1,4 +1,4 @@
-@(item: Link, annotations: Map[String,List[Annotation]], src: Option[String] = None)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Link, annotations: Map[String,List[Annotation]], src: Option[String] = None)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("link.itemLink"), breadcrumbs = common.breadcrumbs(List(item))) {
 

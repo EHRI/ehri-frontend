@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{Concept,Vocabulary,VocabularyF,ConceptF}
+import _root_.models.{VocabularyMeta, Concept, Vocabulary, VocabularyF, ConceptF}
 import _root_.models.forms.{AnnotationForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
@@ -9,11 +9,11 @@ import base._
 import defines.{PermissionType, ContentType, EntityType}
 import solr.SearchParams
 
-object Vocabularies extends CRUD[VocabularyF,Vocabulary]
-  with CreationContext[ConceptF, Vocabulary]
-  with VisibilityController[Vocabulary]
-  with PermissionScopeController[Vocabulary]
-  with EntityAnnotate[Vocabulary]
+object Vocabularies extends CRUD[VocabularyF,VocabularyMeta]
+  with CreationContext[ConceptF, VocabularyMeta]
+  with VisibilityController[VocabularyMeta]
+  with PermissionScopeController[VocabularyMeta]
+  with EntityAnnotate[VocabularyMeta]
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.Concept)
@@ -34,16 +34,16 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
     searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.vocabulary.show(
-          Vocabulary(item), page, params, facets, routes.Vocabularies.get(id), annotations, links))
+          item, page, params, facets, routes.Vocabularies.get(id), annotations, links))
     }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(Vocabulary(item), page, ListParams()))
+    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.list(page.copy(items = page.items.map(Vocabulary(_))), params))
+    Ok(views.html.vocabulary.list(page, params))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
@@ -62,7 +62,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.vocabulary.edit(
-      Vocabulary(item), form.fill(Vocabulary(item).formable),routes.Vocabularies.updatePost(id)))
+      item, form.fill(item.formable),routes.Vocabularies.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
@@ -78,14 +78,14 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   def createConcept(id: String) = childCreateAction(id, ContentType.Concept) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.concept.create(
-      Vocabulary(item), childForm, VisibilityForm.form, users, groups, routes.Vocabularies.createConceptPost(id)))
+      item, childForm, VisibilityForm.form, users, groups, routes.Vocabularies.createConceptPost(id)))
   }
 
   def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.concept.create(Vocabulary(item),
+        BadRequest(views.html.concept.create(item,
           errorForm, accForm, users, groups, routes.Vocabularies.createConceptPost(id)))
       }
       case Right(citem) => Redirect(routes.Vocabularies.get(id))
@@ -95,7 +95,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        Vocabulary(item), routes.Vocabularies.deletePost(id),
+        item, routes.Vocabularies.deletePost(id),
         routes.Vocabularies.get(id)))
   }
 
@@ -105,8 +105,8 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(Vocabulary(item),
-        models.forms.VisibilityForm.form.fill(Vocabulary(item).accessors.map(_.id)),
+    Ok(views.html.permissions.visibility(item,
+        models.forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, routes.Vocabularies.visibilityPost(id)))
   }
 
@@ -118,25 +118,25 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
     manageScopedPermissionsAction(id, page, spage, limit) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(Vocabulary(item), perms, sperms,
+    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         routes.Vocabularies.addItemPermissions(id), routes.Vocabularies.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(Vocabulary(item), users, groups,
+    Ok(views.html.permissions.permissionItem(item, users, groups,
         routes.Vocabularies.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(Vocabulary(item), users, groups,
+    Ok(views.html.permissions.permissionScope(item, users, groups,
         routes.Vocabularies.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(Vocabulary(item), accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
         routes.Vocabularies.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -148,7 +148,7 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(Vocabulary(item), accessor, perms, targetContentTypes,
+    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         routes.Vocabularies.setScopedPermissionsPost(id, userType, userId)))
   }
 

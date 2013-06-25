@@ -1,11 +1,9 @@
 package controllers.base
 
-import models.base.AccessibleEntity
-import models.base.Formable
-import models.base.Persistable
+import models.base.{MetaModel, Model, Persistable}
 
 
-trait CRUD[F <: Persistable, T <: AccessibleEntity with Formable[F]]
+trait CRUD[F <: Model with Persistable, T <: MetaModel[F]]
 		extends EntityCreate[F,T] 
 		with EntityRead[T]
 		with EntityUpdate[F,T]

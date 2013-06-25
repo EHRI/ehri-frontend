@@ -8,7 +8,7 @@ import rest._
 import play.api.mvc.Controller
 import play.api.mvc.AsyncResult
 import java.net.ConnectException
-import models.{UserProfileMeta, UserProfileF}
+import models.UserProfileMeta
 
 object ControllerHelpers {
   def isAjax(implicit request: RequestHeader): Boolean =
@@ -22,12 +22,12 @@ trait ControllerHelpers {
   /**
    * Ensure that an action is performed by a logged-in user.
    * @param res
-   * @param maybeUser
+   * @param userOpt
    * @param request
    * @return
    */
-  def Secured(res: Result)(implicit maybeUser: Option[models.UserProfileF], request: RequestHeader): Result = {
-    if (maybeUser.isDefined) res else authenticationFailed(request)
+  def Secured(res: Result)(implicit userOpt: Option[models.UserProfileMeta], request: RequestHeader): Result = {
+    if (userOpt.isDefined) res else authenticationFailed(request)
   }
 
   /**
@@ -37,7 +37,7 @@ trait ControllerHelpers {
    * @param request
    * @return
    */
-  def getGroups(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfileF], request: RequestHeader) = {
+  def getGroups(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfileMeta], request: RequestHeader) = {
     // TODO: Handle REST errors
     Async {
       for {

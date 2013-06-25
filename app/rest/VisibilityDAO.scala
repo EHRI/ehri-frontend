@@ -6,7 +6,7 @@ import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.{UserProfileMeta, Entity, UserProfile}
+import models.UserProfileMeta
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable

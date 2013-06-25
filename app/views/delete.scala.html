@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, action: Call, cancel: Call)(
+@(item: models.base.MetaModel[_], action: Call, cancel: Call)(
 implicit userOpt: Option[UserProfileMeta], request: RequestHeader, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @rightSidebarLayout(Messages("actions.deleteItem", item), breadcrumbs = common.breadcrumbs(List(item))) {

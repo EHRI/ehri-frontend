@@ -1,6 +1,6 @@
 package controllers
 
-import models.{HistoricalAgent,AuthoritativeSet,AuthoritativeSetF,HistoricalAgentF}
+import _root_.models.{AuthoritativeSetMeta, HistoricalAgent, AuthoritativeSet, AuthoritativeSetF, HistoricalAgentF}
 import _root_.models.forms.{AnnotationForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
@@ -8,11 +8,11 @@ import base._
 import defines.{PermissionType, ContentType, EntityType}
 import solr.{SearchOrder, SearchParams}
 
-object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
-  with CreationContext[HistoricalAgentF, AuthoritativeSet]
-  with VisibilityController[AuthoritativeSet]
-  with PermissionScopeController[AuthoritativeSet]
-  with EntityAnnotate[AuthoritativeSet]
+object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSetMeta]
+  with CreationContext[HistoricalAgentF, AuthoritativeSetMeta]
+  with VisibilityController[AuthoritativeSetMeta]
+  with PermissionScopeController[AuthoritativeSetMeta]
+  with EntityAnnotate[AuthoritativeSetMeta]
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.HistoricalAgent)
@@ -37,12 +37,12 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
     searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
         page => params => facets => _ => _ =>
       Ok(views.html.authoritativeSet.show(
-          AuthoritativeSet(item), page, params, facets, routes.AuthoritativeSets.get(id), annotations, links))
+          item, page, params, facets, routes.AuthoritativeSets.get(id), annotations, links))
     }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(AuthoritativeSet(item), page, ListParams()))
+    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
@@ -65,7 +65,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.authoritativeSet.edit(
-      AuthoritativeSet(item), form.fill(AuthoritativeSet(item).formable),routes.AuthoritativeSets.updatePost(id)))
+      item, form.fill(item.formable),routes.AuthoritativeSets.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
@@ -81,7 +81,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   def createHistoricalAgent(id: String) = childCreateAction(id, ContentType.HistoricalAgent) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.create(
-      AuthoritativeSet(item), childForm, VisibilityForm.form, users, groups,
+      item, childForm, VisibilityForm.form, users, groups,
         routes.AuthoritativeSets.createHistoricalAgentPost(id)))
   }
 
@@ -89,7 +89,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.historicalAgent.create(AuthoritativeSet(item),
+        BadRequest(views.html.historicalAgent.create(item,
           errorForm, accForm, users, groups, routes.AuthoritativeSets.createHistoricalAgentPost(id)))
       }
       case Right(citem) => Redirect(routes.HistoricalAgents.get(citem.id))
@@ -99,7 +99,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        AuthoritativeSet(item), routes.AuthoritativeSets.deletePost(id),
+        item, routes.AuthoritativeSets.deletePost(id),
         routes.AuthoritativeSets.get(id)))
   }
 
@@ -109,8 +109,8 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(AuthoritativeSet(item),
-        models.forms.VisibilityForm.form.fill(AuthoritativeSet(item).accessors.map(_.id)),
+    Ok(views.html.permissions.visibility(item,
+        models.forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, routes.AuthoritativeSets.visibilityPost(id)))
   }
 
@@ -122,25 +122,25 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
     manageScopedPermissionsAction(id, page, spage, limit) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(AuthoritativeSet(item), perms, sperms,
+    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         routes.AuthoritativeSets.addItemPermissions(id), routes.AuthoritativeSets.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(AuthoritativeSet(item), users, groups,
+    Ok(views.html.permissions.permissionItem(item, users, groups,
         routes.AuthoritativeSets.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(AuthoritativeSet(item), users, groups,
+    Ok(views.html.permissions.permissionScope(item, users, groups,
         routes.AuthoritativeSets.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(AuthoritativeSet(item), accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
         routes.AuthoritativeSets.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -152,7 +152,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(AuthoritativeSet(item), accessor, perms, targetContentTypes,
+    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         routes.AuthoritativeSets.setScopedPermissionsPost(id, userType, userId)))
   }
 

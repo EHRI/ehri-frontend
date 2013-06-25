@@ -1,4 +1,4 @@
-@(item: UserProfile, annotations: Map[String,List[Annotation]])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: UserProfile, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import UserProfileF._
 

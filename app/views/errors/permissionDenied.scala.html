@@ -1,4 +1,4 @@
-@(perm: Option[rest.PermissionDenied] = None)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(perm: Option[rest.PermissionDenied] = None)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @noSidebarLayout(Messages("errors.permissionDenied")) {
 

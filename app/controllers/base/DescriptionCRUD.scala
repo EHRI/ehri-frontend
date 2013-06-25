@@ -5,7 +5,7 @@ import models.base._
 import play.api.mvc._
 import play.api.data.{Form, FormError}
 import defines.{EntityType, PermissionType}
-import models.{UserProfileMeta, Entity}
+import models.UserProfileMeta
 import rest.{DescriptionDAO, ValidationError}
 import models.json.{RestReadable, RestConvertable}
 
@@ -61,7 +61,7 @@ trait DescriptionCRUD[D <: Persistable, T <: Model with Described[D], MT <: Meta
    * @return
    */
   def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[D])(
-    f: MT => Either[Form[D],Entity] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+    f: MT => Either[Form[D],MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
            implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission(id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>

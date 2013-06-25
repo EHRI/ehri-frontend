@@ -204,7 +204,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    */
   def withContentPermission(
     perm: PermissionType.Value, contentType: ContentType.Value)(
-      f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>
         if (user.hasPermission(contentType, perm)) Some(f(maybeUser)(request))
@@ -217,7 +217,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * Wrap userProfileAction to ensure we have a user, or
    * access is denied, but don't change the incoming parameters.
    */
-  def secured(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def secured(f: Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit  maybeUser => implicit request =>
       if (maybeUser.isDefined) f(maybeUser)(request)
       else authenticationFailed(request)

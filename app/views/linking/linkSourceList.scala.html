@@ -1,5 +1,5 @@
 @(item: models.base.LinkableEntity, page: solr.ItemPage[(models.Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], entityType: EntityType.Value, action: Call, linkAction: (String,String,String) => Call)(
-implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.linkTo"), breadcrumbs = common.breadcrumbs(List(item))) {
     @views.html.search.searchSection(Messages("contentTypes." + entityType.toString)) {
