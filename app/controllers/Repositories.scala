@@ -25,7 +25,8 @@ object Repositories extends EntityRead[Repository]
 	with VisibilityController[Repository]
   with PermissionScopeController[Repository]
   with EntityAnnotate[Repository]
-  with EntitySearch {
+  with EntitySearch
+  with ApiBase[RepositoryMeta] {
 
   /*private def getRepositoryTypes: Future[List[(String,String,String)]] = {
 

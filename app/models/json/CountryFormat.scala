@@ -37,8 +37,8 @@ object CountryFormat {
     __.read[JsObject] and
     __.read[CountryF] and
       // Latest event
-      (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyRead[List[SystemEventMeta]](
-        Reads.list[SystemEventMeta]).map(_.headOption)
+      (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+        Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
     )(CountryMeta.apply _)
 
 }

@@ -132,6 +132,9 @@ GET		/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMember(i
 POST	/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMemberPost(id: String, userType: String, userId: String)
 
 
+# Testing
+GET     /repository/meta/:id       controllers.Repositories.getClientJson(id)
+
 GET     /repository                controllers.Repositories.search
 GET     /repository/list           controllers.Repositories.list
 GET     /repository/show/:id       controllers.Repositories.get(id: String)

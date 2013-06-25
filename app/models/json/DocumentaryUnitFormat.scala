@@ -58,8 +58,8 @@ object DocumentaryUnitFormat {
     __.read[JsObject] and // capture the full JS data
     __.read[DocumentaryUnitF] and
     // Holder
-    //(__ \ RELATIONSHIPS \ DocumentaryUnitF.HELD_REL).lazyReadNullable[List[RepositoryMeta]](
-    //  Reads.list[RepositoryMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ DocumentaryUnitF.HELD_REL).lazyReadNullable[List[RepositoryMeta]](
+      Reads.list[RepositoryMeta]).map(_.flatMap(_.headOption)) and
     //
     (__ \ RELATIONSHIPS \ DocumentaryUnitF.CHILD_REL).lazyReadNullable[List[DocumentaryUnitMeta]](
       Reads.list[DocumentaryUnitMeta]).map(_.flatMap(_.headOption)) and

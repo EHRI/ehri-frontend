@@ -124,7 +124,7 @@ object DocumentaryUnitMeta {
 case class DocumentaryUnitMeta(
   json: JsObject,
   model: DocumentaryUnitF,
-  //holder: Option[RepositoryMeta] = None,
+  holder: Option[RepositoryMeta] = None,
   parent: Option[DocumentaryUnitMeta] = None,
   latestEvent: Option[SystemEventMeta] = None
 ) extends MetaModel
