@@ -242,6 +242,8 @@ GET     /country/scope/:id/add    controllers.Countries.addScopedPermissions(id:
 GET     /country/scope/:id/:userType/:userId    controllers.Countries.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /country/scope/:id/:userType/:userId    controllers.Countries.setScopedPermissionsPost(id: String, userType: String, userId: String)
 
+# Testing
+GET     /concepts/meta/:id       controllers.Concepts.getClientJson(id)
 GET     /concepts                controllers.Concepts.search
 GET     /concepts/list           controllers.Concepts.list
 GET     /concepts/show/:id       controllers.Concepts.get(id: String)

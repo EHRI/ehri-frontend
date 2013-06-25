@@ -78,7 +78,7 @@ object UserProfileMeta {
 
 
 case class UserProfileMeta(
-  json: JsObject,
   model: UserProfileF,
-  groups: List[GroupMeta] = Nil
-)
+  groups: List[GroupMeta] = Nil,
+  latestEvent: Option[SystemEventMeta] = None
+) extends MetaModel[UserProfileF]

@@ -34,7 +34,6 @@ object CountryFormat {
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
   implicit val metaReads: Reads[CountryMeta] = (
-    __.read[JsObject] and
     __.read[CountryF] and
       // Latest event
       (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](

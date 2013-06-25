@@ -50,7 +50,6 @@ object HistoricalAgentFormat {
   private implicit val authoritativeSetReads = AuthoritativeSetFormat.metaReads
 
   implicit val metaReads: Reads[HistoricalAgentMeta] = (
-    __.read[JsObject] and // capture the full JS data
     __.read[HistoricalAgentF] and
     (__ \ RELATIONSHIPS \ HistoricalAgentF.IN_SET_REL).lazyReadNullable[List[AuthoritativeSetMeta]](
       Reads.list[AuthoritativeSetMeta]).map(_.flatMap(_.headOption)) and

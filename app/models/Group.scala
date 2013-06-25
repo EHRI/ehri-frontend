@@ -43,8 +43,8 @@ object GroupMeta {
 
 
 case class GroupMeta(
-  json: JsObject,
   model: GroupF,
-  groups: List[GroupMeta] = Nil
-)
+  groups: List[GroupMeta] = Nil,
+  latestEvent: Option[SystemEventMeta] = None
+) extends MetaModel[GroupF]
 

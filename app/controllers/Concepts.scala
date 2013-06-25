@@ -1,11 +1,11 @@
 package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
-import _root_.models.{IsadG, Isaar, Concept, ConceptF}
+import _root_.models._
 import _root_.models.forms.{LinkForm, AnnotationForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
-import base._
+import _root_.controllers.base._
 import defines.{PermissionType, ContentType, EntityType}
 import collection.immutable.ListMap
 import solr.facet.{FacetSort, FieldFacetClass}
@@ -20,7 +20,8 @@ object Concepts extends CreationContext[ConceptF, Concept]
   with PermissionScopeController[Concept]
   with EntityLink[Concept]
   with EntityAnnotate[Concept]
-  with EntitySearch {
+  with EntitySearch
+  with ApiBase[ConceptMeta] {
 
   val targetContentTypes = Seq(ContentType.Concept)
 

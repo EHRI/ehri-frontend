@@ -39,7 +39,6 @@ object AuthoritativeSetFormat {
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
   implicit val metaReads: Reads[AuthoritativeSetMeta] = (
-    __.read[JsObject] and // capture the full JS data
     __.read[AuthoritativeSetF] and
     (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))

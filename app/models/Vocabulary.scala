@@ -57,7 +57,6 @@ object VocabularyMeta {
 
 
 case class VocabularyMeta(
-  json: JsObject,
   model: VocabularyF,
   latestEvent: Option[SystemEventMeta]
-)
+) extends MetaModel[VocabularyF]

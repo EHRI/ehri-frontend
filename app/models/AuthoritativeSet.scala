@@ -56,7 +56,6 @@ object AuthoritativeSetMeta {
 
 
 case class AuthoritativeSetMeta(
-  json: JsObject,
   model: AuthoritativeSetF,
   latestEvent: Option[SystemEventMeta]
-)
+) extends MetaModel[AuthoritativeSetF]

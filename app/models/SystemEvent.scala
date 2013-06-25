@@ -1,7 +1,6 @@
 package models
 
-import models.base.AccessibleEntity
-import models.base.Accessor
+import models.base.{MetaModel, AccessibleEntity, Accessor}
 import org.joda.time.DateTime
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import play.api.i18n.Messages
@@ -70,8 +69,7 @@ object SystemEventMeta {
 }
 
 case class SystemEventMeta(
-  json: JsObject,
   model: SystemEventF,
   actioner: Option[UserProfileMeta] = None
-)
+) extends MetaModel[SystemEventF]
 

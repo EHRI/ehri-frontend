@@ -75,8 +75,7 @@ object RepositoryMeta {
 }
 
 case class RepositoryMeta(
-  json: JsObject,
   model: RepositoryF,
   country: Option[CountryMeta] = None,
   latestEvent: Option[SystemEventMeta] = None
-)
+) extends MetaModel[RepositoryF]

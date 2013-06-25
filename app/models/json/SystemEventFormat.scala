@@ -45,7 +45,6 @@ object SystemEventFormat {
   private implicit val userReads = UserProfileFormat.metaReads
 
   implicit val metaReads: Reads[SystemEventMeta] = (
-    __.read[JsObject] and
     __.read[SystemEventF] and
     (__ \ RELATIONSHIPS \ SystemEvent.ACTIONER_REL).lazyReadNullable[List[UserProfileMeta]](
       Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption))

@@ -83,9 +83,8 @@ object ConceptMeta {
 
 
 case class ConceptMeta(
-  json: JsObject,
   model: ConceptF,
   vocabulary: Option[VocabularyMeta],
   broaderTerms: List[ConceptMeta],
   latestEvent: Option[SystemEventMeta]
-)
+) extends MetaModel[ConceptF]

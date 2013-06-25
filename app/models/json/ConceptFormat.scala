@@ -42,7 +42,6 @@ object ConceptFormat {
   private implicit val vocabularyReads = VocabularyFormat.metaReads
 
   implicit val metaReads: Reads[ConceptMeta] = (
-    __.read[JsObject] and // capture the full JS data
     __.read[ConceptF] and
     (__ \ RELATIONSHIPS \ Concept.IN_SET_REL).lazyReadNullable[List[VocabularyMeta]](
       Reads.list[VocabularyMeta]).map(_.flatMap(_.headOption)) and

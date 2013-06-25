@@ -55,7 +55,6 @@ object DocumentaryUnitFormat {
   private lazy implicit val systemEventReads = SystemEventFormat.metaReads
 
   implicit val metaReads: Reads[DocumentaryUnitMeta] = (
-    __.read[JsObject] and // capture the full JS data
     __.read[DocumentaryUnitF] and
     // Holder
     (__ \ RELATIONSHIPS \ DocumentaryUnitF.HELD_REL).lazyReadNullable[List[RepositoryMeta]](

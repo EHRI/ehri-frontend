@@ -1,7 +1,8 @@
 package models.json
 
 import models._
-import play.api.libs.json.Json
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 /**
  * User: michaelb
@@ -51,17 +52,66 @@ package object client {
 
   implicit val systemEventFormat = Json.format[SystemEventF]
 
-  // Meta models
+  // Meta models. These are defined manually because we want to
+  // place their model fields (as opposed to the metadata) at the
+  // top level to make the JSON neater.
+  
+  implicit val systemEventMetaFormat: Format[SystemEventMeta] = (
+    __.format[SystemEventF] and
+    (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat)
+  )(SystemEventMeta.apply _, unlift(SystemEventMeta.unapply _))
 
-  implicit val groupMetaFormat = Json.format[GroupMeta]
-  implicit val userProfileMetaFormat = Json.format[UserProfileMeta]
-  implicit val systemEventMetaFormat = Json.format[SystemEventMeta]
-  implicit val countryMetaFormat = Json.format[CountryMeta]
-  implicit val repositoryMetaFormat = Json.format[RepositoryMeta]
-  implicit val documentaryUnitMetaFormat = Json.format[DocumentaryUnitMeta]
-  implicit val vocabularyMetaFormat = Json.format[VocabularyMeta]
-  implicit val conceptMetaFormat = Json.format[ConceptMeta]
-  implicit val authoritativeSetMetaFormat = Json.format[AuthoritativeSetMeta]
-  implicit val historicalAgentMetaFormat = Json.format[HistoricalAgentMeta]
+  implicit val groupMetaFormat: Format[GroupMeta] = (
+      __.format[GroupF] and
+      (__ \ "groups").lazyFormat[List[GroupMeta]](Reads.list[GroupMeta], Writes.list[GroupMeta]) and
+      (__ \ "event").formatNullable[SystemEventMeta]
+    )(GroupMeta.apply _, unlift(GroupMeta.unapply _))
+
+  implicit val userProfileMetaFormat: Format[UserProfileMeta] = (
+      __.format[UserProfileF] and
+      (__ \ "groups").lazyFormat[List[GroupMeta]](Reads.list[GroupMeta], Writes.list[GroupMeta]) and
+      (__ \ "event").formatNullable[SystemEventMeta]
+    )(UserProfileMeta.apply _, unlift(UserProfileMeta.unapply _))
+
+  implicit val countryMetaFormat: Format[CountryMeta] = (
+    __.format[CountryF] and
+      (__ \ "event").formatNullable[SystemEventMeta]
+    )(CountryMeta.apply _, unlift(CountryMeta.unapply _))
+
+  implicit val repositoryMetaFormat: Format[RepositoryMeta] = (
+    __.format[RepositoryF] and
+    (__ \ "country").formatNullable[CountryMeta] and
+    (__ \ "event").formatNullable[SystemEventMeta]
+  )(RepositoryMeta.apply _, unlift(RepositoryMeta.unapply _))
+
+  implicit val documentaryUnitMetaFormat: Format[DocumentaryUnitMeta] = (
+    __.format[DocumentaryUnitF] and
+    (__ \ "holder").formatNullable[RepositoryMeta] and
+    (__ \ "parent").formatNullable[DocumentaryUnitMeta] and
+    (__ \ "event").formatNullable[SystemEventMeta]
+  )(DocumentaryUnitMeta.apply _, unlift(DocumentaryUnitMeta.unapply _))
+
+  implicit val vocabularyMetaFormat: Format[VocabularyMeta] = (
+    __.format[VocabularyF] and
+      (__ \ "event").formatNullable[SystemEventMeta]
+    )(VocabularyMeta.apply _, unlift(VocabularyMeta.unapply _))
+
+  implicit val conceptMetaFormat: Format[ConceptMeta] = (
+    __.format[ConceptF] and
+      (__ \ "vocabulary").formatNullable[VocabularyMeta] and
+      (__ \ "broaderTerms").lazyFormat[List[ConceptMeta]](Reads.list[ConceptMeta], Writes.list[ConceptMeta]) and
+      (__ \ "event").formatNullable[SystemEventMeta]
+    )(ConceptMeta.apply _, unlift(ConceptMeta.unapply _))
+
+  implicit val authoritativeSetMetaFormat: Format[AuthoritativeSetMeta] = (
+    __.format[AuthoritativeSetF] and
+      (__ \ "event").formatNullable[SystemEventMeta]
+    )(AuthoritativeSetMeta.apply _, unlift(AuthoritativeSetMeta.unapply _))
+
+  implicit val historicalAgentMetaFormat: Format[HistoricalAgentMeta] = (
+    __.format[HistoricalAgentF] and
+      (__ \ "set").formatNullable[AuthoritativeSetMeta] and
+      (__ \ "event").formatNullable[SystemEventMeta]
+    )(HistoricalAgentMeta.apply _, unlift(HistoricalAgentMeta.unapply _))
 
 }

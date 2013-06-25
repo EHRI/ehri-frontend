@@ -69,10 +69,9 @@ object HistoricalAgentMeta {
 
 
 case class HistoricalAgentMeta(
-  json: JsObject,
   model: HistoricalAgentF,
   set: Option[AuthoritativeSetMeta],
   latestEvent: Option[SystemEventMeta]
-)
+) extends MetaModel[HistoricalAgentF]
 
 

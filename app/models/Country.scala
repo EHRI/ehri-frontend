@@ -62,7 +62,6 @@ object CountryMeta {
 
 // Stub
 case class CountryMeta(
-  json: JsObject,
   model: CountryF,
   latestEvent: Option[SystemEventMeta] = None
-)
+) extends MetaModel[CountryF]

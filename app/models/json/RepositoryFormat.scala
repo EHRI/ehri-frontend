@@ -53,7 +53,6 @@ object RepositoryFormat {
   private implicit val countryReads = CountryFormat.metaReads
 
   implicit val metaReads: Reads[RepositoryMeta] = (
-    __.read[JsObject] and
     __.read[RepositoryF] and
     // Country
     (__ \ RELATIONSHIPS \ RepositoryF.COUNTRY_REL).lazyReadNullable[List[CountryMeta]](
