@@ -26,7 +26,7 @@ case class GroupF(
   identifier: String,
   name: String,
   description: Option[String] = None
-) extends Persistable
+) extends Model with Persistable
 
 
 case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[GroupF] {

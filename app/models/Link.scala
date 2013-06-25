@@ -34,7 +34,7 @@ case class LinkF(
   id: Option[String],
   linkType: LinkF.LinkType.Type,
   description: Option[String]
-) extends Persistable
+) extends Model with Persistable
 
 
 object Link {

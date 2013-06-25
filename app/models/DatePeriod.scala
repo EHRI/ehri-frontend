@@ -1,6 +1,6 @@
 package models
 
-import models.base.Formable
+import models.base.{Model, Formable}
 import org.joda.time.DateTime
 
 import defines.EntityType
@@ -33,7 +33,7 @@ case class DatePeriodF(
   `type`: Option[DatePeriodF.DatePeriodType.Type],
   startDate: Option[String] = None,
   endDate: Option[String] = None
-) {
+) extends Model {
   /**
    * Get a string representing the year-range of this period,
    * i.e. 1939-1945

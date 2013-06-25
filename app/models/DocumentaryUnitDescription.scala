@@ -68,7 +68,7 @@ case class DocumentaryUnitDescriptionF(
   notes: Option[List[String]] = None,
   control: IsadGControl,
   accessPoints: List[AccessPointF]
-  ) extends Persistable
+  ) extends Model with Persistable
 
 case class DocumentaryUnitDescription(val e: Entity)
   extends Description

@@ -1,6 +1,6 @@
 package models
 
-import models.base.{MetaModel, AccessibleEntity, Accessor}
+import models.base.{Model, MetaModel, AccessibleEntity, Accessor}
 import org.joda.time.DateTime
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import play.api.i18n.Messages
@@ -17,11 +17,11 @@ object SystemEventF {
 
 case class SystemEventF(
   isA: EntityType.Value = EntityType.SystemEvent,
-  id: String,
+  id: Option[String],
   timestamp: DateTime,
   logMessage: Option[String] = None,
   eventType: Option[EventType.Value] = None
-)
+) extends Model
 
 object SystemEvent {
   val ACTIONER_REL = "hasActioner"

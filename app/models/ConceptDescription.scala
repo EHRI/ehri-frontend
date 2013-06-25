@@ -1,11 +1,8 @@
 package models
 
 import defines.EntityType
-import models.base.Formable
-import models.base.Description
-import models.base.Persistable
+import models.base._
 import play.api.libs.json.{Format, Json}
-import models.base.DescribedEntity
 import models.json.{ClientConvertable, RestConvertable}
 
 object ConceptDescriptionF {
@@ -25,7 +22,7 @@ case class ConceptDescriptionF(
   altLabels: Option[List[String]] = None,
   definition: Option[List[String]] = None,
   scopeNote: Option[List[String]] = None
-) extends Persistable
+) extends Model with Persistable
 
 
 case class ConceptDescription(val e: Entity)

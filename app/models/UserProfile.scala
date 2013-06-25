@@ -38,7 +38,7 @@ case class UserProfileF(
   location: Option[String] = None,
   about: Option[String] = None,
   languages: Option[List[String]] = None
-) extends Persistable
+) extends Model with Persistable
 
 
 object UserProfile {

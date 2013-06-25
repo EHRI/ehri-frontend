@@ -31,7 +31,7 @@ case class VocabularyF(
   identifier: String,
   name: Option[String],
   description: Option[String]
-) extends Persistable
+) extends Model with Persistable
 
 
 object Vocabulary {

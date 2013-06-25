@@ -1,7 +1,7 @@
 package models
 
 import defines.EntityType
-import models.base.{Formable, AccessibleEntity}
+import models.base.{Model, Formable, AccessibleEntity}
 import play.api.libs.json.{Format, Json}
 import models.json.{ClientConvertable, RestConvertable}
 
@@ -30,7 +30,7 @@ case class AddressF(
   telephone: List[String] = Nil,
   fax: Option[String] = None,
   url: Option[String] = None
-  ) {
+  ) extends Model {
   override def toString
       = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
 }

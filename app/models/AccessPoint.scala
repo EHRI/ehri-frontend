@@ -39,7 +39,7 @@ case class AccessPointF(
   `type`: AccessPointF.AccessPointType.Value,
   name: String,
   description: Option[String] = None
-) extends Persistable
+) extends Model with Persistable
 
 
 case class AccessPoint(val e: Entity) extends AnnotatableEntity with NamedEntity with Formable[AccessPointF] {

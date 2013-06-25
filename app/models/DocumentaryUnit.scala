@@ -54,7 +54,7 @@ case class DocumentaryUnitF(
 
   @Annotations.Relation(DocumentaryUnitF.DESC_REL)
   descriptions: List[DocumentaryUnitDescriptionF] = Nil
-) extends Persistable {
+) extends Model with Persistable {
   def withDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = copy(descriptions = descriptions ++ List(d))
 
   /**
@@ -126,4 +126,4 @@ case class DocumentaryUnitMeta(
   holder: Option[RepositoryMeta] = None,
   parent: Option[DocumentaryUnitMeta] = None,
   latestEvent: Option[SystemEventMeta] = None
-) extends MetaModel[DocumentaryUnitF]
+) extends MetaModel[DocumentaryUnitF] with Hierarchical[DocumentaryUnitMeta]

@@ -1,10 +1,10 @@
 package models
 
-import base.{AnnotatableEntity, AccessibleEntity, Accessor, Formable}
-import models.base.Persistable
+import models.base._
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
 import models.json.{ClientConvertable, RestConvertable}
+import scala.Some
 
 
 object AnnotationF {
@@ -37,7 +37,7 @@ case class AnnotationF(
   body: String,
   field: Option[String] = None,
   comment: Option[String] = None
-) extends Persistable
+) extends Model with Persistable
 
 
 object Annotation {

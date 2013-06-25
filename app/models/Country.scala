@@ -24,7 +24,7 @@ case class CountryF(
   isA:EntityType.Value = EntityType.Country,
   id: Option[String],
   identifier: String
-) extends Persistable
+) extends Model with Persistable
 
 
 object Country {
