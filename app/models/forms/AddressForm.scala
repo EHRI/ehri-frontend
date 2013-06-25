@@ -25,7 +25,7 @@ object AddressForm {
       POSTAL_CODE -> optional(nonEmptyText),
       COUNTRY_CODE -> optional(nonEmptyText),
       EMAIL -> optional(email),
-      TELEPHONE -> optional(list(text)),
+      TELEPHONE -> list(text),
       FAX -> optional(nonEmptyText),
       URL -> optional(nonEmptyText)
     )(AddressF.apply)(AddressF.unapply)

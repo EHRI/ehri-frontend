@@ -27,7 +27,7 @@ case class AddressF(
   postalCode: Option[String] = None,
   countryCode: Option[String] = None,
   email: Option[String] = None,
-  telephone: Option[List[String]] = None,
+  telephone: List[String] = Nil,
   fax: Option[String] = None,
   url: Option[String] = None
   ) {

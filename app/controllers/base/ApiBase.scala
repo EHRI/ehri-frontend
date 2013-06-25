@@ -37,6 +37,7 @@ trait ApiBase[TM] extends Controller with ControllerHelpers with AuthController 
               BadRequest(JsError.toFlatJson(err)) // Should be 500!
             },
             valid = { item =>
+              println(item)
               Ok(Json.toJson(item)(cw.clientFormat))
             }
           )

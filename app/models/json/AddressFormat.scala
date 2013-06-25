@@ -46,8 +46,8 @@ object AddressFormat {
     (__ \ DATA \ COUNTRY_CODE).readNullable[String] and
     (__ \ DATA \ EMAIL).readNullable[String] and
     (
-      (__ \ DATA \ TELEPHONE).readNullable[List[String]] |
-        Reads.list((__ \ DATA \ TELEPHONE).read[String]).map(Option(_))) and
+      (__ \ DATA \ TELEPHONE).read[List[String]] orElse
+        (__ \ DATA \ TELEPHONE).readNullable[String].map(_.toList)) and
     (__ \ DATA \ FAX).readNullable[String] and
     (__ \ DATA \ URL).readNullable[String]
   )(AddressF.apply _)

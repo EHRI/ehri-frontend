@@ -67,8 +67,8 @@ object IsdiahFormat {
         (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
         (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
-      ((__ \ RELATIONSHIPS \ RepositoryF.ADDRESS_REL).lazyRead[List[AddressF]](Reads.list[AddressF])
-          orElse Reads.pure(Nil)) and
+      (__ \ RELATIONSHIPS \ RepositoryF.ADDRESS_REL).lazyReadNullable[List[AddressF]](
+          Reads.list[AddressF]).map(_.getOrElse(List.empty[AddressF])) and
       (__ \ DATA).read[IsdiahDetails]((
         (__ \ HISTORY).readNullable[String] and
           (__ \ GEOCULTURAL_CONTEXT).readNullable[String] and
