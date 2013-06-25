@@ -1,6 +1,7 @@
 package controllers.base
 
-import _root_.models.UserProfile
+import _root_.models.json.RestReadable
+import _root_.models.{UserProfileMeta, UserProfileF}
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Lang
@@ -10,7 +11,6 @@ import defines.EntityType
 import defines.PermissionType
 import defines.ContentType
 
-import models.UserProfile
 import java.net.ConnectException
 import rest.ServerError
 import scala.concurrent.Future
@@ -71,13 +71,13 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * SystemEvent composition that adds extra context to regular requests. Namely,
    * the profile of the user requesting the page, and her permissions.
    */
-  def userProfileAction(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def userProfileAction(f: Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     optionalUserAction { implicit maybeAccount => implicit request =>
       maybeAccount.map { account =>
 
         // FIXME: This is a DELIBERATE BACKDOOR
         val currentUser = USER_BACKDOOR__(account, request)
-        val fakeProfile = UserProfile(models.Entity.fromString(currentUser, EntityType.UserProfile))
+        val fakeProfile = UserProfileMeta(UserProfileF(id=Some(account.profile_id), name=""))
         implicit val maybeUser = Some(fakeProfile)
 
         AsyncRest {
@@ -87,12 +87,13 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
           // available initially, and we don't want to block for it to become
           // available, we should probably add the account to the permissions when
           // we have both items from the server.
-          val getProf = rest.EntityDAO(EntityType.UserProfile, maybeUser).get(currentUser)
+          val getProf = rest.EntityDAO(EntityType.UserProfile, maybeUser).get[UserProfileMeta](currentUser)
           val getGlobalPerms = rest.PermissionDAO(maybeUser).get
           // These requests should execute in parallel...
           for { r1 <- getProf; r2 <- getGlobalPerms } yield {
             for { entity <- r1.right; gperms <- r2.right } yield {
-              val up = UserProfile(entity, account = Some(account), globalPermissions = Some(gperms))
+              //val up = UserProfileMeta(entity, account = Some(account), globalPermissions = Some(gperms))
+              val up = entity.copy(account = Some(account), globalPermissions = Some(gperms))
               f(Some(up))(request)
             }
           }
@@ -113,7 +114,8 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    *  their global perms and user profile, we don't wrap userProfileAction
    *  but duplicate a bunch of code instead ;(
    */
-  def itemPermissionAction(contentType: ContentType.Value, id: String)(f: models.Entity => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def itemPermissionAction[MT](contentType: ContentType.Value, id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+        implicit rd: RestReadable[MT]): Action[AnyContent] = {
     optionalUserAction { implicit maybeAccount =>
       implicit request =>
       // FIXME: Shouldn't need to infer entity type from content type, they should be the same
@@ -123,12 +125,12 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
         // FIXME: This is a DELIBERATE BACKDOOR
         val currentUser = USER_BACKDOOR__(account, request)
 
-        val fakeProfile = UserProfile(models.Entity.fromString(account.profile_id, EntityType.UserProfile))
+        val fakeProfile = UserProfileMeta(UserProfileF(id=Some(account.profile_id), name=""))
         implicit val maybeUser = Some(fakeProfile)
 
         AsyncRest {
           val getProf = rest.EntityDAO(
-            EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
+            EntityType.UserProfile, Some(fakeProfile)).get[UserProfileMeta](currentUser)
           // NB: Instead of getting *just* global perms here we also fetch
           // everything in scope for the given item
           val getGlobalPerms = rest.PermissionDAO(maybeUser).getScope(id)
@@ -137,8 +139,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
           // These requests should execute in parallel...
           for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms ; r4 <- getEntity } yield {
             for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right ; item <- r4.right } yield {
-              val up = UserProfile(entity, account = Some(account),
-                globalPermissions = Some(gperms), itemPermissions = Some(iperms))
+              val up = entity.copy(account = Some(account), globalPermissions = Some(gperms), itemPermissions = Some(iperms))
               f(item)(Some(up))(request)
             }
           }
@@ -160,7 +161,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * Wrap userProfileAction to ensure we have a user, or
    * access is denied
    */
-  def withUserAction(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def withUserAction(f: Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit  maybeUser => implicit request =>
       maybeUser.map { user =>
         f(maybeUser)(request)
@@ -173,7 +174,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * and return an action with the user in scope.
    */
   def adminAction(
-    f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+    f: Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit  maybeUser => implicit request =>
       maybeUser.flatMap { user =>
         if (user.isAdmin) Some(f(maybeUser)(request))
@@ -186,9 +187,9 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * Wrap itemPermissionAction to ensure a given permission is present,
    * and return an action with the user in scope.
    */
-  def withItemPermission(id: String,
+  def withItemPermission[MT](id: String,
     perm: PermissionType.Value, contentType: ContentType.Value, permContentType: Option[ContentType.Value] = None)(
-      f: models.Entity => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     itemPermissionAction(contentType, id) { entity => implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>
         if (user.hasPermission(permContentType.getOrElse(contentType), perm)) Some(f(entity)(maybeUser)(request))

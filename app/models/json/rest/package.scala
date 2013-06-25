@@ -26,4 +26,5 @@ package object rest {
   implicit val repositoryFormat = models.json.RepositoryFormat.restFormat
   implicit val userProfileFormat = models.json.UserProfileFormat.restFormat
   implicit val vocabularyFormat = models.json.VocabularyFormat.restFormat
+  implicit val permissionGrantReads = models.json.PermissionGrantFormat.permissionGrantReads
 }

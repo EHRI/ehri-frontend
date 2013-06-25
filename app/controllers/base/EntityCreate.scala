@@ -27,7 +27,7 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
    * @param f
    * @return
    */
-  def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
         f(users)(groups)(userOpt)(request)
@@ -35,7 +35,7 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
     }
   }
 
-  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
+  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),Entity] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
       implicit fmt: RestConvertable[F]) = {
     withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
       form.bindFromRequest.fold(

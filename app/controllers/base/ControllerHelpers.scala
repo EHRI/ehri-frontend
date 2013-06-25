@@ -8,7 +8,7 @@ import rest._
 import play.api.mvc.Controller
 import play.api.mvc.AsyncResult
 import java.net.ConnectException
-import models.UserProfile
+import models.{UserProfileMeta, UserProfileF}
 
 object ControllerHelpers {
   def isAjax(implicit request: RequestHeader): Boolean =
@@ -26,7 +26,7 @@ trait ControllerHelpers {
    * @param request
    * @return
    */
-  def Secured(res: Result)(implicit maybeUser: Option[models.UserProfile], request: RequestHeader): Result = {
+  def Secured(res: Result)(implicit maybeUser: Option[models.UserProfileF], request: RequestHeader): Result = {
     if (maybeUser.isDefined) res else authenticationFailed(request)
   }
 
@@ -37,7 +37,7 @@ trait ControllerHelpers {
    * @param request
    * @return
    */
-  def getGroups(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+  def getGroups(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfileF], request: RequestHeader) = {
     // TODO: Handle REST errors
     Async {
       for {
@@ -64,7 +64,7 @@ trait ControllerHelpers {
    * or a throwable. If the throwable exists it is handled in
    * an appropriate manner and returned as a AsyncResult
    */
-  def AsyncRest(promise: Future[Either[Throwable, Result]])(implicit maybeUser: Option[models.UserProfile], request: RequestHeader): AsyncResult = {
+  def AsyncRest(promise: Future[Either[Throwable, Result]])(implicit maybeUser: Option[UserProfileMeta], request: RequestHeader): AsyncResult = {
     Async {
       promise.map { respOrErr =>
         respOrErr.fold(

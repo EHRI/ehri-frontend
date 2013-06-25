@@ -5,11 +5,10 @@ import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json.{ JsArray, JsValue }
 import defines.EntityType
-import models.{Annotation, Entity, UserProfile}
+import models._
 import play.api.libs.json.Json
 import java.net.ConnectException
 import models.base.Persistable
-import models.AnnotationF
 
 
 /**
@@ -17,7 +16,7 @@ import models.AnnotationF
  *
  * @param userProfile
  */
-case class AnnotationDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
+case class AnnotationDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO {
 
   implicit val entityReads = Entity.entityReads
   implicit val entityPageReads = PageReads.pageReads

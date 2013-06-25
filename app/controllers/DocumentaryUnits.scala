@@ -2,7 +2,7 @@ package controllers
 
 import _root_.models._
 import _root_.models.DocumentaryUnit
-import _root_.models.forms.{LinkForm, AnnotationForm, VisibilityForm}
+import _root_.models.forms.{LinkForm, VisibilityForm}
 import _root_.models.base.{LinkableEntity, AnnotatableEntity, AccessibleEntity}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
@@ -10,7 +10,6 @@ import play.api.mvc._
 import play.api.i18n.Messages
 import _root_.controllers.base._
 import defines._
-import rest.{LinkDAO, RestPageParams, EntityDAO}
 import scala.Some
 import collection.immutable.ListMap
 import views.Helpers
@@ -18,15 +17,15 @@ import solr.{SearchOrder, SearchParams}
 import play.api.libs.json.Json
 
 
-object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUnit]
+object DocumentaryUnits extends CreationContext[DocumentaryUnitMeta, DocumentaryUnitMeta]
   with VisibilityController[DocumentaryUnit]
-  with EntityRead[DocumentaryUnit]
-  with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
-  with EntityDelete[DocumentaryUnit]
-  with PermissionScopeController[DocumentaryUnit]
-  with EntityAnnotate[DocumentaryUnit]
-  with EntityLink[DocumentaryUnit]
-  with DescriptionCRUD[DocumentaryUnit, DocumentaryUnitDescriptionF]
+  with EntityRead[DocumentaryUnitMeta]
+  with EntityUpdate[DocumentaryUnitF, DocumentaryUnitMeta]
+  with EntityDelete[DocumentaryUnitMeta]
+  with PermissionScopeController[DocumentaryUnitMeta]
+  with EntityAnnotate[DocumentaryUnitMeta]
+  with EntityLink[DocumentaryUnitMeta]
+  with DescriptionCRUD[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnitMeta]
   with EntitySearch
   with ApiBase[DocumentaryUnitMeta] {
 
@@ -131,11 +130,10 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   }*/
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    val doc = DocumentaryUnit(item)
     searchAction(Map("parentId" -> item.id, "depthOfDescription" -> (doc.ancestors.size + 1).toString),
           defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
       page => params => facets => _ => _ =>
-        Ok(views.html.documentaryUnit.show(doc, page, params, facets, routes.DocumentaryUnits.get(id), annotations, links))
+        Ok(views.html.documentaryUnit.show(item, page, params, facets, routes.DocumentaryUnits.get(id), annotations, links))
     }(request)
   }
 
@@ -144,19 +142,18 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.list(
-      page.copy(items = page.items.map(DocumentaryUnit(_))), params))
+    Ok(views.html.documentaryUnit.list(page, params))
   }
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.edit(
-        DocumentaryUnit(item), form.fill(DocumentaryUnit(item).formable),routes.DocumentaryUnits.updatePost(id)))
+        item, form.fill(item.model),routes.DocumentaryUnits.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.documentaryUnit.edit(
-          DocumentaryUnit(olditem), errorForm, routes.DocumentaryUnits.updatePost(id)))
+          olditem, errorForm, routes.DocumentaryUnits.updatePost(id)))
       case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }
@@ -189,7 +186,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => {
-        Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
+        Ok(views.html.documentaryUnit.editDescription(item,
           errorForm, routes.DocumentaryUnits.createDescriptionPost(id)))
       }
       case Right(updated) => Redirect(routes.DocumentaryUnits.get(item.id))
@@ -197,10 +194,10 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     }
   }
 
-  def updateDescription(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
+  def updateDescription(id: String, did: String) = withItemPermission[DocumentaryUnitMeta](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
-    val desc = DocumentaryUnit(item).formable.description(did).getOrElse(sys.error("Description not found: " + did))
-    Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
+    val desc = item.model.description(did).getOrElse(sys.error("Description not found: " + did))
+    Ok(views.html.documentaryUnit.editDescription(item,
       descriptionForm.fill(desc), routes.DocumentaryUnits.updateDescriptionPost(id, did)))
   }
 
@@ -208,7 +205,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => {
-        Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
+        Ok(views.html.documentaryUnit.editDescription(item,
           errorForm, routes.DocumentaryUnits.updateDescriptionPost(id, did)))
       }
       case Right(updated) => Redirect(routes.DocumentaryUnits.get(item.id))
@@ -216,12 +213,12 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     }
   }
 
-  def deleteDescription(id: String, did: String) = withItemPermission(id, PermissionType.Update, contentType) {
+  def deleteDescription(id: String, did: String) = withItemPermission[DocumentaryUnitMeta](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     // TODO: Make nicer
-    if (DocumentaryUnit(item).descriptions.find(_.id == did).isDefined)
+    if (item.model.description(did).isDefined)
       Ok(views.html.delete(
-            DocumentaryUnit(item), routes.DocumentaryUnits.deleteDescriptionPost(id, did),
+            item, routes.DocumentaryUnits.deleteDescriptionPost(id, did),
             routes.DocumentaryUnits.get(id)))
     else NotFound
   }
@@ -235,7 +232,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        DocumentaryUnit(item), routes.DocumentaryUnits.deletePost(id),
+        item, routes.DocumentaryUnits.deletePost(id),
         routes.DocumentaryUnits.get(id)))
   }
 
@@ -247,8 +244,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(DocumentaryUnit(item),
-        models.forms.VisibilityForm.form.fill(DocumentaryUnit(item).accessors.map(_.id)),
+    Ok(views.html.permissions.visibility(item,
+        models.forms.VisibilityForm.form.fill(List.empty[String]), //DocumentaryUnit(item).accessors.map(_.id)),
         users, groups, routes.DocumentaryUnits.visibilityPost(id)))
   }
 
@@ -261,25 +258,25 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
   def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
     manageScopedPermissionsAction(id, page, spage, limit) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(DocumentaryUnit(item), perms, sperms,
+    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         routes.DocumentaryUnits.addItemPermissions(id), routes.DocumentaryUnits.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(DocumentaryUnit(item), users, groups,
+    Ok(views.html.permissions.permissionItem(item, users, groups,
         routes.DocumentaryUnits.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(DocumentaryUnit(item), users, groups,
+    Ok(views.html.permissions.permissionScope(item, users, groups,
         routes.DocumentaryUnits.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(DocumentaryUnit(item), accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
         routes.DocumentaryUnits.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -291,7 +288,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(DocumentaryUnit(item), accessor, perms, targetContentTypes,
+    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         routes.DocumentaryUnits.setScopedPermissionsPost(id, userType, userId)))
   }
 
@@ -303,7 +300,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.linkTo(DocumentaryUnit(item)))
+    Ok(views.html.documentaryUnit.linkTo(item))
   }
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
@@ -355,10 +352,9 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def manageAccessPoints(id: String, descriptionId: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
-    val doc = DocumentaryUnit(item)
     implicit val prefix = IsadG.FIELD_PREFIX
-    doc.description(descriptionId).map { desc =>
-      Ok(views.html.documentaryUnit.editAccessPoints(doc, desc))
+    item.model.description(descriptionId).map { desc =>
+      Ok(views.html.documentaryUnit.editAccessPoints(item, desc))
     }.getOrElse {
       NotFound(descriptionId)
     }
@@ -378,15 +374,14 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
     implicit val targetWrites = Json.format[Target]
     implicit val itemWrites = Json.format[LinkItem]
 
-    val doc = DocumentaryUnit(item)
-    val list = doc.descriptions.map { desc =>
+    val list = item.model.descriptions.map { desc =>
       val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
-        val apTypes = desc.accessPoints.filter(_.`type` == apt).map { ap =>
+        val apTypes = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
           val link = links.find(_.bodies.exists(b => b.id == ap.id))
           new LinkItem(
-            ap.formable,
+            ap,
             link.flatMap(_.formableOpt),
-            link.flatMap(l => l.opposingTarget(doc).map(t => new Target(t.id, t.isA)))
+            link.flatMap(l => l.opposingTarget(item).map(t => new Target(t.id, t.isA)))
           )
         }
         Map("type" -> Json.toJson(apt.toString), "data" -> Json.toJson(apTypes))

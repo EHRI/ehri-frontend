@@ -105,7 +105,7 @@ object SolrQueryBuilder {
    * @param request
    * @param userOpt
    */
-  private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfile]): Unit = {
+  private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfileMeta]): Unit = {
     if (userOpt.isEmpty) {
       request.setFilterQuery(
         FilterQuery(multiple = request.filterQuery.getMultiple() ++
@@ -145,7 +145,7 @@ object SolrQueryBuilder {
    * @return
    */
   def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
-      implicit userOpt: Option[UserProfile]): QueryRequest = {
+      implicit userOpt: Option[UserProfileMeta]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
     val queryString = params.query.getOrElse("*").trim + excludeIds
@@ -176,7 +176,7 @@ object SolrQueryBuilder {
    * @return
    */
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): QueryRequest = {
+      implicit userOpt: Option[UserProfileMeta]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 

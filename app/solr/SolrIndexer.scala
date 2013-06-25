@@ -30,7 +30,7 @@ object SolrIndexer extends RestDAO {
 
   // We don't need a user here yet unless we want to log
   // when the Solr index is changed.
-  val userProfile: Option[UserProfile] = None
+  val userProfile: Option[UserProfileMeta] = None
   private def updateUrl(commit: Boolean = true) = {
     "%s/update?wt=json&commit=%s&optimize=%s".format(application.configuration.getString("solr.path"), commit, commit)
   }

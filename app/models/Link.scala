@@ -3,13 +3,17 @@ package models
 import models.base._
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 
 object LinkF {
 
   val LINK_TYPE = "type"
   val DESCRIPTION = "description"
+
+  final val LINK_REL = "hasLinkTarget"
+  final val ACCESSOR_REL = "hasLinker"
+  final val BODY_REL = "hasLinkBody"
 
   object LinkType extends Enumeration {
     type Type = Value
@@ -43,6 +47,7 @@ object Link {
   final val BODY_REL = "hasLinkBody"
 }
 
+
 case class Link(val e: Entity) extends AccessibleEntity
   with AnnotatableEntity
   with Formable[LinkF] {
@@ -57,3 +62,19 @@ case class Link(val e: Entity) extends AccessibleEntity
   def opposingTarget(item: LinkableEntity): Option[LinkableEntity] = targets.find(_.id != item.id)
 }
 
+
+object LinkMeta {
+  implicit object Converter extends RestReadable[LinkMeta] with ClientConvertable[LinkMeta] {
+    implicit val restReads = models.json.LinkFormat.metaReads
+    implicit val clientReads = models.json.client.linkMetaFormat
+  }
+}
+
+case class LinkMeta(
+  model: LinkF,
+  targets: List[MetaModel[_]] = Nil,
+  accessor: Option[UserProfileMeta] = None,
+  bodies: List[AccessPointF] = Nil
+) extends MetaModel[LinkF] {
+  def opposingTarget(item: MetaModel[_]): Option[MetaModel[_]] = targets.find(_.id != item.id)
+}

@@ -18,13 +18,13 @@ import scala.Some
 import solr.{SearchOrder, SearchParams}
 import scala.concurrent.Future
 
-object Repositories extends EntityRead[Repository]
-  with EntityUpdate[RepositoryF, Repository]
-  with EntityDelete[Repository]
-  with CreationContext[DocumentaryUnitF,Repository]
-	with VisibilityController[Repository]
-  with PermissionScopeController[Repository]
-  with EntityAnnotate[Repository]
+object Repositories extends EntityRead[RepositoryMeta]
+  with EntityUpdate[RepositoryF, RepositoryMeta]
+  with EntityDelete[RepositoryMeta]
+  with CreationContext[DocumentaryUnitF,RepositoryMeta]
+	with VisibilityController[RepositoryMeta]
+  with PermissionScopeController[RepositoryMeta]
+  with EntityAnnotate[RepositoryMeta]
   with EntitySearch
   with ApiBase[RepositoryMeta] {
 
@@ -103,7 +103,7 @@ object Repositories extends EntityRead[Repository]
     searchAction(Map("holderId" -> item.id, "depthOfDescription" -> "0"),
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
       page => params => facets => _ => _ =>
-        Ok(views.html.repository.show(Repository(item), page, params, facets, routes.Repositories.get(id), annotations, links))
+        Ok(views.html.repository.show(item, page, params, facets, routes.Repositories.get(id), annotations, links))
     }(request)
   }
 
@@ -119,14 +119,14 @@ object Repositories extends EntityRead[Repository]
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
         println("Updating: " + Repository(item).formable)
-    Ok(views.html.repository.edit(Repository(item), form.fill(Repository(item).formable), routes.Repositories.updatePost(id)))
+    Ok(views.html.repository.edit(item, form.fill(Repository(item).formable), routes.Repositories.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.repository.edit(Repository(item), errorForm, routes.Repositories.updatePost(id)))
+        BadRequest(views.html.repository.edit(item, errorForm, routes.Repositories.updatePost(id)))
       case Right(item) => Redirect(routes.Repositories.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
@@ -164,8 +164,8 @@ object Repositories extends EntityRead[Repository]
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(Repository(item),
-      VisibilityForm.form.fill(Repository(item).accessors.map(_.id)),
+    Ok(views.html.permissions.visibility(item,
+      VisibilityForm.form, //.fill(Repository(item).accessors.map(_.id)),
       users, groups, routes.Repositories.visibilityPost(id)))
   }
 
@@ -183,19 +183,19 @@ object Repositories extends EntityRead[Repository]
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(Repository(item), users, groups,
+    Ok(views.html.permissions.permissionItem(item, users, groups,
         routes.Repositories.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(Repository(item), users, groups,
+    Ok(views.html.permissions.permissionScope(item, users, groups,
         routes.Repositories.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(Repository(item), accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
         routes.Repositories.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -207,7 +207,7 @@ object Repositories extends EntityRead[Repository]
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(Repository(item), accessor, perms, targetContentTypes,
+    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         routes.Repositories.setScopedPermissionsPost(id, userType, userId)))
   }
 

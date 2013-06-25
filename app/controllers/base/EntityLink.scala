@@ -45,7 +45,7 @@ object AccessPointLink {
 trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
 
   def linkSelectAction(id: String, toType: String)(
-      f: LinkableEntity => solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: LinkableEntity => solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
@@ -60,7 +60,7 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
     }
   }
 
-  def linkAction(id: String, toType: String, to: String)(f: LinkableEntity => LinkableEntity => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def linkAction(id: String, toType: String, to: String)(f: LinkableEntity => LinkableEntity => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       getEntity(EntityType.withName(toType), to) { srcitem =>
@@ -77,7 +77,7 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
   }
 
   def linkPostAction(id: String, toType: String, to: String)(
-      f: Either[(LinkableEntity, LinkableEntity,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Either[(LinkableEntity, LinkableEntity,Form[LinkF]),Link] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
 
     implicit val linkWrites: Writes[LinkF] = models.json.rest.linkFormat
 
@@ -109,7 +109,7 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
     }
   }
 
-  def linkMultiAction(id: String)(f: LinkableEntity => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def linkMultiAction(id: String)(f: LinkableEntity => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       val res: Option[Result] = for {
@@ -122,7 +122,7 @@ trait EntityLink[T <: LinkableEntity] extends EntityRead[T] with EntitySearch {
   }
 
   def linkPostMultiAction(id: String)(
-      f: Either[(LinkableEntity,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: Either[(LinkableEntity,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       implicit val linkWrites: Writes[LinkF] = models.json.rest.linkFormat
       val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm

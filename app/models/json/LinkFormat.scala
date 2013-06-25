@@ -3,9 +3,11 @@ package models.json
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import models.LinkF
+import models._
 import defines.EntityType
 import defines.EnumUtils._
+import models.base.{MetaModel, Accessor}
+import models.AccessPoint
 
 object LinkFormat {
   import models.LinkF._
@@ -35,4 +37,19 @@ object LinkFormat {
     )(LinkF.apply _)
 
   implicit val restFormat: Format[LinkF] = Format(linkReads,linkWrites)
+
+
+  private implicit val metaModelReads = MetaModel.Converter.restReads
+  private implicit val userProfileMetaReads = models.json.UserProfileFormat.metaReads
+  private implicit val accessPointReads = models.json.AccessPointFormat.accessPointReads
+
+  implicit val metaReads: Reads[LinkMeta] = (
+    __.read[LinkF] and
+    (__ \ RELATIONSHIPS \ LinkF.LINK_REL).lazyReadNullable[List[MetaModel[_]]](
+      Reads.list[MetaModel[_]]).map(_.getOrElse(List.empty[MetaModel[_]])) and
+    (__ \ RELATIONSHIPS \ LinkF.ACCESSOR_REL).lazyReadNullable[List[UserProfileMeta]](
+      Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ LinkF.BODY_REL).lazyReadNullable[List[AccessPointF]](
+        Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
+  )(LinkMeta.apply _)
 }

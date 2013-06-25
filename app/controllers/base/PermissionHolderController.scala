@@ -25,7 +25,7 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
    * @param limit
    * @return
    */
-  def grantListAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(f: Entity => rest.Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def grantListAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(f: Entity => rest.Page[PermissionGrant] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -41,7 +41,7 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
   }
 
 
-  def setGlobalPermissionsAction(id: String)(f: Entity => GlobalPermissionSet[T] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def setGlobalPermissionsAction(id: String)(f: Entity => GlobalPermissionSet[T] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -55,7 +55,7 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
     }
   }
 
-  def setGlobalPermissionsPostAction(id: String)(f: Entity => GlobalPermissionSet[T] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def setGlobalPermissionsPostAction(id: String)(f: Entity => GlobalPermissionSet[T] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
@@ -73,7 +73,7 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
     }
   }
 
-  def revokePermissionAction(id: String, permId: String)(f: Entity => Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def revokePermissionAction(id: String, permId: String)(f: Entity => Entity => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -87,7 +87,7 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
     }
   }
 
-  def revokePermissionActionPost(id: String, permId: String)(f: Entity => Boolean => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def revokePermissionActionPost(id: String, permId: String)(f: Entity => Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {

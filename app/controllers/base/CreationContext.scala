@@ -19,7 +19,7 @@ import models.json.RestConvertable
  */
 trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
 
-  def childCreateAction(id: String, ct: ContentType.Value)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def childCreateAction(id: String, ct: ContentType.Value)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
         f(item)(users)(groups)(userOpt)(request)
@@ -28,7 +28,7 @@ trait CreationContext[CF <: Persistable, T <: AccessibleEntity] extends EntityRe
   }
 
   def childCreatePostAction[CT<:Persistable](id: String, form: Form[CT], ct: ContentType.Value)(
-        f: Entity => Either[(Form[CT],Form[List[String]]),Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
+        f: Entity => Either[(Form[CT],Form[List[String]]),Entity] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
               implicit fmt: RestConvertable[CT]) = {
     withItemPermission(id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(

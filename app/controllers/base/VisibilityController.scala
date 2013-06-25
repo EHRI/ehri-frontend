@@ -29,7 +29,7 @@ object VisibilityController {
  */
 trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
 
-  def visibilityAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def visibilityAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
         f(item)(users)(groups)(userOpt)(request)
@@ -37,7 +37,7 @@ trait VisibilityController[T <: AccessibleEntity] extends EntityRead[T] {
     }
   }
 
-  def visibilityPostAction(id: String)(f: Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def visibilityPostAction(id: String)(f: Entity => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       val data = models.forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
       AsyncRest {

@@ -35,7 +35,7 @@ case class RepositoryF(
   publicationStatus: Option[PublicationStatus.Value] = None,
   @Annotations.Relation(RepositoryF.DESC_REL) descriptions: List[RepositoryDescriptionF] = Nil,
   priority: Option[Int] = None
-) extends Model with Persistable
+) extends Model with Persistable with Described[RepositoryDescriptionF]
 
 
 case class Repository(val e: Entity)

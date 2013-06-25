@@ -2,13 +2,13 @@ package controllers.base
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{Entity, UserProfile}
-import solr.facet.{AppliedFacet, FacetClass}
-import solr.{SearchOrder, ItemPage, SolrDispatcher, SearchParams}
+import models.UserProfileMeta
+import solr.facet.FacetClass
+import solr.{SearchOrder, ItemPage, SearchParams}
 import defines.EntityType
 import play.api.Play._
 import solr.facet.AppliedFacet
-import play.api.data.Form
+
 
 /**
  * Controller trait searching via the Solr interface. Eventually
@@ -54,7 +54,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @param f
    * @return
    */
-  def searchAction(f: solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def searchAction[MT](f: solr.ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     searchAction(Map.empty[String,Any])(f)
   }
 
@@ -64,8 +64,8 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @param f
    * @return
    */
-  def searchAction(filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
-      f: solr.ItemPage[(Entity,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
+      f: solr.ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
 
@@ -97,7 +97,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
   }
 
   def filterAction(filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
-        f: ItemPage[(String,String,EntityType.Value)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+        f: ItemPage[(String,String,EntityType.Value)] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
 
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))

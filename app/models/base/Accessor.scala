@@ -1,24 +1,57 @@
 package models.base
 
 import defines.EntityType
-import models.Entity
+import models._
+import play.api.data.validation.ValidationError
+import play.api.libs.json._
 import models.Group
-import models.UserProfile
+import scala.Some
+import play.api.data.validation.ValidationError
+import models.Group
+import play.api.libs.json.KeyPathNode
+import scala.Some
+import play.api.data.validation.ValidationError
+import models.json.{ClientConvertable, RestReadable}
 
 object Accessor {
   final val BELONGS_REL = "belongsTo"
-    
-	def apply(e: Entity): Accessor = e.isA match {
-	  case EntityType.UserProfile => UserProfile(e)
-	  case EntityType.Group => Group(e)
-	  case _ => sys.error("Unknow entity type for Accessor: " + e.isA.toString())
-	}
+
+  implicit object Converter extends RestReadable[Accessor] with ClientConvertable[Accessor] {
+    implicit val restReads = new Reads[Accessor] {
+      def reads(json: JsValue): JsResult[Accessor] = {
+        (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
+          case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.restReads)
+          case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.restReads)
+          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected meta-model for accessor type: " + t))
+        }
+      }
+    }
+
+    implicit val clientFormat = new Format[Accessor] {
+      def reads(json: JsValue): JsResult[Accessor] = {
+        (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
+          case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.clientFormat)
+          case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.clientFormat)
+          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected meta-model for accessor type: " + t))
+        }
+      }
+      def writes(a: Accessor): JsValue = {
+        a match {
+          case up: UserProfileMeta => Json.toJson(up)(UserProfileMeta.Converter.clientFormat)
+          case g: GroupMeta => Json.toJson(g)(GroupMeta.Converter.clientFormat)
+          case t => sys.error("Unexcepted type for accessor client conversion: " + t)
+        }
+      }
+    }
+  }
 }
 
-trait Accessor extends AccessibleEntity with NamedEntity {
-  val groups: List[Group] = e.relations(Accessor.BELONGS_REL).map(Group(_))
+trait Accessor extends MetaModel[_] {
+  val groups: List[GroupMeta]
+  val id: String
+  val isA: EntityType.Value
 
-  lazy val allGroups: List[Group] = getGroups(this)
+  lazy val allGroups: List[GroupMeta] = getGroups(this)
 
   def isAdmin = getAccessor(groups, "admin").isDefined
 
@@ -37,7 +70,7 @@ trait Accessor extends AccessibleEntity with NamedEntity {
 	  }
 	}
 
-  private def getGroups(acc: Accessor): List[Group] = {
+  private def getGroups(acc: Accessor): List[GroupMeta] = {
     acc.groups.foldLeft(acc.groups) { case (all, g) =>
       all ++ getGroups(g)
     }.distinct

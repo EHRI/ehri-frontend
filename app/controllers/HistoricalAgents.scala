@@ -8,10 +8,8 @@ import play.api._
 import play.api.i18n.Messages
 import defines._
 import _root_.controllers.base._
-import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
-import views.Helpers
-import solr.{SearchOrder, SearchParams}
+import solr.SearchParams
 
 
 object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]

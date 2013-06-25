@@ -1,34 +1,33 @@
 package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.AccessibleEntity
+import models.base._
 import play.api.mvc._
-import models.base.Persistable
 import play.api.data.{Form, FormError}
-import models.base.Formable
 import defines.PermissionType
-import models.{UserProfile, Entity}
+import models.{UserProfileMeta, UserProfile, Entity}
 import play.api.Logger
 import play.api.data.FormError
 import play.api.libs.json.Writes
-import models.json.RestConvertable
+import models.json.{RestReadable, RestConvertable}
+import play.api.data.FormError
 
 /**
  * Controller trait which updates an AccessibleEntity.
  *
  * @tparam F the Entity's formable representation
- * @tparam T the Entity's built representation
+ * @tparam MT the Entity's meta representation
  */
-trait EntityUpdate[F <: Persistable, T <: AccessibleEntity with Formable[F]] extends EntityRead[T] {
+trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
 
-  def updateAction(id: String)(f: Entity => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def updateAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }
 
-  def updatePostAction(id: String, form: Form[F])(f: Entity => Either[Form[F],Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
-    implicit fmt: RestConvertable[F]) = {
+  def updatePostAction(id: String, form: Form[F])(f: MT => Either[Form[F],MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
 
       form.bindFromRequest.fold(

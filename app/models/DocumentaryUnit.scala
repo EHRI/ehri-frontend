@@ -54,7 +54,7 @@ case class DocumentaryUnitF(
 
   @Annotations.Relation(DocumentaryUnitF.DESC_REL)
   descriptions: List[DocumentaryUnitDescriptionF] = Nil
-) extends Model with Persistable {
+) extends Model with Persistable with Described[DocumentaryUnitDescriptionF] {
   def withDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = copy(descriptions = descriptions ++ List(d))
 
   /**

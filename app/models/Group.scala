@@ -29,10 +29,12 @@ case class GroupF(
 ) extends Model with Persistable
 
 
+/*
 case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[GroupF] {
   lazy val formable: GroupF = Json.toJson(e).as[GroupF]
   lazy val formableOpt: Option[GroupF] = Json.toJson(e).asOpt[GroupF]
 }
+*/
 
 object GroupMeta {
   implicit object Converter extends ClientConvertable[GroupMeta] with RestReadable[GroupMeta] {
@@ -46,5 +48,5 @@ case class GroupMeta(
   model: GroupF,
   groups: List[GroupMeta] = Nil,
   latestEvent: Option[SystemEventMeta] = None
-) extends MetaModel[GroupF]
+) extends MetaModel[GroupF] with Accessor
 

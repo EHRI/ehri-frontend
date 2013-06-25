@@ -35,7 +35,7 @@ case class ConceptF(
   id: Option[String],
   identifier: String,
   @Annotations.Relation(DescribedEntity.DESCRIBES_REL) val descriptions: List[ConceptDescriptionF] = Nil
-) extends Model with Persistable
+) extends Model with Persistable with Described[ConceptDescriptionF]
 
 
 object Concept {

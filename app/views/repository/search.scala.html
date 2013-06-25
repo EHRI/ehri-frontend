@@ -1,5 +1,5 @@
 @(result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
-    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("repository.search")) {
     @views.html.search.searchForm(result, params, action) {

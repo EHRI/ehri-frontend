@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentType}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
-import models.{Entity, UserProfile, UserProfileF}
+import models.{UserProfileMeta, UserProfileF}
 import models.sql.OpenIDUser
 import play.filters.csrf.CSRF
 
@@ -51,28 +51,28 @@ object Admin extends Controller with AuthController with ControllerHelpers {
     Ok(views.html.admin.actions())
   }
 
-  def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
+  def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) {
+      implicit userOpt => implicit request =>
     val csrf = CSRF.getToken(request)
     getGroups { groups =>
       Ok(views.html.admin.createUser(userPasswordForm, groupMembershipForm, groups, routes.Admin.createUserPost))
     }
   }
 
-  def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) { implicit userOpt => implicit request =>
+  def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) {
+      implicit userOpt => implicit request =>
     // TODO: Refactor to make this logic clearer...
 
-    def createUserProfile(user: UserProfileF, groups: Seq[String])(f: UserProfile => Result): AsyncResult = {
+    def createUserProfile(user: UserProfileF, groups: Seq[String])(f: UserProfileMeta => Result): AsyncResult = {
       AsyncRest {
         rest.EntityDAO(EntityType.UserProfile, userOpt)
-            .create(user, params = Map("group" -> groups)).map { itemOrErr =>
-          itemOrErr.right.map { entity =>
-            f(UserProfile(entity))
-          }
+            .create[UserProfileF,UserProfileMeta](user, params = Map("group" -> groups)).map { itemOrErr =>
+          itemOrErr.right.map(f)
         }
       }
     }
 
-    def grantOwnerPerms(profile: UserProfile)(f: => Result): AsyncResult = {
+    def grantOwnerPerms(profile: UserProfileMeta)(f: => Result): AsyncResult = {
       AsyncRest {
         rest.PermissionDAO(userOpt).setItem(profile, ContentType.UserProfile,
             profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>

@@ -3,10 +3,9 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import play.api.libs.json.{JsResult, Writes, Json, JsValue}
+import play.api.libs.json._
 import defines.{EntityType,ContentType}
-import models.Entity
-import models.UserProfile
+import models.{UserProfileMeta, Entity}
 import models.json.{RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
@@ -135,7 +134,7 @@ object EntityDAO {
  * @param entityType
  * @param userProfile
  */
-case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
+case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfileMeta] = None) extends RestDAO {
 
   import EntityDAO._
   import play.api.http.Status._
@@ -146,18 +145,18 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   implicit val entityReads = Entity.entityReads
 
   // Implicit reader for pages of items
-  implicit val entityPageReads = PageReads.pageReads[Entity]
+  implicit def entityPageReads[T] = PageReads.pageReads[T]
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
-  def get(id: String): Future[Either[RestError, Entity]] = {
-    val cached = Cache.getAs[Entity](id)
+  def get[MT](id: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+    val cached = Cache.getAs[MT](id)
     if (cached.isDefined) Future.successful(Right(cached.get))
     else {
       Logger.logger.debug("GET {} ", enc(requestUrl, id))
       WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkError(response).right.map { r =>
-          val entity = jsonToEntity(r.json)
+          val entity = r.json.as[MT](rd.restReads)
           Cache.set(id, entity, cacheTime)
           entity
         }
@@ -173,52 +172,59 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def get(key: String, value: String): Future[Either[RestError, Entity]] = {
+  def get[MT](key: String, value: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*)
       .withQueryString("key" -> key, "value" -> value)
       .get.map { response =>
-        checkError(response).right.map(r => jsonToEntity(r.json))
+        checkError(response).right.map(r => r.json.as[MT](rd.restReads))
     }
   }
 
-  def create[PT](item: PT, accessors: List[String] = Nil,
+  def create[T, MT](item: T, accessors: List[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
-      logMsg: Option[String] = None)(implicit fmt: RestConvertable[PT]): Future[Either[RestError, Entity]] = {
+      logMsg: Option[String] = None)(implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     val qs = utils.joinQueryString(params)
     val url = enc(requestUrl, "?%s".format(
         (accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}") ++ List(qs)).mkString("&")))
     Logger.logger.debug("CREATE {} ", url)
     WS.url(url)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .post(Json.toJson(item)(fmt.restFormat)).map { response =>
-        checkError(response).right.map(r => EntityDAO.handleCreate(jsonToEntity(r.json)))
+      .post(Json.toJson(item)(wrt.restFormat)).map { response =>
+        checkError(response).right.map { r =>
+          r.json.as[MT](rd.restReads)
+          //EntityDAO.handleCreate(jsonToEntity(r.json))
+        }
     }
   }
 
-  def createInContext[PT](id: String, contentType: ContentType.Value,
-      item: PT, accessors: List[String] = Nil,
-      logMsg: Option[String] = None)(implicit fmt: RestConvertable[PT]): Future[Either[RestError, Entity]] = {
+  def createInContext[T, MT](id: String, contentType: ContentType.Value,
+      item: T, accessors: List[String] = Nil,
+      logMsg: Option[String] = None)(implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     val url = enc(requestUrl, id, contentType, "?%s".format(
         accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&")))
     Logger.logger.debug("CREATE-IN {} ", url)
     WS.url(url)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .post(Json.toJson(item)(fmt.restFormat)).map { response =>
-        checkError(response).right.map(r => EntityDAO.handleCreate(jsonToEntity(r.json)))
+      .post(Json.toJson(item)(wrt.restFormat)).map { response =>
+        checkError(response).right.map { r =>
+          r.json.as[MT](rd.restReads)
+          //EntityDAO.handleCreate(jsonToEntity(r.json))
+        }
     }
   }
 
-  def update[PT](id: String, item: PT, logMsg: Option[String] = None)(
-      implicit fmt: RestConvertable[PT]): Future[Either[RestError, Entity]] = {
+  def update[T, MT](id: String, item: T, logMsg: Option[String] = None)(
+      implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     val url = enc(requestUrl, id)
     Logger.logger.debug("UPDATE: {}", url)
     WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .put(Json.toJson(item)(fmt.restFormat)).map { response =>
+      .put(Json.toJson(item)(wrt.restFormat)).map { response =>
         checkError(response).right.map { r =>
-          val entity = jsonToEntity(r.json)
-          EntityDAO.handleUpdate(entity)
-          Cache.set(id, entity, cacheTime)
-          entity
+          //val entity = jsonToEntity(r.json)
+          //EntityDAO.handleUpdate(entity)
+          //Cache.set(id, entity, cacheTime)
+          //entity
+          r.json.as[MT](rd.restReads)
         }
     }
   }
@@ -236,13 +242,13 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def list(params: RestPageParams = RestPageParams()): Future[Either[RestError, List[Entity]]] = {
+  def list[MT](params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
     val url = enc(requestUrl, "list" + params.toString)
     Logger.logger.debug("LIST: {}", url)
     WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[List[models.Entity]].fold(
+        r.json.validate[List[MT]](Reads.list(rd.restReads)).fold(
           valid = { list => list },
           invalid = { e =>
             sys.error(s"Unable to decode list result: $e: ${r.json}")
@@ -252,11 +258,12 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def listChildren(id: String, params: RestPageParams = RestPageParams()): Future[Either[RestError, List[Entity]]] = {
+  def listChildren[CMT](id: String, params: RestPageParams = RestPageParams())(
+      implicit rd: RestReadable[CMT]): Future[Either[RestError, List[CMT]]] = {
     WS.url(enc(requestUrl, id, "list" + params.toString))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[List[models.Entity]].fold(
+        r.json.validate[List[CMT]](Reads.list(rd.restReads)).fold(
           valid = { list => list },
           invalid = { e =>
             sys.error(s"Unable to decode list result: $e: ${r.json}")
@@ -266,13 +273,13 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def page(params: RestPageParams = RestPageParams()): Future[Either[RestError, Page[Entity]]] = {
+  def page[MT](params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, Page[MT]]] = {
     val url = enc(requestUrl, "page" + params.toString)
     Logger.logger.debug("PAGE: {}", url)
     WS.url(url)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[Page[models.Entity]].fold(
+        r.json.validate[Page[MT]](PageReads.pageReads(rd.restReads)).fold(
           valid = { page => page },
           invalid = { e =>
             sys.error(s"Unable to decode paginated list result: $e: ${r.json}")
@@ -282,12 +289,12 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def pageChildren(id: String, params: RestPageParams = RestPageParams()): Future[Either[RestError, Page[Entity]]] = {
+  def pageChildren[CMT](id: String, params: RestPageParams = RestPageParams())(implicit rd: RestReadable[CMT]): Future[Either[RestError, Page[CMT]]] = {
     implicit val entityPageReads = PageReads.pageReads[Entity]
     WS.url(enc(requestUrl, id, "page" + params.toString))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[Page[models.Entity]].fold(
+        r.json.validate[Page[CMT]](PageReads.pageReads(rd.restReads)).fold(
           valid = { page => page },
           invalid = { e =>
             sys.error(s"Unable to decode paginated list result: $e: ${r.json}")

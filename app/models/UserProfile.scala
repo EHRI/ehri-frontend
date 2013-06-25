@@ -41,6 +41,7 @@ case class UserProfileF(
 ) extends Model with Persistable
 
 
+/*
 object UserProfile {
   // Have to provide a single arg constructor
   // to provide a builder function for the generic views.
@@ -68,17 +69,39 @@ case class UserProfile(
   lazy val formable: UserProfileF = Json.toJson(e).as[UserProfileF]
   lazy val formableOpt: Option[UserProfileF] = Json.toJson(e).asOpt[UserProfileF]
 }
+*/
 
 object UserProfileMeta {
   implicit object Converter extends ClientConvertable[UserProfileMeta] with RestReadable[UserProfileMeta] {
     val restReads = models.json.UserProfileFormat.metaReads
     val clientFormat = models.json.client.userProfileMetaFormat
   }
+
+  // Constructor, sans account and perms
+  def apply(
+     model: UserProfileF,
+     groups: List[GroupMeta] = Nil,
+     latestEvent: Option[SystemEventMeta]) = new UserProfileMeta(model, groups, latestEvent)
 }
 
 
 case class UserProfileMeta(
   model: UserProfileF,
   groups: List[GroupMeta] = Nil,
-  latestEvent: Option[SystemEventMeta] = None
-) extends MetaModel[UserProfileF]
+  latestEvent: Option[SystemEventMeta] = None,
+  account: Option[models.sql.User] = None,
+  globalPermissions: Option[GlobalPermissionSet[UserProfileMeta]] = None,
+  itemPermissions: Option[ItemPermissionSet[UserProfileMeta]] = None
+) extends MetaModel[UserProfileF] with Accessor {
+
+  def hasPermission(ct: ContentType.Value, p: PermissionType.Value): Boolean = {
+    globalPermissions.map { gp =>
+      if (gp.has(ct, p)) true
+      else {
+        itemPermissions.map { ip =>
+          ip.contentType == ct && ip.has(p)
+        }.getOrElse(false)
+      }
+    }.getOrElse(false)
+  }
+}

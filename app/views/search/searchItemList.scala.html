@@ -1,4 +1,4 @@
-@(result: solr.ItemPage[(Entity,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(result: solr.ItemPage[(Entity,String)])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
 
 <ul class="unstyled">
     @result.items.map { case(item, id) =>

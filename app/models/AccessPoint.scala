@@ -36,7 +36,7 @@ object AccessPointF {
 case class AccessPointF(
   isA: EntityType.Value = EntityType.AccessPoint,
   id: Option[String],
-  `type`: AccessPointF.AccessPointType.Value,
+  accessPointType: AccessPointF.AccessPointType.Value,
   name: String,
   description: Option[String] = None
 ) extends Model with Persistable

@@ -33,7 +33,7 @@ object CypherDAO {
   
 }
 
-case class CypherDAO(userProfile: Option[UserProfile]) extends RestDAO {
+case class CypherDAO(userProfile: Option[UserProfileMeta]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/db/data/cypher".format(host, port)
 

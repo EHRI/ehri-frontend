@@ -1,28 +1,29 @@
 package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.AccessibleEntity
+import models.base.{MetaModel, Model, AccessibleEntity}
 import play.api.mvc._
 import models._
 import rest.RestPageParams
 import controllers.ListParams
 import models.SystemEvent
-import models.json.ClientConvertable
+import models.json.{RestReadable, ClientConvertable}
 
 
 /**
  * Controller trait which handles the listing and showing of Entities that
  * implement the AccessibleEntity trait.
  *
- * @tparam T
+ * @tparam MT Meta-model
  */
-trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
+trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
   val DEFAULT_LIMIT = 20
 
   val defaultPage: RestPageParams = new RestPageParams()
   val defaultChildPage: RestPageParams = new RestPageParams()
 
-  def getEntity(id: String, user: Option[UserProfile])(f: Entity => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+  def getEntity(id: String, user: Option[UserProfileMeta])(f: MT => Result)(
+      implicit rd: RestReadable[MT], userOpt: Option[UserProfileMeta], request: RequestHeader) = {
     AsyncRest {
       rest.EntityDAO(entityType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
@@ -30,7 +31,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def getEntity(otherType: defines.EntityType.Type, id: String)(f: Entity => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+  def getEntity(otherType: defines.EntityType.Type, id: String)(f: Entity => Result)(implicit userOpt: Option[UserProfileMeta], request: RequestHeader) = {
     AsyncRest {
       rest.EntityDAO(otherType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
@@ -38,7 +39,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def getUsersAndGroups(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+  def getUsersAndGroups(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfileMeta], request: RequestHeader) = {
     // TODO: Handle REST errors
     Async {
       for {
@@ -50,18 +51,19 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def getJson(id: String) = userProfileAction { implicit maybeUser => implicit request =>
+  /*def getJson(id: String) = userProfileAction { implicit maybeUser => implicit request =>
     import play.api.libs.json.Json
     AsyncRest {
       rest.EntityDAO(entityType, maybeUser).get(id).map { itemOrErr =>
         itemOrErr.right.map {
-          item => Ok(Json.toJson(item.data))
+          item => Ok(Json.toJson(item))
         }
       }
     }
-  }
+  }*/
 
-  def getAction(id: String)(f: Entity => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def getAction(id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT]) = {
     itemPermissionAction(contentType, id) { item => implicit maybeUser => implicit request =>
       Secured {
         AsyncRest {
@@ -79,7 +81,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
   }
 
   def getWithChildrenAction(id: String)(
-      f: Entity => rest.Page[Entity] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Entity => rest.Page[Entity] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     itemPermissionAction(contentType, id) { item => implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
@@ -98,7 +100,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
     }
   }
 
-  def listAction(f: rest.Page[Entity] => ListParams => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def listAction(f: rest.Page[Entity] => ListParams => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
@@ -115,7 +117,7 @@ trait EntityRead[T <: AccessibleEntity] extends EntityController[T] {
 
 
   def historyAction[C <: AccessibleEntity](id: String)(
-      f: Entity => rest.Page[SystemEvent] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Entity => rest.Page[SystemEvent] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
         AsyncRest {

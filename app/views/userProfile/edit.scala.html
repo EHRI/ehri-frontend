@@ -1,5 +1,5 @@
 @(item: UserProfile, f: play.api.data.Form[UserProfileF], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @rightSidebarLayout(Messages("actions.updateUserProfile"), breadcrumbs = common.breadcrumbs(List(item))) {
 

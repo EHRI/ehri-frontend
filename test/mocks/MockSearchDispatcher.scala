@@ -16,7 +16,7 @@ import solr.facet.{FacetClass, AppliedFacet}
 case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
 
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String, EntityType.Value)]]] = {
+      implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,ItemPage[(String,String, EntityType.Value)]]] = {
     val docs = List(("c1", "Collection 1", EntityType.DocumentaryUnit), ("c2", "Collection 2", EntityType.DocumentaryUnit))
     val repo = List(("r1", "Repository 1", EntityType.Repository), ("r2", "Repository 2", EntityType.Repository))
     val items = params.entities match {
@@ -33,7 +33,7 @@ case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
   }
 
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+      implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val items = params.entities.foldLeft(List[solr.SearchDescription]()) { case (listOfItems, et) =>
       et match {
         case EntityType.DocumentaryUnit => listOfItems ++ List(
@@ -55,7 +55,7 @@ case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
   }
 
   def facet(facet: String, sort: String, params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
+      implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
 
     // UNIMPLEMENTED
     Future.failed(new NotImplementedError())

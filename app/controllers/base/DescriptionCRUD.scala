@@ -5,19 +5,16 @@ import models.base._
 import play.api.mvc._
 import play.api.data.{Form, FormError}
 import defines.{EntityType, PermissionType}
-import models.{Entity, UserProfile}
-import models.forms.VisibilityForm
-import rest.{DescriptionDAO, ValidationError, EntityDAO}
-import play.api.i18n.Messages
-import play.api.libs.json.Writes
-import models.json.RestConvertable
+import models.{UserProfileMeta, Entity}
+import rest.{DescriptionDAO, ValidationError}
+import models.json.{RestReadable, RestConvertable}
 
 /**
  * Controller trait for creating, updating, and deleting auxiliary descriptions
  * for entities that can be multiply described.
  *
  */
-trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persistable] extends EntityRead[T] {
+trait DescriptionCRUD[D <: Persistable, T <: Model with Described[D], MT <: MetaModel[T]] extends EntityRead[T] {
 
   /**
    * Create an additional description for the given item.
@@ -27,9 +24,9 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
    * @param f
    * @return
    */
-  def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[FD])(
-      f: Entity => Either[Form[FD],Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
-        implicit fmt: RestConvertable[FD]) = {
+  def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[D])(
+      f: MT => Either[Form[D], MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+        implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission(id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold({ ef =>
@@ -63,9 +60,9 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
    * @param f
    * @return
    */
-  def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[FD])(
-    f: Entity => Either[Form[FD],Entity] => Option[UserProfile] => Request[AnyContent] => Result)(
-           implicit fmt: RestConvertable[FD]) = {
+  def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[D])(
+    f: MT => Either[Form[D],Entity] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+           implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission(id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold({ ef =>
@@ -100,7 +97,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
    * @return
    */
   def deleteDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String)(
-      f: Boolean => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
@@ -122,7 +119,7 @@ trait DescriptionCRUD[T <: AccessibleEntity with DescribedEntity[_], FD <: Persi
    * @param err
    * @return
    */
-  private def fillFormErrors(item: FD, form: Form[FD], err: ValidationError): Form[FD] = {
+  private def fillFormErrors(item: D, form: Form[D], err: ValidationError): Form[D] = {
     form.fill(item).copy(errors = form.errors ++ item.errorsToForm(err.errorSet))
   }
 }

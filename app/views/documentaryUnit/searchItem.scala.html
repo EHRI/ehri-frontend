@@ -1,4 +1,4 @@
-@(item: DocumentaryUnitDescription)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: DocumentaryUnitDescription)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
 
 @defining(item.item) { ownerOpt =>
     @ownerOpt.map { owner =>

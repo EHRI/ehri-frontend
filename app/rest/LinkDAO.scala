@@ -13,7 +13,7 @@ import play.api.libs.json.Json
  *
  * @param userProfile
  */
-case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
+case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO {
 
   implicit val entityReads = Entity.entityReads
   implicit val entityPageReads = PageReads.pageReads
@@ -55,11 +55,11 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
    * @param link
    * @return
    */
-  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None): Future[Either[RestError, Link]] = {
+  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None): Future[Either[RestError, LinkMeta]] = {
     WS.url(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
       .withHeaders(authHeaders.toSeq: _*)
       .post(Json.toJson(link)).map { response =>
-      checkError(response).right.map(r => Link(jsonToEntity(r.json)))
+      checkError(response).right.map(r => r.json.as[LinkMeta](LinkMeta.Converter.restReads))
     }
   }
 
@@ -100,13 +100,13 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
    * @param srcToLinks list of ids, link object tuples
    * @return
    */
-  def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])]): Future[Either[RestError, List[Link]]] = {
+  def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])]): Future[Either[RestError, List[LinkMeta]]] = {
     val res = Future.sequence {
       srcToLinks.map {
         case (other, ann, accessPoint) => link(id, other, ann, accessPoint)
       }
     }
-    res.map { (lst: List[Either[RestError,Link]]) =>
+    res.map { (lst: List[Either[RestError,LinkMeta]]) =>
       // If there was an error, pluck the first one out and
       // return it... ignore the rest
       lst.filter(_.isLeft).map(_.left.get).headOption.map { err =>

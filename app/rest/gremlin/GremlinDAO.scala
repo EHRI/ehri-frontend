@@ -26,7 +26,7 @@ object GremlinErrorReader {
   )(GremlinError)
 }
 
-case class GremlinDAO(userProfile: Option[UserProfile]) extends RestDAO {
+case class GremlinDAO(userProfile: Option[UserProfileMeta]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/db/data/ext/GremlinPlugin/graphdb/execute_script".format(host, port)
 

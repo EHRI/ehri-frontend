@@ -3,17 +3,17 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.{UserProfile, Entity}
+import models.UserProfileMeta
 
 
-case class AdminDAO(userProfile: Option[UserProfile]) extends RestDAO {
+case class AdminDAO(userProfile: Option[UserProfileMeta]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/admin".format(host, port, mount)
 
-  def createNewUserProfile: Future[Either[RestError, Entity]] = {
+  def createNewUserProfile: Future[Either[RestError, UserProfileMeta]] = {
     WS.url(enc(requestUrl, "createDefaultUserProfile")).withHeaders(headers.toSeq: _*)
       .post("").map { response =>
-        checkError(response).right.map(r => EntityDAO.jsonToEntity(r.json))
+        checkError(response).right.map(r => r.json.as[UserProfileMeta](UserProfileMeta.Converter.restReads))
       }
   }
 }

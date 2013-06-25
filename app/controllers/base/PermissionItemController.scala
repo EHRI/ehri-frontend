@@ -14,7 +14,7 @@ import models.{PermissionGrant, Entity, UserProfile}
 trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
   def manageItemPermissionsAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
-      f: Entity => rest.Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Entity => rest.Page[PermissionGrant] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -28,7 +28,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
     }
   }
 
-  def addItemPermissionsAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def addItemPermissionsAction(id: String)(f: Entity => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -46,7 +46,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
 
 
   def setItemPermissionsAction(id: String, userType: String, userId: String)(
-      f: Entity => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Entity => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -67,7 +67,7 @@ trait PermissionItemController[T <: AccessibleEntity] extends EntityRead[T] {
   }
 
   def setItemPermissionsPostAction(id: String, userType: String, userId: String)(
-      f: acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: acl.ItemPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())

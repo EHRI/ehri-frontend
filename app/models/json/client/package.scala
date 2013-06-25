@@ -3,6 +3,7 @@ package models.json
 import models._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import models.base.{MetaModel, Accessor}
 
 /**
  * User: michaelb
@@ -51,6 +52,7 @@ package object client {
   implicit val vocabularyFormat = Json.format[VocabularyF]
 
   implicit val systemEventFormat = Json.format[SystemEventF]
+  implicit val permissionGrantFormat = Json.format[PermissionGrantF]
 
   // Meta models. These are defined manually because we want to
   // place their model fields (as opposed to the metadata) at the
@@ -60,6 +62,24 @@ package object client {
     __.format[SystemEventF] and
     (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat)
   )(SystemEventMeta.apply _, unlift(SystemEventMeta.unapply _))
+
+  private implicit val metaModelFormat = MetaModel.Converter.clientFormat
+  private implicit val accessorFormat = Accessor.Converter.clientFormat
+
+  implicit val linkMetaFormat: Format[LinkMeta] = (
+    __.format[LinkF] and
+      (__ \ "targets").lazyFormat[List[MetaModel[_]]](Reads.list[MetaModel[_]], Writes.list[MetaModel[_]]) and
+      (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat) and
+      (__ \ "accessPoints").lazyFormatNullable[AccessPointF](accessPointFormat)
+    )(LinkMeta.apply _, unlift(LinkMeta.unapply _))
+
+  implicit val permissionGrantMetaFormat: Format[PermissionGrantMeta] = (
+    __.format[PermissionGrantF] and
+      (__ \ "accessor").lazyFormatNullable[Accessor](accessorFormat) and
+      (__ \ "targets").lazyFormat[List[MetaModel[_]]](Reads.list[MetaModel[_]], Writes.list[MetaModel[_]]) and
+      (__ \ "scope").lazyFormatNullable[MetaModel[_]](metaModelFormat) and
+      (__ \ "grantedBy").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat)
+    )(PermissionGrantMeta.apply _, unlift(PermissionGrantMeta.unapply _))
 
   implicit val groupMetaFormat: Format[GroupMeta] = (
       __.format[GroupF] and

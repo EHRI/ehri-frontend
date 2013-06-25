@@ -18,7 +18,7 @@ trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemCon
   val targetContentTypes: Seq[ContentType.Value]
 
   def manageScopedPermissionsAction(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT)(
-      f: Entity => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Entity => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -34,7 +34,7 @@ trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemCon
   }
 
   def setScopedPermissionsAction(id: String, userType: String, userId: String)(
-      f: Entity => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: Entity => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt =>
       implicit request =>
         AsyncRest {
@@ -56,7 +56,7 @@ trait PermissionScopeController[T <: AccessibleEntity] extends PermissionItemCon
   }
 
   def setScopedPermissionsPostAction(id: String, userType: String, userId: String)(
-      f: acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      f: acl.GlobalPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = targetContentTypes.map { ct =>
