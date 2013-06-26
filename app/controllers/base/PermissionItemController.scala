@@ -4,17 +4,19 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import defines._
-import models.{PermissionGrant, Entity, UserProfile}
+import models.{PermissionGrantMeta, UserProfileMeta}
 
 /**
  * Trait for setting permissions on an individual item.
  *
  * @tparam MT the entity's meta class
  */
-trait PermissionItemController[MT <: MetaModel] extends EntityRead[MT] {
+trait PermissionItemController[MT] extends EntityRead[MT] {
+
+  implicit val accessorConverter = Accessor.Converter
 
   def manageItemPermissionsAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
-      f: MT => rest.Page[PermissionGrant] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+      f: MT => rest.Page[PermissionGrantMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -32,13 +34,10 @@ trait PermissionItemController[MT <: MetaModel] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          itemOrErr <- rest.EntityDAO(entityType, userOpt).get(id)
           users <- rest.RestHelpers.getUserList
           groups <- rest.RestHelpers.getGroupList
         } yield {
-          for { item <- itemOrErr.right } yield {
-            f(item)(users)(groups)(userOpt)(request)
-          }
+          Right(f(item)(users)(groups)(userOpt)(request))
         }
       }
     }
@@ -50,16 +49,16 @@ trait PermissionItemController[MT <: MetaModel] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          userOrErr <- rest.EntityDAO(EntityType.withName(userType), userOpt).get(userId)
+
+          userOrErr <- rest.EntityDAO(EntityType.withName(userType), userOpt).get[Accessor](userId)
           // FIXME: Faking user for fetching perms to avoid blocking.
           // This means that when we have both the perm set and the userOpt
           // we need to re-assemble them so that the permission set has
           // access to a userOpt's groups to understand inheritance.
-          permsOrErr <- rest.PermissionDAO(userOpt)
-              .getItem(Accessor(models.Entity.fromString(userId, EntityType.withName(userType))), contentType, id)
+          permsOrErr <- rest.PermissionDAO(userOpt).getItem(userOrErr.right.get, contentType, id)
         } yield {
           for {  accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
-            f(item)(Accessor(accessor))(perms.copy(user=Accessor(accessor)))(userOpt)(request)
+            f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
           }
         }
       }
@@ -71,9 +70,10 @@ trait PermissionItemController[MT <: MetaModel] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
-      getEntity(EntityType.withName(userType), userId) { accessor =>
+      implicit val accessorConverter = Accessor.Converter
+      getEntity[Accessor](EntityType.withName(userType), userId) { accessor =>
         AsyncRest {
-          rest.PermissionDAO(userOpt).setItem(Accessor(accessor), contentType, id, perms).map { permsOrErr =>
+          rest.PermissionDAO(userOpt).setItem(accessor, contentType, id, perms).map { permsOrErr =>
             permsOrErr.right.map { perms =>
               f(perms)(userOpt)(request)
             }

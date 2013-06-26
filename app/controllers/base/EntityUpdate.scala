@@ -3,12 +3,10 @@ package controllers.base
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import play.api.mvc._
-import play.api.data.{Form, FormError}
+import play.api.data.Form
 import defines.PermissionType
-import models.{UserProfileMeta, UserProfile, Entity}
+import models.UserProfileMeta
 import play.api.Logger
-import play.api.data.FormError
-import play.api.libs.json.Writes
 import models.json.{RestReadable, RestConvertable}
 import play.api.data.FormError
 

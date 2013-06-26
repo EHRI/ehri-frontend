@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: DocumentaryUnitMeta, result: solr.ItemPage[(MetaModel[_],String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[AnnotationMeta]], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.IsadG._
 
@@ -41,26 +41,26 @@
             @if(!item.descriptions.isEmpty) {
                 <div class="tabbable">
                     <ul class="nav nav-tabs">
-                         @item.descriptions.headOption.map { desc =>
+                         @item.model.descriptions.headOption.map { desc =>
                             <li class="active">
-                                <a href="#desc-@desc.id" data-toggle="tab">@desc.stringProperty(TITLE).getOrElse("Untitled Description: FIXME I18N")</a>
+                                <a href="#desc-@desc.id" data-toggle="tab">@desc.name</a>
                             </li>
                         }
-                        @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
+                        @item.model.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                             <li>
-                                <a href="#desc-@desc.id" data-toggle="tab">@desc.stringProperty(TITLE).getOrElse("Untitled Description: FIXME I18N")</a>
+                                <a href="#desc-@desc.id" data-toggle="tab">@desc.name</a>
                             </li>
                         }
                     </ul>
                     <div class="tab-content">
-                        @item.descriptions.headOption.map { desc =>
+                        @item.model.descriptions.headOption.map { desc =>
                             <div class="tab-pane active" id="desc-@desc.id">
                                 @actions("Actions", item.id, desc.id)
                                 @documentaryUnit.renderDescription(item, desc, links)
                             </div>
 
                         }
-                        @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
+                        @item.model.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                             <div class="tab-pane" id="desc-@desc.id">
                                 @actions("Actions", item.id, desc.id)
                                 @documentaryUnit.renderDescription(item, desc, links)

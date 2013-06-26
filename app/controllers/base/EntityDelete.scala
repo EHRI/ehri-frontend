@@ -13,7 +13,7 @@ import models.json.RestReadable
  *
  * @tparam MT the Entity's meta representation
  */
-trait EntityDelete[MT <: MetaModel[_]] extends EntityRead[MT] {
+trait EntityDelete[MT] extends EntityRead[MT] {
 
   def deleteAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {

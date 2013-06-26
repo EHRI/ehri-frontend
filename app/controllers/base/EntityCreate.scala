@@ -1,24 +1,21 @@
 package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.AccessibleEntity
+import models.base.{Model, MetaModel, Persistable}
 import play.api.mvc._
-import models.base.Persistable
 import play.api.data._
 import defines.PermissionType
-import models.{Entity, UserProfile}
+import models.UserProfileMeta
 import models.forms.VisibilityForm
-import rest.EntityDAO
-import play.api.libs.json.Writes
-import models.json.RestConvertable
+import models.json.{RestReadable, RestConvertable}
 
 /**
  * Controller trait for creating AccessibleEntities.
  *
  * @tparam F the Entity's formable representation
- * @tparam T the Entity's built representation
+ * @tparam MT the Entity's meta representation
  */
-trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T] {
+trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
 
   /**
    * Create an item. Because the item must have an initial visibility we need
@@ -35,8 +32,8 @@ trait EntityCreate[F <: Persistable, T <: AccessibleEntity] extends EntityRead[T
     }
   }
 
-  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),Entity] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
-      implicit fmt: RestConvertable[F]) = {
+  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
     withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),

@@ -2,8 +2,7 @@ package controllers
 
 import _root_.models.base.AccessibleEntity
 import _root_.models._
-import _root_.models.DocumentaryUnit
-import _root_.models.forms.{AnnotationForm, VisibilityForm}
+import _root_.models.forms.VisibilityForm
 import _root_.models.Repository
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
@@ -21,7 +20,7 @@ import scala.concurrent.Future
 object Repositories extends EntityRead[RepositoryMeta]
   with EntityUpdate[RepositoryF, RepositoryMeta]
   with EntityDelete[RepositoryMeta]
-  with CreationContext[DocumentaryUnitF,RepositoryMeta]
+  with CreationContext[DocumentaryUnitF,DocumentaryUnitMeta, RepositoryMeta]
 	with VisibilityController[RepositoryMeta]
   with PermissionScopeController[RepositoryMeta]
   with EntityAnnotate[RepositoryMeta]
@@ -109,7 +108,7 @@ object Repositories extends EntityRead[RepositoryMeta]
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
     // TODO: Add relevant params
-    Ok(views.html.systemEvents.itemList(Repository(item), page, ListParams()))
+    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
@@ -118,8 +117,7 @@ object Repositories extends EntityRead[RepositoryMeta]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-        println("Updating: " + Repository(item).formable)
-    Ok(views.html.repository.edit(item, form.fill(Repository(item).formable), routes.Repositories.updatePost(id)))
+    Ok(views.html.repository.edit(item, form.fill(item.model), routes.Repositories.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
@@ -134,7 +132,7 @@ object Repositories extends EntityRead[RepositoryMeta]
 
   def createDoc(id: String) = childCreateAction(id, ContentType.DocumentaryUnit) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.create(Repository(item), childForm,
+    Ok(views.html.documentaryUnit.create(item, childForm,
         VisibilityForm.form, users, groups, routes.Repositories.createDocPost(id)))
   }
 
@@ -144,7 +142,7 @@ object Repositories extends EntityRead[RepositoryMeta]
     implicit val token: Option[Token] = CSRF.getToken(request)
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.documentaryUnit.create(Repository(item),
+        BadRequest(views.html.documentaryUnit.create(item,
           errorForm, accForm, users, groups, routes.Repositories.createDocPost(id)))
       }
       case Right(citem) => Redirect(routes.DocumentaryUnits.get(citem.id))
@@ -154,7 +152,7 @@ object Repositories extends EntityRead[RepositoryMeta]
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(Repository(item), routes.Repositories.deletePost(id),
+    Ok(views.html.delete(item, routes.Repositories.deletePost(id),
         routes.Repositories.get(id)))
   }
 
@@ -165,7 +163,7 @@ object Repositories extends EntityRead[RepositoryMeta]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
-      VisibilityForm.form, //.fill(Repository(item).accessors.map(_.id)),
+      VisibilityForm.form, //.fill(item.accessors.map(_.id)),
       users, groups, routes.Repositories.visibilityPost(id)))
   }
 
@@ -177,7 +175,7 @@ object Repositories extends EntityRead[RepositoryMeta]
 
   def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) = manageScopedPermissionsAction(id, page, spage, limit) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(Repository(item), perms, sperms,
+    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         routes.Repositories.addItemPermissions(id), routes.Repositories.addScopedPermissions(id)))
   }
 

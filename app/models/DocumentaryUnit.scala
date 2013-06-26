@@ -125,5 +125,8 @@ case class DocumentaryUnitMeta(
   model: DocumentaryUnitF,
   holder: Option[RepositoryMeta] = None,
   parent: Option[DocumentaryUnitMeta] = None,
+  accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None
-) extends MetaModel[DocumentaryUnitF] with Hierarchical[DocumentaryUnitMeta]
+) extends MetaModel[DocumentaryUnitF]
+  with Hierarchical[DocumentaryUnitMeta]
+  with Accessible

@@ -5,7 +5,7 @@ import scala.concurrent.Future
 import play.api.libs.ws.WS
 import defines.EntityType
 import models._
-import play.api.libs.json.Json
+import play.api.libs.json.{Reads, Json}
 
 
 /**
@@ -25,19 +25,21 @@ case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO 
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Link)
 
+  implicit val linkMetaReads = LinkMeta.Converter.restReads
+
   /**
    * Fetch links for the given item.
    * @param id
    * @return
    */
-  def getFor(id: String): Future[Either[RestError, List[Link]]] = {
+  def getFor(id: String): Future[Either[RestError, List[LinkMeta]]] = {
 
     WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[List[models.Entity]].fold(
+        r.json.validate[List[LinkMeta]](Reads.list(linkMetaReads)).fold(
           valid = {
-            lst => lst.map(l => Link(l))
+            lst => lst
           },
           invalid = { e =>
             println(r.json)
@@ -59,7 +61,7 @@ case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO 
     WS.url(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
       .withHeaders(authHeaders.toSeq: _*)
       .post(Json.toJson(link)).map { response =>
-      checkError(response).right.map(r => r.json.as[LinkMeta](LinkMeta.Converter.restReads))
+      checkError(response).right.map(r => r.json.as[LinkMeta](linkMetaReads))
     }
   }
 

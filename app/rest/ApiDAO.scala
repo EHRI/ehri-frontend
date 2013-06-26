@@ -3,7 +3,7 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.{UserProfileMeta, UserProfile}
+import models.UserProfileMeta
 import play.api.libs.ws.Response
 import play.api.mvc.Headers
 

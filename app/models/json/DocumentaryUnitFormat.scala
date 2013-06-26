@@ -7,7 +7,7 @@ import defines.EnumUtils._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.{AccessibleEntity, DescribedEntity}
+import models.base.{Accessor, AccessibleEntity, DescribedEntity}
 import models.{SystemEventMeta, RepositoryMeta, SystemEvent, DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnitMeta}
 
 
@@ -62,6 +62,8 @@ object DocumentaryUnitFormat {
     //
     (__ \ RELATIONSHIPS \ DocumentaryUnitF.CHILD_REL).lazyReadNullable[List[DocumentaryUnitMeta]](
       Reads.list[DocumentaryUnitMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
+      Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(DocumentaryUnitMeta.apply _)

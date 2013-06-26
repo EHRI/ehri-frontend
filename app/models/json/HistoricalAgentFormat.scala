@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.{AccessibleEntity, DescribedEntity}
+import models.base.{Accessor, AccessibleEntity, DescribedEntity}
 import models._
 import play.api.data.validation.ValidationError
 import defines.EnumUtils._
@@ -53,6 +53,8 @@ object HistoricalAgentFormat {
     __.read[HistoricalAgentF] and
     (__ \ RELATIONSHIPS \ HistoricalAgentF.IN_SET_REL).lazyReadNullable[List[AuthoritativeSetMeta]](
       Reads.list[AuthoritativeSetMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
+      Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(HistoricalAgentMeta.apply _)

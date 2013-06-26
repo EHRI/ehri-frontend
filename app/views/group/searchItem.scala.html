@@ -1,7 +1,7 @@
-@(item: Group)(implicit req: RequestHeader, lang: Lang)
+@(item: GroupMeta)(implicit req: RequestHeader, lang: Lang)
 
 @common.searchItemOutline(item.id) {
     <a href="@routes.Groups.get(item.id)">@item</a>
 } {
-    @item.formable.description
+    @item.model.description
 }

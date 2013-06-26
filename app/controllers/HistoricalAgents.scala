@@ -89,7 +89,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgentMeta]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.edit(item, form.fill(item.formable), routes.HistoricalAgents.updatePost(id)))
+    Ok(views.html.historicalAgent.edit(item, form.fill(item.model), routes.HistoricalAgents.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {

@@ -2,13 +2,10 @@ package rest
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
-import play.api.libs.ws.{WS,Response => WSResponse}
-import play.api.libs.json.{ JsArray, JsValue }
+import play.api.libs.ws.WS
+import play.api.libs.json.{Reads, Json}
 import defines.EntityType
 import models._
-import play.api.libs.json.Json
-import java.net.ConnectException
-import models.base.Persistable
 
 
 /**
@@ -18,24 +15,16 @@ import models.base.Persistable
  */
 case class AnnotationDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO {
 
-  implicit val entityReads = Entity.entityReads
-  implicit val entityPageReads = PageReads.pageReads
-  import EntityDAO._
-  import play.api.http.Status._
+  implicit val annotationReads = models.json.AnnotationFormat.metaReads
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
 
-  def getFor(id: String): Future[Either[RestError, Map[String,List[Annotation]]]] = {
-
+  def getFor(id: String): Future[Either[RestError, Map[String,List[AnnotationMeta]]]] = {
     WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[Map[String, List[models.Entity]]].fold(
-          valid = {
-            map => map.map { case(s, lst) =>
-              (s, lst.map(Annotation(_)))
-            }
-          },
+        r.json.validate[Map[String, List[AnnotationMeta]]](Reads.mapReads(Reads.list(annotationReads))).fold(
+          valid = { map => map },
           invalid = { e =>
             println(r.json)
             sys.error("Unable to decode list result: " + e.toString)
@@ -45,10 +34,10 @@ case class AnnotationDAO(userProfile: Option[UserProfileMeta] = None) extends Re
     }
   }
 
-  def create(id: String, ann: AnnotationF): Future[Either[RestError, Annotation]] = {
+  def create(id: String, ann: AnnotationF): Future[Either[RestError, AnnotationMeta]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
       .post(Json.toJson(ann)).map { response =>
-      checkError(response).right.map(r => Annotation(jsonToEntity(r.json)))
+      checkError(response).right.map(r => r.json.as[AnnotationMeta])
     }
   }
 }

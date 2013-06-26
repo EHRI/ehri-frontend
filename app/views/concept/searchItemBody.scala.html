@@ -1,4 +1,4 @@
-@(item: Concept, desc: ConceptDescription)(implicit lang: Lang)
+@(item: ConceptMeta, desc: ConceptDescriptionF)(implicit lang: Lang)
 
 <small>
 <ul class="unstyled muted inline inline-separator">
@@ -7,7 +7,7 @@
         }
         <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
         @item.latestEvent.map { event =>
-            <li title="@event.time">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</li>
+            <li title="@event.time">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timestamp))</li>
         }
     </ul>
 @if(item.broaderTerms.size > 0) {
@@ -23,5 +23,10 @@
     </ul>
 }
 </small>
-@desc.stringProperty(ConceptF.SCOPENOTE)
-@desc.stringProperty(ConceptF.DEFINITION)
+@desc.scopeNote.map { note =>
+    <p>@note</p>
+}
+@desc.definition.map { definition =>
+    <p>@definition</p>
+}
+

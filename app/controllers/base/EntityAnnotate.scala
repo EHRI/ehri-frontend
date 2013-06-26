@@ -20,9 +20,9 @@ object EntityAnnotate {
 /**
  * Trait for setting visibility on any AccessibleEntity.
  *
- * @tparam T the entity's build class
+ * @tparam MT the entity's build class
  */
-trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
+trait EntityAnnotate[MT] extends EntityRead[MT] {
 
   def annotationAction(id: String)(f: models.Entity => Form[AnnotationF] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
@@ -30,7 +30,7 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
     }
   }
 
-  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],AnnotationMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       AnnotationForm.form.bindFromRequest.fold(
         errorForm => f(Left(errorForm))(userOpt)(request),
@@ -58,7 +58,7 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
       AnnotationDAO(userOpt).getFor(id).map { annsOrErr =>
         annsOrErr.right.map { anns =>
           Ok(Json.toJson(anns.map{ case (itemId, anns) =>
-            itemId -> anns.map(_.formable)
+            itemId -> anns.map(_.model)
           }))
         }
       }
@@ -83,7 +83,7 @@ trait EntityAnnotate[T <: AnnotatableEntity] extends EntityRead[T] {
           AsyncRest {
             rest.AnnotationDAO(userOpt).create(id, ap).map { annOrErr =>
               annOrErr.right.map { ann =>
-                Created(Json.toJson(ann.formable)(clientAnnotationFormat))
+                Created(Json.toJson(ann.model)(clientAnnotationFormat))
               }
             }
           }

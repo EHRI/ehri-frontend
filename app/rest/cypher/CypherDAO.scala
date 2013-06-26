@@ -9,9 +9,7 @@ import play.api.libs.json.__
 import play.api.libs.ws.Response
 import play.api.libs.ws.WS
 import rest.RestDAO
-import play.api.http.HeaderNames
-import play.api.http.ContentTypes
-import models.UserProfile
+import models.UserProfileMeta
 
 case class CypherError(
   val message: String, val exception: String, val stacktrace: List[String]  

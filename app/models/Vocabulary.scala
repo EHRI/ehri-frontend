@@ -58,5 +58,7 @@ object VocabularyMeta {
 
 case class VocabularyMeta(
   model: VocabularyF,
+  accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta]
 ) extends MetaModel[VocabularyF]
+  with Accessible

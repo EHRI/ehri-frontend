@@ -14,7 +14,7 @@ import models.json.{RestReadable, RestConvertable}
  * for entities that can be multiply described.
  *
  */
-trait DescriptionCRUD[D <: Persistable, T <: Model with Described[D], MT <: MetaModel[T]] extends EntityRead[T] {
+trait DescriptionCRUD[D <: Model with Persistable, T <: Model with Described[D], MT] extends EntityRead[MT] {
 
   /**
    * Create an additional description for the given item.
@@ -25,9 +25,9 @@ trait DescriptionCRUD[D <: Persistable, T <: Model with Described[D], MT <: Meta
    * @return
    */
   def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[D])(
-      f: MT => Either[Form[D], MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      f: MT => Either[Form[D], D] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
         implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
-    withItemPermission(id, PermissionType.Update, contentType) {
+    withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold({ ef =>
           f(item)(Left(ef))(userOpt)(request)
@@ -61,9 +61,9 @@ trait DescriptionCRUD[D <: Persistable, T <: Model with Described[D], MT <: Meta
    * @return
    */
   def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[D])(
-    f: MT => Either[Form[D],MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
-           implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
-    withItemPermission(id, PermissionType.Update, contentType) {
+    f: MT => Either[Form[D],D] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+           implicit fmt: RestConvertable[D]) = {
+    withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold({ ef =>
         f(item)(Left(ef))(userOpt)(request)

@@ -6,7 +6,7 @@ import play.api.libs.json._
 import models._
 import defines.EntityType
 import defines.EnumUtils._
-import models.base.{MetaModel, Accessor}
+import models.base.{AccessibleEntity, MetaModel, Accessor}
 import models.AccessPoint
 
 object LinkFormat {
@@ -51,5 +51,9 @@ object LinkFormat {
       Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ LinkF.BODY_REL).lazyReadNullable[List[AccessPointF]](
         Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
+      Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(LinkMeta.apply _)
 }

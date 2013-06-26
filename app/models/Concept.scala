@@ -85,6 +85,10 @@ object ConceptMeta {
 case class ConceptMeta(
   model: ConceptF,
   vocabulary: Option[VocabularyMeta],
-  broaderTerms: List[ConceptMeta],
+  parent: Option[ConceptMeta] = None,
+  broaderTerms: List[ConceptMeta] = Nil,
+  accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta]
 ) extends MetaModel[ConceptF]
+  with Hierarchical[ConceptMeta]
+  with Accessible

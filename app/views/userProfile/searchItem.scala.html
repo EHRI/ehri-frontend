@@ -9,7 +9,7 @@
             @item.groups.map { acc =>
                 <li><a class="alt" href="@routes.Groups.get(acc.id)">@acc</a></li>
             }
-            @item.formable.location.filterNot(_.trim.isEmpty).map { loc =>
+            @item.model.location.filterNot(_.trim.isEmpty).map { loc =>
                 <li>@loc</li>
             }
         </ul>

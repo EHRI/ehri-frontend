@@ -1,9 +1,8 @@
 package controllers
 
 import _root_.models._
-import _root_.models.DocumentaryUnit
 import _root_.models.forms.{LinkForm, VisibilityForm}
-import _root_.models.base.{LinkableEntity, AnnotatableEntity, AccessibleEntity}
+import _root_.models.base.AccessibleEntity
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
@@ -17,9 +16,9 @@ import solr.{SearchOrder, SearchParams}
 import play.api.libs.json.Json
 
 
-object DocumentaryUnits extends CreationContext[DocumentaryUnitMeta, DocumentaryUnitMeta]
-  with VisibilityController[DocumentaryUnit]
-  with EntityRead[DocumentaryUnitMeta]
+object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
+  with VisibilityController[DocumentaryUnitMeta]
+  with CreationContext[DocumentaryUnitF, DocumentaryUnitMeta, DocumentaryUnitMeta]
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnitMeta]
   with EntityDelete[DocumentaryUnitMeta]
   with PermissionScopeController[DocumentaryUnitMeta]
@@ -107,18 +106,18 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitMeta, Documentary
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items...
     val filters = Map("depthOfDescription" -> 0)
-    searchAction(filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+    searchAction[DocumentaryUnitMeta](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
         Ok(views.html.documentaryUnit.search(page, params, facets, routes.DocumentaryUnits.search))
     }
   }
 
-  def searchChildren(id: String) = itemPermissionAction(contentType, id) {
+  def searchChildren(id: String) = itemPermissionAction[DocumentaryUnitMeta](contentType, id) {
       item => implicit userOpt => implicit request =>
 
-    searchAction(Map("parentId" -> item.id)) {
+    searchAction[DocumentaryUnitMeta](Map("parentId" -> item.id)) {
       page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.search.search(page, params, facets, routes.DocumentaryUnits.search))
+        Ok(views.html.documentaryUnit.search(page, params, facets, routes.DocumentaryUnits.search))
     }(request)
   }
 
@@ -126,11 +125,11 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitMeta, Documentary
       item => page => params => annotations => links => implicit userOpt => implicit request =>
 
     Ok(views.html.documentaryUnit.show(
-      DocumentaryUnit(item), page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
+      item, page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
   }*/
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction(Map("parentId" -> item.id, "depthOfDescription" -> (doc.ancestors.size + 1).toString),
+    searchAction(Map("parentId" -> item.id, "depthOfDescription" -> (item.ancestors.size + 1).toString),
           defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.documentaryUnit.show(item, page, params, facets, routes.DocumentaryUnits.get(id), annotations, links))
@@ -138,7 +137,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitMeta, Documentary
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(DocumentaryUnit(item), page, ListParams()))
+    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
@@ -161,14 +160,14 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitMeta, Documentary
 
   def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(
-      DocumentaryUnit(item), childForm, VisibilityForm.form, users, groups, routes.DocumentaryUnits.createDocPost(id)))
+      item, childForm, VisibilityForm.form, users, groups, routes.DocumentaryUnits.createDocPost(id)))
   }
 
   def createDocPost(id: String) = childCreatePostAction(id, childForm, contentType) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.documentaryUnit.create(DocumentaryUnit(item),
+        BadRequest(views.html.documentaryUnit.create(item,
           errorForm, accForm, users, groups, routes.DocumentaryUnits.createDocPost(id)))
       }
       case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
@@ -178,8 +177,8 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitMeta, Documentary
 
   def createDescription(id: String) = withItemPermission(id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.editDescription(DocumentaryUnit(item),
-      descriptionForm, routes.DocumentaryUnits.createDescriptionPost(id)))
+    Ok(views.html.documentaryUnit.editDescription(item,
+        descriptionForm, routes.DocumentaryUnits.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
@@ -245,7 +244,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitMeta, Documentary
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
-        models.forms.VisibilityForm.form.fill(List.empty[String]), //DocumentaryUnit(item).accessors.map(_.id)),
+        models.forms.VisibilityForm.form.fill(List.empty[String]), //item.accessors.map(_.id)),
         users, groups, routes.DocumentaryUnits.visibilityPost(id)))
   }
 
@@ -380,7 +379,7 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitMeta, Documentary
           val link = links.find(_.bodies.exists(b => b.id == ap.id))
           new LinkItem(
             ap,
-            link.flatMap(_.formableOpt),
+            link.map(_.model),
             link.flatMap(l => l.opposingTarget(item).map(t => new Target(t.id, t.isA)))
           )
         }

@@ -5,7 +5,7 @@ import play.api.libs.json.{JsValue, Json}
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
 
-case class IsdiahDetails(
+private[models] case class IsdiahDetails(
   history: Option[String] = None,
   generalContext: Option[String] = None,
   mandates: Option[String] = None,
@@ -16,19 +16,19 @@ case class IsdiahDetails(
   findingAids: Option[String] = None
 ) extends AttributeSet
 
-case class IsdiahAccess(
+private[models] case class IsdiahAccess(
   openingTimes: Option[String] = None,
   conditions: Option[String] = None,
   accessibility: Option[String] = None
 ) extends AttributeSet
 
-case class IsdiahServices(
+private[models] case class IsdiahServices(
   researchServices: Option[String] = None,
   reproductionServices: Option[String] = None,
   publicAreas: Option[String] = None
 ) extends AttributeSet
 
-case class IsdiahControl(
+private[models] case class IsdiahControl(
   descriptionIdentifier: Option[String] = None,
   institutionIdentifier: Option[String] = None,
   rulesAndConventions: Option[String] = None,

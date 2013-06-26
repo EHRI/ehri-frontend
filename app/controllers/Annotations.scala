@@ -1,32 +1,32 @@
 package controllers
 
 import defines._
-import models.Annotation
+import models.AnnotationMeta
 import base.{EntityDelete, EntityAnnotate, VisibilityController, EntityRead}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.i18n.Messages
 
 
-object Annotations extends EntityRead[Annotation]
-  with VisibilityController[Annotation]
-  with EntityDelete[Annotation]
-  with EntityAnnotate[Annotation] {
+object Annotations extends EntityRead[AnnotationMeta]
+  with VisibilityController[AnnotationMeta]
+  with EntityDelete[AnnotationMeta]
+  with EntityAnnotate[AnnotationMeta] {
 
   val entityType = EntityType.Annotation
   val contentType = ContentType.Annotation
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.show(Annotation(item), annotations))
+    Ok(views.html.annotation.show(item, annotations))
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(Annotation(item), page, ListParams()))
+    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt =>
     implicit request =>
-      Ok(views.html.permissions.visibility(Annotation(item),
-        models.forms.VisibilityForm.form.fill(Annotation(item).accessors.map(_.id)),
+      Ok(views.html.permissions.visibility(item,
+        models.forms.VisibilityForm.form.fill(List.empty[String]), //item.accessors.map(_.id)),
         users, groups, routes.Annotations.visibilityPost(id)))
   }
 
@@ -38,7 +38,7 @@ object Annotations extends EntityRead[Annotation]
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-      Annotation(item), routes.Annotations.deletePost(id), routes.Concepts.get(id)))
+      item, routes.Annotations.deletePost(id), routes.Concepts.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) {

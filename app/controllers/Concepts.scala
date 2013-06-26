@@ -12,7 +12,7 @@ import solr.facet.{FacetSort, FieldFacetClass}
 import views.Helpers
 import solr.{SearchOrder, SearchParams}
 
-object Concepts extends CreationContext[ConceptF, ConceptMeta]
+object Concepts extends CreationContext[ConceptF, ConceptMeta, ConceptMeta]
   with VisibilityController[ConceptMeta]
   with EntityRead[ConceptMeta]
   with EntityUpdate[ConceptF, ConceptMeta]
@@ -74,16 +74,15 @@ object Concepts extends CreationContext[ConceptF, ConceptMeta]
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
-  def get(id: String) = getWithChildrenAction(id) { item => page => params => annotations => links =>
-    implicit userOpt => implicit request =>
-      Ok(views.html.concept.show(
-          item, page.copy(items = page.items.map(Concept.apply)), params, annotations))
+  def get(id: String) = getWithChildrenAction[ConceptMeta](id) { item => page => params => annotations => links =>
+      implicit userOpt => implicit request =>
+    Ok(views.html.concept.show(item, page, params, annotations))
   }
 
   def search = {
-    searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
-      page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.concept.search(page, params, facets, routes.Concepts.search))
+    searchAction[ConceptMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+        page => params => facets => implicit userOpt => implicit request =>
+      Ok(views.html.concept.search(page, params, facets, routes.Concepts.search))
     }
   }
 
@@ -97,15 +96,14 @@ object Concepts extends CreationContext[ConceptF, ConceptMeta]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.concept.edit(
-        item, form.fill(item.formable),routes.Concepts.updatePost(id)))
+    Ok(views.html.concept.edit(item, form.fill(item.model),routes.Concepts.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       oldItem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.concept.edit(
-          Concept(oldItem), errorForm, routes.Concepts.updatePost(id)))
+          oldItem, errorForm, routes.Concepts.updatePost(id)))
       case Right(item) => Redirect(routes.Concepts.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }

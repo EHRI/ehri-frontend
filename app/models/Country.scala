@@ -63,5 +63,7 @@ object CountryMeta {
 // Stub
 case class CountryMeta(
   model: CountryF,
+  accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None
 ) extends MetaModel[CountryF]
+  with Accessible

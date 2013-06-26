@@ -8,6 +8,8 @@ import solr.{SearchOrder, ItemPage, SearchParams}
 import defines.EntityType
 import play.api.Play._
 import solr.facet.AppliedFacet
+import models.base.MetaModel
+import models.json.RestReadable
 
 
 /**
@@ -55,7 +57,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @return
    */
   def searchAction[MT](f: solr.ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
-    searchAction(Map.empty[String,Any])(f)
+    searchAction[MT](Map.empty[String,Any])(f)
   }
 
   /**
@@ -65,7 +67,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @return
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
-      f: solr.ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: solr.ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
 
@@ -83,7 +85,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
               val ids = res.items.map(_.id)
               val itemIds = res.items.map(_.itemId)
               AsyncRest {
-                rest.SearchDAO(userOpt).list(itemIds).map { listOrErr =>
+                rest.SearchDAO(userOpt).list[MT](itemIds).map { listOrErr =>
                   listOrErr.right.map { list =>
                     f(res.copy(items = list.zip(ids)))(sp)(facets)(userOpt)(request)
                   }

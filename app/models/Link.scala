@@ -59,22 +59,24 @@ case class Link(val e: Entity) extends AccessibleEntity
   lazy val formable: LinkF = Json.toJson(e).as[LinkF]
   lazy val formableOpt: Option[LinkF] = Json.toJson(e).asOpt[LinkF]
 
-  def opposingTarget(item: LinkableEntity): Option[LinkableEntity] = targets.find(_.id != item.id)
+  def opposingTarget(item: MetaModel[_]): Option[LinkableEntity] = targets.find(_.id != item.id)
 }
 
 
 object LinkMeta {
   implicit object Converter extends RestReadable[LinkMeta] with ClientConvertable[LinkMeta] {
     implicit val restReads = models.json.LinkFormat.metaReads
-    implicit val clientReads = models.json.client.linkMetaFormat
+    implicit val clientFormat = models.json.client.linkMetaFormat
   }
 }
 
 case class LinkMeta(
   model: LinkF,
   targets: List[MetaModel[_]] = Nil,
-  accessor: Option[UserProfileMeta] = None,
-  bodies: List[AccessPointF] = Nil
-) extends MetaModel[LinkF] {
+  user: Option[UserProfileMeta] = None,
+  bodies: List[AccessPointF] = Nil,
+  accessors: List[Accessor] = Nil,
+  latestEvent: Option[SystemEventMeta] = None
+) extends MetaModel[LinkF] with Accessible {
   def opposingTarget(item: MetaModel[_]): Option[MetaModel[_]] = targets.find(_.id != item.id)
 }

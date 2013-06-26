@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, f: play.api.data.Form[DocumentaryUnitF], action: Call)(
+@(item: DocumentaryUnitMeta, f: play.api.data.Form[DocumentaryUnitF], action: Call)(
 implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }

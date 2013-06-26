@@ -2,17 +2,17 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AccessibleEntity, annotations: Map[String,List[Annotation]])(body: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
+@(item: MetaModel[_], annotations: Map[String,List[AnnotationMeta]])(body: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
 
-@annotationList(notes: List[Annotation]) = {
+@annotationList(notes: List[AnnotationMeta]) = {
     @if(!notes.isEmpty) {
         <ul>
         @notes.map { ann =>
             <li class="annotatable" id="@ann.id">
-                @ann.accessor.map { accessor =>
-                    <a href="@views.Helpers.urlFor(accessor)">@accessor.name</a> -
+                @ann.user.map { accessor =>
+                    <a href="@views.Helpers.urlFor(accessor)">@accessor</a> -
                 }
-                @ann.stringProperty(AnnotationF.BODY).map { body =>
+                @ann.model.body.map { body =>
                     @body.trim
                 }
                 @if(!ann.annotations.isEmpty) {

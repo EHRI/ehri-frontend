@@ -69,6 +69,11 @@ trait Named {
   def name: String
 }
 
+trait Accessible {
+  def accessors: List[Accessor]
+  def latestEvent: Option[SystemEventMeta]
+}
+
 /**
  * Created by mike on 23/06/13.
  */
@@ -79,9 +84,9 @@ trait MetaModel[T <: Model] {
   val id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
   val isA = model.isA
 
-
   override def toString = s"TODO: $isA [$id]"
   def toStringLang(implicit lang: Lang) = s"TODO (with lang): $isA [$id]"
+  def toStringAbbr(implicit lang: Lang) = s"TODO (with abbr): $isA [$id]"
 }
 
 trait Hierarchical[+T] {
@@ -94,4 +99,8 @@ trait Hierarchical[+T] {
 trait Described[+T <: Model] {
   val descriptions: List[T]
   def description(id: String) = descriptions.find(_.id == Some(id))
+  def primaryDescription(id: String)(implicit langOpt: Option[Lang] = None) = {
+    // TODO:!!!
+    description(id)
+  }
 }

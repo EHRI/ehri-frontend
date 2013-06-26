@@ -1,13 +1,13 @@
-@(item: Repository)(implicit req: RequestHeader, lang: Lang)
+@(item: RepositoryMeta)(implicit req: RequestHeader, lang: Lang)
 
 @import Isdiah._
 
 @common.searchItemOutline(item.id) {
     <a href="@routes.Repositories.get(item.id)">@item</a>
 } {
-    @item.descriptions.headOption.map { desc =>
+    @item.model.primaryDescription.map { desc =>
 
-        @defining((desc.listProperty(PARALLEL_FORMS_OF_NAME).toList ++ desc.listProperty(OTHER_FORMS_OF_NAME).toList).flatten) { ofn =>
+        @defining((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten) { ofn =>
             @if(!ofn.isEmpty) {
                 <small>
                     <strong>
@@ -26,11 +26,7 @@
                     <li><strong><a class="alt" href="@routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
                 }
                 @desc.addresses.headOption.map { address =>
-                    @List(STREET_ADDRESS, CITY, REGION).map { adpart =>
-                        @address.stringProperty(adpart).filterNot(_.trim.isEmpty).map { part =>
-                            <li>@part</li>
-                        }
-                    }
+                    @common.propertyList(address.streetAddress, address.municipality, address.firstdem)
                 }
                 @item.latestEvent.map { event =>
                     <li title="@common.eventTitle(event)">
@@ -39,7 +35,9 @@
                 }
             </ul>
         </small>
-        <p>@desc.stringProperty(GEOCULTURAL_CONTEXT)</p>
+        @desc.details.generalContext.map { gc =>
+            <p>@gc</p>
+        }
     }.getOrElse {
         <small>@Messages("describedEntity.noDescriptions")</small>
     }

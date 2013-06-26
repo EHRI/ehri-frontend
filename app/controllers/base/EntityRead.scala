@@ -1,12 +1,11 @@
 package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.{MetaModel, Model, AccessibleEntity}
+import models.base.{Model, MetaModel}
 import play.api.mvc._
 import models._
 import rest.RestPageParams
 import controllers.ListParams
-import models.SystemEvent
 import models.json.{RestReadable, ClientConvertable}
 
 
@@ -16,7 +15,7 @@ import models.json.{RestReadable, ClientConvertable}
  *
  * @tparam MT Meta-model
  */
-trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
+trait EntityRead[MT] extends EntityController {
   val DEFAULT_LIMIT = 20
 
   val defaultPage: RestPageParams = new RestPageParams()
@@ -31,7 +30,7 @@ trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
     }
   }
 
-  def getEntity[T](otherType: defines.EntityType.Type, id: String)(f: Entity => Result)(
+  def getEntity[T](otherType: defines.EntityType.Type, id: String)(f: T => Result)(
       implicit userOpt: Option[UserProfileMeta], request: RequestHeader, rd: RestReadable[T]) = {
     AsyncRest {
       rest.EntityDAO(otherType, userOpt).get(id).map { itemOrErr =>
@@ -63,7 +62,7 @@ trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
     }
   }*/
 
-  def getAction(id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+  def getAction(id: String)(f: MT => Map[String,List[AnnotationMeta]] => List[LinkMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     itemPermissionAction[MT](contentType, id) { item => implicit maybeUser => implicit request =>
       Secured {
@@ -82,7 +81,7 @@ trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
   }
 
   def getWithChildrenAction[CT](id: String)(
-      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[AnnotationMeta]] => List[LinkMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
           implicit rd: RestReadable[MT], crd: RestReadable[CT]) = {
     itemPermissionAction[MT](contentType, id) { item => implicit userOpt => implicit request =>
       Secured {
@@ -122,10 +121,9 @@ trait EntityRead[MT <: MetaModel[_]] extends EntityController[MT] {
   def historyAction(id: String)(
       f: MT => rest.Page[SystemEventMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
-      implicit val rd = SystemEventMeta.Converter.restReads
       Secured {
         AsyncRest {
-          val itemReq = rest.EntityDAO(entityType, userOpt).get[MT](id)
+          val itemReq = rest.EntityDAO(entityType, userOpt).get[MT](id)(rd)
           val alReq = rest.SystemEventDAO(userOpt).history(id, RestPageParams())
           for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
             for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {

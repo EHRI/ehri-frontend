@@ -73,6 +73,13 @@ package object client {
       (__ \ "accessPoints").lazyFormatNullable[AccessPointF](accessPointFormat)
     )(LinkMeta.apply _, unlift(LinkMeta.unapply _))
 
+  implicit val annotationMetaFormat: Format[AnnotationMeta] = (
+    __.format[AnnotationF] and
+      (__ \ "annotations").lazyFormat[List[AnnotationMeta]](Reads.list[AnnotationMeta], Writes.list[AnnotationMeta]) and
+      (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat) and
+      (__ \ "source").lazyFormatNullable[MetaModel[_]](metaModelFormat)
+    )(AnnotationMeta.apply _, unlift(AnnotationMeta.unapply _))
+
   implicit val permissionGrantMetaFormat: Format[PermissionGrantMeta] = (
     __.format[PermissionGrantF] and
       (__ \ "accessor").lazyFormatNullable[Accessor](accessorFormat) and

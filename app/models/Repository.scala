@@ -77,5 +77,7 @@ object RepositoryMeta {
 case class RepositoryMeta(
   model: RepositoryF,
   country: Option[CountryMeta] = None,
+  accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None
 ) extends MetaModel[RepositoryF]
+  with Accessible

@@ -81,13 +81,17 @@ object UserProfileMeta {
   def apply(
      model: UserProfileF,
      groups: List[GroupMeta] = Nil,
-     latestEvent: Option[SystemEventMeta]) = new UserProfileMeta(model, groups, latestEvent)
+     accessors: List[Accessor] = Nil,
+     latestEvent: Option[SystemEventMeta]) = new UserProfileMeta(model, groups, accessors, latestEvent)
+
+  def unapply(up: UserProfileMeta) = Some((up.model, up.groups, up.accessors, up.latestEvent))
 }
 
 
 case class UserProfileMeta(
   model: UserProfileF,
   groups: List[GroupMeta] = Nil,
+  accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None,
   account: Option[models.sql.User] = None,
   globalPermissions: Option[GlobalPermissionSet[UserProfileMeta]] = None,

@@ -1,16 +1,17 @@
 package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
-import _root_.models.{VocabularyMeta, Concept, Vocabulary, VocabularyF, ConceptF}
+import _root_.models._
 import _root_.models.forms.{AnnotationForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
-import base._
+import _root_.controllers.base._
 import defines.{PermissionType, ContentType, EntityType}
 import solr.SearchParams
+import scala.Some
 
 object Vocabularies extends CRUD[VocabularyF,VocabularyMeta]
-  with CreationContext[ConceptF, VocabularyMeta]
+  with CreationContext[ConceptF, ConceptMeta, VocabularyMeta]
   with VisibilityController[VocabularyMeta]
   with PermissionScopeController[VocabularyMeta]
   with EntityAnnotate[VocabularyMeta]
@@ -62,7 +63,7 @@ object Vocabularies extends CRUD[VocabularyF,VocabularyMeta]
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.vocabulary.edit(
-      item, form.fill(item.formable),routes.Vocabularies.updatePost(id)))
+      item, form.fill(item.model),routes.Vocabularies.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {

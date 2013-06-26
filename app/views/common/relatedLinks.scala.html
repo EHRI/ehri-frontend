@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: models.base.LinkableEntity, desc: models.base.Description, links: List[Link])(implicit prefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader)
+@(item: models.base.LinkableEntity, desc: models.base.Description, links: List[LinkMeta])(implicit prefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader)
 
 @import AccessPointF._
 

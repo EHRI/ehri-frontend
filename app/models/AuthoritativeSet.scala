@@ -57,5 +57,7 @@ object AuthoritativeSetMeta {
 
 case class AuthoritativeSetMeta(
   model: AuthoritativeSetF,
+  accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta]
 ) extends MetaModel[AuthoritativeSetF]
+  with Accessible

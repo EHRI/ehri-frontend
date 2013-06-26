@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, itemPage: rest.Page[PermissionGrant], scopePage: rest.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(
+@(item: Accessible, itemPage: rest.Page[PermissionGrantMeta], scopePage: rest.Page[PermissionGrantMeta], itemPermAction: Call, scopePermAction: Call)(
     implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }

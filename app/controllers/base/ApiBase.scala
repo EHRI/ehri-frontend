@@ -24,8 +24,7 @@ object TestJson {
 /**
  * Created by mike on 23/06/13.
  */
-trait ApiBase[TM] extends Controller with ControllerHelpers with AuthController {
-  val entityType: EntityType.Value
+trait ApiBase[TM] extends EntityController {
 
   def getClientJson(id: String)(implicit rr: RestReadable[TM], cw: ClientConvertable[TM]) = userProfileAction {
       implicit maybeUser => implicit request =>

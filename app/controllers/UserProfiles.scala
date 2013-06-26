@@ -2,20 +2,21 @@ package controllers
 
 import _root_.models.base.AccessibleEntity
 import models.forms.{VisibilityForm}
-import _root_.models.{PermissionGrant, Entity, UserProfile, UserProfileF}
+import _root_.models._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
-import base._
+import _root_.controllers.base._
 import collection.immutable.ListMap
-import solr.{SearchOrder, SearchParams}
+import solr.SearchParams
+import scala.Some
 
 
-object UserProfiles extends PermissionHolderController[UserProfile]
-  with EntityRead[UserProfile]
-  with EntityUpdate[UserProfileF,UserProfile]
-  with EntityDelete[UserProfile]
+object UserProfiles extends PermissionHolderController[UserProfileMeta]
+  with EntityRead[UserProfileMeta]
+  with EntityUpdate[UserProfileF,UserProfileMeta]
+  with EntityDelete[UserProfileMeta]
   with EntitySearch {
 
   val DEFAULT_SORT = AccessibleEntity.NAME
@@ -47,11 +48,10 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   // NB: Because the UserProfile class has more optional
   // parameters we use the companion object apply method here.
-  val builder = UserProfile.apply _
 
   def get(id: String) = getAction(id) {
       item => annotations => links => implicit userOptOpt => implicit request =>
-    Ok(views.html.userProfile.show(UserProfile(item), annotations))
+    Ok(views.html.userProfile.show(item, annotations))
   }
 
   def search = {
@@ -62,17 +62,17 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOptOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(UserProfile(item), page, ListParams()))
+    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
   }
 
   def list = listAction { page => params => implicit userOptOpt => implicit request =>
-    Ok(views.html.userProfile.list(page.copy(items = page.items.map(UserProfile(_))), params))
+    Ok(views.html.userProfile.list(page, params))
   }
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.userProfile.edit(
-        UserProfile(item), form.fill(UserProfile(item).formable), routes.UserProfiles.updatePost(id)))
+        item, form.fill(item.model), routes.UserProfiles.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
@@ -80,7 +80,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
     formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.userProfile.edit(
-          UserProfile(item), errorForm, routes.UserProfiles.updatePost(id)))
+          item, errorForm, routes.UserProfiles.updatePost(id)))
       case Right(item) => Redirect(routes.UserProfiles.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
@@ -88,8 +88,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
-        UserProfile(item), routes.UserProfiles.deletePost(id),
+    Ok(views.html.delete(item, routes.UserProfiles.deletePost(id),
           routes.UserProfiles.get(id)))
   }
 
@@ -102,12 +101,12 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
       item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionGrantList(UserProfile(item), perms))
+    Ok(views.html.permissions.permissionGrantList(item, perms))
   }
 
   def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.editGlobalPermissions(UserProfile(item), perms,
+    Ok(views.html.permissions.editGlobalPermissions(item, perms,
         routes.UserProfiles.permissionsPost(id)))
   }
 
@@ -119,7 +118,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
       item => perm => implicit userOpt => implicit request =>
-        Ok(views.html.permissions.revokePermission(UserProfile(item), PermissionGrant(perm),
+        Ok(views.html.permissions.revokePermission(item, PermissionGrant(perm),
           routes.UserProfiles.revokePermissionPost(id, permId), routes.UserProfiles.grantList(id)))
   }
 

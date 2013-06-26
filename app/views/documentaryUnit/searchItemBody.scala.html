@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescription)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
+@(item: DocumentaryUnitMeta, desc: DocumentaryUnitDescription)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
 
 @import org.apache.commons.lang3.StringUtils
 
@@ -21,7 +21,7 @@
         <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
 
         @desc.dates.headOption.map { dp =>
-            <li>@dp.formable.years</li>
+            <li>@dp.model.years</li>
         }
         @desc.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
             <li>@s</li>

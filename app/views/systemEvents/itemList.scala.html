@@ -1,4 +1,4 @@
-@(item: AccessibleEntity, page: rest.Page[SystemEvent], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: MetaModel[_], page: rest.Page[SystemEventMeta], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import views.Helpers
 
@@ -8,8 +8,6 @@
     @common.pagination(page)
 
     <ul class="unstyled">
-    @page.items.map { item =>
-        @systemEvents.listEntry(item)
-    }
+        @page.items.map(systemEvents.listEntry)
     </ul>
 }

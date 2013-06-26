@@ -1,15 +1,16 @@
 package controllers
 
-import _root_.models.{AuthoritativeSetMeta, HistoricalAgent, AuthoritativeSet, AuthoritativeSetF, HistoricalAgentF}
-import _root_.models.forms.{AnnotationForm, VisibilityForm}
+import _root_.models._
+import _root_.models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
-import base._
-import defines.{PermissionType, ContentType, EntityType}
+import _root_.controllers.base._
+import defines.{ContentType, EntityType}
 import solr.{SearchOrder, SearchParams}
+import scala.Some
 
 object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSetMeta]
-  with CreationContext[HistoricalAgentF, AuthoritativeSetMeta]
+  with CreationContext[HistoricalAgentF, HistoricalAgentMeta, AuthoritativeSetMeta]
   with VisibilityController[AuthoritativeSetMeta]
   with PermissionScopeController[AuthoritativeSetMeta]
   with EntityAnnotate[AuthoritativeSetMeta]
@@ -33,7 +34,8 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSetMeta]
   val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))
 
 
-  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = getAction(id) {
+      item => annotations => links => implicit userOpt => implicit request =>
     searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
         page => params => facets => _ => _ =>
       Ok(views.html.authoritativeSet.show(
@@ -46,7 +48,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSetMeta]
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.authoritativeSet.list(page.copy(items = page.items.map(AuthoritativeSet(_))), params))
+    Ok(views.html.authoritativeSet.list(page, params))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
@@ -65,14 +67,14 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSetMeta]
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.authoritativeSet.edit(
-      item, form.fill(item.formable),routes.AuthoritativeSets.updatePost(id)))
+      item, form.fill(item.model),routes.AuthoritativeSets.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.authoritativeSet.edit(
-          AuthoritativeSet(olditem), errorForm, routes.AuthoritativeSets.updatePost(id)))
+          olditem, errorForm, routes.AuthoritativeSets.updatePost(id)))
       case Right(item) => Redirect(routes.AuthoritativeSets.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }

@@ -21,7 +21,7 @@ import models.json.ClientConvertable
  * @param facets
  * @tparam A
  */
-case class ItemPage[A](
+case class ItemPage[+A](
   items: Seq[A],
   offset: Int,
   limit:Int,
@@ -59,7 +59,7 @@ object ItemPage {
  * @param total
  * @tparam A
  */
-case class FacetPage[A](
+case class FacetPage[+A](
   fc: FacetClass,
   items: Seq[A],
   offset: Int,

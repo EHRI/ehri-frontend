@@ -28,7 +28,7 @@ object VisibilityController {
  *
  * @tparam MT the entity's meta class
  */
-trait VisibilityController[MT <: MetaModel[_]] extends EntityRead[MT] {
+trait VisibilityController[MT] extends EntityRead[MT] {
 
   def visibilityAction(id: String)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>

@@ -3,7 +3,7 @@ package models
 import models.base._
 import defines.EntityType
 import play.api.libs.json.{Format, Json}
-import models.json.{ClientConvertable, RestConvertable}
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import scala.Some
 
 
@@ -13,6 +13,10 @@ object AnnotationF {
   val ANNOTATION_TYPE = "annotationType"
   val COMMENT = "comment"
 
+  final val ANNOTATES_REL = "hasAnnotationTarget"
+  final val ACCESSOR_REL = "hasAnnotation"
+  final val SOURCE_REL = "hasAnnotationBody"
+
   object AnnotationType extends Enumeration {
     type Type = Value
     val Comment = Value("comment")
@@ -20,9 +24,6 @@ object AnnotationF {
 
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
-
-  lazy implicit val annotationFormat: Format[AnnotationF] = json.AnnotationFormat.restFormat
-
 
   implicit object Converter extends RestConvertable[AnnotationF] with ClientConvertable[AnnotationF] {
     lazy val restFormat = models.json.rest.annotationFormat
@@ -40,6 +41,7 @@ case class AnnotationF(
 ) extends Model with Persistable
 
 
+/*
 object Annotation {
   final val ANNOTATES_REL = "hasAnnotationTarget"
   final val ACCESSOR_REL = "hasAnnotation"
@@ -66,7 +68,30 @@ case class Annotation(val e: Entity) extends AccessibleEntity
     )
   }
 
-  lazy val formable: AnnotationF = Json.toJson(e).as[AnnotationF]
-  lazy val formableOpt: Option[AnnotationF] = Json.toJson(e).asOpt[AnnotationF]
+  lazy val formable: AnnotationF = Json.toJson(e).as[AnnotationF](json.AnnotationFormat.restFormat)
+  lazy val formableOpt: Option[AnnotationF] = Json.toJson(e).asOpt[AnnotationF](json.AnnotationFormat.restFormat)
+}
+*/
+
+object AnnotationMeta {
+  implicit object Converter extends ClientConvertable[AnnotationMeta] with RestReadable[AnnotationMeta] {
+    val restReads = models.json.AnnotationFormat.metaReads
+    val clientFormat = models.json.client.annotationMetaFormat
+  }
 }
 
+case class AnnotationMeta(
+  model: AnnotationF,
+  annotations: List[AnnotationMeta] = Nil,
+  user: Option[UserProfileMeta] = None,
+  source: Option[MetaModel[_]] = None,
+  accessors: List[Accessor] = Nil,
+  latestEvent: Option[SystemEventMeta] = None
+) extends MetaModel[AnnotationF] with Accessible {
+  def formatted: String = {
+    "%s%s".format(
+      model.comment.map(c => s"$c\n\n").getOrElse(""),
+      model.body
+    )
+  }
+}

@@ -1,11 +1,10 @@
 package controllers.base
 
-import models.base.AccessibleEntity
+import models.base.MetaModel
 import play.api.mvc.{Request, AnyContent, Controller}
 import defines.{ContentType,EntityType}
-import models.Entity
 
-trait EntityController[T <: AccessibleEntity] extends Controller with AuthController with ControllerHelpers {
+trait EntityController extends Controller with AuthController with ControllerHelpers {
   val entityType: EntityType.Value
   val contentType: ContentType.Value
 

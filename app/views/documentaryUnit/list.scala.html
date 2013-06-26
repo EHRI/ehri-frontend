@@ -1,4 +1,4 @@
-@(page: rest.Page[DocumentaryUnit], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[DocumentaryUnitMeta], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
     @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {

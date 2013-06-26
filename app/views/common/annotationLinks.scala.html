@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: models.base.LinkableEntity, links: List[Link])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
+@(item: models.base.LinkableEntity, links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
 
 <div class="annotatable" id="@item.id">
     @defining(item.annotationLinks(links)) { annotationLinks =>

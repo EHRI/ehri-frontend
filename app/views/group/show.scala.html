@@ -1,4 +1,4 @@
-@(item: Group, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: GroupMeta, annotations: Map[String,List[AnnotationMeta]])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
@@ -10,7 +10,7 @@
         <hr />
         <strong>Parent Groups: </strong>&nbsp;
         @item.groups.map { group =>
-            <a href="@routes.Groups.get(group.id)">@group.name</a>
+            <a href="@routes.Groups.get(group.id)">@group</a>
         }
     }
 } {

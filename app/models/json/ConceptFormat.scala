@@ -4,7 +4,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 import defines.EntityType
-import models.base.{AccessibleEntity, DescribedEntity}
+import models.base.{Accessor, AccessibleEntity, DescribedEntity}
 import models._
 import defines.EnumUtils._
 
@@ -46,7 +46,11 @@ object ConceptFormat {
     (__ \ RELATIONSHIPS \ Concept.IN_SET_REL).lazyReadNullable[List[VocabularyMeta]](
       Reads.list[VocabularyMeta]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ Concept.BT_REL).lazyReadNullable[List[ConceptMeta]](
+      Reads.list[ConceptMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ Concept.BT_REL).lazyReadNullable[List[ConceptMeta]](
       Reads.list[ConceptMeta]).map(_.getOrElse(List.empty[ConceptMeta])) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
+        Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(ConceptMeta.apply _)

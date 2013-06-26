@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 import models._
 import defines.EntityType
-import models.base.AccessibleEntity
+import models.base.{Accessor, AccessibleEntity}
 
 
 object AuthoritativeSetFormat {
@@ -40,6 +40,8 @@ object AuthoritativeSetFormat {
   private implicit val systemEventReads = SystemEventFormat.metaReads
   implicit val metaReads: Reads[AuthoritativeSetMeta] = (
     __.read[AuthoritativeSetF] and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
+      Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(AuthoritativeSetMeta.apply _)

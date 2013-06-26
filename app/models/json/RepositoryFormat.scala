@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.{AccessibleEntity, DescribedEntity}
+import models.base.{Accessor, AccessibleEntity, DescribedEntity}
 import models._
 import defines.EnumUtils._
 
@@ -57,6 +57,8 @@ object RepositoryFormat {
     // Country
     (__ \ RELATIONSHIPS \ RepositoryF.COUNTRY_REL).lazyReadNullable[List[CountryMeta]](
       Reads.list[CountryMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
+        Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
         Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
     )(RepositoryMeta.apply _)

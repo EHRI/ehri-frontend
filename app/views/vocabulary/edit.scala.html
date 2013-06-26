@@ -1,4 +1,4 @@
-@(item: Vocabulary, f: play.api.data.Form[models.VocabularyF], action: Call)(
+@(item: VocabularyMeta, f: play.api.data.Form[models.VocabularyF], action: Call)(
 implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @rightSidebarLayout(Messages("actions.updateVocabulary"), breadcrumbs = common.breadcrumbs(List(item))) {

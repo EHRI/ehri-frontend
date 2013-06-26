@@ -3,22 +3,20 @@ package controllers.base
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
-import models.base.Persistable
 import defines._
-import models.{PermissionGrant, Entity, UserProfile}
-import acl.GlobalPermissionSet
+import models.{PermissionGrantMeta, UserProfileMeta}
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
  *
- * @tparam T the entity's build class
+ * @tparam MT the entity's build class
  */
-trait PermissionScopeController[MT <: MetaModel] extends PermissionItemController[MT] {
+trait PermissionScopeController[MT] extends PermissionItemController[MT] {
 
   val targetContentTypes: Seq[ContentType.Value]
 
   def manageScopedPermissionsAction(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT)(
-      f: MT => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+      f: MT => rest.Page[PermissionGrantMeta] => rest.Page[PermissionGrantMeta]=> Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -44,11 +42,10 @@ trait PermissionScopeController[MT <: MetaModel] extends PermissionItemControlle
             // This means that when we have both the perm set and the user
             // we need to re-assemble them so that the permission set has
             // access to a user's groups to understand inheritance.
-            permsOrErr <- rest.PermissionDAO(userOpt)
-              .getScope(Accessor(models.Entity.fromString(userId, EntityType.withName(userType))), id)
+            permsOrErr <- rest.PermissionDAO(userOpt).getScope(userOrErr.right.get, id)
           } yield {
             for { accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
-              f(item)(Accessor(accessor))(perms.copy(user=Accessor(accessor)))(userOpt)(request)
+              f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
             }
           }
         }
@@ -69,7 +66,7 @@ trait PermissionScopeController[MT <: MetaModel] extends PermissionItemControlle
         } yield {
           for { accessor <- accessorOrErr.right} yield {
             AsyncRest {
-              rest.PermissionDAO(userOpt).setScope(Accessor(accessor), id, perms).map { permsOrErr =>
+              rest.PermissionDAO(userOpt).setScope(accessor, id, perms).map { permsOrErr =>
                 permsOrErr.right.map { perms =>
                   f(perms)(userOpt)(request)
                 }
@@ -80,6 +77,5 @@ trait PermissionScopeController[MT <: MetaModel] extends PermissionItemControlle
       }
     }
   }
-
 }
 

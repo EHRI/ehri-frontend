@@ -2,21 +2,19 @@ package controllers.base
 
 import defines.{EntityType, ContentType, PermissionType}
 import acl.GlobalPermissionSet
-import models.base.Persistable
 import models.base.Accessor
 import play.api.mvc._
-import models.{Entity, PermissionGrant, UserProfile}
+import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
+import models.json.RestReadable
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.
  *
- * @tparam T
+ * @tparam MT
  */
-trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
-
-  val builder: Entity => T
+trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
 
   /**
    * Display a list of permissions that have been granted to the given accessor.
@@ -25,12 +23,12 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
    * @param limit
    * @return
    */
-  def grantListAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(f: Entity => rest.Page[PermissionGrant] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+  def grantListAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(f: MT => rest.Page[PermissionGrantMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
           // NB: to save having to wait we just fake the permission user here.
-          permsOrErr <- rest.PermissionDAO(userOpt).list(builder(models.Entity.fromString(id, entityType)), page, limit)
+          permsOrErr <- rest.PermissionDAO(userOpt).list(item, page, limit)
         } yield {
           for { perms <- permsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
@@ -41,11 +39,11 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
   }
 
 
-  def setGlobalPermissionsAction(id: String)(f: Entity => GlobalPermissionSet[T] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+  def setGlobalPermissionsAction(id: String)(f: MT => GlobalPermissionSet[MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          permsOrErr <- rest.PermissionDAO(userOpt).get(builder(item))
+          permsOrErr <- rest.PermissionDAO(userOpt).get(item)
         } yield {
           for { perms <- permsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
@@ -55,15 +53,15 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
     }
   }
 
-  def setGlobalPermissionsPostAction(id: String)(f: Entity => GlobalPermissionSet[T] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+  def setGlobalPermissionsPostAction(id: String)(f: MT => GlobalPermissionSet[MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
         (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
       }.toMap
       AsyncRest {
         for {
-          newpermsOrErr <- rest.PermissionDAO(userOpt).set(builder(item), perms)
+          newpermsOrErr <- rest.PermissionDAO(userOpt).set(item, perms)
         } yield {
           for { perms <- newpermsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
@@ -73,11 +71,11 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
     }
   }
 
-  def revokePermissionAction(id: String, permId: String)(f: Entity => Entity => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+  def revokePermissionAction(id: String, permId: String)(f: MT => PermissionGrantMeta => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
     withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          permOrErr <- rest.EntityDAO(EntityType.PermissionGrant, userOpt).get(permId)
+          permOrErr <- rest.EntityDAO(EntityType.PermissionGrant, userOpt).get[PermissionGrantMeta](permId)
         } yield {
           for { perm <- permOrErr.right } yield {
             f(item)(perm)(userOpt)(request)
@@ -87,8 +85,8 @@ trait PermissionHolderController[T <: Accessor] extends EntityRead[T] {
     }
   }
 
-  def revokePermissionActionPost(id: String, permId: String)(f: Entity => Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+  def revokePermissionActionPost(id: String, permId: String)(f: MT => Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
           boolOrErr <- rest.EntityDAO(EntityType.PermissionGrant, userOpt).delete(permId)
