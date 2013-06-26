@@ -27,14 +27,14 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgentMeta]
   val form = models.forms.HistoricalAgentForm.form
 
   val listFilterMappings = ListMap[String,String](
-    AccessibleEntity.NAME -> s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}",
+    "name" -> s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}",
     Entity.IDENTIFIER -> Entity.IDENTIFIER,
     Isaar.HISTORY -> s"<-describes.${Isaar.HISTORY}"
   )
 
   val orderMappings = ListMap[String,String](
     Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    AccessibleEntity.NAME -> AccessibleEntity.NAME
+    "name" -> "name"
   )
 
   val DEFAULT_SORT = s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}"

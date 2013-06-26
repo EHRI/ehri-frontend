@@ -1,7 +1,7 @@
 package models
 
 import defines.EntityType
-import models.base.{Model, Formable, AccessibleEntity}
+import models.base.Model
 import play.api.libs.json.{Format, Json}
 import models.json.{ClientConvertable, RestConvertable}
 
@@ -35,8 +35,3 @@ case class AddressF(
       = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
 }
 
-
-case class Address(val e: Entity) extends AccessibleEntity with Formable[AddressF] {
-  lazy val formable: AddressF = Json.toJson(e).as[AddressF](json.AddressFormat.restFormat)
-  lazy val formableOpt: Option[AddressF] = Json.toJson(e).asOpt[AddressF](json.AddressFormat.restFormat)
-}

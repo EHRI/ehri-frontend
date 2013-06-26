@@ -19,14 +19,14 @@ import play.api.data.FormError
 trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
 
   def updateAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }
 
   def updatePostAction(id: String, form: Form[F])(f: MT => Either[Form[F],MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
       implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
-    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
 
       form.bindFromRequest.fold(
         errorForm => {

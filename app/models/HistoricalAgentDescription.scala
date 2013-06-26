@@ -1,7 +1,6 @@
 package models
 
 import models.base._
-import play.api.libs.json.{JsValue, Json}
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
 
@@ -49,12 +48,12 @@ case class HistoricalAgentDescriptionF(
   name: String,
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
-  @Annotations.Relation(TemporalEntity.DATE_REL)
+  @Annotations.Relation(DatePeriodF.DATE_REL)
   dates: List[DatePeriodF] = Nil,
   details: IsaarDetail,
   control: IsaarControl,
   accessPoints: List[AccessPointF]
-  ) extends Model with Persistable with Description
+  ) extends Model with Persistable with Description with Temporal
 
 
 /*
@@ -62,7 +61,7 @@ case class HistoricalAgentDescription(val e: Entity)
   extends Description
   with TemporalEntity
   with Formable[HistoricalAgentDescriptionF] {
-  lazy val item: Option[HistoricalAgent] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(HistoricalAgent(_))
+  lazy val item: Option[HistoricalAgent] = e.relations(Described.REL).headOption.map(HistoricalAgent(_))
 
   lazy val formable: HistoricalAgentDescriptionF = {
     val json = Json.toJson(e)

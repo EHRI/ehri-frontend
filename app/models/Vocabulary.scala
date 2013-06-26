@@ -39,15 +39,6 @@ object Vocabulary {
   final val NT_REL = "narrower"
 }
 
-case class Vocabulary(e: Entity)
-  extends NamedEntity
-  with AnnotatableEntity
-  with Formable[VocabularyF] {
-
-  lazy val formable: VocabularyF = Json.toJson(e).as[VocabularyF]
-  lazy val formableOpt: Option[VocabularyF] = Json.toJson(e).asOpt[VocabularyF]
-}
-
 object VocabularyMeta {
   implicit object Converter extends ClientConvertable[VocabularyMeta] with RestReadable[VocabularyMeta] {
     val restReads = models.json.VocabularyFormat.metaReads

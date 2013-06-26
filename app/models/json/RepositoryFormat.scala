@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.{Accessor, AccessibleEntity, DescribedEntity}
+import models.base.{Described, Accessible, Accessor}
 import models._
 import defines.EnumUtils._
 
@@ -42,7 +42,7 @@ object RepositoryFormat {
       // FIXME: This throws an error if an item has no descriptions - we should somehow
       // make it so that the path being missing is permissable but a validation error
       // is not.
-      (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[RepositoryDescriptionF]](
+      (__ \ RELATIONSHIPS \ Described.REL).lazyRead[List[RepositoryDescriptionF]](
         Reads.list[RepositoryDescriptionF]) and
       (__ \ DATA \ PRIORITY).readNullable[Int]
     )(RepositoryF.apply _)
@@ -51,16 +51,15 @@ object RepositoryFormat {
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
   private implicit val countryReads = CountryFormat.metaReads
-  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[RepositoryMeta] = (
     __.read[RepositoryF] and
     // Country
     (__ \ RELATIONSHIPS \ RepositoryF.COUNTRY_REL).lazyReadNullable[List[CountryMeta]](
       Reads.list[CountryMeta]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
-        Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
         Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
     )(RepositoryMeta.apply _)
 

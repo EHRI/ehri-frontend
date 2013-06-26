@@ -32,14 +32,14 @@ object Repositories extends EntityRead[RepositoryMeta]
   }*/
 
   val listFilterMappings = ListMap[String,String](
-    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    "name" -> "name",
     Entity.IDENTIFIER -> Entity.IDENTIFIER,
     Isdiah.GEOCULTURAL_CONTEXT -> s"<-describes.${Isdiah.GEOCULTURAL_CONTEXT}"
   )
 
   val orderMappings = ListMap[String,String](
     Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    AccessibleEntity.NAME -> AccessibleEntity.NAME
+    "name" -> "name"
   )
   val DEFAULT_SORT = "name"
 

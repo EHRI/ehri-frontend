@@ -102,7 +102,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
 
   def linkPostMultiAction(id: String)(
       f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[LinkMeta]] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
-    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       implicit val linkWrites: Writes[LinkF] = models.json.rest.linkFormat
       val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
       multiForm.bindFromRequest.fold(
@@ -133,7 +133,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
         BadRequest(JsError.toFlatJson(errors))
       },
       ann => {
-        withItemPermission(id, PermissionType.Annotate, contentType) {
+        withItemPermission[MT](id, PermissionType.Annotate, contentType) {
             item => implicit userOpt => implicit request =>
           AsyncRest {
             val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
@@ -162,7 +162,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
         BadRequest(JsError.toFlatJson(errors))
       },
       anns => {
-        withItemPermission(id, PermissionType.Annotate, contentType) {
+        withItemPermission[MT](id, PermissionType.Annotate, contentType) {
             item => implicit userOpt => implicit request =>
           AsyncRest {
             val links = anns.map(ann =>
@@ -189,7 +189,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
         BadRequest(JsError.toFlatJson(errors))
       },
       ap => {
-        withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+        withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
           AsyncRest {
             import models.json.AccessPointFormat._
             rest.DescriptionDAO(entityType, userOpt).createAccessPoint(id, did, ap).map { apOrErr =>
@@ -212,7 +212,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
    * @param apid
    * @return
    */
-  def getLink(id: String, apid: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
+  def getLink(id: String, apid: String) = withItemPermission[MT](id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).getFor(id).map { linksOrErr =>
@@ -239,7 +239,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
    * @param id
    * @return
    */
-  def deleteAccessPoint(id: String, accessPointId: String) = withItemPermission(id, PermissionType.Update, contentType) {
+  def deleteAccessPoint(id: String, accessPointId: String) = withItemPermission[MT](id, PermissionType.Update, contentType) {
       bool => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).deleteAccessPoint(accessPointId).map { boolOrErr =>
@@ -256,7 +256,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
    * @param id
    * @return
    */
-  def deleteLink(id: String, linkId: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
+  def deleteLink(id: String, linkId: String) = withItemPermission[MT](id, PermissionType.Annotate, contentType) {
       bool => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).deleteLink(id, linkId).map { boolOrErr =>

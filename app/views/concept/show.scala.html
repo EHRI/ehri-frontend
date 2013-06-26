@@ -9,24 +9,24 @@
             @defining("concept") { implicit prefix =>
                 <div class="tabbable">
                     <ul class="nav nav-tabs">
-                        @item.descriptions.headOption.map { desc =>
+                        @item.model.descriptions.headOption.map { desc =>
                         <li class="active">
                             <a href="#tab1" data-toggle="tab">@views.Helpers.displayLanguage(desc.stringProperty("languageCode").getOrElse("en"))</a>
                         </li>
                         }
-                        @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
+                        @item.model.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                         <li>
                             <a href="#tab@{i+1}" data-toggle="tab">@views.Helpers.displayLanguage(desc.stringProperty("languageCode").getOrElse("en"))</a>
                         </li>
                         }
                     </ul>
                     <div class="tab-content">
-                        @item.descriptions.headOption.map { desc =>
+                        @item.model.descriptions.headOption.map { desc =>
                         <div class="tab-pane active" id="tab1">
                             @concept.renderDescription(item, desc)
                         </div>
                         }
-                        @item.descriptions.zipWithIndex.tail.map { case (desc,i) =>
+                        @item.model.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                         <div class="tab-pane" id="tab@{i+1}">
                             @concept.renderDescription(item, desc)
                         </div>

@@ -3,7 +3,7 @@ package views
 import java.util.{IllformedLocaleException, Locale}
 
 import views.html.helper.FieldConstructor
-import models.base.{MetaModel, WrappedEntity, DescribedEntity, AccessibleEntity}
+import models.base.MetaModel
 import play.api.mvc.Call
 import play.api.i18n.Lang
 
@@ -11,10 +11,7 @@ import com.petebevin.markdown.MarkdownProcessor
 import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
 import models._
-import models.HistoricalAgent
-import scala.Some
 import play.api.mvc.Call
-import models.DocumentaryUnit
 
 
 package object Helpers {

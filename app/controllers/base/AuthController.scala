@@ -1,7 +1,7 @@
 package controllers.base
 
 import _root_.models.json.RestReadable
-import _root_.models.{UserProfileMeta, UserProfileF}
+import models.{UserProfileF, UserProfileMeta}
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Lang
@@ -189,8 +189,8 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    */
   def withItemPermission[MT](id: String,
     perm: PermissionType.Value, contentType: ContentType.Value, permContentType: Option[ContentType.Value] = None)(
-      f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
-    itemPermissionAction(contentType, id) { entity => implicit maybeUser => implicit request =>
+      f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+    itemPermissionAction[MT](contentType, id) { entity => implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>
         if (user.hasPermission(permContentType.getOrElse(contentType), perm)) Some(f(entity)(maybeUser)(request))
         else None

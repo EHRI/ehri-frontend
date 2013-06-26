@@ -6,7 +6,7 @@ import play.api.libs.json._
 import models._
 import defines.EntityType
 import defines.EnumUtils._
-import models.base.{AccessibleEntity, Accessor}
+import models.base.{Accessible, Accessor}
 
 
 object GroupFormat {
@@ -42,9 +42,9 @@ object GroupFormat {
     __.read[GroupF] and
     (__ \ RELATIONSHIPS \ Accessor.BELONGS_REL).lazyReadNullable[List[GroupMeta]](
       Reads.list[GroupMeta]).map(_.getOrElse(List.empty[GroupMeta])) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
-      Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+      Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(GroupMeta.apply _)
 }

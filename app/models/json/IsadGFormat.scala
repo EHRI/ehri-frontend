@@ -2,11 +2,10 @@ package models.json
 
 import play.api.libs.json._
 import models._
-import models.base.{Description, TemporalEntity}
+import models.base.Description
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
-import play.api.libs
 
 
 object IsadGFormat {
@@ -49,7 +48,7 @@ object IsadGFormat {
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions
         ),
         RELATIONSHIPS -> Json.obj(
-          TemporalEntity.DATE_REL -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq),
+          DatePeriodF.DATE_REL -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq),
           Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq)
         )
       )
@@ -67,7 +66,7 @@ object IsadGFormat {
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).read[String] and
       (__ \ DATA \ ABSTRACT).readNullable[String] and
-      ((__ \ RELATIONSHIPS \ TemporalEntity.DATE_REL).lazyRead[List[DatePeriodF]](
+      ((__ \ RELATIONSHIPS \ DatePeriodF.DATE_REL).lazyRead[List[DatePeriodF]](
         Reads.list[DatePeriodF](datePeriodReads)) orElse Reads.pure(Nil)) and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[LevelOfDescription.Value] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String] and

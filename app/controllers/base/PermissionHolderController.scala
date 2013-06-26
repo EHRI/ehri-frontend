@@ -40,7 +40,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
 
 
   def setGlobalPermissionsAction(id: String)(f: MT => GlobalPermissionSet[MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
           permsOrErr <- rest.PermissionDAO(userOpt).get(item)
@@ -72,7 +72,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
   }
 
   def revokePermissionAction(id: String, permId: String)(f: MT => PermissionGrantMeta => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
           permOrErr <- rest.EntityDAO(EntityType.PermissionGrant, userOpt).get[PermissionGrantMeta](permId)

@@ -65,6 +65,11 @@ trait Named {
   def name: String
 }
 
+object Accessible {
+  final val REL = "access"
+  final val EVENT_REL = "lifecycleEvent"
+}
+
 trait Accessible extends MetaModel[AnyRef] {
   def accessors: List[Accessor]
   def latestEvent: Option[SystemEventMeta]
@@ -92,9 +97,18 @@ trait Hierarchical[+T] {
       = (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
 }
 
+object Description {
+  final val ACCESS_REL = "relatesTo"
+  final val UNKNOWN_PROP = "hasUnknownProperty"
+}
+
 trait Description extends Model {
   val name: String
   val accessPoints: List[AccessPointF]
+}
+
+object Described {
+  final val REL = "describes"
 }
 
 trait Described[+T <: Description] {
@@ -105,4 +119,8 @@ trait Described[+T <: Description] {
     // TODO:!!!
     description(id)
   }
+}
+
+trait Temporal {
+  val dates: List[DatePeriodF]
 }

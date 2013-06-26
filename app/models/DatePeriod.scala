@@ -1,14 +1,15 @@
 package models
 
-import models.base.{Model, Formable}
+import models.base.Model
 import org.joda.time.DateTime
 
 import defines.EntityType
-import play.api.libs.json.{Format, Json}
 import models.json.{ClientConvertable, RestConvertable}
 
 
 object DatePeriodF {
+
+  final val DATE_REL = "hasDate"
 
   val TYPE = "type"
   val START_DATE = "startDate"
@@ -47,11 +48,5 @@ case class DatePeriodF(
       }
     }.distinct.mkString("-")
   }
-}
-
-
-case class DatePeriod(val e: Entity) extends Formable[DatePeriodF] {
-  lazy val formable: DatePeriodF = Json.toJson(e).as[DatePeriodF](json.DatePeriodFormat.restFormat)
-  lazy val formableOpt: Option[DatePeriodF] = Json.toJson(e).asOpt[DatePeriodF](json.DatePeriodFormat.restFormat)
 }
 

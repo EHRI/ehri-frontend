@@ -71,7 +71,7 @@ package object client {
     __.format[LinkF] and
       (__ \ "targets").lazyFormat[List[MetaModel[_]]](Reads.list[MetaModel[_]](MetaModel.Converter.clientFormat), Writes.list[MetaModel[_]](MetaModel.Converter.clientFormat)) and
       (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat) and
-      (__ \ "accessPoints").lazyFormatNullable[AccessPointF](accessPointFormat) and
+      (__ \ "accessPoints").lazyFormatNullable[List[AccessPointF]](Reads.list(accessPointFormat), Writes.list(accessPointFormat)) and
       (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
       (__ \ "event").formatNullable[SystemEventMeta]
     )(LinkMeta.apply _, unlift(LinkMeta.unapply _))

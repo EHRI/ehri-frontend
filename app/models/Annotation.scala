@@ -2,7 +2,6 @@ package models
 
 import models.base._
 import defines.EntityType
-import play.api.libs.json.{Format, Json}
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import scala.Some
 

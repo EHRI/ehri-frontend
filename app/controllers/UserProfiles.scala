@@ -19,15 +19,15 @@ object UserProfiles extends PermissionHolderController[UserProfileMeta]
   with EntityDelete[UserProfileMeta]
   with EntitySearch {
 
-  val DEFAULT_SORT = AccessibleEntity.NAME
+  val DEFAULT_SORT = "name"
 
   val listFilterMappings: ListMap[String,String] = ListMap(
-    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    "name" -> "name",
     Entity.IDENTIFIER -> Entity.IDENTIFIER
   )
 
   val orderMappings: ListMap[String,String] = ListMap(
-    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    "name" -> "name",
     Entity.IDENTIFIER -> Entity.IDENTIFIER
   )
 
@@ -35,8 +35,6 @@ object UserProfiles extends PermissionHolderController[UserProfileMeta]
   override def processParams(params: ListParams): rest.RestPageParams = {
     params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
   }
-
-
 
   val entityType = EntityType.UserProfile
   val contentType = ContentType.UserProfile

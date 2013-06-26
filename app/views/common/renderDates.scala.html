@@ -1,9 +1,9 @@
-@(item: TemporalEntity, label: String)(implicit fieldPrefix: String, userOpt: Option[UserProfileMeta], request: RequestHeader, lang: Lang)
+@(item: Temporal, label: String)(implicit fieldPrefix: String, userOpt: Option[UserProfileMeta], request: RequestHeader, lang: Lang)
 
 @if(!item.dates.isEmpty) {
     <h4>@Messages(fieldPrefix + "." + label)</h4>
     <table>
-        @item.dates.map(_.model).map { dp =>
+        @item.dates.map { dp =>
         <tr id="@dp.id">
             <td>
                 @defining(dp.`type`) { typeOpt =>

@@ -2,14 +2,8 @@ package models.base
 
 import defines.EntityType
 import models._
-import play.api.data.validation.ValidationError
 import play.api.libs.json._
-import models.Group
-import scala.Some
-import play.api.data.validation.ValidationError
-import models.Group
 import play.api.libs.json.KeyPathNode
-import scala.Some
 import play.api.data.validation.ValidationError
 import models.json.{ClientConvertable, RestReadable}
 

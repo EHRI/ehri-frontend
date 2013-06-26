@@ -57,7 +57,7 @@ case class DocumentaryUnitDescriptionF(
   languageCode: String,
   name: String,
   `abstract`: Option[String],
-  @Annotations.Relation(TemporalEntity.DATE_REL)
+  @Annotations.Relation(DatePeriodF.DATE_REL)
   dates: List[DatePeriodF] = Nil,
   levelOfDescription: Option[IsadG.LevelOfDescription.Value] = None,
   extentAndMedium: Option[String] = None,
@@ -68,7 +68,7 @@ case class DocumentaryUnitDescriptionF(
   notes: Option[List[String]] = None,
   control: IsadGControl,
   accessPoints: List[AccessPointF]
-) extends Model with Persistable with Description
+) extends Model with Persistable with Description with Temporal
 
 /*
 case class DocumentaryUnitDescription(val e: Entity)
@@ -79,7 +79,7 @@ case class DocumentaryUnitDescription(val e: Entity)
   import IsadG._
 
   // This should have one logical object
-  val item: Option[DocumentaryUnit] = e.relations(DescribedEntity.DESCRIBES_REL).headOption.map(DocumentaryUnit(_))
+  val item: Option[DocumentaryUnit] = e.relations(Described.REL).headOption.map(DocumentaryUnit(_))
 
   // What to display on search listings
   lazy val displayText: Option[String] = e.stringProperty(ABSTRACT) orElse e.stringProperty(SCOPE_CONTENT)

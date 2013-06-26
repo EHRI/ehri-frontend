@@ -4,7 +4,7 @@ import defines._
 import defines.EnumUtils._
 import models.base._
 
-import models.base.{DescribedEntity, AttributeSet, Persistable, TemporalEntity}
+import models.base.{AttributeSet, Persistable, TemporalEntity}
 import play.api.libs.json.{JsObject, Json, JsString, JsValue}
 import models.json.{RestReadable, DocumentaryUnitFormat, ClientConvertable, RestConvertable}
 
@@ -83,41 +83,10 @@ case class DocumentaryUnitF(
   }
 }
 
-
-case class DocumentaryUnit(val e: Entity) extends NamedEntity
-  with AccessibleEntity
-  with AnnotatableEntity
-  with LinkableEntity
-  with HierarchicalEntity[DocumentaryUnit]
-  with DescribedEntity[DocumentaryUnitDescription]
-  with Formable[DocumentaryUnitF] {
-
-  import DocumentaryUnitF._
-  import DescribedEntity._
-
-  val hierarchyRelationName = CHILD_REL
-
-  val holder: Option[Repository] = e.relations(HELD_REL).headOption.map(Repository(_))
-  val parent: Option[DocumentaryUnit] = e.relations(CHILD_REL).headOption.map(DocumentaryUnit(_))
-  val publicationStatus = e.property(IsadG.PUB_STATUS).flatMap(enumReads(PublicationStatus).reads(_).asOpt)
-  // NB: There is a default value of copyright status, so use 'unknown'.
-  val copyrightStatus = e.property(COPYRIGHT).flatMap(enumReads(CopyrightStatus).reads(_).asOpt)
-    .orElse(Some(CopyrightStatus.Unknown))
-  val scope = e.property(SCOPE).flatMap(enumReads(Scope).reads(_).asOpt)
-
-  def descriptions: List[DocumentaryUnitDescription] = e.relations(DESCRIBES_REL)
-    .map(DocumentaryUnitDescription(_)).sortBy(d => d.languageCode)
-
-
-  import json.DocumentaryUnitFormat._
-  lazy val formable: DocumentaryUnitF = Json.toJson(e).as[DocumentaryUnitF](json.DocumentaryUnitFormat.restFormat)
-  lazy val formableOpt: Option[DocumentaryUnitF] = Json.toJson(e).asOpt[DocumentaryUnitF](json.DocumentaryUnitFormat.restFormat)
-}
-
 object DocumentaryUnitMeta {
-  implicit object Converter extends ClientConvertable[DocumentaryUnitMeta] with RestReadable[DocumentaryUnitMeta] {
-    val restReads = models.json.DocumentaryUnitFormat.metaReads
-    val clientFormat = models.json.client.documentaryUnitMetaFormat
+  implicit object Converter extends RestReadable[DocumentaryUnitMeta] with ClientConvertable[DocumentaryUnitMeta] {
+    implicit val restReads = json.DocumentaryUnitFormat.metaReads
+    implicit val clientFormat = json.client.documentaryUnitMetaFormat
   }
 }
 

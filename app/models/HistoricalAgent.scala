@@ -38,27 +38,6 @@ case class HistoricalAgentF(
   @Annotations.Relation(HistoricalAgentF.DESC_REL) descriptions: List[HistoricalAgentDescriptionF] = Nil
 ) extends Model with Persistable with Described[HistoricalAgentDescriptionF]
 
-case class HistoricalAgent(val e: Entity)
-  extends AccessibleEntity
-  with AnnotatableEntity
-  with LinkableEntity
-  with DescribedEntity[HistoricalAgentDescription]
-  with Formable[HistoricalAgentF] {
-  def descriptions: List[HistoricalAgentDescription] = e.relations(DescribedEntity.DESCRIBES_REL)
-      .map(HistoricalAgentDescription(_)).sortBy(d => d.languageCode)
-
-  val set: Option[AuthoritativeSet] = e.relations(HistoricalAgentF.IN_SET_REL).headOption.map(AuthoritativeSet(_))
-
-  val publicationStatus = e.property(HistoricalAgentF.PUBLICATION_STATUS).flatMap(enumReads(PublicationStatus).reads(_).asOpt)
-
-  lazy val formable: HistoricalAgentF = Json.toJson(e).as[HistoricalAgentF]
-  lazy val formableOpt: Option[HistoricalAgentF] = Json.toJson(e).asOpt[HistoricalAgentF]
-
-  override def toString = {
-    descriptions.headOption.flatMap(d => d.stringProperty(Isdiah.AUTHORIZED_FORM_OF_NAME)).getOrElse(id)
-  }
-}
-
 
 object HistoricalAgentMeta {
   implicit object Converter extends ClientConvertable[HistoricalAgentMeta] with RestReadable[HistoricalAgentMeta] {

@@ -48,6 +48,7 @@ object Link {
 }
 
 
+/*
 case class Link(val e: Entity) extends AccessibleEntity
   with AnnotatableEntity
   with Formable[LinkF] {
@@ -61,6 +62,7 @@ case class Link(val e: Entity) extends AccessibleEntity
 
   def opposingTarget(item: MetaModel[_]): Option[LinkableEntity] = targets.find(_.id != item.id)
 }
+*/
 
 
 object LinkMeta {

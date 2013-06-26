@@ -28,7 +28,7 @@ object PermissionGrantFormat {
   implicit val metaReads: Reads[PermissionGrantMeta] = (
     __.read[PermissionGrantF] and
     (__ \ RELATIONSHIPS \ PermissionGrantF.ACCESSOR_REL).lazyReadNullable[List[Accessor]](
-      Reads.list[Accessor]).map(_.flatMap(_.headOption)) and
+      Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ PermissionGrantF.TARGET_REL).lazyReadNullable[List[MetaModel[_]]](
       Reads.list[MetaModel[_]]).map(_.getOrElse(List.empty[MetaModel[_]])) and
     (__ \ RELATIONSHIPS \ PermissionGrantF.SCOPE_REL).lazyReadNullable[List[MetaModel[_]]](

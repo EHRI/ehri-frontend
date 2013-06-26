@@ -1,7 +1,7 @@
 @(item: MetaModel[_])(implicit req: RequestHeader, lang: Lang)
 
 @common.searchItemOutline(item.id) {
-    <a href="@views.Helpers.urlForEntity(item)">@item</a>
+    <a href="@views.Helpers.urlFor(item)">@item</a>
 } {
     @* no body yet *@
 }

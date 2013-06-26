@@ -28,7 +28,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
   with EntitySearch
   with ApiBase[DocumentaryUnitMeta] {
 
-  val DEFAULT_SORT = AccessibleEntity.NAME
+  val DEFAULT_SORT = "name"
 
   // Documentary unit facets
   import solr.facet._
@@ -65,7 +65,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
    * and the data values accessed via the server.
    */
   val listFilterMappings: ListMap[String,String] = ListMap(
-    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    "name" -> "name",
     Entity.IDENTIFIER -> Entity.IDENTIFIER,
     IsadG.ARCH_HIST -> s"<-describes.${IsadG.ARCH_HIST}",
     IsadG.SCOPE_CONTENT -> s"<-describes.${IsadG.SCOPE_CONTENT}",
@@ -74,7 +74,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
 
   val orderMappings: ListMap[String,String] = ListMap(
     Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    AccessibleEntity.NAME -> AccessibleEntity.NAME,
+    "name" -> "name",
     "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
   )
 

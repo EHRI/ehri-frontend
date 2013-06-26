@@ -7,7 +7,7 @@ import defines.EnumUtils._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.{Accessor, AccessibleEntity, DescribedEntity}
+import models.base.{Accessible, Accessor}
 import models.{SystemEventMeta, RepositoryMeta, SystemEvent, DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnitMeta}
 
 
@@ -45,7 +45,7 @@ object DocumentaryUnitFormat {
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
       ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
       (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-      (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[DocumentaryUnitDescriptionF]](
+      (__ \ RELATIONSHIPS \ Described.REL).lazyRead[List[DocumentaryUnitDescriptionF]](
         Reads.list[DocumentaryUnitDescriptionF])
     )(DocumentaryUnitF.apply _)
 
@@ -63,9 +63,9 @@ object DocumentaryUnitFormat {
     //
     (__ \ RELATIONSHIPS \ DocumentaryUnitF.CHILD_REL).lazyReadNullable[List[DocumentaryUnitMeta]](
       Reads.list[DocumentaryUnitMeta]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list[Accessor](accessorReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(DocumentaryUnitMeta.apply _)
 }

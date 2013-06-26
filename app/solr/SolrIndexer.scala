@@ -2,7 +2,7 @@ package solr
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.ws.{Response, WS}
-import models.base.{MetaModel, Description, DescribedEntity, AccessibleEntity}
+import models.base.{Accessible, MetaModel, Description}
 import play.api.libs.json._
 import models._
 
@@ -255,7 +255,7 @@ object SolrIndexer extends RestDAO {
       TYPE -> d.isA,
       NAME_EXACT -> d.stringProperty("name"),
       ACCESSOR_FIELD -> getAccessorValues(d),
-      LAST_MODIFIED -> d.relations(AccessibleEntity.EVENT_REL).map(a => SystemEvent(a).dateTime)
+      LAST_MODIFIED -> d.relations(Accessible.EVENT_REL).map(a => SystemEvent(a).dateTime)
     )
     // Merge in all the additional data already in the entity
     // Don't overwrite keys added specifically
@@ -287,9 +287,9 @@ object SolrIndexer extends RestDAO {
    * @return
    */
   private def getAccessorValues(d: Entity) = {
-    if (d.relations(AccessibleEntity.ACCESS_REL).isEmpty)
+    if (d.relations(Accessible.REL).isEmpty)
       List(ACCESSOR_ALL_PLACEHOLDER)
     else
-      d.relations(AccessibleEntity.ACCESS_REL).map(a => a.id)
+      d.relations(Accessible.REL).map(a => a.id)
   }
 }

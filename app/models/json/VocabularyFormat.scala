@@ -7,7 +7,7 @@ import play.api.libs.functional._
 import models._
 import defines.EntityType
 import defines.EnumUtils._
-import models.base.{Accessor, AccessibleEntity}
+import models.base.{Accessible, Accessor}
 
 
 object VocabularyFormat {
@@ -39,13 +39,12 @@ object VocabularyFormat {
   implicit val restFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
-  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[VocabularyMeta] = (
     __.read[VocabularyF] and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
-      Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+      Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(VocabularyMeta.apply _)
 }

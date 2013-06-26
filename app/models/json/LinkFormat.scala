@@ -6,7 +6,7 @@ import play.api.libs.json._
 import models._
 import defines.EntityType
 import defines.EnumUtils._
-import models.base.{AccessibleEntity, MetaModel, Accessor}
+import models.base.{Accessible, MetaModel, Accessor}
 import models.AccessPoint
 
 object LinkFormat {
@@ -42,7 +42,6 @@ object LinkFormat {
   private implicit val metaModelReads = MetaModel.Converter.restReads
   private implicit val userProfileMetaReads = models.json.UserProfileFormat.metaReads
   private implicit val accessPointReads = models.json.AccessPointFormat.accessPointReads
-  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[LinkMeta] = (
     __.read[LinkF] and
@@ -52,9 +51,9 @@ object LinkFormat {
       Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ LinkF.BODY_REL).lazyReadNullable[List[AccessPointF]](
         Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
-      Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+      Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(LinkMeta.apply _)
 }

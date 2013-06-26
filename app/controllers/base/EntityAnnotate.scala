@@ -9,6 +9,7 @@ import play.api.data.Form
 import rest.AnnotationDAO
 import models.forms.AnnotationForm
 import play.api.libs.json.{Format, Json, JsError}
+import models.json.RestReadable
 
 
 object EntityAnnotate {
@@ -24,14 +25,14 @@ object EntityAnnotate {
  */
 trait EntityAnnotate[MT] extends EntityRead[MT] {
 
-  def annotationAction(id: String)(f: models.Entity => Form[AnnotationF] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
-    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+  def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       f(item)(AnnotationForm.form.bindFromRequest)(userOpt)(request)
     }
   }
 
-  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],AnnotationMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],AnnotationMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       AnnotationForm.form.bindFromRequest.fold(
         errorForm => f(Left(errorForm))(userOpt)(request),
         ann => {

@@ -6,7 +6,7 @@ import play.api.libs.functional.syntax._
 import defines.{EntityType,EventType}
 import defines.EnumUtils._
 import org.joda.time.DateTime
-import models.base.{MetaModel, AccessibleEntity}
+import models.base.MetaModel
 
 
 object SystemEventFormat {

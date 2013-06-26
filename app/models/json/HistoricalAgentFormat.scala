@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.{Accessor, AccessibleEntity, DescribedEntity}
+import models.base.{Described, Accessible, Accessor}
 import models._
 import play.api.data.validation.ValidationError
 import defines.EnumUtils._
@@ -39,7 +39,7 @@ object HistoricalAgentFormat {
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      (__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[HistoricalAgentDescriptionF]](
+      (__ \ RELATIONSHIPS \ Described.REL).lazyRead[List[HistoricalAgentDescriptionF]](
         Reads.list[HistoricalAgentDescriptionF])
     )(HistoricalAgentF.apply _)
 
@@ -48,15 +48,14 @@ object HistoricalAgentFormat {
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
   private implicit val authoritativeSetReads = AuthoritativeSetFormat.metaReads
-  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[HistoricalAgentMeta] = (
     __.read[HistoricalAgentF] and
     (__ \ RELATIONSHIPS \ HistoricalAgentF.IN_SET_REL).lazyReadNullable[List[AuthoritativeSetMeta]](
       Reads.list[AuthoritativeSetMeta]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
-      Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+      Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(HistoricalAgentMeta.apply _)
 }

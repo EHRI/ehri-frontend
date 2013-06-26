@@ -3,8 +3,6 @@ package models
 import models.base._
 
 import defines.EntityType
-import play.api.libs.json.{Format, JsValue, Json}
-import java.util.NoSuchElementException
 import models.json.{ClientConvertable, RestConvertable}
 
 
@@ -43,6 +41,7 @@ case class AccessPointF(
 ) extends Model with Persistable
 
 
+/*
 case class AccessPoint(val e: Entity) extends AnnotatableEntity with NamedEntity with Formable[AccessPointF] {
 
   lazy val formable: AccessPointF = Json.toJson(e).as[AccessPointF](json.AccessPointFormat.restFormat)
@@ -83,3 +82,4 @@ case class AccessPoint(val e: Entity) extends AnnotatableEntity with NamedEntity
   }
 }
 
+*/

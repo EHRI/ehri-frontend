@@ -1,6 +1,6 @@
 package rest
 
-import models.{UserProfileMeta, UserProfile, Entity}
+import models.{UserProfileMeta, Entity}
 import play.api.libs.json._
 import play.api.{Logger, Play}
 import play.api.http.HeaderNames
