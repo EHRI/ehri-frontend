@@ -56,7 +56,6 @@ GET     /docs/meta/:id       controllers.DocumentaryUnits.getClientJson(id)
 
 GET     /docs/show/:id       controllers.DocumentaryUnits.get(id: String)
 GET     /docs/history/:id    controllers.DocumentaryUnits.history(id: String)
-GET     /docs/json/:id       controllers.DocumentaryUnits.getJson(id: String)
 GET     /docs/delete/:id     controllers.DocumentaryUnits.delete(id: String)
 POST    /docs/delete/:id     controllers.DocumentaryUnits.deletePost(id: String)
 GET     /docs/update/:id     controllers.DocumentaryUnits.update(id: String)
@@ -99,7 +98,6 @@ GET     /admin/users                controllers.UserProfiles.search
 GET     /admin/users/list           controllers.UserProfiles.list
 GET     /admin/users/show/:id       controllers.UserProfiles.get(id: String)
 GET     /admin/users/history/:id    controllers.UserProfiles.history(id: String)
-GET     /admin/users/json/:id       controllers.UserProfiles.getJson(id: String)
 GET     /admin/users/delete/:id     controllers.UserProfiles.delete(id: String)
 POST    /admin/users/delete/:id     controllers.UserProfiles.deletePost(id: String)
 GET     /admin/users/update/:id     controllers.UserProfiles.update(id: String)
@@ -113,7 +111,6 @@ POST    /admin/users/permissions/revoke/:id/:perm     controllers.UserProfiles.r
 GET     /admin/group                controllers.Groups.list
 GET     /admin/group/show/:id       controllers.Groups.get(id: String)
 GET     /admin/group/history/:id    controllers.Groups.history(id: String)
-GET     /admin/group/json/:id       controllers.Groups.getJson(id: String)
 GET     /admin/group/create         controllers.Groups.create
 POST    /admin/group/create         controllers.Groups.createPost
 GET     /admin/group/delete/:id     controllers.Groups.delete(id: String)
@@ -139,7 +136,6 @@ GET     /repository                controllers.Repositories.search
 GET     /repository/list           controllers.Repositories.list
 GET     /repository/show/:id       controllers.Repositories.get(id: String)
 GET     /repository/history/:id    controllers.Repositories.history(id: String)
-GET     /repository/json/:id       controllers.Repositories.getJson(id: String)
 GET     /repository/delete/:id     controllers.Repositories.delete(id: String)
 POST    /repository/delete/:id     controllers.Repositories.deletePost(id: String)
 GET     /repository/update/:id     controllers.Repositories.update(id: String)
@@ -160,7 +156,6 @@ GET     /cpf                controllers.HistoricalAgents.search
 GET     /cpf/list           controllers.HistoricalAgents.list
 GET     /cpf/show/:id       controllers.HistoricalAgents.get(id: String)
 GET     /cpf/history/:id    controllers.HistoricalAgents.history(id: String)
-GET     /cpf/json/:id       controllers.HistoricalAgents.getJson(id: String)
 GET     /cpf/delete/:id     controllers.HistoricalAgents.delete(id: String)
 POST    /cpf/delete/:id     controllers.HistoricalAgents.deletePost(id: String)
 GET     /cpf/update/:id     controllers.HistoricalAgents.update(id: String)
@@ -179,7 +174,6 @@ POST    /cpf/link/:id/:toType/:to     controllers.HistoricalAgents.linkAnnotateP
 GET     /vocabs                controllers.Vocabularies.list
 GET     /vocabs/show/:id       controllers.Vocabularies.get(id: String)
 GET     /vocabs/history/:id    controllers.Vocabularies.history(id: String)
-GET     /vocabs/json/:id       controllers.Vocabularies.getJson(id: String)
 GET     /vocabs/create          controllers.Vocabularies.create
 POST    /vocabs/create          controllers.Vocabularies.createPost
 GET     /vocabs/delete/:id     controllers.Vocabularies.delete(id: String)
@@ -201,7 +195,6 @@ POST    /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScope
 GET     /sets                controllers.AuthoritativeSets.list
 GET     /sets/show/:id       controllers.AuthoritativeSets.get(id: String)
 GET     /sets/history/:id    controllers.AuthoritativeSets.history(id: String)
-GET     /sets/json/:id       controllers.AuthoritativeSets.getJson(id: String)
 GET     /sets/create          controllers.AuthoritativeSets.create
 POST    /sets/create          controllers.AuthoritativeSets.createPost
 GET     /sets/delete/:id     controllers.AuthoritativeSets.delete(id: String)
@@ -223,7 +216,6 @@ POST    /sets/scope/:id/:userType/:userId    controllers.AuthoritativeSets.setSc
 GET     /country                controllers.Countries.search
 GET     /country/show/:id       controllers.Countries.get(id: String)
 GET     /country/history/:id    controllers.Countries.history(id: String)
-GET     /country/json/:id       controllers.Countries.getJson(id: String)
 GET     /country/create          controllers.Countries.create
 POST    /country/create          controllers.Countries.createPost
 GET     /country/delete/:id     controllers.Countries.delete(id: String)
@@ -248,7 +240,6 @@ GET     /concepts                controllers.Concepts.search
 GET     /concepts/list           controllers.Concepts.list
 GET     /concepts/show/:id       controllers.Concepts.get(id: String)
 GET     /concepts/history/:id    controllers.Concepts.history(id: String)
-GET     /concepts/json/:id       controllers.Concepts.getJson(id: String)
 GET     /concepts/delete/:id     controllers.Concepts.delete(id: String)
 POST    /concepts/delete/:id     controllers.Concepts.deletePost(id: String)
 GET     /concepts/update/:id     controllers.Concepts.update(id: String)
