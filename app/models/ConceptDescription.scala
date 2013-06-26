@@ -18,13 +18,15 @@ case class ConceptDescriptionF(
   isA: EntityType.Value = EntityType.ConceptDescription,
   id: Option[String],
   languageCode: String,
-  prefLabel: String,
+  name: String,
   altLabels: Option[List[String]] = None,
   definition: Option[List[String]] = None,
-  scopeNote: Option[List[String]] = None
-) extends Model with Persistable
+  scopeNote: Option[List[String]] = None,
+  accessPoints: List[AccessPointF] = None
+) extends Model with Persistable with Description
 
 
+/*
 case class ConceptDescription(val e: Entity)
   extends Description
   with Formable[ConceptDescriptionF] {
@@ -34,3 +36,4 @@ case class ConceptDescription(val e: Entity)
   def formable: ConceptDescriptionF = Json.toJson(e).as[ConceptDescriptionF]
   def formableOpt: Option[ConceptDescriptionF] = Json.toJson(e).asOpt[ConceptDescriptionF]
 }
+*/

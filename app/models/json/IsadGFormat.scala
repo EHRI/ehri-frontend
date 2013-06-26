@@ -105,7 +105,7 @@ object IsadGFormat {
           (__ \ RULES_CONVENTIONS).readNullable[String] and
           (__ \ DATES_DESCRIPTIONS).readNullable[String]
         )(IsadGControl.apply _)) and
-      ((__ \ RELATIONSHIPS \ Description.ACCESS_REL).lazyRead[List[AccessPointF]](
+      ((__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyRead[List[AccessPointF]](
         Reads.list[AccessPointF]) orElse Reads.pure(Nil))
   )(DocumentaryUnitDescriptionF.apply _)
 

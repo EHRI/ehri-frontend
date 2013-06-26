@@ -8,28 +8,28 @@
                     case d: DocumentaryUnitMeta => {
                         @documentaryUnit.listItem(d)
                     }
-                    case d: HistoricalAgent => {
+                    case d: HistoricalAgentMeta => {
                         @historicalAgent.listItem(d)
                     }
-                    case d: Repository => {
+                    case d: RepositoryMeta => {
                         @repository.listItem(d)
                     }
-                    case d: Concept => {
+                    case d: ConceptMeta => {
                         @concept.listItem(d)
                     }
-                    case d: Country => {
+                    case d: CountryMeta => {
                         @country.searchItem(d)
                     }
-                    case d: UserProfile => {
+                    case d: UserProfileMeta => {
                         @userProfile.searchItem(d)
                     }
-                    case d: Group => {
+                    case d: GroupMeta => {
                         @group.searchItem(d)
                     }
-                    case d: AuthoritativeSet => {
+                    case d: AuthoritativeSetMeta => {
                         @authoritativeSet.searchItem(d)
                     }
-                    case d: Vocabulary => {
+                    case d: VocabularyMeta => {
                         @vocabulary.searchItem(d)
                     }
                     case _ => {

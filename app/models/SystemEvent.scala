@@ -70,6 +70,7 @@ object SystemEventMeta {
 
 case class SystemEventMeta(
   model: SystemEventF,
+  scope: Option[MetaModel[_]] = None,
   actioner: Option[UserProfileMeta] = None
 ) extends MetaModel[SystemEventF] {
   def time = DateTimeFormat.forPattern(SystemEventF.FORMAT).print(model.timestamp)

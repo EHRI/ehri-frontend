@@ -70,7 +70,7 @@ object Vocabularies extends CRUD[VocabularyF,VocabularyMeta]
       olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.vocabulary.edit(
-          Vocabulary(olditem), errorForm, routes.Vocabularies.updatePost(id)))
+          olditem, errorForm, routes.Vocabularies.updatePost(id)))
       case Right(item) => Redirect(routes.Vocabularies.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }

@@ -1,11 +1,11 @@
-@(item: DocumentaryUnitMeta, desc: DocumentaryUnitDescription)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
+@(item: DocumentaryUnitMeta, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
 
 @import org.apache.commons.lang3.StringUtils
 
 @if(!item.ancestors.isEmpty) {
     <small>
         <ul class="unstyled muted inline inline-separator">
-            @item.ancestors.map(DocumentaryUnit).reverse.map { parent =>
+            @item.ancestors.reverse.map { parent =>
                 <li>
                     <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
                 </li>
@@ -28,7 +28,7 @@
         }
         @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">
-                <time datetime="@event.timeStamp">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</time>
+                <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))</time>
             </li>
         }
     </ul>

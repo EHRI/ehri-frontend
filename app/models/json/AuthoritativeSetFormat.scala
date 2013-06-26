@@ -38,6 +38,8 @@ object AuthoritativeSetFormat {
 
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
+  private implicit val accessorReads = Accessor.Converter.restReads
+
   implicit val metaReads: Reads[AuthoritativeSetMeta] = (
     __.read[AuthoritativeSetF] and
     (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](

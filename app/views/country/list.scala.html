@@ -18,7 +18,7 @@
 
 } {
     @common.sidebarSection(None) {
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
             @if(user.hasPermission(ContentType.Country, PermissionType.Create)) {
                 <a class="btn btn-primary" href="@routes.Countries.create">@Messages("actions.createCountry")</a>
             }

@@ -1,4 +1,4 @@
-@(item: Option[Vocabulary], f: Form[models.VocabularyF])
+@(item: Option[VocabularyMeta], f: Form[models.VocabularyF])
 
 @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
 @formHelpers.lineInput(f(""), models.VocabularyF.NAME)

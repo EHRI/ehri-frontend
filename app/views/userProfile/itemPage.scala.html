@@ -1,4 +1,4 @@
-@(item: UserProfile)(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: UserProfileMeta)(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import UserProfileF._
 
@@ -9,7 +9,7 @@
     @common.latestAction(item, routes.UserProfiles.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
         @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
             <li><a href="@routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a></li>
         }

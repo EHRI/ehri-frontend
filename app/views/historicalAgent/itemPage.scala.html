@@ -9,7 +9,7 @@
     @common.visibility(item, routes.HistoricalAgents.visibility(item.id), ContentType.HistoricalAgent)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
             @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Update)) {
                 <li><a href="@routes.HistoricalAgents.update(item.id)">@Messages("actions.updateItem")</a></li>
             }

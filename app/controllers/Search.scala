@@ -14,11 +14,12 @@ import solr.{ItemPage, SearchOrder, SearchParams, SolrIndexer}
 import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
 import views.Helpers
-import play.api.libs.json.Json
+import play.api.libs.json.{Writes, Json}
 import solr.SolrIndexer.SolrHeader
 import solr.facet.FieldFacetClass
 import solr.SolrIndexer.SolrUpdateResponse
 import solr.SolrIndexer.SolrErrorResponse
+import models.base.MetaModel
 
 
 object Search extends EntitySearch {
@@ -55,7 +56,9 @@ object Search extends EntitySearch {
    * Full text search action that returns a complete page of item data.
    * @return
    */
-  def search = searchAction(
+  private implicit val metaModelReads = MetaModel.Converter.restReads
+
+  def search = searchAction[MetaModel[_]](
       defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score)))) {
       page => params => facets => implicit userOpt => implicit request =>
     render {
@@ -63,7 +66,7 @@ object Search extends EntitySearch {
       case Accepts.Json() => {
         Ok(Json.toJson(Json.obj(
           "numPages" -> page.numPages,
-          "page" -> page.copy(items = page.items.map(_._1)),
+          "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(MetaModel.Converter.clientFormat)),
           "facets" -> facets
         ))
         )
@@ -146,7 +149,7 @@ object Search extends EntitySearch {
     /**
      * Update a single page of data
      */
-    def updatePage(entityType: EntityType.Value, params: RestPageParams, list: List[Entity], chan: Concurrent.Channel[String]
+    def updatePage(entityType: EntityType.Value, params: RestPageParams, list: List[MetaModel[_]], chan: Concurrent.Channel[String]
                     ): Future[List[SolrResponse]] = {
       solr.SolrIndexer.updateItems(list.toStream, commit = false).map { jobs =>
         jobs.map { response =>
@@ -177,15 +180,14 @@ object Search extends EntitySearch {
     def updateItemSet(entityType: EntityType.Value, pageNum: Int,
                       chan: Concurrent.Channel[String]): Future[List[SolrResponse]] = {
       val params = RestPageParams(page=Some(pageNum), limit = Some(batchSize))
-      val getData = EntityDAO(entityType, userOpt)
-            .list(params)
+      val getData = EntityDAO(entityType, userOpt).list[MetaModel[_]](params)
       getData.flatMap { listOrErr =>
         listOrErr match {
           case Left(err) => {
             Logger.logger.error(s"Unable to page page data for entity: $entityType, page: ${pageNum}: {}", err)
             Future.successful(List(SolrErrorResponse(listOrErr.left.get.getMessage)))
           }
-          case Right(page) => updatePage(entityType, params, listOrErr.right.get, chan)
+          case Right(page) => updatePage(entityType, params, page, chan)
         }
       }
     }

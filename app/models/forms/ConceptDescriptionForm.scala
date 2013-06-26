@@ -19,6 +19,7 @@ object ConceptDescriptionForm {
     PREFLABEL -> nonEmptyText,
     ALTLABEL -> optional(list(nonEmptyText)),
     DEFINITION -> optional(list(nonEmptyText)),
-    SCOPENOTE -> optional(list(nonEmptyText))
+    SCOPENOTE -> optional(list(nonEmptyText)),
+    ACCESS_POINTS -> list(AccessPointForm.form.mapping)
   )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))
 }

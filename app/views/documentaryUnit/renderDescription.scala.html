@@ -1,4 +1,4 @@
-@(item: DocumentaryUnitMeta, desc: DocumentaryUnitDescription, links: List[LinkMeta])(implicit fieldPrefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
+@(item: DocumentaryUnitMeta, desc: DocumentaryUnitDescriptionF, links: List[LinkMeta])(implicit fieldPrefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
 
 @import defines._
 @import models.IsadG._
@@ -6,49 +6,49 @@
 
 @common.descriptionOutline(desc, desc.languageCode) {
     @descriptionSection(IDENTITY_AREA) {
-        @common.stringValue(desc, ABSTRACT)
-        @common.renderDates(desc, DATES)
-        @common.stringValue(desc, LEVEL_OF_DESCRIPTION)
-        @common.stringValue(desc, EXTENT_MEDIUM)
+        @common.stringValue(desc.`abstract`, ABSTRACT)
+        @common.renderDates(desc.dates, DATES)
+        @common.stringValue(desc.levelOfDescription, LEVEL_OF_DESCRIPTION)
+        @common.stringValue(desc.extendAndMedium, EXTENT_MEDIUM)
     }
     @descriptionSection(CONTEXT_AREA) {
-        @common.stringValue(desc, ADMIN_BIOG)
-        @common.stringValue(desc, ARCH_HIST)
-        @common.stringValue(desc, ACQUISITION)
+        @common.stringValue(desc.context.adminBiogHistory, ADMIN_BIOG)
+        @common.stringValue(desc.context.archivalHistory, ARCH_HIST)
+        @common.stringValue(desc.context.acquisition, ACQUISITION)
     }
 
     @descriptionSection(CONTENT_AREA) {
-        @common.stringValue(desc, SCOPE_CONTENT)
-        @common.stringValue(desc, APPRAISAL)
-        @common.stringValue(desc, ACCRUALS)
-        @common.stringValue(desc, SYS_ARR)
+        @common.stringValue(desc.content.scopeAndContent, SCOPE_CONTENT)
+        @common.stringValue(desc.content.appraisal, APPRAISAL)
+        @common.stringValue(desc.content.accrurals, ACCRUALS)
+        @common.stringValue(desc.content.systemOfArrangement, SYS_ARR)
     }
 
     @descriptionSection(CONDITIONS_AREA) {
-        @common.stringValue(desc, ACCESS_COND)
-        @common.stringValue(desc, REPROD_COND)
+        @common.stringValue(desc.conditions.conditionsOfAccess, ACCESS_COND)
+        @common.stringValue(desc.conditions.conditionsOfReproduction, REPROD_COND)
 
-        @common.listValue(desc, LANG_MATERIALS, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-        @common.listValue(desc, SCRIPT_MATERIALS, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
-        @common.stringValue(desc, PHYSICAL_CHARS)
-        @common.stringValue(desc, FINDING_AIDS)
+        @common.listValue(desc.conditions.languageOfMaterials, LANG_MATERIALS, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+        @common.listValue(desc.conditions.scriptOfMaterials, SCRIPT_MATERIALS, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+        @common.stringValue(desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
+        @common.stringValue(desc.conditions.findingAids, FINDING_AIDS)
     }
 
     @descriptionSection(MATERIALS_AREA) {
-        @common.stringValue(desc, LOCATION_ORIGINALS)
-        @common.stringValue(desc, LOCATION_COPIES)
-        @common.stringValue(desc, RELATED_UNITS)
-        @common.stringValue(desc, PUBLICATION_NOTE)
+        @common.stringValue(desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
+        @common.stringValue(desc.materials.locationOfCopies, LOCATION_COPIES)
+        @common.stringValue(desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
+        @common.stringValue(desc.materials.publicationNote, PUBLICATION_NOTE)
     }
 
     @descriptionSection(NOTES_AREA) {
-        @common.listValue(desc, NOTES)
+        @common.listValue(desc.notes, NOTES)
     }
 
     @descriptionSection(CONTROL_AREA) {
-        @common.stringValue(desc, ARCHIVIST_NOTE)
-        @common.stringValue(desc, RULES_CONVENTIONS)
-        @common.stringValue(desc, DATES_DESCRIPTIONS)
+        @common.stringValue(desc.control.archivistNote, ARCHIVIST_NOTE)
+        @common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
+        @common.stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
     }
 
     @common.relatedLinks(item, desc, links)

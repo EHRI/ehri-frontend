@@ -2,7 +2,7 @@ package solr
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.ws.{Response, WS}
-import models.base.{Description, DescribedEntity, AccessibleEntity}
+import models.base.{MetaModel, Description, DescribedEntity, AccessibleEntity}
 import play.api.libs.json._
 import models._
 
@@ -16,7 +16,6 @@ import models.Repository
 import play.api.libs.json.JsObject
 import models.DocumentaryUnit
 import defines.EntityType
-import play.api.libs.iteratee.Input.Empty
 import play.api.i18n.Lang
 
 /**
@@ -84,7 +83,7 @@ object SolrIndexer extends RestDAO {
   /*
    * Delete a list of Solr models.
    */
-  def deleteItems(items: Stream[Entity], commit: Boolean = true): Future[SolrResponse] = {
+  def deleteItems(items: Stream[MetaModel[_]], commit: Boolean = true): Future[SolrResponse] = {
     deleteItemsById(items.map(_.id), commit = commit)
   }
 
@@ -111,7 +110,7 @@ object SolrIndexer extends RestDAO {
    * into batches of a fixed size so this function can accept
    * arbitrarily long lists.
    */
-  def updateItems(items: Stream[Entity], commit: Boolean = true): Future[List[SolrResponse]] = {
+  def updateItems(items: Stream[MetaModel[_]], commit: Boolean = true): Future[List[SolrResponse]] = {
     Future.sequence(items.grouped(batchSize).toList.map { batch =>
       try {
         solrUpdate(Json.toJson(batch.toList.flatMap(itemToJson)), commit = commit)
@@ -144,14 +143,15 @@ object SolrIndexer extends RestDAO {
    * @param item
    * @return
    */
-  private def itemToJson(item: Entity): List[JsObject] = {
+  private def itemToJson(item: MetaModel[_]): List[JsObject] = {
     item.isA match {
-      case EntityType.DocumentaryUnit => docToSolr(DocumentaryUnit(item))
+      /*case EntityType.DocumentaryUnit => docToSolr(DocumentaryUnit(item))
       case EntityType.HistoricalAgent => actorToSolr(HistoricalAgent(item))
       case EntityType.Repository => repoToSolr(Repository(item))
       case EntityType.Concept => conceptToSolr(Concept(item))
       case EntityType.Country => countryToSolr(Country(item))
-      case any => entityToSolr(item)
+      case any => entityToSolr(item)*/
+      case _ => List(Json.obj("id" -> item.id))
     }
   }
 

@@ -1,4 +1,4 @@
-@(page: rest.Page[Vocabulary], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[VocabularyMeta], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listVocabularies")) {
 
@@ -18,7 +18,7 @@
 
 } {
     @common.sidebarSection(None) {
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
             @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Create)) {
                 <a class="btn btn-primary" href="@routes.Vocabularies.create">@Messages("actions.createVocabulary")</a>
             }

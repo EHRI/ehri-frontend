@@ -18,7 +18,7 @@
 
 } {
     @common.sidebarSection(None) {
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
             @if(user.hasPermission(ContentType.AuthoritativeSet, PermissionType.Create)) {
                 <a class="btn btn-primary" href="@routes.AuthoritativeSets.create">@Messages("actions.createAuthoritativeSet")</a>
             }

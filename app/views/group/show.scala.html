@@ -3,7 +3,7 @@
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @defining("group") { implicit prefix =>
-        @common.stringValue(item, models.GroupF.DESCRIPTION)
+        @common.stringValue(item.model.description, models.GroupF.DESCRIPTION)
     }
 
     @if(!item.groups.isEmpty) {
@@ -17,7 +17,7 @@
     @common.latestAction(item, routes.Groups.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
             @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
                 <li><a href="@routes.Groups.create">@Messages("actions.createNewGroup")</a></li>
             }

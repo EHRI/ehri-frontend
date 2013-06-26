@@ -1,4 +1,4 @@
-@(item: models.base.WrappedEntity, langCode: String, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, lang: Lang)
+@(item: Description, langCode: String, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, lang: Lang)
 
 <div data-lang="@langCode" class="description @item.isA" id="@item.id">
     <div class="description-header pull-right">

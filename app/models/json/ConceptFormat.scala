@@ -32,7 +32,7 @@ object ConceptFormat {
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Concept)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
-      ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[ConceptDescriptionF]](
+    ((__ \ RELATIONSHIPS \ DescribedEntity.DESCRIBES_REL).lazyRead[List[ConceptDescriptionF]](
         Reads.list[ConceptDescriptionF]) orElse Reads.pure(Nil))
     )(ConceptF.apply _)
 
@@ -40,6 +40,7 @@ object ConceptFormat {
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
   private implicit val vocabularyReads = VocabularyFormat.metaReads
+  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[ConceptMeta] = (
     __.read[ConceptF] and

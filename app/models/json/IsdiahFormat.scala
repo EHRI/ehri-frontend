@@ -101,7 +101,9 @@ object IsdiahFormat {
           ((__ \ SOURCES).readNullable[List[String]] orElse
             (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
           (__ \ MAINTENANCE_NOTES).readNullable[String]
-        )(IsdiahControl.apply _))
+        )(IsdiahControl.apply _)) and
+        ((__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyRead[List[AccessPointF]](
+          Reads.list[AccessPointF]) orElse Reads.pure(Nil))
     )(RepositoryDescriptionF.apply _)
 
   implicit val restFormat: Format[RepositoryDescriptionF] = Format(isdiahReads, isdiahWrites)

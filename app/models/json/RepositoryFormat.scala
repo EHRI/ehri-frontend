@@ -51,6 +51,7 @@ object RepositoryFormat {
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
   private implicit val countryReads = CountryFormat.metaReads
+  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[RepositoryMeta] = (
     __.read[RepositoryF] and

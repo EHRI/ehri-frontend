@@ -3,7 +3,7 @@ package views
 import java.util.{IllformedLocaleException, Locale}
 
 import views.html.helper.FieldConstructor
-import models.base.{WrappedEntity, DescribedEntity, AccessibleEntity}
+import models.base.{MetaModel, WrappedEntity, DescribedEntity, AccessibleEntity}
 import play.api.mvc.Call
 import play.api.i18n.Lang
 
@@ -91,46 +91,24 @@ package object Helpers {
    */
   import defines.EntityType
   import controllers.routes
-  import models.Entity
 
-  def urlFor(a: AccessibleEntity) = urlForEntity(a.e)
 
-  def urlForEntity(e: Entity): Call = e.isA match {
-    case EntityType.SystemEvent => routes.SystemEvents.get(e.id)
-    case EntityType.DocumentaryUnit => routes.DocumentaryUnits.get(e.id)
-    case EntityType.HistoricalAgent => routes.HistoricalAgents.get(e.id)
-    case EntityType.Repository => routes.Repositories.get(e.id)
-    case EntityType.Group => routes.Groups.get(e.id)
-    case EntityType.UserProfile => routes.UserProfiles.get(e.id)
-    case EntityType.Annotation => routes.Annotations.get(e.id)
-    case EntityType.Vocabulary => routes.Vocabularies.get(e.id)
-    case EntityType.AuthoritativeSet => routes.AuthoritativeSets.get(e.id)
-    case EntityType.Concept => routes.Concepts.get(e.id)
-    case EntityType.ContentType => Call("GET", "#")
-    case EntityType.Country => routes.Countries.get(e.id)
+  def urlFor(e: MetaModel[_]): Call = e match {
+    case e: SystemEventMeta => routes.SystemEvents.get(e.id)
+    case e: DocumentaryUnitMeta => routes.DocumentaryUnits.get(e.id)
+    case e: HistoricalAgentMeta => routes.HistoricalAgents.get(e.id)
+    case e: RepositoryMeta => routes.Repositories.get(e.id)
+    case e: GroupMeta => routes.Groups.get(e.id)
+    case e: UserProfileMeta => routes.UserProfiles.get(e.id)
+    case e: AnnotationMeta => routes.Annotations.get(e.id)
+    case e: VocabularyMeta => routes.Vocabularies.get(e.id)
+    case e: AuthoritativeSetMeta => routes.AuthoritativeSets.get(e.id)
+    case e: ConceptMeta => routes.Concepts.get(e.id)
+    case e: CountryMeta => routes.Countries.get(e.id)
       // Anything we can't figure out, give an API ref
     case i => routes.ApiController.getAny(e.id)
   }
 
-  /**
-   * Get the 'wrapped' instantiation of a given entity.
-   * @param e
-   * @return
-   */
-  def itemForEntity(e: Entity): WrappedEntity = e.isA match {
-    case EntityType.SystemEvent => SystemEvent(e)
-    case EntityType.DocumentaryUnit => DocumentaryUnit(e)
-    case EntityType.HistoricalAgent => HistoricalAgent(e)
-    case EntityType.Repository => Repository(e)
-    case EntityType.Group => Group(e)
-    case EntityType.UserProfile => UserProfile(e)
-    case EntityType.Annotation => Annotation(e)
-    case EntityType.Vocabulary => Vocabulary(e)
-    case EntityType.AuthoritativeSet => AuthoritativeSet(e)
-    case EntityType.Concept => Concept(e)
-    case EntityType.Country => Country(e)
-    case i => ItemWithId(e)
-  }
 
   /**
    * Get the display language of the given code in the current locale.

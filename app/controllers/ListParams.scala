@@ -55,7 +55,7 @@ case class ListParams(
    * mappings between our filter and sort values, and the server's filter
    * and sort specifications. i.e:
    *
-   * "prefLabel" = "<-describes.prefLabel"
+   * "name" = "<-describes.name"
    *
    * @param filterMap
    * @param orderMap

@@ -4,7 +4,7 @@ import solr.facet.{FacetClass, AppliedFacet}
 import concurrent.Future
 import rest.RestError
 import play.api.Plugin
-import models.UserProfile
+import models.UserProfileMeta
 import defines.EntityType
 
 /**

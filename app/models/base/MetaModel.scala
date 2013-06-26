@@ -6,11 +6,7 @@ import play.api.i18n.Lang
 import models.json.{ClientConvertable, RestReadable}
 import models._
 import play.api.data.validation.ValidationError
-import models.Group
-import models.HistoricalAgent
-import models.DocumentaryUnit
-import play.api.data.validation.ValidationError
-import models.Repository
+
 
 trait Model {
   val id: Option[String]
@@ -19,7 +15,7 @@ trait Model {
 
 object MetaModel {
   implicit object Converter extends RestReadable[MetaModel[_]] with ClientConvertable[MetaModel[_]] {
-    implicit val restReads = new Reads[MetaModel[_]] {
+    implicit val restReads: Reads[MetaModel[_]] = new Reads[MetaModel[_]] {
       def reads(json: JsValue): JsResult[MetaModel[_]] = {
         // Sniff the type...
         (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
@@ -37,7 +33,7 @@ object MetaModel {
       }
     }
 
-    implicit val clientFormat = new Format[MetaModel[_]] {
+    implicit val clientFormat: Format[MetaModel[_]] = new Format[MetaModel[_]] {
       def reads(json: JsValue): JsResult[MetaModel[_]] = {
         (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
           case EntityType.Repository => json.validate[RepositoryMeta](RepositoryMeta.Converter.clientFormat)
@@ -69,7 +65,7 @@ trait Named {
   def name: String
 }
 
-trait Accessible {
+trait Accessible extends MetaModel[AnyRef] {
   def accessors: List[Accessor]
   def latestEvent: Option[SystemEventMeta]
 }
@@ -77,7 +73,7 @@ trait Accessible {
 /**
  * Created by mike on 23/06/13.
  */
-trait MetaModel[T <: Model] {
+trait MetaModel[+T <: Model] {
   val model: T
 
   // Convenience helpers
@@ -96,9 +92,15 @@ trait Hierarchical[+T] {
       = (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
 }
 
-trait Described[+T <: Model] {
+trait Description extends Model {
+  val name: String
+  val accessPoints: List[AccessPointF]
+}
+
+trait Described[+T <: Description] {
   val descriptions: List[T]
   def description(id: String) = descriptions.find(_.id == Some(id))
+  def primaryDescription(implicit langOpt: Option[Lang] = None) = descriptions.headOption
   def primaryDescription(id: String)(implicit langOpt: Option[Lang] = None) = {
     // TODO:!!!
     description(id)

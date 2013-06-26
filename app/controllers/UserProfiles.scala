@@ -118,7 +118,7 @@ object UserProfiles extends PermissionHolderController[UserProfileMeta]
 
   def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
       item => perm => implicit userOpt => implicit request =>
-        Ok(views.html.permissions.revokePermission(item, PermissionGrant(perm),
+        Ok(views.html.permissions.revokePermission(item, perm,
           routes.UserProfiles.revokePermissionPost(id, permId), routes.UserProfiles.grantList(id)))
   }
 

@@ -36,8 +36,8 @@ class PersonaLoginHandler(app: play.api.Application) extends base.LoginHandler {
               case None => {
                 Async {
                   rest.AdminDAO(userProfile = None).createNewUserProfile.map {
-                    case Right(entity) => {
-                      models.sql.PersonaUser.create(entity.property("identifier").map(_.as[String]).get, email).map { user =>
+                    case Right(up) => {
+                      models.sql.PersonaUser.create(up.model.identifier, email).map { user =>
                         gotoLoginSucceeded(user.profile_id)
                       }.getOrElse(BadRequest("Creation of user db failed!"))
                     }

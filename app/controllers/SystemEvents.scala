@@ -1,12 +1,12 @@
 package controllers
 
 import defines._
-import models.SystemEvent
+import models.SystemEventMeta
 import controllers.base.EntityRead
 import play.api.libs.concurrent.Execution.Implicits._
 
 
-object SystemEvents extends EntityRead[SystemEvent] {
+object SystemEvents extends EntityRead[SystemEventMeta] {
   val entityType = EntityType.SystemEvent
   val contentType = ContentType.SystemEvent
 
@@ -18,7 +18,7 @@ object SystemEvents extends EntityRead[SystemEvent] {
       rest.SystemEventDAO(userOpt).subjectsFor(id, processParams(params)).map { pageOrErr =>
         pageOrErr.right.map { page =>
           // TODO: Create list params for subjects
-          Ok(views.html.systemEvents.show(SystemEvent(item), page, ListParams()))
+          Ok(views.html.systemEvents.show(item, page, ListParams()))
         }
       }
     }
@@ -26,6 +26,6 @@ object SystemEvents extends EntityRead[SystemEvent] {
 
   def list = listAction {
       page => params => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.list(page.copy(items = page.items.map(SystemEvent(_))), params))
+    Ok(views.html.systemEvents.list(page, params))
   }
 }

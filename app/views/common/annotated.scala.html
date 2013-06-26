@@ -12,9 +12,7 @@
                 @ann.user.map { accessor =>
                     <a href="@views.Helpers.urlFor(accessor)">@accessor</a> -
                 }
-                @ann.model.body.map { body =>
-                    @body.trim
-                }
+                @ann.body
                 @if(!ann.annotations.isEmpty) {
                     @annotationList(ann.annotations)
                 }

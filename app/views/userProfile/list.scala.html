@@ -1,4 +1,4 @@
-@(items: rest.Page[UserProfile], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(items: rest.Page[UserProfileMeta], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listUserProfiles")) {
 
@@ -13,7 +13,7 @@
     }
 } {
     @common.sidebarSection(None) {
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
             @if(user.isAdmin) {
                 @if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {
                     <a class="btn btn-primary" href="@routes.Admin.createUser">@Messages("actions.createUserProfile")</a>

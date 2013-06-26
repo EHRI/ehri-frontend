@@ -1,4 +1,4 @@
-@(page: rest.Page[SystemEvent], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[SystemEventMeta], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listSystemEvents")) {
 
@@ -10,7 +10,7 @@
 			<h4>
                 <a data-timestamp="@item.time" href="@routes.SystemEvents.get(item.id)">
                     @item.scope.map { scope =>
-                        @views.Helpers.itemForEntity(scope.e) -
+                        @scope -
                     }
                     <i>@item</i>
                 </a>
@@ -20,11 +20,11 @@
                     @item.actioner.map { accessor =>
                         <li><a class="alt" href="@views.Helpers.urlFor(accessor)">@accessor</a></li>
                     }
-                    <li>@views.Helpers.prettyDate(item.timeStamp)</li>
+                    <li>@views.Helpers.prettyDate(item.model.timestamp)</li>
                 </ul>
             </small>
             <small>
-            @item.logMessage.map { lm =>
+            @item.model.logMessage.map { lm =>
                 <p>@lm</p>
             }
             </small>

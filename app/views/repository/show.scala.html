@@ -1,12 +1,12 @@
-@(item: Repository, result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[AnnotationMeta]], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: RepositoryMeta, result: solr.ItemPage[(MetaModel[_],String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[AnnotationMeta]], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @repository.itemPage(item) {
 
     @common.annotated(item, annotations) {
         @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
-            @common.stringValue(item, Isdiah.IDENTIFIER)
-            @if(!item.descriptions.isEmpty) {
-                @item.descriptions.map { desc =>
+            @item.model.identifier
+            @if(!item.model.descriptions.isEmpty) {
+                @item.model.descriptions.map { desc =>
                     @repository.renderDescription(item, desc, links)
                 }
             }

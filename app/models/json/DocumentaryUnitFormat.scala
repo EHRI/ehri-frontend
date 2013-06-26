@@ -53,6 +53,7 @@ object DocumentaryUnitFormat {
 
   private lazy implicit val repoReads = RepositoryFormat.metaReads
   private lazy implicit val systemEventReads = SystemEventFormat.metaReads
+  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[DocumentaryUnitMeta] = (
     __.read[DocumentaryUnitF] and
@@ -63,7 +64,7 @@ object DocumentaryUnitFormat {
     (__ \ RELATIONSHIPS \ DocumentaryUnitF.CHILD_REL).lazyReadNullable[List[DocumentaryUnitMeta]](
       Reads.list[DocumentaryUnitMeta]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ AccessibleEntity.ACCESS_REL).lazyReadNullable[List[Accessor]](
-      Reads.list[Accessor]).map(_.getOrElse(List.empty[Accessor])) and
+      Reads.list[Accessor](accessorReads)).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ AccessibleEntity.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
   )(DocumentaryUnitMeta.apply _)

@@ -96,7 +96,9 @@ case class UserProfileMeta(
   account: Option[models.sql.User] = None,
   globalPermissions: Option[GlobalPermissionSet[UserProfileMeta]] = None,
   itemPermissions: Option[ItemPermissionSet[UserProfileMeta]] = None
-) extends MetaModel[UserProfileF] with Accessor {
+) extends MetaModel[UserProfileF]
+  with Accessor
+  with Accessible {
 
   def hasPermission(ct: ContentType.Value, p: PermissionType.Value): Boolean = {
     globalPermissions.map { gp =>

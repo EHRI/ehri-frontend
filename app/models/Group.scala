@@ -49,5 +49,7 @@ case class GroupMeta(
   groups: List[GroupMeta] = Nil,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None
-) extends MetaModel[GroupF] with Accessor
+) extends MetaModel[GroupF]
+  with Accessor
+  with Accessible
 

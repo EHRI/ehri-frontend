@@ -48,6 +48,7 @@ object HistoricalAgentFormat {
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
   private implicit val authoritativeSetReads = AuthoritativeSetFormat.metaReads
+  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[HistoricalAgentMeta] = (
     __.read[HistoricalAgentF] and

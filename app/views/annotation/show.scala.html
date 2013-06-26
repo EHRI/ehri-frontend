@@ -10,7 +10,7 @@
     @common.latestAction(item, routes.Annotations.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
-    @maybeUser.map { user =>
+    @userOpt.map { user =>
         @if(user.hasPermission(ContentType.Annotation, PermissionType.Delete)) {
             <li><a href="@routes.Annotations.delete(item.id)">@Messages("actions.deleteAnnotation")</a></li>
         }

@@ -1,8 +1,8 @@
-@(item: ConceptMeta, desc: ConceptDescription)(implicit prefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
+@(item: ConceptMeta, desc: ConceptDescriptionF)(implicit prefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
 
 @import models.ConceptF._
 
-@common.stringValue(desc, PREFLABEL)
-@common.listValue(desc, ALTLABEL)
-@common.listValue(desc, SCOPENOTE)
-@common.listValue(desc, DEFINITION)
+@desc.prefLabel
+@common.propertyList(desc.altLabels.toList.flatten: _*)
+@common.propertyList(desc.scopeNote.toList.flatten: _*)
+@common.propertyList(desc.definition.toList.flatten: _*)

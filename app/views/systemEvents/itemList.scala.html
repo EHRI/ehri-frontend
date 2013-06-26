@@ -8,6 +8,6 @@
     @common.pagination(page)
 
     <ul class="unstyled">
-        @page.items.map(systemEvents.listEntry)
+        @page.items.map(s => systemEvents.listEntry(s))
     </ul>
 }

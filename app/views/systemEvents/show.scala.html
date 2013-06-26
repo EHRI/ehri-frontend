@@ -1,7 +1,9 @@
-@(item: SystemEvent, page: rest.Page[ItemWithId], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: SystemEventMeta, page: rest.Page[MetaModel[_]], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
-@title(item: SystemEvent) = {
-    @item.scope.map(s => views.Helpers.itemForEntity(s.e) + " - ")
+@title(item: SystemEventMeta) = {
+    @item.scope.map { scope =>
+        @scope -
+    }
     @item
 }
 
@@ -12,22 +14,22 @@
         <a href="@views.Helpers.urlFor(accessor)">@accessor</a>:
     }
         <time>@item.time</time>
-        (@views.Helpers.prettyDate(item.timeStamp))
+        (@views.Helpers.prettyDate(item.model.timestamp))
     </p>
 
-    @item.logMessage.map { lm =>
+    @item.model.logMessage.map { lm =>
         <blockquote>@lm</blockquote>
     }
 
     @item.scope.map { scope =>
-        @Messages("systemEvents.scope"):  <a href="@views.Helpers.urlFor(scope)">@views.Helpers.itemForEntity(scope.e)</a>
+        @Messages("systemEvents.scope"):  <a href="@views.Helpers.urlFor(scope)">@scope</a>
     }
 
     <h4>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)}</h4>
     @common.pagination(page)
     <ul class="unstyled">
     @page.items.map { item =>
-        <li><a href="@views.Helpers.urlFor(item)">@views.Helpers.itemForEntity(item.e)</a></li>
+        <li><a href="@views.Helpers.urlFor(item)">@item</a></li>
     }
     </ul>
 

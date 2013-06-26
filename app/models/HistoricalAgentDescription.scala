@@ -54,9 +54,10 @@ case class HistoricalAgentDescriptionF(
   details: IsaarDetail,
   control: IsaarControl,
   accessPoints: List[AccessPointF]
-  ) extends Persistable
+  ) extends Model with Persistable with Description
 
 
+/*
 case class HistoricalAgentDescription(val e: Entity)
   extends Description
   with TemporalEntity
@@ -71,3 +72,4 @@ case class HistoricalAgentDescription(val e: Entity)
 
   lazy val formableOpt: Option[HistoricalAgentDescriptionF] = Json.toJson(e).asOpt[HistoricalAgentDescriptionF]
 }
+*/

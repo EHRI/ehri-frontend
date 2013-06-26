@@ -10,8 +10,8 @@ import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetPara
 
 import solr.facet._
 
-import models.UserProfile
 import defines.EntityType
+import models.UserProfileMeta
 
 
 /**

@@ -1,10 +1,10 @@
-@(item: VocabularyMeta, result: solr.ItemPage[(Entity,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[AnnotationMeta]], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: VocabularyMeta, result: solr.ItemPage[(MetaModel[_],String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[AnnotationMeta]], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
         @defining("vocabulary") { implicit  prefix =>
-            @common.stringValue(item, models.VocabularyF.DESCRIPTION)
+            @common.stringValue(item.model.description, VocabularyF.DESCRIPTION)
         }
     }
 
@@ -18,7 +18,7 @@
     @common.latestAction(item, routes.Vocabularies.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
             @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Create)) {
                 <li><a href="@routes.Vocabularies.createConcept(item.id)">@Messages("actions.createTopLevelConcept")</a></li>
             }

@@ -112,7 +112,7 @@ object Repositories extends EntityRead[RepositoryMeta]
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.repository.list(page.copy(items = page.items.map(Repository(_))), params))
+    Ok(views.html.repository.list(page, params))
   }
 
   def update(id: String) = updateAction(id) {

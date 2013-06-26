@@ -31,7 +31,7 @@ object AccessPointFormat {
         ID -> d.id,
         TYPE -> d.isA,
         DATA -> Json.obj(
-          TYPE -> d.`type` ,
+          TYPE -> d.accessPointType,
           TARGET -> d.name,
           DESCRIPTION -> d.description
         )

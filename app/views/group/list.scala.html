@@ -17,7 +17,7 @@
     
 } {
     @common.sidebarSection(None) {
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
             @{println(user.globalPermissions)}
             @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
                 <a class="btn btn-primary" href="@routes.Groups.create">@Messages("Create New Group")</a>

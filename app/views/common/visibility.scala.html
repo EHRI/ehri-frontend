@@ -17,7 +17,7 @@
             @Messages("visibility.visibleToEveryone")
         </h4>
     }
-    @maybeUser.map { user =>
+    @userOpt.map { user =>
         @if(user.hasPermission(contentType, PermissionType.Update)) {
             <p><small><a href="@url">@Messages("actions.setVisibility")</a></small></p>
         }

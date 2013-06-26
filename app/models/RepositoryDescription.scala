@@ -61,10 +61,11 @@ case class RepositoryDescriptionF(
   details: IsdiahDetails,
   access: IsdiahAccess,
   services: IsdiahServices,
-  control: IsdiahControl
-  ) extends Persistable
+  control: IsdiahControl,
+  accessPoints: List[AccessPointF] = Nil) extends Model with Persistable with Description
 
 
+/*
 case class RepositoryDescription(val e: Entity) extends Description with Formable[RepositoryDescriptionF] {
 
   import RepositoryDescriptionF._
@@ -75,4 +76,4 @@ case class RepositoryDescription(val e: Entity) extends Description with Formabl
 
   lazy val formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF](json.IsdiahFormat.restFormat)
   lazy val formableOpt: Option[RepositoryDescriptionF] = Json.toJson(e).asOpt[RepositoryDescriptionF](json.IsdiahFormat.restFormat)
-}
+}*/

@@ -43,6 +43,7 @@ object AnnotationFormat {
 
   private implicit val metaModelReads = MetaModel.Converter.restReads
   private implicit val userProfileReads = UserProfileFormat.userProfileReads
+  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[AnnotationMeta] = (
     __.read[AnnotationF] and

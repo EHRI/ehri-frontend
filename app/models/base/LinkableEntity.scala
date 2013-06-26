@@ -37,5 +37,5 @@ trait LinkableEntity extends AccessibleEntity {
    */
   def annotationLinks(links: List[LinkMeta]) = links.filter(link => link.bodies.isEmpty)
 
-  def opposingTarget(link: Link): Option[LinkableEntity] = link.targets.filterNot(p => p.id == id).headOption.flatMap(e => LinkableEntity.fromEntity(e.e))
+  def opposingTarget(link: LinkMeta): Option[MetaModel[_]] = link.targets.filterNot(p => p.id == id).headOption
 }

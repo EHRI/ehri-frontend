@@ -42,6 +42,7 @@ object LinkFormat {
   private implicit val metaModelReads = MetaModel.Converter.restReads
   private implicit val userProfileMetaReads = models.json.UserProfileFormat.metaReads
   private implicit val accessPointReads = models.json.AccessPointFormat.accessPointReads
+  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[LinkMeta] = (
     __.read[LinkF] and

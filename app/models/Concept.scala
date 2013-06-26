@@ -11,6 +11,7 @@ import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 object ConceptF {
 
+  val ACCESS_POINTS = "accessPoints"
   val LANGUAGE = "languageCode"
   val PREFLABEL = "name"
   val ALTLABEL = "altLabel"

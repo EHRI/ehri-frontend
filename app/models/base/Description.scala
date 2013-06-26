@@ -7,6 +7,7 @@ import models.HistoricalAgentDescription
 import models.RepositoryDescription
 import play.api.libs.json.JsValue
 
+/*
 object Description {
 
   final val ACCESS_REL = "relatesTo"
@@ -39,4 +40,4 @@ trait Description extends WrappedEntity {
   def unknownProperty: List[Entity] = e.relations(Description.UNKNOWN_PROP)
 
   override def toString = name
-}
+}*/

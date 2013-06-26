@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: models.base.LinkableEntity, links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
+@(item: MetaModel[_], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
 
 <div class="annotatable" id="@item.id">
     @defining(item.annotationLinks(links)) { annotationLinks =>
@@ -19,12 +19,12 @@
                             <a class="alt" href="@routes.Links.get(link.id, Some(item.id))">
                                 &times;
                             </a>
-                            @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
+                            @link.model.description.map { desc =>
                                 <p>@desc</p>
                             }
                         </li>
                     }.getOrElse {
-                        @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
+                        @link.model.description.map { desc =>
                             <p>@desc</p>
                         }
                     }

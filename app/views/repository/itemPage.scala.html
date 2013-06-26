@@ -7,7 +7,7 @@
     @common.visibility(item, routes.Repositories.visibility(item.id), ContentType.Repository)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
         @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
             <li><a href="@routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
             }

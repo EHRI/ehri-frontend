@@ -52,7 +52,8 @@ object IsdiahForm {
         SCRIPTS_USED -> optional(list(nonEmptyText)),
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
-      )(IsdiahControl.apply)(IsdiahControl.unapply)
+      )(IsdiahControl.apply)(IsdiahControl.unapply),
+      ACCESS_POINTS -> list(AccessPointForm.form.mapping)
     )(RepositoryDescriptionF.apply)(RepositoryDescriptionF.unapply)
   )
 }

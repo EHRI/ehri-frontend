@@ -18,7 +18,7 @@
     @common.latestAction(item, routes.AuthoritativeSets.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
-        @maybeUser.map { user =>
+        @userOpt.map { user =>
             @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Create)) {
                 <li><a href="@routes.AuthoritativeSets.createHistoricalAgent(item.id)">@Messages("actions.createHistoricalAgent")</a></li>
             }

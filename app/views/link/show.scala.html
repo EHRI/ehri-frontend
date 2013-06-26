@@ -1,9 +1,9 @@
-@(item: Link, annotations: Map[String,List[AnnotationMeta]], src: Option[String] = None)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: LinkMeta, annotations: Map[String,List[AnnotationMeta]], src: Option[String] = None)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("link.itemLink"), breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
-        @common.stringValue(item, LinkF.DESCRIPTION)
+        @item.model.description
 
         <h4>@Messages("link.items")</h4>
         <ul>
@@ -23,7 +23,7 @@
     @common.latestAction(item, routes.Links.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
-    @maybeUser.map { user =>
+    @userOpt.map { user =>
         @if(user.hasPermission(ContentType.Link, PermissionType.Delete)) {
             <li><a href="@routes.Links.delete(item.id, src)">@Messages("actions.deleteLink")</a></li>
         }

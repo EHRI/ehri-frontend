@@ -35,7 +35,7 @@
             <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
         }
 
-        <h4>@item.stringProperty(Entity.IDENTIFIER  )</h4>
+        <h4>@item.model.identifier</h4>
 
         @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
             @if(!item.descriptions.isEmpty) {

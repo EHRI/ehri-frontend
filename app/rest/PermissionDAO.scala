@@ -49,7 +49,6 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfileMeta]) ex
     listWithUrl(enc(requestUrl, "pageForScope/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
 
   private def listWithUrl(url: String): Future[Either[RestError, Page[PermissionGrantMeta]]] = {
-    implicit val entityPageReads = PageReads.pageReads
     WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[PermissionGrantMeta]].fold(

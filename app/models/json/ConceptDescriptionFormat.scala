@@ -18,7 +18,7 @@ object ConceptDescriptionFormat {
         TYPE -> d.isA,
         DATA -> Json.obj(
           LANGUAGE -> d.languageCode,
-          PREFLABEL -> d.prefLabel,
+          PREFLABEL -> d.name,
           ALTLABEL -> d.altLabels,
           DEFINITION -> d.definition,
           SCOPENOTE -> d.scopeNote
@@ -35,7 +35,9 @@ object ConceptDescriptionFormat {
       (__ \ DATA \ PREFLABEL).read[String] and
       (__ \ DATA \ ALTLABEL).readNullable[List[String]] and
       (__ \ DATA \ DEFINITION).readNullable[List[String]] and
-      (__ \ DATA \ SCOPENOTE).readNullable[List[String]]
+      (__ \ DATA \ SCOPENOTE).readNullable[List[String]] and
+      ((__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyRead[List[AccessPointF]](
+        Reads.list[AccessPointF]) orElse Reads.pure(Nil))
   )(ConceptDescriptionF.apply _)
 
   implicit val restFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)

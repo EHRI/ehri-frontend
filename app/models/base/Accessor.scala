@@ -46,7 +46,7 @@ object Accessor {
   }
 }
 
-trait Accessor extends MetaModel[_] {
+trait Accessor extends MetaModel[AnyRef] {
   val groups: List[GroupMeta]
   val id: String
   val isA: EntityType.Value

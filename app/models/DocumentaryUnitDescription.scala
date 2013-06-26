@@ -68,8 +68,9 @@ case class DocumentaryUnitDescriptionF(
   notes: Option[List[String]] = None,
   control: IsadGControl,
   accessPoints: List[AccessPointF]
-  ) extends Model with Persistable
+) extends Model with Persistable with Description
 
+/*
 case class DocumentaryUnitDescription(val e: Entity)
   extends Description
   with TemporalEntity
@@ -86,3 +87,4 @@ case class DocumentaryUnitDescription(val e: Entity)
   lazy val formable = Json.toJson(e).as[DocumentaryUnitDescriptionF](json.IsadGFormat.restFormat)
   lazy val formableOpt = Json.toJson(e).asOpt[DocumentaryUnitDescriptionF](json.IsadGFormat.restFormat)
 }
+*/
