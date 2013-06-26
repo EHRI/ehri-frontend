@@ -12,11 +12,11 @@
                 @item.model.descriptions.map { desc =>
                     @common.descriptionOutline(desc, desc.languageCode) {
 
-                        @common.renderDates(desc.dates, DATES_OF_EXISTENCE)
+                        @common.renderDates(desc, DATES_OF_EXISTENCE)
 
                         @descriptionSection(IDENTITY_AREA) {
-                            @common.stringValue(desc.entityType, ENTITY_TYPE)
-                            @common.stringValue(desc.name, AUTHORIZED_FORM_OF_NAME)
+                            @common.stringValue(Some(desc.entityType.toString), ENTITY_TYPE)
+                            @common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
                             @common.listValue(desc.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
                             @common.listValue(desc.otherFormsOfName, OTHER_FORMS_OF_NAME)
                         }

@@ -6,7 +6,7 @@
 @common.descriptionOutline(desc, desc.languageCode) {
 
     @descriptionSection(IDENTITY_AREA) {
-        @common.stringValue(desc.name, AUTHORIZED_FORM_OF_NAME)
+        @common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
         @common.listValue(desc.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
         @common.listValue(desc.otherFormsOfName, OTHER_FORMS_OF_NAME)
     }

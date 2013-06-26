@@ -1,10 +1,10 @@
 package controllers
 
-import _root_.models._
-import _root_.models.forms.VisibilityForm
+import models._
+import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
-import _root_.controllers.base._
+import controllers.base._
 import defines.{ContentType, EntityType}
 import solr.{SearchOrder, SearchParams}
 import scala.Some

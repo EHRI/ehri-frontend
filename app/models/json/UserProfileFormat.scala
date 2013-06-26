@@ -42,7 +42,7 @@ object UserProfileFormat {
   implicit val restFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
 
   private implicit val groupReads = GroupFormat.metaReads
-  private lazy implicit val systemEventReads = SystemEventFormat.metaReads
+  private implicit val systemEventReads = SystemEventFormat.metaReads
 
   implicit val metaReads: Reads[UserProfileMeta] = (
     __.read[UserProfileF] and
@@ -52,5 +52,5 @@ object UserProfileFormat {
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
       Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
-  )(UserProfileMeta.apply _)
+  )(UserProfileMeta.quickApply _)
 }

@@ -4,9 +4,8 @@ import defines._
 import defines.EnumUtils._
 import models.base._
 
-import models.base.{AttributeSet, Persistable, TemporalEntity}
-import play.api.libs.json.{JsObject, Json, JsString, JsValue}
-import models.json.{RestReadable, DocumentaryUnitFormat, ClientConvertable, RestConvertable}
+import models.base.Persistable
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 
 object DocumentaryUnitF {

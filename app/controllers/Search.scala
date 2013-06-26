@@ -2,16 +2,15 @@ package controllers
 
 import play.api.mvc._
 import base.EntitySearch
-import defines.{EntityType}
+import defines.EntityType
 import play.Play.application
 import rest.{RestPageParams, EntityDAO}
 import play.api.libs.iteratee.{Concurrent, Enumerator}
-import models.{IsadG,Entity}
+import models.IsadG
 import play.api.Logger
 import concurrent.Future
 import solr.SolrIndexer._
-import solr.{ItemPage, SearchOrder, SearchParams, SolrIndexer}
-import solr.facet.FieldFacetClass
+import solr.{SearchOrder, SearchParams, SolrIndexer}
 import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.{Writes, Json}

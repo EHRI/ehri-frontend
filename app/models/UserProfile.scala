@@ -78,13 +78,13 @@ object UserProfileMeta {
   }
 
   // Constructor, sans account and perms
-  def apply(
+  def quickApply(
      model: UserProfileF,
      groups: List[GroupMeta] = Nil,
      accessors: List[Accessor] = Nil,
      latestEvent: Option[SystemEventMeta]) = new UserProfileMeta(model, groups, accessors, latestEvent)
 
-  def unapply(up: UserProfileMeta) = Some((up.model, up.groups, up.accessors, up.latestEvent))
+  def quickUnapply(up: UserProfileMeta) = Some((up.model, up.groups, up.accessors, up.latestEvent))
 }
 
 

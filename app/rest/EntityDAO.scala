@@ -139,14 +139,6 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
   import EntityDAO._
   import play.api.http.Status._
 
-  // Import Json formats for REST server
-  import models.json.rest._
-
-  implicit val entityReads = Entity.entityReads
-
-  // Implicit reader for pages of items
-  implicit def entityPageReads[T] = PageReads.pageReads[T]
-
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
   def get[MT](id: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {

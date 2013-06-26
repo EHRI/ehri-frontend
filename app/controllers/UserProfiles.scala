@@ -1,16 +1,14 @@
 package controllers
 
-import _root_.models.base.AccessibleEntity
 import models.forms.{VisibilityForm}
-import _root_.models._
+import models._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
-import _root_.controllers.base._
+import controllers.base._
 import collection.immutable.ListMap
 import solr.SearchParams
-import scala.Some
 
 
 object UserProfiles extends PermissionHolderController[UserProfileMeta]

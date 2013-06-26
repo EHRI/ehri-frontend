@@ -1,14 +1,13 @@
 package controllers
 
 import play.api.mvc._
-import _root_.models._
-import models.forms.{AnnotationForm, VisibilityForm}
+import models._
+import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
-import _root_.controllers.base._
-import defines.{PermissionType, ContentType, EntityType}
-import solr.{SearchOrder, SearchParams}
-import scala.Some
+import controllers.base._
+import defines.{ContentType, EntityType}
+import solr.SearchParams
 
 object Countries extends CRUD[CountryF,CountryMeta]
   with CreationContext[RepositoryF, RepositoryMeta, CountryMeta]

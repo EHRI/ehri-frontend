@@ -101,7 +101,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
   }
 
   def linkPostMultiAction(id: String)(
-      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[LinkMeta]] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[LinkMeta]] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       implicit val linkWrites: Writes[LinkF] = models.json.rest.linkFormat
       val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
@@ -212,7 +212,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
    * @param apid
    * @return
    */
-  def getLink(id: String, apid: String) = withItemPermission[MT](id, PermissionType.Annotate, contentType) {
+  def getLink(id: String, apid: String)(implicit rd: RestReadable[MT]) = withItemPermission[MT](id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).getFor(id).map { linksOrErr =>
@@ -239,7 +239,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
    * @param id
    * @return
    */
-  def deleteAccessPoint(id: String, accessPointId: String) = withItemPermission[MT](id, PermissionType.Update, contentType) {
+  def deleteAccessPoint(id: String, accessPointId: String)(implicit rd: RestReadable[MT]) = withItemPermission[MT](id, PermissionType.Update, contentType) {
       bool => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).deleteAccessPoint(accessPointId).map { boolOrErr =>
@@ -256,7 +256,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
    * @param id
    * @return
    */
-  def deleteLink(id: String, linkId: String) = withItemPermission[MT](id, PermissionType.Annotate, contentType) {
+  def deleteLink(id: String, linkId: String)(implicit rd: RestReadable[MT]) = withItemPermission[MT](id, PermissionType.Annotate, contentType) {
       bool => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).deleteLink(id, linkId).map { boolOrErr =>

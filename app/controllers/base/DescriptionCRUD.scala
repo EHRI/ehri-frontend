@@ -62,7 +62,7 @@ trait DescriptionCRUD[D <: Model with Persistable, T <: Model with Described[D],
    */
   def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[D])(
     f: MT => Either[Form[D],D] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
-           implicit fmt: RestConvertable[D]) = {
+           implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold({ ef =>
@@ -97,8 +97,8 @@ trait DescriptionCRUD[D <: Model with Persistable, T <: Model with Described[D],
    * @return
    */
   def deleteDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String)(
-      f: Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
-    withItemPermission(id, PermissionType.Update, contentType) {
+      f: Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
         DescriptionDAO[MT](entityType, userOpt)

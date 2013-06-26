@@ -10,6 +10,7 @@ import defines.EnumUtils._
 object ConceptDescriptionFormat {
   import Entity._
   import ConceptF._
+  import AccessPointFormat._
 
   implicit val conceptDescriptionWrites = new Writes[ConceptDescriptionF] {
     def writes(d: ConceptDescriptionF): JsValue = {

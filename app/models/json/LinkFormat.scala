@@ -7,7 +7,6 @@ import models._
 import defines.EntityType
 import defines.EnumUtils._
 import models.base.{Accessible, MetaModel, Accessor}
-import models.AccessPoint
 
 object LinkFormat {
   import models.LinkF._
@@ -42,6 +41,7 @@ object LinkFormat {
   private implicit val metaModelReads = MetaModel.Converter.restReads
   private implicit val userProfileMetaReads = models.json.UserProfileFormat.metaReads
   private implicit val accessPointReads = models.json.AccessPointFormat.accessPointReads
+  private implicit val systemEventReads = SystemEventFormat.metaReads
 
   implicit val metaReads: Reads[LinkMeta] = (
     __.read[LinkF] and

@@ -8,7 +8,7 @@ import defines.EnumUtils._
 
 import defines.{EntityType, PublicationStatus}
 import models.base.{Accessible, Accessor}
-import models.{SystemEventMeta, RepositoryMeta, SystemEvent, DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnitMeta}
+import models.{SystemEventMeta, RepositoryMeta, DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnitMeta}
 
 
 object DocumentaryUnitFormat {

@@ -1,9 +1,8 @@
 package controllers
 
-import _root_.models.base.AccessibleEntity
-import _root_.models._
-import _root_.models.forms.{LinkForm, AnnotationForm, VisibilityForm}
-import _root_.models.HistoricalAgent
+import models._
+import models.base._
+import _root_.models.forms.{LinkForm, VisibilityForm}
 import play.api._
 import play.api.i18n.Messages
 import defines._
@@ -149,7 +148,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgentMeta]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
+  def linkTo(id: String) = withItemPermission[HistoricalAgentMeta](id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.linkTo(item))
   }

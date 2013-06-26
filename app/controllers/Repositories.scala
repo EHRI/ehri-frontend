@@ -1,21 +1,18 @@
 package controllers
 
-import _root_.models.base.AccessibleEntity
-import _root_.models._
-import _root_.models.forms.VisibilityForm
-import _root_.models.Repository
+import models._
+import models.forms.VisibilityForm
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import i18n.Messages
 import defines._
-import _root_.controllers.base._
+import controllers.base._
 import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
 import views.Helpers
 import scala.Some
-import solr.{SearchOrder, SearchParams}
-import scala.concurrent.Future
+import solr.SearchParams
 
 object Repositories extends EntityRead[RepositoryMeta]
   with EntityUpdate[RepositoryF, RepositoryMeta]

@@ -67,11 +67,18 @@ package object client {
   private implicit val Accessor.Converter.clientFormat = Accessor.Converter.clientFormat
   private val accessorListFormat = Format(Reads.list[Accessor](Accessor.Converter.clientFormat), Writes.list[Accessor](Accessor.Converter.clientFormat))
 
+  implicit val userProfileMetaFormat: Format[UserProfileMeta] = (
+    __.format[UserProfileF] and
+      (__ \ "groups").lazyFormat[List[GroupMeta]](Reads.list[GroupMeta], Writes.list[GroupMeta]) and
+      (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
+      (__ \ "event").formatNullable[SystemEventMeta]
+    )(UserProfileMeta.quickApply _, unlift(UserProfileMeta.quickUnapply _))
+
   implicit val linkMetaFormat: Format[LinkMeta] = (
     __.format[LinkF] and
       (__ \ "targets").lazyFormat[List[MetaModel[_]]](Reads.list[MetaModel[_]](MetaModel.Converter.clientFormat), Writes.list[MetaModel[_]](MetaModel.Converter.clientFormat)) and
       (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat) and
-      (__ \ "accessPoints").lazyFormatNullable[List[AccessPointF]](Reads.list(accessPointFormat), Writes.list(accessPointFormat)) and
+      (__ \ "accessPoints").lazyFormatNullable[List[AccessPointF]](Reads.list(accessPointFormat), Writes.list(accessPointFormat)).flatMap(_.headOption) and
       (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
       (__ \ "event").formatNullable[SystemEventMeta]
     )(LinkMeta.apply _, unlift(LinkMeta.unapply _))
@@ -100,14 +107,6 @@ package object client {
         accessorListFormat) and
       (__ \ "event").formatNullable[SystemEventMeta]
     )(GroupMeta.apply _, unlift(GroupMeta.unapply _))
-
-  implicit val userProfileMetaFormat: Format[UserProfileMeta] = (
-      __.format[UserProfileF] and
-      (__ \ "groups").lazyFormat[List[GroupMeta]](Reads.list[GroupMeta], Writes.list[GroupMeta]) and
-      (__ \ "accessibleTo").lazyFormat[List[Accessor]](
-        accessorListFormat) and
-      (__ \ "event").formatNullable[SystemEventMeta]
-    )(UserProfileMeta.apply _, unlift(UserProfileMeta.unapply _))
 
   implicit val countryMetaFormat: Format[CountryMeta] = (
     __.format[CountryF] and

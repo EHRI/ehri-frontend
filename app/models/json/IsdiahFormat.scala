@@ -12,6 +12,7 @@ object IsdiahFormat {
   import AddressFormat._
   import Entity._
   import Isdiah._
+  import AccessPointFormat._
 
   implicit val isdiahWrites = new Writes[RepositoryDescriptionF] {
     def writes(d: RepositoryDescriptionF): JsValue = {

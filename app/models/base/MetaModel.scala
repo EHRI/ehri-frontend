@@ -90,7 +90,7 @@ trait MetaModel[+T <: Model] {
   def toStringAbbr(implicit lang: Lang) = s"TODO (with abbr): $isA [$id]"
 }
 
-trait Hierarchical[+T] {
+trait Hierarchical[+T] extends MetaModel[AnyRef] {
   val parent: Option[Hierarchical[T]]
 
   def ancestors: List[Hierarchical[T]]

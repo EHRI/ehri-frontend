@@ -5,15 +5,15 @@
 @page.items.map { perm =>
     <div class="list-item">
         <h4>
-            @perm.permission.getOrElse("?")
+            @perm.model.permission
             @accessorOpt.map { accessor =>
                 @accessor match {
-                    case u: UserProfile => {
+                    case u: UserProfileMeta => {
                         <a href="@routes.UserProfiles.revokePermission(accessor.id, perm.id)">
                             <i title="@Messages("actions.revokePermission")" class="icon-remove"></i>
                         </a>
                     }
-                    case u: Group => {
+                    case u: GroupMeta => {
                         <a href="@routes.Groups.revokePermission(accessor.id, perm.id)">
                             <i title="@Messages("actions.revokePermission")" class="icon-remove"></i>
                         </a>

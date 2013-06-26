@@ -77,7 +77,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
 
         // FIXME: This is a DELIBERATE BACKDOOR
         val currentUser = USER_BACKDOOR__(account, request)
-        val fakeProfile = UserProfileMeta(UserProfileF(id=Some(account.profile_id), name=""))
+        val fakeProfile = UserProfileMeta(UserProfileF(id=Some(account.profile_id), identifier="", name=""))
         implicit val maybeUser = Some(fakeProfile)
 
         AsyncRest {
@@ -125,7 +125,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
         // FIXME: This is a DELIBERATE BACKDOOR
         val currentUser = USER_BACKDOOR__(account, request)
 
-        val fakeProfile = UserProfileMeta(UserProfileF(id=Some(account.profile_id), name=""))
+        val fakeProfile = UserProfileMeta(UserProfileF(id=Some(account.profile_id), identifier="", name=""))
         implicit val maybeUser = Some(fakeProfile)
 
         AsyncRest {

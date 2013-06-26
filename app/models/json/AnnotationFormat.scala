@@ -47,10 +47,10 @@ object AnnotationFormat {
 
   implicit val metaReads: Reads[AnnotationMeta] = (
     __.read[AnnotationF] and
-    (__ \ AnnotationF.ANNOTATES_REL).lazyReadNullable[List[AnnotationMeta]](
+    (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATES_REL).lazyReadNullable[List[AnnotationMeta]](
          Reads.list(metaReads)).map(_.getOrElse(List.empty[AnnotationMeta])) and
-    (__ \ AnnotationF.ACCESSOR_REL).readNullable[UserProfileMeta] and
-    (__ \ AnnotationF.SOURCE_REL).readNullable[MetaModel[_]] and
+    (__ \ RELATIONSHIPS \ AnnotationF.ACCESSOR_REL).readNullable[UserProfileMeta] and
+    (__ \ RELATIONSHIPS \ AnnotationF.SOURCE_REL).readNullable[MetaModel[_]] and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](

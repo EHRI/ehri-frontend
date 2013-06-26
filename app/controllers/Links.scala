@@ -2,7 +2,7 @@ package controllers
 
 import defines._
 import models._
-import controllers.base.{EntityDelete, EntityAnnotate, VisibilityController, EntityRead}
+import controllers.base._
 import play.api.i18n.Messages
 
 

@@ -21,7 +21,7 @@
         <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
 
         @desc.dates.headOption.map { dp =>
-            <li>@dp.model.years</li>
+            <li>@dp.years</li>
         }
         @desc.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
             <li>@s</li>

@@ -1,15 +1,15 @@
 package controllers
 
-import _root_.models._
-import _root_.models.forms.{LinkForm, VisibilityForm}
-import _root_.models.base.AccessibleEntity
+import models.base._
+import models._
+import controllers.base._
+import models.forms.{LinkForm, VisibilityForm}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
-import _root_.controllers.base._
+import controllers.base._
 import defines._
-import scala.Some
 import collection.immutable.ListMap
 import views.Helpers
 import solr.{SearchOrder, SearchParams}
@@ -297,7 +297,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
+  def linkTo(id: String) = withItemPermission[DocumentaryUnitMeta](id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.linkTo(item))
   }

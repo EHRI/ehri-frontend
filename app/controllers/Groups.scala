@@ -1,8 +1,7 @@
 package controllers
 
-import _root_.models.PermissionGrant
 import models.base.Accessor
-import _root_.models._
+import models._
 import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
@@ -166,7 +165,7 @@ object Groups extends PermissionHolderController[GroupMeta]
    * Add the user to the group and redirect to the show view.
    */
   def addMemberPost(id: String, userType: String, userId: String) = {
-    withItemPermission(userId, PermissionType.Grant, ContentType.withName(userType)) {
+    withItemPermission[Accessor](userId, PermissionType.Grant, ContentType.withName(userType)) {
       item => implicit userOpt => implicit request =>
         AsyncRest {
           rest.PermissionDAO(userOpt).addGroup(id, userId).map { boolOrErr =>

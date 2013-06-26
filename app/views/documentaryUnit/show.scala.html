@@ -38,7 +38,7 @@
         <h4>@item.model.identifier</h4>
 
         @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
-            @if(!item.descriptions.isEmpty) {
+            @if(!item.model.descriptions.isEmpty) {
                 <div class="tabbable">
                     <ul class="nav nav-tabs">
                          @item.model.descriptions.headOption.map { desc =>
@@ -55,14 +55,14 @@
                     <div class="tab-content">
                         @item.model.descriptions.headOption.map { desc =>
                             <div class="tab-pane active" id="desc-@desc.id">
-                                @actions("Actions", item.id, desc.id)
+                                @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
                                 @documentaryUnit.renderDescription(item, desc, links)
                             </div>
 
                         }
                         @item.model.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                             <div class="tab-pane" id="desc-@desc.id">
-                                @actions("Actions", item.id, desc.id)
+                                @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
                                 @documentaryUnit.renderDescription(item, desc, links)
                             </div>
                         }

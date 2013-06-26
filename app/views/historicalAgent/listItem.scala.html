@@ -32,13 +32,13 @@
                 }
             </ul>
         </small>
-        @desc.datesOfExistence.map { d =>
+        @desc.details.datesOfExistence.map { d =>
             <p>@d</p>
         }
-        @desc.history.map { d =>
+        @desc.details.history.map { d =>
             <p>@d</p>
         }
-        @desc.generalContext.map { d =>
+        @desc.details.generalContext.map { d =>
             <p>@d</p>
         }
     }.getOrElse {

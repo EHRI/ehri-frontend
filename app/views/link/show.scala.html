@@ -12,7 +12,7 @@
         }
         </ul>
 
-        @item.accessor.map { u =>
+        @item.user.map { u =>
             <h4>@Messages("link.creator")</h4>
             <a href="@routes.Application.getType(u.isA, u.id)">@u</a>
         }

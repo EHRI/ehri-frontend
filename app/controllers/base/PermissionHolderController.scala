@@ -71,7 +71,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     }
   }
 
-  def revokePermissionAction(id: String, permId: String)(f: MT => PermissionGrantMeta => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+  def revokePermissionAction(id: String, permId: String)(f: MT => PermissionGrantMeta => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {

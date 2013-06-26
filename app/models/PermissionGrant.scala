@@ -35,5 +35,5 @@ case class PermissionGrantMeta(
   accessor: Option[Accessor] = None,
   targets: List[MetaModel[_]] = Nil,
   scope: Option[MetaModel[_]] = None,
-  granteee: Option[UserProfileMeta] = None
+  grantee: Option[UserProfileMeta] = None
 ) extends MetaModel[PermissionGrantF]

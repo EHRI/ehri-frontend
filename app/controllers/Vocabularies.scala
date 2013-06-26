@@ -1,12 +1,12 @@
 package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
-import _root_.models._
-import _root_.models.forms.{AnnotationForm, VisibilityForm}
+import models._
+import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
 import _root_.controllers.base._
-import defines.{PermissionType, ContentType, EntityType}
+import defines.{ContentType, EntityType}
 import solr.SearchParams
 import scala.Some
 

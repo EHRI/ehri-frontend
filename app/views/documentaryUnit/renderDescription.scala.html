@@ -7,8 +7,8 @@
 @common.descriptionOutline(desc, desc.languageCode) {
     @descriptionSection(IDENTITY_AREA) {
         @common.stringValue(desc.`abstract`, ABSTRACT)
-        @common.renderDates(desc.dates, DATES)
-        @common.stringValue(desc.levelOfDescription, LEVEL_OF_DESCRIPTION)
+        @common.renderDates(desc, DATES)
+        @common.stringValue(Some(desc.levelOfDescription.toString), LEVEL_OF_DESCRIPTION)
         @common.stringValue(desc.extendAndMedium, EXTENT_MEDIUM)
     }
     @descriptionSection(CONTEXT_AREA) {
