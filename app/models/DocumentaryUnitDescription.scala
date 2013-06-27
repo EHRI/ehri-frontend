@@ -59,7 +59,7 @@ case class DocumentaryUnitDescriptionF(
   `abstract`: Option[String],
   @Annotations.Relation(DatePeriodF.DATE_REL)
   dates: List[DatePeriodF] = Nil,
-  levelOfDescription: Option[IsadG.LevelOfDescription.Value] = None,
+  levelOfDescription: Option[String] = None,
   extentAndMedium: Option[String] = None,
   context: IsadGContext,
   content: IsadGContent,

@@ -8,7 +8,7 @@
         </h4>
         <ul>
             @item.accessors.map { acc =>
-                <li><a href="@views.Helpers.urlFor(acc)">@acc</a></li>
+                <li><a href="@views.Helpers.urlFor(acc)">@acc.toStringLang</a></li>
             }
         </ul>
     } else {

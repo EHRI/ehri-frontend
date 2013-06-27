@@ -42,25 +42,22 @@ object RepositoryFormat {
       // FIXME: This throws an error if an item has no descriptions - we should somehow
       // make it so that the path being missing is permissable but a validation error
       // is not.
-      (__ \ RELATIONSHIPS \ Described.REL).lazyRead[List[RepositoryDescriptionF]](
-        Reads.list[RepositoryDescriptionF]) and
+      (__ \ RELATIONSHIPS \ Described.REL).lazyReadNullable[List[RepositoryDescriptionF]](
+        Reads.list[RepositoryDescriptionF]).map(_.getOrElse(List.empty[RepositoryDescriptionF])) and
       (__ \ DATA \ PRIORITY).readNullable[Int]
     )(RepositoryF.apply _)
 
   implicit val restFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
 
-  private implicit val systemEventReads = SystemEventFormat.metaReads
-  private implicit val countryReads = CountryFormat.metaReads
-
-  implicit val metaReads: Reads[RepositoryMeta] = (
-    __.read[RepositoryF] and
+  implicit lazy val metaReads: Reads[RepositoryMeta] = (
+    __.read[RepositoryF](repositoryReads) and
     // Country
     (__ \ RELATIONSHIPS \ RepositoryF.COUNTRY_REL).lazyReadNullable[List[CountryMeta]](
-      Reads.list[CountryMeta]).map(_.flatMap(_.headOption)) and
+      Reads.list(CountryFormat.metaReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
         Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
-        Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
+        Reads.list(SystemEventFormat.metaReads)).map(_.flatMap(_.headOption))
     )(RepositoryMeta.apply _)
 
 }

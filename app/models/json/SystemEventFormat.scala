@@ -41,15 +41,11 @@ object SystemEventFormat {
 
   implicit val restFormat: Format[SystemEventF] = Format(systemEventReads,systemEventWrites)
 
-  private implicit val groupReads = GroupFormat.metaReads
-  private implicit val userReads = UserProfileFormat.metaReads
-  private implicit val anyModelReads = AnyModel.Converter.restReads
-
   implicit val metaReads: Reads[SystemEventMeta] = (
     __.read[SystemEventF] and
     (__ \ RELATIONSHIPS \ SystemEvent.SCOPE_REL).lazyReadNullable[List[AnyModel]](
-      Reads.list[AnyModel]).map(_.flatMap(_.headOption)) and
+      Reads.list(AnyModel.Converter.restReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ SystemEvent.ACTIONER_REL).lazyReadNullable[List[UserProfileMeta]](
-      Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption))
+      Reads.list(UserProfileFormat.metaReads)).map(_.flatMap(_.headOption))
   )(SystemEventMeta.apply _)
 }

@@ -1,6 +1,6 @@
 @(item: HistoricalAgentMeta, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item)), scripts = scripts, styles = styles) {
+@rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(item.set.toList ++ List(item)), scripts = scripts, styles = styles) {
 
     @html
 

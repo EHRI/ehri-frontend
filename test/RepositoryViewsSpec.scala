@@ -1,14 +1,11 @@
 package test
 
 import helpers._
-import models.UserProfile
-import models.Entity
-import models.base.Accessor
+import models.{GroupF, GroupMeta, UserProfileF, UserProfileMeta}
 import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
 import defines._
-import rest.EntityDAO
 
 /**
  * Created by mike on 05/06/13.
@@ -16,8 +13,11 @@ import rest.EntityDAO
 class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
 
-  val userProfile = UserProfile(Entity.fromString(privilegedUser.profile_id, EntityType.UserProfile)
-    .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
+  // Mock user who belongs to admin
+  val userProfile = UserProfileMeta(
+    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    groups = List(GroupMeta(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
+  )
 
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"

@@ -45,27 +45,23 @@ object DocumentaryUnitFormat {
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
       ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
       (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-      (__ \ RELATIONSHIPS \ Described.REL).lazyRead[List[DocumentaryUnitDescriptionF]](
-        Reads.list[DocumentaryUnitDescriptionF])
+      (__ \ RELATIONSHIPS \ Described.REL).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
+        Reads.list[DocumentaryUnitDescriptionF]).map(_.getOrElse(List.empty[DocumentaryUnitDescriptionF]))
     )(DocumentaryUnitF.apply _)
 
   implicit val restFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
 
-  private lazy implicit val repoReads = RepositoryFormat.metaReads
-  private lazy implicit val systemEventReads = SystemEventFormat.metaReads
-  private implicit val accessorReads = Accessor.Converter.restReads
-
   implicit val metaReads: Reads[DocumentaryUnitMeta] = (
-    __.read[DocumentaryUnitF] and
+    __.read[DocumentaryUnitF](documentaryUnitReads) and
     // Holder
     (__ \ RELATIONSHIPS \ DocumentaryUnitF.HELD_REL).lazyReadNullable[List[RepositoryMeta]](
-      Reads.list[RepositoryMeta]).map(_.flatMap(_.headOption)) and
+        Reads.list(RepositoryFormat.metaReads)).map(_.flatMap(_.headOption)) and
     //
     (__ \ RELATIONSHIPS \ DocumentaryUnitF.CHILD_REL).lazyReadNullable[List[DocumentaryUnitMeta]](
-      Reads.list[DocumentaryUnitMeta]).map(_.flatMap(_.headOption)) and
+      Reads.list(metaReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
-      Reads.list[Accessor](accessorReads)).map(_.getOrElse(List.empty[Accessor])) and
+      Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
-      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
+      Reads.list(SystemEventFormat.metaReads)).map(_.flatMap(_.headOption))
   )(DocumentaryUnitMeta.apply _)
 }

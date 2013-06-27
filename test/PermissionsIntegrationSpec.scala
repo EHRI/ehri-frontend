@@ -1,9 +1,7 @@
 package test
 
 import helpers._
-import models.UserProfile
-import models.Entity
-import models.base.Accessor
+import models.{GroupF, GroupMeta, UserProfileF, UserProfileMeta}
 import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
@@ -26,8 +24,10 @@ import rest.EntityDAO
 class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
 
-  val userProfile = UserProfile(Entity.fromString(privilegedUser.profile_id, EntityType.UserProfile)
-    .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
+  val userProfile = UserProfileMeta(
+    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    groups = List(GroupMeta(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
+  )
 
   /**
    * Get the id from an URL where the ID is the last component...
@@ -98,10 +98,10 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(userRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val fetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get(userId))
+      val fetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get[UserProfileMeta](userId))
 
       fetchProfile must beRight
-      val profile = UserProfile(fetchProfile.right.get)
+      val profile = fetchProfile.right.get
       println(profile)
       println(profile.groups)
       //println(await(rest.PermissionDAO(None).getScope(profile, countryId)).right.get)
@@ -290,10 +290,10 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val haFetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get(headArchivistUserId))
+      val haFetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get[UserProfileMeta](headArchivistUserId))
 
       haFetchProfile must beRight
-      val headArchivistProfile = UserProfile(haFetchProfile.right.get)
+      val headArchivistProfile = haFetchProfile.right.get
 
       // Add their account to the mocks
       val haAccount = new models.sql.OpenIDUser(1L, "head-archivist@example.com", headArchivistUserId)
@@ -322,10 +322,10 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val aFetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get(archivistUserId))
+      val aFetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get[UserProfileMeta](archivistUserId))
 
       aFetchProfile must beRight
-      val archivistProfile = UserProfile(aFetchProfile.right.get)
+      val archivistProfile = aFetchProfile.right.get
 
       // Add the archivists group to the account mocks
       val aAccount = new models.sql.OpenIDUser(2L, "archivist1@example.com", archivistUserId)

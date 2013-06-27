@@ -2,7 +2,6 @@ package test
 
 import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._
-import models.base.Accessor
 import play.api.test.Helpers._
 import defines._
 import controllers.routes
@@ -14,8 +13,10 @@ import play.api.test.FakeRequest
 class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
   import mocks.UserFixtures.{privilegedUser, unprivilegedUser}
 
-  val userProfile = UserProfile(Entity.fromString(privilegedUser.profile_id, EntityType.UserProfile)
-    .withRelation(Accessor.BELONGS_REL, Entity.fromString("admin", EntityType.Group)))
+  val userProfile = UserProfileMeta(
+    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    groups = List(GroupMeta(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
+  )
 
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"

@@ -4,83 +4,82 @@ import play.api.test._
 import play.api.test.Helpers._
 import rest._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.Entity
+import models.{RepositoryMeta, DocumentaryUnitMeta, UserProfileMeta, DocumentaryUnitF, UserProfileF}
 import defines.{EntityType, ContentType, PermissionType}
-import models.UserProfile
-import models.{DocumentaryUnit, DocumentaryUnitF, UserProfileF}
 import rest.RestPageParams
 
 /**
  * Spec for testing individual data access components work as expected.
  */
 class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
-  val userProfile = UserProfile(Entity.fromString("mike", EntityType.UserProfile))
+  val userProfile = UserProfileMeta(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
   val entityType = EntityType.UserProfile
 
   class FakeApp extends WithApplication(FakeApplication(additionalConfiguration = config, withGlobal = Some(FakeGlobal)))
 
   "EntityDAO" should {
     "get an item by id" in new FakeApp {
-      await(EntityDAO(entityType, Some(userProfile)).get(userProfile.id)) must beRight
+      await(EntityDAO(entityType, Some(userProfile)).get[UserProfileMeta](userProfile.id)) must beRight
     }
 
     "create an item" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      await(EntityDAO(entityType, Some(userProfile)).create(user)) must beRight
+      await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF, UserProfileMeta](user)) must beRight
     }
 
     "create an item in (agent) context" in new FakeApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
-      val r = await(EntityDAO(EntityType.Repository, Some(userProfile)).createInContext("r1", ContentType.DocumentaryUnit, doc))
+      val r = await(EntityDAO(EntityType.Repository, Some(userProfile)).createInContext[DocumentaryUnitF,DocumentaryUnitMeta]("r1", ContentType.DocumentaryUnit, doc))
       r must beRight
-      DocumentaryUnit(r.right.get).holder must beSome
-      DocumentaryUnit(r.right.get).holder.get.id must equalTo("r1")
+      r.right.get.holder must beSome
+      r.right.get.holder.get.id must equalTo("r1")
     }
 
     "create an item in (doc) context" in new FakeApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
-      val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext("c1", ContentType.DocumentaryUnit, doc))
+      val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext[DocumentaryUnitF,DocumentaryUnitMeta]("c1", ContentType.DocumentaryUnit, doc))
       r must beRight
-      DocumentaryUnit(r.right.get).parent must beSome
-      DocumentaryUnit(r.right.get).parent.get.id must equalTo("c1")
+      r.right.get.parent must beSome
+      r.right.get.parent.get.id must equalTo("c1")
     }
 
     "update an item by id" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      val entity = await(EntityDAO(entityType, Some(userProfile)).create(user)).right.get
-      val udata = UserProfile(entity).formable.copy(location = Some("London"))
-      val res = await(EntityDAO(entityType, Some(userProfile)).update(entity.id, udata))
+      val entity = await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF, UserProfileMeta](user)).right.get
+      val udata = entity.model.copy(location = Some("London"))
+      val res = await(EntityDAO(entityType, Some(userProfile)).update[UserProfileF,UserProfileMeta](entity.id, udata))
       res must beRight
+      res.right.get.model.location must equalTo(Some("London"))
     }
 
     "error when creating an item with a non-unique id" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      await(EntityDAO(entityType, Some(userProfile)).create(user))
-      val err = await(EntityDAO(entityType, Some(userProfile)).create(user))
+      await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF,UserProfileMeta](user))
+      val err = await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF,UserProfileMeta](user))
       err must beLeft
       err.left.get must beAnInstanceOf[ValidationError]
     }
 
     "error when fetching a non-existing item" in new FakeApp {
-      val err = await(EntityDAO(entityType, Some(userProfile)).get("blibidyblob"))
+      val err = await(EntityDAO(entityType, Some(userProfile)).get[UserProfileMeta]("blibidyblob"))
       err must beLeft
       err.left.get must beAnInstanceOf[ItemNotFound]
     }
 
     "delete an item by id" in new FakeApp {
-      val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      val entity = await(EntityDAO(entityType, Some(userProfile)).create(user)).right.get
+      val user = UserProfileF(id = Some("foobar"), identifier = "foo", name = "bar")
+      val entity = await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF,UserProfileMeta](user)).right.get
       await(EntityDAO(entityType, Some(userProfile)).delete(entity.id)) must beRight
     }
 
     "page items" in new FakeApp {
-      val r = await(EntityDAO(entityType, Some(userProfile)).page(RestPageParams()))
+      val r = await(EntityDAO(entityType, Some(userProfile)).page[UserProfileMeta](RestPageParams()))
       r must beRight
       r.right.get.items.length mustEqual 5
     }
 
     "list items" in new FakeApp {
-      var r = await(EntityDAO(entityType, Some(userProfile)).list(RestPageParams()))
+      var r = await(EntityDAO(entityType, Some(userProfile)).list[UserProfileMeta](RestPageParams()))
       r must beRight
       r.right.get.length mustEqual 5
     }
@@ -94,13 +93,13 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in new FakeApp {
-      val perms = await(PermissionDAO[UserProfile](Some(userProfile)).get)
+      val perms = await(PermissionDAO[UserProfileMeta](Some(userProfile)).get)
       perms must beRight
       perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
     }
 
     "be able to set a user's permissions" in new FakeApp {
-      val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
+      val user = UserProfileMeta(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       val data = Map(
         ContentType.Repository.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString),
         ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString)
@@ -120,7 +119,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     }
 
     "be able to set a user's permissions within a scope" in new FakeApp {
-      val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
+      val user = UserProfileMeta(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       val data = Map(ContentType.DocumentaryUnit.toString -> List("create", "update", "delete"))
       val perms = await(PermissionDAO(Some(userProfile)).get(user))
       perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
@@ -138,7 +137,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     }
 
     "be able to set a user's permissions for an item" in new FakeApp {
-      val user = UserProfile(Entity.fromString("reto", EntityType.UserProfile))
+      val user = UserProfileMeta(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       // NB: Currently, there's already a test permission grant for Reto-create on c1...
       val data = List("update", "delete")
       val perms = await(PermissionDAO(Some(userProfile)).getItem(user, ContentType.DocumentaryUnit, "c1"))
@@ -155,13 +154,13 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   "VisibilityDAO" should {
     "set visibility correctly" in new FakeApp {
       // First, fetch an object and assert its accessibility
-      val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
-      DocumentaryUnit(c1a).accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike"))
+      val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get[DocumentaryUnitMeta]("c1")).right.get
+      c1a.accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike"))
 
-      val set = await(VisibilityDAO(Some(userProfile)).set(c1a.id, List("mike", "reto", "admin")))
+      val set = await(VisibilityDAO(Some(userProfile)).set[DocumentaryUnitMeta](c1a.id, List("mike", "reto", "admin")))
       set must beRight
-      val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
-      DocumentaryUnit(c1b).accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike", "reto"))
+      val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get[DocumentaryUnitMeta]("c1")).right.get
+      c1b.accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike", "reto"))
     }
   }
 

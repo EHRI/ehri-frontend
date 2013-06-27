@@ -68,7 +68,7 @@ object IsadGFormat {
       (__ \ DATA \ ABSTRACT).readNullable[String] and
       ((__ \ RELATIONSHIPS \ DatePeriodF.DATE_REL).lazyRead[List[DatePeriodF]](
         Reads.list[DatePeriodF](datePeriodReads)) orElse Reads.pure(Nil)) and
-      (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[LevelOfDescription.Value] and
+      (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String] and
       (__ \ DATA).read[IsadGContext]((
         (__ \ ADMIN_BIOG).readNullable[String] and

@@ -39,8 +39,8 @@ object HistoricalAgentFormat {
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      (__ \ RELATIONSHIPS \ Described.REL).lazyRead[List[HistoricalAgentDescriptionF]](
-        Reads.list[HistoricalAgentDescriptionF])
+      (__ \ RELATIONSHIPS \ Described.REL).lazyReadNullable[List[HistoricalAgentDescriptionF]](
+        Reads.list[HistoricalAgentDescriptionF]).map(_.getOrElse(List.empty[HistoricalAgentDescriptionF]))
     )(HistoricalAgentF.apply _)
 
   implicit val restFormat: Format[HistoricalAgentF] = Format(actorReads,actorWrites)

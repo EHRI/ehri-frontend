@@ -20,7 +20,7 @@ object IsadGForm {
       TITLE -> nonEmptyText,
       ABSTRACT -> optional(nonEmptyText),
       DATES -> list(DatePeriodForm.form.mapping),
-      LEVEL_OF_DESCRIPTION -> optional(enum(LevelOfDescription)),
+      LEVEL_OF_DESCRIPTION -> optional(text),
       EXTENT_MEDIUM -> optional(nonEmptyText),
       CONTEXT_AREA -> mapping(
         ADMIN_BIOG -> optional(text),

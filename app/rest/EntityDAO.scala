@@ -10,6 +10,7 @@ import models.json.{RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
+import models.base.MetaModel
 
 /**
  * Class representing a page of data.

@@ -13,7 +13,10 @@ trait AnyModel {
   val isA: EntityType.Value
 
   override def toString = s"TODO: $isA [$id]"
-  def toStringLang(implicit lang: Lang) = s"TODO (with lang): $isA [$id]"
+  def toStringLang(implicit lang: Lang): String = this match {
+    case e: MetaModel[_] => e.toStringLang(Lang.defaultLang)
+    case t => t.toString
+  }
   def toStringAbbr(implicit lang: Lang) = s"TODO (with abbr): $isA [$id]"
 }
 
@@ -37,7 +40,9 @@ object AnyModel {
           case EntityType.Country => json.validate[CountryMeta](CountryMeta.Converter.restReads)
           case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.restReads)
           case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.restReads)
-          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected meta-model type: " + t))
+          case EntityType.Link => json.validate[LinkMeta](LinkMeta.Converter.restReads)
+          case EntityType.Annotation => json.validate[AnnotationMeta](AnnotationMeta.Converter.restReads)
+          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected AnyModel type: " + t))
         }
       }
     }
@@ -54,7 +59,9 @@ object AnyModel {
           case EntityType.Country => json.validate[CountryMeta](CountryMeta.Converter.clientFormat)
           case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.clientFormat)
           case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.clientFormat)
-          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected meta-model for accessor type: " + t))
+          case EntityType.Link => json.validate[LinkMeta](LinkMeta.Converter.clientFormat)
+          case EntityType.Annotation => json.validate[AnnotationMeta](AnnotationMeta.Converter.clientFormat)
+          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected AnyModel for accessor type: " + t))
         }
       }
       def writes(a: AnyModel): JsValue = {
@@ -93,6 +100,15 @@ trait MetaModel[+T <: Model] extends AnyModel {
   // Convenience helpers
   val id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
   val isA = model.isA
+
+  override def toStringLang(implicit lang: Lang) = {
+    if (model.isInstanceOf[Described[_]]) {
+      val d = model.asInstanceOf[Described[Description]]
+      d.descriptions.find(_.languageCode == lang.code).orElse(d.descriptions.headOption).map(_.name).getOrElse(id)
+    } else id
+  }
+
+  override def toStringAbbr(implicit lang: Lang): String = toStringLang(lang)
 }
 
 trait Hierarchical[+T] extends AnyModel {
@@ -109,6 +125,7 @@ object Description {
 
 trait Description extends Model {
   val name: String
+  val languageCode: String
   val accessPoints: List[AccessPointF]
 }
 
@@ -116,7 +133,7 @@ object Described {
   final val REL = "describes"
 }
 
-trait Described[+T <: Description] {
+trait Described[+T <: Description] extends Model {
   val descriptions: List[T]
   def description(id: String) = descriptions.find(_.id == Some(id)): Option[T]
   def primaryDescription(id: Option[String])(implicit lang: Lang): Option[T]

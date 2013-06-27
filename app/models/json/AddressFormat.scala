@@ -44,12 +44,14 @@ object AddressFormat {
     (__ \ DATA \ REGION).readNullable[String] and
     (__ \ DATA \ POSTAL_CODE).readNullable[String] and
     (__ \ DATA \ COUNTRY_CODE).readNullable[String] and
-    (__ \ DATA \ EMAIL).readNullable[String] and
-    (
-      (__ \ DATA \ TELEPHONE).read[List[String]] orElse
+    ((__ \ DATA \ EMAIL).read[List[String]] orElse
+      (__ \ DATA \ EMAIL).readNullable[String].map(_.toList)) and
+    ((__ \ DATA \ TELEPHONE).read[List[String]] orElse
         (__ \ DATA \ TELEPHONE).readNullable[String].map(_.toList)) and
-    (__ \ DATA \ FAX).readNullable[String] and
-    (__ \ DATA \ URL).readNullable[String]
+    ((__ \ DATA \ FAX).read[List[String]] orElse
+      (__ \ DATA \ FAX).readNullable[String].map(_.toList)) and
+    ((__ \ DATA \ URL).read[List[String]] orElse
+      (__ \ DATA \ URL).readNullable[String].map(_.toList))
   )(AddressF.apply _)
 
   implicit val restFormat: Format[AddressF] = Format(addressReads,addressWrites)

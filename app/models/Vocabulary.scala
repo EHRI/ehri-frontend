@@ -7,6 +7,7 @@ import defines.EntityType
 import play.api.libs.json.{JsObject, Format, Json}
 import defines.EnumUtils.enumWrites
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import play.api.i18n.Lang
 
 object VocabularyType extends Enumeration {
   type Type = Value
@@ -53,4 +54,7 @@ case class VocabularyMeta(
   latestEvent: Option[SystemEventMeta]
 ) extends AnyModel
   with MetaModel[VocabularyF]
-  with Accessible
+  with Accessible {
+
+  override def toStringLang(implicit lang: Lang): String = model.name.getOrElse(id)
+}

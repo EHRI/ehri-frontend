@@ -32,8 +32,8 @@ object ConceptFormat {
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Concept)) and
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
-    ((__ \ RELATIONSHIPS \ Described.REL).lazyRead[List[ConceptDescriptionF]](
-        Reads.list[ConceptDescriptionF]) orElse Reads.pure(Nil))
+    ((__ \ RELATIONSHIPS \ Described.REL).lazyReadNullable[List[ConceptDescriptionF]](
+        Reads.list[ConceptDescriptionF]).map(_.getOrElse(List.empty[ConceptDescriptionF])))
     )(ConceptF.apply _)
 
   implicit val restFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)

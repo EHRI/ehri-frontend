@@ -5,6 +5,7 @@ import base._
 import models.base.Persistable
 import defines.EntityType
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import play.api.i18n.Lang
 
 
 object AuthoritativeSetF {
@@ -48,4 +49,7 @@ case class AuthoritativeSetMeta(
   latestEvent: Option[SystemEventMeta]
 ) extends AnyModel
   with MetaModel[AuthoritativeSetF]
-  with Accessible
+  with Accessible {
+
+  override def toStringLang(implicit lang: Lang): String = model.name.getOrElse(id)
+}

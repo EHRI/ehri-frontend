@@ -3,7 +3,7 @@
 <small>
 <ul class="unstyled muted inline inline-separator">
         @item.vocabulary.map { vocab =>
-            <li><a class="alt" href="@routes.Vocabularies.get(vocab.id)">@vocab</a></li>
+            <li><a class="alt" href="@routes.Vocabularies.get(vocab.id)">@vocab.toStringLang</a></li>
         }
         <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
         @item.latestEvent.map { event =>

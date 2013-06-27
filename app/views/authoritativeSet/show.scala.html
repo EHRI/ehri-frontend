@@ -1,6 +1,6 @@
 @(item: AuthoritativeSetMeta, page: solr.ItemPage[(AnyModel, String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[AnnotationMeta]], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+@rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @defining("authoritativeSet") { implicit  prefix =>
         @common.stringValue(item.model.description, models.AuthoritativeSetF.DESCRIPTION)

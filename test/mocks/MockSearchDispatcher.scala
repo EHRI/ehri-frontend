@@ -2,7 +2,7 @@ package mocks
 
 import solr.{SearchDescription, ItemPage, SearchParams, Dispatcher}
 import defines.EntityType
-import models.UserProfile
+import models.UserProfileMeta
 import scala.concurrent.Future
 import rest.RestError
 import solr.facet.{FacetClass, AppliedFacet}

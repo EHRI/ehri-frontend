@@ -30,7 +30,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
     }
 
     "allow creating new access points" in new FakeApp {
-      val ap = new AccessPointF(id = None, `type`=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
+      val ap = new AccessPointF(id = None, accessPointType=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
       val json = Json.toJson(ap)(controllers.base.AccessPointLink.accessPointFormat)
       val cr = route(fakeLoggedInRequest(privilegedUser, POST,
         routes.DocumentaryUnits.createAccessPoint("c1", "cd1").url)
