@@ -3,7 +3,7 @@ package models.json
 import models._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import models.base.{MetaModel, Accessor}
+import models.base.{AnyModel, MetaModel, Accessor}
 
 /**
  * User: michaelb
@@ -39,8 +39,8 @@ package object client {
   implicit val isdiahFormat = Json.format[RepositoryDescriptionF]
 
   implicit val authoritativeSetFormat = Json.format[AuthoritativeSetF]
-  implicit val conceptFormat = Json.format[ConceptF]
   implicit val conceptDescriptionFormat = Json.format[ConceptDescriptionF]
+  implicit val conceptFormat = Json.format[ConceptF]
   implicit val countryFormat = Json.format[CountryF]
   implicit val documentaryUnitFormat = Json.format[DocumentaryUnitF]
   implicit val groupFormat = Json.format[GroupF]
@@ -60,7 +60,7 @@ package object client {
   
   implicit val systemEventMetaFormat: Format[SystemEventMeta] = (
     __.format[SystemEventF] and
-    (__ \ "scope").lazyFormatNullable[MetaModel[_]](MetaModel.Converter.clientFormat) and
+    (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
     (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat)
   )(SystemEventMeta.apply _, unlift(SystemEventMeta.unapply _))
 
@@ -76,9 +76,9 @@ package object client {
 
   implicit val linkMetaFormat: Format[LinkMeta] = (
     __.format[LinkF] and
-      (__ \ "targets").lazyFormat[List[MetaModel[_]]](Reads.list[MetaModel[_]](MetaModel.Converter.clientFormat), Writes.list[MetaModel[_]](MetaModel.Converter.clientFormat)) and
+      (__ \ "targets").lazyFormat[List[AnyModel]](Reads.list[AnyModel](AnyModel.Converter.clientFormat), Writes.list[AnyModel](AnyModel.Converter.clientFormat)) and
       (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat) and
-      (__ \ "accessPoints").lazyFormatNullable[List[AccessPointF]](Reads.list(accessPointFormat), Writes.list(accessPointFormat)).flatMap(_.headOption) and
+      (__ \ "accessPoints").lazyFormat[List[AccessPointF]](Reads.list(accessPointFormat), Writes.list(accessPointFormat)) and // FIXME: THis won't work!!!
       (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
       (__ \ "event").formatNullable[SystemEventMeta]
     )(LinkMeta.apply _, unlift(LinkMeta.unapply _))
@@ -87,7 +87,7 @@ package object client {
     __.format[AnnotationF] and
       (__ \ "annotations").lazyFormat[List[AnnotationMeta]](Reads.list[AnnotationMeta], Writes.list[AnnotationMeta]) and
       (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat) and
-      (__ \ "source").lazyFormatNullable[MetaModel[_]](MetaModel.Converter.clientFormat) and
+      (__ \ "source").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
       (__ \ "event").formatNullable[SystemEventMeta]
     )(AnnotationMeta.apply _, unlift(AnnotationMeta.unapply _))
@@ -95,8 +95,8 @@ package object client {
   implicit val permissionGrantMetaFormat: Format[PermissionGrantMeta] = (
     __.format[PermissionGrantF] and
       (__ \ "accessor").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
-      (__ \ "targets").lazyFormat[List[MetaModel[_]]](Reads.list[MetaModel[_]](MetaModel.Converter.clientFormat), Writes.list[MetaModel[_]](MetaModel.Converter.clientFormat)) and
-      (__ \ "scope").lazyFormatNullable[MetaModel[_]](MetaModel.Converter.clientFormat) and
+      (__ \ "targets").lazyFormat[List[AnyModel]](Reads.list[AnyModel](AnyModel.Converter.clientFormat), Writes.list[AnyModel](AnyModel.Converter.clientFormat)) and
+      (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       (__ \ "grantedBy").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat)
     )(PermissionGrantMeta.apply _, unlift(PermissionGrantMeta.unapply _))
 

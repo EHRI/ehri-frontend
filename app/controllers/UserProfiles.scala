@@ -51,9 +51,9 @@ object UserProfiles extends PermissionHolderController[UserProfileMeta]
   }
 
   def search = {
-    searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
-      page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.userProfile.search(page, params, facets, routes.UserProfiles.search))
+    searchAction[ConceptMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+        page => params => facets => implicit userOpt => implicit request =>
+      Ok(views.html.userProfile.search(page, params, facets, routes.UserProfiles.search))
     }
   }
 

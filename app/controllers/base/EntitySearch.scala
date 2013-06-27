@@ -8,7 +8,7 @@ import solr.{SearchOrder, ItemPage, SearchParams}
 import defines.EntityType
 import play.api.Play._
 import solr.facet.AppliedFacet
-import models.base.MetaModel
+import models.base.AnyModel
 import models.json.RestReadable
 
 
@@ -56,7 +56,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @param f
    * @return
    */
-  def searchAction[MT](f: solr.ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def searchAction[MT](f: solr.ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     searchAction[MT](Map.empty[String,Any])(f)
   }
 
@@ -67,7 +67,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @return
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
-      f: solr.ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result): Action[AnyContent] = {
+      f: solr.ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
 

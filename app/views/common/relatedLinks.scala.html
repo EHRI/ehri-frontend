@@ -2,11 +2,13 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: MetaModel[_], desc: models.base.Description, links: List[LinkMeta])(implicit prefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader)
+@(item: AnyModel, desc: models.base.Description, links: List[LinkMeta])(implicit prefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader)
 
 @import AccessPointF._
 
-@relatedLinks(list: List[AccessPoint], accessPointType: AccessPointType.Value) = {
+@* THIS FILE IS COMMENTED OUT BECAUSE THINGS ARE BROKEN...
+
+@relatedLinks(list: List[AccessPointF], accessPointType: AccessPointType.Value) = {
     @if(!list.isEmpty) {
         <h4>
             @Messages(prefix + "." + IsadG.ACCESS_POINTS + "." + accessPointType)
@@ -15,7 +17,7 @@
             @list.map { accessPoint =>
                 @accessPoint.target(item, links).map { case (link, other) =>
                     <li class="resolved-access-point" id="@accessPoint.id">
-                         <a href="@views.Helpers.urlForEntity(other.e)">@accessPoint.targetName</a> [<a href="@routes.Links.get(link.id)">*</a>]
+                         <a href="@views.Helpers.urlFor(other)">@accessPoint.targetName</a> [<a href="@routes.Links.get(link.id)">*</a>]
                         @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
                             <small><p class="muted">@desc</p></small>
                         }
@@ -42,3 +44,6 @@
         @relatedLinks(desc.accessPoints.filter(_.`type` == accessPointType), accessPointType)
     }
 }
+
+
+*@

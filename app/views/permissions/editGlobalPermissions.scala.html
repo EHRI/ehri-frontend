@@ -3,12 +3,12 @@ implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.updateGlobalPermissions", item.name), breadcrumbs = common.breadcrumbs(List(item))) {
+@rightSidebarLayout(Messages("actions.updateGlobalPermissions", item), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@if(!item.groups.isEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;
 	  @item.groups.map { group =>
-	    <a href="@routes.Groups.get(group.id)">@group.name</a>
+	    <a href="@routes.Groups.get(group.id)">@group</a>
 	  }	  
 	}
 
@@ -37,7 +37,7 @@ implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash
                                         checked
                                     } />
                                     @permOpt.flatMap(_.inheritedFrom).map { user =>
-                                        <span title="@Messages("Inherited from " + user)">*</span>
+                                        <span title="@Messages("permissions.inheritiedFrom", user)">*</span>
                                     }
                                 }
                                 </td>

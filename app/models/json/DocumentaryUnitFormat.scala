@@ -7,7 +7,7 @@ import defines.EnumUtils._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.{Accessible, Accessor}
+import models.base.{Described, Accessible, Accessor}
 import models.{SystemEventMeta, RepositoryMeta, DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnitMeta}
 
 

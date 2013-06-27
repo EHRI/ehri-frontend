@@ -52,7 +52,8 @@ case class HistoricalAgentMeta(
   set: Option[AuthoritativeSetMeta],
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta]
-) extends MetaModel[HistoricalAgentF]
+) extends AnyModel
+  with MetaModel[HistoricalAgentF]
   with Accessible
 
 

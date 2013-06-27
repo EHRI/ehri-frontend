@@ -50,5 +50,6 @@ case class RepositoryMeta(
   country: Option[CountryMeta] = None,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None
-) extends MetaModel[RepositoryF]
+) extends AnyModel
+  with MetaModel[RepositoryF]
   with Accessible

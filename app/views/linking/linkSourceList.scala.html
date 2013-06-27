@@ -1,4 +1,4 @@
-@(item: MetaModel[_], page: solr.ItemPage[(MetaModel[_],String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], entityType: EntityType.Value, action: Call, linkAction: (String,String,String) => Call)(
+@(item: AnyModel, page: solr.ItemPage[(AnyModel,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], entityType: EntityType.Value, action: Call, linkAction: (String,String,String) => Call)(
 implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.linkTo"), breadcrumbs = common.breadcrumbs(List(item))) {
@@ -9,7 +9,8 @@ implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash
 
                     <li>
                         <a href="@linkAction(item.id, entityType.toString, otherItem.id)">
-                            @LinkableEntity.fromEntity(otherItem).map(_.toStringLang).getOrElse(item)
+                            @otherItem
+                            @* FIXME: Check this    LinkableEntity.fromEntity(otherItem).map(_.toStringLang).getOrElse(item)*@
                         </a>
                     </li>
                 }

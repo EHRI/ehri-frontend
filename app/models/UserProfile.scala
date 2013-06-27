@@ -96,7 +96,8 @@ case class UserProfileMeta(
   account: Option[models.sql.User] = None,
   globalPermissions: Option[GlobalPermissionSet[UserProfileMeta]] = None,
   itemPermissions: Option[ItemPermissionSet[UserProfileMeta]] = None
-) extends MetaModel[UserProfileF]
+) extends AnyModel
+  with MetaModel[UserProfileF]
   with Accessor
   with Accessible {
 

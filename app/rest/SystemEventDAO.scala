@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
 import models.json.RestReadable
-import models.base.MetaModel
+import models.base.{AnyModel, MetaModel}
 import models.{SystemEventMeta, UserProfileMeta}
 
 
@@ -31,11 +31,11 @@ case class SystemEventDAO(userProfile: Option[UserProfileMeta]) extends RestDAO 
     }
   }
 
-  def subjectsFor(id: String, params: RestPageParams): Future[Either[RestError, Page[MetaModel[_]]]] = {
+  def subjectsFor(id: String, params: RestPageParams): Future[Either[RestError, Page[AnyModel]]] = {
     WS.url(enc(requestUrl, id, "subjects") + params.toString)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[Page[MetaModel[_]]](PageReads.pageReads(MetaModel.Converter.restReads)).fold(
+        r.json.validate[Page[AnyModel]](PageReads.pageReads(AnyModel.Converter.restReads)).fold(
           valid = { page =>
             page
           },

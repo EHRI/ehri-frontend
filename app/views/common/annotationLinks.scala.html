@@ -2,10 +2,18 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: MetaModel[_], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
+@(item: AnyModel, links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
+
+@**
+  Get the "other" item in this link's targets.
+*@
+@opposingTarget(item: AnyModel, link: LinkMeta) = @{
+    link.targets.filterNot(p => item.id == p.id).headOption
+}
+
 
 <div class="annotatable" id="@item.id">
-    @defining(item.annotationLinks(links)) { annotationLinks =>
+    @defining(links.filter(_.bodies.isEmpty)) { annotationLinks =>
         @if(!annotationLinks.isEmpty) {
             <hr />
             <h3>@Messages("link.linkTo")</h3>
@@ -13,9 +21,9 @@
                 @* Assume items with an access point body have been rendered previously *@
 
                 @annotationLinks.map { link =>
-                    @item.opposingTarget(link).map { other =>
+                    @opposingTarget(item, link).map { other =>
                         <li class="resolved-access-point">
-                            <a href="@views.Helpers.urlForEntity(other.e)">@other.toStringLang</a>
+                            <a href="@views.Helpers.urlFor(other)">@other.toStringLang</a>
                             <a class="alt" href="@routes.Links.get(link.id, Some(item.id))">
                                 &times;
                             </a>

@@ -9,7 +9,7 @@
         @common.stringValue(desc.`abstract`, ABSTRACT)
         @common.renderDates(desc, DATES)
         @common.stringValue(Some(desc.levelOfDescription.toString), LEVEL_OF_DESCRIPTION)
-        @common.stringValue(desc.extendAndMedium, EXTENT_MEDIUM)
+        @common.stringValue(desc.extentAndMedium, EXTENT_MEDIUM)
     }
     @descriptionSection(CONTEXT_AREA) {
         @common.stringValue(desc.context.adminBiogHistory, ADMIN_BIOG)
@@ -20,7 +20,7 @@
     @descriptionSection(CONTENT_AREA) {
         @common.stringValue(desc.content.scopeAndContent, SCOPE_CONTENT)
         @common.stringValue(desc.content.appraisal, APPRAISAL)
-        @common.stringValue(desc.content.accrurals, ACCRUALS)
+        @common.stringValue(desc.content.accruals, ACCRUALS)
         @common.stringValue(desc.content.systemOfArrangement, SYS_ARR)
     }
 
@@ -53,7 +53,7 @@
 
     @common.relatedLinks(item, desc, links)
 
-    @desc.unknownProperty.map { e =>
+    @*desc.unknownProperty.map { e =>
         @common.unknownData(e)
-    }
+    }*@
 }

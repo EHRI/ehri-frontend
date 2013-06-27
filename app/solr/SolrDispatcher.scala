@@ -37,11 +37,11 @@ object ItemPage {
   import play.api.libs.json.util._
 
   implicit def itemPageWrites[MT](implicit rd: ClientConvertable[MT]): Writes[ItemPage[MT]] = (
-    (__ \ "items").lazyWrite(Writes.traversableWrites[MT])(Writes.list(rd.clientFormat)) and
+    (__ \ "items").lazyWrite[Seq[MT]](Writes.seq(rd.clientFormat)) and
       (__ \ "offset").write[Int] and
       (__ \ "limit").write[Int] and
       (__ \ "total").write[Long] and
-      (__ \ "facets").lazyWrite(Writes.traversableWrites[FacetClass]) and
+      (__ \ "facets").lazyWrite[List[FacetClass]](Writes.list[FacetClass](FacetClass.facetClassWrites)) and
       (__ \ "spellcheck").writeNullable(
         (__ \ "given").write[String] and
           (__ \ "correction").write[String]

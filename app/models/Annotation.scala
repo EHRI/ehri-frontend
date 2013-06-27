@@ -83,7 +83,7 @@ case class AnnotationMeta(
   model: AnnotationF,
   annotations: List[AnnotationMeta] = Nil,
   user: Option[UserProfileMeta] = None,
-  source: Option[MetaModel[_]] = None,
+  source: Option[AnyModel] = None,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None
 ) extends MetaModel[AnnotationF] with Accessible {

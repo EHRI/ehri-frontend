@@ -1,4 +1,4 @@
-@(result: solr.ItemPage[(MetaModel[_],String)], params: solr.SearchParams, action: Call, autofocus: Boolean = true)(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(result: solr.ItemPage[(AnyModel,String)], params: solr.SearchParams, action: Call, autofocus: Boolean = true)(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import solr.SearchParams
 

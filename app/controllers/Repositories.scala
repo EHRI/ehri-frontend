@@ -84,9 +84,9 @@ object Repositories extends EntityRead[RepositoryMeta]
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
-  def search = searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
-    page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.repository.search(page, params, facets, routes.Repositories.search))
+  def search = searchAction[RepositoryMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(views.html.repository.search(page, params, facets, routes.Repositories.search))
 
   }
 
@@ -96,11 +96,11 @@ object Repositories extends EntityRead[RepositoryMeta]
    * @return
    */
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction(Map("holderId" -> item.id, "depthOfDescription" -> "0"),
+    searchAction[DocumentaryUnitMeta](Map("holderId" -> item.id, "depthOfDescription" -> "0"),
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.repository.show(item, page, params, facets, routes.Repositories.get(id), annotations, links))
-    }(request)
+    }.apply(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

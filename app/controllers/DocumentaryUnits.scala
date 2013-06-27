@@ -118,7 +118,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
     searchAction[DocumentaryUnitMeta](Map("parentId" -> item.id)) {
       page => params => facets => implicit userOpt => implicit request =>
         Ok(views.html.documentaryUnit.search(page, params, facets, routes.DocumentaryUnits.search))
-    }(request)
+    }.apply(request)
   }
 
   /*def get(id: String) = getWithChildrenAction(id) {
@@ -129,11 +129,11 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
   }*/
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction(Map("parentId" -> item.id, "depthOfDescription" -> (item.ancestors.size + 1).toString),
+    searchAction[DocumentaryUnitMeta](Map("parentId" -> item.id, "depthOfDescription" -> (item.ancestors.size + 1).toString),
           defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.documentaryUnit.show(item, page, params, facets, routes.DocumentaryUnits.get(id), annotations, links))
-    }(request)
+    }.apply(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
@@ -175,7 +175,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
     }
   }
 
-  def createDescription(id: String) = withItemPermission(id, PermissionType.Update, contentType) {
+  def createDescription(id: String) = withItemPermission[DocumentaryUnitMeta](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.editDescription(item,
         descriptionForm, routes.DocumentaryUnits.createDescriptionPost(id)))

@@ -23,7 +23,7 @@
         @desc.dates.headOption.map { dp =>
             <li>@dp.years</li>
         }
-        @desc.stringProperty(IsadG.EXTENT_MEDIUM).filterNot(_.trim.isEmpty).map { s =>
+        @desc.extentAndMedium.map { s =>
             <li>@s</li>
         }
         @item.latestEvent.map { event =>

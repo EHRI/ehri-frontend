@@ -34,7 +34,7 @@ object CountryFormat {
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
   implicit val metaReads: Reads[CountryMeta] = (
-    __.read[CountryF] and
+    __.read[CountryF](countryReads) and
       // Latest event
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and

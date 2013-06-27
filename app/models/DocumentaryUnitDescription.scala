@@ -68,7 +68,10 @@ case class DocumentaryUnitDescriptionF(
   notes: Option[List[String]] = None,
   control: IsadGControl,
   accessPoints: List[AccessPointF]
-) extends Model with Persistable with Description with Temporal
+) extends Model with Persistable with Description with Temporal {
+
+  def displayText = `abstract` orElse content.scopeAndContent
+}
 
 /*
 case class DocumentaryUnitDescription(val e: Entity)

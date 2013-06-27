@@ -6,7 +6,7 @@ import play.api.libs.json._
 import models._
 import defines.EntityType
 import defines.EnumUtils._
-import models.base.{Accessible, MetaModel, Accessor}
+import models.base.{AnyModel, Accessible, MetaModel, Accessor}
 
 object LinkFormat {
   import models.LinkF._
@@ -38,15 +38,15 @@ object LinkFormat {
   implicit val restFormat: Format[LinkF] = Format(linkReads,linkWrites)
 
 
-  private implicit val metaModelReads = MetaModel.Converter.restReads
+  private implicit val anyModelReads = AnyModel.Converter.restReads
   private implicit val userProfileMetaReads = models.json.UserProfileFormat.metaReads
   private implicit val accessPointReads = models.json.AccessPointFormat.accessPointReads
   private implicit val systemEventReads = SystemEventFormat.metaReads
 
   implicit val metaReads: Reads[LinkMeta] = (
     __.read[LinkF] and
-    (__ \ RELATIONSHIPS \ LinkF.LINK_REL).lazyReadNullable[List[MetaModel[_]]](
-      Reads.list[MetaModel[_]]).map(_.getOrElse(List.empty[MetaModel[_]])) and
+    (__ \ RELATIONSHIPS \ LinkF.LINK_REL).lazyReadNullable[List[AnyModel]](
+      Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
     (__ \ RELATIONSHIPS \ LinkF.ACCESSOR_REL).lazyReadNullable[List[UserProfileMeta]](
       Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ LinkF.BODY_REL).lazyReadNullable[List[AccessPointF]](

@@ -8,15 +8,24 @@ import models._
 import play.api.data.validation.ValidationError
 
 
+trait AnyModel {
+  val id: String
+  val isA: EntityType.Value
+
+  override def toString = s"TODO: $isA [$id]"
+  def toStringLang(implicit lang: Lang) = s"TODO (with lang): $isA [$id]"
+  def toStringAbbr(implicit lang: Lang) = s"TODO (with abbr): $isA [$id]"
+}
+
 trait Model {
   val id: Option[String]
   val isA: EntityType.Value
 }
 
-object MetaModel {
-  implicit object Converter extends RestReadable[MetaModel[_]] with ClientConvertable[MetaModel[_]] {
-    implicit val restReads: Reads[MetaModel[_]] = new Reads[MetaModel[_]] {
-      def reads(json: JsValue): JsResult[MetaModel[_]] = {
+object AnyModel {
+  implicit object Converter extends RestReadable[AnyModel] with ClientConvertable[AnyModel] {
+    implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
+      def reads(json: JsValue): JsResult[AnyModel] = {
         // Sniff the type...
         (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
           case EntityType.Repository => json.validate[RepositoryMeta](RepositoryMeta.Converter.restReads)
@@ -33,8 +42,8 @@ object MetaModel {
       }
     }
 
-    implicit val clientFormat: Format[MetaModel[_]] = new Format[MetaModel[_]] {
-      def reads(json: JsValue): JsResult[MetaModel[_]] = {
+    implicit val clientFormat: Format[AnyModel] = new Format[AnyModel] {
+      def reads(json: JsValue): JsResult[AnyModel] = {
         (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
           case EntityType.Repository => json.validate[RepositoryMeta](RepositoryMeta.Converter.clientFormat)
           case EntityType.Vocabulary => json.validate[VocabularyMeta](VocabularyMeta.Converter.clientFormat)
@@ -48,7 +57,7 @@ object MetaModel {
           case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected meta-model for accessor type: " + t))
         }
       }
-      def writes(a: MetaModel[_]): JsValue = {
+      def writes(a: AnyModel): JsValue = {
         a match {
           case up: UserProfileMeta => Json.toJson(up)(UserProfileMeta.Converter.clientFormat)
           case g: GroupMeta => Json.toJson(g)(GroupMeta.Converter.clientFormat)
@@ -70,7 +79,7 @@ object Accessible {
   final val EVENT_REL = "lifecycleEvent"
 }
 
-trait Accessible extends MetaModel[AnyRef] {
+trait Accessible extends AnyModel {
   def accessors: List[Accessor]
   def latestEvent: Option[SystemEventMeta]
 }
@@ -78,19 +87,15 @@ trait Accessible extends MetaModel[AnyRef] {
 /**
  * Created by mike on 23/06/13.
  */
-trait MetaModel[+T <: Model] {
+trait MetaModel[+T <: Model] extends AnyModel {
   val model: T
 
   // Convenience helpers
   val id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
   val isA = model.isA
-
-  override def toString = s"TODO: $isA [$id]"
-  def toStringLang(implicit lang: Lang) = s"TODO (with lang): $isA [$id]"
-  def toStringAbbr(implicit lang: Lang) = s"TODO (with abbr): $isA [$id]"
 }
 
-trait Hierarchical[+T] extends MetaModel[AnyRef] {
+trait Hierarchical[+T] extends AnyModel {
   val parent: Option[Hierarchical[T]]
 
   def ancestors: List[Hierarchical[T]]
@@ -113,9 +118,11 @@ object Described {
 
 trait Described[+T <: Description] {
   val descriptions: List[T]
-  def description(id: String) = descriptions.find(_.id == Some(id))
-  def primaryDescription(implicit langOpt: Option[Lang] = None) = descriptions.headOption
-  def primaryDescription(id: String)(implicit langOpt: Option[Lang] = None) = {
+  def description(id: String) = descriptions.find(_.id == Some(id)): Option[T]
+  def primaryDescription(id: Option[String])(implicit lang: Lang): Option[T]
+      = id.map(s => primaryDescription(s)).getOrElse(primaryDescription)
+  def primaryDescription(implicit lang: Lang) = descriptions.headOption
+  def primaryDescription(id: String)(implicit lang: Lang) = {
     // TODO:!!!
     description(id)
   }

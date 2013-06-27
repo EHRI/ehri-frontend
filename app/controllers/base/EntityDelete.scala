@@ -2,7 +2,7 @@ package controllers.base
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.MetaModel
+import models.base.AnyModel
 import defines.PermissionType
 import models.UserProfileMeta
 import play.api.libs.json.Json

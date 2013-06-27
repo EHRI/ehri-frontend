@@ -18,7 +18,7 @@ import scala.Some
  * context for the creation of DocumentaryUnits, i.e. Repository and
  * DocumentaryUnit itself.
  */
-trait CreationContext[CF <: Model with Persistable, CMT <: MetaModel[CMT], MT] extends EntityRead[MT] {
+trait CreationContext[CF <: Model with Persistable, CMT <: MetaModel[CF], MT] extends EntityRead[MT] {
 
   def childCreateAction(id: String, ct: ContentType.Value)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>

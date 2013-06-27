@@ -14,7 +14,7 @@ import models.json.{RestReadable, RestConvertable}
  * for entities that can be multiply described.
  *
  */
-trait DescriptionCRUD[D <: Model with Persistable, T <: Model with Described[D], MT] extends EntityRead[MT] {
+trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Described[D], MT] extends EntityRead[MT] {
 
   /**
    * Create an additional description for the given item.
@@ -25,7 +25,7 @@ trait DescriptionCRUD[D <: Model with Persistable, T <: Model with Described[D],
    * @return
    */
   def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[D])(
-      f: MT => Either[Form[D], D] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      f: MT => Either[Form[D], MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
         implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
@@ -61,7 +61,7 @@ trait DescriptionCRUD[D <: Model with Persistable, T <: Model with Described[D],
    * @return
    */
   def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[D])(
-    f: MT => Either[Form[D],D] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+    f: MT => Either[Form[D],MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
            implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>

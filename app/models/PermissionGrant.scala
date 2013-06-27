@@ -1,6 +1,6 @@
 package models
 
-import models.base.{Model, MetaModel, Accessor}
+import models.base.{AnyModel, Model, MetaModel, Accessor}
 import org.joda.time.DateTime
 import defines.{PermissionType,EntityType}
 import models.json.{ClientConvertable, RestReadable}
@@ -33,7 +33,8 @@ object PermissionGrantMeta {
 case class PermissionGrantMeta(
   model: PermissionGrantF,
   accessor: Option[Accessor] = None,
-  targets: List[MetaModel[_]] = Nil,
-  scope: Option[MetaModel[_]] = None,
+  targets: List[AnyModel] = Nil,
+  scope: Option[AnyModel] = None,
   grantee: Option[UserProfileMeta] = None
-) extends MetaModel[PermissionGrantF]
+) extends AnyModel
+  with MetaModel[PermissionGrantF]

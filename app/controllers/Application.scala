@@ -9,7 +9,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import defines.EntityType
 import models.json.RestReadable
-import models.base.MetaModel
+import models.base.AnyModel
 
 
 object Application extends Controller with Auth with LoginLogout with Authorizer with AuthController {
@@ -41,7 +41,7 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   def get(id: String) = userProfileAction { implicit userOpt => implicit request =>
     Secured {
       AsyncRest {
-        implicit val rd: RestReadable[MetaModel[_]] = MetaModel.Converter
+        implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
         rest.SearchDAO(userOpt).list(List(id)).map { listOrErr =>
           listOrErr.right.map{ list =>
             list match {

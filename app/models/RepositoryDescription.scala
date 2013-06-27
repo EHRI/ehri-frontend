@@ -62,18 +62,6 @@ case class RepositoryDescriptionF(
   access: IsdiahAccess,
   services: IsdiahServices,
   control: IsdiahControl,
-  accessPoints: List[AccessPointF] = Nil) extends Model with Persistable with Description
+  accessPoints: List[AccessPointF] = Nil
+) extends Model with Persistable with Description
 
-
-/*
-case class RepositoryDescription(val e: Entity) extends Description with Formable[RepositoryDescriptionF] {
-
-  import RepositoryDescriptionF._
-  import Isdiah._
-
-  lazy val item: Option[Repository] = e.relations(Described.REL).headOption.map(Repository(_))
-  def addresses: List[Address] = e.relations(RepositoryF.ADDRESS_REL).map(Address(_))
-
-  lazy val formable: RepositoryDescriptionF = Json.toJson(e).as[RepositoryDescriptionF](json.IsdiahFormat.restFormat)
-  lazy val formableOpt: Option[RepositoryDescriptionF] = Json.toJson(e).asOpt[RepositoryDescriptionF](json.IsdiahFormat.restFormat)
-}*/

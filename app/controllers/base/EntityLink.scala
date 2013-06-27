@@ -43,32 +43,32 @@ object AccessPointLink {
  *
  * @tparam MT the entity's build class
  */
-trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
+trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
 
   def linkSelectAction(id: String, toType: String)(
-      f: MT => solr.ItemPage[(MetaModel[_],String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: MT => solr.ItemPage[(AnyModel,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
-      searchAction(defaultParams = Some(SearchParams(entities = List(linkSrcEntityType), excludes=Some(List(id))))) {
+      searchAction[AnyModel](defaultParams = Some(SearchParams(entities = List(linkSrcEntityType), excludes=Some(List(id))))) {
           page => params => facets => _ => _ =>
         f(item)(page)(params)(facets)(linkSrcEntityType)(userOpt)(request)
-      }(request)
+      }.apply(request)
     }
   }
 
-  def linkAction(id: String, toType: String, to: String)(f: MT => MetaModel[_] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def linkAction(id: String, toType: String, to: String)(f: MT => AnyModel => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
 
-      getEntity[MetaModel[_]](EntityType.withName(toType), to) { srcitem =>
+      getEntity[AnyModel](EntityType.withName(toType), to) { srcitem =>
         f(item)(srcitem)(userOpt)(request)
       }
     }
   }
 
   def linkPostAction(id: String, toType: String, to: String)(
-      f: Either[(MT, MetaModel[_],Form[LinkF]),LinkMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: Either[(MT, AnyModel,Form[LinkF]),LinkMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
 
     implicit val linkWrites: Writes[LinkF] = models.json.rest.linkFormat
 
@@ -76,7 +76,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
         item => implicit userOpt => implicit request =>
       LinkForm.form.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
-          getEntity[MetaModel[_]](EntityType.withName(toType), to) { srcitem =>
+          getEntity[AnyModel](EntityType.withName(toType), to) { srcitem =>
             f(Left((item,srcitem,errorForm)))(userOpt)(request)
           }
         },
@@ -127,7 +127,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
    * Create a link, via Json, for any arbitrary two objects, via an access point.
    * @return
    */
-  def createLink(id: String, apid: String) = Action(parse.json) { request =>
+  def createLink(id: String, apid: String)(implicit rd: RestReadable[MT]) = Action(parse.json) { request =>
     request.body.validate[AccessPointLink].fold(
       errors => { // oh dear, we have an error...
         BadRequest(JsError.toFlatJson(errors))
@@ -146,7 +146,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
           // TODO: Fix AuthController so we can use the
           // various auth action composers with body parsers
           // other than AnyContent
-        }(request.map(js => AnyContentAsEmpty))
+        }.apply(request.map(js => AnyContentAsEmpty))
       }
     )
   }
@@ -156,7 +156,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
    * other objects.
    * @return
    */
-  def createMultipleLinks(id: String) = Action(parse.json) { request =>
+  def createMultipleLinks(id: String)(implicit rd: RestReadable[MT]) = Action(parse.json) { request =>
     request.body.validate[List[AccessPointLink]].fold(
       errors => { // oh dear, we have an error...
         BadRequest(JsError.toFlatJson(errors))
@@ -174,7 +174,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
               }
             }
           }
-        }(request.map(js => AnyContentAsEmpty))
+        }.apply(request.map(js => AnyContentAsEmpty))
       }
     )
   }
@@ -183,7 +183,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
    * Create a link, via Json, for any arbitrary two objects, via an access point.
    * @return
    */
-  def createAccessPoint(id: String, did: String) = Action(parse.json) { request =>
+  def createAccessPoint(id: String, did: String)(implicit rd: RestReadable[MT]) = Action(parse.json) { request =>
     request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
       errors => { // oh dear, we have an error...
         BadRequest(JsError.toFlatJson(errors))
@@ -193,7 +193,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
           AsyncRest {
             import models.json.AccessPointFormat._
             rest.DescriptionDAO(entityType, userOpt).createAccessPoint(id, did, ap).map { apOrErr =>
-              apOrErr.right.map { ann =>
+              apOrErr.right.map { case (item, ann) =>
                 Created(Json.toJson(ann)(models.json.client.accessPointFormat))
               }
             }
@@ -201,7 +201,7 @@ trait EntityLink[MT] extends EntityRead[MT] with EntitySearch {
           // TODO: Fix AuthController so we can use the
           // various auth action composers with body parsers
           // other than AnyContent
-        }(request.map(js => AnyContentAsEmpty))
+        }.apply(request.map(js => AnyContentAsEmpty))
       }
     )
   }

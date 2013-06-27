@@ -68,7 +68,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         .delete.flatMap { response =>
       EntityDAO(entityType, userProfile).get[MT](id).map {
         case Right(updated) => {
-          EntityDAO.handleUpdate(updated)
+          //EntityDAO.handleUpdate(updated)
           Cache.remove(id)
           Right(true)
         }
@@ -79,7 +79,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
 
   // FIXME: Move these elsewhere...
   def createAccessPoint[DT](id: String, did: String, item: DT,
-                        logMsg: Option[String] = None)(implicit fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+                        logMsg: Option[String] = None)(implicit fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, (MT,DT)]] = {
     WS.url(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
@@ -90,9 +90,9 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
             case Right(item) => {
               //EntityDAO.handleUpdate(updated)
               //Cache.remove(id)
-              Right(item)
+              Right((item, r.json.as[DT](fmt.restFormat)))
             }
-            case err => err
+            case Left(err) => Left(err)
           }
         }
       }

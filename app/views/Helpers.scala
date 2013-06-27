@@ -3,7 +3,7 @@ package views
 import java.util.{IllformedLocaleException, Locale}
 
 import views.html.helper.FieldConstructor
-import models.base.MetaModel
+import models.base.AnyModel
 import play.api.mvc.Call
 import play.api.i18n.Lang
 
@@ -90,7 +90,7 @@ package object Helpers {
   import controllers.routes
 
 
-  def urlFor(e: MetaModel[_]): Call = e match {
+  def urlFor(e: AnyModel): Call = e match {
     case e: SystemEventMeta => routes.SystemEvents.get(e.id)
     case e: DocumentaryUnitMeta => routes.DocumentaryUnits.get(e.id)
     case e: HistoricalAgentMeta => routes.HistoricalAgents.get(e.id)

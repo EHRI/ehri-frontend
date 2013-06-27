@@ -61,7 +61,7 @@ case class DocumentaryUnitF(
    * @param did
    * @return
    */
-  def description(did: String): Option[DocumentaryUnitDescriptionF] = descriptions.find(d => d.id.isDefined && d.id.get == did)
+  override def description(did: String): Option[DocumentaryUnitDescriptionF] = descriptions.find(d => d.id.isDefined && d.id.get == did)
 
   /**
    * Replace an existing description with the same id as this one, or add
@@ -95,6 +95,7 @@ case class DocumentaryUnitMeta(
   parent: Option[DocumentaryUnitMeta] = None,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None
-) extends MetaModel[DocumentaryUnitF]
+) extends AnyModel
+  with MetaModel[DocumentaryUnitF]
   with Hierarchical[DocumentaryUnitMeta]
   with Accessible

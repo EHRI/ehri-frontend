@@ -32,11 +32,11 @@ object Vocabularies extends CRUD[VocabularyF,VocabularyMeta]
   val childForm = models.forms.ConceptForm.form
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
+    searchAction[ConceptMeta](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.vocabulary.show(
           item, page, params, facets, routes.Vocabularies.get(id), annotations, links))
-    }(request)
+    }.apply(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>

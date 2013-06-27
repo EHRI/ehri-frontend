@@ -50,7 +50,7 @@ object Countries extends CRUD[CountryF,CountryMeta]
     searchAction[RepositoryMeta](Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
         page => params => facets => _ => _ =>
       Ok(views.html.country.show(item, page, params, facets, routes.Countries.get(id), annotations, links))
-    }(request)
+    }.apply(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
@@ -61,7 +61,7 @@ object Countries extends CRUD[CountryF,CountryMeta]
     Ok(views.html.country.list(page, params))
   }
 
-  def search = searchAction(defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+  def search = searchAction[ConceptMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.country.search(page, params, facets, routes.Countries.search))
   }

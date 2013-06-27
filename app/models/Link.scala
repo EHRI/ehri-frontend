@@ -60,7 +60,7 @@ case class Link(val e: Entity) extends AccessibleEntity
   lazy val formable: LinkF = Json.toJson(e).as[LinkF]
   lazy val formableOpt: Option[LinkF] = Json.toJson(e).asOpt[LinkF]
 
-  def opposingTarget(item: MetaModel[_]): Option[LinkableEntity] = targets.find(_.id != item.id)
+  def opposingTarget(item: AnyModel): Option[LinkableEntity] = targets.find(_.id != item.id)
 }
 */
 
@@ -74,11 +74,12 @@ object LinkMeta {
 
 case class LinkMeta(
   model: LinkF,
-  targets: List[MetaModel[_]] = Nil,
+  targets: List[AnyModel] = Nil,
   user: Option[UserProfileMeta] = None,
   bodies: List[AccessPointF] = Nil,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None
-) extends MetaModel[LinkF] with Accessible {
-  def opposingTarget(item: MetaModel[_]): Option[MetaModel[_]] = targets.find(_.id != item.id)
+) extends AnyModel
+  with MetaModel[LinkF] with Accessible {
+  def opposingTarget(item: AnyModel): Option[AnyModel] = targets.find(_.id != item.id)
 }

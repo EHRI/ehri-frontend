@@ -1,11 +1,9 @@
 package models
 
-import models.base.{Model, MetaModel, Accessor}
+import models.base.{AnyModel, Model, MetaModel}
 import org.joda.time.DateTime
-import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
-import play.api.i18n.Messages
+import org.joda.time.format.DateTimeFormat
 import defines.{EntityType, EventType}
-import play.api.libs.json.JsObject
 import models.json.{RestReadable, ClientConvertable}
 
 object SystemEventF {
@@ -37,9 +35,10 @@ object SystemEventMeta {
 
 case class SystemEventMeta(
   model: SystemEventF,
-  scope: Option[MetaModel[_]] = None,
+  scope: Option[AnyModel] = None,
   actioner: Option[UserProfileMeta] = None
-) extends MetaModel[SystemEventF] {
+) extends AnyModel
+  with MetaModel[SystemEventF] {
   def time = DateTimeFormat.forPattern(SystemEventF.FORMAT).print(model.timestamp)
 }
 

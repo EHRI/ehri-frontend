@@ -46,5 +46,6 @@ case class AuthoritativeSetMeta(
   model: AuthoritativeSetF,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta]
-) extends MetaModel[AuthoritativeSetF]
+) extends AnyModel
+  with MetaModel[AuthoritativeSetF]
   with Accessible

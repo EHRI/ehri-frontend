@@ -1,4 +1,4 @@
-@(paginationKey: String, page: rest.Page[MetaModel[_]], params: ListParams, filterNames: Iterable[String], orderNames: Iterable[String]
+@(paginationKey: String, page: rest.Page[AnyModel], params: ListParams, filterNames: Iterable[String], orderNames: Iterable[String]
 )(listBody: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @searchInput(propertyName: String, propertyValue: String, fieldOptions: Iterable[String], index: Integer) = {

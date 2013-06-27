@@ -6,7 +6,7 @@ import play.api.libs.json._
 import models.{SystemEventMeta, UserProfileMeta, AnnotationMeta, AnnotationF}
 import defines.EntityType
 import defines.EnumUtils._
-import models.base.{Accessible, Accessor, MetaModel}
+import models.base.{AnyModel, Accessible, Accessor, MetaModel}
 
 object AnnotationFormat {
   import AnnotationF._
@@ -41,8 +41,9 @@ object AnnotationFormat {
 
   implicit val restFormat: Format[AnnotationF] = Format(annotationReads,annotationWrites)
 
-  private implicit val metaModelReads = MetaModel.Converter.restReads
+  private implicit val anyModelReads = AnyModel.Converter.restReads
   private implicit val userProfileMetaReads = UserProfileFormat.metaReads
+  private lazy implicit val systemEventReads = SystemEventFormat.metaReads
   private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[AnnotationMeta] = (
@@ -50,7 +51,7 @@ object AnnotationFormat {
     (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATES_REL).lazyReadNullable[List[AnnotationMeta]](
          Reads.list(metaReads)).map(_.getOrElse(List.empty[AnnotationMeta])) and
     (__ \ RELATIONSHIPS \ AnnotationF.ACCESSOR_REL).readNullable[UserProfileMeta] and
-    (__ \ RELATIONSHIPS \ AnnotationF.SOURCE_REL).readNullable[MetaModel[_]] and
+    (__ \ RELATIONSHIPS \ AnnotationF.SOURCE_REL).readNullable[AnyModel] and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](

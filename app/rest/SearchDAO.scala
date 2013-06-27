@@ -6,13 +6,13 @@ import play.api.libs.ws.WS
 import models.UserProfileMeta
 import play.api.libs.json.{Reads, Json}
 import models.json.RestReadable
-import models.base.MetaModel
+import models.base.AnyModel
 
 case class SearchDAO(userProfile: Option[UserProfileMeta]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/entities".format(host, port, mount)
 
-  implicit val metaModelReads = MetaModel.Converter.restReads
+  implicit val anyModelReads = AnyModel.Converter.restReads
 
   def list[MT](ids: Seq[String])(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
 

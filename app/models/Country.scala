@@ -37,5 +37,6 @@ case class CountryMeta(
   model: CountryF,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta] = None
-) extends MetaModel[CountryF]
+) extends AnyModel
+  with MetaModel[CountryF]
   with Accessible

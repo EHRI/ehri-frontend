@@ -11,12 +11,12 @@
                     <ul class="nav nav-tabs">
                         @item.model.descriptions.headOption.map { desc =>
                         <li class="active">
-                            <a href="#tab1" data-toggle="tab">@views.Helpers.displayLanguage(desc.stringProperty("languageCode").getOrElse("en"))</a>
+                            <a href="#tab1" data-toggle="tab">@views.Helpers.displayLanguage(desc.languageCode)</a>
                         </li>
                         }
                         @item.model.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                         <li>
-                            <a href="#tab@{i+1}" data-toggle="tab">@views.Helpers.displayLanguage(desc.stringProperty("languageCode").getOrElse("en"))</a>
+                            <a href="#tab@{i+1}" data-toggle="tab">@views.Helpers.displayLanguage(desc.languageCode)</a>
                         </li>
                         }
                     </ul>

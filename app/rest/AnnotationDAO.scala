@@ -6,6 +6,7 @@ import play.api.libs.ws.WS
 import play.api.libs.json.{Reads, Json}
 import defines.EntityType
 import models._
+import models.json.{RestReadable, RestConvertable}
 
 
 /**
@@ -34,10 +35,10 @@ case class AnnotationDAO(userProfile: Option[UserProfileMeta] = None) extends Re
     }
   }
 
-  def create(id: String, ann: AnnotationF): Future[Either[RestError, AnnotationMeta]] = {
+  def create(id: String, ann: AnnotationF)(implicit fmt: RestConvertable[AnnotationF], rd: RestReadable[AnnotationMeta]): Future[Either[RestError, AnnotationMeta]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
-      .post(Json.toJson(ann)).map { response =>
-      checkError(response).right.map(r => r.json.as[AnnotationMeta])
+      .post(Json.toJson(ann)(fmt.restFormat)).map { response =>
+      checkError(response).right.map(r => r.json.as[AnnotationMeta](rd.restReads))
     }
   }
 }

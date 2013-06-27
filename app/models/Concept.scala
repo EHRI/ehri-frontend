@@ -55,6 +55,7 @@ case class ConceptMeta(
   broaderTerms: List[ConceptMeta] = Nil,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEventMeta]
-) extends MetaModel[ConceptF]
+) extends AnyModel
+  with MetaModel[ConceptF]
   with Hierarchical[ConceptMeta]
   with Accessible

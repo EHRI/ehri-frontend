@@ -1,6 +1,6 @@
 package controllers.base
 
-import models.base.MetaModel
+import models.base.AnyModel
 import play.api.mvc.{Request, AnyContent, Controller}
 import defines.{ContentType,EntityType}
 

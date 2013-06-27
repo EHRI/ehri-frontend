@@ -22,14 +22,14 @@
                         }
 
                         @descriptionSection(DESCRIPTION_AREA) {
-                            @common.stringValue(desc.detail.datesOfExistence, DATES_OF_EXISTENCE)
-                            @common.stringValue(desc.detail.history, HISTORY)
-                            @common.stringValue(desc.detail.places, PLACES)
-                            @common.stringValue(desc.detail.legalStatus, LEGAL_STATUS)
-                            @common.stringValue(desc.detail.functions, FUNCTIONS)
-                            @common.stringValue(desc.detail.mandates, MANDATES)
-                            @common.stringValue(desc.detail.internalStructures, INTERNAL_STRUCTURE)
-                            @common.stringValue(desc.detail.generalContext GENERAL_CONTEXT)
+                            @common.stringValue(desc.details.datesOfExistence, DATES_OF_EXISTENCE)
+                            @common.stringValue(desc.details.history, HISTORY)
+                            @common.stringValue(desc.details.places, PLACES)
+                            @common.stringValue(desc.details.legalStatus, LEGAL_STATUS)
+                            @common.stringValue(desc.details.functions, FUNCTIONS)
+                            @common.stringValue(desc.details.mandates, MANDATES)
+                            @common.stringValue(desc.details.internalStructure, INTERNAL_STRUCTURE)
+                            @common.stringValue(desc.details.generalContext, GENERAL_CONTEXT)
                         }
 
                         @descriptionSection(CONTROL_AREA) {
@@ -47,9 +47,9 @@
 
                         @common.relatedLinks(item, desc, links)
 
-                        @desc.unknownProperty.map { e =>
+                        @*desc.unknownProperty.map { e =>
                             @common.unknownData(e)
-                        }
+                        }*@
                     }
                 }
             }

@@ -5,7 +5,7 @@ import models._
 import play.api.libs.functional.syntax._
 import defines.{PermissionType, EntityType, EventType}
 import org.joda.time.DateTime
-import models.base.{MetaModel, Accessor}
+import models.base.{AnyModel, MetaModel, Accessor}
 
 
 object PermissionGrantFormat {
@@ -22,17 +22,17 @@ object PermissionGrantFormat {
     )(PermissionGrantF.apply _)
 
   private implicit val accessorReads = Accessor.Converter.restReads
-  private implicit val metaModelReads = MetaModel.Converter.restReads
+  private implicit val anyModelReads = AnyModel.Converter.restReads
   private implicit val userProfileMetaReads = models.json.UserProfileFormat.metaReads
 
   implicit val metaReads: Reads[PermissionGrantMeta] = (
     __.read[PermissionGrantF] and
     (__ \ RELATIONSHIPS \ PermissionGrantF.ACCESSOR_REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ PermissionGrantF.TARGET_REL).lazyReadNullable[List[MetaModel[_]]](
-      Reads.list[MetaModel[_]]).map(_.getOrElse(List.empty[MetaModel[_]])) and
-    (__ \ RELATIONSHIPS \ PermissionGrantF.SCOPE_REL).lazyReadNullable[List[MetaModel[_]]](
-      Reads.list[MetaModel[_]]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ PermissionGrantF.TARGET_REL).lazyReadNullable[List[AnyModel]](
+      Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
+    (__ \ RELATIONSHIPS \ PermissionGrantF.SCOPE_REL).lazyReadNullable[List[AnyModel]](
+      Reads.list[AnyModel]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ PermissionGrantF.GRANTEE_REL).lazyReadNullable[List[UserProfileMeta]](
       Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption))
   )(PermissionGrantMeta.apply _)

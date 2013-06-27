@@ -18,7 +18,8 @@ import play.api.data.FormError
  */
 trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
 
-  def updateAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+  def updateAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+    implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }

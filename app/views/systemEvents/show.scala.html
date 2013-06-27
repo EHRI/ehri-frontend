@@ -1,4 +1,4 @@
-@(item: SystemEventMeta, page: rest.Page[MetaModel[_]], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: SystemEventMeta, page: rest.Page[AnyModel], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @title(item: SystemEventMeta) = {
     @item.scope.map { scope =>

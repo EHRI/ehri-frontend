@@ -6,7 +6,7 @@ import play.api.libs.functional.syntax._
 import defines.{EntityType,EventType}
 import defines.EnumUtils._
 import org.joda.time.DateTime
-import models.base.MetaModel
+import models.base.AnyModel
 
 
 object SystemEventFormat {
@@ -43,12 +43,12 @@ object SystemEventFormat {
 
   private implicit val groupReads = GroupFormat.metaReads
   private implicit val userReads = UserProfileFormat.metaReads
-  private implicit val metaModelReads = MetaModel.Converter.restReads
+  private implicit val anyModelReads = AnyModel.Converter.restReads
 
   implicit val metaReads: Reads[SystemEventMeta] = (
     __.read[SystemEventF] and
-    (__ \ RELATIONSHIPS \ SystemEvent.SCOPE_REL).lazyReadNullable[List[MetaModel[_]]](
-      Reads.list[MetaModel[_]]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ SystemEvent.SCOPE_REL).lazyReadNullable[List[AnyModel]](
+      Reads.list[AnyModel]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ SystemEvent.ACTIONER_REL).lazyReadNullable[List[UserProfileMeta]](
       Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption))
   )(SystemEventMeta.apply _)

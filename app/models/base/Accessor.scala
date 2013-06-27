@@ -11,36 +11,36 @@ object Accessor {
   final val BELONGS_REL = "belongsTo"
 
   implicit object Converter extends RestReadable[Accessor] with ClientConvertable[Accessor] {
-    implicit val restReads = new Reads[Accessor] {
+    implicit val restReads: Reads[Accessor] = new Reads[Accessor] {
       def reads(json: JsValue): JsResult[Accessor] = {
         (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
           case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.restReads)
           case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.restReads)
-          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected meta-model for accessor type: " + t))
+          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError(s"Unexpected meta-model for accessor type"))
         }
       }
     }
 
-    implicit val clientFormat = new Format[Accessor] {
+    implicit val clientFormat: Format[Accessor] = new Format[Accessor] {
       def reads(json: JsValue): JsResult[Accessor] = {
         (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
           case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.clientFormat)
           case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.clientFormat)
-          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected meta-model for accessor type: " + t))
+          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError(s"Unexpected meta-model for accessor type: $t"))
         }
       }
       def writes(a: Accessor): JsValue = {
         a match {
           case up: UserProfileMeta => Json.toJson(up)(UserProfileMeta.Converter.clientFormat)
           case g: GroupMeta => Json.toJson(g)(GroupMeta.Converter.clientFormat)
-          case t => sys.error("Unexcepted type for accessor client conversion: " + t)
+          case t => sys.error(s"Unexcepted type for accessor client conversion: $t")
         }
       }
     }
   }
 }
 
-trait Accessor extends MetaModel[AnyRef] {
+trait Accessor extends AnyModel {
   val groups: List[GroupMeta]
   val id: String
   val isA: EntityType.Value
