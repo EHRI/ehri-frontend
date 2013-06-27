@@ -108,4 +108,30 @@ portal.directive('whenScrolled', function ($window) {
       });
     }
   }
-}]);
+}]).directive('sap', function() {
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div></div>',
+        link: function(scope, element, attrs) {
+				//console.log(attrs);
+				//console.log(attrs.lat);
+				//console.log(scope.geoloc.lat);
+            var map = L.map(attrs.id, {
+                center: [scope.geoloc.lat, scope.geoloc.lon],
+                zoom: 10
+            });
+			console.log(map);
+            //create a CloudMade tile layer and add it to the map
+            L.tileLayer('http://{s}.tile.cloudmade.com/57cbb6ca8cac418dbb1a402586df4528/997/256/{z}/{x}/{y}.png', {
+                maxZoom: 18
+            }).addTo(map);
+
+            //add markers dynamically
+           var points = [{lat: scope.geoloc.lat, lng: scope.geoloc.lon}];
+            for (var p in points) {
+                L.marker([points[p].lat, points[p].lng]).addTo(map);
+            }
+        }
+    };
+});

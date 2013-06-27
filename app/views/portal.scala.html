@@ -20,6 +20,7 @@
 	<script src="@routes.Assets.at("javascripts/portal/CtrlBottom.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/portal/CtrlRepo.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/portal/CtrlDoc.js")" type="text/javascript"></script>
+	<script src="http://leafletjs.com/dist/leaflet.js" type="text/javascript"></script>
 
 	
 	
@@ -38,6 +39,7 @@
 		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/portal.css")' />
 		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")' />
 		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/font-awesome.css")' />
+		<link rel="stylesheet" href='http://leaflet.cloudmade.com/dist/leaflet.css' />
 	</head>
 	<body ng-app="portalSearch" > 
 		<script type="text/ng-template" id="fileTree.html">
@@ -123,7 +125,7 @@
 				<li class="dropup-container" ng-class="savedOpen">
 					<a class="dropup-toggle" ng-click="savedContainer()"><i class="icon-briefcase"></i> Saved Documents</a>
 					<div class="dropup left basket">
-						<div class="basket-header no-border"><i class="icon-folder icon-2"></i></div>
+						<div class="basket-header no-border"><i class="icon-folder-open icon-2"></i></div>
 						<div class="dropup-search">
 							<input type="text" placeholder="Name" />
 							<button class="btn btn-success">

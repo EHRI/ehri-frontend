@@ -74,8 +74,9 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$rout
 	// Load data-->
 }]);
 
-Doc.resolve = {
+Doc.resolveDoc = {
 	itemData: function($route, Item) {
+		console.log("Resolving in doc ???");
 		var result = Item.query("documentaryUnit", $route.current.params.itemID);
 		return result;
 	},

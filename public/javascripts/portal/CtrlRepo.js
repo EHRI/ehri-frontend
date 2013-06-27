@@ -1,11 +1,14 @@
 var Repo = portal.controller('RepoCtrl', ['$scope', '$service', '$routeParams', 'Item', function($scope, $service, $routeParams, $item) {
 	$scope.desc = $item.data.relationships.describes[0];
 	$scope.address = $scope.desc.relationships.hasAddress[0].data;
-	console.log($scope.address);
+	$scope.geoloc = $item.geoloc;
+	console.log($item.geoloc);
+	//console.log($scope.address);
 }]);
 
-Repo.resolve = {
+Repo.resolveRepo = {
 	itemData: function($route, Item) {
+		console.log($route.current.params.itemID);
 		var result = Item.query("repository", $route.current.params.itemID);
 		return result;
 	},
