@@ -5432,31 +5432,25 @@ ul.listTree li ul {
   width: 100%;
   position: relative;
 }
-.dropup-container.open > .dropup > .dropup-divided > .dropup-80prct {
+.dropup-container.open > .dropup .overflow-y {
   overflow-y: auto;
-  height: 425px;
-  display: block;
-  -webkit-box-sizing: "border";
-  -moz-box-sizing: "border";
-  box-sizing: "border";
+  max-height: 440px;
 }
-.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom {
+.dropup-container.open > .dropup .dropup-search {
   width: 100%;
-  position: absolute;
-  bottom: 0;
-  left: 0;
   margin: 0;
-  height: 75px;
-  border-top: 1px solid rgba(0, 0, 0, 0.2);
-  line-height: 16px;
+  height: 30px;
+  line-height: 30px;
   padding: 0;
-  background-color: #dee6d5;
+  background-color: #305f30;
 }
-.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 {
+.dropup-container.open > .dropup .dropup-search .padding-5 {
   padding: 5px;
 }
-.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 input {
-  margin: 0;
+.dropup-container.open > .dropup .dropup-search .padding-5 h5 {
+  margin: 0 5px 2px 0;
+}
+.dropup-container.open > .dropup .dropup-search input {
   border: 0 none;
   font-weight: bolder;
   box-shadow: 0;
@@ -5464,31 +5458,46 @@ ul.listTree li ul {
   -moz-border-radius: 0;
   border-radius: 0;
   height: 30px;
-  padding-left: 10px;
   line-height: 30px;
+  width: 310px;
+  padding: 0;
+  margin: 0;
 }
-.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 input[type="text"] {
-  background-color: rgba(0, 0, 0, 0.15);
+.dropup-container.open > .dropup .dropup-search input[type="text"] {
+  background-color: transparent;
+  color: white;
 }
-.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 button.btn-success {
+.dropup-container.open > .dropup .dropup-search input:focus,
+.dropup-container.open > .dropup .dropup-search input:hover {
+  -webkit-box-shadow: 0;
+  -moz-box-shadow: 0;
+  box-shadow: 0;
+}
+.dropup-container.open > .dropup .dropup-search button.btn-success {
+  display: block;
+  float: right;
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
   box-sizing: content-box;
-  margin-left: 10px!important;
-  margin-top: 0px;
-  height: 28px!important;
-  line-height: 28px;
+  height: 30px!important;
+  width: 30px;
+  line-height: 30px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background-color: #51A351;
+  color: white;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
 }
-.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 button.btn-success:hover:after {
+.dropup-container.open > .dropup .dropup-search button.btn-success:hover:after {
   font-family: "FontAwesome";
   content: "";
   z-index: auto;
   line-height: 100%;
   font-size: 18px;
-  line-height: 28px;
-}
-.dropup-container.open > .dropup > .dropup-divided > .dropup-bottom .padding-5 h5 {
-  margin: 0 5px 2px 0;
+  line-height: 30px;
 }
 .dropup-container.open:before {
   content: "";
@@ -5606,6 +5615,57 @@ ul.listTree li ul {
 .document .well .dl-horizontal:last-child {
   margin-bottom: 20px;
 }
+.basket > article,
+.basket > .basket-item {
+  height: 30px;
+  line-height: 30px;
+  display: block;
+  padding-left: 10px;
+}
+.basket > article > div,
+.basket > .basket-item > div {
+  display: inline-block;
+}
+.basket > article:hover,
+.basket > .basket-item:hover,
+.basket > article.current,
+.basket > .basket-item.current {
+  border-left: 5px solid #294f10;
+  padding-left: 5px;
+  color: #3c3c3c;
+  background-color: #eae7ed;
+}
+.basket > article:hover > .icon-pack,
+.basket > .basket-item:hover > .icon-pack,
+.basket > article.current > .icon-pack,
+.basket > .basket-item.current > .icon-pack {
+  display: block;
+  float: right;
+}
+.basket > article > .icon-pack,
+.basket > .basket-item > .icon-pack {
+  height: 30px;
+  line-height: 30px;
+  display: none;
+}
+.basket > article a,
+.basket > .basket-item a {
+  color: #3c3c3c;
+  font-weight: bold;
+}
+.basket > .basket-header {
+  background-color: #EAE7ED;
+  border-bottom: 1px solid #9C8DAA;
+  display: block;
+  height: 30px;
+  line-height: 30px;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  -webkit-border-radius: 4px 4px 0 0;
+  -moz-border-radius: 4px 4px 0 0;
+  border-radius: 4px 4px 0 0;
+}
 .pull-right {
   float: right;
 }
@@ -5623,4 +5683,11 @@ ul.listTree li ul {
 }
 .affix {
   position: fixed;
+}
+.no-border {
+  border: 0 none!important;
+  border-bottom-width: 0px;
+  border-top-width: 0px;
+  border-left-width: 0px;
+  border-right-width: 0px;
 }

@@ -151,7 +151,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 			$scope.loadingPage = false;
 		}).error(function() { 
 			$scope.removeFilterByKey($scope.lastFilter);
-			alert('Server error, reloading datas');
+			//alert('Server error, reloading datas');
 		});
 	}
 	
