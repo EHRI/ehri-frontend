@@ -50,8 +50,10 @@ object AnnotationFormat {
     __.read[AnnotationF] and
     (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATES_REL).lazyReadNullable[List[AnnotationMeta]](
          Reads.list(metaReads)).map(_.getOrElse(List.empty[AnnotationMeta])) and
-    (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATIR_REL).readNullable[UserProfileMeta] and
-    (__ \ RELATIONSHIPS \ AnnotationF.SOURCE_REL).readNullable[AnyModel] and
+    (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATOR_REL).lazyReadNullable[List[UserProfileMeta]](
+      Reads.list(userProfileMetaReads)).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ AnnotationF.SOURCE_REL).lazyReadNullable[List[AnyModel]](
+      Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](

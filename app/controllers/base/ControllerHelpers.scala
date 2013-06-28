@@ -9,6 +9,8 @@ import play.api.mvc.Controller
 import play.api.mvc.AsyncResult
 import java.net.ConnectException
 import models.UserProfileMeta
+import play.api.Play.current
+import play.api.libs.json.Json
 
 object ControllerHelpers {
   def isAjax(implicit request: RequestHeader): Boolean =
@@ -20,14 +22,18 @@ trait ControllerHelpers {
   this: Controller with AuthController =>
 
   /**
-   * Ensure that an action is performed by a logged-in user.
+   * Ensure that an action is performed by a logged-in user. This can be globally
+   * disabled by setting ehri.secured = false in the application.conf.
    * @param res
    * @param userOpt
    * @param request
    * @return
    */
   def Secured(res: Result)(implicit userOpt: Option[models.UserProfileMeta], request: RequestHeader): Result = {
-    if (userOpt.isDefined) res else authenticationFailed(request)
+    if (current.configuration.getBoolean("ehri.secured").getOrElse(true))
+      if (userOpt.isDefined) res else authenticationFailed(request)
+    else
+      res
   }
 
   /**
@@ -75,7 +81,10 @@ trait ControllerHelpers {
             case e: PermissionDenied => maybeUser.map { user =>
               Unauthorized(views.html.errors.permissionDenied(Some(e)))
             } getOrElse {
-              authenticationFailed(request)
+              render {
+                case Accepts.Json() => println(e); Unauthorized(Json.toJson(e))
+                case _ => authenticationFailed(request)
+              }
             }
             case e: ItemNotFound => NotFound(views.html.errors.itemNotFound())
             case e: ValidationError => BadRequest(err.toString())

@@ -17,7 +17,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfileMeta]) ex
   import play.api.http.Status._
 
   implicit val permissionGrantMetaReads = PermissionGrantMeta.Converter.restReads
-  implicit val pageReads = PageReads.pageReads(permissionGrantMetaReads)
+  implicit val pageReads = Page.pageReads(permissionGrantMetaReads)
 
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/permission".format(baseUrl)

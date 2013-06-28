@@ -1,8 +1,13 @@
 package models
 
 import defines.EntityType
-import play.api.libs.json.{Json, Writes, Format, Reads}
+import play.api.libs.json._
 import play.api.data.validation.ValidationError
+import play.api.data.validation.ValidationError
+import play.api.data.validation.ValidationError
+import play.api.data.validation.ValidationError
+import play.api.data.validation.ValidationError
+import play.api.libs.json.JsSuccess
 
 /**
  * User: michaelb
@@ -20,4 +25,31 @@ package object json {
    */
   def equalsReads[T](t: T)(implicit r: Reads[T]): Reads[T] = Reads.filter(ValidationError("validate.error.incorrectType", t))(_ == t)
   def equalsFormat[T](t: T)(implicit r: Format[T]): Format[T] = Format(equalsReads(t), r)
+
+  /**
+   * Writes a list value as null if the list is empty. Reads as an empty list
+   * if the path is null.
+   * @param path
+   * @param fmt
+   * @tparam T
+   * @return
+   */
+  def nullableListOf[T](path: JsPath)(implicit fmt: Format[T]): OFormat[List[T]] = {
+    new OFormat[List[T]] {
+      def reads(json: JsValue): JsResult[List[T]] = {
+        json.validate[List[T]].fold(
+          invalid = { err =>
+            JsSuccess[List[T]](List.empty[T], path)
+          },
+          valid = { v =>
+            JsSuccess[List[T]](v, path)
+          }
+        )
+      }
+
+      def writes(o: List[T]): JsObject
+      = if (o.isEmpty) Json.obj()
+      else path.write[List[T]].writes(o)
+    }
+  }
 }

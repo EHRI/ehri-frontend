@@ -2,7 +2,7 @@ package models
 
 import models.base._
 import defines.EntityType
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.Format
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 
@@ -39,30 +39,6 @@ case class LinkF(
   linkType: LinkF.LinkType.Type,
   description: Option[String]
 ) extends Model with Persistable
-
-
-object Link {
-  final val LINK_REL = "hasLinkTarget"
-  final val ACCESSOR_REL = "hasLinker"
-  final val BODY_REL = "hasLinkBody"
-}
-
-
-/*
-case class Link(val e: Entity) extends AccessibleEntity
-  with AnnotatableEntity
-  with Formable[LinkF] {
-
-  lazy val targets: List[LinkableEntity] = e.relations(Link.LINK_REL).flatMap(LinkableEntity.fromEntity(_))
-  lazy val accessor: Option[Accessor] = e.relations(Link.ACCESSOR_REL).headOption.map(Accessor(_))
-  lazy val bodies: List[AccessPoint] = e.relations(Link.BODY_REL).map(AccessPoint(_))
-
-  lazy val formable: LinkF = Json.toJson(e).as[LinkF]
-  lazy val formableOpt: Option[LinkF] = Json.toJson(e).asOpt[LinkF]
-
-  def opposingTarget(item: AnyModel): Option[LinkableEntity] = targets.find(_.id != item.id)
-}
-*/
 
 
 object LinkMeta {

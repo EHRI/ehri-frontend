@@ -6,6 +6,7 @@ import play.api.libs.ws.WS
 import defines.EntityType
 import models._
 import play.api.libs.json.{Reads, Json}
+import play.api.Logger
 
 
 /**
@@ -15,8 +16,6 @@ import play.api.libs.json.{Reads, Json}
  */
 case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO {
 
-  implicit val entityReads = Entity.entityReads
-  implicit val entityPageReads = PageReads.pageReads
   import EntityDAO._
 
   final val BODY_PARAM = "body"
@@ -36,17 +35,7 @@ case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO 
 
     WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[List[LinkMeta]](Reads.list(linkMetaReads)).fold(
-          valid = {
-            lst => lst
-          },
-          invalid = { e =>
-            println(r.json)
-            sys.error("Unable to decode list result: " + e.toString)
-          }
-        )
-      }
+      checkErrorAndParse(response)(Reads.list(linkMetaReads))
     }
   }
 

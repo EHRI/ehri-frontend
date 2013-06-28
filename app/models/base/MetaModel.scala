@@ -12,7 +12,7 @@ trait AnyModel {
   val id: String
   val isA: EntityType.Value
 
-  override def toString = s"TODO: $isA [$id]"
+  //override def toString = s"TODO: $isA [$id]"
   def toStringLang(implicit lang: Lang): String = this match {
     case e: MetaModel[_] => e.toStringLang(Lang.defaultLang)
     case t => t.toString
@@ -66,11 +66,19 @@ object AnyModel {
       }
       def writes(a: AnyModel): JsValue = {
         a match {
-          case up: UserProfileMeta => Json.toJson(up)(UserProfileMeta.Converter.clientFormat)
-          case g: GroupMeta => Json.toJson(g)(GroupMeta.Converter.clientFormat)
-          case h: HistoricalAgentMeta => Json.toJson(h)(HistoricalAgentMeta.Converter.clientFormat)
-          // TODO: More...
-          case t => sys.error("Unexcepted type for accessor client conversion: " + t)
+          case v: UserProfileMeta => Json.toJson(v)(UserProfileMeta.Converter.clientFormat)
+          case v: GroupMeta => Json.toJson(v)(GroupMeta.Converter.clientFormat)
+          case v: HistoricalAgentMeta => Json.toJson(v)(HistoricalAgentMeta.Converter.clientFormat)
+          case v: LinkMeta => Json.toJson(v)(LinkMeta.Converter.clientFormat)
+          case v: DocumentaryUnitMeta => Json.toJson(v)(DocumentaryUnitMeta.Converter.clientFormat)
+          case v: RepositoryMeta => Json.toJson(v)(RepositoryMeta.Converter.clientFormat)
+          case v: AnnotationMeta => Json.toJson(v)(AnnotationMeta.Converter.clientFormat)
+          case v: AuthoritativeSetMeta => Json.toJson(v)(AuthoritativeSetMeta.Converter.clientFormat)
+          case v: ConceptMeta => Json.toJson(v)(ConceptMeta.Converter.clientFormat)
+          case v: VocabularyMeta => Json.toJson(v)(VocabularyMeta.Converter.clientFormat)
+          case v: SystemEventMeta => Json.toJson(v)(SystemEventMeta.Converter.clientFormat)
+          case v: CountryMeta => Json.toJson(v)(CountryMeta.Converter.clientFormat)
+          case t => sys.error("Unexcepted type for AnyModel client conversion: " + t)
         }
       }
     }

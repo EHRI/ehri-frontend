@@ -21,7 +21,7 @@ case class SystemEventDAO(userProfile: Option[UserProfileMeta]) extends RestDAO 
     WS.url(enc(requestUrl, "for", id) + params.toString)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[Page[SystemEventMeta]](PageReads.pageReads(rd.restReads)).fold(
+        r.json.validate[Page[SystemEventMeta]](Page.pageReads(rd.restReads)).fold(
           valid = { page => page },
           invalid = { e =>
             sys.error("Unable to decode paginated list result: " + e.toString)
@@ -35,7 +35,7 @@ case class SystemEventDAO(userProfile: Option[UserProfileMeta]) extends RestDAO 
     WS.url(enc(requestUrl, id, "subjects") + params.toString)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[Page[AnyModel]](PageReads.pageReads(AnyModel.Converter.restReads)).fold(
+        r.json.validate[Page[AnyModel]](Page.pageReads(AnyModel.Converter.restReads)).fold(
           valid = { page =>
             page
           },

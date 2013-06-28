@@ -33,7 +33,7 @@ object Accessor {
         a match {
           case up: UserProfileMeta => Json.toJson(up)(UserProfileMeta.Converter.clientFormat)
           case g: GroupMeta => Json.toJson(g)(GroupMeta.Converter.clientFormat)
-          case t => sys.error(s"Unexcepted type for accessor client conversion: $t")
+          case t => sys.error(s"Unexcepted type for accessor client conversion: ${a.isA}")
         }
       }
     }

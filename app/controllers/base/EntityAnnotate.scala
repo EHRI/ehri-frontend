@@ -6,7 +6,7 @@ import models.base._
 import defines._
 import models._
 import play.api.data.Form
-import rest.AnnotationDAO
+import rest.{BadJson, AnnotationDAO}
 import models.forms.AnnotationForm
 import play.api.libs.json.{Format, Json, JsError}
 import models.json.RestReadable
@@ -57,6 +57,10 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
   def getAnnotationJson(id: String) = userProfileAction { implicit userOpt => implicit request =>
     AsyncRest {
       AnnotationDAO(userOpt).getFor(id).map { annsOrErr =>
+        annsOrErr.left.map {
+          case e@BadJson(msg) => println(Json.prettyPrint(JsError.toFlatJson(msg))); e
+          case e => println("Unexpected type: " + e); e
+        }
         annsOrErr.right.map { anns =>
           Ok(Json.toJson(anns.map{ case (itemId, anns) =>
             itemId -> anns.map(_.model)

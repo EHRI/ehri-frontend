@@ -65,12 +65,23 @@ package object client {
   )(SystemEventMeta.apply _, unlift(SystemEventMeta.unapply _))
 
   private implicit val Accessor.Converter.clientFormat = Accessor.Converter.clientFormat
-  private val accessorListFormat = Format(Reads.list[Accessor](Accessor.Converter.clientFormat), Writes.list[Accessor](Accessor.Converter.clientFormat))
+  /*private val accessorListFormat = Format[List[Accessor]](
+      Reads.nullable(Reads.list[Accessor](Accessor.Converter.clientFormat).map(l => if (l.isEmpty) Option.empty[Accessor] else Some(l))),
+      Writes.nullable(Writes.list[Accessor](Accessor.Converter.clientFormat).contramap {
+        case Some(l) => l
+        case None => List.empty[Accessor]
+      })
+  )*/
+
+  private val accessorListFormat: Format[List[Accessor]] = Format(
+    Reads.list[Accessor](Accessor.Converter.clientFormat),
+    Writes.list[Accessor](Accessor.Converter.clientFormat)
+  )
 
   implicit val userProfileMetaFormat: Format[UserProfileMeta] = (
     __.format[UserProfileF] and
       (__ \ "groups").lazyFormat[List[GroupMeta]](Reads.list[GroupMeta], Writes.list[GroupMeta]) and
-      (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
+      nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEventMeta]
     )(UserProfileMeta.quickApply _, unlift(UserProfileMeta.quickUnapply _))
 
@@ -78,8 +89,8 @@ package object client {
     __.format[LinkF] and
       (__ \ "targets").lazyFormat[List[AnyModel]](Reads.list[AnyModel](AnyModel.Converter.clientFormat), Writes.list[AnyModel](AnyModel.Converter.clientFormat)) and
       (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat) and
-      (__ \ "accessPoints").lazyFormat[List[AccessPointF]](Reads.list(accessPointFormat), Writes.list(accessPointFormat)) and // FIXME: THis won't work!!!
-      (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
+      nullableListOf(__ \ "accessPoints")(accessPointFormat) and
+      nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEventMeta]
     )(LinkMeta.apply _, unlift(LinkMeta.unapply _))
 
@@ -88,7 +99,7 @@ package object client {
       (__ \ "annotations").lazyFormat[List[AnnotationMeta]](Reads.list[AnnotationMeta], Writes.list[AnnotationMeta]) and
       (__ \ "user").lazyFormatNullable[UserProfileMeta](userProfileMetaFormat) and
       (__ \ "source").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
+      nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEventMeta]
     )(AnnotationMeta.apply _, unlift(AnnotationMeta.unapply _))
 
@@ -103,23 +114,20 @@ package object client {
   implicit val groupMetaFormat: Format[GroupMeta] = (
       __.format[GroupF] and
       (__ \ "groups").lazyFormat[List[GroupMeta]](Reads.list[GroupMeta], Writes.list[GroupMeta]) and
-      (__ \ "accessibleTo").lazyFormat[List[Accessor]](
-        accessorListFormat) and
+      nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEventMeta]
     )(GroupMeta.apply _, unlift(GroupMeta.unapply _))
 
   implicit val countryMetaFormat: Format[CountryMeta] = (
     __.format[CountryF] and
-      (__ \ "accessibleTo").lazyFormat[List[Accessor]](
-        accessorListFormat) and
-      (__ \ "event").formatNullable[SystemEventMeta]
-    )(CountryMeta.apply _, unlift(CountryMeta.unapply _))
+    nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+    (__ \ "event").formatNullable[SystemEventMeta]
+  )(CountryMeta.apply _, unlift(CountryMeta.unapply _))
 
   implicit val repositoryMetaFormat: Format[RepositoryMeta] = (
     __.format[RepositoryF] and
     (__ \ "country").formatNullable[CountryMeta] and
-    (__ \ "accessibleTo").lazyFormat[List[Accessor]](
-        accessorListFormat) and
+    nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
     (__ \ "event").formatNullable[SystemEventMeta]
   )(RepositoryMeta.apply _, unlift(RepositoryMeta.unapply _))
 
@@ -127,15 +135,13 @@ package object client {
     __.format[DocumentaryUnitF] and
     (__ \ "holder").formatNullable[RepositoryMeta] and
     (__ \ "parent").formatNullable[DocumentaryUnitMeta] and
-    (__ \ "accessibleTo").lazyFormat[List[Accessor]](
-        accessorListFormat) and
+    nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
     (__ \ "event").formatNullable[SystemEventMeta]
   )(DocumentaryUnitMeta.apply _, unlift(DocumentaryUnitMeta.unapply _))
 
   implicit val vocabularyMetaFormat: Format[VocabularyMeta] = (
     __.format[VocabularyF] and
-    (__ \ "accessibleTo").lazyFormat[List[Accessor]](
-        accessorListFormat) and
+    nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
     (__ \ "event").formatNullable[SystemEventMeta]
   )(VocabularyMeta.apply _, unlift(VocabularyMeta.unapply _))
 
@@ -144,22 +150,20 @@ package object client {
     (__ \ "vocabulary").formatNullable[VocabularyMeta] and
     (__ \ "parent").lazyFormatNullable[ConceptMeta](conceptMetaFormat) and
     (__ \ "broaderTerms").lazyFormat[List[ConceptMeta]](Reads.list[ConceptMeta], Writes.list[ConceptMeta]) and
-    (__ \ "accessibleTo").lazyFormat[List[Accessor]](
-        accessorListFormat) and
+    nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
     (__ \ "event").formatNullable[SystemEventMeta]
   )(ConceptMeta.apply _, unlift(ConceptMeta.unapply _))
 
   implicit val authoritativeSetMetaFormat: Format[AuthoritativeSetMeta] = (
     __.format[AuthoritativeSetF] and
-    (__ \ "accessibleTo").lazyFormat[List[Accessor]](
-        accessorListFormat) and
+    (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
     (__ \ "event").formatNullable[SystemEventMeta]
   )(AuthoritativeSetMeta.apply _, unlift(AuthoritativeSetMeta.unapply _))
 
   implicit val historicalAgentMetaFormat: Format[HistoricalAgentMeta] = (
     __.format[HistoricalAgentF] and
     (__ \ "set").formatNullable[AuthoritativeSetMeta] and
-    (__ \ "accessibleTo").lazyFormat[List[Accessor]](accessorListFormat) and
+    nullableListOf(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
     (__ \ "event").formatNullable[SystemEventMeta]
   )(HistoricalAgentMeta.apply _, unlift(HistoricalAgentMeta.unapply _))
 

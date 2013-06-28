@@ -6,7 +6,7 @@ import play.api.libs.ws.WS
 import play.api.libs.json._
 import defines.{EntityType,ContentType}
 import models.{UserProfileMeta, Entity}
-import models.json.{RestReadable, RestConvertable}
+import models.json.{ClientConvertable, RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
@@ -28,23 +28,35 @@ case class Page[+T](
   items: Seq[T]
 ) extends utils.AbstractPage[T]
 
-/**
- * Decode a JSON page representation.
- *
- */
-object PageReads {
+object Page {
+
+  implicit def restReads[T](implicit rd: RestReadable[T]): Reads[Page[T]] = {
+    Page.pageReads(rd.restReads)
+  }
+  implicit def clientFormat[T](implicit cfmt: ClientConvertable[T]): Writes[Page[T]] = {
+    Page.pageWrites(cfmt.clientFormat)
+  }
 
   import play.api.libs.json._
   import play.api.libs.json.util._
-  import play.api.libs.json.Reads._
   import play.api.libs.functional.syntax._
 
   implicit def pageReads[T](implicit r: Reads[T]): Reads[Page[T]] = (
     (__ \ "total").read[Long] and
     (__ \ "offset").read[Int] and
     (__ \ "limit").read[Int] and
-    (__ \ "values").lazyRead(list[T](r))
-  )(Page[T] _)
+    (__ \ "values").lazyRead(Reads.seq[T](r))
+  )(Page.apply[T] _)
+
+  implicit def pageWrites[T](implicit r: Writes[T]): Writes[Page[T]] = (
+    (__ \ "total").write[Long] and
+      (__ \ "offset").write[Int] and
+      (__ \ "limit").write[Int] and
+      (__ \ "values").lazyWrite(Writes.seq[T](r))
+    )(unlift(Page.unapply[T] _))
+
+  implicit def pageFormat[T](implicit r: Reads[T], w: Writes[T]): Format[Page[T]]
+      = Format(pageReads(r), pageWrites(w))
 }
 
 object RestPageParams {
@@ -235,19 +247,21 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
+  def listJson(params: RestPageParams = RestPageParams()): Future[Either[RestError, List[JsObject]]] = {
+    val url = enc(requestUrl, "list" + params.toString)
+    Logger.logger.debug("LIST: {}", url)
+    WS.url(url)
+      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkErrorAndParse[List[JsObject]](response)
+    }
+  }
+
   def list[MT](params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
     val url = enc(requestUrl, "list" + params.toString)
     Logger.logger.debug("LIST: {}", url)
     WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[List[MT]](Reads.list(rd.restReads)).fold(
-          valid = { list => list },
-          invalid = { e =>
-            sys.error(s"Unable to decode list result: $e: ${r.json}")
-          }
-        )
-      }
+      checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
   }
 
@@ -255,14 +269,16 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
       implicit rd: RestReadable[CMT]): Future[Either[RestError, List[CMT]]] = {
     WS.url(enc(requestUrl, id, "list" + params.toString))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[List[CMT]](Reads.list(rd.restReads)).fold(
-          valid = { list => list },
-          invalid = { e =>
-            sys.error(s"Unable to decode list result: $e: ${r.json}")
-          }
-        )
-      }
+        checkErrorAndParse(response)(Reads.list(rd.restReads))
+    }
+  }
+
+  def pageJson(params: RestPageParams = RestPageParams()): Future[Either[RestError, Page[JsObject]]] = {
+    val url = enc(requestUrl, "page" + params.toString)
+    Logger.logger.debug("PAGE: {}", url)
+    WS.url(url)
+      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkErrorAndParse(response)(Page.pageReads[JsObject])
     }
   }
 
@@ -271,59 +287,29 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     Logger.logger.debug("PAGE: {}", url)
     WS.url(url)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[Page[MT]](PageReads.pageReads(rd.restReads)).fold(
-          valid = { page => page },
-          invalid = { e =>
-            sys.error(s"Unable to decode paginated list result: $e: ${r.json}")
-          }
-        )
-      }
+      checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
 
   def pageChildren[CMT](id: String, params: RestPageParams = RestPageParams())(implicit rd: RestReadable[CMT]): Future[Either[RestError, Page[CMT]]] = {
-    implicit val entityPageReads = PageReads.pageReads[Entity]
+    implicit val entityPageReads = Page.pageReads[Entity]
     WS.url(enc(requestUrl, id, "page" + params.toString))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[Page[CMT]](PageReads.pageReads(rd.restReads)).fold(
-          valid = { page => page },
-          invalid = { e =>
-            sys.error(s"Unable to decode paginated list result: $e: ${r.json}")
-          }
-        )
-      }
+      checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
 
   def count(params: RestPageParams = RestPageParams()): Future[Either[RestError, Long]] = {
     WS.url(enc(requestUrl, "count" + params.toString))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      // FIXME: Check actual error content...
-      checkError(response).right.map(r => {
-        r.json.validate[Long].fold(
-          valid = { count => count },
-          invalid = { e =>
-            sys.error(s"Unable to decode count result: $e: ${r.json}")
-          }
-        )
-      })
+      checkErrorAndParse[Long](response)
     }
   }
 
   def countChildren(id: String, params: RestPageParams = RestPageParams()): Future[Either[RestError, Long]] = {
     WS.url(enc(requestUrl, id, "count" + params.toString))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      // FIXME: Check actual error content...
-      checkError(response).right.map(r => {
-        r.json.validate[Long].fold(
-          valid = { count => count },
-          invalid = { e =>
-            sys.error(s"Unable to decode count result: $e: ${r.json}")
-          }
-        )
-      })
+      checkErrorAndParse[Long](response)
     }
   }
 }

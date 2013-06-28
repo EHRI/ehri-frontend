@@ -15,6 +15,7 @@ import solr.facet.AppliedFacet
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
+import play.api.Logger
 
 
 /**
@@ -33,7 +34,7 @@ object AccessPointLink {
   // handlers for creating/listing/deleting links via JSON
   implicit val linkTypeFormat = defines.EnumUtils.enumFormat(LinkF.LinkType)
   implicit val accessPointTypeFormat = defines.EnumUtils.enumFormat(AccessPointF.AccessPointType)
-  implicit val accessPointFormat = Json.format[AccessPointF]
+  implicit val accessPointFormat = AccessPointF.Converter.clientFormat
   implicit val accessPointLinkReads = Json.format[AccessPointLink]
 }
 
@@ -191,7 +192,6 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
       ap => {
         withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
           AsyncRest {
-            import models.json.AccessPointFormat._
             rest.DescriptionDAO(entityType, userOpt).createAccessPoint(id, did, ap).map { apOrErr =>
               apOrErr.right.map { case (item, ann) =>
                 Created(Json.toJson(ann)(models.json.client.accessPointFormat))
@@ -217,7 +217,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
     AsyncRest {
       LinkDAO(userOpt).getFor(id).map { linksOrErr =>
         linksOrErr.right.map { linkList =>
-          val linkOpt = linkList.find(link => link.bodies.exists(b => b.id == apid))
+          val linkOpt = linkList.find(link => link.bodies.exists(b => b.id == Some(apid))) // TODO: We should get an AccessPointMeta instead!
           val res = for {
             link <- linkOpt
             target <- link.opposingTarget(item)

@@ -6,6 +6,7 @@ import play.api.{Logger, Play}
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
 import play.api.libs.ws.Response
+import play.api.data.validation.{ValidationError => PlayValidationError}
 
 
 sealed trait RestError extends Throwable
@@ -21,6 +22,7 @@ case class IntegrityError() extends RestError
 case class ItemNotFound() extends RestError
 case class ServerError(error: String) extends RestError
 case class CriticalError(error: String) extends RestError
+case class BadJson(error: Seq[(JsPath,Seq[PlayValidationError])]) extends RestError
 
 object PermissionDenied {
   import play.api.libs.json.util._
@@ -32,6 +34,16 @@ object PermissionDenied {
     (__ \ "details" \ "item").readNullable[String] and
     (__ \ "details" \ "scope").readNullable[String]
   )(PermissionDenied.apply _)
+  
+  implicit val permissionDeniedWrites: Writes[PermissionDenied] = (
+    (__ \ "accessor").writeNullable[String] and
+    (__ \ "permission").writeNullable[String] and
+    (__ \ "item").writeNullable[String] and
+    (__ \ "scope").writeNullable[String]
+  )(unlift(PermissionDenied.unapply _))
+
+  implicit val permissionDeniedFormat = Format(
+      permissionDeniedReads, permissionDeniedWrites)
 }
 
 
@@ -175,6 +187,18 @@ trait RestDAO {
         case _ => {
           Logger.logger.error(response.body)
           sys.error(response.body)
+        }
+      }
+    }
+  }
+
+  protected def checkErrorAndParse[T](response: Response)(implicit reader: Reads[T]): Either[RestError, T] = {
+    checkError(response) match {
+      case Left(err) => Left(err)
+      case Right(r) => {
+        r.json.validate(reader).asEither match {
+          case Left(err) => Left(BadJson(err))
+          case Right(item) => Right(item)
         }
       }
     }
