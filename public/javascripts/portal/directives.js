@@ -108,30 +108,93 @@ portal.directive('whenScrolled', function ($window) {
       });
     }
   }
-}]).directive('sap', function() {
+}]).directive('sap', ['$rootScope', 'Map', function($rootScope, $map){
     return {
         restrict: 'E',
         replace: true,
         template: '<div></div>',
         link: function(scope, element, attrs) {
-				//console.log(attrs);
-				//console.log(attrs.lat);
-				//console.log(scope.geoloc.lat);
-            var map = L.map(attrs.id, {
-                center: [scope.geoloc.lat, scope.geoloc.lon],
-                zoom: 10
-            });
-			console.log(map);
-            //create a CloudMade tile layer and add it to the map
-            L.tileLayer('http://{s}.tile.cloudmade.com/57cbb6ca8cac418dbb1a402586df4528/997/256/{z}/{x}/{y}.png', {
-                maxZoom: 18
-            }).addTo(map);
-
-            //add markers dynamically
-           var points = [{lat: scope.geoloc.lat, lng: scope.geoloc.lon}];
-            for (var p in points) {
-                L.marker([points[p].lat, points[p].lng]).addTo(map);
+			mapFunctions = {};
+			mapOptions = {};
+			scope.mapMarkers = {markers: {}, array : []};
+			if($rootScope.position)
+			{
+					mapFunctions.init();
+			}
+			else
+			{
+				$rootScope.$on('broadcastMapLocation', function () { 
+					mapFunctions.init();
+				});
+			}
+			
+			mapFunctions.create = function() {
+				mapOptions.map = L.map(attrs.id, {
+					center: [mapOptions.lat, mapOptions.lon],
+					zoom: mapOptions.zoom
+				});
+				mapOptions.map.whenReady(function() {
+					mapOptions.on = true;
+				});
+				L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+					maxZoom: 18
+				}).addTo(mapOptions.map);
+				
+				if(mapOptions.points) { mapFunctions.updatePoints(mapOptions.points); }
+			}
+			
+			mapFunctions.init = function() {
+				if(scope.geoloc) {
+					mapOptions.lat = scope.geoloc.lat;
+					mapOptions.lon = scope.geoloc.lon;
+					mapOptions.zoom = 6;
+					mapOptions.points = [{lat: lat, lng: lon}];
+				}
+				else {
+					//Default values
+					mapOptions.lat = $rootScope.position.coords.latitude;
+					mapOptions.lon = $rootScope.position.coords.longitude;
+					mapOptions.zoom = 6;
+				}
+				
+				mapFunctions.create();
+				
+			}
+						
+            //<--- Markers
+			
+			mapFunctions.updateLayers = function() {
+				angular.forEach(scope.mapMarkers.markers, function(value, key) {
+					scope.mapMarkers.array.push(value.leaflet);
+				});
+				mapOptions.markers = L.layerGroup(scope.mapMarkers.array);
+				mapOptions.markers.addTo(mapOptions.map);
             }
+			
+            $rootScope.$on('broadcastNewMapMarker', function() {
+				console.log("New marker");
+				marker = $rootScope.mapMarkers;
+				console.log(marker);
+				//Marker Leaflet version
+				scope.mapMarkers.markers[marker.id] = {
+					leaflet: L.marker([marker.lat, marker.lng], {title: marker.title}).bindPopup(marker.title), 
+					data: {title: marker.title, id:marker.id, lat:marker.lat, lng:marker.lng}
+				};
+				mapFunctions.updateLayers();
+            });
+			
+			//Markers -->
+			
+			//<--- Center
+			$rootScope.$on('broadcastMapCenter', function () {
+				console.log("Recenter");
+				if(mapOptions.on)
+				{
+					mapOptions.map.setView([$rootScope.mapCenter.lat, $rootScope.mapCenter.lng], 6);
+				}
+			});
+			
+			//Center --->
         }
     };
-});
+}]);

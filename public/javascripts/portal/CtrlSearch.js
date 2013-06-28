@@ -1,4 +1,4 @@
-portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', 'myBasketService', function($scope, $http, $routeParams, $location, $service, $anchorScroll, paginationService, $basket) {
+portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', 'myBasketService', 'Map', function($scope, $http, $routeParams, $location, $service, $anchorScroll, paginationService, $basket, $map) {
 	//Scope var
 	$scope.searchParams = {'page' : 1, 'sort' : 'score.desc'};
 	$scope.langFilter = "en";
@@ -113,6 +113,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 				//Data themself
 				$scope.pages[$scope.currentPage] = {};
 				$scope.pages[$scope.currentPage].items = data.page.items;
+				$scope.pages[$scope.currentPage].items[0] = {}
 				$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
 				
 				//Facets
@@ -137,6 +138,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 				$scope.pages[$scope.currentPage].items = data.page.items;
 				if(data.page.total > 0)
 				{
+					$scope.pages[$scope.currentPage].items[0] = {}
 					$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
 				}
 				$scope.facets = data.facets;
@@ -191,6 +193,14 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	}
 	//QUERY FUNCTIONS ---->
 	
+	
+	//<--- Map Functions
+	$scope.map = { }
+	$scope.map.activate = function(item, title, id) { $scope.map.activated = true; $map.addMarker(item, title, id); }
+	$scope.map.deactivate = function() { $scope.map.activated = false; }
+	$scope.map.center = function(marker) { alert("center"); $map.reCenter(marker); }
+	//Map Functions -->
+	
 /**********
 **
 **
@@ -204,7 +214,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	//Description functions	
 	$scope.getTitleAction = function(item) {
 		//2013-05-15 15:42:23 Mike Bryant: Imported from command-line
-		if(item.relationships.lifecycleEvent && item.relationships.lifecycleEvent[0])
+		if(item.relationships && item.relationships.lifecycleEvent && item.relationships.lifecycleEvent[0])
 		{
 			event = item.relationships.lifecycleEvent[0];
 			message = event.data.logMessage;
@@ -215,7 +225,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	$scope.getSimpleTimeDesc = function(item) {
 		//console.log(item);
 		//Updated 5 days ago
-		if(item.relationships.lifecycleEvent && item.relationships.lifecycleEvent[0])
+		if(item.relationships && item.relationships.lifecycleEvent && item.relationships.lifecycleEvent[0])
 		{
 			event = item.relationships.lifecycleEvent[0];
 			//d = new Date(event.data.timestamp);

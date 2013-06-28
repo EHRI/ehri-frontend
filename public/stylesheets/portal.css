@@ -5691,3 +5691,6 @@ ul.listTree li ul {
   border-left-width: 0px;
   border-right-width: 0px;
 }
+.text-right {
+  text-align: right;
+}

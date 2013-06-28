@@ -69,21 +69,7 @@
 					</header>
 					<div class="container-fluid">
 						<div class="row-fluid">
-							<div class="span2">
-								<span class="btn">Test</span>
-								<span class="btn btn-primary">Test</span>
-								<span class="btn btn-primary disabled">Test</span>
-								<span class="btn btn-info">Test</span>
-								<span class="btn btn-success">Test</span>
-								<span class="btn btn-warning">Test</span>
-								<span class="btn btn-danger">Test</span>
-								<span class="btn btn-inverse">Test</span>
-								<span class="btn btn-link">Test</span>
-								
-								<div class="btn-group">
-									<button class="btn btn-primary"><i class="icon-search"></i></button>
-									<button class="btn btn-primary">Left</button>
-								</div>
+							<div class="span2" ng-class="(map.activated && 'hide')">
 							</div>
 							
 							<div id="content" class="span8" when-scrolled="loadMore()" >
@@ -103,8 +89,11 @@
 													<a class="iconwithtooltip" title="Add to basket" ng-click="addBasket(item)">
 														<i class="icon-bookmark"></i>
 													</a>
-													<a class=" iconwithtooltip" title="Drag this item" drag="item" dragStyle="drag">
+													<a class="iconwithtooltip" title="Drag this item" drag="item" dragStyle="drag">
 														<i class="icon-move"></i>
+													</a>
+													<a class="iconwithtooltip" title="See on map" ng-click="map.activate(item, desc.data.name, item.id)">
+														<i class="icon-map-marker"></i>
 													</a>
 												</span>
 												
@@ -142,8 +131,20 @@
 								</div>
 								<div ng-show="loadingPage" class="well" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></div>
 							</div>
-							<div class="span2">
+							<div ng-class="(map.activated && 'span3') || 'span2'">
 								&nbsp;
+								<div ng-show="map.activated">
+									<sap id="map" style="width:100%!important; height:400px;" mapMarkers="mapMarkers">
+									</sap>
+									<ul class="unstyled basket">
+										<li class="basket-item" ng-repeat="marker in mapMarkers.markers">
+											{{marker.data.title}}
+											<div class="icon-pack">
+												<a ng-click="map.center(marker.data)"><i class="icon-map-marker"></i></a>
+											</div>
+										</li>
+									</ul>
+								</div>
 							</div>
 						</div>
 					</div>
