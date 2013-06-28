@@ -169,7 +169,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
             .withFormUrlEncodedBody()).get
         status(add) must equalTo(SEE_OTHER)
 
-        val userFetch = await(EntityDAO(EntityType.UserProfile, Some(userProfile)).get[UserProfileMeta](id))
+        val userFetch = await(EntityDAO[UserProfileMeta](EntityType.UserProfile, Some(userProfile)).get(id))
         userFetch must beRight
         userFetch.right.get.groups.map(_.id) must contain("niod")
       }
@@ -181,7 +181,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
             .withFormUrlEncodedBody()).get
         status(rem) must equalTo(SEE_OTHER)
 
-        val userFetch = await(EntityDAO(EntityType.UserProfile, Some(userProfile)).get[UserProfileMeta](id))
+        val userFetch = await(EntityDAO[UserProfileMeta](EntityType.UserProfile, Some(userProfile)).get(id))
         userFetch must beRight
         userFetch.right.get.groups.map(_.id) must not contain("kcl")
       }
@@ -209,7 +209,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
             .withFormUrlEncodedBody()).get
         status(add) must equalTo(SEE_OTHER)
 
-        val groupFetch = await(EntityDAO(EntityType.Group, Some(userProfile)).get[GroupMeta](id))
+        val groupFetch = await(EntityDAO[GroupMeta](EntityType.Group, Some(userProfile)).get(id))
         groupFetch must beRight
         groupFetch.right.get.groups.map(_.id) must contain("admin")
       }
@@ -221,7 +221,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
             .withFormUrlEncodedBody()).get
         status(rem) must equalTo(SEE_OTHER)
 
-        val groupFetch = await(EntityDAO(EntityType.Group, Some(userProfile)).get[GroupMeta]("niod"))
+        val groupFetch = await(EntityDAO[GroupMeta](EntityType.Group, Some(userProfile)).get("niod"))
         groupFetch must beRight
         groupFetch.right.get.groups.map(_.id) must not contain("admin")
       }

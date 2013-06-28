@@ -150,7 +150,7 @@ object Groups extends PermissionHolderController[GroupMeta]
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          groupOrErr <- rest.EntityDAO(entityType, userOpt).get[GroupMeta](id)
+          groupOrErr <- rest.EntityDAO[GroupMeta](entityType, userOpt).get(id)
         } yield {
           groupOrErr.right.map { group =>
             Ok(views.html.group.confirmMembership(group, item,
@@ -186,7 +186,7 @@ object Groups extends PermissionHolderController[GroupMeta]
       item => implicit userOpt => implicit request =>
         AsyncRest {
           for {
-            groupOrErr <- rest.EntityDAO(entityType, userOpt).get[GroupMeta](id)
+            groupOrErr <- rest.EntityDAO[GroupMeta](entityType, userOpt).get(id)
           } yield {
             groupOrErr.right.map { group =>
               Ok(views.html.group.removeMembership(group, item,

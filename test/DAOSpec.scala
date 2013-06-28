@@ -19,17 +19,18 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
   "EntityDAO" should {
     "get an item by id" in new FakeApp {
-      await(EntityDAO(entityType, Some(userProfile)).get[UserProfileMeta](userProfile.id)) must beRight
+      await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).get(userProfile.id)) must beRight
     }
 
     "create an item" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF, UserProfileMeta](user)) must beRight
+      await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create[UserProfileF](user)) must beRight
     }
 
     "create an item in (agent) context" in new FakeApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
-      val r = await(EntityDAO(EntityType.Repository, Some(userProfile)).createInContext[DocumentaryUnitF,DocumentaryUnitMeta]("r1", ContentType.DocumentaryUnit, doc))
+      val r = await(EntityDAO[RepositoryMeta](EntityType.Repository, Some(userProfile))
+          .createInContext[DocumentaryUnitF,DocumentaryUnitMeta]("r1", ContentType.DocumentaryUnit, doc))
       r must beRight
       r.right.get.holder must beSome
       r.right.get.holder.get.id must equalTo("r1")
@@ -37,7 +38,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
     "create an item in (doc) context" in new FakeApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
-      val r = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).createInContext[DocumentaryUnitF,DocumentaryUnitMeta]("c1", ContentType.DocumentaryUnit, doc))
+      val r = await(EntityDAO[DocumentaryUnitMeta](EntityType.DocumentaryUnit, Some(userProfile)).createInContext[DocumentaryUnitF,DocumentaryUnitMeta]("c1", ContentType.DocumentaryUnit, doc))
       r must beRight
       r.right.get.parent must beSome
       r.right.get.parent.get.id must equalTo("c1")
@@ -45,41 +46,41 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
     "update an item by id" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      val entity = await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF, UserProfileMeta](user)).right.get
+      val entity = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create[UserProfileF](user)).right.get
       val udata = entity.model.copy(location = Some("London"))
-      val res = await(EntityDAO(entityType, Some(userProfile)).update[UserProfileF,UserProfileMeta](entity.id, udata))
+      val res = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).update[UserProfileF](entity.id, udata))
       res must beRight
       res.right.get.model.location must equalTo(Some("London"))
     }
 
     "error when creating an item with a non-unique id" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF,UserProfileMeta](user))
-      val err = await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF,UserProfileMeta](user))
+      await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create(user))
+      val err = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create(user))
       err must beLeft
       err.left.get must beAnInstanceOf[ValidationError]
     }
 
     "error when fetching a non-existing item" in new FakeApp {
-      val err = await(EntityDAO(entityType, Some(userProfile)).get[UserProfileMeta]("blibidyblob"))
+      val err = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).get("blibidyblob"))
       err must beLeft
       err.left.get must beAnInstanceOf[ItemNotFound]
     }
 
     "delete an item by id" in new FakeApp {
       val user = UserProfileF(id = Some("foobar"), identifier = "foo", name = "bar")
-      val entity = await(EntityDAO(entityType, Some(userProfile)).create[UserProfileF,UserProfileMeta](user)).right.get
+      val entity = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create[UserProfileF](user)).right.get
       await(EntityDAO(entityType, Some(userProfile)).delete(entity.id)) must beRight
     }
 
     "page items" in new FakeApp {
-      val r = await(EntityDAO(entityType, Some(userProfile)).page[UserProfileMeta](RestPageParams()))
+      val r = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).page(RestPageParams()))
       r must beRight
       r.right.get.items.length mustEqual 5
     }
 
     "list items" in new FakeApp {
-      var r = await(EntityDAO(entityType, Some(userProfile)).list[UserProfileMeta](RestPageParams()))
+      var r = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).list(RestPageParams()))
       r must beRight
       r.right.get.length mustEqual 5
     }
@@ -154,12 +155,12 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   "VisibilityDAO" should {
     "set visibility correctly" in new FakeApp {
       // First, fetch an object and assert its accessibility
-      val c1a = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get[DocumentaryUnitMeta]("c1")).right.get
+      val c1a = await(EntityDAO[DocumentaryUnitMeta](EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
       c1a.accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike"))
 
       val set = await(VisibilityDAO(Some(userProfile)).set[DocumentaryUnitMeta](c1a.id, List("mike", "reto", "admin")))
       set must beRight
-      val c1b = await(EntityDAO(EntityType.DocumentaryUnit, Some(userProfile)).get[DocumentaryUnitMeta]("c1")).right.get
+      val c1b = await(EntityDAO[DocumentaryUnitMeta](EntityType.DocumentaryUnit, Some(userProfile)).get("c1")).right.get
       c1b.accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike", "reto"))
     }
   }

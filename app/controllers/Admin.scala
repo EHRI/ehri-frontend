@@ -65,8 +65,8 @@ object Admin extends Controller with AuthController with ControllerHelpers {
 
     def createUserProfile(user: UserProfileF, groups: Seq[String])(f: UserProfileMeta => Result): AsyncResult = {
       AsyncRest {
-        rest.EntityDAO(EntityType.UserProfile, userOpt)
-            .create[UserProfileF,UserProfileMeta](user, params = Map("group" -> groups)).map { itemOrErr =>
+        rest.EntityDAO[UserProfileMeta](EntityType.UserProfile, userOpt)
+            .create[UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
           itemOrErr.right.map(f)
         }
       }

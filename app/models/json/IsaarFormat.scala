@@ -93,7 +93,7 @@ object IsaarFormat {
           (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
         (__ \ MAINTENANCE_NOTES).readNullable[String]
       )(IsaarControl.apply _)) and
-      ((__ \ RELATIONSHIPS \ Described.REL).lazyRead[List[AccessPointF]](
+      ((__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyRead[List[AccessPointF]](
           Reads.list[AccessPointF]) orElse Reads.pure(Nil))
   )(HistoricalAgentDescriptionF.apply _)
 

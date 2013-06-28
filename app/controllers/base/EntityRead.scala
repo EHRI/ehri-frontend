@@ -37,7 +37,7 @@ trait EntityRead[MT] extends EntityController {
   def getEntity[T](otherType: defines.EntityType.Type, id: String)(f: T => Result)(
       implicit userOpt: Option[UserProfileMeta], request: RequestHeader, rd: RestReadable[T]) = {
     AsyncRest {
-      rest.EntityDAO(otherType, userOpt).get(id).map { itemOrErr =>
+      rest.EntityDAO[T](otherType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
@@ -91,7 +91,7 @@ trait EntityRead[MT] extends EntityController {
               val params = ListParams.bind(request)
               val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
               val linkReq = rest.LinkDAO(userOpt).getFor(id)
-              val cReq = rest.EntityDAO(entityType, userOpt).pageChildren[CT](id, processChildParams(params))
+              val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, processChildParams(params))
               for { annOrErr <- annsReq ; cOrErr <- cReq ; linkOrErr <- linkReq } yield {
                 for { anns <- annOrErr.right ; children <- cOrErr.right ; links <- linkOrErr.right } yield {
                   f(item)(children)(params)(anns)(links)(userOpt)(request)
@@ -110,7 +110,7 @@ trait EntityRead[MT] extends EntityController {
       Secured {
         AsyncRest {
           val params = ListParams.bind(request)
-          rest.EntityDAO(entityType, userOpt).page[MT](processParams(params)).map { itemOrErr =>
+          rest.EntityDAO[MT](entityType, userOpt).page(processParams(params)).map { itemOrErr =>
             itemOrErr.right.map {
               page => render {
                 case Accepts.Json() => Ok(Json.toJson(page)(Page.pageWrites(cfmt.clientFormat)))
@@ -129,7 +129,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
         AsyncRest {
-          val itemReq = rest.EntityDAO(entityType, userOpt).get[MT](id)(rd)
+          val itemReq = rest.EntityDAO[MT](entityType, userOpt).get(id)(rd)
           val alReq = rest.SystemEventDAO(userOpt).history(id, RestPageParams())
           for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
             for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {

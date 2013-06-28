@@ -364,30 +364,38 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
   case class Target(id: String, `type`: EntityType.Value)
   case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF], target: Option[Target])
 
-  def getAccessPointsJson(id: String) = getAction(id) {
-      item => annotations => links => implicit userOpt => implicit request =>
+  def getAccessPointsJson(id: String) = userProfileAction { implicit userOpt => implicit request =>
+    getEntity(id, userOpt) { item =>
+      AsyncRest {
+        rest.LinkDAO(userOpt).getFor(id).map {
+          case Right(links) => {
+            import models.json.entityTypeFormat
 
-    import models.json.entityTypeFormat
+            implicit val accessPointFormat = models.json.client.accessPointFormat
+            implicit val targetWrites = Json.format[Target]
+            implicit val itemWrites = Json.format[LinkItem]
 
-    implicit val accessPointFormat = models.json.client.accessPointFormat
-    implicit val targetWrites = Json.format[Target]
-    implicit val itemWrites = Json.format[LinkItem]
-
-    val list = item.model.descriptions.map { desc =>
-      val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
-        val apTypes = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
-          val link = links.find(_.bodies.exists(b => b.id == ap.id))
-          new LinkItem(
-            ap,
-            link.map(_.model),
-            link.flatMap(l => l.opposingTarget(item).map(t => new Target(t.id, t.isA)))
-          )
+            val list = item.model.descriptions.map { desc =>
+              val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
+                val apTypes = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
+                  val link = links.find(_.bodies.exists(b => b.id == ap.id))
+                  new LinkItem(
+                    ap,
+                    link.map(_.model),
+                    link.flatMap(l => l.opposingTarget(item).map(t => new Target(t.id, t.isA)))
+                  )
+                }
+                Map("type" -> Json.toJson(apt.toString), "data" -> Json.toJson(apTypes))
+              }
+              Map("id" -> Json.toJson(desc.id), "data" -> Json.toJson(accessPointTypes))
+            }
+            println(Json.prettyPrint(Json.toJson(list)))
+            Right(Ok(Json.toJson(list)))
+          }
+          case Left(err) => Left(err)
         }
-        Map("type" -> Json.toJson(apt.toString), "data" -> Json.toJson(apTypes))
       }
-      Map("id" -> Json.toJson(desc.id), "data" -> Json.toJson(accessPointTypes))
     }
-    Ok(Json.toJson(list))
   }
 }
 

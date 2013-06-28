@@ -4,11 +4,9 @@
 *@
 @(item: AnyModel, desc: models.base.Description, links: List[LinkMeta])(implicit prefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader)
 
-@import AccessPointF._
+@{println("RELATED: " + desc.accessPoints)}
 
-@* THIS FILE IS COMMENTED OUT BECAUSE THINGS ARE BROKEN...
-
-@relatedLinks(list: List[AccessPointF], accessPointType: AccessPointType.Value) = {
+@relatedLinks(list: List[AccessPointF], accessPointType: AccessPointF.AccessPointType.Value) = {
     @if(!list.isEmpty) {
         <h4>
             @Messages(prefix + "." + IsadG.ACCESS_POINTS + "." + accessPointType)
@@ -17,17 +15,15 @@
             @list.map { accessPoint =>
                 @accessPoint.target(item, links).map { case (link, other) =>
                     <li class="resolved-access-point" id="@accessPoint.id">
-                         <a href="@views.Helpers.urlFor(other)">@accessPoint.targetName</a> [<a href="@routes.Links.get(link.id)">*</a>]
-                        @link.stringProperty(LinkF.DESCRIPTION).map { desc =>
+                         <a href="@views.Helpers.urlFor(other)">@accessPoint.name</a> [<a href="@routes.Links.get(link.id)">*</a>]
+                        @link.model.description.map { desc =>
                             <small><p class="muted">@desc</p></small>
                         }
                     </li>
                 }.getOrElse {
                     <li class="unresolved-access-point" id=" @accessPoint.id">
-                        @accessPoint.targetName.map { t =>
-                            @t
-                        }
-                        @accessPoint.stringProperty(AccessPointF.DESCRIPTION).map { desc =>
+                        @accessPoint.name
+                        @accessPoint.description.filter(_.trim.isEmpty).map { desc =>
                             <small><p class="muted">@desc</p></small>
                         }
                     </li>
@@ -40,10 +36,7 @@
 
 @if(!desc.accessPoints.isEmpty) {
     <h3>@Messages(prefix + "." + IsadG.ACCESS_POINTS)</h3>
-    @AccessPointType.values.toList.map { accessPointType =>
-        @relatedLinks(desc.accessPoints.filter(_.`type` == accessPointType), accessPointType)
+    @AccessPointF.AccessPointType.values.toList.map { accessPointType =>
+        @relatedLinks(desc.accessPoints.filter(_.accessPointType == accessPointType), accessPointType)
     }
 }
-
-
-*@

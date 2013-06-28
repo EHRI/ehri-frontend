@@ -38,4 +38,26 @@ case class AccessPointF(
   accessPointType: AccessPointF.AccessPointType.Value,
   name: String,
   description: Option[String] = None
-) extends Model with Persistable
+) extends Model with Persistable {
+
+  /**
+   * Given a set of links, see if we can find one with this access point
+   * as a body.
+   * @param links
+   * @return
+   */
+  def linkFor(links: List[LinkMeta]): Option[LinkMeta] = links.find(_.bodies.exists(body => body.id == id))
+
+  /**
+   * Given an item and a set of links, see if we can resolve the
+   * opposing target item.
+   * @param item
+   * @param links
+   * @return
+   */
+  def target(item: AnyModel, links: List[LinkMeta]): Option[(LinkMeta,AnyModel)] = linkFor(links).flatMap { link =>
+    link.opposingTarget(item).map { target =>
+      (link, target)
+    }
+  }
+}

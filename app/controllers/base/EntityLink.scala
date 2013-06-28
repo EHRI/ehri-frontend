@@ -34,7 +34,7 @@ object AccessPointLink {
   // handlers for creating/listing/deleting links via JSON
   implicit val linkTypeFormat = defines.EnumUtils.enumFormat(LinkF.LinkType)
   implicit val accessPointTypeFormat = defines.EnumUtils.enumFormat(AccessPointF.AccessPointType)
-  implicit val accessPointFormat = AccessPointF.Converter.clientFormat
+  implicit val accessPointFormat = Json.format[AccessPointF] // AccessPointF.Converter.clientFormat
   implicit val accessPointLinkReads = Json.format[AccessPointLink]
 }
 
@@ -179,6 +179,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
       }
     )
   }
+
 
   /**
    * Create a link, via Json, for any arbitrary two objects, via an access point.

@@ -87,7 +87,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
           // available initially, and we don't want to block for it to become
           // available, we should probably add the account to the permissions when
           // we have both items from the server.
-          val getProf = rest.EntityDAO(EntityType.UserProfile, maybeUser).get[UserProfileMeta](currentUser)
+          val getProf = rest.EntityDAO[UserProfileMeta](EntityType.UserProfile, maybeUser).get(currentUser)
           val getGlobalPerms = rest.PermissionDAO(maybeUser).get
           // These requests should execute in parallel...
           for { r1 <- getProf; r2 <- getGlobalPerms } yield {
@@ -129,13 +129,13 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
         implicit val maybeUser = Some(fakeProfile)
 
         AsyncRest {
-          val getProf = rest.EntityDAO(
-            EntityType.UserProfile, Some(fakeProfile)).get[UserProfileMeta](currentUser)
+          val getProf = rest.EntityDAO[UserProfileMeta](
+            EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
           // NB: Instead of getting *just* global perms here we also fetch
           // everything in scope for the given item
           val getGlobalPerms = rest.PermissionDAO(maybeUser).getScope(id)
           val getItemPerms = rest.PermissionDAO(maybeUser).getItem(contentType, id)
-          val getEntity = rest.EntityDAO(entityType, maybeUser).get(id)
+          val getEntity = rest.EntityDAO[MT](entityType, maybeUser).get(id)
           // These requests should execute in parallel...
           for { r1 <- getProf; r2 <- getGlobalPerms; r3 <- getItemPerms ; r4 <- getEntity } yield {
             for { entity <- r1.right; gperms <- r2.right; iperms <- r3.right ; item <- r4.right } yield {

@@ -179,7 +179,7 @@ object Search extends EntitySearch {
     def updateItemSet(entityType: EntityType.Value, pageNum: Int,
                       chan: Concurrent.Channel[String]): Future[List[SolrResponse]] = {
       val params = RestPageParams(page=Some(pageNum), limit = Some(batchSize))
-      val getData = EntityDAO(entityType, userOpt).list[AnyModel](params)
+      val getData = EntityDAO[AnyModel](entityType, userOpt).list(params)
       getData.flatMap { listOrErr =>
         listOrErr match {
           case Left(err) => {

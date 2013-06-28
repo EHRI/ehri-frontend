@@ -98,7 +98,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(userRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val fetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get[UserProfileMeta](userId))
+      val fetchProfile = await(rest.EntityDAO[UserProfileMeta](EntityType.UserProfile, Some(userProfile)).get(userId))
 
       fetchProfile must beRight
       val profile = fetchProfile.right.get
@@ -290,7 +290,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val haFetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get[UserProfileMeta](headArchivistUserId))
+      val haFetchProfile = await(rest.EntityDAO[UserProfileMeta](EntityType.UserProfile, Some(userProfile)).get(headArchivistUserId))
 
       haFetchProfile must beRight
       val headArchivistProfile = haFetchProfile.right.get
@@ -322,7 +322,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val aFetchProfile = await(rest.EntityDAO(EntityType.UserProfile, Some(userProfile)).get[UserProfileMeta](archivistUserId))
+      val aFetchProfile = await(rest.EntityDAO[UserProfileMeta](EntityType.UserProfile, Some(userProfile)).get(archivistUserId))
 
       aFetchProfile must beRight
       val archivistProfile = aFetchProfile.right.get

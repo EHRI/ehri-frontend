@@ -29,7 +29,7 @@
     @common.pagination(page)
     <ul class="unstyled">
     @page.items.map { item =>
-        <li><a href="@views.Helpers.urlFor(item)">@item</a></li>
+        <li><a href="@views.Helpers.urlFor(item)">@item.toStringLang</a></li>
     }
     </ul>
 

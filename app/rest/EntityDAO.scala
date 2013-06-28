@@ -147,14 +147,14 @@ object EntityDAO {
  * @param entityType
  * @param userProfile
  */
-case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfileMeta] = None) extends RestDAO {
+case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfileMeta] = None) extends RestDAO {
 
   import EntityDAO._
   import play.api.http.Status._
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
-  def get[MT](id: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+  def get(id: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     //val cached = Cache.getAs[MT](id)
     //if (cached.isDefined) Future.successful(Right(cached.get))
     //else {
@@ -169,15 +169,15 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     //}
   }
 
-  def getJson[TM](id: String)(implicit rw: RestReadable[TM]): Future[Either[RestError, JsResult[TM]]] = {
+  def getJson(id: String)(implicit rw: RestReadable[MT]): Future[Either[RestError, JsResult[MT]]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[TM](rw.restReads)
+        r.json.validate[MT](rw.restReads)
       }
     }
   }
 
-  def get[MT](key: String, value: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+  def get(key: String, value: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*)
       .withQueryString("key" -> key, "value" -> value)
       .get.map { response =>
@@ -185,7 +185,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def create[T, MT](item: T, accessors: List[String] = Nil,
+  def create[T](item: T, accessors: List[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
       logMsg: Option[String] = None)(implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     val qs = utils.joinQueryString(params)
@@ -202,35 +202,26 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def createInContext[T, MT](id: String, contentType: ContentType.Value,
+  def createInContext[T,TT](id: String, contentType: ContentType.Value,
       item: T, accessors: List[String] = Nil,
-      logMsg: Option[String] = None)(implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+      logMsg: Option[String] = None)(implicit wrt: RestConvertable[T], rd: RestReadable[TT]): Future[Either[RestError, TT]] = {
     val url = enc(requestUrl, id, contentType, "?%s".format(
         accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&")))
     Logger.logger.debug("CREATE-IN {} ", url)
     WS.url(url)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-        checkError(response).right.map { r =>
-          r.json.as[MT](rd.restReads)
-          //EntityDAO.handleCreate(jsonToEntity(r.json))
-        }
+        checkErrorAndParse(response)(rd.restReads)
     }
   }
 
-  def update[T, MT](id: String, item: T, logMsg: Option[String] = None)(
+  def update[T](id: String, item: T, logMsg: Option[String] = None)(
       implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     val url = enc(requestUrl, id)
     Logger.logger.debug("UPDATE: {}", url)
     WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .put(Json.toJson(item)(wrt.restFormat)).map { response =>
-        checkError(response).right.map { r =>
-          //val entity = jsonToEntity(r.json)
-          //EntityDAO.handleUpdate(entity)
-          //Cache.set(id, entity, cacheTime)
-          //entity
-          r.json.as[MT](rd.restReads)
-        }
+        checkErrorAndParse(response)(rd.restReads)
     }
   }
 
@@ -256,7 +247,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def list[MT](params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
+  def list(params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
     val url = enc(requestUrl, "list" + params.toString)
     Logger.logger.debug("LIST: {}", url)
     WS.url(url)
@@ -282,7 +273,7 @@ case class EntityDAO(entityType: EntityType.Type, userProfile: Option[UserProfil
     }
   }
 
-  def page[MT](params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, Page[MT]]] = {
+  def page(params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, Page[MT]]] = {
     val url = enc(requestUrl, "page" + params.toString)
     Logger.logger.debug("PAGE: {}", url)
     WS.url(url)

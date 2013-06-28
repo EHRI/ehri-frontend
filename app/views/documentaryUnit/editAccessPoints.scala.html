@@ -24,7 +24,7 @@
 @import AccessPointF._
 
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
-    <h4>&quot;@desc&quot;</h4>
+    <h4>&quot;@desc.name&quot;</h4>
     <div ng-app="AccessPointLinker" class="ng-cloak">
         <div ng-controller="LinkerCtrl" ng-init="init('@item.id','@desc.id')">
             <ul class="unstyled">
@@ -35,19 +35,19 @@
                         <li ng-repeat="access in getAccessPointsWithType('@accessPointType')" id="{{access.accessPoint.id}}">
                             <span ng-switch="access.link != null">
                                 <span ng-switch-when="true">
-                                    <a href="{{getTypeUrl(access.target.type, access.target.id)}}">{{access.accessPoint.data.name}}</a>
+                                    <a href="{{getTypeUrl(access.target.type, access.target.id)}}">{{access.accessPoint.name}}</a>
                                     <a title="@Messages("accessPoint.removeAccessPoint")"
-                                    class="icon icon-remove" ng-click="deleteAccessPointWithLink(access.accessPoint.id, access.link.id, access.accessPoint.data.name)"></a>
+                                    class="icon icon-remove" ng-click="deleteAccessPointWithLink(access.accessPoint.id, access.link.id, access.accessPoint.name)"></a>
                                 </span>
 
                                 <span ng-switch-when="false">
-                                    {{access.accessPoint.data.name}}
+                                    {{access.accessPoint.name}}
                                     <a title="@Messages("accessPoint.removeAccessPoint")"
-                                        class="icon icon-remove" ng-click="deleteAccessPoint(access.accessPoint.id, access.accessPoint.data.name)"></a>
+                                        class="icon icon-remove" ng-click="deleteAccessPoint(access.accessPoint.id, access.accessPoint.name)"></a>
                                 </span>
                             </span>
-                            <small ng-show="access.accessPoint.data.description">
-                                <p class="muted">{{access.accessPoint.data.description}}</p>
+                            <small ng-show="access.accessPoint.description">
+                                <p class="muted">{{access.accessPoint.description}}</p>
                             </small>
                         </li>
 

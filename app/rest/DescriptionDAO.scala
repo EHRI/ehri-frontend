@@ -30,7 +30,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO(entityType, userProfile).get[MT](id).map {
+          EntityDAO[MT](entityType, userProfile).get(id).map {
             case Right(item) => {
               //EntityDAO.handleUpdate(updated)
               Cache.remove(id)
@@ -50,7 +50,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO(entityType, userProfile).get[MT](id).map {
+          EntityDAO[MT](entityType, userProfile).get(id).map {
             case Right(item) => {
               //EntityDAO.handleUpdate(updated)
               Cache.remove(id)
@@ -66,7 +66,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
   def deleteDescription(id: String, did: String, logMsg: Option[String] = None)(implicit rd: RestReadable[MT]): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .delete.flatMap { response =>
-      EntityDAO(entityType, userProfile).get[MT](id).map {
+      EntityDAO[MT](entityType, userProfile).get(id).map {
         case Right(updated) => {
           //EntityDAO.handleUpdate(updated)
           Cache.remove(id)
@@ -86,7 +86,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO(entityType, userProfile).get[MT](id).map {
+          EntityDAO[MT](entityType, userProfile).get(id).map {
             case Right(item) => {
               //EntityDAO.handleUpdate(updated)
               //Cache.remove(id)
@@ -103,7 +103,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .delete.flatMap { response =>
-        EntityDAO(entityType, userProfile).get[MT](id).map {
+        EntityDAO[MT](entityType, userProfile).get(id).map {
           case Right(item) => {
             //EntityDAO.handleUpdate(updated)
             Cache.remove(id)

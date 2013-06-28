@@ -426,7 +426,8 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
     $service.createAccessPoint($scope.itemId, $scope.descriptionId).ajax({
       data: angular.toJson({
         name: $scope.tempAccessPoint.name,
-        type: $scope.tempAccessPoint.type,
+        accessPointType: $scope.tempAccessPoint.type,
+        isA: "relationship",
         description: $scope.tempAccessPoint.description
       }),
       headers: ajaxHeaders
@@ -441,12 +442,19 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
               type: $scope.tempAccessPoint.link.type,
               description: $scope.tempAccessPoint.description
             }),
-            headers: ajaxHeaders
+            headers: ajaxHeaders,
+            error: function() {
+              console.log(arguments)
+            }
           }).done(function(data) {
               $scope.cancelAddAccessPoint();
               $scope.getAccessPointList();
+            }).error(function() {
+              console.log(arguments)
             });
         }
+      }).error(function() {
+        console.log(arguments)
       });
   }
 
@@ -493,6 +501,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
   $scope.getAccessPointList = function() {
     $service.getAccessPoints($scope.itemId, $scope.descriptionId).ajax({
       success: function(data) {
+        console.log(data)
         for (var i in data) {
           if (data[i].id === $scope.descriptionId) {
             $scope.accesslist = data[i];

@@ -23,7 +23,9 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
    * @param limit
    * @return
    */
-  def grantListAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(f: MT => rest.Page[PermissionGrantMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def grantListAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
+      f: MT => rest.Page[PermissionGrantMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -39,7 +41,9 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
   }
 
 
-  def setGlobalPermissionsAction(id: String)(f: MT => GlobalPermissionSet[MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def setGlobalPermissionsAction(id: String)(
+      f: MT => GlobalPermissionSet[MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -53,7 +57,9 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     }
   }
 
-  def setGlobalPermissionsPostAction(id: String)(f: MT => GlobalPermissionSet[MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def setGlobalPermissionsPostAction(id: String)(
+      f: MT => GlobalPermissionSet[MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
@@ -71,11 +77,13 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     }
   }
 
-  def revokePermissionAction(id: String, permId: String)(f: MT => PermissionGrantMeta => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def revokePermissionAction(id: String, permId: String)(
+      f: MT => PermissionGrantMeta => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          permOrErr <- rest.EntityDAO(EntityType.PermissionGrant, userOpt).get[PermissionGrantMeta](permId)
+          permOrErr <- rest.EntityDAO[PermissionGrantMeta](EntityType.PermissionGrant, userOpt).get(permId)
         } yield {
           for { perm <- permOrErr.right } yield {
             f(item)(perm)(userOpt)(request)
@@ -85,11 +93,13 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     }
   }
 
-  def revokePermissionActionPost(id: String, permId: String)(f: MT => Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def revokePermissionActionPost(id: String, permId: String)(
+      f: MT => Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          boolOrErr <- rest.EntityDAO(EntityType.PermissionGrant, userOpt).delete(permId)
+          boolOrErr <- rest.EntityDAO[PermissionGrantMeta](EntityType.PermissionGrant, userOpt).delete(permId)
         } yield {
           for { bool <- boolOrErr.right } yield {
             f(item)(bool)(userOpt)(request)
