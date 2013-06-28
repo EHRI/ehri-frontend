@@ -26,7 +26,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
   "DocumentaryUnit views" should {
 
     "list should get some (world-readable) items" in new FakeApp {
-      val list = route(fakeLoggedInRequest(unprivilegedUser, GET, routes.DocumentaryUnits.list.url)).get
+      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, routes.DocumentaryUnits.list.url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(oneItemHeader)
       contentAsString(list) must not contain ("c1")
@@ -34,7 +34,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "list when logged in should get more items" in new FakeApp {
-      val list = route(fakeLoggedInRequest(privilegedUser, GET, routes.DocumentaryUnits.list.url)).get
+      val list = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.DocumentaryUnits.list.url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("c1")
@@ -44,7 +44,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "search should find some items" in new FakeApp {
-      val search = route(fakeLoggedInRequest(privilegedUser, GET, routes.DocumentaryUnits.search.url)).get
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.DocumentaryUnits.search.url)).get
       status(search) must equalTo(OK)
       contentAsString(search) must contain(multipleItemsHeader)
       contentAsString(search) must contain("c1")
@@ -55,14 +55,14 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
 
     "list when logged with identifier filter in should get one" in new FakeApp {
       val params = s"${ListParams.PROPERTY_NAME}[0]=identifier&${ListParams.PROPERTY_VALUE}[0]=c3"
-      val list = route(fakeLoggedInRequest(privilegedUser, GET, routes.DocumentaryUnits.list.url + s"?$params")).get
+      val list = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.DocumentaryUnits.list.url + s"?$params")).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(oneItemHeader)
       contentAsString(list) must contain("c3")
     }
 
     "link to other privileged actions when logged in" in new FakeApp {
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(routes.DocumentaryUnits.update("c1").url)
       contentAsString(show) must contain(routes.DocumentaryUnits.delete("c1").url)
@@ -72,33 +72,33 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "link to holder" in new FakeApp {
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(routes.Repositories.get("r1").url)
     }
 
     "link to holder when a child item" in new FakeApp {
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, routes.DocumentaryUnits.get("c2").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.DocumentaryUnits.get("c2").url)).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(routes.Repositories.get("r1").url)
     }
 
     "give access to c1 when logged in" in new FakeApp {
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("c1")
     }
 
     "deny access to c1 when logged in as an ordinary user" in new FakeApp {
-      val show = route(fakeLoggedInRequest(unprivilegedUser, GET, routes.DocumentaryUnits.get("c2").url)).get
+      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, routes.DocumentaryUnits.get("c2").url)).get
       status(show) must equalTo(UNAUTHORIZED)
       contentAsString(show) must not contain ("Collection 2")
     }
 
     "allow deleting c4 when logged in" in new FakeApp {
-      val del = route(fakeLoggedInRequest(privilegedUser, POST, routes.DocumentaryUnits.deletePost("c4").url)).get
+      val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST, routes.DocumentaryUnits.deletePost("c4").url)).get
       status(del) must equalTo(SEE_OTHER)
     }
 
@@ -112,12 +112,12 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         "descriptions[0].dates[0].endDate" -> Seq("1945-01-01"),
         "publicationStatus" -> Seq("Published")
       )
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       println(contentAsString(cr))
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain("Some content")
@@ -135,7 +135,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // Since the item id is derived from the identifier field,
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
-      val call = fakeLoggedInRequest(privilegedUser, POST,
+      val call = fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
       val cr1 = route(call, testData).get
       status(cr1) must equalTo(SEE_OTHER)
@@ -156,7 +156,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // Since the item id is derived from the identifier field,
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
-      val call = fakeLoggedInRequest(privilegedUser, POST,
+      val call = fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
       val cr = route(call, testData).get
       status(cr) must equalTo(BAD_REQUEST)
@@ -173,11 +173,11 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         "descriptions[0].contextArea.acquistition" -> Seq("Acquisistion info"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.DocumentaryUnits.updatePost("c1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for c1")
     }
@@ -190,11 +190,11 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         "descriptions[0].name" -> Seq("Collection 1 - Updated"),
         "logMessage" -> Seq(msg)
       )
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.DocumentaryUnits.updatePost("c1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       // Log message should be in the history section...
       contentAsString(show) must contain(msg)
@@ -209,12 +209,12 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         "publicationStatus" -> Seq("Draft")
       )
 
-      val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         routes.DocumentaryUnits.updatePost("c4").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
 
       // We can view the item when not logged in...
-      val show = route(fakeLoggedInRequest(unprivilegedUser, GET, routes.DocumentaryUnits.get("c4").url)).get
+      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, routes.DocumentaryUnits.get("c4").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must not contain ("New Content for c4")
     }
@@ -225,7 +225,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "show history when logged in as privileged user" in new FakeApp {
-      val show = route(fakeLoggedInRequest(privilegedUser, GET,
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         routes.DocumentaryUnits.history("c1").url)).get
       status(show) must equalTo(OK)
     }
@@ -245,7 +245,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
 
       // Trying to create the item should fail initially.
       // Check we cannot create an item...
-      val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         routes.Repositories.createDocPost("r2").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
 
@@ -253,16 +253,16 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val permTestData: Map[String, List[String]] = Map(
         DocumentaryUnit.toString -> List("create", "update", "delete")
       )
-      val permReq = route(fakeLoggedInRequest(privilegedUser, POST,
+      val permReq = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.Repositories.setScopedPermissionsPost(testRepo, ContentType.UserProfile, unprivilegedUser.profile_id).url)
         .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
       status(permReq) must equalTo(SEE_OTHER)
       // Now try again and create the item... it should succeed.
       // Check we cannot create an item...
-      val cr2 = route(fakeLoggedInRequest(unprivilegedUser, POST,
+      val cr2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         routes.Repositories.createDocPost(testRepo).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
+      val getR = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
       status(getR) must equalTo(OK)
     }
 
@@ -281,7 +281,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
 
       // Trying to create the item should fail initially.
       // Check we cannot create an item...
-      val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
 
@@ -289,16 +289,16 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val permTestData: Map[String, List[String]] = Map(
         DocumentaryUnit.toString -> List("update")
       )
-      val permReq = route(fakeLoggedInRequest(privilegedUser, POST,
+      val permReq = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.DocumentaryUnits.setItemPermissionsPost(testItem, ContentType.UserProfile, unprivilegedUser.profile_id).url)
         .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
       status(permReq) must equalTo(SEE_OTHER)
       // Now try again to update the item, which should succeed
       // Check we can update the item
-      val cr2 = route(fakeLoggedInRequest(unprivilegedUser, POST,
+      val cr2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
+      val getR = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
       status(getR) must equalTo(OK)
     }
 
@@ -310,11 +310,11 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
         LinkF.DESCRIPTION -> Seq(body)
       )
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.DocumentaryUnits.linkAnnotatePost(testItem, EntityType.Concept.toString, linkSrc).url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain(linkSrc)
       contentAsString(getR) must contain(body)
@@ -332,11 +332,11 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         "link[1].data." + LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
         "link[1].data." + LinkF.DESCRIPTION -> Seq(body2)
       )
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.DocumentaryUnits.linkMultiAnnotatePost(testItem).url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("c2")
       contentAsString(getR) must contain(body1)
@@ -353,11 +353,11 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       )
       // Now try again to update the item, which should succeed
       // Check we can update the item
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.DocumentaryUnits.createDescriptionPost(testItem).url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("This is a second description")
     }
@@ -373,11 +373,11 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       )
       // Now try again to update the item, which should succeed
       // Check we can update the item
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.DocumentaryUnits.updateDescriptionPost(testItem, testItemDesc).url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("This is an updated description")
       contentAsString(getR) must not contain ("Some description text for c1")
@@ -388,11 +388,11 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val testItemDesc = "cd1-2"
       // Now try again to update the item, which should succeed
       // Check we can update the item
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.DocumentaryUnits.deleteDescriptionPost(testItem, testItemDesc).url)
         .withHeaders(formPostHeaders.toSeq: _*)).get
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must not contain ("Some alternate description text for c1")
     }

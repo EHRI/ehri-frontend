@@ -29,7 +29,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
     val COUNTRY = "nl"
 
     "list should get some items" in new FakeApp {
-      val list = route(fakeLoggedInRequest(unprivilegedUser, GET, routes.Repositories.list().url)).get
+      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, routes.Repositories.list().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("r1")
@@ -37,7 +37,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
     }
 
     "search should get some items" in new FakeApp {
-      val list = route(fakeLoggedInRequest(unprivilegedUser, GET, routes.Repositories.search().url)).get
+      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, routes.Repositories.search().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("r1")
@@ -59,12 +59,12 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "descriptions[0].controlArea[0].sources[1]" -> Seq("YV"),
         "publicationStatus" -> Seq("Published")
       )
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       // FIXME: This route will change when a property ID mapping scheme is devised
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Some history")
       contentAsString(show) must contain("Some content")
@@ -75,7 +75,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
     "error if missing mandatory values" in new FakeApp {
       val testData: Map[String, Seq[String]] = Map(
       )
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
@@ -84,17 +84,17 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("r1")
       )
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
-      val cr2 = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
 
     "link to other privileged actions when logged in" in new FakeApp {
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, routes.Repositories.get("r1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.Repositories.get("r1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(routes.Repositories.update("r1").url)
       contentAsString(show) must contain(routes.Repositories.delete("r1").url)
@@ -114,11 +114,11 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("New Content for r1"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(fakeLoggedInRequest(privilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         routes.Repositories.updatePost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for r1")
     }
@@ -131,12 +131,12 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("New Content for r1"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(fakeLoggedInRequest(unprivilegedUser, POST,
+      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         routes.Repositories.updatePost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
 
       // We can view the item when not logged in...
-      val show = route(fakeLoggedInRequest(unprivilegedUser, GET, routes.Repositories.get("r1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, routes.Repositories.get("r1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must not contain ("New Content for r1")
     }

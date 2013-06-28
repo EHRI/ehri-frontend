@@ -1,7 +1,7 @@
 package helpers
 
 import controllers.routes
-import play.api.http.HeaderNames
+import play.api.http.{MimeTypes, HeaderNames}
 import play.api.test.FakeApplication
 import play.api.test.FakeRequest
 import play.api.test.Helpers.POST
@@ -16,7 +16,7 @@ import mocks.UserFixtures
 
 /**
  * Mixin trait that provides some handy methods to test actions that
- * have authorisation, such as fakeApplication and fakeLoggedInRequest.
+ * have authorisation, such as fakeApplication and fakeLoggedInHtmlRequest.
  */
 trait TestLoginHelper {
 
@@ -65,9 +65,9 @@ trait TestLoginHelper {
    */
   def getAuthCookies(user: User): String
 
-
   /**
-   * Get a FakeRequest with authorization cookies for the given user.
+   * Get a FakeRequest with authorization cookies for the given user
+   * and HTML Accept.
    * @param user
    * @param rtype
    * @param path
@@ -81,6 +81,28 @@ trait TestLoginHelper {
     // the token is there when the form tries to render it.
     fr.withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)
   }
+
+  /**
+   * Get a FakeRequest with authorization cookies for the given user
+   * and HTML Accept.
+   * @param user
+   * @param rtype
+   * @param path
+   * @return
+   */
+  def fakeLoggedInHtmlRequest(user: User, rtype: String, path: String)
+        = fakeLoggedInRequest(user, rtype, path).withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML)
+
+  /**
+   * Get a FakeRequest with authorization cookies for the given user
+   * and HTML Accept.
+   * @param user
+   * @param rtype
+   * @param path
+   * @return
+   */
+  def fakeLoggedInJsonRequest(user: User, rtype: String, path: String)
+  = fakeLoggedInRequest(user, rtype, path).withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON)
 }
 
 /**
