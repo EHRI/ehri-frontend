@@ -24,7 +24,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
     "create an item" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create[UserProfileF](user)) must beRight
+      await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create(user)) must beRight
     }
 
     "create an item in (agent) context" in new FakeApp {
@@ -38,7 +38,8 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
     "create an item in (doc) context" in new FakeApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
-      val r = await(EntityDAO[DocumentaryUnitMeta](EntityType.DocumentaryUnit, Some(userProfile)).createInContext[DocumentaryUnitF,DocumentaryUnitMeta]("c1", ContentType.DocumentaryUnit, doc))
+      val r = await(EntityDAO[DocumentaryUnitMeta](EntityType.DocumentaryUnit, Some(userProfile))
+          .createInContext[DocumentaryUnitF,DocumentaryUnitMeta]("c1", ContentType.DocumentaryUnit, doc))
       r must beRight
       r.right.get.parent must beSome
       r.right.get.parent.get.id must equalTo("c1")
@@ -46,9 +47,9 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
     "update an item by id" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      val entity = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create[UserProfileF](user)).right.get
+      val entity = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create(user)).right.get
       val udata = entity.model.copy(location = Some("London"))
-      val res = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).update[UserProfileF](entity.id, udata))
+      val res = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).update(entity.id, udata))
       res must beRight
       res.right.get.model.location must equalTo(Some("London"))
     }
@@ -69,7 +70,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
     "delete an item by id" in new FakeApp {
       val user = UserProfileF(id = Some("foobar"), identifier = "foo", name = "bar")
-      val entity = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create[UserProfileF](user)).right.get
+      val entity = await(EntityDAO[UserProfileMeta](entityType, Some(userProfile)).create(user)).right.get
       await(EntityDAO(entityType, Some(userProfile)).delete(entity.id)) must beRight
     }
 

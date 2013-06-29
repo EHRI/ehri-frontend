@@ -4,8 +4,6 @@
 *@
 @(item: AnyModel, desc: models.base.Description, links: List[LinkMeta])(implicit prefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader)
 
-@{println("RELATED: " + desc.accessPoints)}
-
 @relatedLinks(list: List[AccessPointF], accessPointType: AccessPointF.AccessPointType.Value) = {
     @if(!list.isEmpty) {
         <h4>
