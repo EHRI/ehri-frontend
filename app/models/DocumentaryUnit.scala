@@ -97,5 +97,6 @@ case class DocumentaryUnitMeta(
   latestEvent: Option[SystemEventMeta] = None
 ) extends AnyModel
   with MetaModel[DocumentaryUnitF]
+  with DescribedMeta[DocumentaryUnitDescriptionF, DocumentaryUnitF]
   with Hierarchical[DocumentaryUnitMeta]
   with Accessible

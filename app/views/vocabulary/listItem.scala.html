@@ -1,0 +1,17 @@
+@(item: VocabularyMeta)(implicit req: RequestHeader, lang: Lang)
+
+@common.searchItemOutline(item.id) {
+    <a href="@routes.Vocabularies.get(item.id)">@item.toStringLang</a>
+} {
+    <small>
+        <ul class="unstyled muted inline inline-separator">
+            @item.latestEvent.map { event =>
+                <li title="@common.eventTitle(event)">
+                    <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))</time>
+                </li>
+            }
+        </ul>
+    </small>
+
+    @item.model.description
+}

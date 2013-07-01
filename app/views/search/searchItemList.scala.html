@@ -21,16 +21,16 @@
                         @country.searchItem(d)
                     }
                     case d: UserProfileMeta => {
-                        @userProfile.searchItem(d)
+                        @userProfile.listItem(d)
                     }
                     case d: GroupMeta => {
-                        @group.searchItem(d)
+                        @group.listItem(d)
                     }
                     case d: AuthoritativeSetMeta => {
-                        @authoritativeSet.searchItem(d)
+                        @authoritativeSet.listItem(d)
                     }
                     case d: VocabularyMeta => {
-                        @vocabulary.searchItem(d)
+                        @vocabulary.listItem(d)
                     }
                     case _ => {
                         @common.searchItem(item)

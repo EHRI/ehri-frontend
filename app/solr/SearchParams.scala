@@ -1,6 +1,8 @@
 package solr
 
 import defines.EntityType
+import models.json.ClientConvertable
+import play.api.libs.json.{Format, Json}
 
 /**
  * Helper for pagination.
@@ -12,6 +14,8 @@ object SearchField extends Enumeration {
   val Title = Value("title")
   val Creator = Value("creator")
   val StartDate = Value("start_date")
+
+  implicit val format = defines.EnumUtils.enumFormat(SearchField)
 }
 
 object SearchOrder extends Enumeration {
@@ -19,6 +23,8 @@ object SearchOrder extends Enumeration {
   val Score = Value("score.desc")
   val Name = Value("name_sort.asc")
   val DateNewest = Value("lastUpdated.desc")
+
+  implicit val format = defines.EnumUtils.enumFormat(SearchOrder)
 }
 
 object SearchType extends Enumeration {
@@ -27,6 +33,8 @@ object SearchType extends Enumeration {
   val Collection = Value("collection")
   val Authority = Value("authority")
   val Repository = Value("repository")
+
+  implicit val format = defines.EnumUtils.enumFormat(SearchType)
 }
 
 
@@ -90,4 +98,8 @@ object SearchParams {
       EXCLUDE -> optional(list(nonEmptyText))
     )(SearchParams.apply _)(SearchParams.unapply _)
   )
+
+  implicit object Converter extends ClientConvertable[SearchParams] {
+    implicit val clientFormat: Format[SearchParams] = Json.format[SearchParams]
+  }
 }

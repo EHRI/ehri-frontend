@@ -57,5 +57,6 @@ case class ConceptMeta(
   latestEvent: Option[SystemEventMeta]
 ) extends AnyModel
   with MetaModel[ConceptF]
+  with DescribedMeta[ConceptDescriptionF, ConceptF]
   with Hierarchical[ConceptMeta]
   with Accessible

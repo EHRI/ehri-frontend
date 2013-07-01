@@ -51,7 +51,7 @@ object UserProfiles extends PermissionHolderController[UserProfileMeta]
   }
 
   def search = {
-    searchAction[ConceptMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+    searchAction[UserProfileMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
         page => params => facets => implicit userOpt => implicit request =>
       Ok(views.html.userProfile.search(page, params, facets, routes.UserProfiles.search))
     }
@@ -65,8 +65,7 @@ object UserProfiles extends PermissionHolderController[UserProfileMeta]
     Ok(views.html.userProfile.list(page, params))
   }
 
-  def update(id: String) = updateAction(id) {
-      item => implicit userOpt => implicit request =>
+  def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.userProfile.edit(
         item, form.fill(item.model), routes.UserProfiles.updatePost(id)))
   }

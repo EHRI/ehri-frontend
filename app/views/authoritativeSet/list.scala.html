@@ -8,11 +8,9 @@
 	
 	<ul class="unstyled">
 	@page.items.map { item =>
-	  	<div class="list-item">
-			<h5>
-				<a href="@routes.AuthoritativeSets.get(item.id)">@item</a>
-			</h5>
-		</div>
+	  	<li>
+            @authoritativeSet.listItem(item)
+	  	</li>
 	}
 	</ul>
 

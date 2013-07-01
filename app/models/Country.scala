@@ -5,6 +5,7 @@ import base._
 import models.base.Persistable
 import defines.EntityType
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import play.api.i18n.Lang
 
 object CountryF {
   implicit object Converter extends RestConvertable[CountryF] with ClientConvertable[CountryF] {
@@ -39,4 +40,7 @@ case class CountryMeta(
   latestEvent: Option[SystemEventMeta] = None
 ) extends AnyModel
   with MetaModel[CountryF]
-  with Accessible
+  with Accessible {
+
+  override def toStringLang(implicit lang: Lang) = views.Helpers.countryCodeToName(id)
+}

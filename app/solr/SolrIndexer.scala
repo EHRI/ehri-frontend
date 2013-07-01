@@ -2,7 +2,7 @@ package solr
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.ws.WS
-import models.base.{AnyModel, Described, Accessible, Description}
+import models.base._
 import play.api.libs.json._
 import models._
 
@@ -15,6 +15,16 @@ import play.api.Logger
 import play.api.libs.json.JsObject
 import defines.EntityType
 import play.api.i18n.Lang
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsString
+import play.api.libs.json.JsBoolean
+import play.api.libs.json.JsNumber
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsString
+import play.api.libs.json.JsBoolean
+import play.api.libs.json.JsNumber
+import play.api.libs.json.JsObject
 
 /**
  * Object containing functions for managing the Solr index.
@@ -24,6 +34,9 @@ import play.api.i18n.Lang
 object SolrIndexer extends RestDAO {
 
   import SolrConstants._
+
+  implicit val lang: Lang = Lang.defaultLang
+
 
   // We don't need a user here yet unless we want to log
   // when the Solr index is changed.
@@ -108,7 +121,7 @@ object SolrIndexer extends RestDAO {
    * into batches of a fixed size so this function can accept
    * arbitrarily long lists.
    */
-  def updateItems(items: Stream[AnyModel], commit: Boolean = true): Future[List[SolrResponse]] = {
+  def updateItems(items: Stream[JsObject], commit: Boolean = true): Future[List[SolrResponse]] = {
     Future.sequence(items.grouped(batchSize).toList.map { batch =>
       try {
         solrUpdate(Json.toJson(batch.toList.flatMap(itemToJson)), commit = commit)
@@ -141,111 +154,112 @@ object SolrIndexer extends RestDAO {
    * @param item
    * @return
    */
-  private def itemToJson(item: AnyModel): List[JsObject] = {
-    /*item.isA match {
-      /*case EntityType.DocumentaryUnit => docToSolr(DocumentaryUnit(item))
-      case EntityType.HistoricalAgent => actorToSolr(HistoricalAgent(item))
-      case EntityType.Repository => repoToSolr(Repository(item))
-      case EntityType.Concept => conceptToSolr(Concept(item))
-      case EntityType.Country => countryToSolr(Country(item))
-      case any => entityToSolr(item)*/
-      case _ => List(Json.obj("id" -> item.id))
-    }*/
-    Nil
+  private def itemToJson(item: JsObject): List[JsObject] = {
+    item.validate[AnyModel](AnyModel.Converter.restReads).fold(
+      invalid = { err =>
+        Logger.logger.error("Bad JSON on reindex: " + JsError.toFlatJson(err))
+        Nil
+      },
+      valid = { any => any match {
+          case d: DocumentaryUnitMeta => docToSolr(d, item)
+          case d: HistoricalAgentMeta => actorToSolr(d, item)
+          case d: RepositoryMeta => repoToSolr(d, item)
+          case d: ConceptMeta => conceptToSolr(d, item)
+          case d: Accessible => anyToSolr(d, item)
+          case d => {
+            Logger.logger.error(s"Unexpected non-accessible item recieved for indexing: ${d.isA}: ${d.id}}")
+            Nil
+          }
+        }
+      }
+    )
   }
 
-  private def docToSolr(d: DocumentaryUnitMeta): List[JsObject] = {
-    /*val descriptions = describedEntityToSolr(d)
+  private def docToSolr(d: DocumentaryUnitMeta, json: JsObject): List[JsObject] = {
+    val descriptions = describedEntityToSolr[DocumentaryUnitDescriptionF,DocumentaryUnitF,DocumentaryUnitMeta](d, json)
     descriptions.map { desc =>
       ((desc
-        + ("copyrightStatus" -> Json.toJson(d.copyrightStatus))
-        + ("scope" -> Json.toJson(d.scope))
+        + ("copyrightStatus" -> Json.toJson(d.model.copyrightStatus))
+        + ("scope" -> Json.toJson(d.model.scope))
         + ("parentId" -> Json.toJson(d.parent.map(_.id)))
         + ("depthOfDescription" -> Json.toJson(d.ancestors.length))
         + ("holderId" -> Json.toJson(d.holder.map(_.id))))
-        + ("holderName" -> Json.toJson(d.holder.map(_.toString))))
-    }*/
-    Nil
+        + ("holderName" -> Json.toJson(d.holder.map(_.toStringLang))))
+    }
   }
 
-  private def actorToSolr(d: HistoricalAgentMeta): List[JsObject] = {
-    /*val descriptions = describedEntityToSolr(d)
+  private def actorToSolr(d: HistoricalAgentMeta, json: JsObject): List[JsObject] = {
+    val descriptions = describedEntityToSolr[HistoricalAgentDescriptionF,HistoricalAgentF,HistoricalAgentMeta](d, json)
     // FIXME: This is very stupid
     descriptions.zipWithIndex.map { case (desc,i) =>
-      ((desc
+      (desc
         + ("holderId" -> Json.toJson(d.set.map(_.id)))
         + ("holderName" -> Json.toJson(d.set.map(_.toString)))
-        + (Isaar.ENTITY_TYPE -> Json.toJson(d.descriptions(i).stringProperty(Isaar.ENTITY_TYPE)))))
-    }*/
-    Nil
+        + (Isaar.ENTITY_TYPE -> Json.toJson(d.model.descriptions(i).entityType)))
+    }
   }
 
-  private def repoToSolr(d: RepositoryMeta): List[JsObject] = {
-    /*val descriptions = describedEntityToSolr(d)
+  private def repoToSolr(d: RepositoryMeta, json: JsObject): List[JsObject] = {
+    val descriptions = describedEntityToSolr[RepositoryDescriptionF,RepositoryF,RepositoryMeta](d, json)
     descriptions.map { desc =>
       ((desc
-        + ("addresses" -> Json.toJson(d.descriptions.flatMap(_.addresses.flatMap(_.formableOpt)).map(_.toString).distinct))
-        + (OTHER_NAMES -> Json.toJson(d.descriptions.flatMap(_.listProperty(Isdiah.OTHER_FORMS_OF_NAME)).distinct))
-        + (PARALLEL_NAMES -> Json.toJson(d.descriptions.flatMap(_.listProperty(Isdiah.PARALLEL_FORMS_OF_NAME)).distinct))
+        + ("addresses" -> Json.toJson(d.model.descriptions.flatMap(_.addresses.map(_.toString)).distinct))
+        + (OTHER_NAMES -> Json.toJson(d.descriptions.flatMap(_.otherFormsOfName).distinct))
+        + (PARALLEL_NAMES -> Json.toJson(d.descriptions.flatMap(_.parallelFormsOfName).distinct))
         + ("countryCode" -> Json.toJson(d.country.map(_.id)))
-        + ("priority" -> Json.toJson(d.priority))))
-    }*/
-    Nil
-  }
-
-  private def countryToSolr(d: CountryMeta): List[JsObject] = {
-    /*val docs = entityToSolr(d.e)
-    docs.map { desc =>
-      // Ugh, do a deepMerge here so we overwrite any existing (null?) name value...
-      (desc.deepMerge(Json.obj("name" -> Json.toJson(views.Helpers.countryCodeToName(d.id)(new Lang("en"))))))
-    }*/
-    Nil
+        + ("priority" -> Json.toJson(d.model.priority))))
+    }
   }
 
   /**
    * Convert a Concept to JSON
-   * @param c
+   * @param d
    * @return
    */
-  private def conceptToSolr(c: ConceptMeta): List[JsObject] = {
-    /*val descriptions = describedEntityToSolr(c)
+  private def conceptToSolr(d: ConceptMeta, json: JsObject): List[JsObject] = {
+    val descriptions = describedEntityToSolr[ConceptDescriptionF,ConceptF,ConceptMeta](d, json)
     descriptions.map { desc =>
       ((desc
-        + ("parentId" -> Json.toJson(c.broaderTerms.map(_.id)))
-        + ("holderId" -> Json.toJson(c.vocabulary.map(_.id))))
-        + ("holderName" -> Json.toJson(c.vocabulary.map(_.toString))))
-    }*/
-    Nil
+        + ("parentId" -> Json.toJson(d.broaderTerms.map(_.id)))
+        + ("holderId" -> Json.toJson(d.vocabulary.map(_.id))))
+        + ("holderName" -> Json.toJson(d.vocabulary.map(_.toStringLang))))
+    }
   }
 
   /**
    * Convert a DescribedEntity into one flat Solr representation
    * per description.
-   * @param d
+   * @param json
    * @return
    */
-  private def describedEntityToSolr[D <: Description](d: Described[D]): List[JsObject] = {
-    /*d.descriptions.map { desc =>
-      val baseData = Json.obj(
+  private def describedEntityToSolr[D<:Description,T<:Described[D], TM<:DescribedMeta[D,T] with Accessible](
+               d: TM, json: JsObject): List[JsObject] = {
+
+    val base = d.descriptions.map { desc =>
+      Json.obj(
         ITEM_ID -> d.id,
-        "id" -> desc.id,
-        "identifier" -> d.stringProperty("identifier"),
-        NAME_EXACT -> desc.stringProperty("name"), // All descriptions should have a 'name' property
-        TYPE -> d.isA,
-        ACCESSOR_FIELD -> getAccessorValues(d.e),
-        "lastUpdated" -> d.latestEvent.map(_.dateTime),
-        "languageCode" -> desc.stringProperty(IsadG.LANG_CODE)
+        Entity.TYPE -> d.isA,
+        Entity.ID -> desc.id,
+        "languageCode" -> desc.languageCode,
+        ACCESSOR_FIELD -> d.accessors.map(_.id),
+        "lastUpdated" -> d.latestEvent.map(_.model.datetime),
+        NAME_EXACT -> d.toStringLang
       )
-      // Merge in all the additional data already in the entity
-      // Don't overwrite keys added specifically
-      desc.e.data.toSeq.foldLeft(baseData) { case (bd, (key, jsval)) =>
-        if (!bd.keys.contains(key))
-          bd + (dynamicFieldName(key, jsval), jsval)
-        else
-          bd
+    }
+
+    (json \ Entity.RELATIONSHIPS \ Described.REL).validate[List[JsObject]].fold(
+      invalid = { err =>
+        Logger.logger.error("Unable to extract descriptions: " + JsError.toFlatJson(err))
+        Nil
+      },
+      valid = { list =>
+        list.zipWithIndex.map { case (jsobj, i) =>
+          Json.toJson((json \ Entity.DATA).as[JsObject].fields.map { case (key, jsval) =>
+            dynamicFieldName(key, jsval) -> jsval
+          }.toMap).as[JsObject].deepMerge(base(i))
+        }
       }
-    }*/
-    Nil
+    )
   }
 
   /**
@@ -253,25 +267,24 @@ object SolrIndexer extends RestDAO {
    * @param d
    * @return
    */
-  private def entityToSolr(d: Entity): List[JsObject] = {
-    /*val baseData = Json.obj(
+  private def anyToSolr(d: Accessible, json: JsObject): List[JsObject] = {
+    val baseData = Json.obj(
       "id" -> d.id,
       ITEM_ID -> d.id, // Duplicate, because the 'description' IS the item.
       TYPE -> d.isA,
-      NAME_EXACT -> d.stringProperty("name"),
-      ACCESSOR_FIELD -> getAccessorValues(d),
-      LAST_MODIFIED -> d.relations(Accessible.EVENT_REL).map(a => SystemEvent(a).dateTime)
+      NAME_EXACT -> d.toStringLang,
+      ACCESSOR_FIELD -> d.accessors.map(_.id),
+      LAST_MODIFIED -> d.latestEvent.map(_.model.datetime)
     )
     // Merge in all the additional data already in the entity
     // Don't overwrite keys added specifically
-    val full = d.data.toSeq.foldLeft(baseData) { case (bd, (key, jsval)) =>
+    val full = (json \ Entity.DATA).as[JsObject].value.foldLeft(baseData) { case (bd, (key, jsval)) =>
       if (!bd.keys.contains(key))
-        bd + (dynamicFieldName(key, jsval), jsval)
+        bd + (dynamicFieldName(key, jsval) -> jsval)
       else
         bd
     }
-    List(full)*/
-    Nil
+    List(full)
   }
 
   private def dynamicFieldName(key: String, jsValue: JsValue): String = {
@@ -292,10 +305,5 @@ object SolrIndexer extends RestDAO {
    * @param d
    * @return
    */
-  private def getAccessorValues(d: Entity) = {
-    if (d.relations(Accessible.REL).isEmpty)
-      List(ACCESSOR_ALL_PLACEHOLDER)
-    else
-      d.relations(Accessible.REL).map(a => a.id)
-  }
+  private def getAccessorValues(d: Accessible) = d.accessors.map(_.id)
 }

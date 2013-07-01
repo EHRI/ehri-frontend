@@ -1,7 +1,0 @@
-@(item: VocabularyMeta)(implicit req: RequestHeader, lang: Lang)
-
-@common.searchItemOutline(item.id) {
-    <a href="@routes.Vocabularies.get(item.id)">@item</a>
-} {
-    @item.model.description
-}

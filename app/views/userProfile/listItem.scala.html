@@ -1,13 +1,13 @@
 @(item: UserProfileMeta)(implicit req: RequestHeader, lang: Lang)
 
 @common.searchItemOutline(item.id) {
-    <a href="@routes.UserProfiles.get(item.id)">@item</a>
+    <a href="@routes.UserProfiles.get(item.id)">@item.toStringLang</a>
 } {
 
     <small>
         <ul class="unstyled muted inline inline-separator">
-            @item.groups.map { acc =>
-                <li><a class="alt" href="@routes.Groups.get(acc.id)">@acc</a></li>
+            @item.groups.distinct.map { acc =>
+                <li><a class="alt" href="@routes.Groups.get(acc.id)">@acc.toStringLang</a></li>
             }
             @item.model.location.filterNot(_.trim.isEmpty).map { loc =>
                 <li>@loc</li>

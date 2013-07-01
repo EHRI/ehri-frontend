@@ -9,6 +9,7 @@ import defines.EntityType
 import play.api.libs.json.{JsObject, Format, Json}
 import defines.EnumUtils.enumWrites
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import play.api.i18n.Lang
 
 
 object UserProfileF {
@@ -100,6 +101,8 @@ case class UserProfileMeta(
   with MetaModel[UserProfileF]
   with Accessor
   with Accessible {
+
+  override def toStringLang(implicit lang: Lang) = model.name
 
   def hasPermission(ct: ContentType.Value, p: PermissionType.Value): Boolean = {
     globalPermissions.map { gp =>

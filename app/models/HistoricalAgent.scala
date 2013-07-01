@@ -54,6 +54,7 @@ case class HistoricalAgentMeta(
   latestEvent: Option[SystemEventMeta]
 ) extends AnyModel
   with MetaModel[HistoricalAgentF]
+  with DescribedMeta[HistoricalAgentDescriptionF,HistoricalAgentF]
   with Accessible
 
 

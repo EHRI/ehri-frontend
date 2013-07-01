@@ -4,14 +4,14 @@
     @item.scope.map { scope =>
         @scope -
     }
-    @item
+    @item.toStringLang
 }
 
 @rightSidebarLayout(title(item), breadcrumbs = common.breadcrumbs(List(item))) {
 
     <p>
     @item.actioner.map { accessor =>
-        <a href="@views.Helpers.urlFor(accessor)">@accessor</a>:
+        <a href="@views.Helpers.urlFor(accessor)">@accessor.toStringLang</a>:
     }
         <time>@item.time</time>
         (@views.Helpers.prettyDate(item.model.timestamp))
@@ -22,7 +22,7 @@
     }
 
     @item.scope.map { scope =>
-        @Messages("systemEvents.scope"):  <a href="@views.Helpers.urlFor(scope)">@scope</a>
+        @Messages("systemEvents.scope"):  <a href="@views.Helpers.urlFor(scope)">@scope.toStringLang</a>
     }
 
     <h4>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)}</h4>

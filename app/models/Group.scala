@@ -4,6 +4,7 @@ import models.base._
 import defines.EntityType
 import play.api.libs.json.{JsObject, Format, Json}
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import play.api.i18n.Lang
 
 object GroupF {
 
@@ -51,5 +52,8 @@ case class GroupMeta(
   latestEvent: Option[SystemEventMeta] = None
 ) extends MetaModel[GroupF]
   with Accessor
-  with Accessible
+  with Accessible {
+
+  override def toStringLang(implicit lang: Lang) = model.name
+}
 

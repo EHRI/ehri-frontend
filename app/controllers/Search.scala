@@ -13,7 +13,7 @@ import solr.SolrIndexer._
 import solr.{SearchOrder, SearchParams, SolrIndexer}
 import play.api.i18n.Messages
 import views.Helpers
-import play.api.libs.json.{Writes, Json}
+import play.api.libs.json.{JsObject, Writes, Json}
 import solr.SolrIndexer.SolrHeader
 import solr.facet.FieldFacetClass
 import solr.SolrIndexer.SolrUpdateResponse
@@ -148,7 +148,7 @@ object Search extends EntitySearch {
     /**
      * Update a single page of data
      */
-    def updatePage(entityType: EntityType.Value, params: RestPageParams, list: List[AnyModel], chan: Concurrent.Channel[String]
+    def updatePage(entityType: EntityType.Value, params: RestPageParams, list: List[JsObject], chan: Concurrent.Channel[String]
                     ): Future[List[SolrResponse]] = {
       solr.SolrIndexer.updateItems(list.toStream, commit = false).map { jobs =>
         jobs.map { response =>
@@ -179,7 +179,7 @@ object Search extends EntitySearch {
     def updateItemSet(entityType: EntityType.Value, pageNum: Int,
                       chan: Concurrent.Channel[String]): Future[List[SolrResponse]] = {
       val params = RestPageParams(page=Some(pageNum), limit = Some(batchSize))
-      val getData = EntityDAO[AnyModel](entityType, userOpt).list(params)
+      val getData = EntityDAO[AnyModel](entityType, userOpt).listJson(params)
       getData.flatMap { listOrErr =>
         listOrErr match {
           case Left(err) => {

@@ -36,6 +36,7 @@ object AnyModel {
           case EntityType.Concept => json.validate[ConceptMeta](ConceptMeta.Converter.restReads)
           case EntityType.DocumentaryUnit => json.validate[DocumentaryUnitMeta](DocumentaryUnitMeta.Converter.restReads)
           case EntityType.HistoricalAgent => json.validate[HistoricalAgentMeta](HistoricalAgentMeta.Converter.restReads)
+          case EntityType.AuthoritativeSet => json.validate[AuthoritativeSetMeta](AuthoritativeSetMeta.Converter.restReads)
           case EntityType.SystemEvent => json.validate[SystemEventMeta](SystemEventMeta.Converter.restReads)
           case EntityType.Country => json.validate[CountryMeta](CountryMeta.Converter.restReads)
           case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.restReads)
@@ -55,6 +56,7 @@ object AnyModel {
           case EntityType.Concept => json.validate[ConceptMeta](ConceptMeta.Converter.clientFormat)
           case EntityType.DocumentaryUnit => json.validate[DocumentaryUnitMeta](DocumentaryUnitMeta.Converter.clientFormat)
           case EntityType.HistoricalAgent => json.validate[HistoricalAgentMeta](HistoricalAgentMeta.Converter.clientFormat)
+          case EntityType.AuthoritativeSet => json.validate[AuthoritativeSetMeta](AuthoritativeSetMeta.Converter.clientFormat)
           case EntityType.SystemEvent => json.validate[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
           case EntityType.Country => json.validate[CountryMeta](CountryMeta.Converter.clientFormat)
           case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.clientFormat)
@@ -117,6 +119,10 @@ trait MetaModel[+T <: Model] extends AnyModel {
   }
 
   override def toStringAbbr(implicit lang: Lang): String = toStringLang(lang)
+}
+
+trait DescribedMeta[TD <: Description, T <: Described[TD]] extends MetaModel[T] {
+  def descriptions: List[TD] = model.descriptions
 }
 
 trait Hierarchical[+T] extends AnyModel {

@@ -61,7 +61,7 @@ object Countries extends CRUD[CountryF,CountryMeta]
     Ok(views.html.country.list(page, params))
   }
 
-  def search = searchAction[ConceptMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+  def search = searchAction[CountryMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.country.search(page, params, facets, routes.Countries.search))
   }

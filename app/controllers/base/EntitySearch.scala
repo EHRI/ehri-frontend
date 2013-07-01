@@ -9,7 +9,8 @@ import defines.EntityType
 import play.api.Play._
 import solr.facet.AppliedFacet
 import models.base.AnyModel
-import models.json.RestReadable
+import models.json.{ClientConvertable, RestReadable}
+import play.api.libs.json.{Writes, Json}
 
 
 /**
@@ -56,7 +57,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @param f
    * @return
    */
-  def searchAction[MT](f: solr.ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+  def searchAction[MT](f: solr.ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     searchAction[MT](Map.empty[String,Any])(f)
   }
 
@@ -67,7 +68,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @return
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
-      f: solr.ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+      f: solr.ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
 
@@ -87,7 +88,15 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
               AsyncRest {
                 rest.SearchDAO(userOpt).list[MT](itemIds).map { listOrErr =>
                   listOrErr.right.map { list =>
-                    f(res.copy(items = list.zip(ids)))(sp)(facets)(userOpt)(request)
+                    val page = res.copy(items = list.zip(ids))
+                    render {
+                      case Accepts.Json() => Ok(Json.obj(
+                        "page" -> Json.toJson(res.copy(items = list))(solr.ItemPage.itemPageWrites),
+                        "params" -> Json.toJson(sp)(SearchParams.Converter.clientFormat),
+                        "appliedFacets" -> Json.toJson(facets)
+                      ))
+                      case _ => f(page)(sp)(facets)(userOpt)(request)
+                    }
                   }
                 }
               }

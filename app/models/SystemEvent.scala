@@ -2,7 +2,7 @@ package models
 
 import models.base.{AnyModel, Model, MetaModel}
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import defines.{EntityType, EventType}
 import models.json.{RestReadable, ClientConvertable}
 
@@ -19,7 +19,9 @@ case class SystemEventF(
   timestamp: DateTime,
   logMessage: Option[String] = None,
   eventType: Option[EventType.Value] = None
-) extends Model
+) extends Model {
+  lazy val datetime = ISODateTimeFormat.dateTime.withZoneUTC.print(timestamp)
+}
 
 object SystemEvent {
   val ACTIONER_REL = "hasActioner"

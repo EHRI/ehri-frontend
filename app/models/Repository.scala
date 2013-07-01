@@ -52,4 +52,5 @@ case class RepositoryMeta(
   latestEvent: Option[SystemEventMeta] = None
 ) extends AnyModel
   with MetaModel[RepositoryF]
+  with DescribedMeta[RepositoryDescriptionF,RepositoryF]
   with Accessible

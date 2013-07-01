@@ -242,7 +242,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     val url = enc(requestUrl, "list" + params.toString)
     Logger.logger.debug("LIST: {}", url)
     WS.url(url)
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[List[JsObject]](response)
     }
   }
@@ -251,7 +251,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     val url = enc(requestUrl, "list" + params.toString)
     Logger.logger.debug("LIST: {}", url)
     WS.url(url)
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
   }
@@ -259,16 +259,15 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
   def listChildren[CMT](id: String, params: RestPageParams = RestPageParams())(
       implicit rd: RestReadable[CMT]): Future[Either[RestError, List[CMT]]] = {
     WS.url(enc(requestUrl, id, "list" + params.toString))
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-        checkErrorAndParse(response)(Reads.list(rd.restReads))
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
   }
 
   def pageJson(params: RestPageParams = RestPageParams()): Future[Either[RestError, Page[JsObject]]] = {
     val url = enc(requestUrl, "page" + params.toString)
     Logger.logger.debug("PAGE: {}", url)
-    WS.url(url)
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads[JsObject])
     }
   }
@@ -276,8 +275,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
   def page(params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, Page[MT]]] = {
     val url = enc(requestUrl, "page" + params.toString)
     Logger.logger.debug("PAGE: {}", url)
-    WS.url(url)
-        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
@@ -285,7 +283,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
   def pageChildren[CMT](id: String, params: RestPageParams = RestPageParams())(implicit rd: RestReadable[CMT]): Future[Either[RestError, Page[CMT]]] = {
     implicit val entityPageReads = Page.pageReads[Entity]
     WS.url(enc(requestUrl, id, "page" + params.toString))
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
