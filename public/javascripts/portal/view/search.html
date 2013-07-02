@@ -71,7 +71,7 @@
 							</div>
 							
 							<div id="content" class="span8" when-scrolled="loadMore()" >
-								<div ng-repeat="pagify in pages">
+								<div ng-repeat="pagify in pages| orderBy:pagify.id_page:number">
 									<article annotate="item" id="{{item.id}}" class="search-item" ng-repeat="item in pagify.items" >
 										<div ng-show="item.page" class="pagination-page muted" id="page-{{item.page}}">
 											<a title="Page {{item.page}}">

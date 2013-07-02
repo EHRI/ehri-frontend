@@ -111,9 +111,11 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 			if(push)
 			{
 				//Data themself
-				$scope.pages[$scope.currentPage] = {};
+				$scope.pages[$scope.currentPage] = {"id_page": $scope.currentPage.toString()};
 				$scope.pages[$scope.currentPage].items = data.page.items;
-				$scope.pages[$scope.currentPage].items[0] = {}
+				if(!$scope.pages[$scope.currentPage].items[0]) {
+					$scope.pages[$scope.currentPage].items[0] = {}
+				}
 				$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
 				
 				//Facets
@@ -134,11 +136,13 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 				$scope.loadedPage = {1 : true};
 				$scope.page = data.page;
 				$scope.pages = {};
-				$scope.pages[$scope.currentPage] = {};
+				$scope.pages[$scope.currentPage] = {"id_page": $scope.currentPage.toString()};
 				$scope.pages[$scope.currentPage].items = data.page.items;
 				if(data.page.total > 0)
 				{
-					$scope.pages[$scope.currentPage].items[0] = {}
+					if(!$scope.pages[$scope.currentPage].items[0]) {
+						$scope.pages[$scope.currentPage].items[0] = {}
+					}
 					$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
 				}
 				$scope.facets = data.facets;
@@ -151,6 +155,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 			// console.log($scope.items);
 			//Get the loading possible again
 			$scope.loadingPage = false;
+			console.log($scope.pages);
 		}).error(function() { 
 			$scope.removeFilterByKey($scope.lastFilter);
 			//alert('Server error, reloading datas');
