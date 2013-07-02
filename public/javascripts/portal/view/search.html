@@ -22,7 +22,7 @@
 							<div class="navbar-inner">
 								<ul class="nav">
 									<li class="dropdown">
-										<a class="dropdown-toggle">Sort <b class="caret"></b></a> 
+										<a class="dropdown-toggle"><i class="icon-sort-by-order"></i> Sort</a> 
 										<ul class="dropdown-menu">
 											<li>
 												<a ng-click="setQuery('sort', 'score.desc')"> Relevance </a>
@@ -31,10 +31,8 @@
 											</li>
 										</ul>
 									</li>
-									<li class="divider-vertical"></li>
 									<li ng-repeat="facet in page.facets" ng-show="facet.count > 1"  class="dropdown">
-										<a class="dropdown-toggle">{{(searchParams[facet.param]) || facet.name}}
-										<b class="caret"></b></a> 
+										<a class="dropdown-toggle"><i class="icon-{{facet.param}}"></i> {{(searchParams[facet.param]) || facet.name}}</a> 
 										<ul class="dropdown-menu">
 											<li ng-click="removeFilterByKey(facet.param)"><a>All</a></li>
 											<li ng-repeat="option in facet.facets.0" ng-show="option.count != 0" ng-click="setQuery(facet.param, option.param)" ng-class="(option.applied && 'disabled')">
@@ -43,9 +41,9 @@
 										</ul>
 									</li>
 								</ul>
-								<div class="navbar-form pull-right">
-									<input type="text" class="input input-small" placeholder="Go To" ng-model="currentPage" />
-								</div>
+								<ul class="nav pull-right">
+									<li><a ng-click="map.activate()"><i class="icon-map-marker"></i> Activate map</a></li>
+								</ul>
 							</div>
 						</nav>
 						</div>
@@ -92,7 +90,7 @@
 													<a class="iconwithtooltip" title="Drag this item" drag="item" dragStyle="drag">
 														<i class="icon-move"></i>
 													</a>
-													<a class="iconwithtooltip" title="See on map" ng-click="map.activate(item, desc.data.name, item.id)">
+													<a ng-show="map.activated" class="iconwithtooltip" title="See on map" ng-click="map.addMarker(item, desc.data.name, item.id)">
 														<i class="icon-map-marker"></i>
 													</a>
 												</span>
@@ -138,7 +136,7 @@
 									</sap>
 									<ul class="unstyled basket">
 										<li class="basket-item" ng-repeat="marker in mapMarkers.markers">
-											{{marker.data.title}}
+											<div class="basket-item-title">{{marker.data.title}}</div>
 											<div class="icon-pack">
 												<a ng-click="map.center(marker.data)"><i class="icon-map-marker"></i></a>
 											</div>

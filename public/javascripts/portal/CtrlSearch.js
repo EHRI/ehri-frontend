@@ -196,9 +196,10 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	
 	//<--- Map Functions
 	$scope.map = { }
-	$scope.map.activate = function(item, title, id) { $scope.map.activated = true; $map.addMarker(item, title, id); }
+	$scope.map.activate = function() { $scope.map.activated = true; }
 	$scope.map.deactivate = function() { $scope.map.activated = false; }
-	$scope.map.center = function(marker) { alert("center"); $map.reCenter(marker); }
+	$scope.map.addMarker = function(item, title, id) { $map.addMarker(item, title, id); }
+	$scope.map.center = function(marker) { $map.reCenter(marker); }
 	//Map Functions -->
 	
 /**********

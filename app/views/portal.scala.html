@@ -38,7 +38,6 @@
 	<title> </title>
 		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/portal.css")' />
 		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")' />
-		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/font-awesome.css")' />
 		<link rel="stylesheet" href='http://leaflet.cloudmade.com/dist/leaflet.css' />
 	</head>
 	<body ng-app="portalSearch" > 
@@ -176,13 +175,13 @@
 					<div class="dropup right basket">
 						<div class="basket-header"><i class="icon-shopping-cart icon-2"></i></div>
 						<article id="{{item.id}}" class="search-item" ng-repeat="item in basket">
-							<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+							<div class="basket-item-title" ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
 								<header>
 									<a ng-show="desc.data.name"><b>{{desc.data.name}}</b></a> - {{item.type}}								
 								</header>
 							</div>
 							<!-- If desc not inside relationship -->
-							<div ng-show="(!item.relationships.describes)">
+							<div class="basket-item-title" ng-show="(!item.relationships.describes)">
 								<header>
 									<a ng-click="getLink(item.type, item.id)"><b>{{item.data.name || item.data.identifier}}</b></a> - {{item.type}}
 								</header>
