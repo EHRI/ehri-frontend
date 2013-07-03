@@ -37,14 +37,12 @@
                         @views.Helpers.countryCodeToName(cc)<br />
                     }
                     <dl class="dl-horizontal">
-                    @address.listProperty(TELEPHONE).map { t =>
-                        <dt>@Messages("isdiah.telephone")</dt>
-                        <dd>@t</dd>
-                    }
-                    @List(EMAIL, FAX, URL).map { addressPart =>
-                        @address.stringProperty(addressPart).map { addressPartValue =>
-                            <dt>@Messages("isdiah." + addressPart)</dt>
-                            <dd>@addressPartValue</dd>
+                    @List(EMAIL, TELEPHONE, FAX, URL).map { addressPart =>
+                        @address.listProperty(addressPart).map { addressPartValue =>
+                            @addressPartValue.map { ap =>
+                                <dt>@Messages("isdiah." + addressPart)</dt>
+                                <dd>@ap</dd>
+                            }
                         }
                     }
                     </dl>
