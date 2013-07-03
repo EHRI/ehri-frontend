@@ -1,129 +1,139 @@
-<nav class="navbar">
-	<div class="navbar-inner">
-		<ul class="nav">
-			<li class="dropdown">
-				<a class="dropdown-toggle">Sort <b class="caret"></b></a> 
-				<ul class="dropdown-menu">
-					<li>
-						<a ng-click="setQuery('sort', 'score.desc')"> Relevance </a>
-						<a ng-click="setQuery('sort', 'name_sort.desc')"> Name </a>
-						<a ng-click="setQuery('sort', 'lastUpdated.desc')"> Recently Updated </a>
-					</li>
-				</ul>
-			</li>
-			<li class="divider-vertical"></li>
-			<li ng-repeat="facet in page.facets" ng-show="facet.count > 1"  class="dropdown">
-				<a class="dropdown-toggle">{{(searchParams[facet.param]) || facet.name}}
-				<b class="caret"></b></a> 
-				<ul class="dropdown-menu">
-					<li ng-click="removeFilterByKey(facet.param)"><a>All</a></li>
-					<li ng-repeat="option in facet.facets.0" ng-show="option.count != 0" ng-click="setQuery(facet.param, option.param)" ng-class="(option.applied && 'disabled')">
-						<a>{{option.param}} ({{option.count}})</a>
-					</li>
-				</ul>
-			</li>
-		</ul>
-		<div class="navbar-form pull-right">
-			<input type="text" class="input input-small" placeholder="Go To" ng-model="currentPage" />
-		</div>
-	</div>
-</nav>
-<article class="container" style="padding-top:30px;">
-<header class="span3 pull-right well well-small">
-	<div class="text-center"><h5 class="text-center">{{desc.data.name}}</h5></div>
-	<dl>
-		{{desc.data.identifier}}
-		<dt>Address</dt>
-		<dd class="address" title='@Messages("isdiah.addressArea")'>
-			<address>
-				{{address.street}} <br />
-				{{address.postalCode}},  {{address.municipality}} <br />
-				{{address.countryCode}}
-			</address>
-		</dd>
-		<dt>Contact</dt>
-		<dd>
-			<ul class="unstyled">
-				<li title="Phone"><i class="icon-phone"></i> <abbr>Tel.</abbr> {{address.telephone}}</li>
-				<li title="Fax"><i class="icon-print"></i> <abbr>Fax</abbr> {{address.fax}}</li>
-				<li title="Email"><i class="icon-envelope-alt"></i> <a href="mailto:{{address.email}}">Email</a></li>
-				<li title="Webpage"><i class="icon-globe"></i> <a href="{{address.webpage}}" target="_blank">Webpage</a></li>
+<div class="search-bar">
+	<nav class="navbar">
+		<div class="navbar-inner">
+			<ul class="nav">
+				<li class="dropdown">
+					<a class="dropdown-toggle">Sort <b class="caret"></b></a> 
+					<ul class="dropdown-menu">
+						<li>
+							<a ng-click="setQuery('sort', 'score.desc')"> Relevance </a>
+							<a ng-click="setQuery('sort', 'name_sort.desc')"> Name </a>
+							<a ng-click="setQuery('sort', 'lastUpdated.desc')"> Recently Updated </a>
+						</li>
+					</ul>
+				</li>
+				<li class="divider-vertical"></li>
+				<li ng-repeat="facet in page.facets" ng-show="facet.count > 1"  class="dropdown">
+					<a class="dropdown-toggle">{{(searchParams[facet.param]) || facet.name}}
+					<b class="caret"></b></a> 
+					<ul class="dropdown-menu">
+						<li ng-click="removeFilterByKey(facet.param)"><a>All</a></li>
+						<li ng-repeat="option in facet.facets.0" ng-show="option.count != 0" ng-click="setQuery(facet.param, option.param)" ng-class="(option.applied && 'disabled')">
+							<a>{{option.param}} ({{option.count}})</a>
+						</li>
+					</ul>
+				</li>
 			</ul>
-		</dd>
-		<dt>Opening times</dt>
-		<dd>{{desc.data.openingTimes}}</dd>
-		<dt>Other forms of name</dt>
-		<dd>{{desc.data.otherFormsOfName}}</dd>
-		<dt>Parallel forms of name</dt>
-		<dd>{{desc.data.parallelFormsOfName}}</dd>
-	</dl>
-</header>
-<sap id="map" style="width:300px; height:300px;" data-lat="{{geoloc.lat}}" data-lon="{{geoloc.lon}}"></sap>
-	<h2>{{desc.data.name}}</h2>
-<h3>Identity Area</h3>
-	<p>Other forms of name : </p>
-	<p>Other forms of name : {{desc.data.otherFormsOfName}}</p>
-	<p>Other forms of name : {{desc.data.otherFormsOfName}}</p>
-	
-<h3>Description Area</h3>
-	<h4 id="history">History</h4>
-	<p>{{desc.data.history}}</p>
-	<h4 id="history">Holdings</h4>
-	<p>{{desc.data.holdings}}</p>
-	<h4 id="history">Finding Aids </h4>
-	<p>{{desc.data.findingAids}}</p>
-	
-<h3>Access</h3>
-{{desc.data.accessibility}}
-<!--
-@descriptionSection(IDENTITY_AREA) {
-	@common.stringValue(desc, AUTHORIZED_FORM_OF_NAME)
-	@common.listValue(desc, PARALLEL_FORMS_OF_NAME)
-	@common.listValue(desc, OTHER_FORMS_OF_NAME)
-}
+			<div class="navbar-form pull-right">
+				<input type="text" class="input input-small" placeholder="Go To" ng-model="currentPage" />
+			</div>
+		</div>
+	</nav>
+</div>
+<article class="container document" style="padding-top:30px;">
+	<header class="span4 pull-right">
+		<div class="well well-small">
+			<div class="text-center"><h5 class="text-center">{{desc.data.name}}</h5></div>
+			<dl>
+				{{desc.data.identifier}}
+				<dt>Address</dt>
+				<dd class="address" title='@Messages("isdiah.addressArea")'>
+					<address>
+						{{address.street}} <br />
+						{{address.postalCode}},  {{address.municipality}} <br />
+						{{address.countryCode}}
+					</address>
+				</dd>
+				<dt>Contact</dt>
+				<dd>
+					<ul class="unstyled">
+						<li title="Phone"><i class="icon-phone"></i> <abbr>Tel.</abbr> {{address.telephone}}</li>
+						<li title="Fax"><i class="icon-print"></i> <abbr>Fax</abbr> {{address.fax}}</li>
+						<li title="Email"><i class="icon-envelope-alt"></i> <a href="mailto:{{address.email}}">Email</a></li>
+						<li title="Webpage"><i class="icon-globe"></i> <a href="{{address.webpage}}" target="_blank">Webpage</a></li>
+					</ul>
+				</dd>
+				<dt>Opening times</dt>
+				<dd>{{desc.data.openingTimes}}</dd>
+				<dt>Other forms of name</dt>
+				<dd>{{desc.data.otherFormsOfName}}</dd>
+				<dt>Parallel forms of name</dt>
+				<dd>{{desc.data.parallelFormsOfName}}</dd>
+			</dl>
+		</div>
+		<div class="square-container">
+			<div class="square-hack"></div>
+			<div class="square-content">
+				<sap id="map" style="width:100%; height:100%; background-color:red;" data-lat="{{geoloc.lat}}" data-lon="{{geoloc.lon}}"></sap>
+			</div>
+		</div>
+	</header>
+
+	<h1>{{desc.data.name}}</h1>
+	<div id="identity">
+		<h2>Identity Area</h2>
+		<p>Other forms of name : {{desc.data.otherFormsOfName}}</p>
+	</div>
+		
+	<h3>Description Area</h3>
+		<h4 id="history">History</h4>
+		<p>{{desc.data.history}}</p>
+		<h4 id="history">Holdings</h4>
+		<p>{{desc.data.holdings}}</p>
+		<h4 id="history">Finding Aids </h4>
+		<p>{{desc.data.findingAids}}</p>
+		
+	<h3>Access</h3>
+	{{desc.data.accessibility}}
+	<!--
+	@descriptionSection(IDENTITY_AREA) {
+		@common.stringValue(desc, AUTHORIZED_FORM_OF_NAME)
+		@common.listValue(desc, PARALLEL_FORMS_OF_NAME)
+		@common.listValue(desc, OTHER_FORMS_OF_NAME)
+	}
 
 
 
-@descriptionSection(DESCRIPTION_AREA) {
-	@common.stringValue(desc, HISTORY)
-	@common.stringValue(desc, GEOCULTURAL_CONTEXT)
-	@common.stringValue(desc, MANDATES)
-	@common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
-	@common.stringValue(desc, RECORDS)
-	@common.stringValue(desc, BUILDINGS)
-	@common.stringValue(desc, HOLDINGS)
-	@common.stringValue(desc, FINDING_AIDS)
-}
+	@descriptionSection(DESCRIPTION_AREA) {
+		@common.stringValue(desc, HISTORY)
+		@common.stringValue(desc, GEOCULTURAL_CONTEXT)
+		@common.stringValue(desc, MANDATES)
+		@common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
+		@common.stringValue(desc, RECORDS)
+		@common.stringValue(desc, BUILDINGS)
+		@common.stringValue(desc, HOLDINGS)
+		@common.stringValue(desc, FINDING_AIDS)
+	}
 
-@descriptionSection(ACCESS_AREA) {
-	@common.stringValue(desc, OPENING_TIMES)
-	@common.stringValue(desc, CONDITIONS)
-	@common.stringValue(desc, ACCESSIBILITY)
-}
+	@descriptionSection(ACCESS_AREA) {
+		@common.stringValue(desc, OPENING_TIMES)
+		@common.stringValue(desc, CONDITIONS)
+		@common.stringValue(desc, ACCESSIBILITY)
+	}
 
-@descriptionSection(SERVICES_AREA) {
-	@common.stringValue(desc, RESEARCH_SERVICES)
-	@common.stringValue(desc, REPROD_SERVICES)
-	@common.stringValue(desc, PUBLIC_AREAS)
-}
+	@descriptionSection(SERVICES_AREA) {
+		@common.stringValue(desc, RESEARCH_SERVICES)
+		@common.stringValue(desc, REPROD_SERVICES)
+		@common.stringValue(desc, PUBLIC_AREAS)
+	}
 
-@descriptionSection(CONTROL_AREA) {
-	@common.stringValue(desc, DESCRIPTION_IDENTIFIER)
-	@common.stringValue(desc, INSTITUTION_IDENTIFIER)
-	@common.stringValue(desc, RULES_CONVENTIONS)
-	@common.stringValue(desc, STATUS)
-	@common.stringValue(desc, LEVEL_OF_DETAIL)
-	@common.stringValue(desc, DATES_CVD)
-	@common.listValue(desc, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-	@common.listValue(desc, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
-	@common.stringValue(desc, SOURCES)
-	@common.stringValue(desc, MAINTENANCE_NOTES)
-}
+	@descriptionSection(CONTROL_AREA) {
+		@common.stringValue(desc, DESCRIPTION_IDENTIFIER)
+		@common.stringValue(desc, INSTITUTION_IDENTIFIER)
+		@common.stringValue(desc, RULES_CONVENTIONS)
+		@common.stringValue(desc, STATUS)
+		@common.stringValue(desc, LEVEL_OF_DETAIL)
+		@common.stringValue(desc, DATES_CVD)
+		@common.listValue(desc, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+		@common.listValue(desc, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+		@common.stringValue(desc, SOURCES)
+		@common.stringValue(desc, MAINTENANCE_NOTES)
+	}
 
-@common.relatedLinks(item, desc, links)
+	@common.relatedLinks(item, desc, links)
 
-@desc.unknownProperty.map { e =>
-	@common.unknownData(e)
-}
--->
+	@desc.unknownProperty.map { e =>
+		@common.unknownData(e)
+	}
+	-->
 </article>
