@@ -47,7 +47,7 @@ object AddressFormat {
     ((__ \ DATA \ EMAIL).read[List[String]] orElse
       (__ \ DATA \ EMAIL).readNullable[String].map(_.toList)) and
     ((__ \ DATA \ TELEPHONE).read[List[String]] orElse
-        (__ \ DATA \ TELEPHONE).readNullable[String].map(_.toList)) and
+      (__ \ DATA \ TELEPHONE).readNullable[String].map(_.toList)) and
     ((__ \ DATA \ FAX).read[List[String]] orElse
       (__ \ DATA \ FAX).readNullable[String].map(_.toList)) and
     ((__ \ DATA \ URL).read[List[String]] orElse

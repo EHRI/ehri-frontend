@@ -31,6 +31,7 @@ case class AddressF(
   fax: List[String] = Nil,
   url: List[String] = Nil
   ) extends Model {
+
   override def toString
       = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
 }

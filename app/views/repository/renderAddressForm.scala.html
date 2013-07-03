@@ -1,6 +1,7 @@
 @(field: play.api.data.Field)(implicit fieldPrefix: String, lang: Lang)
 
 @import Isdiah._
+@import formHelpers._
 
 <div class="address-form inline-element well well-small">
     <a class="close remove-inline-element pull-right" tabindex="-1" href="#">&times;</a>
@@ -12,8 +13,8 @@
     @formHelpers.lineInput(field, REGION)
     @formHelpers.choiceInput(field(COUNTRY_CODE), COUNTRY_CODE, views.Helpers.countryPairList, blank=true)
     @formHelpers.lineInput(field, POSTAL_CODE)
-    @formHelpers.lineInput(field, EMAIL)
-    @formHelpers.singleArrayInput(field, TELEPHONE)
-    @formHelpers.lineInput(field, FAX)
-    @formHelpers.lineInput(field, URL)
+    @inlineNameSet(field, EMAIL)
+    @inlineNameSet(field, TELEPHONE)
+    @inlineNameSet(field, FAX)
+    @inlineNameSet(field, URL)
 </div>

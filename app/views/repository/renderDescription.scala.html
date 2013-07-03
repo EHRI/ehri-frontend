@@ -40,11 +40,7 @@
                         @views.Helpers.countryCodeToName(cc)<br />
                     }
                     <dl class="dl-horizontal">
-                    @address.telephone.map { t =>
-                        <dt>@Messages(fieldPrefix + ".telephone")</dt>
-                        <dd>@t</dd>
-                    }
-                    @List(EMAIL, FAX, URL).zip(List(address.email, address.fax, address.url)).map { case (name, addressPart) =>
+                    @List(EMAIL, FAX, URL).zip(List(address.email, address.telephone, address.fax, address.url)).map { case (name, addressPart) =>
                         @addressPart.map { addressPartValue =>
                             <dt>@Messages(fieldPrefix + "." + name)</dt>
                             <dd>@addressPartValue</dd>

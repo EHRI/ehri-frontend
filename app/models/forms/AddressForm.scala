@@ -24,7 +24,7 @@ object AddressForm {
       REGION -> optional(nonEmptyText),
       POSTAL_CODE -> optional(nonEmptyText),
       COUNTRY_CODE -> optional(nonEmptyText),
-      EMAIL -> list(text),
+      EMAIL -> list(email),
       TELEPHONE -> list(text),
       FAX -> list(text),
       URL -> list(text)
