@@ -106,15 +106,33 @@
 				<div ng-repeat="desc in child.relationships.describes | descLang:langFilter">
 					<a>{{desc.data.name}}</a>
 					<div class="filterBar-icon filterBar-icon-empty pull-right">
-						<a ng-click="children.quickview.desc = desc; children.quickview.show = !children.quickview.show;">
+						<a ng-click="children.quickview.desc = desc;children.quickview.id = child.id; children.quickview.show = !children.quickview.show;">
 							<i class="icon-chevron-right"></i>
 						</a>
 					</div>
 				</div>
 			</li>
 			<li class="children-quickview" ng-show="children.quickview.show">
-				<b>{{children.quickview.desc.data.name}}</b>
-				<p>{{children.quickview.desc.data.biographicalHistory}}</p>
+				<div style="line-height:30px">
+				<div class="filterBar-icon filterBar-icon-empty pull-left" style="margin-right:10px;">
+					<a ng-click="children.quickview.show = !children.quickview.show;">
+						<i class="icon-chevron-left"></i>
+					</a>
+				</div>
+				<b><a href="#/item/documentaryUnit/{{children.quickview.id}}">{{children.quickview.desc.data.name}}</a></b>
+				</div>
+				<p ng-show="children.quickview.desc.data.biographicalHistory">
+					<u>Biographical History :</u> {{children.quickview.desc.data.biographicalHistory}}
+				</p>
+				<p ng-show="children.quickview.desc.data.archivalHistory">
+					<u>Archival History :</u>
+					{{children.quickview.desc.data.archivalHistory}}
+				</p>
+				<p ng-show="children.quickview.desc.data.scopeAndContent">
+					<u>Scope and Content :</u>
+					{{children.quickview.desc.data.scopeAndContent}}
+				</p>
+				 
 			</li>
 		</ul>
 	</div>
