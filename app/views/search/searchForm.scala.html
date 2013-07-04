@@ -31,8 +31,9 @@
         </div>
         <h4>
             @Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)
+
             @result.spellcheck.map { case (actual, corrected) =>
-                @defining(params.query.map(_.replace(actual, corrected))) { suggestion =>
+                @defining(params.query.map(_.toLowerCase.replace(actual.toLowerCase, corrected))) { suggestion =>
                     (@Messages("search.spellingSuggestion")
                     <i>
                         <strong>

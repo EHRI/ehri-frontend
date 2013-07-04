@@ -1,6 +1,6 @@
 package views
 
-import java.util.Locale
+import java.util.{IllformedLocaleException, Locale}
 
 import views.html.helper.FieldConstructor
 import models.base.{WrappedEntity, DescribedEntity, AccessibleEntity}
@@ -196,10 +196,14 @@ package object Helpers {
    * @return
    */
   def scriptCodeToName(code: String)(implicit lang: Lang): String = {
-    var tmploc = new Locale.Builder().setScript(code).build()
-    tmploc.getDisplayScript(lang.toLocale) match {
-      case d if !d.isEmpty => d
-      case _ => code
+    try {
+      var tmploc = new Locale.Builder().setScript(code).build()
+      tmploc.getDisplayScript(lang.toLocale) match {
+        case d if !d.isEmpty => d
+        case _ => code
+      }
+    } catch {
+      case _: IllformedLocaleException => code
     }
   }
 
