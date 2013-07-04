@@ -30,7 +30,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 
         @permissions.renderVisibilityForm(vf, users, groups)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createConcept"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createConcept"), cancel = Some(item))
 	}
 } {
 

@@ -47,23 +47,4 @@ object Annotations extends EntityRead[Annotation]
       Redirect(routes.Application.index)
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
-
-  def annotate(id: String) = annotationAction(id) {
-      item => form => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Annotation(item), form, routes.Annotations.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) { formOrAnnotation => implicit userOpt =>
-    implicit request =>
-      formOrAnnotation match {
-        case Left(errorForm) => getEntity(id, userOpt) { item =>
-          BadRequest(views.html.annotation.annotate(Annotation(item),
-            errorForm, routes.Annotations.annotatePost(id)))
-        }
-        case Right(annotation) => {
-          Redirect(routes.Annotations.get(id))
-            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-        }
-      }
-  }
 }

@@ -21,12 +21,15 @@ case class AddressF(
   region: Option[String] = None,
   postalCode: Option[String] = None,
   countryCode: Option[String] = None,
-  email: Option[String] = None,
-  telephone: Option[List[String]] = None,
-  fax: Option[String] = None,
-  url: Option[String] = None
-  ) {
+  email: List[String] = Nil,
+  telephone: List[String] = Nil,
+  fax: List[String] = Nil,
+  url: List[String] = Nil
+) {
   val isA = EntityType.Address
+
+  override def toString
+      = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
 }
 
 

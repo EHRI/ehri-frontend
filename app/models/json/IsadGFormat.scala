@@ -22,6 +22,7 @@ object IsadGFormat {
         TYPE -> d.isA,
         DATA -> Json.obj(
           TITLE -> d.name,
+          ABSTRACT -> d.`abstract`,
           LANG_CODE -> d.languageCode,
           LEVEL_OF_DESCRIPTION -> d.levelOfDescription,
           EXTENT_MEDIUM -> d.extentAndMedium,
@@ -42,6 +43,7 @@ object IsadGFormat {
           LOCATION_COPIES -> d.materials.locationOfCopies,
           RELATED_UNITS -> d.materials.relatedUnitsOfDescription,
           PUBLICATION_NOTE -> d.materials.publicationNote,
+          NOTES -> d.notes,
           ARCHIVIST_NOTE -> d.control.archivistNote,
           RULES_CONVENTIONS -> d.control.rulesAndConventions,
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions
@@ -63,6 +65,7 @@ object IsadGFormat {
     (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).read[String] and
+      (__ \ DATA \ ABSTRACT).readNullable[String] and
       ((__ \ RELATIONSHIPS \ TemporalEntity.DATE_REL).lazyRead[List[DatePeriodF]](
         Reads.list[DatePeriodF]) orElse Reads.pure(Nil)) and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[LevelOfDescription.Value] and
@@ -81,8 +84,10 @@ object IsadGFormat {
       (__ \ DATA).read[Conditions]((
         (__ \ ACCESS_COND).readNullable[String] and
           (__ \ REPROD_COND).readNullable[String] and
-          (__ \ LANG_MATERIALS).readNullable[List[String]] and
-          (__ \ SCRIPT_MATERIALS).readNullable[List[String]] and
+          ((__ \ LANG_MATERIALS).readNullable[List[String]] orElse
+            (__ \ LANG_MATERIALS).readNullable[String].map(os => os.map(List(_))) ) and
+          ((__ \ SCRIPT_MATERIALS).readNullable[List[String]] orElse
+            (__ \ SCRIPT_MATERIALS).readNullable[String].map(os => os.map(List(_))) ) and
           (__ \ PHYSICAL_CHARS).readNullable[String] and
           (__ \ FINDING_AIDS).readNullable[String]
         )(Conditions.apply _)) and
@@ -92,6 +97,8 @@ object IsadGFormat {
           (__ \ RELATED_UNITS).readNullable[String] and
           (__ \ PUBLICATION_NOTE).readNullable[String]
         )(Materials.apply _)) and
+      ((__ \ NOTES).readNullable[List[String]] orElse
+        (__ \ NOTES).readNullable[String].map(os => os.map(List(_))) ) and
       (__ \ DATA).read[Control]((
         (__ \ ARCHIVIST_NOTE).readNullable[String] and
           (__ \ RULES_CONVENTIONS).readNullable[String] and

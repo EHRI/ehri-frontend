@@ -23,6 +23,7 @@ forms.search=Search
 error.date=Date is incorrect or badly formatted
 error.required=Required
 constraint.required=*
+format.boolean=On/Off
 
 search.type=Item Type
 search.filterItems=Filter Items
@@ -30,6 +31,8 @@ search.sortItems=Sort Items
 search.sortReversed=(Descending)
 search.noItemsFound=No Items Found
 search.updateIndex=Refresh Search Index
+search.clearEntireIndex=Clear Entire Index First
+search.selectAllTypes=Select All
 search.typesToUpdate=Types to Update
 search.score.desc=Relevance
 search.order=Order
@@ -39,6 +42,7 @@ search.lastUpdated.desc=Recently Updated
 search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descriptions}
 search.spellingSuggestion=Did you mean
 search.queryPlaceholder=Search...
+search.batchSize=Batch size for reindexing
 
 footer.footerText=This is a development version of the EHRI data entry interface.
 
@@ -160,7 +164,12 @@ annotation.emptyBodyText=[Missing Annotation Text]
 #
 # Linking
 #
-linking.linkTo=Links to Other Items
+link.linkTo=Links to Other Items
+link.items=Linked Items
+link.itemLink=Item Link
+link.creator=Link Created By
+link.description=Link Body
+link.description.description=Some text that describes how these items are related.
 
 #
 # Admin
@@ -192,6 +201,19 @@ group.description=Group Description
 #
 systemEvents.itemAtTime=Action at {0}
 systemEvents.lastUpdated=Updated {0}
+systemEvents.creation=Item created
+systemEvents.modification=Item modified
+systemEvents.deletion=Item deleted
+systemEvents.link=Link created
+systemEvents.annotation=Annotation created
+systemEvents.setGlobalPermissions=Global permissions modified
+systemEvents.setItemPermissions=Item-level permissions modified
+systemEvents.setVisibility=Visibility modified
+systemEvents.addGroup=Member added to group
+systemEvents.removeGroup=Member removed from group
+systemEvents.ingest=Items imported
+systemEvents.unknown=Unknown action
+systemEvents.scope=Scope
 
 # Actions
 actions.edit=Edit
@@ -283,6 +305,8 @@ actions.manageAccessPoints=Manage Access Points
 actions.revokePermission=Revoke
 actions.addNewConceptDescription=Add Concept Description
 actions.deleteConceptDescription=Delete Description
+actions.deleteLink=Delete Link
+actions.save=Save
 
 # Submit buttons
 submitButton.createDocumentaryUnit=Create Collection
@@ -364,6 +388,7 @@ documentaryUnit.parentItem=Parent Item
 documentaryUnit.availableDescriptions=Available Descriptions
 documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD(G) description info.
 documentaryUnit.search=Search Top-level Descriptions
+documentaryUnit.searchInside=Child Items
 
 #
 # Repositories
@@ -886,6 +911,9 @@ isaar.accessPoints.creatorAccess.description=
 isaar.accessPoints.corporateBodyAccess=Corporate Bodies
 isaar.accessPoints.corporateBodyAccess.description=
 
+isaar.accessPoints.familyAccess=Families
+isaar.accessPoints.family.description=
+
 isaar.accessPoints.personAccess=Persons
 isaar.accessPoints.personAccess.description=
 
@@ -911,6 +939,7 @@ isadg.contextArea=Context Area
 isadg.contentArea=Content Area
 isadg.conditionsArea=Conditions Area
 isadg.materialsArea=Materials Area
+isadg.notesArea=Notes Area
 isadg.controlArea=Control Area
 
 isadg.name=Title
@@ -1036,13 +1065,13 @@ Give information about conditions, such as copyright, governing the reproduction
  unit of description after access has been provided. If the existence of such conditions is\
  unknown, record this. If there are no conditions, no statement is necessary. (3.4.2)
 
-isadg.languageOfMaterials=Language(s) of Materials
-isadg.languageOfMaterials.description=To identify the language(s) employed in the unit of description.\n\n\
+isadg.languageOfMaterial=Language(s) of Materials
+isadg.languageOfMaterial.description=To identify the language(s) employed in the unit of description.\n\n\
 Record the language(s) and/or script(s) of the materials comprising the unit of description.\
  Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (3.4.3)
 
-isadg.scriptOfMaterials=Script(s) of Materials
-isadg.scriptOfMaterials.description=To identify the script(s) employed in the unit of description.\n\n\
+isadg.scriptOfMaterial=Script(s) of Materials
+isadg.scriptOfMaterial.description=To identify the script(s) employed in the unit of description.\n\n\
 Record the language(s) and/or script(s) of the materials comprising the unit of description.\
  Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (3.4.3)
 
@@ -1086,8 +1115,8 @@ Record a citation to, and/or information about a publication that is about or ba
  use, study, or analysis of the unit of description. Include references to published facsimiles\
  or transcriptions. (3.5.4)
 
-isadg.note=Note(s)
-isadg.note.description=To provide information that cannot be accommodated in any of the other areas.\n\n\
+isadg.notes=Note(s)
+isadg.notes.description=To provide information that cannot be accommodated in any of the other areas.\n\n\
 Record specialized or other important information not accommodated by any of the\
  defined elements of description. (3.6.1)
 
@@ -1107,6 +1136,7 @@ Record the date(s) the entry was prepared and/or revised. (3.7.3)
 isadg.accessPoints=Access Points
 isadg.accessPoints.creatorAccess=Creators
 isadg.accessPoints.corporateBodyAccess=Corporate Bodies
+isadg.accessPoints.familyAccess=Families
 isadg.accessPoints.personAccess=Persons
 isadg.accessPoints.subjectAccess=Subject Access Points
 isadg.accessPoints.placeAccess=Place Access Points

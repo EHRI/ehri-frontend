@@ -24,6 +24,7 @@ case object IsadG {
   val EXTENT_MEDIUM = "extentAndMedium"
   val PUB_STATUS = "publicationStatus"
   val LANG_CODE = "languageCode"
+  val ABSTRACT = "abstract"
 
   val IDENTITY_AREA = "identityArea"
   val DESCRIPTIONS_AREA = "descriptionsArea"
@@ -43,8 +44,8 @@ case object IsadG {
   val CONDITIONS_AREA = "conditionsArea"
   val ACCESS_COND = "conditionsOfAccess"
   val REPROD_COND = "conditionsOfReproduction"
-  val LANG_MATERIALS = "languageOfMaterials"
-  val SCRIPT_MATERIALS = "scriptOfMaterials"
+  val LANG_MATERIALS = "languageOfMaterial"
+  val SCRIPT_MATERIALS = "scriptOfMaterial"
   val PHYSICAL_CHARS = "physicalCharacteristics"
   val FINDING_AIDS = "findingAids"
 
@@ -53,6 +54,9 @@ case object IsadG {
   val LOCATION_COPIES = "locationOfCopies"
   val RELATED_UNITS = "relatedUnitsOfDescription"
   val PUBLICATION_NOTE = "publicationNote"
+
+  val NOTES_AREA = "notesArea"
+  val NOTES = "notes"
 
   val CONTROL_AREA = "controlArea"
   val ARCHIVIST_NOTE = "archivistNote"

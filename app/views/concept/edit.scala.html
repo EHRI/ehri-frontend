@@ -9,7 +9,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.csrfToken()
 		@concept.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateConcept"))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateConcept"), cancel = Some(item))
 	}
 } {
 

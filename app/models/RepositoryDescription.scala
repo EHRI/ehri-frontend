@@ -37,7 +37,7 @@ object RepositoryDescriptionF {
     datesCDR: Option[String] = None,
     languages: Option[List[String]] = None,
     scripts: Option[List[String]] = None,
-    sources: Option[String] = None,
+    sources: Option[List[String]] = None,
     maintenanceNotes: Option[String] = None
     ) extends AttributeSet
 

@@ -115,16 +115,27 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def searchChildren(id: String) = itemPermissionAction(contentType, id) {
       item => implicit userOpt => implicit request =>
+
     searchAction(Map("parentId" -> item.id)) {
       page => params => facets => implicit userOpt => implicit request =>
         Ok(views.html.search.search(page, params, facets, routes.DocumentaryUnits.search))
     }(request)
   }
 
-  def get(id: String) = getWithChildrenAction(id) {
+  /*def get(id: String) = getWithChildrenAction(id) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
+
     Ok(views.html.documentaryUnit.show(
       DocumentaryUnit(item), page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
+  }*/
+
+  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+    val doc = DocumentaryUnit(item)
+    searchAction(Map("parentId" -> item.id, "depthOfDescription" -> (doc.ancestors.size + 1).toString),
+          defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
+      page => params => facets => _ => _ =>
+        Ok(views.html.documentaryUnit.show(doc, page, params, facets, routes.DocumentaryUnits.get(id), annotations, links))
+    }(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
@@ -138,13 +149,13 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.edit(
-        Some(DocumentaryUnit(item)), form.fill(DocumentaryUnit(item).formable),routes.DocumentaryUnits.updatePost(id)))
+        DocumentaryUnit(item), form.fill(DocumentaryUnit(item).formable),routes.DocumentaryUnits.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.documentaryUnit.edit(
-          Some(DocumentaryUnit(olditem)), errorForm, routes.DocumentaryUnits.updatePost(id)))
+          DocumentaryUnit(olditem), errorForm, routes.DocumentaryUnits.updatePost(id)))
       case Right(item) => Redirect(routes.DocumentaryUnits.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }
@@ -289,35 +300,16 @@ object DocumentaryUnits extends CreationContext[DocumentaryUnitF, DocumentaryUni
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = annotationAction(id) {
-      item => form => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(DocumentaryUnit(item),
-          form, routes.DocumentaryUnits.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(DocumentaryUnit(item),
-            errorForm, routes.DocumentaryUnits.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.DocumentaryUnits.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
-  }
-
   def linkTo(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.linkTo(DocumentaryUnit(item)))
   }
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
-    item => page => params => implicit userOpt => implicit request =>
-      Ok(views.html.linking.linkSourceList(item, page, params,
-        EntityType.withName(toType), routes.DocumentaryUnits.linkAnnotate _))
+    item => page => params => facets => etype => implicit userOpt => implicit request =>
+      Ok(views.html.linking.linkSourceList(item, page, params, facets, etype,
+          routes.DocumentaryUnits.linkAnnotateSelect(id, toType),
+          routes.DocumentaryUnits.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {

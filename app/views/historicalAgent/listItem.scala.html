@@ -24,6 +24,9 @@
                 @desc.stringProperty(ENTITY_TYPE).map { et =>
                     <li>@Messages("isaar." + et)</li>
                 }
+                @desc.dates.headOption.flatMap(_.formableOpt).map { dp =>
+                    <li>@dp.years</li>
+                }
                 @item.latestEvent.map { event =>
                     <li title="@common.eventTitle(event)">
                         <time datetime="@event.timeStamp">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.timeStamp))</time>

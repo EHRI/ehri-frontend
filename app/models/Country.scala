@@ -35,6 +35,8 @@ case class Country(e: Entity)
   lazy val formable: CountryF = Json.toJson(e).as[CountryF]
   lazy val formableOpt: Option[CountryF] = Json.toJson(e).asOpt[CountryF]
 
+  override def toString = toStringLang(Lang.defaultLang)
+
   /**
    * Show the name language aware.
    * @param lang

@@ -30,6 +30,9 @@ POST    /admin/changePassword           controllers.Admin.changePasswordPost
 GET     /admin/updateIndex              controllers.Search.updateIndex
 POST    /admin/updateIndex              controllers.Search.updateIndexPost
 
+# API Sparql queries - TESTING
+GET /sparql                             controllers.ApiController.sparql
+GET /sparqlQuery                        controllers.ApiController.sparqlQuery
 
 # Search testing
 GET /search                             controllers.Search.search
@@ -39,7 +42,7 @@ GET /item/:id                           controllers.Application.get(id: String)
 GET /item/:type/:id                           controllers.Application.getType(type: String, id: String)
 
 # Get JSON (id,name) pair for a given type
-GET /filter                       controllers.Search.filterType(type: Option[String])
+GET /filter                       controllers.Search.filter
 
 # Change locale
 GET     /locale                         controllers.Application.changeLocale
@@ -72,8 +75,6 @@ POST    /docs/permissions/:id/:userType/:userId    controllers.DocumentaryUnits.
 GET     /docs/scope/:id/add    controllers.DocumentaryUnits.addScopedPermissions(id: String)
 GET     /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /docs/scope/:id/:userType/:userId    controllers.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: String, userId: String)
-GET     /docs/annotate/:id     controllers.DocumentaryUnits.annotate(id: String)
-POST    /docs/annotate/:id     controllers.DocumentaryUnits.annotatePost(id: String)
 
 GET     /docs/link/:id          controllers.DocumentaryUnits.linkTo(id: String)
 GET     /docs/link/:id/:toType     controllers.DocumentaryUnits.linkAnnotateSelect(id: String, toType: String)
@@ -148,8 +149,6 @@ POST    /repository/permissions/:id/:userType/:userId    controllers.Repositorie
 GET     /repository/scope/:id/add    controllers.Repositories.addScopedPermissions(id: String)
 GET     /repository/scope/:id/:userType/:userId    controllers.Repositories.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /repository/scope/:id/:userType/:userId    controllers.Repositories.setScopedPermissionsPost(id: String, userType: String, userId: String)
-GET     /repository/annotate/:id     controllers.Repositories.annotate(id: String)
-POST    /repository/annotate/:id     controllers.Repositories.annotatePost(id: String)
 
 GET     /cpf                controllers.HistoricalAgents.search
 GET     /cpf/list           controllers.HistoricalAgents.list
@@ -166,8 +165,6 @@ GET     /cpf/permissions/:id/manage    controllers.HistoricalAgents.managePermis
 GET     /cpf/permissions/:id/add    controllers.HistoricalAgents.addItemPermissions(id: String)
 GET     /cpf/permissions/:id/:userType/:userId    controllers.HistoricalAgents.setItemPermissions(id: String, userType: String, userId: String)
 POST    /cpf/permissions/:id/:userType/:userId    controllers.HistoricalAgents.setItemPermissionsPost(id: String, userType: String, userId: String)
-GET     /cpf/annotate/:id     controllers.HistoricalAgents.annotate(id: String)
-POST    /cpf/annotate/:id     controllers.HistoricalAgents.annotatePost(id: String)
 GET     /cpf/link/:id          controllers.HistoricalAgents.linkTo(id: String)
 GET     /cpf/link/:id/:toType     controllers.HistoricalAgents.linkAnnotateSelect(id: String, toType: String)
 GET     /cpf/link/:id/:toType/:to     controllers.HistoricalAgents.linkAnnotate(id: String, toType: String, to: String)
@@ -194,8 +191,6 @@ POST    /vocabs/permissions/:id/:userType/:userId    controllers.Vocabularies.se
 GET     /vocabs/scope/:id/add    controllers.Vocabularies.addScopedPermissions(id: String)
 GET     /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /vocabs/scope/:id/:userType/:userId    controllers.Vocabularies.setScopedPermissionsPost(id: String, userType: String, userId: String)
-GET     /vocabs/annotate/:id     controllers.Vocabularies.annotate(id: String)
-POST    /vocabs/annotate/:id     controllers.Vocabularies.annotatePost(id: String)
 
 GET     /sets                controllers.AuthoritativeSets.list
 GET     /sets/show/:id       controllers.AuthoritativeSets.get(id: String)
@@ -218,8 +213,6 @@ POST    /sets/permissions/:id/:userType/:userId    controllers.AuthoritativeSets
 GET     /sets/scope/:id/add    controllers.AuthoritativeSets.addScopedPermissions(id: String)
 GET     /sets/scope/:id/:userType/:userId    controllers.AuthoritativeSets.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /sets/scope/:id/:userType/:userId    controllers.AuthoritativeSets.setScopedPermissionsPost(id: String, userType: String, userId: String)
-GET     /sets/annotate/:id     controllers.AuthoritativeSets.annotate(id: String)
-POST    /sets/annotate/:id     controllers.AuthoritativeSets.annotatePost(id: String)
 
 GET     /country                controllers.Countries.search
 GET     /country/show/:id       controllers.Countries.get(id: String)
@@ -242,8 +235,6 @@ POST    /country/permissions/:id/:userType/:userId    controllers.Countries.setI
 GET     /country/scope/:id/add    controllers.Countries.addScopedPermissions(id: String)
 GET     /country/scope/:id/:userType/:userId    controllers.Countries.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /country/scope/:id/:userType/:userId    controllers.Countries.setScopedPermissionsPost(id: String, userType: String, userId: String)
-GET     /country/annotate/:id     controllers.Countries.annotate(id: String)
-POST    /country/annotate/:id     controllers.Countries.annotatePost(id: String)
 
 GET     /concepts                controllers.Concepts.search
 GET     /concepts/list           controllers.Concepts.list
@@ -265,8 +256,6 @@ POST    /concepts/permissions/:id/:userType/:userId    controllers.Concepts.setI
 GET     /concepts/scope/:id/add    controllers.Concepts.addScopedPermissions(id: String)
 GET     /concepts/scope/:id/:userType/:userId    controllers.Concepts.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /concepts/scope/:id/:userType/:userId    controllers.Concepts.setScopedPermissionsPost(id: String, userType: String, userId: String)
-GET     /concepts/annotate/:id     controllers.Concepts.annotate(id: String)
-POST    /concepts/annotate/:id     controllers.Concepts.annotatePost(id: String)
 GET     /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotate(id: String, toType: String, to: String)
 POST    /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotatePost(id: String, toType: String, to: String)
 
@@ -278,19 +267,19 @@ GET     /annotation/show/:id       controllers.Annotations.get(id: String)
 GET     /annotation/history/:id       controllers.Annotations.history(id: String)
 GET     /annotation/visibility/:id     controllers.Annotations.visibility(id: String)
 POST    /annotation/visibility/:id     controllers.Annotations.visibilityPost(id: String)
-GET     /annotation/annotate/:id     controllers.Annotations.annotate(id: String)
-POST    /annotation/annotate/:id     controllers.Annotations.annotatePost(id: String)
 GET     /annotation/delete/:id     controllers.Annotations.delete(id: String)
 POST    /annotation/delete/:id     controllers.Annotations.deletePost(id: String)
 
-GET     /link/show/:id       controllers.Links.get(id: String)
+# Ugh, ugly REST violation - create an annotation on *another* entity
+POST    /annotation/create/:id      controllers.Annotations.createAnnotationJsonPost(id: String)
+GET     /annotation/getFor/:id      controllers.Annotations.getAnnotationJson(id: String)
+
+GET     /link/show/:id       controllers.Links.get(id: String, redirect: Option[String] ?= None)
 GET     /link/history/:id       controllers.Links.history(id: String)
 GET     /link/visibility/:id     controllers.Links.visibility(id: String)
 POST    /link/visibility/:id     controllers.Links.visibilityPost(id: String)
-GET     /link/annotate/:id     controllers.Links.annotate(id: String)
-POST    /link/annotate/:id     controllers.Links.annotatePost(id: String)
-GET     /link/delete/:id     controllers.Links.delete(id: String)
-POST    /link/delete/:id     controllers.Links.deletePost(id: String)
+GET     /link/delete/:id     controllers.Links.delete(id: String, redirect: Option[String] ?= None)
+POST    /link/delete/:id     controllers.Links.deletePost(id: String, redirect: Option[String] ?= None)
 
 # API
 

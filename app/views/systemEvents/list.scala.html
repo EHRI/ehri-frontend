@@ -7,12 +7,27 @@
 	<ul class="unstyled">
 	@page.items.map { item =>
 	  	<div class="list-item">
-			<h5><a data-timestamp="@item.time" href="@routes.SystemEvents.get(item.id)">@views.Helpers.prettyDate(item.timeStamp)</a>
-			@item.actioner.map { accessor =>
-                - <a href="@views.Helpers.urlFor(accessor)">@accessor</a>
-			}
-			</h5>
-			<p>@item.logMessage</p>
+			<h4>
+                <a data-timestamp="@item.time" href="@routes.SystemEvents.get(item.id)">
+                    @item.scope.map { scope =>
+                        @views.Helpers.itemForEntity(scope.e) -
+                    }
+                    <i>@item</i>
+                </a>
+			</h4>
+            <small>
+                <ul class="unstyled muted inline inline-separator">
+                    @item.actioner.map { accessor =>
+                        <li><a class="alt" href="@views.Helpers.urlFor(accessor)">@accessor</a></li>
+                    }
+                    <li>@views.Helpers.prettyDate(item.timeStamp)</li>
+                </ul>
+            </small>
+            <small>
+            @item.logMessage.map { lm =>
+                <p>@lm</p>
+            }
+            </small>
 		</div>
 	}
 	</ul>

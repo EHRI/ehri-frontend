@@ -17,6 +17,7 @@ object AccessPointF {
     type Type = Value
     val CreatorAccess = Value("creatorAccess")
     val PersonAccess = Value("personAccess")
+    val FamilyAccess = Value("familyAccess")
     val CorporateBodyAccess = Value("corporateBodyAccess")
     val SubjectAccess = Value("subjectAccess")
     val PlaceAccess = Value("placeAccess")

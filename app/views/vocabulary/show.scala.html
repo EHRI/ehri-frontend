@@ -2,14 +2,16 @@
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
-    @common.annotated(item, annotations, routes.Vocabularies.annotate(item.id)) {
+    @common.annotated(item, annotations) {
         @defining("vocabulary") { implicit  prefix =>
             @common.stringValue(item, models.VocabularyF.DESCRIPTION)
         }
     }
 
     @views.html.search.searchSection(Messages("vocabulary.items")) {
-        @views.html.search.searchForm(result, params, action, autofocus = false)
+        @views.html.search.searchForm(result, params, action, autofocus = false) {
+            @views.html.search.searchItemList(result)
+        }
     }
 } {
     @common.visibility(item, routes.Vocabularies.visibility(item.id), ContentType.Vocabulary)

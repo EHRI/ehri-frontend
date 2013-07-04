@@ -195,25 +195,6 @@ object Concepts extends CreationContext[ConceptF, Concept]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def annotate(id: String) = annotationAction(id) {
-      item => form => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Concept(item), form, routes.Concepts.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(Concept(item),
-            errorForm, routes.Concepts.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.Concepts.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
-  }
-
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.linking.link(target, source,

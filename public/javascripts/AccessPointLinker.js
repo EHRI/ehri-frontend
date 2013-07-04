@@ -1,10 +1,10 @@
 !(function() {
   var linker = angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead', 'ui.bootstrap.pagination' ], function($provide) {
     $provide.factory('$search', function($http, $log) {
-      var search = function(type, searchTerm, page) {
+      var search = function(types, searchTerm, page) {
         var params = "?limit=10&q=" + (searchTerm || "");
-        if (type) {
-          params = params + "&type=" + type;
+        if (types && types.length > 0) {
+          params = params + "&" + (types.map(function(t) { return "st[]=" + t }).join("&"));
         }
         if (page) {
           params = params + "&page=" + page;
@@ -28,7 +28,7 @@
       return {
         get: jsRoutes.controllers.Application.get,
         getType: jsRoutes.controllers.Application.getType,
-        filter: jsRoutes.controllers.Search.filterType,
+        filter: jsRoutes.controllers.Search.filter,
         createLink: jsRoutes.controllers.DocumentaryUnits.createLink,
         createMultipleLinks: jsRoutes.controllers.DocumentaryUnits.createMultipleLinks,
         createAccessPoint: jsRoutes.controllers.DocumentaryUnits.createAccessPoint,
@@ -39,6 +39,15 @@
           return jsRoutes.controllers.DocumentaryUnits.get(id).url;
         }
       };
+    });
+
+    $provide.factory('$names', function() {
+      return {
+        cvocConcept: "Concept/Keyword",
+        documentaryUnit: "Archival Unit",
+        repository: "Repository",
+        historicalAgent: "Authority"
+      }
     });
 
   });
@@ -74,7 +83,7 @@
 }).call(this);
 
 
-function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
+function LinkCtrl($scope, $window, $search, dialog, $names, $rootScope) {
 // Items data
   // FIXME: Retrieving the passed-in query should be easier!
   $scope.q = dialog.options.resolve.q();
@@ -94,13 +103,7 @@ function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
   });
 
   $rootScope.readableType = function(code) {
-    var types = {
-      cvocConcept: "Concept/Keyword",
-      documentaryUnit: "Archival Unit",
-      repository: "Repository",
-      historicalAgent: "Authority"
-    }
-    return types[code] ? types[code] : code;
+    return $names[code] ? $names[code] : code;
   }
 
   /**
@@ -178,7 +181,7 @@ function LinkCtrl($scope, $window, $search, dialog, $rootScope) {
 }
 
 
-function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
+function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $window) {
 
   /**
    * Headers for ajax calls.
@@ -206,6 +209,10 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
     },
     controller: 'LinkCtrl'
   };
+
+  $scope.readableType = function(code) {
+    return $names[code] ? $names[code] : code;
+  }
 
   /**
    * Initialize the scope with the item and description IDs.
@@ -383,6 +390,19 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
   }
 
   /**
+   * Unsustainable hack limiting certain types of access point
+   * to certain target entities!  FIXME!!!
+   * @param type
+   * @returns {Array}
+   */
+  $scope.limitTypes = function(type) {
+    if (type.match(/(?:creator|person)Access/)) {
+      return ["historicalAgent"];
+    }
+    return [];
+  }
+
+  /**
    * Populate the matches member with those that
    * match the (partial) name string entered by
    * the user.
@@ -393,7 +413,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $rootScope, $window) {
 
     }
 
-    $search.filter(null, $scope.tempAccessPoint.name).then(function(result) {
+    $search.filter($scope.limitTypes($scope.tempAccessPoint.type), $scope.tempAccessPoint.name).then(function(result) {
       $scope.matches = result.data.items;
     });
   }

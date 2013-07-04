@@ -18,7 +18,7 @@ import play.api.cache.Cache
  *
  * @param userProfile
  */
-case class DescriptionDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
+case class DescriptionDAO(entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
 
   implicit val entityReads = Entity.entityReads
   implicit val entityPageReads = PageReads.pageReads
@@ -29,39 +29,54 @@ case class DescriptionDAO(userProfile: Option[UserProfile] = None) extends RestD
   def createDescription(id: String, item: Persistable,
       logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id))
-      .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .post(item.toJson).map { response =>
-      checkError(response).right.map { r =>
-        val entity = jsonToEntity(r.json)
-        EntityDAO.handleUpdate(entity)
-        Cache.remove(id)
-        entity
+        .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
+        .post(item.toJson).flatMap { response =>
+      checkError(response) match {
+        case Left(err) => Future.successful(Left(err))
+        case Right(r) => {
+          EntityDAO(entityType, userProfile).get(id).map {
+            case Right(updated) => {
+              EntityDAO.handleUpdate(updated)
+              Cache.remove(id)
+              Right(jsonToEntity(r.json))
+            }
+            case err => err
+          }
+        }
       }
     }
   }
 
   def updateDescription(id: String, did: String, item: Persistable, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .put(item.toJson).map { response =>
-      checkError(response).right.map { r =>
-        val entity = jsonToEntity(r.json)
-        EntityDAO.handleUpdate(entity)
-        Cache.remove(id)
-        entity
+        .put(item.toJson).flatMap { response =>
+      checkError(response) match {
+        case Left(err) => Future.successful(Left(err))
+        case Right(r) => {
+          EntityDAO(entityType, userProfile).get(id).map {
+            case Right(updated) => {
+              EntityDAO.handleUpdate(updated)
+              Cache.remove(id)
+              Right(jsonToEntity(r.json))
+            }
+            case err => err
+          }
+        }
       }
     }
   }
 
   def deleteDescription(id: String, did: String, logMsg: Option[String] = None): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-        .delete.map { response =>
-      checkError(response).right.map(r => {
-        // FIXME: This is unfortunate. Since descriptions are indexed as individual
-        // items, deleting one means deleting it individually by ID
-        EntityDAO.handleDelete(did)
-        Cache.remove(id)
-        r.status == Status.OK
-      })
+        .delete.flatMap { response =>
+      EntityDAO(entityType, userProfile).get(id).map {
+        case Right(updated) => {
+          EntityDAO.handleUpdate(updated)
+          Cache.remove(id)
+          Right(true)
+        }
+        case Left(err) => Left(err)
+      }
     }
   }
 
@@ -69,25 +84,35 @@ case class DescriptionDAO(userProfile: Option[UserProfile] = None) extends RestD
   def createAccessPoint(id: String, did: String, item: Persistable,
                         logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
-      .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .post(item.toJson).map { response =>
-      checkError(response).right.map { r =>
-        Cache.remove(id)
-        EntityDAO.handleUpdate(jsonToEntity(r.json))
+        .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
+        .post(item.toJson).flatMap { response =>
+      checkError(response) match {
+        case Left(err) => Future.successful(Left(err))
+        case Right(r) => {
+          EntityDAO(entityType, userProfile).get(id).map {
+            case Right(updated) => {
+              EntityDAO.handleUpdate(updated)
+              Cache.remove(id)
+              Right(jsonToEntity(r.json))
+            }
+            case err => err
+          }
+        }
       }
     }
   }
 
   def deleteAccessPoint(id: String, did: String, apid: String, logMsg: Option[String] = None): Future[Either[RestError, Entity]] = {
     WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .delete.map { response =>
-      checkError(response).right.map(r => {
-        // FIXME: This is unfortunate. Since descriptions are indexed as individual
-        // items, deleting one means deleting it individually by ID
-        EntityDAO.handleDelete(did)
-        Cache.remove(id)
-        jsonToEntity(r.json)
-      })
+      .delete.flatMap { response =>
+        EntityDAO(entityType, userProfile).get(id).map {
+          case Right(updated) => {
+            EntityDAO.handleUpdate(updated)
+            Cache.remove(id)
+            Right(updated)
+          }
+          case err => err
+        }
     }
   }
 }

@@ -5,18 +5,18 @@
 @if(!item.ancestors.isEmpty) {
     <small>
         <ul class="unstyled muted inline inline-separator">
-            <li>
-                @item.ancestors.map(DocumentaryUnit).reverse.map { parent =>
-                    <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toString,100)</a>
-                }
-            </li>
+            @item.ancestors.map(DocumentaryUnit).reverse.map { parent =>
+                <li>
+                    <a href="@routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
+                </li>
+            }
         </ul>
     </small>
 }
 <small>
     <ul class="unstyled muted inline inline-separator">
         @item.holder.map { holder =>
-            <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder</a></li>
+            <li><a class="alt" href="@routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
         }
         <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
 
@@ -33,7 +33,7 @@
         }
     </ul>
 </small>
-@desc.stringProperty(IsadG.SCOPE_CONTENT).map(StringUtils.abbreviate(_, 600)).map { sc =>
+@desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
     <p>@sc</p>
 }
 

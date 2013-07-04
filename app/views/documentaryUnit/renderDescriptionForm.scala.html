@@ -4,6 +4,7 @@
 @import models.DatePeriodF._
 @import formHelpers._
 
+
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 <div class="description-form" id="@desc("form").id">
@@ -20,11 +21,11 @@
                 <a href="#" class="add-inline-element"><i class="icon-plus-sign"></i></a>
             </label>
             <div class="inline-element-template form-template">
-                @documentaryUnit.renderDateRow(desc(DATES + "[IDX]"))
+                @common.renderDateSetForm(desc(DATES + "[IDX]"))
             </div>
             <div class="inline-element-list">
                 @helper.repeat(desc(DATES), min = 0) { desc =>
-                    @documentaryUnit.renderDateRow(desc)
+                    @common.renderDateSetForm(desc)
                 }
             </div>
         </div>
@@ -67,6 +68,10 @@
             @textInput(desc, RELATED_UNITS)
             @textInput(desc, PUBLICATION_NOTE)
         }
+    }
+
+    @descriptionFormSection(NOTES_AREA) {
+        @inlineTextSet(desc, NOTES)
     }
 
     @descriptionFormSection(CONTROL_AREA) {

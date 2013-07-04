@@ -5,7 +5,7 @@ import models._
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
-import models.base.Description
+import models.base.{TemporalEntity, Description}
 
 
 object IsaarFormat {
@@ -66,6 +66,8 @@ object IsaarFormat {
         (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
         (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
+      ((__ \ RELATIONSHIPS \ TemporalEntity.DATE_REL).lazyRead[List[DatePeriodF]](
+        Reads.list[DatePeriodF]) orElse Reads.pure(Nil)) and
       (__ \ DATA).read[Details]((
         (__ \ DATES_OF_EXISTENCE).readNullable[String] and
         (__ \ HISTORY).readNullable[String] and
@@ -85,7 +87,8 @@ object IsaarFormat {
         (__ \ DATES_CVD).readNullable[String] and
         (__ \ LANGUAGES_USED).readNullable[List[String]] and
         (__ \ SCRIPTS_USED).readNullable[List[String]] and
-        (__ \ SOURCES).readNullable[String] and
+        ((__ \ SOURCES).readNullable[List[String]] orElse
+          (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
         (__ \ MAINTENANCE_NOTES).readNullable[String]
       )(Control.apply _)) and
       ((__ \ RELATIONSHIPS \ Description.ACCESS_REL).lazyRead[List[AccessPointF]](

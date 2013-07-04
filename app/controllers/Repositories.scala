@@ -16,6 +16,7 @@ import collection.immutable.ListMap
 import views.Helpers
 import scala.Some
 import solr.{SearchOrder, SearchParams}
+import scala.concurrent.Future
 
 object Repositories extends EntityRead[Repository]
   with EntityUpdate[RepositoryF, Repository]
@@ -25,6 +26,10 @@ object Repositories extends EntityRead[Repository]
   with PermissionScopeController[Repository]
   with EntityAnnotate[Repository]
   with EntitySearch {
+
+  /*private def getRepositoryTypes: Future[List[(String,String,String)]] = {
+
+  }*/
 
   val listFilterMappings = ListMap[String,String](
     AccessibleEntity.NAME -> AccessibleEntity.NAME,
@@ -94,7 +99,8 @@ object Repositories extends EntityRead[Repository]
    * @return
    */
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction(Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
+    searchAction(Map("holderId" -> item.id, "depthOfDescription" -> "0"),
+        defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.repository.show(Repository(item), page, params, facets, routes.Repositories.get(id), annotations, links))
     }(request)
@@ -208,24 +214,5 @@ object Repositories extends EntityRead[Repository]
       perms => implicit userOpt => implicit request =>
     Redirect(routes.Repositories.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-  }
-
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(Repository(item), AnnotationForm.form, routes.Repositories.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(Repository(item),
-          errorForm, routes.Repositories.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.Repositories.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
   }
 }

@@ -161,26 +161,6 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
     Redirect(routes.AuthoritativeSets.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
-
-  def annotate(id: String) = withItemPermission(id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.annotate(AuthoritativeSet(item),
-      AnnotationForm.form, routes.AuthoritativeSets.annotatePost(id)))
-  }
-
-  def annotatePost(id: String) = annotationPostAction(id) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left(errorForm) => getEntity(id, userOpt) { item =>
-        BadRequest(views.html.annotation.annotate(AuthoritativeSet(item),
-            errorForm, routes.AuthoritativeSets.annotatePost(id)))
-      }
-      case Right(annotation) => {
-        Redirect(routes.AuthoritativeSets.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-      }
-    }
-  }
 }
 
 

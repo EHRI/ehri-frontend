@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AccessibleEntity, annotations: Map[String,List[Annotation]], url: Call)(body: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader)
+@(item: AccessibleEntity, annotations: Map[String,List[Annotation]])(body: Html)(implicit maybeUser: Option[UserProfile], req: RequestHeader)
 
 @annotationList(notes: List[Annotation]) = {
     @if(!notes.isEmpty) {
@@ -15,7 +15,6 @@
                 @ann.stringProperty(AnnotationF.BODY).map { body =>
                     @body.trim
                 }
-                <a href="@routes.Annotations.annotate(ann.id)?annotationType=comment">+</a>
                 @if(!ann.annotations.isEmpty) {
                     @annotationList(ann.annotations)
                 }
@@ -27,7 +26,6 @@
 }
 
 <div class="annotatable" id="@item.id">
-    <a href="@url?annotationType=comment">+@Messages("actions.annotateThisItem")</a>
     @body
     @annotations.get(item.id).map { list =>
         @if(!list.isEmpty) {

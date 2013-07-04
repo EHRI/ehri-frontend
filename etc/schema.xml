@@ -111,6 +111,7 @@ also applies synonyms. -->
   <field name="levelOfDescription" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="typeOfEntity" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="accessPoints" type="text_general" indexed="true" stored="true" multiValued="true"/>
+  <field name="addresses" type="text_general" indexed="true" stored="false" multiValued="true" />
   <field name="priority" type="int" indexed="true" stored="true" multiValued="false"/>
   <field name="_version_" type="long" indexed="true" stored="true"/>
   <dynamicField name="*_i" type="int" indexed="true" stored="true"/>
@@ -137,7 +138,9 @@ also applies synonyms. -->
 <copyField source="name" dest="text"/>
 <copyField source="title" dest="text"/>
 <copyField source="holderName" dest="text"/>
+<copyField source="addresses" dest="text"/>
 <copyField source="*_t" dest="text"/>
+<copyField source="*_ss" dest="text"/>
 <copyField source="accessPoints" dest="text"/>
 <!-- field for the QueryParser to use when an explicit fieldname is absent -->
 <defaultSearchField>text</defaultSearchField>

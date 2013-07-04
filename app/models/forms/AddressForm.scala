@@ -22,10 +22,10 @@ object AddressForm {
       REGION -> optional(nonEmptyText),
       POSTAL_CODE -> optional(nonEmptyText),
       COUNTRY_CODE -> optional(nonEmptyText),
-      EMAIL -> optional(email),
-      TELEPHONE -> optional(list(nonEmptyText)),
-      FAX -> optional(nonEmptyText),
-      URL -> optional(nonEmptyText)
+      EMAIL -> list(email),
+      TELEPHONE -> list(text),
+      FAX -> list(text),
+      URL -> list(text)
     )(AddressF.apply)(AddressF.unapply)
   )
 }
