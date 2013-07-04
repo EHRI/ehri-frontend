@@ -1,4 +1,4 @@
-var Repo = portal.controller('RepoCtrl', ['$scope', '$service', '$routeParams', 'Item', function($scope, $service, $routeParams, $item) {
+var Repo = portal.controller('RepoCtrl', ['$scope', '$service', '$http', '$routeParams', 'Item', function($scope, $service, $http, $routeParams, $item) {
 	$scope.itemId = $item.data.id;
 	console.log($item);
 	$scope.desc = $item.data.relationships.describes[0];
@@ -6,6 +6,18 @@ var Repo = portal.controller('RepoCtrl', ['$scope', '$service', '$routeParams', 
 	$scope.geoloc = $item.geoloc;
 	console.log($item.geoloc);
 	//console.log($scope.address);
+	
+	
+	//http://10.88.12.4:9000/api/repository/gb-003348/list
+	$scope.children = {}
+	$scope.children.loading = true;
+	$http.get('/api/repository/'+$scope.itemId+'/list', {headers: {'Accept': "application/json"}}).success(function(data) {
+		console.log(data);
+		$scope.children.data = data;
+		$scope.children.loading = false;
+	}).error(function (data) {
+		console.log("Error loading children json datas from repository");
+	});
 }]);
 
 Repo.resolveRepo = {

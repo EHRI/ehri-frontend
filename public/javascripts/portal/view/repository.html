@@ -69,8 +69,11 @@
 	<div class="children-container">
 		<h2>Held by this repository</h2>
 		<div class="filterBar" style="height:30px; width:100%; text-align:right;">
-			<input class="filterBar-input" ng-class="(searchShow && 'open')" style="" placeholder="test" /><div class="filterBar-icon">
+			<input class="filterBar-input" ng-class="(searchShow && 'open')" style="" placeholder="Type your filter here" /><div class="filterBar-icon">
 				<a ng-click="searchShow = (!searchShow);"><i class="icon-search icon-large"></i></a>
+			</div><div class="filterBar-icon" ng-class="(noSearchOnChange && 'desactivated')">
+				<a ng-click="noSearchOnChange = !noSearchOnChange;"><i class="icon-refresh"></a></i></div><div class="filterBar-icon filterBar-icon-empty">
+				&nbsp;
 			</div><div class="filterBar-icon">
 				<a ng-click="childrenShown = (!childrenShown);"><i ng-class="(childrenShown && 'icon-plus') || 'icon-minus'"class="icon-large"></i></a>
 			</div><div class="filterBar-icon dropdown">
@@ -86,24 +89,33 @@
 					<li><a><i class="icon-long-arrow-down icon-large"></i><div class="legend">Descendant</div></a></li>
 					<li><a><i class="icon-long-arrow-up icon-large"></i><div class="legend">Ascendant</div></a></li>
 				</ul>
+			</div><div class="filterBar-icon filterBar-icon-empty">
+				&nbsp;
+			</div><div class="filterBar-icon tooltiped" data-tooltiped="Previous page">
+				<a><i class="icon-chevron-left icon-large"></i></a>
+			</div><input type="text" ng-model="children.page" class="filterBar-page tooltiped" data-tooltiped="Actual page" /><div class="filterBar-icon tooltiped" data-tooltiped="Next page">
+				<a><i class="icon-chevron-right icon-large tooltiped" data-tooltiped="Actual page"></i></a>
 			</div>
 		</div>
-		<ul class="children-list" ng-class="(childrenShown && 'closed') || 'open'">
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
-			<li class="children-item"><a>Title of the document</a></li>
+		<div ng-show="children.loading" class="children-list text-centered">
+			<i class="icon-spinner icon-spin icon-large"></i>
+		</div>
+		<ul ng-show="!children.loading" class="children-list" ng-class="(childrenShown && 'closed') || 'open'">
+			<li class="children-item-head">Details about research</li>
+			<li ng-show="!children.quickview.show" class="children-item" ng-repeat="child in children.data">
+				<div ng-repeat="desc in child.relationships.describes | descLang:langFilter">
+					<a>{{desc.data.name}}</a>
+					<div class="filterBar-icon filterBar-icon-empty pull-right">
+						<a ng-click="children.quickview.desc = desc; children.quickview.show = !children.quickview.show;">
+							<i class="icon-chevron-right"></i>
+						</a>
+					</div>
+				</div>
+			</li>
+			<li class="children-quickview" ng-show="children.quickview.show">
+				<b>{{children.quickview.desc.data.name}}</b>
+				<p>{{children.quickview.desc.data.biographicalHistory}}</p>
+			</li>
 		</ul>
 	</div>
 	<!--
