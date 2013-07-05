@@ -1,0 +1,91 @@
+<div class="navbar navbar-fixed-bottom" ng-controller="BottomBar">
+	<div class="navbar-inner">
+		<ul class="nav">
+			<li class="dropup-container" ng-class="notesOpen">
+				<a class="dropup-toggle" ng-click="notesContainer()"><i class="icon-edit"></i> Notes</a>
+				<div class="dropup left dropup-padded">
+					<div class="well">
+						{{annotation.selText}}
+					</div>
+					<textarea style="width:85%; display:block; margin:0 auto; height:120px;" ng-model="annotation.userText" title="Annotation">
+					</textarea>
+					<input type="button" class="btn btn-success" value="Save" />
+				</div>
+			</li>
+			<li class="divider-vertical"></li>
+			<li class="dropup-container" ng-class="savedOpen">
+				<a class="dropup-toggle" ng-click="savedContainer()"><i class="icon-briefcase"></i> Saved Documents</a>
+				<div class="dropup left basket">
+					<div class="basket-header no-border"><i class="icon-folder-open icon-2"></i></div>
+					<div class="dropup-search">
+						<input type="text" placeholder="Name" />
+						<button class="btn btn-success">
+							<i class="icon-search"></i>
+						</button>
+					</div>
+					<ul class="listTree overflow-y">
+						<li ng-repeat="item in items" id="{{item.id}}">
+							<i ng-show="item.type=='Folder'" class="icon-folder-open" ></i>
+							<i ng-show="item.type=='File'" class="icon-file" ></i> {{item.name}} ( {{item.children.length}} )
+							<ul ng-show="item.children.length > 0" ng-include src="'fileTree.html'"></ul>
+						</li>
+					</ul>
+				</div>
+			</li>
+			<li class="divider-vertical"></li>
+			<li class="dropup-container" ng-class="peopleOpen">
+				<a class="dropup-toggle" ng-click="peopleContainer()"><i class="icon-group"></i> People</a>
+				<div class="dropup left">
+					<ul class="unstyled basket">
+						<li class="basket-header no-border"><i class="icon-group icon-2"></i></li>
+						<li class="dropup-search ">
+							<input type="text" placeholder="Name" ng-model="peopleInput" ng-change="searchPeople(peopleInput)" />
+							<button class="btn btn-success">
+								<i class="icon-search"></i>
+							</button>
+						</li>
+					</ul>
+					<ul class="unstyled basket overflow-y">
+						<li ng-show="loadingPeople" class="well" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></li>
+						<li id="people-{{item.id}}" class="people" ng-repeat="people in peoples">
+							<img src="/assets/images/logo2.png" alt="Logo" />
+							<a class="people-desc"><b>{{people.data.name || people.data.identifier}}</b></a>
+						</li>
+					</ul>
+				</div>
+			</li>
+			<li class="divider-vertical"></li> 
+			<li ng-show="pagination.num" style="padding-top:7px;">
+				<pagination num-pages="pagination.num" current-page="pagination.current" class="pagination-small pagination-no-margin" previous-text="&laquo;" next-text="&raquo;" max-size="pagination.max"></pagination>
+			</li>
+		</ul>
+		<ul class="nav pull-right">
+			<li class="divider-vertical"></li>
+			<li drop="basket" dropStyle="drop"><a><i><small>Drop your document here</small></i></a></li>
+			<li class="dropup-container"" ng-class="basketOpen">
+				<a class="dropup-toggle" ng-click="basketContainer()"><i class="icon-folder-open"></i> Basket ({{basketSize()}})</a>
+				<div class="dropup right basket">
+					<div class="basket-header"><i class="icon-shopping-cart icon-2"></i></div>
+					<article id="{{item.id}}" class="search-item" ng-repeat="item in basket">
+						<div class="basket-item-title" ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+							<header>
+								<a ng-show="desc.data.name"><b>{{desc.data.name}}</b></a> - {{item.type}}								
+							</header>
+						</div>
+						<!-- If desc not inside relationship -->
+						<div class="basket-item-title" ng-show="(!item.relationships.describes)">
+							<header>
+								<a ng-click="getLink(item.type, item.id)"><b>{{item.data.name || item.data.identifier}}</b></a> - {{item.type}}
+							</header>
+						</div>
+						<div class="icon-pack">
+							<i class="icon-remove"></i> 
+							<i class="icon-share"></i> 
+							<i class="icon-eye-open"></i> 
+						</div>
+					</article>
+				</div>
+			</li>
+		</ul>
+	</div>
+</div>
