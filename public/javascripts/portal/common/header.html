@@ -1,53 +1,57 @@
 <div class="navbar navbar-fixed-top">
+	<img src="/assets/images/logo2.png" alt="EHRI" class="pull-left navbar-fixed-top-picture" />
 	<div class="navbar-inner">
-		<img src="/assets/images/logo2.png" alt="EHRI" class="pull-left" />
 		<ul class="nav">
 			<li>
-				<a href="#/">
-					<div style="text-align:center;"><i class="icon-search"></i></div>
-					Search
+				<a class="blue" href="#/">
+					<i class="icon-search"></i>	Search
 				</a>
 			</li>
-			<li class="">
-				<a href="#/map">
-					<div style="text-align:center;"><i class="icon-map-marker"></i></div>
-					Map
-				</a>
-			</li>
-		</ul>
-		<ul class="nav pull-right alternative">
 			<li>
-				<a>
-					<div style="text-align:center;"><i class="icon-user"></i></div>
-					leponteineptique[at]gmail.com
+				<a class="orange" href="#/map">
+					<i class="icon-map-marker"></i>	Map
 				</a>
 			</li>
-			<li class="alternative-hover">
-				<a class="alternative-title" href="">
-					<div style="text-align:center;"><i class="icon-user"></i></div>
-					Sign In
+			<li>
+				<a class="red" href="#/map">
+					<i class="icon-map-marker"></i>	Map
 				</a>
-				<div class="alternative-content">
-					<table class="groupicon">
-						<tbody>
-							<tr class="icon">
-								<td><i class="icon-facebook"></i></td>
-								<td><i class="icon-twitter"></i></td>
-								<td><i class="icon-linkedin"></i></td>
-							</tr>
-							<tr class="icon">
-								<td><i class="icon-google-plus"></i></td>
-								<td><i class="icon-pinterest"></i></td>
-								<td><i class="icon-plus"></i></td>
-							</tr>
-							<tr class="text">
-								<td colspan="3">Login</td>
-							</tr>
-						</tbody>
-					</table>
-					
-				</div>
+			</li>
+			<li>
+				<a class="grey" href="#/map">
+					<i class="icon-map-marker"></i>	Map
+				</a>
 			</li>
 		</ul>
+		<div class="pull-right flat-form ">
+			<input class="input" type="text" name="search-query" placeholder="Quick search" ng-class="(topFormShow && 'open')"/><a class="icon" ng-click="topFormShow = !topFormShow;">
+				<i class="icon-large icon-search"></i>
+			</a><div class="menu-container" >
+				<a class="icon" ng-click="topLoginShow = !topLoginShow;"><i class="icon-large icon-signin"></i></a>
+				<div class="login-menu" ng-class="(topLoginShow && 'open')">
+					<a class="icon"><i class="icon-large icon-google-plus"></i>
+					</a><a class="icon"><i class="icon-large icon-flickr"></i>
+					</a><a class="icon"><i class="icon-large icon-twitter"></i>
+					</a><a class="icon"><i class="icon-large icon-pinterest"></i>
+					</a><a class="icon"><i class="icon-large icon-tumblr"></i>
+					</a><a class="icon"><i class="icon-large icon-github-alt"></i>
+					</a><a class="icon"><i class="icon-large icon-facebook"></i>
+					</a>
+					<div class="login-row">
+						<div class="icon empty"><i class="icon-envelope-alt"></i></div><input class="input" type="text" name="username" placeholder="Username"/>
+					</div>
+					<div class="login-row">
+						<div class="icon empty"><i class="icon-key"></i></div><input class="input" type="password" name="username" placeholder="Password"/>
+					</div>
+					<div class="login-row">
+						<div class="column2">
+							<button class="btn btn-success">Sign in</button>						
+						</div><div class="column2">
+							<button class="btn btn-info">Sign up</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
