@@ -1,0 +1,58 @@
+<section class="result-column">
+
+	<article>
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="span2">&nbsp;</div>
+				
+				<div id="content" class="span8">
+					<article id="{{item.id}}" class="search-item" ng-repeat="item in basket.content" >
+						
+						<div class="logo" data-tooltip="{{item.type}}">
+							<i class="iehri-{{item.type}} icon-4x"></i>
+						</div>
+						
+						<!-- If desc inside relationship -->
+						<div ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
+							<header>
+								<a ng-show="desc.data.name" href="#/item/{{item.type}}/{{item.id}}"><b>{{desc.data.name}}</b></a> 
+								<span class="filterBar filterBar-inline pull-right">
+									<a class="filterBar-icon" title="Drag this item" drag="item" dragStyle="drag">
+										<i class="icon-move"></i>
+									</a>
+									<a ng-show="map.activated" class="filterBar-icon" title="See on map" ng-click="map.addMarker(item, desc.data.name, item.id)">
+										<i class="icon-map-marker"></i>
+									</a>
+								</span>
+								
+							</header>
+							
+							<p>
+								{{(desc.data.biographicalHistory.length > 360 && (desc.data.biographicalHistory.substring(0, 360) + '...')) || desc.data.biographicalHistory}}
+							</p>
+						</div>
+						
+						<!-- If desc not inside relationship -->
+						<div class="content" ng-show="(!item.relationships.describes)">
+							<header>
+								<a ng-click="getLink(item.type, item.id)">
+									<b>{{item.data.name || item.data.identifier}}</b>
+								</a>
+								<span class="filterBar filterBar-inline pull-right">
+								</span>
+							</header>
+						</div>
+						
+					</article>
+					<div ng-show="basket.loading" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></div>
+				</div>
+				<div class="span2">
+					&nbsp;
+				</div>
+			</div>
+		</div>
+				
+		
+	</article>
+		
+</section>
