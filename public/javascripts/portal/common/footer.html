@@ -65,7 +65,13 @@
 			<li class="dropup-container"" ng-class="basketOpen">
 				<a class="dropup-toggle" ng-click="basketContainer()"><i class="icon-folder-open"></i> Basket ({{basketSize()}})</a>
 				<div class="dropup right basket">
-					<div class="dropup-header"><a class="filterBar-icon" href="#/basket"><i class="icon-shopping-cart icon-large"></i></a></div>
+					<div class="dropup-header"><a class="filterBar-icon" href="#/basket"><i class="icon-shopping-cart icon-large"></i></a>
+						<div class="filterBar">
+							<input class="filterBar-input" ng-class="(saveBasket && 'open')" placeholder="Basket name"
+							/><a ng-click="saveBasket = !saveBasket;" class="filterBar-icon"><i class="icon-save"></i></a>
+						</div>
+					
+					</div>
 					<article id="{{item.id}}" ng-repeat="item in basket">
 						<div class="basket-item-title" ng-show="(item.relationships.describes)" ng-repeat="desc in item.relationships.describes | descLang:langFilter">
 							<header>
