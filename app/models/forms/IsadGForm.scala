@@ -4,6 +4,18 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models._
 import defines.EntityType
+import models.IsadG._
+import models.IsadGConditions
+import models.IsadGContext
+import models.IsadGContent
+import models.IsadGMaterials
+import models.IsadGControl
+import models.IsadGConditions
+import models.IsadGContext
+import models.IsadGContent
+import models.IsadGMaterials
+import models.IsadGControl
+import play.api.libs.json.Json
 
 /**
  * IsadG description form.
@@ -53,7 +65,8 @@ object IsadGForm {
         RULES_CONVENTIONS -> optional(text),
         DATES_DESCRIPTIONS -> optional(text)
       )(IsadGControl.apply)(IsadGControl.unapply),
-      ACCESS_POINTS -> list(AccessPointForm.form.mapping)
+      ACCESS_POINTS -> list(AccessPointForm.form.mapping),
+      UNKNOWN_DATA -> list(entity)
     )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
   )
 }

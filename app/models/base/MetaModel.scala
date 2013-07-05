@@ -141,6 +141,7 @@ trait Description extends Model {
   val name: String
   val languageCode: String
   val accessPoints: List[AccessPointF]
+  val unknownProperties: List[Entity] // Unknown, unparsed data
 }
 
 object Described {

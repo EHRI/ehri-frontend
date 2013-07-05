@@ -105,18 +105,7 @@ case class RestPageParams(page: Option[Int] = None, limit: Option[Int] = None, f
 }
 
 object EntityDAO {
-  implicit val entityReads = Entity.entityReads
 
-  def jsonToEntity(js: JsValue): Entity = {
-    js.validate.fold(
-      valid = { item =>
-        new Entity(item.id, item.`type`, item.data, item.relationships)
-      },
-      invalid = { errors =>
-        sys.error("Error getting item: %s\n%s".format(errors, js))
-      }
-    )
-  }
 
   /**
    * Global listeners for CUD events
@@ -281,7 +270,6 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
   }
 
   def pageChildren[CMT](id: String, params: RestPageParams = RestPageParams())(implicit rd: RestReadable[CMT]): Future[Either[RestError, Page[CMT]]] = {
-    implicit val entityPageReads = Page.pageReads[Entity]
     WS.url(enc(requestUrl, id, "page" + params.toString))
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))

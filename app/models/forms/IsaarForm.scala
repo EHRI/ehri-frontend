@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models._
 import defines.EntityType
+import play.api.libs.json.Json
 
 /**
  * ISAAR description form.
@@ -44,7 +45,8 @@ object IsaarForm {
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(IsaarControl.apply)(IsaarControl.unapply),
-      ACCESS_POINTS -> list(AccessPointForm.form.mapping)
+      ACCESS_POINTS -> list(AccessPointForm.form.mapping),
+      UNKNOWN_DATA -> list(entity)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )
 }

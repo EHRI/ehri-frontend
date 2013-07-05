@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models.{ConceptF, ConceptDescriptionF, Entity}
 import defines.EntityType
+import play.api.libs.json.Json
 
 /**
  * Concept description form.
@@ -20,6 +21,7 @@ object ConceptDescriptionForm {
     ALTLABEL -> optional(list(nonEmptyText)),
     DEFINITION -> optional(list(nonEmptyText)),
     SCOPENOTE -> optional(list(nonEmptyText)),
-    ACCESS_POINTS -> list(AccessPointForm.form.mapping)
+    ACCESS_POINTS -> list(AccessPointForm.form.mapping),
+    UNKNOWN_DATA -> list(entity)
   )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))
 }

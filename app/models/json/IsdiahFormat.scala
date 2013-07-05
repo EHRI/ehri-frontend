@@ -5,6 +5,7 @@ import models._
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
+import models.base.Description
 
 
 object IsdiahFormat {
@@ -50,7 +51,9 @@ object IsdiahFormat {
           MAINTENANCE_NOTES -> d.control.maintenanceNotes
         ),
         RELATIONSHIPS -> Json.obj(
-          RepositoryF.ADDRESS_REL -> Json.toJson(d.addresses.map(Json.toJson(_)).toSeq)
+          RepositoryF.ADDRESS_REL -> Json.toJson(d.addresses.map(Json.toJson(_)).toSeq),
+          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
+          Description.UNKNOWN_PROP -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -102,8 +105,10 @@ object IsdiahFormat {
             (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
           (__ \ MAINTENANCE_NOTES).readNullable[String]
         )(IsdiahControl.apply _)) and
-        ((__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyRead[List[AccessPointF]](
-          Reads.list[AccessPointF]) orElse Reads.pure(Nil))
+        (__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL)
+            .lazyReadNullable(Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
+        (__ \ RELATIONSHIPS \ Description.UNKNOWN_PROP)
+            .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
     )(RepositoryDescriptionF.apply _)
 
   implicit val restFormat: Format[RepositoryDescriptionF] = Format(isdiahReads, isdiahWrites)

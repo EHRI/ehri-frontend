@@ -11,6 +11,7 @@ case object Isdiah {
 
   val FIELD_PREFIX = "isdiah"
   val ACCESS_POINTS = "accessPoints"
+  val UNKNOWN_DATA = "unknownData"
 
   val IDENTIFIER = "identifier"
   val LANG_CODE = "languageCode"

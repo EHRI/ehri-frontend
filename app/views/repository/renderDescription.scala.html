@@ -91,7 +91,7 @@
 
     @common.relatedLinks(item, desc, links)
 
-    @*desc.unknownProperty.map { e =>
+    @desc.unknownProperties.map { e =>
         @common.unknownData(e)
-    }*@
+    }
 }

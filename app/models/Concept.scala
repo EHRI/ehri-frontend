@@ -8,6 +8,8 @@ import models.json.{RestReadable, ClientConvertable, RestConvertable}
 object ConceptF {
 
   val ACCESS_POINTS = "accessPoints"
+  val UNKNOWN_DATA = "unknownData"
+
   val LANGUAGE = "languageCode"
   val PREFLABEL = "name"
   val ALTLABEL = "altLabel"

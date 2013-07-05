@@ -3,6 +3,7 @@ package models
 import models.base._
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
+import play.api.libs.json.{JsObject, JsValue}
 
 case class IsaarDetail(
   datesOfExistence: Option[String] = None,
@@ -52,7 +53,8 @@ case class HistoricalAgentDescriptionF(
   dates: List[DatePeriodF] = Nil,
   details: IsaarDetail,
   control: IsaarControl,
-  accessPoints: List[AccessPointF]
+  accessPoints: List[AccessPointF],
+  unknownProperties: List[Entity] = Nil
   ) extends Model with Persistable with Description with Temporal
 
 

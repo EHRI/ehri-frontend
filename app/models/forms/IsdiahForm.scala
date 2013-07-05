@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models._
 import defines.EntityType
+import play.api.libs.json.Json
 
 /**
  * Isdiah description form.
@@ -53,7 +54,8 @@ object IsdiahForm {
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(IsdiahControl.apply)(IsdiahControl.unapply),
-      ACCESS_POINTS -> list(AccessPointForm.form.mapping)
+      ACCESS_POINTS -> list(AccessPointForm.form.mapping),
+      UNKNOWN_DATA -> list(entity)
     )(RepositoryDescriptionF.apply)(RepositoryDescriptionF.unapply)
   )
 }

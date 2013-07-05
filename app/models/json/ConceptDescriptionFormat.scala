@@ -5,6 +5,7 @@ import models._
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
+import models.base.Description
 
 
 object ConceptDescriptionFormat {
@@ -23,6 +24,10 @@ object ConceptDescriptionFormat {
           ALTLABEL -> d.altLabels,
           DEFINITION -> d.definition,
           SCOPENOTE -> d.scopeNote
+        ),
+        RELATIONSHIPS -> Json.obj(
+          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
+          Description.UNKNOWN_PROP -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -37,9 +42,11 @@ object ConceptDescriptionFormat {
       (__ \ DATA \ ALTLABEL).readNullable[List[String]] and
       (__ \ DATA \ DEFINITION).readNullable[List[String]] and
       (__ \ DATA \ SCOPENOTE).readNullable[List[String]] and
-      ((__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyRead[List[AccessPointF]](
-        Reads.list[AccessPointF]) orElse Reads.pure(Nil))
-  )(ConceptDescriptionF.apply _)
+      (__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyReadNullable(
+        Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
+      (__ \ RELATIONSHIPS \ Description.UNKNOWN_PROP)
+        .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
+    )(ConceptDescriptionF.apply _)
 
   implicit val restFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
 }

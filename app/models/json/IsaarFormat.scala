@@ -47,7 +47,8 @@ object IsaarFormat {
           MAINTENANCE_NOTES -> d.control.maintenanceNotes
         ),
         RELATIONSHIPS -> Json.obj(
-          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq)
+          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
+          Description.UNKNOWN_PROP -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -93,8 +94,10 @@ object IsaarFormat {
           (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
         (__ \ MAINTENANCE_NOTES).readNullable[String]
       )(IsaarControl.apply _)) and
-      ((__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyRead[List[AccessPointF]](
-          Reads.list[AccessPointF]) orElse Reads.pure(Nil))
+      (__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyReadNullable(
+          Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
+      (__ \ RELATIONSHIPS \ Description.UNKNOWN_PROP)
+        .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
   )(HistoricalAgentDescriptionF.apply _)
 
   implicit val restFormat: Format[HistoricalAgentDescriptionF] = Format(isaarReads,isaarWrites)

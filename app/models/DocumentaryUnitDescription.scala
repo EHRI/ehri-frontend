@@ -1,7 +1,7 @@
 package models
 
 import models.base._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
 
@@ -67,27 +67,9 @@ case class DocumentaryUnitDescriptionF(
   materials: IsadGMaterials,
   notes: Option[List[String]] = None,
   control: IsadGControl,
-  accessPoints: List[AccessPointF]
+  accessPoints: List[AccessPointF] = Nil,
+  unknownProperties: List[Entity] = Nil
 ) extends Model with Persistable with Description with Temporal {
 
   def displayText = `abstract` orElse content.scopeAndContent
 }
-
-/*
-case class DocumentaryUnitDescription(val e: Entity)
-  extends Description
-  with TemporalEntity
-  with Formable[DocumentaryUnitDescriptionF] {
-
-  import IsadG._
-
-  // This should have one logical object
-  val item: Option[DocumentaryUnit] = e.relations(Described.REL).headOption.map(DocumentaryUnit(_))
-
-  // What to display on search listings
-  lazy val displayText: Option[String] = e.stringProperty(ABSTRACT) orElse e.stringProperty(SCOPE_CONTENT)
-
-  lazy val formable = Json.toJson(e).as[DocumentaryUnitDescriptionF](json.IsadGFormat.restFormat)
-  lazy val formableOpt = Json.toJson(e).asOpt[DocumentaryUnitDescriptionF](json.IsadGFormat.restFormat)
-}
-*/

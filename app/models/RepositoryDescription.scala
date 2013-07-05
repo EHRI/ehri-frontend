@@ -1,7 +1,7 @@
 package models
 
 import models.base._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
 
@@ -62,6 +62,7 @@ case class RepositoryDescriptionF(
   access: IsdiahAccess,
   services: IsdiahServices,
   control: IsdiahControl,
-  accessPoints: List[AccessPointF] = Nil
+  accessPoints: List[AccessPointF] = Nil,
+  unknownProperties: List[Entity] = Nil
 ) extends Model with Persistable with Description
 

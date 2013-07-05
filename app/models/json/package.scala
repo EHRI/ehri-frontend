@@ -3,11 +3,9 @@ package models
 import defines.EntityType
 import play.api.libs.json._
 import play.api.data.validation.ValidationError
-import play.api.data.validation.ValidationError
-import play.api.data.validation.ValidationError
-import play.api.data.validation.ValidationError
-import play.api.data.validation.ValidationError
 import play.api.libs.json.JsSuccess
+import play.api.libs.json.util._
+import play.api.libs.functional.syntax._
 
 /**
  * User: michaelb
@@ -19,6 +17,23 @@ package object json {
    */
   implicit val entityTypeReads = defines.EnumUtils.enumReads(EntityType)
   implicit val entityTypeFormat = defines.EnumUtils.enumFormat(EntityType)
+
+  implicit val entityWrites: Writes[Entity] = (
+    (__ \ Entity.ID).write[String] and
+      (__ \ Entity.TYPE).write[EntityType.Type](defines.EnumUtils.enumWrites) and
+      (__ \ Entity.DATA).lazyWrite(Writes.map[JsValue]) and
+      (__ \ Entity.RELATIONSHIPS).lazyWrite(Writes.map[List[Entity]])
+    )(unlift(Entity.unapply))
+
+  implicit val entityReads: Reads[Entity] = (
+    (__ \ Entity.ID).read[String] and
+      (__ \ Entity.TYPE).read[EntityType.Type](defines.EnumUtils.enumReads(EntityType)) and
+      (__ \ Entity.DATA).lazyRead(Reads.map[JsValue]) and
+      (__ \ Entity.RELATIONSHIPS).lazyRead(Reads.map[List[Entity]](Reads.list(entityReads)))
+    )(Entity.apply _)
+
+  implicit val entityFormat = Format(entityReads, entityWrites)
+
 
   /**
    * Reads combinator that checks if a value is equal to the expected value.

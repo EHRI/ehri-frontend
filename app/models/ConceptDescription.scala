@@ -3,6 +3,7 @@ package models
 import defines.EntityType
 import models.base._
 import models.json.{ClientConvertable, RestConvertable}
+import play.api.libs.json.{JsObject, JsValue}
 
 object ConceptDescriptionF {
 
@@ -20,5 +21,6 @@ case class ConceptDescriptionF(
   altLabels: Option[List[String]] = None,
   definition: Option[List[String]] = None,
   scopeNote: Option[List[String]] = None,
-  accessPoints: List[AccessPointF] = Nil
+  accessPoints: List[AccessPointF] = Nil,
+  unknownProperties: List[Entity] = Nil
 ) extends Model with Persistable with Description

@@ -16,29 +16,6 @@ object Entity {
   def fromString(s: String, t: EntityType.Value) = {
     new Entity(s, t, Map(IDENTIFIER -> JsString(s)), Map())
   }
-
-
-  import play.api.libs.json.Writes.{map => _, list => _, _}
-  import play.api.libs.json.Reads._
-  import play.api.libs.json.util._
-  import play.api.libs.functional.syntax._
-  import defines.EnumUtils
-
-  implicit val entityWrites: Writes[Entity] = (
-    (__ \ Entity.ID).write[String] and
-      (__ \ Entity.TYPE).write[EntityType.Type](EnumUtils.enumWrites) and
-      (__ \ Entity.DATA).lazyWrite(mapWrites[JsValue]) and
-      (__ \ Entity.RELATIONSHIPS).lazyWrite(
-        mapWrites[List[Entity]])
-  )(unlift(Entity.unapply))
-
-  implicit val entityReads: Reads[Entity] = (
-    (__ \ Entity.ID).read[String] and
-      (__ \ Entity.TYPE).read[EntityType.Type](EnumUtils.enumReads(EntityType)) and
-      (__ \ Entity.DATA).lazyRead(map[JsValue]) and
-      (__ \ Entity.RELATIONSHIPS).lazyRead(
-        map[List[Entity]](list(entityReads)))
-  )(Entity.apply _)
 }
 
 case class Entity(

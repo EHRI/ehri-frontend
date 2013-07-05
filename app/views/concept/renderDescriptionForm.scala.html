@@ -1,15 +1,16 @@
-@(desc: play.api.data.Field)(implicit prefix: String, lang: Lang)
+@(desc: play.api.data.Field)(implicit userOpt: Option[UserProfileMeta], prefix: String, lang: Lang)
 
 @import ConceptF._
+@import formHelpers._
 
 <div class="concept-description-form inline-element well well-small">
     <a class="remove-inline-element pull-right" tabindex="-1" href="#">
         <i class="icon-remove-sign"></i>
         @Messages("actions.deleteConceptDescription")
     </a>
-    @formHelpers.hiddenInput(desc(Entity.ID))
-    @formHelpers.choiceInput(desc(LANGUAGE), LANGUAGE, views.Helpers.languagePairList, blank=true)
-    @formHelpers.lineInput(desc, PREFLABEL)
+    @hiddenInput(desc(Entity.ID))
+    @choiceInput(desc(LANGUAGE), LANGUAGE, views.Helpers.languagePairList, blank=true)
+    @lineInput(desc, PREFLABEL)
     @concept.renderInlineNameSet(desc, ALTLABEL)
 
     @* Fixme - not allowing more than one scopenote, definition for now... *@
@@ -32,4 +33,8 @@
         </div>
     }
     <hr />
+
+    @hiddenAccessPointSet(desc, ACCESS_POINTS)
+    @hiddenUnknownDataSet(desc, UNKNOWN_DATA)
+
 </div>
