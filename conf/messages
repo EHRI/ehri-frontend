@@ -526,8 +526,8 @@ isdiah.postalcode=Post Code
 isdiah.postalcode.description=
 isdiah.fax=Fax
 isdiah.fax.description=
-isdiah.url=Website Address
-isdiah.url.description=
+isdiah.webpage=Website Address
+isdiah.webpage.description=
 
 # Description
 isdiah.history=History of the Institution with Archival Holdings
