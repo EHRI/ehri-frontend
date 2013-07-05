@@ -34,7 +34,7 @@ case object Isdiah {
   val EMAIL = "email"
   val TELEPHONE = "telephone"
   val FAX = "fax"
-  val URL = "url"
+  val URL = "webpage"
 
   val DESCRIPTION_AREA = "descriptionArea"
   val HISTORY = "history"
