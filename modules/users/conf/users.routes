@@ -1,0 +1,5 @@
+# Routes for users/groups
+
+GET /                   controllers.users.Application.index
+
+GET /assets/*file       controllers.users.Assets.at(path="/public", file)

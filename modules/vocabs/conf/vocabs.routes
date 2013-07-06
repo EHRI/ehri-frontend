@@ -1,0 +1,5 @@
+# Routes for vocabularies and concepts
+
+GET /                   controllers.vocabs.Application.index
+
+GET /assets/*file       controllers.vocabs.Assets.at(path="/public", file)

@@ -1,0 +1,5 @@
+# Routes for authority files and authoritative sets
+
+GET /                   controllers.authorities.Application.index
+
+GET /assets/*file       controllers.authorities.Assets.at(path="/public", file)

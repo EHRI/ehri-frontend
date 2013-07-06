@@ -44,7 +44,75 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
   )
 
-  val main = play.Project(appName, appVersion, appDependencies).settings(
+
+
+  lazy val restlib = Project(
+    "ehri-rest", file("ehri-rest")
+  )
+
+  lazy val core = play.Project(
+    appName + "-core", appVersion, appDependencies, path = file("modules/core")
+  ).settings(
+    // Bits that get automatically imported into templates...
+    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+
+    resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
+    resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
+    resolvers += "Codahale" at "http://repo.codahale.com"
+
+  )
+
+  lazy val users = play.Project(
+    appName + "-users", appVersion, appDependencies, path = file("modules/users")
+  ).dependsOn(core).settings(
+    // Bits that get automatically imported into templates...
+    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+
+    resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
+    resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
+    resolvers += "Codahale" at "http://repo.codahale.com"
+
+  )
+
+  lazy val archdesc = play.Project(
+    appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc")
+  ).dependsOn(core, users).settings(
+    // Bits that get automatically imported into templates...
+    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+
+    resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
+    resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
+    resolvers += "Codahale" at "http://repo.codahale.com"
+
+  )
+
+  lazy val authorities = play.Project(
+    appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities")
+  ).dependsOn(core, users).settings(
+    // Bits that get automatically imported into templates...
+    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+
+    resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
+    resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
+    resolvers += "Codahale" at "http://repo.codahale.com"
+
+  )
+
+  lazy val vocabs = play.Project(
+    appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs")
+  ).dependsOn(core, users).settings(
+    // Bits that get automatically imported into templates...
+    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+
+    resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
+    resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
+    resolvers += "Codahale" at "http://repo.codahale.com"
+
+  )
+
+
+
+  lazy val main = play.Project(appName, appVersion, appDependencies).settings(
     // Bits that get automatically imported into templates...
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
 
@@ -52,5 +120,6 @@ object ApplicationBuild extends Build {
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com"
-    )
+
+  ).dependsOn(core, users, archdesc, authorities, vocabs).aggregate(core, users, archdesc, authorities, vocabs)
 }

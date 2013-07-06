@@ -5,6 +5,13 @@
 #GET     /login           controllers.Application.login
 #POST     /login           controllers.Application.loginPost
 
+# Multimodule test
+-> /user    users.Routes
+-> /auths   authorities.Routes
+-> /arch    archdesc.Routes
+-> /core    core.Routes
+-> /vocabs  vocabs.Routes
+
 # OpenID
 GET     /login                          controllers.Application.login
 POST	/login							controllers.Application.loginPost
