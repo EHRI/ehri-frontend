@@ -2,6 +2,7 @@ package models
 
 import defines._
 import play.api.libs.json._
+import models.base.AnyModel
 
 
 object Entity {
@@ -22,7 +23,7 @@ case class Entity(
   id: String,
   `type`: EntityType.Value,
   data: Map[String, JsValue] = Map(),
-  relationships: Map[String, List[Entity]] = Map()) {
+  relationships: Map[String, List[Entity]] = Map()) extends AnyModel{
 
   def property(name: String) = data.get(name)
 

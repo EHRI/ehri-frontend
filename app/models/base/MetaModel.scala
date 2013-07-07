@@ -6,6 +6,7 @@ import play.api.i18n.Lang
 import models.json.{ClientConvertable, RestReadable}
 import models._
 import play.api.data.validation.ValidationError
+import play.api.Logger
 
 
 trait AnyModel {
@@ -44,7 +45,8 @@ object AnyModel {
         restReadRegistry.get(et).map { reads =>
           json.validate(reads)
         }.getOrElse {
-          JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unregistered AnyModel type: " + et))
+          Logger.logger.warn("Unregistered AnyModel type {} (Reading from REST)", et)
+          json.validate(models.json.entityReads)
         }
 //        (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
 //          case EntityType.Repository => json.validate[RepositoryMeta](RepositoryMeta.Converter.restReads)
@@ -70,7 +72,8 @@ object AnyModel {
         clientFormatRegistry.get(et).map { format =>
           json.validate(format)
         }.getOrElse {
-          JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unregistered AnyModel type: " + et))
+          Logger.logger.warn("Unregistered AnyModel type {} (Reading from Client)", et)
+          json.validate(models.json.entityFormat)
         }
 
 
@@ -94,7 +97,8 @@ object AnyModel {
         clientFormatRegistry.get(a.isA).map { format =>
           Json.toJson(a)(format)
         }.getOrElse {
-          sys.error("AnyModel conversion type has not been registered: " + a.isA)
+          Logger.logger.warn("Unregistered AnyModel type {} (Writing to Client)", a.isA)
+          Json.toJson(Entity(id = a.id, `type` = a.isA, relationships = Map.empty))(models.json.entityFormat)
         }
 //        a match {
 //          case v: UserProfileMeta => Json.toJson(v)(UserProfileMeta.Converter.clientFormat)
