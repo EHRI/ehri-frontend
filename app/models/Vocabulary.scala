@@ -4,7 +4,7 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import play.api.libs.json.{JsObject, Format, Json}
+import play.api.libs.json.{Reads, JsObject, Format, Json}
 import defines.EnumUtils.enumWrites
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import play.api.i18n.Lang
@@ -44,6 +44,9 @@ object VocabularyMeta {
   implicit object Converter extends ClientConvertable[VocabularyMeta] with RestReadable[VocabularyMeta] {
     val restReads = models.json.VocabularyFormat.metaReads
     val clientFormat = models.json.client.vocabularyMetaFormat
+
+    AnyModel.registerRest(EntityType.Vocabulary, restReads.asInstanceOf[Reads[AnyModel]])
+    AnyModel.registerClient(EntityType.Vocabulary, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

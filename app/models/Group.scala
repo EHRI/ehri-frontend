@@ -2,7 +2,7 @@ package models
 
 import models.base._
 import defines.EntityType
-import play.api.libs.json.{JsObject, Format, Json}
+import play.api.libs.json.{Reads, JsObject, Format, Json}
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import play.api.i18n.Lang
 
@@ -41,6 +41,9 @@ object GroupMeta {
   implicit object Converter extends ClientConvertable[GroupMeta] with RestReadable[GroupMeta] {
     val restReads = models.json.GroupFormat.metaReads
     val clientFormat = models.json.client.groupMetaFormat
+
+    AnyModel.registerRest(EntityType.Group, restReads.asInstanceOf[Reads[AnyModel]])
+    AnyModel.registerClient(EntityType.Group, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

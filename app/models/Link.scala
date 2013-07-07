@@ -2,7 +2,7 @@ package models
 
 import models.base._
 import defines.EntityType
-import play.api.libs.json.Format
+import play.api.libs.json.{Reads, Format}
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 
 
@@ -45,6 +45,9 @@ object LinkMeta {
   implicit object Converter extends RestReadable[LinkMeta] with ClientConvertable[LinkMeta] {
     implicit val restReads = models.json.LinkFormat.metaReads
     implicit val clientFormat = models.json.client.linkMetaFormat
+
+    AnyModel.registerRest(EntityType.Link, restReads.asInstanceOf[Reads[AnyModel]])
+    AnyModel.registerClient(EntityType.Link, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

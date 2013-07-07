@@ -42,6 +42,9 @@ object RepositoryMeta {
   implicit object Converter extends ClientConvertable[RepositoryMeta] with RestReadable[RepositoryMeta] {
     val restReads = models.json.RepositoryFormat.metaReads
     val clientFormat = models.json.client.repositoryMetaFormat
+
+    AnyModel.registerRest(EntityType.Repository, restReads.asInstanceOf[Reads[AnyModel]])
+    AnyModel.registerClient(EntityType.Repository, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

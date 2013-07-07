@@ -4,6 +4,7 @@ import models.base._
 import defines.EntityType
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import scala.Some
+import play.api.libs.json.{Format, Reads}
 
 
 object AnnotationF {
@@ -76,6 +77,9 @@ object AnnotationMeta {
   implicit object Converter extends ClientConvertable[AnnotationMeta] with RestReadable[AnnotationMeta] {
     val restReads = models.json.AnnotationFormat.metaReads
     val clientFormat = models.json.client.annotationMetaFormat
+
+    AnyModel.registerRest(EntityType.Annotation, restReads.asInstanceOf[Reads[AnyModel]])
+    AnyModel.registerClient(EntityType.Annotation, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

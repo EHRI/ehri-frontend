@@ -26,62 +26,91 @@ trait Model {
 }
 
 object AnyModel {
+
+  private val restReadRegistry: collection.mutable.Map[EntityType.Value, Reads[AnyModel]]
+      = collection.mutable.Map.empty
+
+  private val clientFormatRegistry: collection.mutable.Map[EntityType.Value, Format[AnyModel]]
+      = collection.mutable.Map.empty
+
+  def registerRest(e: EntityType.Value, r: Reads[AnyModel]) = restReadRegistry.put(e, r)
+  def registerClient(e: EntityType.Value, f: Format[AnyModel]) = clientFormatRegistry.put(e, f)
+
   implicit object Converter extends RestReadable[AnyModel] with ClientConvertable[AnyModel] {
     implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
         // Sniff the type...
-        (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
-          case EntityType.Repository => json.validate[RepositoryMeta](RepositoryMeta.Converter.restReads)
-          case EntityType.Vocabulary => json.validate[VocabularyMeta](VocabularyMeta.Converter.restReads)
-          case EntityType.Concept => json.validate[ConceptMeta](ConceptMeta.Converter.restReads)
-          case EntityType.DocumentaryUnit => json.validate[DocumentaryUnitMeta](DocumentaryUnitMeta.Converter.restReads)
-          case EntityType.HistoricalAgent => json.validate[HistoricalAgentMeta](HistoricalAgentMeta.Converter.restReads)
-          case EntityType.AuthoritativeSet => json.validate[AuthoritativeSetMeta](AuthoritativeSetMeta.Converter.restReads)
-          case EntityType.SystemEvent => json.validate[SystemEventMeta](SystemEventMeta.Converter.restReads)
-          case EntityType.Country => json.validate[CountryMeta](CountryMeta.Converter.restReads)
-          case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.restReads)
-          case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.restReads)
-          case EntityType.Link => json.validate[LinkMeta](LinkMeta.Converter.restReads)
-          case EntityType.Annotation => json.validate[AnnotationMeta](AnnotationMeta.Converter.restReads)
-          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected AnyModel type: " + t))
+        val et = (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType))
+        restReadRegistry.get(et).map { reads =>
+          json.validate(reads)
+        }.getOrElse {
+          JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unregistered AnyModel type: " + et))
         }
+//        (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
+//          case EntityType.Repository => json.validate[RepositoryMeta](RepositoryMeta.Converter.restReads)
+//          case EntityType.Vocabulary => json.validate[VocabularyMeta](VocabularyMeta.Converter.restReads)
+//          case EntityType.Concept => json.validate[ConceptMeta](ConceptMeta.Converter.restReads)
+//          case EntityType.DocumentaryUnit => json.validate[DocumentaryUnitMeta](DocumentaryUnitMeta.Converter.restReads)
+//          case EntityType.HistoricalAgent => json.validate[HistoricalAgentMeta](HistoricalAgentMeta.Converter.restReads)
+//          case EntityType.AuthoritativeSet => json.validate[AuthoritativeSetMeta](AuthoritativeSetMeta.Converter.restReads)
+//          case EntityType.SystemEvent => json.validate[SystemEventMeta](SystemEventMeta.Converter.restReads)
+//          case EntityType.Country => json.validate[CountryMeta](CountryMeta.Converter.restReads)
+//          case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.restReads)
+//          case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.restReads)
+//          case EntityType.Link => json.validate[LinkMeta](LinkMeta.Converter.restReads)
+//          case EntityType.Annotation => json.validate[AnnotationMeta](AnnotationMeta.Converter.restReads)
+//          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected AnyModel type: " + t))
+//        }
       }
     }
 
     implicit val clientFormat: Format[AnyModel] = new Format[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
-        (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
-          case EntityType.Repository => json.validate[RepositoryMeta](RepositoryMeta.Converter.clientFormat)
-          case EntityType.Vocabulary => json.validate[VocabularyMeta](VocabularyMeta.Converter.clientFormat)
-          case EntityType.Concept => json.validate[ConceptMeta](ConceptMeta.Converter.clientFormat)
-          case EntityType.DocumentaryUnit => json.validate[DocumentaryUnitMeta](DocumentaryUnitMeta.Converter.clientFormat)
-          case EntityType.HistoricalAgent => json.validate[HistoricalAgentMeta](HistoricalAgentMeta.Converter.clientFormat)
-          case EntityType.AuthoritativeSet => json.validate[AuthoritativeSetMeta](AuthoritativeSetMeta.Converter.clientFormat)
-          case EntityType.SystemEvent => json.validate[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-          case EntityType.Country => json.validate[CountryMeta](CountryMeta.Converter.clientFormat)
-          case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.clientFormat)
-          case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.clientFormat)
-          case EntityType.Link => json.validate[LinkMeta](LinkMeta.Converter.clientFormat)
-          case EntityType.Annotation => json.validate[AnnotationMeta](AnnotationMeta.Converter.clientFormat)
-          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected AnyModel for accessor type: " + t))
+        val et = (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType))
+        clientFormatRegistry.get(et).map { format =>
+          json.validate(format)
+        }.getOrElse {
+          JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unregistered AnyModel type: " + et))
         }
+
+
+//        (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
+//          case EntityType.Repository => json.validate[RepositoryMeta](RepositoryMeta.Converter.clientFormat)
+//          case EntityType.Vocabulary => json.validate[VocabularyMeta](VocabularyMeta.Converter.clientFormat)
+//          case EntityType.Concept => json.validate[ConceptMeta](ConceptMeta.Converter.clientFormat)
+//          case EntityType.DocumentaryUnit => json.validate[DocumentaryUnitMeta](DocumentaryUnitMeta.Converter.clientFormat)
+//          case EntityType.HistoricalAgent => json.validate[HistoricalAgentMeta](HistoricalAgentMeta.Converter.clientFormat)
+//          case EntityType.AuthoritativeSet => json.validate[AuthoritativeSetMeta](AuthoritativeSetMeta.Converter.clientFormat)
+//          case EntityType.SystemEvent => json.validate[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+//          case EntityType.Country => json.validate[CountryMeta](CountryMeta.Converter.clientFormat)
+//          case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.clientFormat)
+//          case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.clientFormat)
+//          case EntityType.Link => json.validate[LinkMeta](LinkMeta.Converter.clientFormat)
+//          case EntityType.Annotation => json.validate[AnnotationMeta](AnnotationMeta.Converter.clientFormat)
+//          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unexpected AnyModel for accessor type: " + t))
+//        }
       }
       def writes(a: AnyModel): JsValue = {
-        a match {
-          case v: UserProfileMeta => Json.toJson(v)(UserProfileMeta.Converter.clientFormat)
-          case v: GroupMeta => Json.toJson(v)(GroupMeta.Converter.clientFormat)
-          case v: HistoricalAgentMeta => Json.toJson(v)(HistoricalAgentMeta.Converter.clientFormat)
-          case v: LinkMeta => Json.toJson(v)(LinkMeta.Converter.clientFormat)
-          case v: DocumentaryUnitMeta => Json.toJson(v)(DocumentaryUnitMeta.Converter.clientFormat)
-          case v: RepositoryMeta => Json.toJson(v)(RepositoryMeta.Converter.clientFormat)
-          case v: AnnotationMeta => Json.toJson(v)(AnnotationMeta.Converter.clientFormat)
-          case v: AuthoritativeSetMeta => Json.toJson(v)(AuthoritativeSetMeta.Converter.clientFormat)
-          case v: ConceptMeta => Json.toJson(v)(ConceptMeta.Converter.clientFormat)
-          case v: VocabularyMeta => Json.toJson(v)(VocabularyMeta.Converter.clientFormat)
-          case v: SystemEventMeta => Json.toJson(v)(SystemEventMeta.Converter.clientFormat)
-          case v: CountryMeta => Json.toJson(v)(CountryMeta.Converter.clientFormat)
-          case t => sys.error("Unexcepted type for AnyModel client conversion: " + t)
+        clientFormatRegistry.get(a.isA).map { format =>
+          Json.toJson(a)(format)
+        }.getOrElse {
+          sys.error("AnyModel conversion type has not been registered: " + a.isA)
         }
+//        a match {
+//          case v: UserProfileMeta => Json.toJson(v)(UserProfileMeta.Converter.clientFormat)
+//          case v: GroupMeta => Json.toJson(v)(GroupMeta.Converter.clientFormat)
+//          case v: HistoricalAgentMeta => Json.toJson(v)(HistoricalAgentMeta.Converter.clientFormat)
+//          case v: LinkMeta => Json.toJson(v)(LinkMeta.Converter.clientFormat)
+//          case v: DocumentaryUnitMeta => Json.toJson(v)(DocumentaryUnitMeta.Converter.clientFormat)
+//          case v: RepositoryMeta => Json.toJson(v)(RepositoryMeta.Converter.clientFormat)
+//          case v: AnnotationMeta => Json.toJson(v)(AnnotationMeta.Converter.clientFormat)
+//          case v: AuthoritativeSetMeta => Json.toJson(v)(AuthoritativeSetMeta.Converter.clientFormat)
+//          case v: ConceptMeta => Json.toJson(v)(ConceptMeta.Converter.clientFormat)
+//          case v: VocabularyMeta => Json.toJson(v)(VocabularyMeta.Converter.clientFormat)
+//          case v: SystemEventMeta => Json.toJson(v)(SystemEventMeta.Converter.clientFormat)
+//          case v: CountryMeta => Json.toJson(v)(CountryMeta.Converter.clientFormat)
+//          case t => sys.error("Unexcepted type for AnyModel client conversion: " + t)
+//        }
       }
     }
   }

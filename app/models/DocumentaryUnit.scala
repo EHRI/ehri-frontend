@@ -6,6 +6,7 @@ import models.base._
 
 import models.base.Persistable
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import play.api.libs.json.{Format, Reads}
 
 
 object DocumentaryUnitF {
@@ -86,6 +87,9 @@ object DocumentaryUnitMeta {
   implicit object Converter extends RestReadable[DocumentaryUnitMeta] with ClientConvertable[DocumentaryUnitMeta] {
     implicit val restReads = json.DocumentaryUnitFormat.metaReads
     implicit val clientFormat = json.client.documentaryUnitMetaFormat
+
+    AnyModel.registerRest(EntityType.DocumentaryUnit, restReads.asInstanceOf[Reads[AnyModel]])
+    AnyModel.registerClient(EntityType.DocumentaryUnit, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

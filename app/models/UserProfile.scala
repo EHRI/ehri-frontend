@@ -6,7 +6,7 @@ import models.base._
 
 import base.Persistable
 import defines.EntityType
-import play.api.libs.json.{JsObject, Format, Json}
+import play.api.libs.json.{Reads, JsObject, Format, Json}
 import defines.EnumUtils.enumWrites
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import play.api.i18n.Lang
@@ -76,6 +76,9 @@ object UserProfileMeta {
   implicit object Converter extends ClientConvertable[UserProfileMeta] with RestReadable[UserProfileMeta] {
     val restReads = models.json.UserProfileFormat.metaReads
     val clientFormat = models.json.client.userProfileMetaFormat
+
+    AnyModel.registerRest(EntityType.UserProfile, restReads.asInstanceOf[Reads[AnyModel]])
+    AnyModel.registerClient(EntityType.UserProfile, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 
   // Constructor, sans account and perms

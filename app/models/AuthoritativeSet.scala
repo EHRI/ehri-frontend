@@ -6,6 +6,7 @@ import models.base.Persistable
 import defines.EntityType
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import play.api.i18n.Lang
+import play.api.libs.json.{Format, Reads}
 
 
 object AuthoritativeSetF {
@@ -39,6 +40,9 @@ object AuthoritativeSetMeta {
   implicit object Converter extends ClientConvertable[AuthoritativeSetMeta] with RestReadable[AuthoritativeSetMeta] {
     val restReads = models.json.AuthoritativeSetFormat.metaReads
     val clientFormat = models.json.client.authoritativeSetMetaFormat
+
+    AnyModel.registerRest(EntityType.AuthoritativeSet, restReads.asInstanceOf[Reads[AnyModel]])
+    AnyModel.registerClient(EntityType.AuthoritativeSet, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

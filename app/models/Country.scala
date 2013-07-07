@@ -6,6 +6,7 @@ import models.base.Persistable
 import defines.EntityType
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import play.api.i18n.Lang
+import play.api.libs.json.{Format, Reads}
 
 object CountryF {
   implicit object Converter extends RestConvertable[CountryF] with ClientConvertable[CountryF] {
@@ -29,6 +30,9 @@ object CountryMeta {
   implicit object Converter extends ClientConvertable[CountryMeta] with RestReadable[CountryMeta] {
     val restReads = models.json.CountryFormat.metaReads
     val clientFormat = models.json.client.countryMetaFormat
+
+    AnyModel.registerRest(EntityType.Country, restReads.asInstanceOf[Reads[AnyModel]])
+    AnyModel.registerClient(EntityType.Country, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 
