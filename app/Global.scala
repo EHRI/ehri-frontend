@@ -2,6 +2,7 @@
 // Global request object
 //
 
+import defines.EntityType
 import play.api._
 import play.api.libs.json.{Format, Reads}
 import play.api.mvc._
@@ -42,6 +43,29 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
     // Register JSON models!
     models.json.Utils.registerModels
+
+    // Register menu parts
+    core.views.MenuConfig.mainSection.put(
+      "pages.search", controllers.routes.Search.search.url)
+    core.views.MenuConfig.mainSection.put(
+      "contentTypes.documentaryUnit", controllers.routes.DocumentaryUnits.search.url)
+    core.views.MenuConfig.mainSection.put(
+      "contentTypes.historicalAgent", controllers.routes.HistoricalAgents.search.url)
+    core.views.MenuConfig.mainSection.put(
+      "contentTypes.repository", controllers.routes.Repositories.search.url)
+    core.views.MenuConfig.mainSection.put(
+      "contentTypes.cvocConcept", controllers.routes.Concepts.search.url)
+
+    core.views.MenuConfig.adminSection.put(
+      "contentTypes.userProfile", controllers.routes.UserProfiles.search.url)
+    core.views.MenuConfig.adminSection.put(
+      "contentTypes.group", controllers.routes.Groups.list.url)
+    core.views.MenuConfig.adminSection.put(
+      "contentTypes.country", controllers.routes.Countries.search.url)
+    core.views.MenuConfig.adminSection.put(
+      "contentTypes.cvocVocabulary", controllers.routes.Vocabularies.list.url)
+    core.views.MenuConfig.adminSection.put(
+      "contentTypes.authoritativeSet", controllers.routes.AuthoritativeSets.list.url)
 
     import play.api.libs.concurrent.Execution.Implicits._
 
