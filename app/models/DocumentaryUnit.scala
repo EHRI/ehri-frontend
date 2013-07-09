@@ -87,9 +87,6 @@ object DocumentaryUnitMeta {
   implicit object Converter extends RestReadable[DocumentaryUnitMeta] with ClientConvertable[DocumentaryUnitMeta] {
     implicit val restReads = json.DocumentaryUnitFormat.metaReads
     implicit val clientFormat = json.client.documentaryUnitMetaFormat
-
-    AnyModel.registerRest(EntityType.DocumentaryUnit, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.DocumentaryUnit, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

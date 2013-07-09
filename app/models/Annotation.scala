@@ -77,9 +77,6 @@ object AnnotationMeta {
   implicit object Converter extends ClientConvertable[AnnotationMeta] with RestReadable[AnnotationMeta] {
     val restReads = models.json.AnnotationFormat.metaReads
     val clientFormat = models.json.client.annotationMetaFormat
-
-    AnyModel.registerRest(EntityType.Annotation, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.Annotation, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

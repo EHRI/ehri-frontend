@@ -41,9 +41,6 @@ object GroupMeta {
   implicit object Converter extends ClientConvertable[GroupMeta] with RestReadable[GroupMeta] {
     val restReads = models.json.GroupFormat.metaReads
     val clientFormat = models.json.client.groupMetaFormat
-
-    AnyModel.registerRest(EntityType.Group, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.Group, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

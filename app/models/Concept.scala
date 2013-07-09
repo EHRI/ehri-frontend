@@ -47,9 +47,6 @@ object ConceptMeta {
   implicit object Converter extends ClientConvertable[ConceptMeta] with RestReadable[ConceptMeta] {
     val restReads = models.json.ConceptFormat.metaReads
     val clientFormat = models.json.client.conceptMetaFormat
-
-    AnyModel.registerRest(EntityType.Concept, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.Concept, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

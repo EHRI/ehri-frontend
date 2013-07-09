@@ -40,9 +40,6 @@ object AuthoritativeSetMeta {
   implicit object Converter extends ClientConvertable[AuthoritativeSetMeta] with RestReadable[AuthoritativeSetMeta] {
     val restReads = models.json.AuthoritativeSetFormat.metaReads
     val clientFormat = models.json.client.authoritativeSetMetaFormat
-
-    AnyModel.registerRest(EntityType.AuthoritativeSet, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.AuthoritativeSet, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

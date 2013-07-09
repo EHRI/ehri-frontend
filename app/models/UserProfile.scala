@@ -76,9 +76,6 @@ object UserProfileMeta {
   implicit object Converter extends ClientConvertable[UserProfileMeta] with RestReadable[UserProfileMeta] {
     val restReads = models.json.UserProfileFormat.metaReads
     val clientFormat = models.json.client.userProfileMetaFormat
-
-    AnyModel.registerRest(EntityType.UserProfile, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.UserProfile, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 
   // Constructor, sans account and perms

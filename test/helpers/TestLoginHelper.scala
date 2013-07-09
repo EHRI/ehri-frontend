@@ -91,7 +91,8 @@ trait TestLoginHelper {
    * @return
    */
   def fakeLoggedInHtmlRequest(user: User, rtype: String, path: String)
-        = fakeLoggedInRequest(user, rtype, path).withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML)
+        = fakeLoggedInRequest(user, rtype, path)
+            .withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML, HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
 
   /**
    * Get a FakeRequest with authorization cookies for the given user

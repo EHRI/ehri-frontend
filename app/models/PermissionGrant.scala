@@ -27,9 +27,6 @@ object PermissionGrantMeta {
   implicit object Converter extends RestReadable[PermissionGrantMeta] with ClientConvertable[PermissionGrantMeta] {
     implicit val restReads = models.json.PermissionGrantFormat.metaReads
     implicit val clientFormat = models.json.client.permissionGrantMetaFormat
-
-    AnyModel.registerRest(EntityType.PermissionGrant, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.PermissionGrant, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

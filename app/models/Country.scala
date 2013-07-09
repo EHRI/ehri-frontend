@@ -30,9 +30,6 @@ object CountryMeta {
   implicit object Converter extends ClientConvertable[CountryMeta] with RestReadable[CountryMeta] {
     val restReads = models.json.CountryFormat.metaReads
     val clientFormat = models.json.client.countryMetaFormat
-
-    AnyModel.registerRest(EntityType.Country, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.Country, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

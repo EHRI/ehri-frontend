@@ -22,7 +22,9 @@ case class IntegrityError() extends RestError
 case class ItemNotFound() extends RestError
 case class ServerError(error: String) extends RestError
 case class CriticalError(error: String) extends RestError
-case class BadJson(error: Seq[(JsPath,Seq[PlayValidationError])]) extends RestError
+case class BadJson(error: Seq[(JsPath,Seq[PlayValidationError])]) extends RestError {
+  override def toString = Json.prettyPrint(JsError.toFlatJson(error))
+}
 
 object PermissionDenied {
   import play.api.libs.json.util._

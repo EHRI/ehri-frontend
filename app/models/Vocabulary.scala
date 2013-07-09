@@ -44,9 +44,6 @@ object VocabularyMeta {
   implicit object Converter extends ClientConvertable[VocabularyMeta] with RestReadable[VocabularyMeta] {
     val restReads = models.json.VocabularyFormat.metaReads
     val clientFormat = models.json.client.vocabularyMetaFormat
-
-    AnyModel.registerRest(EntityType.Vocabulary, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.Vocabulary, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 

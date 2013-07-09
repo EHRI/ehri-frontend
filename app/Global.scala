@@ -3,6 +3,7 @@
 //
 
 import play.api._
+import play.api.libs.json.{Format, Reads}
 import play.api.mvc._
 
 import org.apache.commons.codec.binary.Base64
@@ -10,7 +11,7 @@ import org.apache.commons.codec.binary.Base64
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
 import rest.EntityDAO
-import solr.SolrIndexer
+import scala.Some
 import solr.SolrIndexer.SolrErrorResponse
 
 /**
@@ -36,8 +37,11 @@ class AjaxCSRFFilter extends EssentialFilter {
 
 // Note: this is in the default package.
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
-
+    
   override def onStart(app: Application) {
+
+    // Register JSON models!
+    models.json.registerModels
 
     import play.api.libs.concurrent.Execution.Implicits._
 

@@ -45,13 +45,9 @@ object ApplicationBuild extends Build {
   )
 
 
-
-  lazy val restlib = Project(
-    "ehri-rest", file("ehri-rest")
-  )
-
   lazy val core = play.Project(
-    appName + "-core", appVersion, appDependencies, path = file("modules/core")
+    appName + "-core", appVersion, appDependencies, path = file("modules/core"),
+    settings = Defaults.defaultSettings ++ PlayProject.intellijCommandSettings("SCALA")
   ).settings(
     // Bits that get automatically imported into templates...
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
@@ -63,7 +59,8 @@ object ApplicationBuild extends Build {
   )
 
   lazy val users = play.Project(
-    appName + "-users", appVersion, appDependencies, path = file("modules/users")
+    appName + "-users", appVersion, appDependencies, path = file("modules/users"),
+    settings = Defaults.defaultSettings ++ PlayProject.intellijCommandSettings("SCALA")
   ).dependsOn(core).settings(
     // Bits that get automatically imported into templates...
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
@@ -75,7 +72,8 @@ object ApplicationBuild extends Build {
   )
 
   lazy val archdesc = play.Project(
-    appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc")
+    appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc"),
+    settings = Defaults.defaultSettings ++ PlayProject.intellijCommandSettings("SCALA")
   ).dependsOn(core, users).settings(
     // Bits that get automatically imported into templates...
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
@@ -87,7 +85,8 @@ object ApplicationBuild extends Build {
   )
 
   lazy val authorities = play.Project(
-    appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities")
+    appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities"),
+    settings = Defaults.defaultSettings ++ PlayProject.intellijCommandSettings("SCALA")
   ).dependsOn(core, users).settings(
     // Bits that get automatically imported into templates...
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
@@ -99,7 +98,8 @@ object ApplicationBuild extends Build {
   )
 
   lazy val vocabs = play.Project(
-    appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs")
+    appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs"),
+    settings = Defaults.defaultSettings ++ PlayProject.intellijCommandSettings("SCALA")
   ).dependsOn(core, users).settings(
     // Bits that get automatically imported into templates...
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
@@ -112,7 +112,8 @@ object ApplicationBuild extends Build {
 
 
 
-  lazy val main = play.Project(appName, appVersion, appDependencies).settings(
+  lazy val main = play.Project(appName, appVersion, appDependencies,
+    settings = Defaults.defaultSettings ++ PlayProject.intellijCommandSettings("SCALA")).settings(
     // Bits that get automatically imported into templates...
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
 

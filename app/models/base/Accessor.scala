@@ -3,8 +3,6 @@ package models.base
 import defines.EntityType
 import models._
 import play.api.libs.json._
-import play.api.libs.json.KeyPathNode
-import play.api.data.validation.ValidationError
 import models.json.{ClientConvertable, RestReadable}
 
 object Accessor {
@@ -13,28 +11,16 @@ object Accessor {
   implicit object Converter extends RestReadable[Accessor] with ClientConvertable[Accessor] {
     implicit val restReads: Reads[Accessor] = new Reads[Accessor] {
       def reads(json: JsValue): JsResult[Accessor] = {
-        (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
-          case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.restReads)
-          case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.restReads)
-          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError(s"Unexpected meta-model for accessor type"))
-        }
+        json.validate[Accessor](AnyModel.Converter.restReads.asInstanceOf[Reads[Accessor]])
       }
     }
 
     implicit val clientFormat: Format[Accessor] = new Format[Accessor] {
       def reads(json: JsValue): JsResult[Accessor] = {
-        (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType)) match {
-          case EntityType.Group => json.validate[GroupMeta](GroupMeta.Converter.clientFormat)
-          case EntityType.UserProfile => json.validate[UserProfileMeta](UserProfileMeta.Converter.clientFormat)
-          case t => JsError(JsPath(List(KeyPathNode("type"))), ValidationError(s"Unexpected meta-model for accessor type: $t"))
-        }
+        json.validate[Accessor](AnyModel.Converter.clientFormat.asInstanceOf[Format[Accessor]])
       }
       def writes(a: Accessor): JsValue = {
-        a match {
-          case up: UserProfileMeta => Json.toJson(up)(UserProfileMeta.Converter.clientFormat)
-          case g: GroupMeta => Json.toJson(g)(GroupMeta.Converter.clientFormat)
-          case t => sys.error(s"Unexcepted type for accessor client conversion: ${a.isA}")
-        }
+        Json.toJson(a)(AnyModel.Converter.clientFormat.asInstanceOf[Format[Accessor]])
       }
     }
   }

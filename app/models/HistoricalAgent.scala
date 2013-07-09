@@ -43,9 +43,6 @@ object HistoricalAgentMeta {
   implicit object Converter extends ClientConvertable[HistoricalAgentMeta] with RestReadable[HistoricalAgentMeta] {
     val restReads = models.json.HistoricalAgentFormat.metaReads
     val clientFormat = models.json.client.historicalAgentMetaFormat
-
-    AnyModel.registerRest(EntityType.HistoricalAgent, restReads.asInstanceOf[Reads[AnyModel]])
-    AnyModel.registerClient(EntityType.HistoricalAgent, clientFormat.asInstanceOf[Format[AnyModel]])
   }
 }
 
