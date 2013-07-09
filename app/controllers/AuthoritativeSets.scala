@@ -1,10 +1,10 @@
 package controllers
 
+import forms.VisibilityForm
+import controllers.base._
 import models._
-import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
-import controllers.base._
 import defines.{ContentType, EntityType}
 import solr.{SearchOrder, SearchParams}
 import scala.Some
@@ -112,7 +112,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSetMeta]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
-        models.forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
+        VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, routes.AuthoritativeSets.visibilityPost(id)))
   }
 

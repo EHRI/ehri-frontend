@@ -40,7 +40,7 @@ trait VisibilityController[MT] extends EntityRead[MT] {
 
   def visibilityPostAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      val data = models.forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+      val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
       AsyncRest {
         rest.VisibilityDAO(userOpt).set[MT](id, data).map { itemOrErr =>
           itemOrErr.right.map { item =>

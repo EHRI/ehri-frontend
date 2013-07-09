@@ -1,11 +1,11 @@
 package controllers
 
 import models.base.Accessor
+import controllers.base._
+import forms.VisibilityForm
 import models._
-import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
-import _root_.controllers.base._
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.Execution.Implicits._
 

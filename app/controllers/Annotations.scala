@@ -26,7 +26,7 @@ object Annotations extends EntityRead[AnnotationMeta]
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt =>
     implicit request =>
       Ok(views.html.permissions.visibility(item,
-        models.forms.VisibilityForm.form.fill(List.empty[String]), //item.accessors.map(_.id)),
+        forms.VisibilityForm.form.fill(List.empty[String]), //item.accessors.map(_.id)),
         users, groups, routes.Annotations.visibilityPost(id)))
   }
 

@@ -7,7 +7,7 @@ import defines.ContentType
 import models.base._
 import defines.PermissionType
 import models.{UserProfileMeta, Entity}
-import models.forms.VisibilityForm
+import forms.VisibilityForm
 import rest.EntityDAO
 import play.api.libs.json.Writes
 import models.json.{RestReadable, RestConvertable}

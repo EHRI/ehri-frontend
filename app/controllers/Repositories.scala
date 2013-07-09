@@ -1,17 +1,16 @@
 package controllers
 
+import forms.VisibilityForm
+import controllers.base._
 import models._
-import models.forms.VisibilityForm
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import i18n.Messages
 import defines._
-import controllers.base._
 import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
 import views.Helpers
-import scala.Some
 import solr.SearchParams
 
 object Repositories extends EntityRead[RepositoryMeta]

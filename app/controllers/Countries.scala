@@ -1,13 +1,14 @@
 package controllers
 
 import play.api.mvc._
+import forms.VisibilityForm
+import controllers.base._
 import models._
-import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
-import controllers.base._
 import defines.{ContentType, EntityType}
 import solr.SearchParams
+import scala.Some
 
 object Countries extends CRUD[CountryF,CountryMeta]
   with CreationContext[RepositoryF, RepositoryMeta, CountryMeta]
@@ -97,7 +98,6 @@ object Countries extends CRUD[CountryF,CountryMeta]
   /**
    * Fetch the existing set of repository ids. Remove the non-numeric (country code)
    * prefix, and increment to form a new id.
-   * @type {[type]}
    */
   private def getNextRepositoryId(f: String => Result)(implicit userOpt: Option[UserProfileMeta], request: RequestHeader) = {
     import play.api.libs.concurrent.Execution.Implicits._
@@ -165,7 +165,7 @@ object Countries extends CRUD[CountryF,CountryMeta]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
-        models.forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
+        VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, routes.Countries.visibilityPost(id)))
   }
 

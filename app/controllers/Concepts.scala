@@ -1,11 +1,12 @@
 package controllers
 
 import play.api.libs.concurrent.Execution.Implicits._
+import forms.VisibilityForm
+import controllers.base._
 import models._
-import models.forms.{LinkForm, VisibilityForm}
+import models.forms.LinkForm
 import play.api._
 import play.api.i18n.Messages
-import controllers.base._
 import defines.{ContentType, EntityType}
 import collection.immutable.ListMap
 import solr.facet.{FacetSort, FieldFacetClass}
@@ -141,7 +142,7 @@ object Concepts extends CreationContext[ConceptF, ConceptMeta, ConceptMeta]
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
-        models.forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
+        VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, routes.Concepts.visibilityPost(id)))
   }
 

@@ -1,8 +1,8 @@
 package controllers
 
+import forms.VisibilityForm
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
-import models.forms.VisibilityForm
 import play.api._
 import play.api.i18n.Messages
 import _root_.controllers.base._
@@ -107,7 +107,7 @@ object Vocabularies extends CRUD[VocabularyF,VocabularyMeta]
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
-        models.forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
+        VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, routes.Vocabularies.visibilityPost(id)))
   }
 

@@ -6,7 +6,7 @@ import play.api.mvc._
 import play.api.data._
 import defines.PermissionType
 import models.UserProfileMeta
-import models.forms.VisibilityForm
+import forms.VisibilityForm
 import models.json.{RestReadable, RestConvertable}
 
 /**

@@ -1,6 +1,7 @@
 package controllers
 
 import defines._
+import forms.VisibilityForm
 import models._
 import controllers.base._
 import play.api.i18n.Messages
@@ -25,7 +26,7 @@ object Links extends EntityRead[LinkMeta]
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
-        models.forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
+        VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, routes.Links.visibilityPost(id)))
   }
 

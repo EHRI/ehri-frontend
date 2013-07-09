@@ -1,9 +1,10 @@
 package controllers
 
 import models.base._
+import forms.VisibilityForm
 import models._
 import controllers.base._
-import models.forms.{LinkForm, VisibilityForm}
+import models.forms.LinkForm
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
@@ -244,7 +245,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
-        models.forms.VisibilityForm.form.fill(List.empty[String]), //item.accessors.map(_.id)),
+        VisibilityForm.form.fill(List.empty[String]), //item.accessors.map(_.id)),
         users, groups, routes.DocumentaryUnits.visibilityPost(id)))
   }
 
