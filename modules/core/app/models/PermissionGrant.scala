@@ -4,7 +4,8 @@ import models.base.{AnyModel, Model, MetaModel, Accessor}
 import org.joda.time.DateTime
 import defines.{PermissionType,EntityType}
 import models.json.{ClientConvertable, RestReadable}
-import play.api.libs.json.{Format, Reads}
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 
 object PermissionGrantF {
@@ -14,6 +15,11 @@ object PermissionGrantF {
   val TARGET_REL = "hasTarget"
   val GRANTEE_REL = "hasGrantee"
   val SCOPE_REL = "hasScope"
+
+  implicit object Converter extends RestReadable[PermissionGrantF] with ClientConvertable[PermissionGrantF] {
+    val restReads = models.json.PermissionGrantFormat.permissionGrantReads
+    val clientFormat = Json.format[PermissionGrantF]
+  }
 }
 
 case class PermissionGrantF(
@@ -25,8 +31,18 @@ case class PermissionGrantF(
 
 object PermissionGrantMeta {
   implicit object Converter extends RestReadable[PermissionGrantMeta] with ClientConvertable[PermissionGrantMeta] {
+    private implicit val permissionGrantFormat = Json.format[PermissionGrantF]
+
     implicit val restReads = models.json.PermissionGrantFormat.metaReads
-    implicit val clientFormat = models.json.client.permissionGrantMetaFormat
+    implicit val clientFormat: Format[PermissionGrantMeta] = (
+      __.format[PermissionGrantF](PermissionGrantF.Converter.restReads) and
+        (__ \ "accessor").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
+        json.nullableListFormat((__ \ "targets"))(AnyModel.Converter.clientFormat) and
+        (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
+        (__ \ "grantedBy").lazyFormatNullable[UserProfileMeta](UserProfileMeta.Converter.clientFormat)
+      )(PermissionGrantMeta.apply _, unlift(PermissionGrantMeta.unapply _))
+
+
   }
 }
 

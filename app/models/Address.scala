@@ -10,8 +10,8 @@ object AddressF {
   val UNNAMED_ADDRESS = "Unnamed Address"
 
   implicit object Converter extends RestConvertable[AddressF] with ClientConvertable[AddressF] {
-    val restFormat = models.json.rest.addressFormat
-    val clientFormat = models.json.client.addressFormat
+    val restFormat = models.json.AddressFormat.restFormat
+    val clientFormat = Json.format[AddressF]
   }
 }
 

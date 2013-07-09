@@ -71,7 +71,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
   def linkPostAction(id: String, toType: String, to: String)(
       f: Either[(MT, AnyModel,Form[LinkF]),LinkMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
 
-    implicit val linkWrites: Writes[LinkF] = models.json.rest.linkFormat
+    implicit val linkWrites: Writes[LinkF] = models.json.LinkFormat.linkWrites
 
     withItemPermission[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
@@ -104,7 +104,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
   def linkPostMultiAction(id: String)(
       f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[LinkMeta]] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      implicit val linkWrites: Writes[LinkF] = models.json.rest.linkFormat
+      implicit val linkWrites: Writes[LinkF] = models.json.LinkFormat.linkWrites
       val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
@@ -195,7 +195,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
           AsyncRest {
             rest.DescriptionDAO(entityType, userOpt).createAccessPoint(id, did, ap).map { apOrErr =>
               apOrErr.right.map { case (item, ann) =>
-                Created(Json.toJson(ann)(models.json.client.accessPointFormat))
+                Created(Json.toJson(ann)(AccessPointF.Converter.clientFormat  ))
               }
             }
           }

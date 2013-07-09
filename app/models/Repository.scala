@@ -10,7 +10,8 @@ import play.api.libs.json._
 import defines.EnumUtils._
 import models.base._
 import play.api.i18n.Lang
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import models.json._
+import play.api.libs.functional.syntax._
 
 
 object RepositoryF {
@@ -23,8 +24,10 @@ object RepositoryF {
   final val PRIORITY = "priority"
 
   implicit object Converter extends RestConvertable[RepositoryF] with ClientConvertable[RepositoryF] {
-    lazy val restFormat = models.json.rest.repositoryFormat
-    lazy val clientFormat = models.json.client.repositoryFormat
+    val restFormat = models.json.RepositoryFormat.restFormat
+
+    private implicit val repoDescFmt = RepositoryDescriptionF.Converter.clientFormat
+    val clientFormat = Json.format[RepositoryF]
   }
 }
 
@@ -41,7 +44,15 @@ case class RepositoryF(
 object RepositoryMeta {
   implicit object Converter extends ClientConvertable[RepositoryMeta] with RestReadable[RepositoryMeta] {
     val restReads = models.json.RepositoryFormat.metaReads
-    val clientFormat = models.json.client.repositoryMetaFormat
+
+    val clientFormat: Format[RepositoryMeta] = (
+      __.format[RepositoryF](RepositoryF.Converter.clientFormat) and
+      (__ \ "country").formatNullable[CountryMeta](CountryMeta.Converter.clientFormat) and
+      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+    )(RepositoryMeta.apply _, unlift(RepositoryMeta.unapply _))
+
+
   }
 }
 

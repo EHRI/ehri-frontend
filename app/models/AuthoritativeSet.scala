@@ -4,9 +4,10 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import models.json._
 import play.api.i18n.Lang
-import play.api.libs.json.{Format, Reads}
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 
 object AuthoritativeSetF {
@@ -15,8 +16,8 @@ object AuthoritativeSetF {
   val DESCRIPTION = "description"
 
   implicit object Converter extends RestConvertable[AuthoritativeSetF] with ClientConvertable[AuthoritativeSetF] {
-    lazy val restFormat = models.json.rest.authoritativeSetFormat
-    lazy val clientFormat = models.json.client.authoritativeSetFormat
+    lazy val restFormat = models.json.AuthoritativeSetFormat.restFormat
+    lazy val clientFormat = Json.format[AuthoritativeSetF]
   }
 }
 
@@ -39,7 +40,12 @@ object AuthoritativeSet {
 object AuthoritativeSetMeta {
   implicit object Converter extends ClientConvertable[AuthoritativeSetMeta] with RestReadable[AuthoritativeSetMeta] {
     val restReads = models.json.AuthoritativeSetFormat.metaReads
-    val clientFormat = models.json.client.authoritativeSetMetaFormat
+
+    val clientFormat: Format[AuthoritativeSetMeta] = (
+      __.format[AuthoritativeSetF](AuthoritativeSetF.Converter.clientFormat) and
+      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+    )(AuthoritativeSetMeta.apply _, unlift(AuthoritativeSetMeta.unapply _))
   }
 }
 

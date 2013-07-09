@@ -371,7 +371,8 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
           case Right(links) => {
             import models.json.entityTypeFormat
 
-            implicit val accessPointFormat = models.json.client.accessPointFormat
+            implicit val accessPointFormat = AccessPointF.Converter.clientFormat
+            implicit val linkFormat = LinkF.Converter.clientFormat
             implicit val targetWrites = Json.format[Target]
             implicit val itemWrites = Json.format[LinkItem]
 

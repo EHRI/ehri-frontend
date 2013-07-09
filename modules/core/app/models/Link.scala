@@ -2,8 +2,9 @@ package models
 
 import models.base._
 import defines.EntityType
-import play.api.libs.json.{Reads, Format}
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import play.api.libs.json._
+import models.json._
+import play.api.libs.functional.syntax._
 
 
 object LinkF {
@@ -25,11 +26,9 @@ object LinkF {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
-  lazy implicit val linkFormat: Format[LinkF] = json.LinkFormat.restFormat
-
   implicit object Converter extends RestConvertable[LinkF] with ClientConvertable[LinkF] {
-    lazy val restFormat = models.json.rest.linkFormat
-    lazy val clientFormat = models.json.client.linkFormat
+    lazy val restFormat = models.json.LinkFormat.restFormat
+    lazy val clientFormat = Json.format[LinkF]
   }
 }
 
@@ -43,8 +42,21 @@ case class LinkF(
 
 object LinkMeta {
   implicit object Converter extends RestReadable[LinkMeta] with ClientConvertable[LinkMeta] {
+    private implicit val linkFormat = Json.format[LinkF]
+
     implicit val restReads = models.json.LinkFormat.metaReads
-    implicit val clientFormat = models.json.client.linkMetaFormat
+    //implicit val clientFormat = models.json.client.linkMetaFormat
+
+    implicit val clientFormat: Format[LinkMeta] = (
+      __.format[LinkF](LinkF.Converter.clientFormat) and
+        nullableListFormat(__ \ "targets")(AnyModel.Converter.clientFormat) and
+        (__ \ "user").lazyFormatNullable[UserProfileMeta](UserProfileMeta.Converter.clientFormat) and
+        nullableListFormat(__ \ "accessPoints")(AccessPointF.Converter.clientFormat) and
+        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+      )(LinkMeta.apply _, unlift(LinkMeta.unapply _))
+
+
   }
 }
 

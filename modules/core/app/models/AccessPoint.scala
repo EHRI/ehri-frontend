@@ -4,6 +4,7 @@ import models.base._
 
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
+import play.api.libs.json.Json
 
 
 object AccessPointF {
@@ -27,8 +28,8 @@ object AccessPointF {
   }
 
   implicit object Converter extends RestConvertable[AccessPointF] with ClientConvertable[AccessPointF] {
-    lazy val restFormat = models.json.rest.accessPointFormat
-    lazy val clientFormat = models.json.client.accessPointFormat
+    lazy val restFormat = models.json.AccessPointFormat.restFormat
+    lazy val clientFormat = Json.format[AccessPointF]
   }
 }
 

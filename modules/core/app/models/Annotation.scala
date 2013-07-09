@@ -2,9 +2,14 @@ package models
 
 import models.base._
 import defines.EntityType
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import models.json._
 import scala.Some
-import play.api.libs.json.{Format, Reads}
+import play.api.libs.json._
+import scala.Some
+import scala.Some
+import scala.Some
+import play.api.libs.functional.syntax._
+import scala.Some
 
 
 object AnnotationF {
@@ -26,8 +31,8 @@ object AnnotationF {
   }
 
   implicit object Converter extends RestConvertable[AnnotationF] with ClientConvertable[AnnotationF] {
-    lazy val restFormat = models.json.rest.annotationFormat
-    lazy val clientFormat = models.json.client.annotationFormat
+    lazy val restFormat = models.json.AnnotationFormat.restFormat
+    lazy val clientFormat = Json.format[AnnotationF]
   }
 }
 
@@ -41,42 +46,18 @@ case class AnnotationF(
 ) extends Model with Persistable
 
 
-/*
-object Annotation {
-  final val ANNOTATES_REL = "hasAnnotationTarget"
-  final val ACCESSOR_REL = "hasAnnotation"
-  final val SOURCE_REL = "hasAnnotationBody"
-}
-
-case class Annotation(val e: Entity) extends AccessibleEntity
-  with AnnotatableEntity
-  with Formable[AnnotationF] {
-
-  def annotations: List[Annotation] = e.relations(Annotation.ANNOTATES_REL).map(Annotation(_))
-  def accessor: Option[Accessor] = e.relations(Annotation.ACCESSOR_REL).headOption.map(Accessor(_))
-  def source: Option[AnnotatableEntity] = e.relations(Annotation.SOURCE_REL)
-      .headOption.flatMap(AnnotatableEntity.fromEntity(_))
-
-  /**
-   * Output a formatted label representation. TODO: Improve.
-   * @return
-   */
-  def formatted: String = {
-    "%s%s".format(
-      formable.comment.map(c => s"$c\n\n").getOrElse(""),
-      formable.body
-    )
-  }
-
-  lazy val formable: AnnotationF = Json.toJson(e).as[AnnotationF](json.AnnotationFormat.restFormat)
-  lazy val formableOpt: Option[AnnotationF] = Json.toJson(e).asOpt[AnnotationF](json.AnnotationFormat.restFormat)
-}
-*/
-
 object AnnotationMeta {
   implicit object Converter extends ClientConvertable[AnnotationMeta] with RestReadable[AnnotationMeta] {
     val restReads = models.json.AnnotationFormat.metaReads
-    val clientFormat = models.json.client.annotationMetaFormat
+
+    val clientFormat: Format[AnnotationMeta] = (
+      __.format[AnnotationF](AnnotationF.Converter.clientFormat) and
+        lazyNullableListFormat(__ \ "annotations")(clientFormat) and
+        (__ \ "user").lazyFormatNullable[UserProfileMeta](UserProfileMeta.Converter.clientFormat) and
+        (__ \ "source").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
+        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+      )(AnnotationMeta.apply _, unlift(AnnotationMeta.unapply _))
   }
 }
 

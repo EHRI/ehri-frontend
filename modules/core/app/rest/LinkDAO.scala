@@ -49,7 +49,7 @@ case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO 
   def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None): Future[Either[RestError, LinkMeta]] = {
     WS.url(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
       .withHeaders(authHeaders.toSeq: _*)
-      .post(Json.toJson(link)).map { response =>
+      .post(Json.toJson(link)(LinkF.Converter.restFormat)).map { response =>
       checkError(response).right.map(r => r.json.as[LinkMeta](linkMetaReads))
     }
   }

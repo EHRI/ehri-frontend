@@ -44,8 +44,16 @@ private[models] case class IsdiahControl(
 object RepositoryDescriptionF {
 
   implicit object Converter extends RestConvertable[RepositoryDescriptionF] with ClientConvertable[RepositoryDescriptionF] {
-    lazy val restFormat = models.json.rest.isdiahFormat
-    lazy val clientFormat = models.json.client.isdiahFormat
+    val restFormat = models.json.IsdiahFormat.restFormat
+
+    private implicit val entityFormat = json.entityFormat
+    private implicit val addressFormat = AddressF.Converter.clientFormat
+    private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
+    private implicit val isdiahDetailsFormat = Json.format[IsdiahDetails]
+    private implicit val isdiahAccessFormat = Json.format[IsdiahAccess]
+    private implicit val isdiahServicesFormat = Json.format[IsdiahServices]
+    private implicit val isdiahControlFormat = Json.format[IsdiahControl]
+    val clientFormat = Json.format[RepositoryDescriptionF]
   }
 }
 

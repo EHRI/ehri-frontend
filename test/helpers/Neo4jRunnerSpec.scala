@@ -23,7 +23,7 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends Specification with BeforeE
 
   object FakeGlobal extends GlobalSettings {
     override def onStart(app: Application) {
-      models.json.registerModels
+      models.json.Utils.registerModels
     }
   }
 

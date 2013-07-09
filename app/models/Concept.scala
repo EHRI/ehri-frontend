@@ -3,8 +3,9 @@ package models
 import base._
 
 import defines.EntityType
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
-import play.api.libs.json.{Format, Reads}
+import models.json._
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 object ConceptF {
 
@@ -23,8 +24,10 @@ object ConceptF {
   }
 
   implicit object Converter extends RestConvertable[ConceptF] with ClientConvertable[ConceptF] {
-    lazy val restFormat = models.json.rest.conceptFormat
-    lazy val clientFormat = models.json.client.conceptFormat
+    val restFormat = models.json.ConceptFormat.restFormat
+
+    private implicit val conceptDscFmt = ConceptDescriptionF.Converter.clientFormat
+    val clientFormat = Json.format[ConceptF]
   }
 }
 
@@ -46,7 +49,17 @@ object Concept {
 object ConceptMeta {
   implicit object Converter extends ClientConvertable[ConceptMeta] with RestReadable[ConceptMeta] {
     val restReads = models.json.ConceptFormat.metaReads
-    val clientFormat = models.json.client.conceptMetaFormat
+
+    val clientFormat: Format[ConceptMeta] = (
+      __.format[ConceptF](ConceptF.Converter.clientFormat) and
+        (__ \ "vocabulary").formatNullable[VocabularyMeta](VocabularyMeta.Converter.clientFormat) and
+        (__ \ "parent").lazyFormatNullable[ConceptMeta](clientFormat) and
+        lazyNullableListFormat(__ \ "broaderTerms")(clientFormat) and
+        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+      )(ConceptMeta.apply _, unlift(ConceptMeta.unapply _))
+
+
   }
 }
 

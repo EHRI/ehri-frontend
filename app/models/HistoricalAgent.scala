@@ -9,7 +9,8 @@ import defines.EnumUtils._
 import base._
 
 import play.api.libs.json._
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import models.json._
+import play.api.libs.functional.syntax._
 
 object HistoricalAgentF {
 
@@ -21,12 +22,11 @@ object HistoricalAgentF {
 
   val PUBLICATION_STATUS = "publicationStatus"
 
-  lazy implicit val jsonFormat = json.HistoricalAgentFormat.restFormat
-
-
   implicit object Converter extends RestConvertable[HistoricalAgentF] with ClientConvertable[HistoricalAgentF] {
-    lazy val restFormat = models.json.rest.historicalAgentFormat
-    lazy val clientFormat = models.json.client.historicalAgentFormat
+    lazy val restFormat = models.json.HistoricalAgentFormat.restFormat
+
+    private implicit val haDescFmt = HistoricalAgentDescriptionF.Converter.clientFormat
+    lazy val clientFormat = Json.format[HistoricalAgentF]
   }
 }
 
@@ -42,7 +42,14 @@ case class HistoricalAgentF(
 object HistoricalAgentMeta {
   implicit object Converter extends ClientConvertable[HistoricalAgentMeta] with RestReadable[HistoricalAgentMeta] {
     val restReads = models.json.HistoricalAgentFormat.metaReads
-    val clientFormat = models.json.client.historicalAgentMetaFormat
+
+    implicit val clientFormat: Format[HistoricalAgentMeta] = (
+      __.format[HistoricalAgentF](HistoricalAgentF.Converter.clientFormat) and
+        (__ \ "set").formatNullable[AuthoritativeSetMeta](AuthoritativeSetMeta.Converter.clientFormat) and
+        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+      )(HistoricalAgentMeta.apply _, unlift(HistoricalAgentMeta.unapply _))
+
   }
 }
 

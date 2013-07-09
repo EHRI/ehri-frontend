@@ -3,7 +3,7 @@ package models
 import models.base._
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
-import play.api.libs.json.{JsObject, JsValue}
+import play.api.libs.json.{Json, JsObject, JsValue}
 
 case class IsaarDetail(
   datesOfExistence: Option[String] = None,
@@ -36,8 +36,14 @@ object HistoricalAgentDescriptionF {
   lazy implicit val historicalAgentDescriptionFormat = json.IsaarFormat.restFormat
 
   implicit object Converter extends RestConvertable[HistoricalAgentDescriptionF] with ClientConvertable[HistoricalAgentDescriptionF] {
-    lazy val restFormat = models.json.rest.isaarFormat
-    lazy val clientFormat = models.json.client.isaarFormat
+    val restFormat = models.json.IsaarFormat.restFormat
+
+    private implicit val entityFormat = json.entityFormat
+    private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
+    private implicit val datePeriodFormat = DatePeriodF.Converter.clientFormat
+    private implicit val isaarDetailsFormat = Json.format[IsaarDetail]
+    private implicit val isaarControlFormat = Json.format[IsaarControl]
+    val clientFormat = Json.format[HistoricalAgentDescriptionF]
   }
 }
 

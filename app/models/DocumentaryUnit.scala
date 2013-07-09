@@ -5,8 +5,12 @@ import defines.EnumUtils._
 import models.base._
 
 import models.base.Persistable
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
-import play.api.libs.json.{Format, Reads}
+import models.json._
+import play.api.libs.json._
+import scala.Some
+import scala.Some
+import play.api.libs.functional.syntax._
+import scala.Some
 
 
 object DocumentaryUnitF {
@@ -39,8 +43,10 @@ object DocumentaryUnitF {
   //lazy implicit val restFormat = json.DocumentaryUnitFormat.restFormat
 
   implicit object Converter extends RestConvertable[DocumentaryUnitF] with ClientConvertable[DocumentaryUnitF] {
-    lazy val restFormat = models.json.rest.documentaryUnitFormat
-    lazy val clientFormat = models.json.client.documentaryUnitFormat
+    val restFormat = models.json.DocumentaryUnitFormat.restFormat
+
+    private implicit val docDescFmt = DocumentaryUnitDescriptionF.Converter.clientFormat
+    val clientFormat = Json.format[DocumentaryUnitF]
   }
 }
 
@@ -86,7 +92,14 @@ case class DocumentaryUnitF(
 object DocumentaryUnitMeta {
   implicit object Converter extends RestReadable[DocumentaryUnitMeta] with ClientConvertable[DocumentaryUnitMeta] {
     implicit val restReads = json.DocumentaryUnitFormat.metaReads
-    implicit val clientFormat = json.client.documentaryUnitMetaFormat
+
+    val clientFormat: Format[DocumentaryUnitMeta] = (
+      __.format[DocumentaryUnitF](DocumentaryUnitF.Converter.clientFormat) and
+        (__ \ "holder").formatNullable[RepositoryMeta](RepositoryMeta.Converter.clientFormat) and
+        (__ \ "parent").formatNullable[DocumentaryUnitMeta](clientFormat) and
+        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+      )(DocumentaryUnitMeta.apply _, unlift(DocumentaryUnitMeta.unapply _))
   }
 }
 

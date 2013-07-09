@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
+import play.api.libs.json.Json
 
 
 object DatePeriodF {
@@ -23,8 +24,8 @@ object DatePeriodF {
   }
 
   implicit object Converter extends RestConvertable[DatePeriodF] with ClientConvertable[DatePeriodF] {
-    lazy val restFormat = models.json.rest.datePeriodFormat
-    lazy val clientFormat = models.json.client.datePeriodFormat
+    lazy val restFormat = models.json.DatePeriodFormat.restFormat
+    lazy val clientFormat = Json.format[DatePeriodF]
   }
 }
 

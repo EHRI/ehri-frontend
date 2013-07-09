@@ -4,14 +4,15 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import models.json._
 import play.api.i18n.Lang
-import play.api.libs.json.{Format, Reads}
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 object CountryF {
   implicit object Converter extends RestConvertable[CountryF] with ClientConvertable[CountryF] {
-    lazy val restFormat = models.json.rest.countryFormat
-    lazy val clientFormat = models.json.client.countryFormat
+    lazy val restFormat = models.json.CountryFormat.restFormat
+    lazy val clientFormat = Json.format[CountryF]
   }
 }
 
@@ -29,7 +30,12 @@ object Country {
 object CountryMeta {
   implicit object Converter extends ClientConvertable[CountryMeta] with RestReadable[CountryMeta] {
     val restReads = models.json.CountryFormat.metaReads
-    val clientFormat = models.json.client.countryMetaFormat
+
+    val clientFormat: Format[CountryMeta] = (
+      __.format[CountryF](CountryF.Converter.clientFormat) and
+        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+      )(CountryMeta.apply _, unlift(CountryMeta.unapply _))
   }
 }
 

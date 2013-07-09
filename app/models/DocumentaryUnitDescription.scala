@@ -46,8 +46,17 @@ object DocumentaryUnitDescriptionF {
   //lazy implicit val documentaryUnitDescriptionFormat = json.IsadGFormat.restFormat
 
   implicit object Converter extends RestConvertable[DocumentaryUnitDescriptionF] with ClientConvertable[DocumentaryUnitDescriptionF] {
-    lazy val restFormat = models.json.rest.isadGFormat
-    lazy val clientFormat = models.json.client.isadGFormat
+    val restFormat = models.json.IsadGFormat.restFormat
+
+    private implicit val entityFormat = json.entityFormat
+    private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
+    private implicit val datePeriodFormat = DatePeriodF.Converter.clientFormat
+    private implicit val isadGContextFormat = Json.format[IsadGContext]
+    private implicit val isadGContentFormat = Json.format[IsadGContent]
+    private implicit val isadGConditionsFormat = Json.format[IsadGConditions]
+    private implicit val isadGMaterialsFormat = Json.format[IsadGMaterials]
+    private implicit val isadGControlFormat = Json.format[IsadGControl]
+    val clientFormat = Json.format[DocumentaryUnitDescriptionF]
   }
 }
 

@@ -2,9 +2,10 @@ package models
 
 import models.base._
 import defines.EntityType
-import play.api.libs.json.{Reads, JsObject, Format, Json}
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import play.api.libs.json._
+import models.json._
 import play.api.i18n.Lang
+import play.api.libs.functional.syntax._
 
 object GroupF {
 
@@ -13,11 +14,9 @@ object GroupF {
   val NAME = "name"
   val DESCRIPTION = "description"
 
-  lazy implicit val groupFormat: Format[GroupF] = json.GroupFormat.restFormat
-
   implicit object Converter extends RestConvertable[GroupF] with ClientConvertable[GroupF] {
-    lazy val restFormat = models.json.rest.groupFormat
-    lazy val clientFormat = models.json.client.groupFormat
+    lazy val restFormat = models.json.GroupFormat.restFormat
+    lazy val clientFormat = Json.format[GroupF]
   }
 }
 
@@ -40,7 +39,13 @@ case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with A
 object GroupMeta {
   implicit object Converter extends ClientConvertable[GroupMeta] with RestReadable[GroupMeta] {
     val restReads = models.json.GroupFormat.metaReads
-    val clientFormat = models.json.client.groupMetaFormat
+
+    val clientFormat: Format[GroupMeta] = (
+      __.format[GroupF](GroupF.Converter.clientFormat) and
+      lazyNullableListFormat(__ \ "groups")(clientFormat) and
+      lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+    )(GroupMeta.apply _, unlift(GroupMeta.unapply _))
   }
 }
 

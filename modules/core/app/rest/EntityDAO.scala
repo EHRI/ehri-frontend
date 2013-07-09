@@ -151,7 +151,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
       WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkError(response).right.map { r =>
           val entity = r.json.as[MT](rd.restReads)
-          Cache.set(id, entity, cacheTime)
+          //Cache.set(id, entity, cacheTime)
           entity
         }
       }
@@ -221,7 +221,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
         EntityDAO.handleDelete(id)
-        Cache.remove(id)
+        //Cache.remove(id)
         r.status == OK
       })
     }

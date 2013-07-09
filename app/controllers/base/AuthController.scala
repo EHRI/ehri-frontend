@@ -14,7 +14,6 @@ import defines.ContentType
 import java.net.ConnectException
 import rest.ServerError
 import scala.concurrent.Future
-import play.api.cache.Cache
 
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.

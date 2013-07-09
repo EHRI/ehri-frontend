@@ -41,7 +41,7 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
   override def onStart(app: Application) {
 
     // Register JSON models!
-    models.json.registerModels
+    models.json.Utils.registerModels
 
     import play.api.libs.concurrent.Execution.Implicits._
 

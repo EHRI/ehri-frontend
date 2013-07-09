@@ -6,10 +6,15 @@ import models.base._
 
 import base.Persistable
 import defines.EntityType
-import play.api.libs.json.{Reads, JsObject, Format, Json}
+import play.api.libs.json._
 import defines.EnumUtils.enumWrites
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import models.json._
 import play.api.i18n.Lang
+import scala.Some
+import scala.Some
+import scala.Some
+import play.api.libs.functional.syntax._
+import scala.Some
 
 
 object UserProfileF {
@@ -23,11 +28,9 @@ object UserProfileF {
   val ABOUT = "about"
   val LANGUAGES = "languages"
 
-  lazy implicit val userProfileFormat: Format[UserProfileF] = json.UserProfileFormat.restFormat
-
   implicit object Converter extends RestConvertable[UserProfileF] with ClientConvertable[UserProfileF] {
-    lazy val restFormat = models.json.rest.userProfileFormat
-    lazy val clientFormat = models.json.client.userProfileFormat
+    lazy val restFormat = models.json.UserProfileFormat.restFormat
+    lazy val clientFormat = Json.format[UserProfileF]
   }
 }
 
@@ -42,40 +45,18 @@ case class UserProfileF(
 ) extends Model with Persistable
 
 
-/*
-object UserProfile {
-  // Have to provide a single arg constructor
-  // to provide a builder function for the generic views.
-  def apply(e: Entity) = new UserProfile(e)
-}
-
-case class UserProfile(
-  val e: Entity,
-  val account: Option[sql.User] = None,
-  val globalPermissions: Option[GlobalPermissionSet[UserProfile]] = None,
-  val itemPermissions: Option[ItemPermissionSet[UserProfile]] = None) extends AccessibleEntity
-  with Accessor with NamedEntity with Formable[UserProfileF] {
-
-  def hasPermission(ct: ContentType.Value, p: PermissionType.Value): Boolean = {
-    globalPermissions.map { gp =>
-      if (gp.has(ct, p)) true
-      else {
-        itemPermissions.map { ip =>
-          ip.contentType == ct && ip.has(p)
-        }.getOrElse(false)
-      }
-    }.getOrElse(false)
-  }
-
-  lazy val formable: UserProfileF = Json.toJson(e).as[UserProfileF]
-  lazy val formableOpt: Option[UserProfileF] = Json.toJson(e).asOpt[UserProfileF]
-}
-*/
-
 object UserProfileMeta {
   implicit object Converter extends ClientConvertable[UserProfileMeta] with RestReadable[UserProfileMeta] {
+
     val restReads = models.json.UserProfileFormat.metaReads
-    val clientFormat = models.json.client.userProfileMetaFormat
+    val clientFormat: Format[UserProfileMeta] = (
+      __.format[UserProfileF](UserProfileF.Converter.clientFormat) and
+      nullableListFormat(__ \ "groups")(GroupMeta.Converter.clientFormat) and
+      lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+    )(UserProfileMeta.quickApply _, unlift(UserProfileMeta.quickUnapply _))
+
+
   }
 
   // Constructor, sans account and perms

@@ -4,10 +4,11 @@ import base._
 
 import models.base.Persistable
 import defines.EntityType
-import play.api.libs.json.{Reads, JsObject, Format, Json}
+import play.api.libs.json._
 import defines.EnumUtils.enumWrites
-import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import models.json._
 import play.api.i18n.Lang
+import play.api.libs.functional.syntax._
 
 object VocabularyType extends Enumeration {
   type Type = Value
@@ -20,8 +21,8 @@ object VocabularyF {
   lazy implicit val vocabularyFormat: Format[VocabularyF] = json.VocabularyFormat.restFormat
 
   implicit object Converter extends RestConvertable[VocabularyF] with ClientConvertable[VocabularyF] {
-    lazy val restFormat = models.json.rest.vocabularyFormat
-    lazy val clientFormat = models.json.client.vocabularyFormat
+    lazy val restFormat = models.json.VocabularyFormat.restFormat
+    lazy val clientFormat = Json.format[VocabularyF]
   }
 }
 
@@ -43,7 +44,14 @@ object Vocabulary {
 object VocabularyMeta {
   implicit object Converter extends ClientConvertable[VocabularyMeta] with RestReadable[VocabularyMeta] {
     val restReads = models.json.VocabularyFormat.metaReads
-    val clientFormat = models.json.client.vocabularyMetaFormat
+
+    val clientFormat: Format[VocabularyMeta] = (
+      __.format[VocabularyF](VocabularyF.Converter.clientFormat) and
+        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
+      )(VocabularyMeta.apply _, unlift(VocabularyMeta.unapply _))
+
+
   }
 }
 
