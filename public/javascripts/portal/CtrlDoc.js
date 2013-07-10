@@ -1,4 +1,4 @@
-var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$routeParams', 'Item', function($scope, $filter, $location, $routeParams, $item) {
+var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$routeParams', '$http', 'Item', function($scope, $filter, $location, $routeParams, $http, $item) {
 	$scope.item = $item.data;
 	$scope.alt = {};
 	//<-- Set id of desc
@@ -68,6 +68,31 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$rout
 		return more(month) + '-' + more(day) + '-' + year;
 	}
 	// Date format -->
+	
+	//<-- Search Engine
+	$scope.searchParams = {type: "score", order: "desc"};
+	$scope.quickSearch = {};
+	$scope.getUrl = function(url) {
+		url = url + '?type=documentaryUnit&sort=' + $scope.searchParams.type + '.' + $scope.searchParams.order+ '&q=' + $scope.searchParams.q;
+		
+		return url;
+	}
+	
+	$scope.doFilter = function(type, val) {
+		$scope.searchParams[type] = val;
+		$scope.doSearch();
+	}
+	
+	$scope.doSearch = function() {	
+		url = $scope.getUrl('/search');
+		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
+				//Datas
+				$scope.quickSearch = data.page.items;
+			});
+	}
+	// Search Engine -->
+	
+	
 	
 	//<-- Load data 
 	$scope.loadDesc();

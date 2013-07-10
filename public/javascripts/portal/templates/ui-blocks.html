@@ -1,0 +1,8 @@
+<div id="accessPoints" class="ui-block" ng-class="(class.accessPoints.closed && 'closed') || ((!desc.relationships.relatesTo || class.accessPoints.hidden) && 'hidden')">
+	<h2>{{$attrs.title}}
+		<div class="pull-right">
+			<a class="filterBar-icon" ng-click="class.accessPoints.closed = !class.accessPoints.closed;"><i ng-class="(class.accessPoints.closed && 'icon-plus') || 'icon-minus'"></i>
+			</a><a ng-click="class.accessPoints.hidden = !class.accessPoints.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div></h2>
+	<div ng-transclude>
+	</div>
+</div>

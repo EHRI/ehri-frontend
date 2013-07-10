@@ -1,212 +1,214 @@
 <div class="search-bar">
-<nav class="navbar">
-	<div class="navbar-inner">
-		<ul class="nav">
-			<li ng-repeat="desc in item.relationships.describes">
-				<a href="#/item/documentaryUnit/{{item.id}}?description={{desc.id}}" title="{{desc.data.name}}">{{desc.data.languageCode}}</a>
-			</li>
-		</ul>
-	</div>
-</nav>
+<h1>{{desc.data.name}}</h1>
 </div>
 <article class="container document" style="padding-top:30px;">
-<header class="span4 pull-right well well-small">
-	<div class="text-center"><h5 class="text-center">{{desc.data.name}}</h5></div>
 	
-	<small>Ref. : {{item.id}}</small>
 	
-	<dl class="dl-horizontal" ng-show="(desc.relationships.hasDate)">
-		<dt>Dates</dt>
-		<dd title="Dates">
-			<ul class="unstyled" ng-repeat="date in desc.relationships.hasDate" id="{{date.type + '' + date.id}}">
-				<li title="Start date">
-					{{formatDate(date.data.startDate)}}
-				</li>
-				<li title="End date">
-					{{formatDate(date.data.endDate)}}
-				</li>
-			</ul>
-			{{desc.data.date}}
-		</dd>
-	</dl>
-	
-	<dl class="dl-horizontal" ng-show="(desc.data.languageOfMaterials)">
-		<dt>Language</dt>
-		<dd title="Language of Materials">
-			<ul ng-repeat="lg in desc.data.languageOfMaterials" class="unstyled"><li>{{lg}}</li></ul>
-		</dd>
-	</dl>
-	<dl class="dl-horizontal" ng-show="((!desc.data.languageOfMaterials) && (getAlt('languageOfMaterials', 'data.languageOfMaterials', true) != undefined))">
-		<dt>Language</dt>
-		<dd title="Language of Materials">
-			<ul ng-repeat="lg in alt['data.languageOfMaterials'][0].text" class="unstyled muted"><li>{{lg}}</li></ul>
-		</dd>
-	</dl>
-	
-	<dl class="dl-horizontal" ng-show="(desc.data.scriptOfMaterials)">
-		<dt>Scripts</dt>
-		<dd title="Scripts of Materials">
-			<ul ng-repeat="lg in desc.data.scriptOfMaterials" class="unstyled"><li>{{lg}}</li></ul>
-		</dd>
-	</dl>
-	<dl class="dl-horizontal" ng-show="((!desc.data.scriptOfMaterials) && (getAlt('scriptOfMaterials', 'data.scriptOfMaterials', true) != undefined))">
-		<dt>Scripts</dt>
-		<dd title="Scripts of Materials">
-			<ul ng-repeat="lg in alt['data.scriptOfMaterials'][0].text" class="unstyled muted"><li>{{lg}}</li></ul>
-		</dd>
-	</dl>
-	
-	<dl class="dl-horizontal" ng-show="(desc.data.levelOfDescription)">
-		<dt>Level of Description</dt>
-		<dd title="Level of Description">
-			{{desc.data.levelOfDescription}}
-		</dd>
-	</dl>
-	
-	<dl class="dl-horizontal" ng-show="((!desc.data.levelOfDescription) && (getAlt('levelOfDescription', 'data.levelOfDescription', true) != undefined))">
-		<dt>Level of Description</dt>
-		<dd title="Level of Description from other description" class="muted">
-			{{alt["data.levelOfDescription"][0].text}}
-		</dd>
-	</dl>
-	
-	<dl class="dl-horizontal" ng-show="(desc.data.extentAndMedium)">
-		<dt>Extent and Medium</dt>
-		<dd title="Extent and Medium of the Unit of Description">
-			{{desc.data.extentAndMedium}}
-		</dd>
-	</dl>	
-	<dl class="dl-horizontal" ng-show="((!desc.data.extentAndMedium) && (getAlt('extentAndMedium', 'data.extentAndMedium', true) != undefined))">
-		<dt>Extent and Medium</dt>
-		<dd title="Extent and Medium of the Unit of Description" class="muted">
-			{{alt["data.extentAndMedium"][0].text}}
-		</dd>
-	</dl>
-	
-	<dl class="dl-horizontal" ng-show="(desc.data.acquisition)">
-		<dt>Source of Acquisition</dt>
-		<dd title="Immediate Source of Acquisition or Transfer">
-			{{desc.data.acquisition}}
-		</dd>
-	</dl>
-	<dl class="dl-horizontal" ng-show="((!desc.data.acquisition) && (getAlt('acquisition', 'data.acquisition', true) != undefined))">
-		<dt>Source of Acquisition</dt>
-		<dd title="Immediate Source of Acquisition or Transfer" class="muted">
-			{{alt["data.acquisition"][0].text}}
-		</dd>
-	</dl>
-		
-</header>
+	<div class="row">
+		<div class="span8">
+			<div class="ui-block" id="Identity" ng-show="(desc.data.extentAndMedium)" ng-class="(class.Identity.closed && 'closed') || (class.Identity.hidden && 'hidden')">
+				<h2>Identity
+					<div class="pull-right">
+						<a class="filterBar-icon" ng-click="class.Identity.closed = !class.Identity.closed;"><i ng-class="(class.Identity.closed && 'icon-plus') || 'icon-minus'"></i>
+						</a><a ng-click="class.Identity.hidden = !class.Identity.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
+					</h2>
+				<div id="extentAndMedium" ng-show="(desc.data.extentAndMedium)">
+					<h3>Extent and Medium of the Unit of Description </h3>
+					<p>{{desc.data.extentAndMedium}}</p>
+				</div>
+				<!-- Source is in right span -->
+			</div>
+			<div class="ui-block" id="context" ng-show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory)" ng-class="(class.context.closed && 'closed') || (class.context.hidden && 'hidden')">
+				<h2>Context
+					<div class="pull-right">
+						<a class="filterBar-icon" ng-click="class.context.closed = !class.context.closed;"><i ng-class="(class.context.closed && 'icon-plus') || 'icon-minus'"></i>
+						</a><a ng-click="class.context.hidden = !class.context.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
+					</h2>
+				<div id="adminBiogHistory" ng-show="(desc.data.adminBiogHistory)">
+					<h3>Administrative and biographical history</h3>
+					<p>{{desc.data.adminBiogHistory}}</p>
+				</div>
+				<div id="archivalHistory" ng-show="(desc.data.archivalHistory)">
+					<h3>Archival History</h3>
+					<p>{{desc.data.archivalHistory}}</p>
+				</div>
+				<!-- Source is in right span -->
+			</div>
 
-<h1>{{desc.data.name}}</h1>
+			<div class="ui-block" id="Content" ng-show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement)" ng-class="(class.Content.closed && 'closed') || (class.Content.hidden && 'hidden')">
+				<h2>Content
+					<div class="pull-right">
+						<a class="filterBar-icon" ng-click="class.Content.closed = !class.Content.closed;"><i ng-class="(class.Content.closed && 'icon-plus') || 'icon-minus'"></i>
+						</a><a ng-click="class.Content.hidden = !class.Content.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
+				</h2>
+				<div id="scopeAndContent" ng-show="(desc.data.scopeAndContent)">
+					<h3> Scope and Content </h3>
+					<p>{{desc.data.scopeAndContent}}</p>
+				</div>
+				
+				<div id="appraisal" ng-show="(desc.data.appraisal)">
+					<h3> Appraisal </h3>
+					<p>{{desc.data.appraisal}}</p>
+				</div>
+				
+				<div id="accruals" ng-show="(desc.data.accruals)">
+					<h3> Accruals </h3>
+					<p>{{desc.data.accruals}}</p>
+				</div>
+				
+				<div id="systemOfArrangement" ng-show="(desc.data.systemOfArrangement)">
+					<h3> System of Arrangement </h3>
+					<p>{{desc.data.systemOfArrangement}}</p>
+				</div>
+			</div>
 
-<div id="context" ng-show="(desc.data.adminBiogHistory || desc.data.archivalHistory || (getAlt('adminBiogHistory', 'data.adminBiogHistory', true) != undefined) || (getAlt('archivalHistory', 'data.archivalHistory', true) != undefined))">
-	<h2>Context</h2>
-	<div id="adminBiogHistory" ng-show="((desc.data.adminBiogHistory) || (getAlt('adminBiogHistory', 'data.adminBiogHistory', true) != undefined))">
-		<h3>Administrative and biographical history</h3>
-		<p ng-show="(desc.data.adminBiogHistory)">{{desc.data.adminBiogHistory}}</p>
-		<p class="muted" ng-show="(alt['data.adminBiogHistory'][0].text != undefined)">{{alt["data.adminBiogHistory"][0].text}}</p>
-	</div>
-	<div id="archivalHistory" ng-show="((desc.data.archivalHistory) || (getAlt('adminBiogHistory', 'data.archivalHistory', true) != undefined))">
-		<h3>Archival History</h3>
-		<p ng-show="(desc.data.archivalHistory)">{{desc.data.archivalHistory}}</p>
-		<p class="muted" ng-show="(alt['data.archivalHistory'][0].text != undefined)">{{alt["data.archivalHistory"][0].text}}</p>
-	</div>
-	<!-- Source is in right span -->
-</div>
+			<div class="ui-block" id="conditions" ng-show="(desc.data.conditionsOfAccess || desc.data.conditionsOfReproduction || desc.data.physicalCharacteristics || desc.data.findingAids)" ng-class="(class.conditions.closed && 'closed') || (class.conditions.hidden && 'hidden')">
+				<h2>Conditions
+					<div class="pull-right">
+						<a class="filterBar-icon" ng-click="class.conditions.closed = !class.conditions.closed;"><i ng-class="(class.conditions.closed && 'icon-plus') || 'icon-minus'"></i>
+						</a><a ng-click="class.conditions.hidden = !class.conditions.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
+				</h2>
+				<div id="conditionsOfAccess" ng-show="(desc.data.conditionsOfAccess)">
+					<h3>Conditions Governing Access </h3>
+					<p>{{desc.data.conditionsOfAccess}}</p>
+				</div>
+				<div id="conditionsOfReproduction" ng-show="(desc.data.conditionsOfReproduction)">
+					<h3>Conditions Governing Reproduction </h3>
+					<p>{{desc.data.conditionsOfReproduction}}</p>
+				</div>
+				<div id="physicalCharacteristics" ng-show="(desc.data.physicalCharacteristics)">
+					<h3>Physical Characteristics and Technical Requirements </h3>
+					<p>{{desc.data.physicalCharacteristics}}</p>
+				</div>
+				<div id="findingAids" ng-show="(desc.data.findingAids)">
+					<h3>Finding Aids</h3>
+					<p>{{desc.data.findingAids}}</p>
+				</div>
+			</div>
 
-<div id="context" ng-show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement || (getAlt('scopeAndContent', 'data.scopeAndContent', true) != undefined) || (getAlt('appraisal', 'data.appraisal', true) != undefined) || (getAlt('accruals', 'data.accruals', true) != undefined) || (getAlt('systemOfArrangement', 'data.systemOfArrangement', true) != undefined))">
-	<h2>Content</h2>
-	<div id="scopeAndContent" ng-show="(desc.data.scopeAndContent) || (getAlt('scopeAndContent', 'data.scopeAndContent', true) != undefined)">
-		<h3> Scope and Content </h3>
-		<p ng-show="(desc.data.scopeAndContent)">{{desc.data.scopeAndContent}}</p>
-		<p class="muted" ng-show="(alt['data.scopeAndContent'][0].text != undefined)">{{alt["data.scopeAndContent"][0].text}}</p>
-	</div>
-	
-	<div id="appraisal" ng-show="(desc.data.appraisal) || (getAlt('appraisal', 'data.appraisal', true) != undefined)">
-		<h3> Appraisal </h3>
-		<p ng-show="(desc.data.appraisal)">{{desc.data.appraisal}}</p>
-		<p class="muted" ng-show="(alt['data.appraisal'][0].text != undefined)">{{alt["data.appraisal"][0].text}}</p>
-	</div>
-	
-	<div id="accruals" ng-show="(desc.data.accruals) || (getAlt('accruals', 'data.accruals', true) != undefined)">
-		<h3> Accruals </h3>
-		<p ng-show="(desc.data.accruals)">{{desc.data.accruals}}</p>
-		<p class="muted" ng-show="(alt['data.accruals'][0].text != undefined)">{{alt["data.accruals"][0].text}}</p>
-	</div>
-	
-	<div id="systemOfArrangement" ng-show="(desc.data.systemOfArrangement) || (getAlt('systemOfArrangement', 'data.systemOfArrangement', true) != undefined)">
-		<h3> System of Arrangement </h3>
-		<p ng-show="(desc.data.systemOfArrangement)">{{desc.data.systemOfArrangement}}</p>
-		<p class="muted" ng-show="(alt['data.systemOfArrangement'][0].text != undefined)">{{alt["data.systemOfArrangement"][0].text}}</p>
-	</div>
-</div>
+			<div class="ui-block" id="materials" ng-show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote)" ng-class="(class.materials.closed && 'closed') || (class.materials.hidden && 'hidden')">
+				<h2>Materials
+					<div class="pull-right">
+						<a class="filterBar-icon" ng-click="class.materials.closed = !class.materials.closed;"><i ng-class="(class.materials.closed && 'icon-plus') || 'icon-minus'"></i>
+						</a><a ng-click="class.materials.hidden = !class.materials.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
+				</h2>
+				<div id="locationOfOriginals" ng-show="(desc.data.locationOfOriginals)">
+					<h3>Existence and Location of Originals </h3>
+					<p>{{desc.data.locationOfOriginals}}</p>
+				</div>
+				<div id="locationOfCopies" ng-show="(desc.data.locationOfCopies)">
+					<h3>Existence and Location of Copies </h3>
+					<p>{{desc.data.locationOfCopies}}</p>
+				</div>
+				<div id="relatedUnitsOfDescription" ng-show="(desc.data.relatedUnitsOfDescription)">
+					<h3>Related Units of Description </h3>
+					<p>{{desc.data.relatedUnitsOfDescription}}</p>
+				</div>
+				<div id="publicationNote" ng-show="(desc.data.publicationNote)">
+					<h3>Publication Note </h3>
+					<p>{{desc.data.publicationNote}}</p>
+				</div>
 
-<div id="conditions" ng-show="(desc.data.conditionsOfAccess || desc.data.conditionsOfReproduction || desc.data.physicalCharacteristics || desc.data.findingAids || (getAlt('conditionsOfAccess', 'data.conditionsOfAccess', true) != undefined) || (getAlt('conditionsOfReproduction', 'data.conditionsOfReproduction', true) != undefined) || (getAlt('physicalCharacteristics', 'data.physicalCharacteristics', true) != undefined) || (getAlt('findingAids', 'data.findingAids', true) != undefined))">
-	<h2>Conditions</h2>
-	<div id="conditionsOfAccess" ng-show="(desc.data.conditionsOfAccess || (getAlt('conditionsOfAccess', 'data.conditionsOfAccess', true) != undefined))">
-		<h3>Conditions Governing Access </h3>
-		<p ng-show="(desc.data.conditionsOfAccess)">{{desc.data.conditionsOfAccess}}</p>
-		<p class="muted" ng-show="(alt['data.conditionsOfAccess'][0].text != undefined)">{{alt["data.conditionsOfAccess"][0].text}}</p>
-	</div>
-	<div id="conditionsOfReproduction" ng-show="(desc.data.conditionsOfReproduction || (getAlt('conditionsOfReproduction', 'data.conditionsOfReproduction', true) != undefined))">
-		<h3>Conditions Governing Reproduction </h3>
-		<p ng-show="(desc.data.conditionsOfReproduction)">{{desc.data.conditionsOfReproduction}}</p>
-		<p class="muted" ng-show="(alt['data.conditionsOfReproduction'][0].text != undefined)">{{alt["data.conditionsOfReproduction"][0].text}}</p>
-	</div>
-	<div id="physicalCharacteristics" ng-show="(desc.data.physicalCharacteristics || (getAlt('physicalCharacteristics', 'data.physicalCharacteristics', true) != undefined))">
-		<h3>Physical Characteristics and Technical Requirements </h3>
-		<p ng-show="(desc.data.physicalCharacteristics)">{{desc.data.physicalCharacteristics}}</p>
-		<p class="muted" ng-show="(alt['data.physicalCharacteristics'][0].text != undefined)">{{alt["data.physicalCharacteristics"][0].text}}</p>
-	</div>
-	<div id="findingAids" ng-show="(desc.data.findingAids || (getAlt('findingAids', 'data.findingAids', true) != undefined))">
-		<h3>Finding Aids</h3>
-		<p ng-show="(desc.data.findingAids)">{{desc.data.findingAids}}</p>
-		<p class="muted" ng-show="(alt['data.findingAids'][0].text != undefined)">{{alt["data.findingAids"][0].text}}</p>
-	</div>
-</div>
+			</div>
 
-<div id="materials" ng-show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote || (getAlt('locationOfOriginals', 'data.locationOfOriginals', true) || (getAlt('locationOfCopies', 'data.locationOfCopies', true) || (getAlt('relatedUnitsOfDescription', 'data.relatedUnitsOfDescription', true) || (getAlt('publicationNote', 'data.publicationNote', true))">
-	<h2>Materials</h2>
-	<div id="locationOfOriginals" ng-show="(desc.data.locationOfOriginals || (getAlt('locationOfOriginals', 'data.locationOfOriginals', true) != undefined))">
-		<h3>Existence and Location of Originals </h3>
-		<p ng-show="(desc.data.locationOfOriginals)">{{desc.data.locationOfOriginals}}</p>
-		<p class="muted" ng-show="(alt['data.locationOfOriginals'][0].text != undefined)">{{alt["data.locationOfOriginals"][0].text}}</p>
+			<div class="ui-block" id="control" ng-show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions)" ng-class="(class.control.closed && 'closed') || (class.control.hidden && 'hidden')">
+			<h2>Control
+					<div class="pull-right">
+						<a class="filterBar-icon" ng-click="class.control.closed = !class.control.closed;"><i ng-class="(class.control.closed && 'icon-plus') || 'icon-minus'"></i>
+						</a><a ng-click="class.control.hidden = !class.control.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
+				</h2>
+				<div id="archivistNote" ng-show="(desc.data.archivistNote)">
+					<h3>Archivist Note </h3>
+					<p>{{desc.data.archivistNote}}</p>
+				</div>
+				<div id="rulesAndConventions" ng-show="(desc.data.rulesAndConventions)">
+					<h3>Rules and Conventions </h3>
+					<p">{{desc.data.rulesAndConventions}}</p>
+				</div>
+				<div id="datesOfDescriptions" ng-show="(desc.data.datesOfDescriptions)">
+					<h3>Dates of Descriptions </h3>
+					<p>{{desc.data.datesOfDescriptions}}</p>
+				</div>
+			</div>
+			<div id="accessPoints" class="ui-block" ng-class="(class.accessPoints.closed && 'closed') || ((!desc.relationships.relatesTo || class.accessPoints.hidden) && 'hidden')">
+				<h2>Access
+					<div class="pull-right">
+						<a class="filterBar-icon" ng-click="class.accessPoints.closed = !class.accessPoints.closed;"><i ng-class="(class.accessPoints.closed && 'icon-plus') || 'icon-minus'"></i>
+						</a><a ng-click="class.accessPoints.hidden = !class.accessPoints.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div></h2>
+				<div>
+					<ul class="tags accessPoints">
+						<li ng-repeat="access in desc.relationships.relatesTo" class="{{access.data.type}}">{{access.data.name}}</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="span4">
+			<div class="ui-block">
+				<h2 class="nomargin">Available blocks</h2>
+				<ul class="list-item">
+					<li ng-show="(desc.data.extentAndMedium) && class.Identity.hidden ">
+						Identity Area
+						<a ng-click="class.Identity.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+					</li>
+					<li ng-show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory) && class.context.hidden ">
+						Context Area
+						<a ng-click="class.context.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+					</li>
+					<li ng-show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement) && class.Content.hidden ">
+						Content Area
+						<a ng-click="class.Content.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+					</li>
+					<li ng-show="(desc.data.conditionsOfAccess || desc.data.conditionsOfReproduction || desc.data.physicalCharacteristics || desc.data.findingAids) && class.conditions.hidden ">
+						Conditions Area
+						<a ng-click="class.conditions.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+					</li>
+					<li ng-show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote) && class.materials.hidden ">
+						Materials Area
+						<a ng-click="class.materials.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+					</li>
+					<li ng-show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions) && class.control.hidden ">
+						Control Area
+						<a ng-click="class.control.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+					</li>
+					<li ng-show="desc.relationships.relatesTo && class.accessPoints.hidden ">
+						Access Area
+						<a ng-click="class.accessPoints.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+					</li>
+				</ul>
+			</div>
+			<div class="ui-block">
+				<h2 class="nomargin">Available descriptions</h2>
+				<ul class="list-item">
+					<li class="ng-scope" ng-repeat="desc in item.relationships.describes">
+					{{desc.data.languageCode}} - {{desc.data.name}}
+					<a class="filterBar-icon" href="#/item/documentaryUnit/{{item.id}}?description={{desc.id}}"><i class="icon-chevron-right"></i></a>
+					</li>
+				</ul>
+			</div>
+			<div class="ui-block">
+				<h2 class="nomargin">Compare with</h2>
+				<form class="form" ng-submit="doSearch()">
+					<a class="filterBar-icon" ng-click="doSearch();"><i class="icon-search"></i></a><input type="text" ng-model="searchParams.q" placeholder="Type your query here" 
+					/><div class="filterBar-icon dropdown">
+						<a class="dropdown-toggle"><i class="icon-sort-by-order icon-large"></i></a>
+						<ul class="dropdown-menu">
+							<li><a ng-click="doFilter('type', 'lastUpdated')"><i class="icon-sort-by-order icon-large"></i><div class="legend">Update Time</div></a></li>
+							<li><a ng-click="doFilter('type', 'name_sort')"><i class="icon-sort-by-alphabet icon-large"></i><div class="legend">Name</div></a></li>
+							<li><a ng-click="doFilter('type', 'score')"><i class="icon-sort-by-attributes icon-large"></i><div class="legend">Relevance</div></a></li>
+						</ul>
+					</div><div class="filterBar-icon dropdown">
+						<a class="dropdown-toggle"><i class="icon-sort icon-large"></i></a>
+						<ul class="dropdown-menu">
+							<li><a ng-click="doFilter('order', 'desc')"><i class="icon-long-arrow-down icon-large"></i><div class="legend">Descendant</div></a></li>
+							<li><a ng-click="doFilter('order', 'asc')"><i class="icon-long-arrow-up icon-large"></i><div class="legend">Ascendant</div></a></li>
+						</ul>
+					</div>
+			
+				</form>
+				<ul class="list-item">
+					<li ng-repeat="item in quickSearch">{{item.relationships.describes[0].data.name}}</li>
+				</ul>
+			</div>
+		</div>
 	</div>
-	<div id="locationOfCopies" ng-show="(desc.data.locationOfCopies || (getAlt('locationOfCopies', 'data.locationOfCopies', true) != undefined))">
-		<h3>Existence and Location of Copies </h3>
-		<p ng-show="(desc.data.locationOfCopies)">{{desc.data.locationOfCopies}}</p>
-		<p class="muted" ng-show="(alt['data.locationOfCopies'][0].text != undefined)">{{alt["data.locationOfCopies"][0].text}}</p>
-	</div>
-	<div id="relatedUnitsOfDescription" ng-show="(desc.data.relatedUnitsOfDescription || (getAlt('relatedUnitsOfDescription', 'data.relatedUnitsOfDescription', true) != undefined))">
-		<h3>Related Units of Description </h3>
-		<p ng-show="(desc.data.relatedUnitsOfDescription)">{{desc.data.relatedUnitsOfDescription}}</p>
-		<p class="muted" ng-show="(alt['data.relatedUnitsOfDescription'][0].text != undefined)">{{alt["data.relatedUnitsOfDescription"][0].text}}</p>
-	</div>
-	<div id="publicationNote" ng-show="(desc.data.publicationNote || (getAlt('publicationNote', 'data.publicationNote', true) != undefined))">
-		<h3>Publication Note </h3>
-		<p ng-show="(desc.data.publicationNote)">{{desc.data.publicationNote}}</p>
-		<p class="muted" ng-show="(alt['data.publicationNote'][0].text != undefined)">{{alt["data.publicationNote"][0].text}}</p>
-	</div>
-
-</div>
-
-<div id="control" ng-show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions || (getAlt('archivistNote', 'data.archivistNote', true) || (getAlt('rulesAndConventions', 'data.rulesAndConventions', true) || (getAlt('datesOfDescriptions', 'data.datesOfDescriptions', true))">
-<h2>Control</h2>
-	<div id="archivistNote" ng-show="(desc.data.archivistNote || (getAlt('archivistNote', 'data.archivistNote', true) != undefined))">
-		<h3>Archivist Note </h3>
-		<p ng-show="(desc.data.archivistNote)">{{desc.data.archivistNote}}</p>
-		<p class="muted" ng-show="(alt['data.archivistNote'][0].text != undefined)">{{alt["data.archivistNote"][0].text}}</p>
-	</div>
-	<div id="rulesAndConventions" ng-show="(desc.data.rulesAndConventions || (getAlt('rulesAndConventions', 'data.rulesAndConventions', true) != undefined))">
-		<h3>Rules and Conventions </h3>
-		<p ng-show="(desc.data.rulesAndConventions)">{{desc.data.rulesAndConventions}}</p>
-		<p class="muted" ng-show="(alt['data.rulesAndConventions'][0].text != undefined)">{{alt["data.rulesAndConventions"][0].text}}</p>
-	</div>
-	<div id="datesOfDescriptions" ng-show="(desc.data.datesOfDescriptions || (getAlt('datesOfDescriptions', 'data.datesOfDescriptions', true) != undefined))">
-		<h3>Dates of Descriptions </h3>
-		<p ng-show="(desc.data.datesOfDescriptions)">{{desc.data.datesOfDescriptions}}</p>
-		<p class="muted" ng-show="(alt['data.datesOfDescriptions'][0].text != undefined)">{{alt["data.datesOfDescriptions"][0].text}}</p>
-	</div>
-</div>
 </article>

@@ -82,7 +82,11 @@ portal.directive('whenScrolled', function ($window) {
       });
     }
   }
-}]).directive("annotate", ['$rootScope', function($rootScope) {
+}]).directive("ui-block", ['$rootScope', function($rootScope) {
+	controller: ['$scope', '$element', '$attrs', '$transclude', function($scope, $element, $attrs, $transclude) {
+		}],
+	restrict: 'E',
+}).directive("annotate", ['$rootScope', function($rootScope) {
   function getSelected(evt) {
 	if (window.getSelection) {
 		ret =  window.getSelection().toString();
