@@ -22,51 +22,39 @@
 }
 
 @extrascripts = {
+
 }
 
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
     @common.annotated(item, annotations) {
 
-        @item.holder.map { holder =>
+        <div class="header-actions clearfix">
+            @if(!item.model.descriptions.isEmpty) {
+            <ul class="unstyled pull-right nav nav-list">
+                @item.descriptions.map { d =>
+                <li><a class="description-switch" href="#desc-@d.id">@views.Helpers.languageCodeToName(d.languageCode)</a></li>
+                }
+            </ul>
+            }
+
+            @item.holder.map { holder =>
             <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
-        }
+            }
 
-        @item.parent.map { parent =>
+            @item.parent.map { parent =>
             <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
-        }
-
-        <h4>@item.model.identifier</h4>
+            }
+        </div>
 
         @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
             @if(!item.model.descriptions.isEmpty) {
-                <div class="tabbable">
-                    <ul class="nav nav-tabs">
-                         @item.model.descriptions.headOption.map { desc =>
-                            <li class="active">
-                                <a href="#desc-@desc.id" data-toggle="tab">@desc.name</a>
-                            </li>
-                        }
-                        @item.model.descriptions.zipWithIndex.tail.map { case (desc,i) =>
-                            <li>
-                                <a href="#desc-@desc.id" data-toggle="tab">@desc.name</a>
-                            </li>
-                        }
-                    </ul>
-                    <div class="tab-content">
-                        @item.model.descriptions.headOption.map { desc =>
-                            <div class="tab-pane active" id="desc-@desc.id">
-                                @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
-                                @documentaryUnit.renderDescription(item, desc, links)
-                            </div>
-
-                        }
-                        @item.model.descriptions.zipWithIndex.tail.map { case (desc,i) =>
-                            <div class="tab-pane" id="desc-@desc.id">
-                                @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
-                                @documentaryUnit.renderDescription(item, desc, links)
-                            </div>
-                        }
-                    </div>
+                <div class="description-viewport">
+                    @item.descriptions.zipWithIndex.map { case (desc,i) =>
+                        <div class="description-holder" id="desc-@desc.id">
+                            @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
+                            @documentaryUnit.renderDescription(item, desc, links)
+                        </div>
+                    }
                 </div>
             } else {
                 <p class="muted">@Messages("documentaryUnit.noDescriptions")</p>

@@ -1,6 +1,48 @@
 jQuery(function($) {
 
   /**
+   * Description viewport code. This fixes a viewport to a list
+   * of item descriptions so only the selected one is present
+   * at any time.
+   */
+  $(window).hashchange(function() {
+    var hash = location.hash;
+
+    $(".description-viewport").each(function(i, elem) {
+
+      var $vp = $(elem);
+      // If the hash isn't set, default to the first element
+      if (!hash) {
+        hash = "#" + $vp.find(".description-holder").first().attr("id");
+      }
+
+      var $theitem = $(hash, $vp);
+      $vp.height($theitem.outerHeight());
+      $vp.css({
+        height: $theitem.outerHeight(),
+        overflow: "hidden"
+      });
+
+      $theitem.css({
+        marginTop: ($theitem.offset().top - $vp.offset().top)
+      })
+
+      // Get rid of the margin on other descriptions inside the
+      // viewport.
+      $vp.find(".description-holder").not($theitem).css({
+        marginTop: null
+      })
+
+      // Set the active class on the current description
+      $(".description-switch[href='" + hash + "']").parent().addClass("active")
+      $(".description-switch[href!='" + hash + "']").parent().removeClass("active")
+    });
+  });
+
+  // Trigger a change on initial load...
+  $(window).hashchange();
+
+  /**
    * jQuery plugin that makes an element 'stick' to the bottom
    * of the viewport if it is outside. Used for form action
    * sections containing the submit button.
