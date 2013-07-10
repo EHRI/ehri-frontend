@@ -11,27 +11,17 @@ jQuery(function($) {
     $(".description-viewport").each(function(i, elem) {
 
       var $vp = $(elem);
+      var $descs = $vp.find(".description-holder");
+
       // If the hash isn't set, default to the first element
       if (!hash) {
-        hash = "#" + $vp.find(".description-holder").first().attr("id");
+        hash = "#" + $descs.first().attr("id");
       }
 
       var $theitem = $(hash, $vp);
-      $vp.height($theitem.outerHeight());
-      $vp.css({
-        height: $theitem.outerHeight(),
-        overflow: "hidden"
-      });
 
-      $theitem.css({
-        marginTop: ($theitem.offset().top - $vp.offset().top)
-      })
-
-      // Get rid of the margin on other descriptions inside the
-      // viewport.
-      $vp.find(".description-holder").not($theitem).css({
-        marginTop: null
-      })
+      $theitem.show();
+      $descs.not($theitem).hide();
 
       // Set the active class on the current description
       $(".description-switch[href='" + hash + "']").parent().addClass("active")
@@ -41,6 +31,7 @@ jQuery(function($) {
 
   // Trigger a change on initial load...
   $(window).hashchange();
+
 
   /**
    * jQuery plugin that makes an element 'stick' to the bottom
