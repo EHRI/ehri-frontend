@@ -1,16 +1,5 @@
 @(item: models.base.WrappedEntity, langCode: String, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, lang: Lang)
 
 <div data-lang="@langCode" class="description @item.isA" id="@item.id">
-    <div class="description-header pull-right">
-        @if(!actions.toString.trim.isEmpty) {
-            <div class="btn-group">
-                <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
-                    @views.Helpers.displayLanguage(langCode)
-                    <span class="caret"></span>
-                </a>
-                @actions
-            </div>
-        }
-    </div>
     @html
 </div>

@@ -5,6 +5,10 @@
 @import views.html.common.descriptionSection
 
 @common.descriptionOutline(desc, desc.languageCode) {
+    @desc.stringProperty(TITLE).map { name =>
+        <h2>@name</h2>
+    }
+
     @descriptionSection(IDENTITY_AREA) {
         @common.stringValue(desc, ABSTRACT)
         @common.renderDates(desc, DATES)
