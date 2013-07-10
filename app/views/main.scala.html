@@ -229,33 +229,18 @@
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
                     <ul class="nav">
-                        @_root_.core.views.MenuConfig.mainSection.asScala.map { case (key, url) =>
+                        @_root_.core.views.MenuConfig.main.map { case (key, url) =>
                             @activeIfCurrent(url, key)
                         }
-                        @*
-                        @activeIfCurrent(routes.Search.search(), Messages("pages.search"))
-                        @activeIfCurrent(routes.DocumentaryUnits.search(), Messages("contentTypes." + EntityType.DocumentaryUnit))
-                        @activeIfCurrent(routes.HistoricalAgents.search(), Messages("contentTypes." + EntityType.HistoricalAgent))
-                        @activeIfCurrent(routes.Repositories.search(), Messages("contentTypes." + EntityType.Repository))
-                        @activeIfCurrent(routes.Concepts.search(), Messages("contentTypes." + EntityType.Concept))
-                        *@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 @Messages("pages.more")
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                @_root_.core.views.MenuConfig.adminSection.asScala.map { case (key, url) =>
+                                @_root_.core.views.MenuConfig.admin.map { case (key, url) =>
                                     @activeIfCurrent(url, key)
                                 }
-                                @*
-                                @activeIfCurrent(routes.UserProfiles.search(), Messages("contentTypes." + EntityType.UserProfile))
-                                @activeIfCurrent(routes.Groups.list(), Messages("contentTypes." + EntityType.Group))
-                                @activeIfCurrent(routes.Countries.search(), Messages("contentTypes." + EntityType.Country))
-                                @activeIfCurrent(routes.Vocabularies.list(), Messages("contentTypes." + EntityType.Vocabulary))
-                                @activeIfCurrent(routes.AuthoritativeSets.list(), Messages("contentTypes." + EntityType.AuthoritativeSet))
-                                @activeIfCurrent(routes.SystemEvents.list(), Messages("contentTypes." + EntityType.SystemEvent))
-                                *@
                                 @userOpt.map { user =>
                                     @if(user.isAdmin) {
                                         <li role="presentation" class="divider"></li>
