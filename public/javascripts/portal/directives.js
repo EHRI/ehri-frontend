@@ -82,11 +82,35 @@ portal.directive('whenScrolled', function ($window) {
       });
     }
   }
-}]).directive("ui-block", ['$rootScope', function($rootScope) {
-	controller: ['$scope', '$element', '$attrs', '$transclude', function($scope, $element, $attrs, $transclude) {
-		}],
-	restrict: 'E',
-}).directive("annotate", ['$rootScope', function($rootScope) {
+}]).directive("documentBlock", ['$rootScope', function($rootScope) {
+	return {
+		restrict: 'C', 
+		replace: true,
+		transclude: true,
+		scope: { title:'@title' },
+		templateUrl: ANGULAR_ROOT + "/portal/templates/ui-blocks.html",
+		controller: ['$scope', '$element', '$attrs', '$transclude', function($scope, $element, $attrs, $transclude) {
+				console.log($scope);
+				$scope.$parent.blocks[$attrs.title] = {
+					legend: $attrs.title, 
+					hidden: false, 
+					closed:false
+				};
+				$scope.closed = false;
+				
+				console.log($scope.$parent);
+				
+				$scope.close = function() {
+					$scope.$parent.blocks[$attrs.title].closed = !$scope.$parent.blocks[$attrs.title].closed;
+					$scope.closed = $scope.$parent.blocks[$attrs.title].closed;
+				}
+				$scope.hide = function() {
+					$scope.$parent.blocks[$attrs.title].hidden = !$scope.$parent.blocks[$attrs.title].hidden;
+				}
+			}]
+	}
+	
+}]).directive("annotate", ['$rootScope', function($rootScope) {
   function getSelected(evt) {
 	if (window.getSelection) {
 		ret =  window.getSelection().toString();

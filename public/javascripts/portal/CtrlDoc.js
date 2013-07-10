@@ -1,4 +1,5 @@
 var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$routeParams', '$http', 'Item', function($scope, $filter, $location, $routeParams, $http, $item) {
+	$scope.blocks = {};
 	$scope.item = $item.data;
 	$scope.alt = {};
 	//<-- Set id of desc
