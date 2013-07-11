@@ -66,6 +66,23 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
       "contentTypes.cvocVocabulary", controllers.routes.Vocabularies.list.url)
     core.views.MenuConfig.putAdmin(
       "contentTypes.authoritativeSet", controllers.routes.AuthoritativeSets.list.url)
+    core.views.MenuConfig.putAdmin(
+      "contentTypes.systemEvent", controllers.routes.SystemEvents.list.url)
+
+    import views.Helpers.RouteRegistry
+    RouteRegistry.setUrl(EntityType.SystemEvent, controllers.routes.SystemEvents.get _)
+    RouteRegistry.setUrl(EntityType.DocumentaryUnit, controllers.routes.DocumentaryUnits.get _)
+    RouteRegistry.setUrl(EntityType.HistoricalAgent, controllers.routes.HistoricalAgents.get _)
+    RouteRegistry.setUrl(EntityType.Repository, controllers.routes.Repositories.get _)
+    RouteRegistry.setUrl(EntityType.Group, controllers.routes.Groups.get _)
+    RouteRegistry.setUrl(EntityType.UserProfile, controllers.routes.UserProfiles.get _)
+    RouteRegistry.setUrl(EntityType.Annotation, controllers.routes.Annotations.get _)
+    RouteRegistry.setUrl(EntityType.Link, controllers.routes.Links.get _)
+    RouteRegistry.setUrl(EntityType.Vocabulary, controllers.routes.Vocabularies.get _)
+    RouteRegistry.setUrl(EntityType.AuthoritativeSet, controllers.routes.AuthoritativeSets.get _)
+    RouteRegistry.setUrl(EntityType.Concept, controllers.routes.Concepts.get _)
+    RouteRegistry.setUrl(EntityType.Country, controllers.routes.Countries.get _)
+
 
     import play.api.libs.concurrent.Execution.Implicits._
 

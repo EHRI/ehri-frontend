@@ -5,6 +5,7 @@ import forms.VisibilityForm
 import models._
 import controllers.base._
 import play.api.i18n.Messages
+import play.api.mvc.{AnyContent, Action}
 
 
 object Links extends EntityRead[LinkMeta]
@@ -15,7 +16,9 @@ object Links extends EntityRead[LinkMeta]
   val entityType = EntityType.Link
   val contentType = ContentType.Link
 
-  def get(id: String, redirect: Option[String] = None) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
+  def get(id: String) = getAndRedirect(id, None)
+
+  def getAndRedirect(id: String, redirect: Option[String] = None) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
     Ok(views.html.link.show(item, links, redirect))
   }
 

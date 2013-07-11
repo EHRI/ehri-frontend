@@ -4,7 +4,6 @@ import java.util.{IllformedLocaleException, Locale}
 
 import views.html.helper.FieldConstructor
 import models.base.AnyModel
-import play.api.mvc.Call
 import play.api.i18n.Lang
 
 import com.petebevin.markdown.MarkdownProcessor
@@ -23,12 +22,8 @@ package object Helpers {
     p.format(d)
   }
   def prettyDate(d: org.joda.time.DateTime): String = prettyDate(d.toDate)
-  def prettyDate(d: Option[org.joda.time.DateTime]): String = {
-    d match {
-      case Some(dt) => prettyDate(dt.toDate)
-      case None => ""
-    }
-  }
+  def prettyDate(d: Option[org.joda.time.DateTime]): String
+      = d.map(dt => prettyDate(dt.toDate)) getOrElse ""
 
 
   // Initialize Markdown processor for rendering markdown
@@ -87,24 +82,24 @@ package object Helpers {
    * Get the URL for an unknown type of entity.
    */
   import defines.EntityType
-  import controllers.routes
 
+  object RouteRegistry {
+    val urls = collection.mutable.Map.empty[String,String => Call]
 
-  def urlFor(e: AnyModel): Call = e match {
-    case e: SystemEventMeta => routes.SystemEvents.get(e.id)
-    case e: DocumentaryUnitMeta => routes.DocumentaryUnits.get(e.id)
-    case e: HistoricalAgentMeta => routes.HistoricalAgents.get(e.id)
-    case e: RepositoryMeta => routes.Repositories.get(e.id)
-    case e: GroupMeta => routes.Groups.get(e.id)
-    case e: UserProfileMeta => routes.UserProfiles.get(e.id)
-    case e: AnnotationMeta => routes.Annotations.get(e.id)
-    case e: VocabularyMeta => routes.Vocabularies.get(e.id)
-    case e: AuthoritativeSetMeta => routes.AuthoritativeSets.get(e.id)
-    case e: ConceptMeta => routes.Concepts.get(e.id)
-    case e: CountryMeta => routes.Countries.get(e.id)
-      // Anything we can't figure out, give an API ref
-    case i => routes.ApiController.getAny(e.id)
+    private var default: String => Call = s => new Call("GET", "/")
+
+    def setDefault(c: String => Call): Unit = {
+      default = c
+    }
+
+    def getDefault: String => Call = default
+
+    def setUrl(e: EntityType.Value, c: String => Call): Unit = {
+      urls.put(e, c)
+    }
   }
+
+  def urlFor(e: AnyModel): Call = RouteRegistry.urls.getOrElse(e.isA, RouteRegistry.getDefault).apply(e.id)
 
 
   /**

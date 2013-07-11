@@ -280,7 +280,8 @@ POST    /annotation/delete/:id     controllers.Annotations.deletePost(id: String
 POST    /annotation/create/:id      controllers.Annotations.createAnnotationJsonPost(id: String)
 GET     /annotation/getFor/:id      controllers.Annotations.getAnnotationJson(id: String)
 
-GET     /link/show/:id       controllers.Links.get(id: String, redirect: Option[String] ?= None)
+GET     /link/show/:id         controllers.Links.get(id: String)
+GET     /link/showrd/:id       controllers.Links.getAndRedirect(id: String, redirect: Option[String] ?= None)
 GET     /link/history/:id       controllers.Links.history(id: String)
 GET     /link/visibility/:id     controllers.Links.visibility(id: String)
 POST    /link/visibility/:id     controllers.Links.visibilityPost(id: String)
