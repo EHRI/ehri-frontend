@@ -116,6 +116,7 @@ errors.noFurtherInfo=No additional information is available.
 pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 # What we say when a logical item has no descriptions
+describedEntity.availableDescriptions=Available Descriptions
 describedEntity.noDescriptions=This item has not been provided with a description
 describedEntity.noData=No information given
 describedEntity.additionalData=Additional Harvested Data (Click to display)
