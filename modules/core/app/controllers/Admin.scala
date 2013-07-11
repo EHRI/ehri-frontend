@@ -1,9 +1,8 @@
-package controllers
+package controllers.core
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 
-import base.{ControllerHelpers, AuthController}
 import play.api.data.{FormError, Form}
 import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentType}
@@ -12,6 +11,7 @@ import org.mindrot.jbcrypt.BCrypt
 import models.{UserProfileMeta, UserProfileF}
 import models.sql.OpenIDUser
 import play.filters.csrf.CSRF
+import controllers.base.{ControllerHelpers, AuthController}
 
 
 object Admin extends Controller with AuthController with ControllerHelpers {
@@ -112,7 +112,8 @@ object Admin extends Controller with AuthController with ControllerHelpers {
               account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
               // Final step, grant user permissions on their own account
               grantOwnerPerms(profile) {
-                Redirect(routes.UserProfiles.get(profile.id))
+                // FIXME: Redirect here when we can!!! Redirect(routes.UserProfiles.get(profile.id))
+                Redirect(controllers.core.routes.Admin.adminActions)
               }
             }.getOrElse {
               // FIXME: Handle this - probably by throwing a global error.
@@ -172,7 +173,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
             acc.password.flatMap { hashed =>
               if (BCrypt.checkpw(current, hashed)) {
                 acc.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))
-                Some(Redirect(routes.Application.index).flashing("success" -> Messages("login.passwordChanged")))
+                Some(Redirect(controllers.core.routes.Application.index).flashing("success" -> Messages("login.passwordChanged")))
               } else {
                 None
               }

@@ -88,7 +88,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
         "group[]" -> Seq(groupId) // NB: Note brackets on param name!!!
       )
       val userCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.routes.Admin.createUserPost.url)
+        controllers.core.routes.Admin.createUserPost.url)
         .withHeaders(formPostHeaders.toSeq: _*), newUserData).get
       status(userCreatePost) must equalTo(SEE_OTHER)
 
@@ -280,7 +280,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
         "group[]" -> Seq(headArchivistsGroupId, archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val haUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.routes.Admin.createUserPost.url)
+        controllers.core.routes.Admin.createUserPost.url)
         .withHeaders(formPostHeaders.toSeq: _*), haUserData).get
       status(haUserCreatePost) must equalTo(SEE_OTHER)
 
@@ -312,7 +312,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
         "group[]" -> Seq(archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val aUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.routes.Admin.createUserPost.url)
+        controllers.core.routes.Admin.createUserPost.url)
         .withHeaders(formPostHeaders.toSeq: _*), aUserData).get
       status(aUserCreatePost) must equalTo(SEE_OTHER)
 

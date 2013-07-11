@@ -1,5 +1,29 @@
 # Routes for core functionality
 
-GET /                   controllers.core.Application.index
+GET     /                               controllers.core.Application.index
+
+# OpenID
+GET     /login                          controllers.core.Application.login
+POST	/login							controllers.core.Application.loginPost
+GET     /logout                         controllers.core.Application.logout
+
+# Plugin-handled login
+# OpenID
+GET     /openid                         controllers.core.OpenIDLoginHandler.openIDCallback
+POST	/openid							controllers.core.OpenIDLoginHandler.loginPost
+
+# Mozilla Persona
+POST	/persona						controllers.core.PersonaLoginHandler.loginPost
+
+# Admin routes
+GET     /admin                          controllers.core.Admin.adminActions
+GET     /admin/createUser               controllers.core.Admin.createUser
+POST    /admin/createUser              controllers.core.Admin.createUserPost
+GET     /admin/login                    controllers.core.Admin.passwordLogin
+POST    /admin/login                    controllers.core.Admin.passwordLoginPost
+GET     /admin/changePassword           controllers.core.Admin.changePassword
+POST    /admin/changePassword           controllers.core.Admin.changePasswordPost
+
+
 
 GET /assets/*file       controllers.core.Assets.at(path="/public", file)

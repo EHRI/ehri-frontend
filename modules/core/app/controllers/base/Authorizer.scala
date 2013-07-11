@@ -76,7 +76,8 @@ trait Authorizer extends Results with AuthConfig {
    * A redirect target after a successful user login.
    */
   def loginSucceeded(request: RequestHeader): PlainResult = {
-    val uri = request.session.get("access_uri").getOrElse(controllers.routes.Search.search.url)
+    //val uri = request.session.get("access_uri").getOrElse(controllers.routes.Search.search.url)
+    val uri = request.session.get("access_uri").getOrElse("/")
     request.session - "access_uri"
     Redirect(uri)
   }
@@ -93,7 +94,7 @@ trait Authorizer extends Results with AuthConfig {
     if (ControllerHelpers.isAjax(request))
       Unauthorized("authentication failed")
     else
-      Redirect(controllers.routes.Application.login).withSession("access_uri" -> request.uri)
+      Redirect(controllers.core.routes.Application.login).withSession("access_uri" -> request.uri)
   }
 
   /**

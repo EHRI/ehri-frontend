@@ -2,37 +2,13 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-#GET     /login           controllers.Application.login
-#POST     /login           controllers.Application.loginPost
 
 # Multimodule test
+-> /        core.Routes
 -> /user    users.Routes
 -> /auths   authorities.Routes
 -> /arch    archdesc.Routes
--> /core    core.Routes
 -> /voc     vocabs.Routes
-
-# OpenID
-GET     /login                          controllers.Application.login
-POST	/login							controllers.Application.loginPost
-GET     /logout                         controllers.Application.logout
-
-# Plugin-handled login
-# OpenID
-GET     /openid                         controllers.OpenIDLoginHandler.openIDCallback
-POST	/openid							controllers.OpenIDLoginHandler.loginPost
-
-# Mozilla Persona
-POST	/persona						controllers.PersonaLoginHandler.loginPost
-
-# Admin routes
-GET     /admin                          controllers.Admin.adminActions
-GET     /admin/createUser               controllers.Admin.createUser
-POST     /admin/createUser               controllers.Admin.createUserPost
-GET     /admin/login                    controllers.Admin.passwordLogin
-POST    /admin/login                    controllers.Admin.passwordLoginPost
-GET     /admin/changePassword           controllers.Admin.changePassword
-POST    /admin/changePassword           controllers.Admin.changePasswordPost
 
 GET     /admin/updateIndex              controllers.Search.updateIndex
 POST    /admin/updateIndex              controllers.Search.updateIndexPost
@@ -55,7 +31,6 @@ GET /filter                       controllers.Search.filter
 GET     /locale                         controllers.Application.changeLocale
 
 # Home page
-GET     /                           controllers.Application.index
 GET     /docs                controllers.DocumentaryUnits.search
 GET     /docs/list           controllers.DocumentaryUnits.list
 # Testing

@@ -12,9 +12,7 @@ import models.json.RestReadable
 import models.base.AnyModel
 
 
-object Application extends Controller with Auth with LoginLogout with Authorizer with AuthController {
-
-  lazy val loginHandler: LoginHandler = current.plugin(classOf[LoginHandler]).get
+object Application extends Controller with Auth with Authorizer with AuthController {
 
   /**
    * Look up the 'show' page of a generic item id
@@ -24,12 +22,6 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
     NotImplemented
   }
 
-
-  def index = userProfileAction { implicit userOpt => implicit request =>
-    Secured {
-      Ok(views.html.index("Your new application is ready."))
-    }
-  }
 
   /**
    * Action for redirecting to any item page, given a raw id.
@@ -69,10 +61,6 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
   }
 
   val emailForm = Form(single("email" -> email))
-
-  def login = loginHandler.login
-  def loginPost = loginHandler.loginPost
-  def logout = loginHandler.logout
 
   private def getUrlForType(`type`: EntityType.Value, id: String): Option[Call] = {
     `type` match {

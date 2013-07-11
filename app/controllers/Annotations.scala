@@ -44,7 +44,7 @@ object Annotations extends EntityRead[AnnotationMeta]
   def deletePost(id: String) = deletePostAction(id) {
     // TODO: Work out how to redirect to somewhere useful...
     ok => implicit userOpt => implicit request =>
-      Redirect(routes.Application.index)
+      Redirect(controllers.core.routes.Application.index)
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }

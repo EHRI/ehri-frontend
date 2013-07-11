@@ -1,5 +1,6 @@
-package controllers
+package controllers.core
 
+import _root_.controllers.base.LoginHandler
 import play.api._
 import play.api.mvc._
 import play.api.libs.ws.WS
@@ -9,7 +10,7 @@ import play.api.libs.json.JsString
 
 object PersonaLoginHandler extends PersonaLoginHandler(play.api.Play.current)
 
-class PersonaLoginHandler(app: play.api.Application) extends base.LoginHandler {
+class PersonaLoginHandler(app: play.api.Application) extends LoginHandler {
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"

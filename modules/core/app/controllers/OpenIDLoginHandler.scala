@@ -1,7 +1,8 @@
-package controllers
+package controllers.core
 
-import _root_.models.forms.OpenIDForm
-import _root_.models.sql.OpenIDAssociation
+import controllers.base.LoginHandler
+import forms.OpenIDForm
+import models.sql.OpenIDAssociation
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
@@ -17,9 +18,8 @@ object OpenIDLoginHandler extends OpenIDLoginHandler(play.api.Play.current)
 /**
  * OpenID login handler implementation.
  */
-class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
+class OpenIDLoginHandler(app: play.api.Application) extends LoginHandler {
 
-  import models.forms.OpenIDForm
   import models.sql._
 
   val openidError = """
@@ -61,10 +61,13 @@ class OpenIDLoginHandler(app: play.api.Application) extends base.LoginHandler {
             Async {
               rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                 case Right(entity) => {
+                  println("GOT ENTITY: " + entity)
                   models.sql.OpenIDUser.create(email.toLowerCase, entity.id).map { user =>
                     user.addAssociation(info.id)
                     gotoLoginSucceeded(user.profile_id)
-                        .withSession("access_uri" -> routes.UserProfiles.update(user.profile_id).url)
+                      .withSession("access_uri" -> controllers.core.routes.Application.index.url)
+                        //.withSession("access_uri" -> routes.UserProfiles.update(user.profile_id).url)
+                      // FIXME WHEN REFACTORED
                   }.getOrElse(BadRequest("Creation of user db failed!"))
                 }
                 case Left(err) => {

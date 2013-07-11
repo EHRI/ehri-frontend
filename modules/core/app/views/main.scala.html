@@ -276,11 +276,11 @@
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
                                     @* IGNORED UNTIL CONTROLLERS ARE MOVED TO CORE
                                     <li role="presentation"><a role="menuitem" tabindex="-1" href="@routes.UserProfiles.get(account.profile_id)">@Messages("actions.viewProfile")</a> </li>
-                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@routes.Admin.changePassword">@Messages("login.changePassword")</a></li>
                                     *@
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.Admin.changePassword">@Messages("login.changePassword")</a></li>
                                     <li role="presentation" class="divider"></li>
                                     <li>
-                                        <a href="/logout" id="signout">
+                                        <a href="@controllers.core.routes.Application.logout" id="signout">
                                             @Messages("banner.signout")
                                             <i class="icon icon-off"></i>
                                         </a>
