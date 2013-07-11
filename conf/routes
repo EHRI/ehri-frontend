@@ -10,7 +10,7 @@
 -> /auths   authorities.Routes
 -> /arch    archdesc.Routes
 -> /core    core.Routes
--> /vocabs  vocabs.Routes
+-> /voc     vocabs.Routes
 
 # OpenID
 GET     /login                          controllers.Application.login
