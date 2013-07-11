@@ -7,6 +7,7 @@ import defines.{EntityType, EventType}
 import models.json.{RestReadable, ClientConvertable}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.i18n.Messages
 
 object SystemEventF {
   final val TIMESTAMP = "timestamp"
@@ -53,11 +54,14 @@ object SystemEventMeta {
 }
 
 case class SystemEventMeta(
-                            model: SystemEventF,
-                            scope: Option[AnyModel] = None,
-                            actioner: Option[UserProfileMeta] = None
-                            ) extends AnyModel
-with MetaModel[SystemEventF] {
+  model: SystemEventF,
+  scope: Option[AnyModel] = None,
+  actioner: Option[UserProfileMeta] = None
+) extends AnyModel
+  with MetaModel[SystemEventF] {
+
   def time = DateTimeFormat.forPattern(SystemEventF.FORMAT).print(model.timestamp)
+
+  def toStringLang = Messages("systemEvents." + model.eventType.map(_.toString).getOrElse("unknown"))
 }
 
