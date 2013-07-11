@@ -1,6 +1,7 @@
 package models.json
 
 import play.api.libs.json.{Reads, Writes, Format}
+import defines.EntityType
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,13 +12,13 @@ import play.api.libs.json.{Reads, Writes, Format}
  */
 
 trait RestReadable[T] {
-  implicit val restReads: Reads[T]
+  val restReads: Reads[T]
 }
 
 trait RestConvertable[T] {
-  implicit val restFormat: Format[T]
+  val restFormat: Format[T]
 }
 
 trait ClientConvertable[T] {
-  implicit val clientFormat: Writes[T]
+  val clientFormat: Writes[T]
 }

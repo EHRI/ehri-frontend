@@ -88,27 +88,27 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers
-    EntityDAO.addCreateHandler { item =>
+    /*EntityDAO.addCreateHandler { item =>
       Logger.logger.info("Binding creation event to Solr create action")
-      /*solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
+      solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
         batchList.map { r => r match {
             case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
             case ok => ok
           }
         }
-      }*/
+      }
     }
 
     EntityDAO.addUpdateHandler { item =>
       Logger.logger.info("Binding update event to Solr update action")
-      /*solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
+      solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
         batchList.map { r => r match {
             case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
             case ok => ok
           }
         }
-      }*/
-    }
+      }
+    }*/
 
     EntityDAO.addDeleteHandler { item =>
       Logger.logger.info("Binding delete event to Solr delete action")

@@ -18,12 +18,10 @@ import models.json.{RestReadable, RestConvertable}
  */
 case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfileMeta] = None) extends RestDAO {
 
-  import EntityDAO._
-
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
-  def createDescription[DT](id: String, item: DT,
-      logMsg: Option[String] = None)(implicit fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+  def createDescription[DT](id: String, item: DT, logMsg: Option[String] = None)(
+        implicit fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
@@ -63,7 +61,8 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
     }
   }
 
-  def deleteDescription(id: String, did: String, logMsg: Option[String] = None)(implicit rd: RestReadable[MT]): Future[Either[RestError, Boolean]] = {
+  def deleteDescription(id: String, did: String, logMsg: Option[String] = None)(
+        implicit rd: RestReadable[MT]): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .delete.flatMap { response =>
       EntityDAO[MT](entityType, userProfile).get(id).map {
@@ -78,8 +77,8 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
   }
 
   // FIXME: Move these elsewhere...
-  def createAccessPoint[DT](id: String, did: String, item: DT,
-                        logMsg: Option[String] = None)(implicit fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, (MT,DT)]] = {
+  def createAccessPoint[DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
+        implicit fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, (MT,DT)]] = {
     WS.url(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>

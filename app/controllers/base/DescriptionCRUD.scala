@@ -34,7 +34,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
       },
       { desc =>
         AsyncRest {
-          DescriptionDAO[MT](entityType, userOpt).createDescription[D](id, desc, logMsg = getLogMessage).map { itemOrErr =>
+          DescriptionDAO[MT](entityType, userOpt).createDescription(id, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
                 case err: rest.ValidationError => {
@@ -71,7 +71,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
       { desc =>
         AsyncRest {
           DescriptionDAO[MT](entityType, userOpt)
-              .updateDescription[D](id, did, desc, logMsg = getLogMessage).map { itemOrErr =>
+              .updateDescription(id, did, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
                 case err: rest.ValidationError => {

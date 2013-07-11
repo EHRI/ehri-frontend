@@ -10,7 +10,7 @@ import models.json.{ClientConvertable, RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
-import models.base.MetaModel
+import models.base.{AnyModel, MetaModel}
 
 /**
  * Class representing a page of data.
@@ -111,20 +111,20 @@ object EntityDAO {
    * Global listeners for CUD events
    */
   import scala.collection.mutable.ListBuffer
-  private val onCreate: ListBuffer[Entity => Unit] = ListBuffer()
-  private val onUpdate: ListBuffer[Entity => Unit] = ListBuffer()
-  private val onDelete: ListBuffer[String => Unit] = ListBuffer()
+  private def onCreate[T <: AnyModel]: ListBuffer[T => Unit] = ListBuffer()
+  private def onUpdate[T <: AnyModel]: ListBuffer[T => Unit] = ListBuffer()
+  private def onDelete: ListBuffer[String => Unit] = ListBuffer()
 
-  def addCreateHandler(f: Entity => Unit): Unit = onCreate += f
-  def addUpdateHandler(f: Entity => Unit): Unit = onUpdate += f
+  def addCreateHandler[T <: AnyModel](f: T => Unit): Unit = onCreate += f
+  def addUpdateHandler[T <: AnyModel](f: T => Unit): Unit = onUpdate += f
   def addDeleteHandler(f: String => Unit): Unit = onDelete += f
 
-  def handleCreate(e: Entity): Entity = {
-    onCreate.foreach(f => f(e))
+  def handleCreate[T <: AnyModel](e: T): T = {
+    onCreate.foreach((f: AnyModel => Unit) => f(e))
     e
   }
-  def handleUpdate(e: Entity): Entity = {
-    onUpdate.foreach(f => f(e))
+  def handleUpdate[T <: AnyModel](e: T): T = {
+    onUpdate.foreach((f: AnyModel => Unit) => f(e))
     e
   }
   def handleDelete(id: String): Unit = onDelete.foreach(f => f(id))
@@ -149,8 +149,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     //else {
       Logger.logger.debug("GET {} ", enc(requestUrl, id))
       WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-        checkError(response).right.map { r =>
-          val entity = r.json.as[MT](rd.restReads)
+        checkErrorAndParse(response)(rd.restReads).right.map { entity =>
           //Cache.set(id, entity, cacheTime)
           entity
         }
@@ -191,9 +190,9 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def createInContext[T,TT](id: String, contentType: ContentType.Value,
-      item: T, accessors: List[String] = Nil,
-      logMsg: Option[String] = None)(implicit wrt: RestConvertable[T], rd: RestReadable[TT]): Future[Either[RestError, TT]] = {
+  def createInContext[T,TT](id: String, contentType: ContentType.Value, item: T, accessors: List[String] = Nil,
+      logMsg: Option[String] = None)(
+        implicit wrt: RestConvertable[T], rd: RestReadable[TT]): Future[Either[RestError, TT]] = {
     val url = enc(requestUrl, id, contentType, "?%s".format(
         accessors.map(a => s"${RestPageParams.ACCESSOR_PARAM}=${a}").mkString("&")))
     Logger.logger.debug("CREATE-IN {} ", url)
