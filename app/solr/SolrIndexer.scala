@@ -194,7 +194,7 @@ object SolrIndexer extends RestDAO {
     descriptions.zipWithIndex.map { case (desc,i) =>
       (desc
         + ("holderId" -> Json.toJson(d.set.map(_.id)))
-        + ("holderName" -> Json.toJson(d.set.map(_.toString)))
+        + ("holderName" -> Json.toJson(d.set.map(_.toStringLang)))
         + (Isaar.ENTITY_TYPE -> Json.toJson(d.model.descriptions(i).entityType)))
     }
   }
