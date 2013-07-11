@@ -242,7 +242,7 @@
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
                     <ul class="nav">
-                        @_root_.core.views.MenuConfig.main.map { case (key, url) =>
+                        @views.MenuConfig.main.map { case (key, url) =>
                             @activeIfCurrent(url, key)
                         }
                         <li class="dropdown">
@@ -251,7 +251,7 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                @_root_.core.views.MenuConfig.admin.map { case (key, url) =>
+                                @views.MenuConfig.admin.map { case (key, url) =>
                                     @activeIfCurrent(url, key)
                                 }
                                 @userOpt.map { user =>

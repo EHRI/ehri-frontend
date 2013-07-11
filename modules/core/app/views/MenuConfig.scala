@@ -1,4 +1,4 @@
-package core.views
+package views
 
 import java.util
 

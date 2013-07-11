@@ -45,28 +45,28 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     models.json.Utils.registerModels
 
     // Register menu parts
-    core.views.MenuConfig.putMain(
+    views.MenuConfig.putMain(
       "pages.search", controllers.routes.Search.search.url)
-    core.views.MenuConfig.putMain(
+    views.MenuConfig.putMain(
       "contentTypes.documentaryUnit", controllers.routes.DocumentaryUnits.search.url)
-    core.views.MenuConfig.putMain(
+    views.MenuConfig.putMain(
       "contentTypes.historicalAgent", controllers.routes.HistoricalAgents.search.url)
-    core.views.MenuConfig.putMain(
+    views.MenuConfig.putMain(
       "contentTypes.repository", controllers.routes.Repositories.search.url)
-    core.views.MenuConfig.putMain(
+    views.MenuConfig.putMain(
       "contentTypes.cvocConcept", controllers.routes.Concepts.search.url)
 
-    core.views.MenuConfig.putAdmin(
+    views.MenuConfig.putAdmin(
       "contentTypes.userProfile", controllers.routes.UserProfiles.search.url)
-    core.views.MenuConfig.putAdmin(
+    views.MenuConfig.putAdmin(
       "contentTypes.group", controllers.routes.Groups.list.url)
-    core.views.MenuConfig.putAdmin(
+    views.MenuConfig.putAdmin(
       "contentTypes.country", controllers.routes.Countries.search.url)
-    core.views.MenuConfig.putAdmin(
+    views.MenuConfig.putAdmin(
       "contentTypes.cvocVocabulary", controllers.routes.Vocabularies.list.url)
-    core.views.MenuConfig.putAdmin(
+    views.MenuConfig.putAdmin(
       "contentTypes.authoritativeSet", controllers.routes.AuthoritativeSets.list.url)
-    core.views.MenuConfig.putAdmin(
+    views.MenuConfig.putAdmin(
       "contentTypes.systemEvent", controllers.routes.SystemEvents.list.url)
 
     import views.Helpers.RouteRegistry
