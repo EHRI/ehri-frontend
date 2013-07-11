@@ -11,10 +11,9 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="@routes.DocumentaryUnits.createDescription(id)">@Messages("actions.createDescription")</a></li>
-                    <li><a href="@routes.DocumentaryUnits.updateDescription(id, did)">@Messages("actions.edit")</a></li>
                     <li><a href="@routes.DocumentaryUnits.manageAccessPoints(id, did)">@Messages("actions.manageAccessPoints")</a></li>
-                    <li><a class="alert alert-danger" href="@routes.DocumentaryUnits.deleteDescription(id, did)">@Messages("actions.delete")</a></li>
+                    <li><a href="@routes.DocumentaryUnits.updateDescription(id, did)">@Messages("describedEntity.editDescription")</a></li>
+                    <li><a class="alert alert-danger" href="@routes.DocumentaryUnits.deleteDescription(id, did)">@Messages("describedEntity.deleteDescription")</a></li>
                 </ul>
             </div>
         }
@@ -25,18 +24,35 @@
 
 }
 
-@documentaryUnit.itemPage(item, scripts = extrascripts) {
+@sidebar = {
+    @if(!item.descriptions.isEmpty) {
+        <div class="well well-small">
+            <h4>@Messages("describedEntity.availableDescriptions")</h4>
+            <p>
+                <ul class="nav nav-list">
+                    @item.descriptions.map { d =>
+                    <li>
+                        <a class="description-switch" href="#desc-@d.id">
+                            @views.Helpers.languageCodeToName(d.languageCode) - @d.name
+                        </a>
+                    </li>
+                    }
+                </ul>
+            </p>
+            <p>
+                <small>
+                    <i class="icon icon-plus-sign"></i>
+                    <a href="@routes.DocumentaryUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
+                </small>
+            </p>
+        </div>
+    }
+}
+
+@documentaryUnit.itemPage(item, scripts = extrascripts, sidebar = sidebar) {
     @common.annotated(item, annotations) {
 
         <div class="header-actions clearfix">
-            @if(!item.descriptions.isEmpty) {
-            <ul class="unstyled pull-right nav nav-list">
-                @item.descriptions.map { d =>
-                <li><a class="description-switch" href="#desc-@d.id">@views.Helpers.languageCodeToName(d.languageCode)</a></li>
-                }
-            </ul>
-            }
-
             @item.holder.map { holder =>
             <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
             }
