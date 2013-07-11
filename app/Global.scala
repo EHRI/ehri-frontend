@@ -66,8 +66,13 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
       "contentTypes.cvocVocabulary", controllers.routes.Vocabularies.list.url)
     views.MenuConfig.putAdmin(
       "contentTypes.authoritativeSet", controllers.routes.AuthoritativeSets.list.url)
+    views.MenuConfig.putAdmin("s1", "-")
     views.MenuConfig.putAdmin(
       "contentTypes.systemEvent", controllers.routes.SystemEvents.list.url)
+    views.MenuConfig.putAdmin("s2", "-")
+    views.MenuConfig.putAdmin(
+      "search.updateIndex", controllers.routes.Search.updateIndex.url
+    )
 
     import views.Helpers.RouteRegistry
     RouteRegistry.setUrl(EntityType.SystemEvent, controllers.routes.SystemEvents.get _)
