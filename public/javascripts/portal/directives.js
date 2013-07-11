@@ -87,25 +87,24 @@ portal.directive('whenScrolled', function ($window) {
 		restrict: 'C', 
 		replace: true,
 		transclude: true,
-		scope: { title:'@title' },
+		scope: { title:'@title', id:'@id', show:'=' },
 		templateUrl: ANGULAR_ROOT + "/portal/templates/ui-blocks.html",
 		controller: ['$scope', '$element', '$attrs', '$transclude', function($scope, $element, $attrs, $transclude) {
-				console.log($scope);
-				$scope.$parent.blocks[$attrs.title] = {
+				$scope.$parent.blocks[$attrs.id] = {
 					legend: $attrs.title, 
 					hidden: false, 
 					closed:false
 				};
 				$scope.closed = false;
 				
-				console.log($scope.$parent);
+				console.log($element);
 				
 				$scope.close = function() {
-					$scope.$parent.blocks[$attrs.title].closed = !$scope.$parent.blocks[$attrs.title].closed;
-					$scope.closed = $scope.$parent.blocks[$attrs.title].closed;
+					$scope.$parent.blocks[$attrs.id].closed = !$scope.$parent.blocks[$attrs.id].closed;
+					$scope.closed = $scope.$parent.blocks[$attrs.id].closed;
 				}
 				$scope.hide = function() {
-					$scope.$parent.blocks[$attrs.title].hidden = !$scope.$parent.blocks[$attrs.title].hidden;
+					$scope.$parent.blocks[$attrs.id].hidden = !$scope.$parent.blocks[$attrs.id].hidden;
 				}
 			}]
 	}

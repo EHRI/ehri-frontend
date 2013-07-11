@@ -6,7 +6,7 @@
 	
 	<div class="row">
 		<div class="span8">
-			<div id="identity" title="Identity" class="documentBlock">
+			<div id="identity" title="Identity" class="documentBlock" show="(desc.data.extentAndMedium)">
 			
 				<div id="extentAndMedium" ng-show="(desc.data.extentAndMedium)">
 					<h3>Extent and Medium of the Unit of Description </h3>
@@ -14,24 +14,8 @@
 				</div>
 			
 			</div>
-			<div class="ui-block" id="Identity" ng-show="(desc.data.extentAndMedium)" ng-class="(class.Identity.closed && 'closed') || (class.Identity.hidden && 'hidden')">
-				<h2>Identity
-					<div class="pull-right">
-						<a class="filterBar-icon" ng-click="class.Identity.closed = !class.Identity.closed;"><i ng-class="(class.Identity.closed && 'icon-plus') || 'icon-minus'"></i>
-						</a><a ng-click="class.Identity.hidden = !class.Identity.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
-					</h2>
-				<div id="extentAndMedium" ng-show="(desc.data.extentAndMedium)">
-					<h3>Extent and Medium of the Unit of Description </h3>
-					<p>{{desc.data.extentAndMedium}}</p>
-				</div>
-				<!-- Source is in right span -->
-			</div>
-			<div class="ui-block" id="context" ng-show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory)" ng-class="(class.context.closed && 'closed') || (class.context.hidden && 'hidden')">
-				<h2>Context
-					<div class="pull-right">
-						<a class="filterBar-icon" ng-click="class.context.closed = !class.context.closed;"><i ng-class="(class.context.closed && 'icon-plus') || 'icon-minus'"></i>
-						</a><a ng-click="class.context.hidden = !class.context.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
-					</h2>
+			<div id="context" title="Context" class="documentBlock" show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory)">
+			
 				<div id="adminBiogHistory" ng-show="(desc.data.adminBiogHistory)">
 					<h3>Administrative and biographical history</h3>
 					<p>{{desc.data.adminBiogHistory}}</p>
@@ -40,15 +24,10 @@
 					<h3>Archival History</h3>
 					<p>{{desc.data.archivalHistory}}</p>
 				</div>
-				<!-- Source is in right span -->
+			
 			</div>
 
-			<div class="ui-block" id="Content" ng-show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement)" ng-class="(class.Content.closed && 'closed') || (class.Content.hidden && 'hidden')">
-				<h2>Content
-					<div class="pull-right">
-						<a class="filterBar-icon" ng-click="class.Content.closed = !class.Content.closed;"><i ng-class="(class.Content.closed && 'icon-plus') || 'icon-minus'"></i>
-						</a><a ng-click="class.Content.hidden = !class.Content.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
-				</h2>
+			<div id="content" title="Content" class="documentBlock" show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement)">
 				<div id="scopeAndContent" ng-show="(desc.data.scopeAndContent)">
 					<h3> Scope and Content </h3>
 					<p>{{desc.data.scopeAndContent}}</p>
@@ -69,13 +48,9 @@
 					<p>{{desc.data.systemOfArrangement}}</p>
 				</div>
 			</div>
+			
 
-			<div class="ui-block" id="conditions" ng-show="(desc.data.conditionsOfAccess || desc.data.conditionsOfReproduction || desc.data.physicalCharacteristics || desc.data.findingAids)" ng-class="(class.conditions.closed && 'closed') || (class.conditions.hidden && 'hidden')">
-				<h2>Conditions
-					<div class="pull-right">
-						<a class="filterBar-icon" ng-click="class.conditions.closed = !class.conditions.closed;"><i ng-class="(class.conditions.closed && 'icon-plus') || 'icon-minus'"></i>
-						</a><a ng-click="class.conditions.hidden = !class.conditions.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
-				</h2>
+			<div title="Conditions" class="documentBlock"  id="conditions" show="(desc.data.conditionsOfAccess || desc.data.conditionsOfReproduction || desc.data.physicalCharacteristics || desc.data.findingAids)">
 				<div id="conditionsOfAccess" ng-show="(desc.data.conditionsOfAccess)">
 					<h3>Conditions Governing Access </h3>
 					<p>{{desc.data.conditionsOfAccess}}</p>
@@ -94,12 +69,7 @@
 				</div>
 			</div>
 
-			<div class="ui-block" id="materials" ng-show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote)" ng-class="(class.materials.closed && 'closed') || (class.materials.hidden && 'hidden')">
-				<h2>Materials
-					<div class="pull-right">
-						<a class="filterBar-icon" ng-click="class.materials.closed = !class.materials.closed;"><i ng-class="(class.materials.closed && 'icon-plus') || 'icon-minus'"></i>
-						</a><a ng-click="class.materials.hidden = !class.materials.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
-				</h2>
+			<div  title="Materials" class="documentBlock"  id="materials" show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote)">
 				<div id="locationOfOriginals" ng-show="(desc.data.locationOfOriginals)">
 					<h3>Existence and Location of Originals </h3>
 					<p>{{desc.data.locationOfOriginals}}</p>
@@ -119,12 +89,7 @@
 
 			</div>
 
-			<div class="ui-block" id="control" ng-show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions)" ng-class="(class.control.closed && 'closed') || (class.control.hidden && 'hidden')">
-			<h2>Control
-					<div class="pull-right">
-						<a class="filterBar-icon" ng-click="class.control.closed = !class.control.closed;"><i ng-class="(class.control.closed && 'icon-plus') || 'icon-minus'"></i>
-						</a><a ng-click="class.control.hidden = !class.control.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div>
-				</h2>
+			<div title="Control" class="documentBlock"  id="control" show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions)">
 				<div id="archivistNote" ng-show="(desc.data.archivistNote)">
 					<h3>Archivist Note </h3>
 					<p>{{desc.data.archivistNote}}</p>
@@ -138,11 +103,7 @@
 					<p>{{desc.data.datesOfDescriptions}}</p>
 				</div>
 			</div>
-			<div id="accessPoints" class="ui-block" ng-class="(class.accessPoints.closed && 'closed') || ((!desc.relationships.relatesTo || class.accessPoints.hidden) && 'hidden')">
-				<h2>Access
-					<div class="pull-right">
-						<a class="filterBar-icon" ng-click="class.accessPoints.closed = !class.accessPoints.closed;"><i ng-class="(class.accessPoints.closed && 'icon-plus') || 'icon-minus'"></i>
-						</a><a ng-click="class.accessPoints.hidden = !class.accessPoints.hidden;" class="filterBar-icon"><i class="icon-remove"></i></a></div></h2>
+			<div title="Access" class="documentBlock" id="accessPoints" show="desc.relationships.relatesTo">
 				<div>
 					<ul class="tags accessPoints">
 						<li ng-repeat="access in desc.relationships.relatesTo" class="{{access.data.type}}">{{access.data.name}}</li>
@@ -154,33 +115,9 @@
 			<div class="ui-block">
 				<h2 class="nomargin">Available blocks</h2>
 				<ul class="list-item">
-					<li ng-show="(desc.data.extentAndMedium) && class.Identity.hidden ">
-						Identity Area
-						<a ng-click="class.Identity.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
-					</li>
-					<li ng-show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory) && class.context.hidden ">
-						Context Area
-						<a ng-click="class.context.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
-					</li>
-					<li ng-show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement) && class.Content.hidden ">
-						Content Area
-						<a ng-click="class.Content.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
-					</li>
-					<li ng-show="(desc.data.conditionsOfAccess || desc.data.conditionsOfReproduction || desc.data.physicalCharacteristics || desc.data.findingAids) && class.conditions.hidden ">
-						Conditions Area
-						<a ng-click="class.conditions.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
-					</li>
-					<li ng-show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote) && class.materials.hidden ">
-						Materials Area
-						<a ng-click="class.materials.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
-					</li>
-					<li ng-show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions) && class.control.hidden ">
-						Control Area
-						<a ng-click="class.control.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
-					</li>
-					<li ng-show="desc.relationships.relatesTo && class.accessPoints.hidden ">
-						Access Area
-						<a ng-click="class.accessPoints.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+					<li ng-repeat="block in blocks" ng-show="(block.hidden)">
+						{{block.legend}}
+						<a ng-click="block.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
 					</li>
 				</ul>
 			</div>
