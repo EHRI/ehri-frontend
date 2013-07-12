@@ -111,20 +111,21 @@ object EntityDAO {
    * Global listeners for CUD events
    */
   import scala.collection.mutable.ListBuffer
-  private def onCreate[T <: AnyModel]: ListBuffer[T => Unit] = ListBuffer()
-  private def onUpdate[T <: AnyModel]: ListBuffer[T => Unit] = ListBuffer()
-  private def onDelete: ListBuffer[String => Unit] = ListBuffer()
+  private val onCreate: ListBuffer[JsObject => Unit] = ListBuffer.empty
+  private val onUpdate: ListBuffer[JsObject => Unit] = ListBuffer.empty
+  private val onDelete: ListBuffer[String => Unit] = ListBuffer.empty
 
-  def addCreateHandler[T <: AnyModel](f: T => Unit): Unit = onCreate += f
-  def addUpdateHandler[T <: AnyModel](f: T => Unit): Unit = onUpdate += f
+  def addCreateHandler(f: JsObject => Unit): Unit = onCreate += f
+  def addUpdateHandler(f: JsObject => Unit): Unit = onUpdate += f
   def addDeleteHandler(f: String => Unit): Unit = onDelete += f
 
-  def handleCreate[T <: AnyModel](e: T): T = {
-    onCreate.foreach((f: AnyModel => Unit) => f(e))
+  def handleCreate(e: JsObject): JsObject = {
+    onCreate.foreach(f => f(e))
     e
   }
-  def handleUpdate[T <: AnyModel](e: T): T = {
-    onUpdate.foreach((f: AnyModel => Unit) => f(e))
+  def handleUpdate(e: JsObject): JsObject = {
+    Logger.logger.info("Running Solr update handler " + e + " -> " + onUpdate)
+    onUpdate.foreach(f => f(e))
     e
   }
   def handleDelete(id: String): Unit = onDelete.foreach(f => f(id))
@@ -138,7 +139,6 @@ object EntityDAO {
  */
 case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfileMeta] = None) extends RestDAO {
 
-  import EntityDAO._
   import play.api.http.Status._
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
@@ -183,9 +183,9 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     WS.url(url)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-        checkError(response).right.map { r =>
-          r.json.as[MT](rd.restReads)
-          //EntityDAO.handleCreate(jsonToEntity(r.json))
+        checkErrorAndParse(response)(rd.restReads).right.map { item =>
+          EntityDAO.handleCreate(response.json.as[JsObject])
+          item
         }
     }
   }
@@ -198,8 +198,11 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     Logger.logger.debug("CREATE-IN {} ", url)
     WS.url(url)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-        checkErrorAndParse(response)(rd.restReads)
+        .post(Json.toJson(item)(wrt.restFormat)).map { response =>
+      checkErrorAndParse(response)(rd.restReads).right.map { item =>
+        EntityDAO.handleCreate(response.json.as[JsObject])
+        item
+      }
     }
   }
 
@@ -208,8 +211,11 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     val url = enc(requestUrl, id)
     Logger.logger.debug("UPDATE: {}", url)
     WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-      .put(Json.toJson(item)(wrt.restFormat)).map { response =>
-        checkErrorAndParse(response)(rd.restReads)
+        .put(Json.toJson(item)(wrt.restFormat)).map { response =>
+      checkErrorAndParse(response)(rd.restReads).right.map { item =>
+        EntityDAO.handleUpdate(response.json.as[JsObject])
+        item
+      }
     }
   }
 

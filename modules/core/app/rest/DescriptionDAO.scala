@@ -3,7 +3,7 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
-import play.api.libs.json.{Json, Writes, JsArray, JsValue}
+import play.api.libs.json._
 import defines.{EntityType,ContentType}
 import models.{UserProfileMeta, Entity}
 import play.api.Play.current
@@ -30,7 +30,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         case Right(r) => {
           EntityDAO[MT](entityType, userProfile).get(id).map {
             case Right(item) => {
-              //EntityDAO.handleUpdate(updated)
+              //EntityDAO.handleUpdate(response.json.as[JsObject])
               Cache.remove(id)
               Right(item)
             }

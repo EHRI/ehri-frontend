@@ -12,14 +12,8 @@ import defines.EnumUtils.enumWrites
 import concurrent.Future
 import rest.RestDAO
 import play.api.Logger
-import play.api.libs.json.JsObject
 import defines.EntityType
 import play.api.i18n.Lang
-import play.api.libs.json.JsArray
-import play.api.libs.json.JsString
-import play.api.libs.json.JsBoolean
-import play.api.libs.json.JsNumber
-import play.api.libs.json.JsObject
 import play.api.libs.json.JsArray
 import play.api.libs.json.JsString
 import play.api.libs.json.JsBoolean
@@ -116,6 +110,13 @@ object SolrIndexer extends RestDAO {
     solrUpdate(deleteJson, commit = commit)
   }
 
+  /**
+   * Update a single item
+   */
+  def updateItem(item: JsObject, commit: Boolean = true): Future[SolrResponse] = {
+    solrUpdate(Json.toJson(itemToJson(item)), commit = commit)
+  }
+
   /*
    * Update a list of Solr models. The actual list is broken up
    * into batches of a fixed size so this function can accept
@@ -160,7 +161,8 @@ object SolrIndexer extends RestDAO {
         Logger.logger.error("Bad JSON on reindex: " + JsError.toFlatJson(err))
         Nil
       },
-      valid = { any => any match {
+      valid = { any =>
+        any match {
           case d: DocumentaryUnitMeta => docToSolr(d, item)
           case d: HistoricalAgentMeta => actorToSolr(d, item)
           case d: RepositoryMeta => repoToSolr(d, item)
@@ -254,7 +256,7 @@ object SolrIndexer extends RestDAO {
       },
       valid = { list =>
         list.zipWithIndex.map { case (jsobj, i) =>
-          Json.toJson((json \ Entity.DATA).as[JsObject].fields.map { case (key, jsval) =>
+          Json.toJson((jsobj \ Entity.DATA).as[JsObject].fields.map { case (key, jsval) =>
             dynamicFieldName(key, jsval) -> jsval
           }.toMap).as[JsObject].deepMerge(base(i))
         }
@@ -298,12 +300,4 @@ object SolrIndexer extends RestDAO {
       case _ => key
     }
   }
-
-  /**
-   * Because it is not possible to filter query by empty multivalued fields in Solr,
-   * an item with no accessor restrictions uses the single value ALLUSERS.
-   * @param d
-   * @return
-   */
-  private def getAccessorValues(d: Accessible) = d.accessors.map(_.id)
 }
