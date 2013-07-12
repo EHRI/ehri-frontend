@@ -1,6 +1,6 @@
 @(page: utils.search.ItemPage[_])(implicit req: RequestHeader, lang: Lang)
 
-@import solr.Utils
+@import utils.search._
 
 <p class="selected-facets muted">
     @page.facets.map{ fclass =>
@@ -9,7 +9,7 @@
                 <input type="hidden" name="@fclass.param" value="@facet.param" />
                 <span class="label label-info">
                     @fclass.name: @fclass.pretty(facet) <a class="remove-filter"
-                        href="@Utils.pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
+                        href="@pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
                     <i class="icon-remove"></i></a>
                 </span>
             }

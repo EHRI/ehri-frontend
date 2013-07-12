@@ -1,6 +1,6 @@
 @(facets: utils.search.FacetClassList, call: Call)(implicit req: RequestHeader, lang: Lang)
 
-@import solr.Utils
+@import utils.search._
 
 @facets.map { fc =>
     @if(fc.count > 0) {
@@ -12,12 +12,12 @@
                     <li class="selected-filter">
                         @{fc.pretty(f)}
                         (@f.count)
-                        <a class="remove-filter" href="@Utils.pathWithoutFacet(fc, f,
+                        <a class="remove-filter" href="@pathWithoutFacet(fc, f,
                             req.path, req.queryString.filterKeys(_!="page"))"><i class="icon-remove"></i></a>
                     </li>
                 } else {
                     <li>
-                        <a href="@Utils.pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">
+                        <a href="@pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">
                             @fc.pretty(f)
                             (@f.count)
                         </a>
