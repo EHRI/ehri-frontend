@@ -4,13 +4,13 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfileMeta
 import solr.facet.SolrFacetClass
-import solr.{SearchOrder, ItemPage, SearchParams}
+import solr.{SearchOrder, SearchParams}
 import defines.EntityType
 import play.api.Play._
 import solr.facet.AppliedFacet
-import models.base.AnyModel
 import models.json.{ClientConvertable, RestReadable}
 import play.api.libs.json.{Writes, Json}
+import utils.search.ItemPage
 
 
 /**
@@ -57,7 +57,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @param f
    * @return
    */
-  def searchAction[MT](f: solr.ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+  def searchAction[MT](f: ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     searchAction[MT](Map.empty[String,Any])(f)
   }
 
@@ -68,7 +68,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @return
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
-      f: solr.ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+      f: ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
 
@@ -91,7 +91,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
                     val page = res.copy(items = list.zip(ids))
                     render {
                       case Accepts.Json() => Ok(Json.obj(
-                        "page" -> Json.toJson(res.copy(items = list))(solr.ItemPage.itemPageWrites),
+                        "page" -> Json.toJson(res.copy(items = list))(ItemPage.itemPageWrites),
                         "params" -> Json.toJson(sp)(SearchParams.Converter.clientFormat),
                         "appliedFacets" -> Json.toJson(facets)
                       ))

@@ -1,4 +1,4 @@
-@(item: AnyModel, page: solr.ItemPage[(AnyModel,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], entityType: EntityType.Value, action: Call, linkAction: (String,String,String) => Call)(
+@(item: AnyModel, page: utils.search.ItemPage[(AnyModel,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], entityType: EntityType.Value, action: Call, linkAction: (String,String,String) => Call)(
 implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.linkTo"), breadcrumbs = common.breadcrumbs(List(item))) {

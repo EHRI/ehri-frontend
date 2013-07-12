@@ -16,6 +16,7 @@ import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
 import play.api.Logger
+import utils.search.ItemPage
 
 
 /**
@@ -47,7 +48,7 @@ object AccessPointLink {
 trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
 
   def linkSelectAction(id: String, toType: String)(
-      f: MT => solr.ItemPage[(AnyModel,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: MT => ItemPage[(AnyModel,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
