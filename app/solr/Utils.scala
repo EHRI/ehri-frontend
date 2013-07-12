@@ -1,6 +1,6 @@
 package solr
 
-import facet._
+import utils.search.{FacetClass, Facet}
 
 /**
  * User: mike
@@ -20,7 +20,7 @@ object Utils {
     }}.flatten.mkString("&")
   }
 
-  def pathWithoutFacet(fc: SolrFacetClass, f: SolrFacet, path: String, qs: Map[String, Seq[String]]): String = {
+  def pathWithoutFacet[F <: Facet, FC <: FacetClass[F]](fc: FC, f: F, path: String, qs: Map[String, Seq[String]]): String = {
     joinPath(path, qs.map(qv => {
       qv._1 match {
         case fc.param => (qv._1, qv._2.filter(_!=f.param))
@@ -29,7 +29,7 @@ object Utils {
     }))
   }
 
-  def pathWithFacet(fc: SolrFacetClass, f: SolrFacet, path: String, qs: Map[String, Seq[String]]): String = {
+  def pathWithFacet[F <: Facet, FC <: FacetClass[F]](fc: FC, f: F, path: String, qs: Map[String, Seq[String]]): String = {
     joinPath(path, if (qs.contains(fc.param)) {
       qs.map(qv => {
         qv._1 match {
