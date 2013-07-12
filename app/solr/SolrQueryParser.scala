@@ -1,6 +1,6 @@
 package solr
 
-import solr.facet.{FacetClass, AppliedFacet}
+import solr.facet.{SolrFacetClass, AppliedFacet}
 import scala.xml.{Node, Elem}
 import defines.EntityType
 
@@ -60,7 +60,7 @@ case class SolrQueryParser(response: Elem) {
    * @param allFacets
    * @return
    */
-  def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): List[FacetClass] = {
+  def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: List[SolrFacetClass]): List[SolrFacetClass] = {
     //allFacets.map(_.populateFromSolr(response, appliedFacets))
     allFacets.map { fc => fc match {
       case ffc: solr.facet.FieldFacetClass => extractFieldFacet(ffc, appliedFacets)
@@ -89,7 +89,7 @@ case class SolrQueryParser(response: Elem) {
         val nameNode = (c \ "@name")
         if (nameNode.length == 0) Nil
         else
-           List(solr.facet.Facet(
+           List(solr.facet.SolrFacet(
               nameNode.text, nameNode.text, None,
               c.text.toInt, applied.contains(nameNode.text)))
       }
@@ -108,7 +108,7 @@ case class SolrQueryParser(response: Elem) {
       response.descendant.filter(n => (n \\ "@name").text == nameval).text match {
         case "" => Nil
         case v => List(
-          solr.facet.Facet(f.solr, f.param, f.humanVal, v.toInt,
+          solr.facet.SolrFacet(f.solr, f.param, f.name, v.toInt,
             applied.contains(f.param))
         )
       }

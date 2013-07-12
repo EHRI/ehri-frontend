@@ -12,6 +12,7 @@ import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
 import views.Helpers
 import solr.SearchParams
+import utils.search.FacetSort
 
 object Repositories extends EntityRead[RepositoryMeta]
   with EntityUpdate[RepositoryF, RepositoryMeta]

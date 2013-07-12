@@ -3,7 +3,7 @@ package controllers.base
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfileMeta
-import solr.facet.FacetClass
+import solr.facet.SolrFacetClass
 import solr.{SearchOrder, ItemPage, SearchParams}
 import defines.EntityType
 import play.api.Play._
@@ -25,9 +25,9 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * Inheriting controllers should override a list of facets that
    * are available for the given entity type.
    */
-  val entityFacets: List[FacetClass] = Nil
+  val entityFacets: List[SolrFacetClass] = Nil
 
-  def bindFacetsFromRequest(facetClasses: List[FacetClass])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
+  def bindFacetsFromRequest(facetClasses: List[SolrFacetClass])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
     val qs = request.queryString
     facetClasses.flatMap { fc =>
       qs.get(fc.param).map { values =>

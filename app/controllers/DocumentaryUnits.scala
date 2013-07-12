@@ -15,6 +15,7 @@ import collection.immutable.ListMap
 import views.Helpers
 import solr.{SearchOrder, SearchParams}
 import play.api.libs.json.Json
+import utils.search.FacetSort
 
 
 object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]

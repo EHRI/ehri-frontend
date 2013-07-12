@@ -35,7 +35,7 @@ object SolrQueryBuilder {
    * @param request
    * @param flist
    */
-  private def setRequestFacets(request: QueryRequest, flist: List[FacetClass]): Unit = {
+  private def setRequestFacets(request: QueryRequest, flist: List[SolrFacetClass]): Unit = {
     request.setFacet(new FacetParams(
       enabled=true,
       params=flist.map(_.asParams).flatten
@@ -49,7 +49,7 @@ object SolrQueryBuilder {
    * @param facetClasses
    * @param appliedFacets
    */
-  private def setRequestFilters(request: QueryRequest, facetClasses: List[FacetClass],
+  private def setRequestFilters(request: QueryRequest, facetClasses: List[SolrFacetClass],
                                 appliedFacets: List[AppliedFacet]): Unit = {
     // filter the results by applied facets
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
@@ -78,7 +78,7 @@ object SolrQueryBuilder {
    * @param appliedFacets
    * @param allFacets
    */
-  private def constrain(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: List[FacetClass]): Unit = {
+  private def constrain(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: List[SolrFacetClass]): Unit = {
     setRequestFacets(request, allFacets)
     setRequestFilters(request, allFacets, appliedFacets)
   }
@@ -175,7 +175,7 @@ object SolrQueryBuilder {
    * @param params
    * @return
    */
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfileMeta]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString

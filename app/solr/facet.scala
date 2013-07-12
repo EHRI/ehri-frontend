@@ -2,13 +2,7 @@ package solr.facet
 
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParam, Param, Value}
 import play.api.libs.json.{JsNumber, Json, Writes}
-
-
-case object FacetSort extends Enumeration {
-  val Name = Value("name")
-  val Count = Value("count")
-  val Fixed = Value("fixed")
-}
+import utils.search.{FacetClass, FacetSort}
 
 /**
  * A facet that has been "applied", i.e. a name of the field
@@ -18,75 +12,54 @@ case object FacetSort extends Enumeration {
  * @param values
  */
 case class AppliedFacet(name: String, values: List[String])
+
 object AppliedFacet {
   implicit val appliedFacetWrites = Json.writes[AppliedFacet]
 }
+
 
 /**
  * Encapsulates a single facet.
  *
  * @param solr   the value of this facet to Solr
  * @param param  the value as a web parameter
- * @param humanVal  the human-readable value
+ * @param name  the human-readable value
  * @param count     the number of objects to which this facet applies
  * @param applied   whether or not this facet is activated in the response
  */
-case class Facet(
+case class SolrFacet(
   solr: String,
   param: String,
-  humanVal: Option[String] = None,
+  name: Option[String] = None,
   count: Int = 0,
   applied: Boolean = false
-) {
-  def sort = humanVal.getOrElse(param)
+) extends utils.search.Facet {
+  def sort = name.getOrElse(param)
 }
 
-object Facet {
-  implicit val facetWrites = Json.writes[Facet]
+object SolrFacet {
+  implicit val facetWrites = Json.writes[SolrFacet]
 }
 
 
-/**
- * Encapulates rendering a facet to the response. Transforms
- * various Solr-internal values into i18n and human-readable ones.
- */
-sealed trait FacetClass {
-  val key: String
-  val name: String
-  val param: String
-  val render: (String) => String
-  val facets: List[Facet]
-  val sort: FacetSort.Value
-  val fieldType: String
-
-  def count: Int = facets.length
-  def sortedByName = facets.sortWith((a, b) => a.sort < b.sort)
-  def sortedByCount = facets.sortWith((a, b) => b.count < a.count)
-  def sorted: List[Facet] = sort match {
-    case FacetSort.Name => sortedByName
-    case FacetSort.Count => sortedByCount
-    case _ => facets
-  }
+trait SolrFacetClass extends FacetClass[SolrFacet] {
   def asParams: List[FacetParam]
-  def pretty(f: Facet): String = f.humanVal match {
-    case Some(desc) => render(desc)
-    case None => render(f.param)
-  }
 }
 
-object FacetClass {
-  implicit def facetClassWrites: Writes[FacetClass] = new Writes[FacetClass] {
-    def writes(fc: FacetClass) = Json.obj(
+object SolrFacetClass {
+  implicit def facetClassWrites: Writes[SolrFacetClass] = new Writes[SolrFacetClass] {
+    def writes(fc: SolrFacetClass) = Json.obj(
       "count" -> JsNumber(fc.count),
       "param" -> Json.toJson(fc.param),
       "name" -> Json.toJson(fc.name),
       "key" -> Json.toJson(fc.key),
       "facets" -> Json.arr(
-          fc.sorted.map(Json.toJson(_))
+        fc.sorted.map(Json.toJson(_))
       )
     )
   }
 }
+
 
 /**
  *
@@ -104,9 +77,9 @@ case class FieldFacetClass(
   name: String,
   param: String,
   render: (String) => String = s=>s,
-  facets: List[Facet] = Nil,
+  facets: List[SolrFacet] = Nil,
   sort: FacetSort.Value = FacetSort.Count
-) extends FacetClass {
+) extends SolrFacetClass {
   val fieldType: String = "facet.field"
 
   def asParams: List[FacetParam] = {
@@ -122,9 +95,9 @@ case class QueryFacetClass(
   name: String,
   param: String,
   render: (String) => String = s=>s,
-  facets: List[Facet] = Nil,
+  facets: List[SolrFacet] = Nil,
   sort: FacetSort.Value = FacetSort.Name
-) extends FacetClass {
+) extends SolrFacetClass {
   val fieldType: String = "facet.query"
 
   def asParams: List[FacetParam] = {

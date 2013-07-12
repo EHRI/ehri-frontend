@@ -5,7 +5,7 @@ import defines.EntityType
 import models.UserProfileMeta
 import scala.concurrent.Future
 import rest.RestError
-import solr.facet.{FacetClass, AppliedFacet}
+import solr.facet.{SolrFacetClass, AppliedFacet}
 
 /**
  * User: michaelb
@@ -32,7 +32,7 @@ case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
     }
   }
 
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val items = params.entities.foldLeft(List[solr.SearchDescription]()) { case (listOfItems, et) =>
       et match {
@@ -54,8 +54,8 @@ case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
     }
   }
 
-  def facet(facet: String, sort: String, params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
+  def facet(facet: String, sort: String, params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(
+      implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,solr.FacetPage[solr.facet.SolrFacet]]] = {
 
     // UNIMPLEMENTED
     Future.failed(new NotImplementedError())

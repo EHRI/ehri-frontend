@@ -6,11 +6,12 @@ import play.api.libs.ws.WS
 import play.api.Logger
 import defines.EntityType
 import rest.RestError
-import solr.facet.{FacetClass, AppliedFacet}
+import solr.facet.{SolrFacetClass, AppliedFacet}
 import com.github.seratch.scalikesolr.request.QueryRequest
 import play.api.libs.json.{Writes, Json, Format}
 import scala.concurrent.Future
 import models.json.ClientConvertable
+import utils.search.{Facet, FacetClass}
 
 /**
  * Page of search result items
@@ -26,7 +27,7 @@ case class ItemPage[+A](
   offset: Int,
   limit:Int,
   total: Long,
-  facets: List[FacetClass],
+  facets: List[SolrFacetClass],
   spellcheck: Option[(String,String)] = None
 ) extends utils.AbstractPage[A]
 
@@ -41,7 +42,7 @@ object ItemPage {
       (__ \ "offset").write[Int] and
       (__ \ "limit").write[Int] and
       (__ \ "total").write[Long] and
-      (__ \ "facets").lazyWrite[List[FacetClass]](Writes.list[FacetClass](FacetClass.facetClassWrites)) and
+      (__ \ "facets").lazyWrite[List[SolrFacetClass]](Writes.list[SolrFacetClass](SolrFacetClass.facetClassWrites)) and
       (__ \ "spellcheck").writeNullable(
         (__ \ "given").write[String] and
           (__ \ "correction").write[String]
@@ -60,7 +61,7 @@ object ItemPage {
  * @tparam A
  */
 case class FacetPage[+A](
-  fc: FacetClass,
+  fc: SolrFacetClass,
   items: Seq[A],
   offset: Int,
   limit: Int,
@@ -123,7 +124,7 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
    * @param userOpt
    * @return a set of SearchDescriptions for matching results.
    */
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass], filters: Map[String,Any] = Map.empty)(implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -154,9 +155,9 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
     sort: String = "name",
     params: SearchParams,
     facets: List[AppliedFacet],
-    allFacets: List[FacetClass],
+    allFacets: List[SolrFacetClass],
     filters: Map[String,Any] = Map.empty
-  )(implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,solr.FacetPage[solr.facet.Facet]]] = {
+  )(implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,solr.FacetPage[solr.facet.SolrFacet]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
