@@ -1,0 +1,106 @@
+<ul>
+<li id="identity" title="Identity" class="documentBlock" show="(desc.data.extentAndMedium)">
+
+	<div id="extentAndMedium" ng-show="(desc.data.extentAndMedium)">
+		<h3>Extent and Medium of the Unit of Description </h3>
+		<p>{{desc.data.extentAndMedium}}</p>
+	</div>
+
+</li>
+
+<li id="context" title="Context" class="documentBlock" show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory)">
+
+	<div id="adminBiogHistory" ng-show="(desc.data.adminBiogHistory)">
+		<h3>Administrative and biographical history</h3>
+		<p>{{desc.data.adminBiogHistory}}</p>
+	</div>
+	<div id="archivalHistory" ng-show="(desc.data.archivalHistory)">
+		<h3>Archival History</h3>
+		<p>{{desc.data.archivalHistory}}</p>
+	</div>
+
+</li>
+
+<li id="content" title="Content" class="documentBlock" show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement)">
+	<div id="scopeAndContent" ng-show="(desc.data.scopeAndContent)">
+		<h3> Scope and Content </h3>
+		<p>{{desc.data.scopeAndContent}}</p>
+	</div>
+	
+	<div id="appraisal" ng-show="(desc.data.appraisal)">
+		<h3> Appraisal </h3>
+		<p>{{desc.data.appraisal}}</p>
+	</div>
+	
+	<div id="accruals" ng-show="(desc.data.accruals)">
+		<h3> Accruals </h3>
+		<p>{{desc.data.accruals}}</p>
+	</div>
+	
+	<div id="systemOfArrangement" ng-show="(desc.data.systemOfArrangement)">
+		<h3> System of Arrangement </h3>
+		<p>{{desc.data.systemOfArrangement}}</p>
+	</div>
+</li>
+
+
+<li title="Conditions" class="documentBlock"  id="conditions" show="(desc.data.conditionsOfAccess || desc.data.conditionsOfReproduction || desc.data.physicalCharacteristics || desc.data.findingAids)">
+	<div id="conditionsOfAccess" ng-show="(desc.data.conditionsOfAccess)">
+		<h3>Conditions Governing Access </h3>
+		<p>{{desc.data.conditionsOfAccess}}</p>
+	</div>
+	<div id="conditionsOfReproduction" ng-show="(desc.data.conditionsOfReproduction)">
+		<h3>Conditions Governing Reproduction </h3>
+		<p>{{desc.data.conditionsOfReproduction}}</p>
+	</div>
+	<div id="physicalCharacteristics" ng-show="(desc.data.physicalCharacteristics)">
+		<h3>Physical Characteristics and Technical Requirements </h3>
+		<p>{{desc.data.physicalCharacteristics}}</p>
+	</div>
+	<div id="findingAids" ng-show="(desc.data.findingAids)">
+		<h3>Finding Aids</h3>
+		<p>{{desc.data.findingAids}}</p>
+	</div>
+</li>
+
+<li  title="Materials" class="documentBlock"  id="materials" show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote)">
+	<div id="locationOfOriginals" ng-show="(desc.data.locationOfOriginals)">
+		<h3>Existence and Location of Originals </h3>
+		<p>{{desc.data.locationOfOriginals}}</p>
+	</div>
+	<div id="locationOfCopies" ng-show="(desc.data.locationOfCopies)">
+		<h3>Existence and Location of Copies </h3>
+		<p>{{desc.data.locationOfCopies}}</p>
+	</div>
+	<div id="relatedUnitsOfDescription" ng-show="(desc.data.relatedUnitsOfDescription)">
+		<h3>Related Units of Description </h3>
+		<p>{{desc.data.relatedUnitsOfDescription}}</p>
+	</div>
+	<div id="publicationNote" ng-show="(desc.data.publicationNote)">
+		<h3>Publication Note </h3>
+		<p>{{desc.data.publicationNote}}</p>
+	</div>
+
+</li>
+
+<li title="Control" class="documentBlock"  id="control" show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions)">
+	<div id="archivistNote" ng-show="(desc.data.archivistNote)">
+		<h3>Archivist Note </h3>
+		<p>{{desc.data.archivistNote}}</p>
+	</div>
+	<div id="rulesAndConventions" ng-show="(desc.data.rulesAndConventions)">
+		<h3>Rules and Conventions </h3>
+		<p">{{desc.data.rulesAndConventions}}</p>
+	</div>
+	<div id="datesOfDescriptions" ng-show="(desc.data.datesOfDescriptions)">
+		<h3>Dates of Descriptions </h3>
+		<p>{{desc.data.datesOfDescriptions}}</p>
+	</div>
+</li>
+<li title="Access" class="documentBlock" id="accessPoints" show="desc.relationships.relatesTo">
+	<div>
+		<ul class="tags accessPoints">
+			<li ng-repeat="access in desc.relationships.relatesTo" class="{{access.data.type}}">{{access.data.name}}</li>
+		</ul>
+	</div>
+</li>

@@ -2,6 +2,7 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$rout
 	$scope.blocks = {};
 	$scope.item = $item.data;
 	$scope.alt = {};
+	$scope.compared = {};
 	//<-- Set id of desc
 	if($location.search().description) {
 		$scope.descId = $location.search().description;
@@ -10,13 +11,38 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$rout
 		if($location.search().description) {
 			$scope.descId = $location.search().description;
 			$scope.loadDesc();// Change desc
+		} else if ($location.search().comparedWith) {
+			if($scope.compared[$location.search().comparedWith])
+			{
+				$scope.loadDesc();// Change desc
+			}
+			else
+			{
+				$scope.compareWith($location.search().comparedWith, loadDesc);
+			}
 		}
 	});
 	// Set id of desc -->
 	
+	$scope.compareWith = function(itemId, load) {
+		$http.get('./api/documentaryUnit/'+itemId).success(function(data) {
+			console.log(data);
+			$scope.compared[itemId] = data;
+			console.log($scope.compared);
+			if(load) { $scope.loadDesc(); }
+		});
+	}
+	
+	
 	//<-- Select good desc 
 	$scope.loadDesc = function() {
-		if($scope.descId)
+		if($location.search().comparedWith)
+		{
+			console.log("loadDesc");
+			$scope.desc = $scope.compared[$location.search().comparedWith].relationships.describes[0];
+			console.log($scope.desc);
+		}
+		else if($scope.descId)
 		{
 			$scope.desc = $filter("descLang")($scope.item.relationships.describes, false, {"id" : $scope.descId})[0];
 			$scope.alt = [];

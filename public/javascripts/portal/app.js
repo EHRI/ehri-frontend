@@ -1,4 +1,4 @@
-var portal = angular.module('portalSearch', ['ui.bootstrap' ], function ($provide) {
+var portal = angular.module('portalSearch', ['ui.bootstrap', 'ui.sortable' ], function ($provide) {
     $provide.factory('$service', function() {
       return {
         redirectUrl: function(type, id) {

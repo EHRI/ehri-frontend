@@ -1,4 +1,4 @@
-<div class="ui-block" ng-class="{'closed':$parent.blocks[id].closed==true, 'hidden':$parent.blocks[id].hidden==true}" ng-show="show">
+<li class="ui-block" ng-class="{'closed':$parent.blocks[id].closed==true, 'hidden':$parent.blocks[id].hidden==true}" ng-show="show">
 	<h2>{{title}}
 		<div class="pull-right">
 		<a class="filterBar-icon" ng-click="close()"><i ng-class="(closed && 'icon-plus') || 'icon-minus'"></i>
@@ -6,4 +6,4 @@
 	</h2>
 	<div ng-transclude>
 	</div>
-</div>
+</li>

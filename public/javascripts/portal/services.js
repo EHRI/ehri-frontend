@@ -49,30 +49,35 @@ portal.factory('myPaginationService', function($rootScope) {
 }).factory('Item', function($http){
 	var Item = {}
 	
-	Item.query = function(type, item) {
-		console.log(type);
+	Item.query = function(type, item, returned) {
+		//console.log(type);
 		return $http.get('./api/'+type+'/'+item).success(function(data) {
-			Item.data = data;
-			if(type == "repository" && (data.relationships.describes[0].relationships.hasAddress[0]))
-			{
-				console.log("Getting Address");
-				address = data.relationships.describes[0].relationships.hasAddress[0].data;
-			/*
-				format=[html|xml|json]
-				street=<housenumber> <streetname>
-				city=<city>
-				county=<county>
-				state=<state>
-				country=<country>
-				postalcode=<postalcode>
-			*/
-				$http.get('http://nominatim.openstreetmap.org/search/?format=json&street='+address.street+'&postalcode='+address.postalCode+'&country='+address.countryCode+'').success(function(data) {
-					if(data[0])
-					{
-						Item.geoloc = data[0];
-						console.log(Item.address);
-					}
-				});
+			if(returned) {
+				return data;
+			}
+			else {
+				Item.data = data;
+				if(type == "repository" && (data.relationships.describes[0].relationships.hasAddress[0]))
+				{
+					console.log("Getting Address");
+					address = data.relationships.describes[0].relationships.hasAddress[0].data;
+				/*
+					format=[html|xml|json]
+					street=<housenumber> <streetname>
+					city=<city>
+					county=<county>
+					state=<state>
+					country=<country>
+					postalcode=<postalcode>
+				*/
+					$http.get('http://nominatim.openstreetmap.org/search/?format=json&street='+address.street+'&postalcode='+address.postalCode+'&country='+address.countryCode+'').success(function(data) {
+						if(data[0])
+						{
+							Item.geoloc = data[0];
+							console.log(Item.address);
+						}
+					});
+				}
 			}
 		});
 	}

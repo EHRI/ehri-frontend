@@ -82,6 +82,16 @@ portal.directive('whenScrolled', function ($window) {
       });
     }
   }
+}]).directive("dud", ['Item', function($item) {
+	return {
+        restrict: 'E',
+        replace: true,
+		transclude: true,
+        templateUrl: ANGULAR_ROOT + "/portal/templates/descriptionFields.html",
+		link: function(scope,element, attrs) {
+			console.log(scope.desc);
+		}
+	}
 }]).directive("documentBlock", ['$rootScope', function($rootScope) {
 	return {
 		restrict: 'C', 
@@ -90,6 +100,7 @@ portal.directive('whenScrolled', function ($window) {
 		scope: { title:'@title', id:'@id', show:'=' },
 		templateUrl: ANGULAR_ROOT + "/portal/templates/ui-blocks.html",
 		controller: ['$scope', '$element', '$attrs', '$transclude', function($scope, $element, $attrs, $transclude) {
+				console.log($attrs.id);
 				$scope.$parent.blocks[$attrs.id] = {
 					legend: $attrs.title, 
 					hidden: false, 
