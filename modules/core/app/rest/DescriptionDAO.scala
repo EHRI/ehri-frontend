@@ -28,13 +28,13 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO[MT](entityType, userProfile).get(id).map {
+          EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
-              //EntityDAO.handleUpdate(response.json.as[JsObject])
+              EntityDAO.handleUpdate(item)
               Cache.remove(id)
-              Right(item)
+              Right(item.as[MT](rd.restReads))
             }
-            case err => err
+            case Left(err) => Left(err)
           }
         }
       }
@@ -48,13 +48,14 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO[MT](entityType, userProfile).get(id).map {
+          EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
-              //EntityDAO.handleUpdate(updated)
+              EntityDAO.handleUpdate(item)
+              println("HANDLING UPDATE: " + item)
               Cache.remove(id)
-              Right(item)
+              Right(item.as[MT](rd.restReads))
             }
-            case err => err
+            case Left(err) => Left(err)
           }
         }
       }
@@ -65,9 +66,9 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         implicit rd: RestReadable[MT]): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .delete.flatMap { response =>
-      EntityDAO[MT](entityType, userProfile).get(id).map {
+      EntityDAO[MT](entityType, userProfile).getJson(id).map {
         case Right(updated) => {
-          //EntityDAO.handleUpdate(updated)
+          EntityDAO.handleUpdate(updated)
           Cache.remove(id)
           Right(true)
         }
@@ -85,11 +86,11 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO[MT](entityType, userProfile).get(id).map {
+          EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
-              //EntityDAO.handleUpdate(updated)
+              EntityDAO.handleUpdate(item)
               //Cache.remove(id)
-              Right((item, r.json.as[DT](fmt.restFormat)))
+              Right((item.as[MT](rd.restReads), r.json.as[DT](fmt.restFormat)))
             }
             case Left(err) => Left(err)
           }
@@ -102,13 +103,13 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .delete.flatMap { response =>
-        EntityDAO[MT](entityType, userProfile).get(id).map {
+        EntityDAO[MT](entityType, userProfile).getJson(id).map {
           case Right(item) => {
-            //EntityDAO.handleUpdate(updated)
+            EntityDAO.handleUpdate(item)
             Cache.remove(id)
-            Right(item)
+            Right(item.as[MT](rd.restReads))
           }
-          case err => err
+          case Left(err) => Left(err)
         }
     }
   }

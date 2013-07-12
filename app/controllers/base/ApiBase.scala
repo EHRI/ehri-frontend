@@ -29,17 +29,9 @@ trait ApiBase[TM] extends EntityController {
   def getClientJson(id: String)(implicit rr: RestReadable[TM], cw: ClientConvertable[TM]) = userProfileAction {
       implicit maybeUser => implicit request =>
     AsyncRest {
-      rest.EntityDAO(entityType, maybeUser).getJson(id).map { res =>
+      rest.EntityDAO(entityType, maybeUser).get(id).map { res =>
         res.right.map { tm =>
-          tm.fold(
-            invalid = { err =>
-              BadRequest(JsError.toFlatJson(err)) // Should be 500!
-            },
-            valid = { item =>
-              println(item)
-              Ok(Json.toJson(item)(cw.clientFormat))
-            }
-          )
+          Ok(Json.toJson(tm)(cw.clientFormat))
         }
       }
     }

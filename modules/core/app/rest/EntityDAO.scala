@@ -157,19 +157,17 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     //}
   }
 
-  def getJson(id: String)(implicit rw: RestReadable[MT]): Future[Either[RestError, JsResult[MT]]] = {
+  def getJson(id: String): Future[Either[RestError, JsObject]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[MT](rw.restReads)
-      }
+      checkErrorAndParse[JsObject](response)
     }
   }
 
   def get(key: String, value: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*)
-      .withQueryString("key" -> key, "value" -> value)
-      .get.map { response =>
-        checkError(response).right.map(r => r.json.as[MT](rd.restReads))
+        .withQueryString("key" -> key, "value" -> value)
+        .get.map { response =>
+      checkErrorAndParse(response)(rd.restReads)
     }
   }
 
