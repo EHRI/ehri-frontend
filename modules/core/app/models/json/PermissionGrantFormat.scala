@@ -25,7 +25,7 @@ object PermissionGrantFormat {
   private implicit val anyModelReads = AnyModel.Converter.restReads
   private implicit val userProfileMetaReads = models.json.UserProfileFormat.metaReads
 
-  implicit val metaReads: Reads[PermissionGrantMeta] = (
+  implicit val metaReads: Reads[PermissionGrant] = (
     __.read[PermissionGrantF] and
     (__ \ RELATIONSHIPS \ PermissionGrantF.ACCESSOR_REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
@@ -33,7 +33,7 @@ object PermissionGrantFormat {
       Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
     (__ \ RELATIONSHIPS \ PermissionGrantF.SCOPE_REL).lazyReadNullable[List[AnyModel]](
       Reads.list[AnyModel]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ PermissionGrantF.GRANTEE_REL).lazyReadNullable[List[UserProfileMeta]](
-      Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption))
-  )(PermissionGrantMeta.apply _)
+    (__ \ RELATIONSHIPS \ PermissionGrantF.GRANTEE_REL).lazyReadNullable[List[UserProfile]](
+      Reads.list[UserProfile]).map(_.flatMap(_.headOption))
+  )(PermissionGrant.apply _)
 }

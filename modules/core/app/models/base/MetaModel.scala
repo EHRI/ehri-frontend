@@ -4,7 +4,7 @@ import play.api.libs.json._
 import defines.EntityType
 import play.api.i18n.Lang
 import models.json.{ClientConvertable, RestReadable}
-import models.{Entity,SystemEventMeta,AccessPointF,DatePeriodF}
+import models.{Entity,SystemEvent,AccessPointF,DatePeriodF}
 import play.api.data.validation.ValidationError
 import play.api.Logger
 
@@ -86,7 +86,7 @@ object Accessible {
 
 trait Accessible extends AnyModel {
   def accessors: List[Accessor]
-  def latestEvent: Option[SystemEventMeta]
+  def latestEvent: Option[SystemEvent]
 }
 
 /**

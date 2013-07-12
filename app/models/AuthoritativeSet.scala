@@ -30,30 +30,23 @@ case class AuthoritativeSetF(
 ) extends Model with Persistable
 
 
-
 object AuthoritativeSet {
-  final val VOCAB_REL = "inCvoc"
-  final val NT_REL = "narrower"
-}
-
-
-object AuthoritativeSetMeta {
-  implicit object Converter extends ClientConvertable[AuthoritativeSetMeta] with RestReadable[AuthoritativeSetMeta] {
+  implicit object Converter extends ClientConvertable[AuthoritativeSet] with RestReadable[AuthoritativeSet] {
     val restReads = models.json.AuthoritativeSetFormat.metaReads
 
-    val clientFormat: Format[AuthoritativeSetMeta] = (
+    val clientFormat: Format[AuthoritativeSet] = (
       __.format[AuthoritativeSetF](AuthoritativeSetF.Converter.clientFormat) and
       nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-    )(AuthoritativeSetMeta.apply _, unlift(AuthoritativeSetMeta.unapply _))
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+    )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply _))
   }
 }
 
 
-case class AuthoritativeSetMeta(
+case class AuthoritativeSet(
   model: AuthoritativeSetF,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta]
+  latestEvent: Option[SystemEvent]
 ) extends AnyModel
   with MetaModel[AuthoritativeSetF]
   with Accessible {

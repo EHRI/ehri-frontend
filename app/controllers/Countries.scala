@@ -10,11 +10,11 @@ import defines.{ContentType, EntityType}
 import scala.Some
 import utils.search.SearchParams
 
-object Countries extends CRUD[CountryF,CountryMeta]
-  with CreationContext[RepositoryF, RepositoryMeta, CountryMeta]
-  with VisibilityController[CountryMeta]
-  with PermissionScopeController[CountryMeta]
-  with EntityAnnotate[CountryMeta]
+object Countries extends CRUD[CountryF,Country]
+  with CreationContext[RepositoryF, Repository, Country]
+  with VisibilityController[Country]
+  with PermissionScopeController[Country]
+  with EntityAnnotate[Country]
   with EntitySearch {
 
   /**
@@ -48,7 +48,7 @@ object Countries extends CRUD[CountryF,CountryMeta]
    * @return
    */
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[RepositoryMeta](Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
+    searchAction[Repository](Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
         page => params => facets => _ => _ =>
       Ok(views.html.country.show(item, page, params, facets, routes.Countries.get(id), annotations, links))
     }.apply(request)
@@ -62,7 +62,7 @@ object Countries extends CRUD[CountryF,CountryMeta]
     Ok(views.html.country.list(page, params))
   }
 
-  def search = searchAction[CountryMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+  def search = searchAction[Country](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.country.search(page, params, facets, routes.Countries.search))
   }
@@ -99,7 +99,7 @@ object Countries extends CRUD[CountryF,CountryMeta]
    * Fetch the existing set of repository ids. Remove the non-numeric (country code)
    * prefix, and increment to form a new id.
    */
-  private def getNextRepositoryId(f: String => Result)(implicit userOpt: Option[UserProfileMeta], request: RequestHeader) = {
+  private def getNextRepositoryId(f: String => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     import play.api.libs.concurrent.Execution.Implicits._
     import play.api.libs.json.Json
     import play.api.libs.json.JsValue

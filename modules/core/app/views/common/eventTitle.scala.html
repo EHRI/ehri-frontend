@@ -1,4 +1,4 @@
-@(event: SystemEventMeta)
+@(event: SystemEvent)
 
 @{s"${event.time.trim}\n\n${event.actioner.getOrElse("Unknown user")}: ${event.model.logMessage}"}
 

@@ -36,25 +36,25 @@ case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with A
 }
 */
 
-object GroupMeta {
-  implicit object Converter extends ClientConvertable[GroupMeta] with RestReadable[GroupMeta] {
+object Group {
+  implicit object Converter extends ClientConvertable[Group] with RestReadable[Group] {
     val restReads = models.json.GroupFormat.metaReads
 
-    val clientFormat: Format[GroupMeta] = (
+    val clientFormat: Format[Group] = (
       __.format[GroupF](GroupF.Converter.clientFormat) and
       lazyNullableListFormat(__ \ "groups")(clientFormat) and
       lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-    )(GroupMeta.apply _, unlift(GroupMeta.unapply _))
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+    )(Group.apply _, unlift(Group.unapply _))
   }
 }
 
 
-case class GroupMeta(
+case class Group(
   model: GroupF,
-  groups: List[GroupMeta] = Nil,
+  groups: List[Group] = Nil,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta] = None
+  latestEvent: Option[SystemEvent] = None
 ) extends MetaModel[GroupF]
   with Accessor
   with Accessible {

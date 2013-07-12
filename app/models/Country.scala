@@ -24,27 +24,23 @@ case class CountryF(
 
 
 object Country {
-  final val REPOSITORY_REL = "hasCountry"
-}
-
-object CountryMeta {
-  implicit object Converter extends ClientConvertable[CountryMeta] with RestReadable[CountryMeta] {
+  implicit object Converter extends ClientConvertable[Country] with RestReadable[Country] {
     val restReads = models.json.CountryFormat.metaReads
 
-    val clientFormat: Format[CountryMeta] = (
+    val clientFormat: Format[Country] = (
       __.format[CountryF](CountryF.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-      )(CountryMeta.apply _, unlift(CountryMeta.unapply _))
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      )(Country.apply _, unlift(Country.unapply _))
   }
 }
 
 
 // Stub
-case class CountryMeta(
+case class Country(
   model: CountryF,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta] = None
+  latestEvent: Option[SystemEvent] = None
 ) extends AnyModel
   with MetaModel[CountryF]
   with Accessible {

@@ -8,7 +8,7 @@ import defines.EnumUtils._
 
 import defines.{EntityType, PublicationStatus}
 import models.base.{Described, Accessible, Accessor}
-import models.{SystemEventMeta, RepositoryMeta, DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnitMeta}
+import models.{SystemEvent, Repository, DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit}
 
 
 object DocumentaryUnitFormat {
@@ -51,17 +51,17 @@ object DocumentaryUnitFormat {
 
   implicit val restFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
 
-  implicit val metaReads: Reads[DocumentaryUnitMeta] = (
+  implicit val metaReads: Reads[DocumentaryUnit] = (
     __.read[DocumentaryUnitF](documentaryUnitReads) and
     // Holder
-    (__ \ RELATIONSHIPS \ DocumentaryUnitF.HELD_REL).lazyReadNullable[List[RepositoryMeta]](
+    (__ \ RELATIONSHIPS \ DocumentaryUnitF.HELD_REL).lazyReadNullable[List[Repository]](
         Reads.list(RepositoryFormat.metaReads)).map(_.flatMap(_.headOption)) and
     //
-    (__ \ RELATIONSHIPS \ DocumentaryUnitF.CHILD_REL).lazyReadNullable[List[DocumentaryUnitMeta]](
+    (__ \ RELATIONSHIPS \ DocumentaryUnitF.CHILD_REL).lazyReadNullable[List[DocumentaryUnit]](
       Reads.list(metaReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
       Reads.list(SystemEventFormat.metaReads)).map(_.flatMap(_.headOption))
-  )(DocumentaryUnitMeta.apply _)
+  )(DocumentaryUnit.apply _)
 }

@@ -14,7 +14,7 @@ import play.api.Logger
  *
  * @param userProfile
  */
-case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO {
+case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
 
   import EntityDAO._
 
@@ -24,14 +24,14 @@ case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO 
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Link)
 
-  implicit val linkMetaReads = LinkMeta.Converter.restReads
+  implicit val linkMetaReads = Link.Converter.restReads
 
   /**
    * Fetch links for the given item.
    * @param id
    * @return
    */
-  def getFor(id: String): Future[Either[RestError, List[LinkMeta]]] = {
+  def getFor(id: String): Future[Either[RestError, List[Link]]] = {
 
     WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
@@ -46,11 +46,11 @@ case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO 
    * @param link
    * @return
    */
-  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None): Future[Either[RestError, LinkMeta]] = {
+  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None): Future[Either[RestError, Link]] = {
     WS.url(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
       .withHeaders(authHeaders.toSeq: _*)
       .post(Json.toJson(link)(LinkF.Converter.restFormat)).map { response =>
-      checkError(response).right.map(r => r.json.as[LinkMeta](linkMetaReads))
+      checkError(response).right.map(r => r.json.as[Link](linkMetaReads))
     }
   }
 
@@ -91,13 +91,13 @@ case class LinkDAO(userProfile: Option[UserProfileMeta] = None) extends RestDAO 
    * @param srcToLinks list of ids, link object tuples
    * @return
    */
-  def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])]): Future[Either[RestError, List[LinkMeta]]] = {
+  def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])]): Future[Either[RestError, List[Link]]] = {
     val res = Future.sequence {
       srcToLinks.map {
         case (other, ann, accessPoint) => link(id, other, ann, accessPoint)
       }
     }
-    res.map { (lst: List[Either[RestError,LinkMeta]]) =>
+    res.map { (lst: List[Either[RestError,Link]]) =>
       // If there was an error, pluck the first one out and
       // return it... ignore the rest
       lst.filter(_.isLeft).map(_.left.get).headOption.map { err =>

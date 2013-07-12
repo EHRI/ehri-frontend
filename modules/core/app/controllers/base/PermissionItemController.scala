@@ -4,7 +4,7 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import defines._
-import models.{PermissionGrantMeta, UserProfileMeta}
+import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
 
 /**
@@ -17,7 +17,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
   implicit val accessorConverter = Accessor.Converter
 
   def manageItemPermissionsAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
-      f: MT => rest.Page[PermissionGrantMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      f: MT => rest.Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
@@ -33,7 +33,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
   }
 
   def addItemPermissionsAction(id: String)(
-      f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
@@ -49,7 +49,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
 
 
   def setItemPermissionsAction(id: String, userType: String, userId: String)(
-      f: MT => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      f: MT => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
@@ -71,7 +71,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
   }
 
   def setItemPermissionsPostAction(id: String, userType: String, userId: String)(
-      f: acl.ItemPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      f: acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())

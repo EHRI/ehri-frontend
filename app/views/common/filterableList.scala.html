@@ -1,5 +1,5 @@
 @(paginationKey: String, page: rest.Page[AnyModel], params: ListParams, filterNames: Iterable[String], orderNames: Iterable[String]
-)(listBody: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+)(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @searchInput(propertyName: String, propertyValue: String, fieldOptions: Iterable[String], index: Integer) = {
     <div class="control-group">

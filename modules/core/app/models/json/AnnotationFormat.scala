@@ -3,7 +3,7 @@ package models.json
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import models.{SystemEventMeta, UserProfileMeta, AnnotationMeta, AnnotationF}
+import models.{SystemEvent, UserProfile, Annotation, AnnotationF}
 import defines.EntityType
 import defines.EnumUtils._
 import models.base.{AnyModel, Accessible, Accessor, MetaModel}
@@ -46,17 +46,17 @@ object AnnotationFormat {
   private lazy implicit val systemEventReads = SystemEventFormat.metaReads
   private implicit val accessorReads = Accessor.Converter.restReads
 
-  implicit val metaReads: Reads[AnnotationMeta] = (
+  implicit val metaReads: Reads[Annotation] = (
     __.read[AnnotationF] and
-    (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATES_REL).lazyReadNullable[List[AnnotationMeta]](
-         Reads.list(metaReads)).map(_.getOrElse(List.empty[AnnotationMeta])) and
-    (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATOR_REL).lazyReadNullable[List[UserProfileMeta]](
+    (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATES_REL).lazyReadNullable[List[Annotation]](
+         Reads.list(metaReads)).map(_.getOrElse(List.empty[Annotation])) and
+    (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATOR_REL).lazyReadNullable[List[UserProfile]](
       Reads.list(userProfileMetaReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ AnnotationF.SOURCE_REL).lazyReadNullable[List[AnyModel]](
       Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
-      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
-    )(AnnotationMeta.apply _)
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+      Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
+    )(Annotation.apply _)
 }

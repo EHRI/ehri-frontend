@@ -9,9 +9,9 @@ import play.api.i18n.Messages
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.Execution.Implicits._
 
-object Groups extends PermissionHolderController[GroupMeta]
-  with VisibilityController[GroupMeta]
-  with CRUD[GroupF, GroupMeta] {
+object Groups extends PermissionHolderController[Group]
+  with VisibilityController[Group]
+  with CRUD[GroupF, Group] {
 
   val entityType = EntityType.Group
   val contentType = ContentType.Group
@@ -150,7 +150,7 @@ object Groups extends PermissionHolderController[GroupMeta]
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          groupOrErr <- rest.EntityDAO[GroupMeta](entityType, userOpt).get(id)
+          groupOrErr <- rest.EntityDAO[Group](entityType, userOpt).get(id)
         } yield {
           groupOrErr.right.map { group =>
             Ok(views.html.group.confirmMembership(group, item,
@@ -186,7 +186,7 @@ object Groups extends PermissionHolderController[GroupMeta]
       item => implicit userOpt => implicit request =>
         AsyncRest {
           for {
-            groupOrErr <- rest.EntityDAO[GroupMeta](entityType, userOpt).get(id)
+            groupOrErr <- rest.EntityDAO[Group](entityType, userOpt).get(id)
           } yield {
             groupOrErr.right.map { group =>
               Ok(views.html.group.removeMembership(group, item,

@@ -25,8 +25,8 @@ trait EntityRead[MT] extends EntityController {
   val defaultChildPage: RestPageParams = new RestPageParams()
 
 
-  def getEntity(id: String, user: Option[UserProfileMeta])(f: MT => Result)(
-      implicit rd: RestReadable[MT], userOpt: Option[UserProfileMeta], request: RequestHeader) = {
+  def getEntity(id: String, user: Option[UserProfile])(f: MT => Result)(
+      implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader) = {
     AsyncRest {
       rest.EntityDAO(entityType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
@@ -35,7 +35,7 @@ trait EntityRead[MT] extends EntityController {
   }
 
   def getEntity[T](otherType: defines.EntityType.Type, id: String)(f: T => Result)(
-      implicit userOpt: Option[UserProfileMeta], request: RequestHeader, rd: RestReadable[T]) = {
+      implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]) = {
     AsyncRest {
       rest.EntityDAO[T](otherType, userOpt).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
@@ -43,7 +43,7 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def getUsersAndGroups(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfileMeta], request: RequestHeader) = {
+  def getUsersAndGroups(f: Seq[(String,String)] => Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     // TODO: Handle REST errors
     Async {
       for {
@@ -55,7 +55,7 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def getAction(id: String)(f: MT => Map[String,List[AnnotationMeta]] => List[LinkMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+  def getAction(id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT], crd: ClientConvertable[MT]) = {
     itemPermissionAction[MT](contentType, id) { item => implicit maybeUser => implicit request =>
       Secured {
@@ -79,7 +79,7 @@ trait EntityRead[MT] extends EntityController {
   }
 
   def getWithChildrenAction[CT](id: String)(
-      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[AnnotationMeta]] => List[LinkMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
           implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
     itemPermissionAction[MT](contentType, id) { item => implicit userOpt => implicit request =>
       Secured {
@@ -104,7 +104,7 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def listAction(f: rest.Page[MT] => ListParams => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+  def listAction(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
@@ -125,7 +125,7 @@ trait EntityRead[MT] extends EntityController {
 
 
   def historyAction(id: String)(
-      f: MT => rest.Page[SystemEventMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: MT => rest.Page[SystemEvent] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
       Secured {
         AsyncRest {

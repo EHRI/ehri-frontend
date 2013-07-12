@@ -2,12 +2,12 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AnyModel, links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
+@(item: AnyModel, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader)
 
 @**
   Get the "other" item in this link's targets.
 *@
-@opposingTarget(item: AnyModel, link: LinkMeta) = @{
+@opposingTarget(item: AnyModel, link: Link) = @{
     link.targets.filterNot(p => item.id == p.id).headOption
 }
 

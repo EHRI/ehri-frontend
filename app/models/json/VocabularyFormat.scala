@@ -40,11 +40,11 @@ object VocabularyFormat {
 
   private implicit val systemEventReads = SystemEventFormat.metaReads
 
-  implicit val metaReads: Reads[VocabularyMeta] = (
+  implicit val metaReads: Reads[Vocabulary] = (
     __.read[VocabularyF] and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
-      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
-  )(VocabularyMeta.apply _)
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+      Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
+  )(Vocabulary.apply _)
 }

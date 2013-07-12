@@ -46,28 +46,28 @@ case class AnnotationF(
 ) extends Model with Persistable
 
 
-object AnnotationMeta {
-  implicit object Converter extends ClientConvertable[AnnotationMeta] with RestReadable[AnnotationMeta] {
+object Annotation {
+  implicit object Converter extends ClientConvertable[Annotation] with RestReadable[Annotation] {
     val restReads = models.json.AnnotationFormat.metaReads
 
-    val clientFormat: Format[AnnotationMeta] = (
+    val clientFormat: Format[Annotation] = (
       __.format[AnnotationF](AnnotationF.Converter.clientFormat) and
         lazyNullableListFormat(__ \ "annotations")(clientFormat) and
-        (__ \ "user").lazyFormatNullable[UserProfileMeta](UserProfileMeta.Converter.clientFormat) and
+        (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
         (__ \ "source").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-      )(AnnotationMeta.apply _, unlift(AnnotationMeta.unapply _))
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      )(Annotation.apply _, unlift(Annotation.unapply _))
   }
 }
 
-case class AnnotationMeta(
+case class Annotation(
   model: AnnotationF,
-  annotations: List[AnnotationMeta] = Nil,
-  user: Option[UserProfileMeta] = None,
+  annotations: List[Annotation] = Nil,
+  user: Option[UserProfile] = None,
   source: Option[AnyModel] = None,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta] = None
+  latestEvent: Option[SystemEvent] = None
 ) extends MetaModel[AnnotationF] with Accessible {
   def formatted: String = {
     "%s%s".format(

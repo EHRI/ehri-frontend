@@ -4,7 +4,7 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import defines._
-import models.{PermissionGrantMeta, UserProfileMeta}
+import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
 
 /**
@@ -17,7 +17,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
   val targetContentTypes: Seq[ContentType.Value]
 
   def manageScopedPermissionsAction(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT)(
-      f: MT => rest.Page[PermissionGrantMeta] => rest.Page[PermissionGrantMeta]=> Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: MT => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -33,7 +33,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
   }
 
   def setScopedPermissionsAction(id: String, userType: String, userId: String)(
-      f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt =>
       implicit request =>
         AsyncRest {
@@ -54,7 +54,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
   }
 
   def setScopedPermissionsPostAction(id: String, userType: String, userId: String)(
-      f: acl.GlobalPermissionSet[Accessor] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = targetContentTypes.map { ct =>

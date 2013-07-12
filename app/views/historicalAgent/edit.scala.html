@@ -1,5 +1,5 @@
-@(item: HistoricalAgentMeta, f: play.api.data.Form[HistoricalAgentF], action: Call)(
-implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(item: HistoricalAgent, f: play.api.data.Form[HistoricalAgentF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

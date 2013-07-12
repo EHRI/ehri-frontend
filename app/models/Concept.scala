@@ -9,6 +9,10 @@ import play.api.libs.functional.syntax._
 
 object ConceptF {
 
+  final val IN_SET_REL = "inAuthoritativeSet"
+  final val NT_REL = "narrower"
+  final val BT_REL = "broader"
+
   val ACCESS_POINTS = "accessPoints"
   val UNKNOWN_DATA = "unknownData"
 
@@ -40,39 +44,32 @@ case class ConceptF(
 
 
 object Concept {
-  final val IN_SET_REL = "inAuthoritativeSet"
-  final val NT_REL = "narrower"
-  final val BT_REL = "broader"
-}
-
-
-object ConceptMeta {
-  implicit object Converter extends ClientConvertable[ConceptMeta] with RestReadable[ConceptMeta] {
+  implicit object Converter extends ClientConvertable[Concept] with RestReadable[Concept] {
     val restReads = models.json.ConceptFormat.metaReads
 
-    val clientFormat: Format[ConceptMeta] = (
+    val clientFormat: Format[Concept] = (
       __.format[ConceptF](ConceptF.Converter.clientFormat) and
-        (__ \ "vocabulary").formatNullable[VocabularyMeta](VocabularyMeta.Converter.clientFormat) and
-        (__ \ "parent").lazyFormatNullable[ConceptMeta](clientFormat) and
+        (__ \ "vocabulary").formatNullable[Vocabulary](Vocabulary.Converter.clientFormat) and
+        (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
         lazyNullableListFormat(__ \ "broaderTerms")(clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-      )(ConceptMeta.apply _, unlift(ConceptMeta.unapply _))
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      )(Concept.apply _, unlift(Concept.unapply _))
 
 
   }
 }
 
 
-case class ConceptMeta(
+case class Concept(
   model: ConceptF,
-  vocabulary: Option[VocabularyMeta],
-  parent: Option[ConceptMeta] = None,
-  broaderTerms: List[ConceptMeta] = Nil,
+  vocabulary: Option[Vocabulary],
+  parent: Option[Concept] = None,
+  broaderTerms: List[Concept] = Nil,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta]
+  latestEvent: Option[SystemEvent]
 ) extends AnyModel
   with MetaModel[ConceptF]
   with DescribedMeta[ConceptDescriptionF, ConceptF]
-  with Hierarchical[ConceptMeta]
+  with Hierarchical[Concept]
   with Accessible

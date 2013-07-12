@@ -10,6 +10,9 @@ import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
 
 object SystemEventF {
+  val ACTIONER_REL = "hasActioner"
+  val SCOPE_REL = "hasEventScope"
+
   final val TIMESTAMP = "timestamp"
   final val LOG_MESSAGE = "logMessage"
   final val EVENT_TYPE = "eventType"
@@ -32,31 +35,26 @@ case class SystemEventF(
 }
 
 object SystemEvent {
-  val ACTIONER_REL = "hasActioner"
-  val SCOPE_REL = "hasEventScope"
-}
 
-object SystemEventMeta {
-
-  implicit object Converter extends ClientConvertable[SystemEventMeta] with RestReadable[SystemEventMeta] {
+  implicit object Converter extends ClientConvertable[SystemEvent] with RestReadable[SystemEvent] {
     private implicit val systemEventFormat = Json.format[SystemEventF]
 
     val restReads = models.json.SystemEventFormat.metaReads
-    implicit val clientFormat: Format[SystemEventMeta] = (
+    implicit val clientFormat: Format[SystemEvent] = (
       __.format[SystemEventF](SystemEventF.Converter.clientFormat) and
         (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-        (__ \ "user").lazyFormatNullable[UserProfileMeta](UserProfileMeta.Converter.clientFormat)
-      )(SystemEventMeta.apply _, unlift(SystemEventMeta.unapply _))
+        (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat)
+      )(SystemEvent.apply _, unlift(SystemEvent.unapply _))
 
 
   }
 
 }
 
-case class SystemEventMeta(
+case class SystemEvent(
   model: SystemEventF,
   scope: Option[AnyModel] = None,
-  actioner: Option[UserProfileMeta] = None
+  actioner: Option[UserProfile] = None
 ) extends AnyModel
   with MetaModel[SystemEventF] {
 

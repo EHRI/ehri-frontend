@@ -45,16 +45,16 @@ case class UserProfileF(
 ) extends Model with Persistable
 
 
-object UserProfileMeta {
-  implicit object Converter extends ClientConvertable[UserProfileMeta] with RestReadable[UserProfileMeta] {
+object UserProfile {
+  implicit object Converter extends ClientConvertable[UserProfile] with RestReadable[UserProfile] {
 
     val restReads = models.json.UserProfileFormat.metaReads
-    val clientFormat: Format[UserProfileMeta] = (
+    val clientFormat: Format[UserProfile] = (
       __.format[UserProfileF](UserProfileF.Converter.clientFormat) and
-      nullableListFormat(__ \ "groups")(GroupMeta.Converter.clientFormat) and
+      nullableListFormat(__ \ "groups")(Group.Converter.clientFormat) and
       lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-    )(UserProfileMeta.quickApply _, unlift(UserProfileMeta.quickUnapply _))
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+    )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply _))
 
 
   }
@@ -62,22 +62,22 @@ object UserProfileMeta {
   // Constructor, sans account and perms
   def quickApply(
      model: UserProfileF,
-     groups: List[GroupMeta] = Nil,
+     groups: List[Group] = Nil,
      accessors: List[Accessor] = Nil,
-     latestEvent: Option[SystemEventMeta]) = new UserProfileMeta(model, groups, accessors, latestEvent)
+     latestEvent: Option[SystemEvent]) = new UserProfile(model, groups, accessors, latestEvent)
 
-  def quickUnapply(up: UserProfileMeta) = Some((up.model, up.groups, up.accessors, up.latestEvent))
+  def quickUnapply(up: UserProfile) = Some((up.model, up.groups, up.accessors, up.latestEvent))
 }
 
 
-case class UserProfileMeta(
+case class UserProfile(
   model: UserProfileF,
-  groups: List[GroupMeta] = Nil,
+  groups: List[Group] = Nil,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta] = None,
+  latestEvent: Option[SystemEvent] = None,
   account: Option[models.sql.User] = None,
-  globalPermissions: Option[GlobalPermissionSet[UserProfileMeta]] = None,
-  itemPermissions: Option[ItemPermissionSet[UserProfileMeta]] = None
+  globalPermissions: Option[GlobalPermissionSet[UserProfile]] = None,
+  itemPermissions: Option[ItemPermissionSet[UserProfile]] = None
 ) extends AnyModel
   with MetaModel[UserProfileF]
   with Accessor

@@ -1,4 +1,4 @@
-@(item: Temporal, label: String)(implicit fieldPrefix: String, userOpt: Option[UserProfileMeta], request: RequestHeader, lang: Lang)
+@(item: Temporal, label: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
 
 @if(!item.dates.isEmpty) {
     <h4>@Messages(fieldPrefix + "." + label)</h4>

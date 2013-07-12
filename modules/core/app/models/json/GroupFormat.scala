@@ -38,13 +38,13 @@ object GroupFormat {
   implicit val restFormat: Format[GroupF] = Format(groupReads,groupWrites)
   private lazy implicit val systemEventReads = SystemEventFormat.metaReads
 
-  implicit val metaReads: Reads[GroupMeta] = (
+  implicit val metaReads: Reads[Group] = (
     __.read[GroupF] and
-    (__ \ RELATIONSHIPS \ Accessor.BELONGS_REL).lazyReadNullable[List[GroupMeta]](
-      Reads.list[GroupMeta]).map(_.getOrElse(List.empty[GroupMeta])) and
+    (__ \ RELATIONSHIPS \ Accessor.BELONGS_REL).lazyReadNullable[List[Group]](
+      Reads.list[Group]).map(_.getOrElse(List.empty[Group])) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
-      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
-  )(GroupMeta.apply _)
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+      Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
+  )(Group.apply _)
 }

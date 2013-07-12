@@ -1,7 +1,7 @@
 package test
 
 import helpers._
-import models.{GroupF, GroupMeta, UserProfileF, UserProfileMeta}
+import models.{GroupF, Group, UserProfileF, UserProfile}
 import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
@@ -14,9 +14,9 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
 
   // Mock user who belongs to admin
-  val userProfile = UserProfileMeta(
+  val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
-    groups = List(GroupMeta(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
+    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
   // Common headers/strings

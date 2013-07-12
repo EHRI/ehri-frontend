@@ -43,17 +43,17 @@ object LinkFormat {
   private implicit val accessPointReads = models.json.AccessPointFormat.accessPointReads
   private implicit val systemEventReads = SystemEventFormat.metaReads
 
-  implicit val metaReads: Reads[LinkMeta] = (
+  implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
     (__ \ RELATIONSHIPS \ LinkF.LINK_REL).lazyReadNullable[List[AnyModel]](
       Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
-    (__ \ RELATIONSHIPS \ LinkF.ACCESSOR_REL).lazyReadNullable[List[UserProfileMeta]](
-      Reads.list[UserProfileMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ LinkF.ACCESSOR_REL).lazyReadNullable[List[UserProfile]](
+      Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ LinkF.BODY_REL).lazyReadNullable[List[AccessPointF]](
         Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
-      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
-  )(LinkMeta.apply _)
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+      Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
+  )(Link.apply _)
 }

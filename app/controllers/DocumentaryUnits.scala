@@ -17,17 +17,17 @@ import play.api.libs.json.Json
 import utils.search.{SearchParams, FacetSort}
 
 
-object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
-  with VisibilityController[DocumentaryUnitMeta]
-  with CreationContext[DocumentaryUnitF, DocumentaryUnitMeta, DocumentaryUnitMeta]
-  with EntityUpdate[DocumentaryUnitF, DocumentaryUnitMeta]
-  with EntityDelete[DocumentaryUnitMeta]
-  with PermissionScopeController[DocumentaryUnitMeta]
-  with EntityAnnotate[DocumentaryUnitMeta]
-  with EntityLink[DocumentaryUnitMeta]
-  with DescriptionCRUD[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnitMeta]
+object DocumentaryUnits extends EntityRead[DocumentaryUnit]
+  with VisibilityController[DocumentaryUnit]
+  with CreationContext[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
+  with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
+  with EntityDelete[DocumentaryUnit]
+  with PermissionScopeController[DocumentaryUnit]
+  with EntityAnnotate[DocumentaryUnit]
+  with EntityLink[DocumentaryUnit]
+  with DescriptionCRUD[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
   with EntitySearch
-  with ApiBase[DocumentaryUnitMeta] {
+  with ApiBase[DocumentaryUnit] {
 
   val DEFAULT_SORT = "name"
 
@@ -107,16 +107,16 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items...
     val filters = Map("depthOfDescription" -> 0)
-    searchAction[DocumentaryUnitMeta](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+    searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
         Ok(views.html.documentaryUnit.search(page, params, facets, routes.DocumentaryUnits.search))
     }
   }
 
-  def searchChildren(id: String) = itemPermissionAction[DocumentaryUnitMeta](contentType, id) {
+  def searchChildren(id: String) = itemPermissionAction[DocumentaryUnit](contentType, id) {
       item => implicit userOpt => implicit request =>
 
-    searchAction[DocumentaryUnitMeta](Map("parentId" -> item.id)) {
+    searchAction[DocumentaryUnit](Map("parentId" -> item.id)) {
       page => params => facets => implicit userOpt => implicit request =>
         Ok(views.html.documentaryUnit.search(page, params, facets, routes.DocumentaryUnits.search))
     }.apply(request)
@@ -130,7 +130,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
   }*/
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[DocumentaryUnitMeta](Map("parentId" -> item.id, "depthOfDescription" -> (item.ancestors.size + 1).toString),
+    searchAction[DocumentaryUnit](Map("parentId" -> item.id, "depthOfDescription" -> (item.ancestors.size + 1).toString),
           defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.documentaryUnit.show(item, page, params, facets, routes.DocumentaryUnits.get(id), annotations, links))
@@ -176,7 +176,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
     }
   }
 
-  def createDescription(id: String) = withItemPermission[DocumentaryUnitMeta](id, PermissionType.Update, contentType) {
+  def createDescription(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.editDescription(item,
         descriptionForm, routes.DocumentaryUnits.createDescriptionPost(id)))
@@ -194,7 +194,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
     }
   }
 
-  def updateDescription(id: String, did: String) = withItemPermission[DocumentaryUnitMeta](id, PermissionType.Update, contentType) {
+  def updateDescription(id: String, did: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     val desc = item.model.description(did).getOrElse(sys.error("Description not found: " + did))
     Ok(views.html.documentaryUnit.editDescription(item,
@@ -213,7 +213,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
     }
   }
 
-  def deleteDescription(id: String, did: String) = withItemPermission[DocumentaryUnitMeta](id, PermissionType.Update, contentType) {
+  def deleteDescription(id: String, did: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     // TODO: Make nicer
     if (item.model.description(did).isDefined)
@@ -298,7 +298,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def linkTo(id: String) = withItemPermission[DocumentaryUnitMeta](id, PermissionType.Annotate, contentType) {
+  def linkTo(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.linkTo(item))
   }

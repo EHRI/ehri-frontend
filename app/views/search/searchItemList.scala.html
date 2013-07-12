@@ -1,35 +1,35 @@
-@(result: utils.search.ItemPage[(AnyModel,String)])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
+@(result: utils.search.ItemPage[(AnyModel,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 <ul class="unstyled">
     @result.items.map { case(item, id) =>
         @defining(Some(id)) { implicit descriptionId =>
             <li>
                 @item match {
-                    case d: DocumentaryUnitMeta => {
+                    case d: DocumentaryUnit => {
                         @documentaryUnit.listItem(d)
                     }
-                    case d: HistoricalAgentMeta => {
+                    case d: HistoricalAgent => {
                         @historicalAgent.listItem(d)
                     }
-                    case d: RepositoryMeta => {
+                    case d: Repository => {
                         @repository.listItem(d)
                     }
-                    case d: ConceptMeta => {
+                    case d: Concept => {
                         @concept.listItem(d)
                     }
-                    case d: CountryMeta => {
+                    case d: Country => {
                         @country.searchItem(d)
                     }
-                    case d: UserProfileMeta => {
+                    case d: UserProfile => {
                         @userProfile.listItem(d)
                     }
-                    case d: GroupMeta => {
+                    case d: Group => {
                         @group.listItem(d)
                     }
-                    case d: AuthoritativeSetMeta => {
+                    case d: AuthoritativeSet => {
                         @authoritativeSet.listItem(d)
                     }
-                    case d: VocabularyMeta => {
+                    case d: Vocabulary => {
                         @vocabulary.listItem(d)
                     }
                     case _ => {

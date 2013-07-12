@@ -6,13 +6,13 @@ import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.UserProfileMeta
+import models.UserProfile
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
 
 
-case class VisibilityDAO(userProfile: Option[UserProfileMeta]) extends RestDAO {
+case class VisibilityDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/access".format(host, port, mount)
 

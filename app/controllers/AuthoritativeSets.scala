@@ -9,11 +9,11 @@ import defines.{ContentType, EntityType}
 import scala.Some
 import utils.search.{SearchOrder, SearchParams}
 
-object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSetMeta]
-  with CreationContext[HistoricalAgentF, HistoricalAgentMeta, AuthoritativeSetMeta]
-  with VisibilityController[AuthoritativeSetMeta]
-  with PermissionScopeController[AuthoritativeSetMeta]
-  with EntityAnnotate[AuthoritativeSetMeta]
+object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+  with CreationContext[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
+  with VisibilityController[AuthoritativeSet]
+  with PermissionScopeController[AuthoritativeSet]
+  with EntityAnnotate[AuthoritativeSet]
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.HistoricalAgent)
@@ -36,7 +36,7 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSetMeta]
 
   def get(id: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[HistoricalAgentMeta](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
+    searchAction[HistoricalAgent](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
         page => params => facets => _ => _ =>
       Ok(views.html.authoritativeSet.show(
           item, page, params, facets, routes.AuthoritativeSets.get(id), annotations, links))

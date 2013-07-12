@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AnyModel, desc: models.base.Description, links: List[LinkMeta])(implicit prefix: String, userOpt: Option[UserProfileMeta], req: RequestHeader)
+@(item: AnyModel, desc: models.base.Description, links: List[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader)
 
 @relatedLinks(list: List[AccessPointF], accessPointType: AccessPointF.AccessPointType.Value) = {
     @if(!list.isEmpty) {

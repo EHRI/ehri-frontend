@@ -10,11 +10,11 @@ import defines.{ContentType, EntityType}
 import scala.Some
 import utils.search.SearchParams
 
-object Vocabularies extends CRUD[VocabularyF,VocabularyMeta]
-  with CreationContext[ConceptF, ConceptMeta, VocabularyMeta]
-  with VisibilityController[VocabularyMeta]
-  with PermissionScopeController[VocabularyMeta]
-  with EntityAnnotate[VocabularyMeta]
+object Vocabularies extends CRUD[VocabularyF,Vocabulary]
+  with CreationContext[ConceptF, Concept, Vocabulary]
+  with VisibilityController[Vocabulary]
+  with PermissionScopeController[Vocabulary]
+  with EntityAnnotate[Vocabulary]
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.Concept)
@@ -32,7 +32,7 @@ object Vocabularies extends CRUD[VocabularyF,VocabularyMeta]
   val childForm = models.forms.ConceptForm.form
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[ConceptMeta](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
+    searchAction[Concept](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.vocabulary.show(
           item, page, params, facets, routes.Vocabularies.get(id), annotations, links))

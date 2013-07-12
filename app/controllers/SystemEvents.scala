@@ -1,12 +1,12 @@
 package controllers
 
 import defines._
-import models.SystemEventMeta
+import models.SystemEvent
 import controllers.base.EntityRead
 import play.api.libs.concurrent.Execution.Implicits._
 
 
-object SystemEvents extends EntityRead[SystemEventMeta] {
+object SystemEvents extends EntityRead[SystemEvent] {
   val entityType = EntityType.SystemEvent
   val contentType = ContentType.SystemEvent
 

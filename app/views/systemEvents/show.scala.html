@@ -1,6 +1,6 @@
-@(item: SystemEventMeta, page: rest.Page[AnyModel], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: SystemEvent, page: rest.Page[AnyModel], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@title(item: SystemEventMeta) = {
+@title(item: SystemEvent) = {
     @item.scope.map { scope =>
         @scope.toStringLang -
     }

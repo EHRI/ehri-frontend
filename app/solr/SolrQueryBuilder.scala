@@ -11,7 +11,7 @@ import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetPara
 import solr.facet._
 
 import defines.EntityType
-import models.UserProfileMeta
+import models.UserProfile
 import utils.search.SearchParams
 
 
@@ -106,7 +106,7 @@ object SolrQueryBuilder {
    * @param request
    * @param userOpt
    */
-  private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfileMeta]): Unit = {
+  private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfile]): Unit = {
     if (userOpt.isEmpty) {
       request.setFilterQuery(
         FilterQuery(multiple = request.filterQuery.getMultiple() ++
@@ -146,7 +146,7 @@ object SolrQueryBuilder {
    * @return
    */
   def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
-      implicit userOpt: Option[UserProfileMeta]): QueryRequest = {
+      implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
     val queryString = params.query.getOrElse("*").trim + excludeIds
@@ -177,7 +177,7 @@ object SolrQueryBuilder {
    * @return
    */
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfileMeta]): QueryRequest = {
+      implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 

@@ -25,13 +25,13 @@ object EntityAnnotate {
  */
 trait EntityAnnotate[MT] extends EntityRead[MT] {
 
-  def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+  def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       f(item)(AnnotationForm.form.bindFromRequest)(userOpt)(request)
     }
   }
 
-  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],AnnotationMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       AnnotationForm.form.bindFromRequest.fold(
         errorForm => f(Left(errorForm))(userOpt)(request),

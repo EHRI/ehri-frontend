@@ -5,7 +5,7 @@ import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json._
 import defines.{EntityType,ContentType}
-import models.{UserProfileMeta, Entity}
+import models.{UserProfile, Entity}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.{RestReadable, RestConvertable}
@@ -16,7 +16,7 @@ import models.json.{RestReadable, RestConvertable}
  *
  * @param userProfile
  */
-case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfileMeta] = None) extends RestDAO {
+case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 

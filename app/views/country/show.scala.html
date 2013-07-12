@@ -1,5 +1,5 @@
-@(item: CountryMeta, result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[AnnotationMeta]], links: List[LinkMeta])(
-        implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Country, result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(
+        implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 

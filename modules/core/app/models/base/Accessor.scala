@@ -27,11 +27,11 @@ object Accessor {
 }
 
 trait Accessor extends AnyModel {
-  val groups: List[GroupMeta]
+  val groups: List[Group]
   val id: String
   val isA: EntityType.Value
 
-  lazy val allGroups: List[GroupMeta] = getGroups(this)
+  lazy val allGroups: List[Group] = getGroups(this)
 
   def isAdmin = getAccessor(groups, "admin").isDefined
 
@@ -50,7 +50,7 @@ trait Accessor extends AnyModel {
 	  }
 	}
 
-  private def getGroups(acc: Accessor): List[GroupMeta] = {
+  private def getGroups(acc: Accessor): List[Group] = {
     acc.groups.foldLeft(acc.groups) { case (all, g) =>
       all ++ getGroups(g)
     }.distinct

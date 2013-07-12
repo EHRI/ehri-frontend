@@ -41,17 +41,17 @@ object ConceptFormat {
   private implicit val systemEventReads = SystemEventFormat.metaReads
   private implicit val vocabularyReads = VocabularyFormat.metaReads
 
-  implicit val metaReads: Reads[ConceptMeta] = (
+  implicit val metaReads: Reads[Concept] = (
     __.read[ConceptF] and
-    (__ \ RELATIONSHIPS \ Concept.IN_SET_REL).lazyReadNullable[List[VocabularyMeta]](
-      Reads.list[VocabularyMeta]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ Concept.BT_REL).lazyReadNullable[List[ConceptMeta]](
-      Reads.list[ConceptMeta]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ Concept.BT_REL).lazyReadNullable[List[ConceptMeta]](
-      Reads.list[ConceptMeta]).map(_.getOrElse(List.empty[ConceptMeta])) and
+    (__ \ RELATIONSHIPS \ ConceptF.IN_SET_REL).lazyReadNullable[List[Vocabulary]](
+      Reads.list[Vocabulary]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ ConceptF.BT_REL).lazyReadNullable[List[Concept]](
+      Reads.list[Concept]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ ConceptF.BT_REL).lazyReadNullable[List[Concept]](
+      Reads.list[Concept]).map(_.getOrElse(List.empty[Concept])) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
         Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
-      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
-  )(ConceptMeta.apply _)
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+      Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
+  )(Concept.apply _)
 }

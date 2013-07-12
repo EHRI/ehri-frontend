@@ -49,15 +49,15 @@ object RepositoryFormat {
 
   implicit val restFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
 
-  implicit lazy val metaReads: Reads[RepositoryMeta] = (
+  implicit lazy val metaReads: Reads[Repository] = (
     __.read[RepositoryF](repositoryReads) and
     // Country
-    (__ \ RELATIONSHIPS \ RepositoryF.COUNTRY_REL).lazyReadNullable[List[CountryMeta]](
+    (__ \ RELATIONSHIPS \ RepositoryF.COUNTRY_REL).lazyReadNullable[List[Country]](
       Reads.list(CountryFormat.metaReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
         Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
         Reads.list(SystemEventFormat.metaReads)).map(_.flatMap(_.headOption))
-    )(RepositoryMeta.apply _)
+    )(Repository.apply _)
 
 }

@@ -3,12 +3,12 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.UserProfileMeta
+import models.UserProfile
 import play.api.libs.json.{Reads, Json}
 import models.json.RestReadable
 import models.base.AnyModel
 
-case class SearchDAO(userProfile: Option[UserProfileMeta]) extends RestDAO {
+case class SearchDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/entities".format(host, port, mount)
 

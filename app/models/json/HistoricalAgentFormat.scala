@@ -49,13 +49,13 @@ object HistoricalAgentFormat {
   private implicit val systemEventReads = SystemEventFormat.metaReads
   private implicit val authoritativeSetReads = AuthoritativeSetFormat.metaReads
 
-  implicit val metaReads: Reads[HistoricalAgentMeta] = (
+  implicit val metaReads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
-    (__ \ RELATIONSHIPS \ HistoricalAgentF.IN_SET_REL).lazyReadNullable[List[AuthoritativeSetMeta]](
-      Reads.list[AuthoritativeSetMeta]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ HistoricalAgentF.IN_SET_REL).lazyReadNullable[List[AuthoritativeSet]](
+      Reads.list[AuthoritativeSet]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEventMeta]](
-      Reads.list[SystemEventMeta]).map(_.flatMap(_.headOption))
-  )(HistoricalAgentMeta.apply _)
+    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+      Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
+  )(HistoricalAgent.apply _)
 }

@@ -9,7 +9,7 @@ import play.api.libs.json.__
 import play.api.libs.ws.Response
 import play.api.libs.ws.WS
 import rest.RestDAO
-import models.UserProfileMeta
+import models.UserProfile
 
 case class CypherError(
   val message: String, val exception: String, val stacktrace: List[String]  
@@ -31,7 +31,7 @@ object CypherDAO {
   
 }
 
-case class CypherDAO(userProfile: Option[UserProfileMeta]) extends RestDAO {
+case class CypherDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/db/data/cypher".format(host, port)
 

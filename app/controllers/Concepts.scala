@@ -13,16 +13,16 @@ import solr.facet.FieldFacetClass
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}
 
-object Concepts extends CreationContext[ConceptF, ConceptMeta, ConceptMeta]
-  with VisibilityController[ConceptMeta]
-  with EntityRead[ConceptMeta]
-  with EntityUpdate[ConceptF, ConceptMeta]
-  with EntityDelete[ConceptMeta]
-  with PermissionScopeController[ConceptMeta]
-  with EntityLink[ConceptMeta]
-  with EntityAnnotate[ConceptMeta]
+object Concepts extends CreationContext[ConceptF, Concept, Concept]
+  with VisibilityController[Concept]
+  with EntityRead[Concept]
+  with EntityUpdate[ConceptF, Concept]
+  with EntityDelete[Concept]
+  with PermissionScopeController[Concept]
+  with EntityLink[Concept]
+  with EntityAnnotate[Concept]
   with EntitySearch
-  with ApiBase[ConceptMeta] {
+  with ApiBase[Concept] {
 
   val targetContentTypes = Seq(ContentType.Concept)
 
@@ -75,13 +75,13 @@ object Concepts extends CreationContext[ConceptF, ConceptMeta, ConceptMeta]
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
-  def get(id: String) = getWithChildrenAction[ConceptMeta](id) { item => page => params => annotations => links =>
+  def get(id: String) = getWithChildrenAction[Concept](id) { item => page => params => annotations => links =>
       implicit userOpt => implicit request =>
     Ok(views.html.concept.show(item, page, params, annotations))
   }
 
   def search = {
-    searchAction[ConceptMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+    searchAction[Concept](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
         page => params => facets => implicit userOpt => implicit request =>
       Ok(views.html.concept.search(page, params, facets, routes.Concepts.search))
     }

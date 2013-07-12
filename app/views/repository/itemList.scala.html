@@ -1,4 +1,4 @@
-@(page: rest.Page[RepositoryMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang)
+@(page: rest.Page[Repository])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 <ul class="unstyled">
     @page.items.map { item =>

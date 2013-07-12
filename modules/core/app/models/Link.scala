@@ -40,33 +40,33 @@ case class LinkF(
 ) extends Model with Persistable
 
 
-object LinkMeta {
-  implicit object Converter extends RestReadable[LinkMeta] with ClientConvertable[LinkMeta] {
+object Link {
+  implicit object Converter extends RestReadable[Link] with ClientConvertable[Link] {
     private implicit val linkFormat = Json.format[LinkF]
 
     implicit val restReads = models.json.LinkFormat.metaReads
     //implicit val clientFormat = models.json.client.linkMetaFormat
 
-    implicit val clientFormat: Format[LinkMeta] = (
+    implicit val clientFormat: Format[Link] = (
       __.format[LinkF](LinkF.Converter.clientFormat) and
         nullableListFormat(__ \ "targets")(AnyModel.Converter.clientFormat) and
-        (__ \ "user").lazyFormatNullable[UserProfileMeta](UserProfileMeta.Converter.clientFormat) and
+        (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
         nullableListFormat(__ \ "accessPoints")(AccessPointF.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-      )(LinkMeta.apply _, unlift(LinkMeta.unapply _))
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      )(Link.apply _, unlift(Link.unapply _))
 
 
   }
 }
 
-case class LinkMeta(
+case class Link(
   model: LinkF,
   targets: List[AnyModel] = Nil,
-  user: Option[UserProfileMeta] = None,
+  user: Option[UserProfile] = None,
   bodies: List[AccessPointF] = Nil,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta] = None
+  latestEvent: Option[SystemEvent] = None
 ) extends AnyModel
   with MetaModel[LinkF] with Accessible {
   def opposingTarget(item: AnyModel): Option[AnyModel] = targets.find(_.id != item.id)

@@ -13,9 +13,9 @@ import play.api.test.FakeRequest
 class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
   import mocks.UserFixtures.{privilegedUser, unprivilegedUser}
 
-  val userProfile = UserProfileMeta(
+  val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
-    groups = List(GroupMeta(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
+    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
   // Common headers/strings

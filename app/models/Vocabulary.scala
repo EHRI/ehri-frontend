@@ -37,29 +37,24 @@ case class VocabularyF(
 
 
 object Vocabulary {
-  final val VOCAB_REL = "inCvoc"
-  final val NT_REL = "narrower"
-}
-
-object VocabularyMeta {
-  implicit object Converter extends ClientConvertable[VocabularyMeta] with RestReadable[VocabularyMeta] {
+  implicit object Converter extends ClientConvertable[Vocabulary] with RestReadable[Vocabulary] {
     val restReads = models.json.VocabularyFormat.metaReads
 
-    val clientFormat: Format[VocabularyMeta] = (
+    val clientFormat: Format[Vocabulary] = (
       __.format[VocabularyF](VocabularyF.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-      )(VocabularyMeta.apply _, unlift(VocabularyMeta.unapply _))
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      )(Vocabulary.apply _, unlift(Vocabulary.unapply _))
 
 
   }
 }
 
 
-case class VocabularyMeta(
+case class Vocabulary(
   model: VocabularyF,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta]
+  latestEvent: Option[SystemEvent]
 ) extends AnyModel
   with MetaModel[VocabularyF]
   with Accessible {

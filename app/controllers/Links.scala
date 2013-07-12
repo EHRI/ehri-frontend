@@ -8,10 +8,10 @@ import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, Action}
 
 
-object Links extends EntityRead[LinkMeta]
-  with VisibilityController[LinkMeta]
-  with EntityDelete[LinkMeta]
-  with EntityAnnotate[LinkMeta] {
+object Links extends EntityRead[Link]
+  with VisibilityController[Link]
+  with EntityDelete[Link]
+  with EntityAnnotate[Link] {
 
   val entityType = EntityType.Link
   val contentType = ContentType.Link

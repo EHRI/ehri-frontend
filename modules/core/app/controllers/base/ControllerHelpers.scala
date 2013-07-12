@@ -8,7 +8,7 @@ import rest._
 import play.api.mvc.Controller
 import play.api.mvc.AsyncResult
 import java.net.ConnectException
-import models.UserProfileMeta
+import models.UserProfile
 import play.api.Play.current
 import play.api.libs.json.Json
 
@@ -29,7 +29,7 @@ trait ControllerHelpers {
    * @param request
    * @return
    */
-  def Secured(res: Result)(implicit userOpt: Option[models.UserProfileMeta], request: RequestHeader): Result = {
+  def Secured(res: Result)(implicit userOpt: Option[models.UserProfile], request: RequestHeader): Result = {
     if (current.configuration.getBoolean("ehri.secured").getOrElse(true))
       if (userOpt.isDefined) res else authenticationFailed(request)
     else
@@ -43,7 +43,7 @@ trait ControllerHelpers {
    * @param request
    * @return
    */
-  def getGroups(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfileMeta], request: RequestHeader) = {
+  def getGroups(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
     // TODO: Handle REST errors
     Async {
       for {
@@ -70,7 +70,7 @@ trait ControllerHelpers {
    * or a throwable. If the throwable exists it is handled in
    * an appropriate manner and returned as a AsyncResult
    */
-  def AsyncRest(promise: Future[Either[Throwable, Result]])(implicit maybeUser: Option[UserProfileMeta], request: RequestHeader): AsyncResult = {
+  def AsyncRest(promise: Future[Either[Throwable, Result]])(implicit maybeUser: Option[UserProfile], request: RequestHeader): AsyncResult = {
     Async {
       promise.map { respOrErr =>
         respOrErr.fold(

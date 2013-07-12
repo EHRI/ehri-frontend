@@ -34,7 +34,7 @@ object SolrIndexer extends RestDAO {
 
   // We don't need a user here yet unless we want to log
   // when the Solr index is changed.
-  val userProfile: Option[UserProfileMeta] = None
+  val userProfile: Option[UserProfile] = None
   private def updateUrl(commit: Boolean = true) = {
     "%s/update?wt=json&commit=%s&optimize=%s".format(application.configuration.getString("solr.path"), commit, commit)
   }
@@ -163,10 +163,10 @@ object SolrIndexer extends RestDAO {
       },
       valid = { any =>
         any match {
-          case d: DocumentaryUnitMeta => docToSolr(d, item)
-          case d: HistoricalAgentMeta => actorToSolr(d, item)
-          case d: RepositoryMeta => repoToSolr(d, item)
-          case d: ConceptMeta => conceptToSolr(d, item)
+          case d: DocumentaryUnit => docToSolr(d, item)
+          case d: HistoricalAgent => actorToSolr(d, item)
+          case d: Repository => repoToSolr(d, item)
+          case d: Concept => conceptToSolr(d, item)
           case d: Accessible => anyToSolr(d, item)
           case d => {
             Logger.logger.error(s"Unexpected non-accessible item recieved for indexing: ${d.isA}: ${d.id}}")
@@ -177,8 +177,8 @@ object SolrIndexer extends RestDAO {
     )
   }
 
-  private def docToSolr(d: DocumentaryUnitMeta, json: JsObject): List[JsObject] = {
-    val descriptions = describedEntityToSolr[DocumentaryUnitDescriptionF,DocumentaryUnitF,DocumentaryUnitMeta](d, json)
+  private def docToSolr(d: DocumentaryUnit, json: JsObject): List[JsObject] = {
+    val descriptions = describedEntityToSolr[DocumentaryUnitDescriptionF,DocumentaryUnitF,DocumentaryUnit](d, json)
     descriptions.map { desc =>
       ((desc
         + ("copyrightStatus" -> Json.toJson(d.model.copyrightStatus))
@@ -190,8 +190,8 @@ object SolrIndexer extends RestDAO {
     }
   }
 
-  private def actorToSolr(d: HistoricalAgentMeta, json: JsObject): List[JsObject] = {
-    val descriptions = describedEntityToSolr[HistoricalAgentDescriptionF,HistoricalAgentF,HistoricalAgentMeta](d, json)
+  private def actorToSolr(d: HistoricalAgent, json: JsObject): List[JsObject] = {
+    val descriptions = describedEntityToSolr[HistoricalAgentDescriptionF,HistoricalAgentF,HistoricalAgent](d, json)
     // FIXME: This is very stupid
     descriptions.zipWithIndex.map { case (desc,i) =>
       (desc
@@ -201,8 +201,8 @@ object SolrIndexer extends RestDAO {
     }
   }
 
-  private def repoToSolr(d: RepositoryMeta, json: JsObject): List[JsObject] = {
-    val descriptions = describedEntityToSolr[RepositoryDescriptionF,RepositoryF,RepositoryMeta](d, json)
+  private def repoToSolr(d: Repository, json: JsObject): List[JsObject] = {
+    val descriptions = describedEntityToSolr[RepositoryDescriptionF,RepositoryF,Repository](d, json)
     descriptions.map { desc =>
       ((desc
         + ("addresses" -> Json.toJson(d.model.descriptions.flatMap(_.addresses.map(_.toString)).distinct))
@@ -218,8 +218,8 @@ object SolrIndexer extends RestDAO {
    * @param d
    * @return
    */
-  private def conceptToSolr(d: ConceptMeta, json: JsObject): List[JsObject] = {
-    val descriptions = describedEntityToSolr[ConceptDescriptionF,ConceptF,ConceptMeta](d, json)
+  private def conceptToSolr(d: Concept, json: JsObject): List[JsObject] = {
+    val descriptions = describedEntityToSolr[ConceptDescriptionF,ConceptF,Concept](d, json)
     descriptions.map { desc =>
       ((desc
         + ("parentId" -> Json.toJson(d.broaderTerms.map(_.id)))

@@ -5,7 +5,7 @@ import models.base.{Model, MetaModel, Persistable}
 import play.api.mvc._
 import play.api.data._
 import defines.PermissionType
-import models.UserProfileMeta
+import models.UserProfile
 import forms.VisibilityForm
 import models.json.{RestReadable, RestConvertable}
 
@@ -24,7 +24,7 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
    * @param f
    * @return
    */
-  def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result) = {
+  def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
         f(users)(groups)(userOpt)(request)
@@ -32,7 +32,7 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
     }
   }
 
-  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
     withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
       form.bindFromRequest.fold(

@@ -2,9 +2,9 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AnyModel, annotations: Map[String,List[AnnotationMeta]])(body: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader)
+@(item: AnyModel, annotations: Map[String,List[Annotation]])(body: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader)
 
-@annotationList(notes: List[AnnotationMeta]) = {
+@annotationList(notes: List[Annotation]) = {
     @if(!notes.isEmpty) {
         <ul>
         @notes.map { ann =>

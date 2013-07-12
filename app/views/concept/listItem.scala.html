@@ -1,4 +1,4 @@
-@(item: ConceptMeta)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
+@(item: Concept)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
 
 @common.searchItemOutline(item.id) {
     <a href="@routes.Concepts.get(item.id)">@item.toStringLang</a>

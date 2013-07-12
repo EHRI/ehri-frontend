@@ -1,4 +1,4 @@
-@(page: rest.Page[RepositoryMeta], params: ListParams)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[Repository], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listRepositories")) {
     @common.filterableList("pagination.displayingItems", page, params, Repositories.listFilterMappings.keys, Repositories.orderMappings.keys) {

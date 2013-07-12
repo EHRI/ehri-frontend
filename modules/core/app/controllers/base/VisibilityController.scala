@@ -5,7 +5,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import models.base.Persistable
 import defines._
-import models.{UserProfileMeta, Entity}
+import models.{UserProfile, Entity}
 import rest.EntityDAO
 import models.json.RestReadable
 
@@ -30,7 +30,7 @@ object VisibilityController {
  */
 trait VisibilityController[MT] extends EntityRead[MT] {
 
-  def visibilityAction(id: String)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def visibilityAction(id: String)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
         f(item)(users)(groups)(userOpt)(request)
@@ -38,7 +38,7 @@ trait VisibilityController[MT] extends EntityRead[MT] {
     }
   }
 
-  def visibilityPostAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def visibilityPostAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
       AsyncRest {

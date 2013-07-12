@@ -6,7 +6,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import defines.ContentType
 import models.base._
 import defines.PermissionType
-import models.{UserProfileMeta, Entity}
+import models.{UserProfile, Entity}
 import forms.VisibilityForm
 import rest.EntityDAO
 import play.api.libs.json.Writes
@@ -20,7 +20,7 @@ import scala.Some
  */
 trait CreationContext[CF <: Model with Persistable, CMT <: MetaModel[CF], MT] extends EntityRead[MT] {
 
-  def childCreateAction(id: String, ct: ContentType.Value)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def childCreateAction(id: String, ct: ContentType.Value)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
         f(item)(users)(groups)(userOpt)(request)
@@ -29,7 +29,7 @@ trait CreationContext[CF <: Model with Persistable, CMT <: MetaModel[CF], MT] ex
   }
 
   def childCreatePostAction(id: String, form: Form[CF], ct: ContentType.Value)(
-        f: MT => Either[(Form[CF],Form[List[String]]),CMT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+        f: MT => Either[(Form[CF],Form[List[String]]),CMT] => Option[UserProfile] => Request[AnyContent] => Result)(
               implicit fmt: RestConvertable[CF], crd: RestReadable[CMT], rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(

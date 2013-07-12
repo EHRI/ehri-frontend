@@ -1,3 +1,3 @@
-@(doc: DocumentaryUnitMeta)(implicit lang: Lang)
+@(doc: DocumentaryUnit)(implicit lang: Lang)
 
 @common.breadcrumbs((doc.holder.flatMap(_.country).toList ++ doc.holder.toList) ::: doc.ancestors.reverse ::: List(doc))

@@ -1,5 +1,5 @@
 @(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
-    implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("historicalAgent.search")) {
     @views.html.search.searchForm(result, params, action) {

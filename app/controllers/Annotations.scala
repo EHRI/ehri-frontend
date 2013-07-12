@@ -1,16 +1,16 @@
 package controllers
 
 import defines._
-import models.AnnotationMeta
+import models.Annotation
 import base.{EntityDelete, EntityAnnotate, VisibilityController, EntityRead}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.i18n.Messages
 
 
-object Annotations extends EntityRead[AnnotationMeta]
-  with VisibilityController[AnnotationMeta]
-  with EntityDelete[AnnotationMeta]
-  with EntityAnnotate[AnnotationMeta] {
+object Annotations extends EntityRead[Annotation]
+  with VisibilityController[Annotation]
+  with EntityDelete[Annotation]
+  with EntityAnnotate[Annotation] {
 
   val entityType = EntityType.Annotation
   val contentType = ContentType.Annotation

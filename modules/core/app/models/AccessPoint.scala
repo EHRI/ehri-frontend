@@ -47,7 +47,7 @@ case class AccessPointF(
    * @param links
    * @return
    */
-  def linkFor(links: List[LinkMeta]): Option[LinkMeta] = links.find(_.bodies.exists(body => body.id == id))
+  def linkFor(links: List[Link]): Option[Link] = links.find(_.bodies.exists(body => body.id == id))
 
   /**
    * Given an item and a set of links, see if we can resolve the
@@ -56,7 +56,7 @@ case class AccessPointF(
    * @param links
    * @return
    */
-  def target(item: AnyModel, links: List[LinkMeta]): Option[(LinkMeta,AnyModel)] = linkFor(links).flatMap { link =>
+  def target(item: AnyModel, links: List[Link]): Option[(Link,AnyModel)] = linkFor(links).flatMap { link =>
     link.opposingTarget(item).map { target =>
       (link, target)
     }

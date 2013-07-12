@@ -47,7 +47,7 @@ object AccessPointLink {
 trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
 
   def linkSelectAction(id: String, toType: String)(
-      f: MT => ItemPage[(AnyModel,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: MT => ItemPage[(AnyModel,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
@@ -58,7 +58,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
     }
   }
 
-  def linkAction(id: String, toType: String, to: String)(f: MT => AnyModel => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def linkAction(id: String, toType: String, to: String)(f: MT => AnyModel => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
 
@@ -69,7 +69,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
   }
 
   def linkPostAction(id: String, toType: String, to: String)(
-      f: Either[(MT, AnyModel,Form[LinkF]),LinkMeta] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
 
     implicit val linkWrites: Writes[LinkF] = models.json.LinkFormat.linkWrites
 
@@ -94,7 +94,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
     }
   }
 
-  def linkMultiAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def linkMultiAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
@@ -102,7 +102,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
   }
 
   def linkPostMultiAction(id: String)(
-      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[LinkMeta]] => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       implicit val linkWrites: Writes[LinkF] = models.json.LinkFormat.linkWrites
       val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
@@ -140,7 +140,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
             val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
             rest.LinkDAO(userOpt).link(id, ann.target, link, Some(apid)).map { annOrErr =>
               annOrErr.right.map { ann =>
-                Created(Json.toJson(ann)(LinkMeta.Converter.clientFormat))
+                Created(Json.toJson(ann)(Link.Converter.clientFormat))
               }
             }
           }
@@ -171,7 +171,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
             )
             rest.LinkDAO(userOpt).linkMultiple(id, links).map { linksOrErr =>
               linksOrErr.right.map { newlinks =>
-                Created(Json.toJson(newlinks)(Writes.list(LinkMeta.Converter.clientFormat)))
+                Created(Json.toJson(newlinks)(Writes.list(Link.Converter.clientFormat)))
               }
             }
           }

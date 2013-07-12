@@ -3,11 +3,11 @@ package rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.UserProfileMeta
+import models.UserProfile
 import play.api.libs.ws.Response
 import play.api.mvc.Headers
 
-case class ApiDAO(val userProfile: Option[UserProfileMeta]) extends RestDAO {
+case class ApiDAO(val userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 

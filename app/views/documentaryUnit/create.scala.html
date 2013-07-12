@@ -1,15 +1,15 @@
 @(item: AnyModel, f: Form[DocumentaryUnitF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
-    implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @breadcrumbs = {
     @item match {
-        case d: DocumentaryUnitMeta => {
+        case d: DocumentaryUnit => {
             @documentaryUnit.breadcrumbs(d)
         }
 
-        case r: RepositoryMeta => {
+        case r: Repository => {
             @common.breadcrumbs(List(r))
         }
 

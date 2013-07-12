@@ -6,23 +6,23 @@ import play.api.libs.ws.WS
 import acl._
 import models.base.Accessor
 import defines._
-import models.{PermissionGrantMeta, UserProfileMeta}
+import models.{PermissionGrant, UserProfile}
 import play.api.libs.json.Json
 import play.api.Play.current
 import play.api.cache.Cache
 
 
-case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfileMeta]) extends RestDAO {
+case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extends RestDAO {
 
   import play.api.http.Status._
 
-  implicit val permissionGrantMetaReads = PermissionGrantMeta.Converter.restReads
+  implicit val permissionGrantMetaReads = PermissionGrant.Converter.restReads
   implicit val pageReads = Page.pageReads(permissionGrantMetaReads)
 
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/permission".format(baseUrl)
 
-  def get: Future[Either[RestError, GlobalPermissionSet[UserProfileMeta]]] = {
+  def get: Future[Either[RestError, GlobalPermissionSet[UserProfile]]] = {
     userProfile.map { up =>
         val url = enc(requestUrl, up.id)
         WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
@@ -39,19 +39,19 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfileMeta]) ex
   }
 
   // FIXME: Hard-coded limit
-  def list(user: T, page: Int, limit: Int): Future[Either[RestError, Page[PermissionGrantMeta]]] =
+  def list(user: T, page: Int, limit: Int): Future[Either[RestError, Page[PermissionGrant]]] =
     listWithUrl(enc(requestUrl, "page/%s?offset=%d&limit=%d".format(user.id, (page-1)*limit, limit)))
 
-  def listForItem(id: String, page: Int, limit: Int): Future[Either[RestError, Page[PermissionGrantMeta]]] =
+  def listForItem(id: String, page: Int, limit: Int): Future[Either[RestError, Page[PermissionGrant]]] =
     listWithUrl(enc(requestUrl, "pageForItem/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
 
-  def listForScope(id: String, page: Int, limit: Int): Future[Either[RestError, Page[PermissionGrantMeta]]] =
+  def listForScope(id: String, page: Int, limit: Int): Future[Either[RestError, Page[PermissionGrant]]] =
     listWithUrl(enc(requestUrl, "pageForScope/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
 
-  private def listWithUrl(url: String): Future[Either[RestError, Page[PermissionGrantMeta]]] = {
+  private def listWithUrl(url: String): Future[Either[RestError, Page[PermissionGrant]]] = {
     WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
-        r.json.validate[Page[PermissionGrantMeta]].fold(
+        r.json.validate[Page[PermissionGrant]].fold(
           valid = { page =>
             page
           },
@@ -91,16 +91,16 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfileMeta]) ex
     }
   }
 
-  def getItem(contentType: ContentType.Value, id: String): Future[Either[RestError, ItemPermissionSet[UserProfileMeta]]] = {
+  def getItem(contentType: ContentType.Value, id: String): Future[Either[RestError, ItemPermissionSet[UserProfile]]] = {
     userProfile.map { up =>
       val url = enc(requestUrl, up.id, id)
-      val cached = Cache.getAs[ItemPermissionSet[UserProfileMeta]](url)
+      val cached = Cache.getAs[ItemPermissionSet[UserProfile]](url)
       if (cached.isDefined) Future.successful(Right(cached.get))
       else {
         WS.url(url)
           .withHeaders(authHeaders.toSeq: _*).get.map { response =>
           checkError(response).right.map { r =>
-            val iperms = ItemPermissionSet[UserProfileMeta](up, contentType, r.json)
+            val iperms = ItemPermissionSet[UserProfile](up, contentType, r.json)
             Cache.set(url, iperms, cacheTime)
             iperms
           }
@@ -138,18 +138,18 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfileMeta]) ex
     }
   }
 
-  def getScope(id: String): Future[Either[RestError, GlobalPermissionSet[UserProfileMeta]]] = {
+  def getScope(id: String): Future[Either[RestError, GlobalPermissionSet[UserProfile]]] = {
     // FIXME: WHOA - might not be able to invalidate this cache properly
     // other than just waiting it out, since, like global perms, they can
     // be inherited.
     userProfile.map { up =>
       val url = enc(requestUrl, up.id, "scope", id)
-      var cached = Cache.getAs[GlobalPermissionSet[UserProfileMeta]](url)
+      var cached = Cache.getAs[GlobalPermissionSet[UserProfile]](url)
       if (cached.isDefined) Future.successful(Right(cached.get))
       else {
         WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
           checkError(response).right.map { r =>
-            val sperms = GlobalPermissionSet[UserProfileMeta](up, r.json)
+            val sperms = GlobalPermissionSet[UserProfile](up, r.json)
             Cache.set(url, sperms, cacheTime)
             sperms
           }

@@ -4,7 +4,7 @@ import solr.facet.{SolrFacetClass, AppliedFacet}
 import concurrent.Future
 import rest.RestError
 import play.api.Plugin
-import models.UserProfileMeta
+import models.UserProfile
 import defines.EntityType
 import utils.search.{SearchParams, ItemPage}
 
@@ -13,9 +13,9 @@ import utils.search.{SearchParams, ItemPage}
  */
 trait Dispatcher extends Plugin {
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,ItemPage[(String,String,EntityType.Value)]]]
+      implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String,EntityType.Value)]]]
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,ItemPage[SearchDescription]]]
+      implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]]
   def facet(facet: String, sort: String, params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,solr.FacetPage[solr.facet.SolrFacet]]]
+      implicit userOpt: Option[UserProfile]): Future[Either[RestError,solr.FacetPage[solr.facet.SolrFacet]]]
 }

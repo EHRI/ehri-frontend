@@ -11,10 +11,10 @@ import collection.immutable.ListMap
 import utils.search.SearchParams
 
 
-object UserProfiles extends PermissionHolderController[UserProfileMeta]
-  with EntityRead[UserProfileMeta]
-  with EntityUpdate[UserProfileF,UserProfileMeta]
-  with EntityDelete[UserProfileMeta]
+object UserProfiles extends PermissionHolderController[UserProfile]
+  with EntityRead[UserProfile]
+  with EntityUpdate[UserProfileF,UserProfile]
+  with EntityDelete[UserProfile]
   with EntitySearch {
 
   val DEFAULT_SORT = "name"
@@ -51,7 +51,7 @@ object UserProfiles extends PermissionHolderController[UserProfileMeta]
   }
 
   def search = {
-    searchAction[UserProfileMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+    searchAction[UserProfile](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
         page => params => facets => implicit userOpt => implicit request =>
       Ok(views.html.userProfile.search(page, params, facets, routes.UserProfiles.search))
     }

@@ -13,11 +13,11 @@ import collection.immutable.ListMap
 import utils.search.{SearchParams, FacetSort}
 
 
-object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgentMeta]
-	with VisibilityController[HistoricalAgentMeta]
-  with PermissionItemController[HistoricalAgentMeta]
-  with EntityLink[HistoricalAgentMeta]
-  with EntityAnnotate[HistoricalAgentMeta]
+object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
+	with VisibilityController[HistoricalAgent]
+  with PermissionItemController[HistoricalAgent]
+  with EntityLink[HistoricalAgent]
+  with EntityAnnotate[HistoricalAgent]
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
@@ -68,7 +68,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgentMeta]
 
 
   def search = {
-    searchAction[HistoricalAgentMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+    searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
         page => params => facets => implicit userOpt => implicit request =>
       Ok(views.html.historicalAgent.search(page, params, facets, routes.HistoricalAgents.search))
     }
@@ -150,7 +150,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgentMeta]
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def linkTo(id: String) = withItemPermission[HistoricalAgentMeta](id, PermissionType.Annotate, contentType) {
+  def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.linkTo(item))
   }

@@ -1,6 +1,6 @@
 package rest
 
-import models.{UserProfileMeta, Entity}
+import models.{UserProfile, Entity}
 import play.api.libs.json._
 import play.api.{Logger, Play}
 import play.api.http.HeaderNames
@@ -128,7 +128,7 @@ trait RestDAO {
   )
 
   // Abstract value for the user accessing a resource...
-  val userProfile: Option[UserProfileMeta]
+  val userProfile: Option[UserProfile]
 
   /**
    * Headers to add to outgoing request...

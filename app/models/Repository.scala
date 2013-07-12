@@ -41,26 +41,26 @@ case class RepositoryF(
 ) extends Model with Persistable with Described[RepositoryDescriptionF]
 
 
-object RepositoryMeta {
-  implicit object Converter extends ClientConvertable[RepositoryMeta] with RestReadable[RepositoryMeta] {
+object Repository {
+  implicit object Converter extends ClientConvertable[Repository] with RestReadable[Repository] {
     val restReads = models.json.RepositoryFormat.metaReads
 
-    val clientFormat: Format[RepositoryMeta] = (
+    val clientFormat: Format[Repository] = (
       __.format[RepositoryF](RepositoryF.Converter.clientFormat) and
-      (__ \ "country").formatNullable[CountryMeta](CountryMeta.Converter.clientFormat) and
+      (__ \ "country").formatNullable[Country](Country.Converter.clientFormat) and
       nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-    )(RepositoryMeta.apply _, unlift(RepositoryMeta.unapply _))
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+    )(Repository.apply _, unlift(Repository.unapply _))
 
 
   }
 }
 
-case class RepositoryMeta(
+case class Repository(
   model: RepositoryF,
-  country: Option[CountryMeta] = None,
+  country: Option[Country] = None,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta] = None
+  latestEvent: Option[SystemEvent] = None
 ) extends AnyModel
   with MetaModel[RepositoryF]
   with DescribedMeta[RepositoryDescriptionF,RepositoryF]

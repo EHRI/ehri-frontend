@@ -5,7 +5,7 @@ import scala.concurrent.Future
 import play.api.libs.ws.WS
 import play.api.libs.json._
 import defines.{EntityType,ContentType}
-import models.{UserProfileMeta, Entity}
+import models.{UserProfile, Entity}
 import models.json.{ClientConvertable, RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
@@ -137,7 +137,7 @@ object EntityDAO {
  * @param entityType
  * @param userProfile
  */
-case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfileMeta] = None) extends RestDAO {
+case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
 
   import play.api.http.Status._
 

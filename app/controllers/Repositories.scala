@@ -13,15 +13,15 @@ import collection.immutable.ListMap
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}
 
-object Repositories extends EntityRead[RepositoryMeta]
-  with EntityUpdate[RepositoryF, RepositoryMeta]
-  with EntityDelete[RepositoryMeta]
-  with CreationContext[DocumentaryUnitF,DocumentaryUnitMeta, RepositoryMeta]
-	with VisibilityController[RepositoryMeta]
-  with PermissionScopeController[RepositoryMeta]
-  with EntityAnnotate[RepositoryMeta]
+object Repositories extends EntityRead[Repository]
+  with EntityUpdate[RepositoryF, Repository]
+  with EntityDelete[Repository]
+  with CreationContext[DocumentaryUnitF,DocumentaryUnit, Repository]
+	with VisibilityController[Repository]
+  with PermissionScopeController[Repository]
+  with EntityAnnotate[Repository]
   with EntitySearch
-  with ApiBase[RepositoryMeta] {
+  with ApiBase[Repository] {
 
   /*private def getRepositoryTypes: Future[List[(String,String,String)]] = {
 
@@ -83,7 +83,7 @@ object Repositories extends EntityRead[RepositoryMeta]
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
-  def search = searchAction[RepositoryMeta](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+  def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.repository.search(page, params, facets, routes.Repositories.search))
 
@@ -95,7 +95,7 @@ object Repositories extends EntityRead[RepositoryMeta]
    * @return
    */
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[DocumentaryUnitMeta](Map("holderId" -> item.id, "depthOfDescription" -> "0"),
+    searchAction[DocumentaryUnit](Map("holderId" -> item.id, "depthOfDescription" -> "0"),
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.repository.show(item, page, params, facets, routes.Repositories.get(id), annotations, links))

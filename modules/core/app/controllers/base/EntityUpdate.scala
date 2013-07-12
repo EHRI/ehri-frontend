@@ -5,7 +5,7 @@ import models.base._
 import play.api.mvc._
 import play.api.data.Form
 import defines.PermissionType
-import models.UserProfileMeta
+import models.UserProfile
 import play.api.Logger
 import models.json.{RestReadable, RestConvertable}
 import play.api.data.FormError
@@ -18,14 +18,14 @@ import play.api.data.FormError
  */
 trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
 
-  def updateAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+  def updateAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
     implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }
 
-  def updatePostAction(id: String, form: Form[F])(f: MT => Either[Form[F],MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+  def updatePostAction(id: String, form: Form[F])(f: MT => Either[Form[F],MT] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
 

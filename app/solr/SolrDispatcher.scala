@@ -1,7 +1,7 @@
 package solr
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.UserProfileMeta
+import models.UserProfile
 import play.api.libs.ws.WS
 import play.api.Logger
 import defines.EntityType
@@ -41,7 +41,7 @@ case class FacetPage[+A](
 case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with Dispatcher {
 
   // Dummy value to satisfy the RestDAO trait...
-  val userProfile: Option[UserProfileMeta] = None
+  val userProfile: Option[UserProfile] = None
 
   /**
    * Get the Solr URL...
@@ -63,7 +63,7 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
    * @return a tuple of id, name, and type
    */
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
-    implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,ItemPage[(String,String,EntityType.Value)]]] = {
+    implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String,EntityType.Value)]]] = {
     val limit = params.limit.getOrElse(100)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -88,7 +88,7 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
    * @param userOpt
    * @return a set of SearchDescriptions for matching results.
    */
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -121,7 +121,7 @@ case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with D
     facets: List[AppliedFacet],
     allFacets: List[SolrFacetClass],
     filters: Map[String,Any] = Map.empty
-  )(implicit userOpt: Option[UserProfileMeta]): Future[Either[RestError,solr.FacetPage[solr.facet.SolrFacet]]] = {
+  )(implicit userOpt: Option[UserProfile]): Future[Either[RestError,solr.FacetPage[solr.facet.SolrFacet]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 

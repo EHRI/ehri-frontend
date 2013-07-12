@@ -39,26 +39,26 @@ case class HistoricalAgentF(
 ) extends Model with Persistable with Described[HistoricalAgentDescriptionF]
 
 
-object HistoricalAgentMeta {
-  implicit object Converter extends ClientConvertable[HistoricalAgentMeta] with RestReadable[HistoricalAgentMeta] {
+object HistoricalAgent {
+  implicit object Converter extends ClientConvertable[HistoricalAgent] with RestReadable[HistoricalAgent] {
     val restReads = models.json.HistoricalAgentFormat.metaReads
 
-    implicit val clientFormat: Format[HistoricalAgentMeta] = (
+    implicit val clientFormat: Format[HistoricalAgent] = (
       __.format[HistoricalAgentF](HistoricalAgentF.Converter.clientFormat) and
-        (__ \ "set").formatNullable[AuthoritativeSetMeta](AuthoritativeSetMeta.Converter.clientFormat) and
+        (__ \ "set").formatNullable[AuthoritativeSet](AuthoritativeSet.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-      )(HistoricalAgentMeta.apply _, unlift(HistoricalAgentMeta.unapply _))
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply _))
 
   }
 }
 
 
-case class HistoricalAgentMeta(
+case class HistoricalAgent(
   model: HistoricalAgentF,
-  set: Option[AuthoritativeSetMeta],
+  set: Option[AuthoritativeSet],
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta]
+  latestEvent: Option[SystemEvent]
 ) extends AnyModel
   with MetaModel[HistoricalAgentF]
   with DescribedMeta[HistoricalAgentDescriptionF,HistoricalAgentF]

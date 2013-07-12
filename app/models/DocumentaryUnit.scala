@@ -89,28 +89,28 @@ case class DocumentaryUnitF(
   }
 }
 
-object DocumentaryUnitMeta {
-  implicit object Converter extends RestReadable[DocumentaryUnitMeta] with ClientConvertable[DocumentaryUnitMeta] {
+object DocumentaryUnit {
+  implicit object Converter extends RestReadable[DocumentaryUnit] with ClientConvertable[DocumentaryUnit] {
     implicit val restReads = json.DocumentaryUnitFormat.metaReads
 
-    val clientFormat: Format[DocumentaryUnitMeta] = (
+    val clientFormat: Format[DocumentaryUnit] = (
       __.format[DocumentaryUnitF](DocumentaryUnitF.Converter.clientFormat) and
-        (__ \ "holder").formatNullable[RepositoryMeta](RepositoryMeta.Converter.clientFormat) and
-        (__ \ "parent").formatNullable[DocumentaryUnitMeta](clientFormat) and
+        (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
+        (__ \ "parent").formatNullable[DocumentaryUnit](clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEventMeta](SystemEventMeta.Converter.clientFormat)
-      )(DocumentaryUnitMeta.apply _, unlift(DocumentaryUnitMeta.unapply _))
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply _))
   }
 }
 
-case class DocumentaryUnitMeta(
+case class DocumentaryUnit(
   model: DocumentaryUnitF,
-  holder: Option[RepositoryMeta] = None,
-  parent: Option[DocumentaryUnitMeta] = None,
+  holder: Option[Repository] = None,
+  parent: Option[DocumentaryUnit] = None,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEventMeta] = None
+  latestEvent: Option[SystemEvent] = None
 ) extends AnyModel
   with MetaModel[DocumentaryUnitF]
   with DescribedMeta[DocumentaryUnitDescriptionF, DocumentaryUnitF]
-  with Hierarchical[DocumentaryUnitMeta]
+  with Hierarchical[DocumentaryUnit]
   with Accessible

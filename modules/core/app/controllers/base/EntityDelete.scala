@@ -4,7 +4,7 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base.AnyModel
 import defines.PermissionType
-import models.UserProfileMeta
+import models.UserProfile
 import play.api.libs.json.Json
 import models.json.RestReadable
 
@@ -15,14 +15,14 @@ import models.json.RestReadable
  */
 trait EntityDelete[MT] extends EntityRead[MT] {
 
-  def deleteAction(id: String)(f: MT => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+  def deleteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }
 
-  def deletePostAction(id: String)(f: Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+  def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         rest.EntityDAO(entityType, userOpt).delete(id, logMsg = getLogMessage).map { boolOrErr =>

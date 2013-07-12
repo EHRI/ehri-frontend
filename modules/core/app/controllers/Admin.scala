@@ -8,7 +8,7 @@ import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentType}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
-import models.{UserProfileMeta, UserProfileF}
+import models.{UserProfile, UserProfileF}
 import models.sql.OpenIDUser
 import play.filters.csrf.CSRF
 import controllers.base.{ControllerHelpers, AuthController}
@@ -63,16 +63,16 @@ object Admin extends Controller with AuthController with ControllerHelpers {
       implicit userOpt => implicit request =>
     // TODO: Refactor to make this logic clearer...
 
-    def createUserProfile(user: UserProfileF, groups: Seq[String])(f: UserProfileMeta => Result): AsyncResult = {
+    def createUserProfile(user: UserProfileF, groups: Seq[String])(f: UserProfile => Result): AsyncResult = {
       AsyncRest {
-        rest.EntityDAO[UserProfileMeta](EntityType.UserProfile, userOpt)
+        rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
             .create[UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
           itemOrErr.right.map(f)
         }
       }
     }
 
-    def grantOwnerPerms(profile: UserProfileMeta)(f: => Result): AsyncResult = {
+    def grantOwnerPerms(profile: UserProfile)(f: => Result): AsyncResult = {
       AsyncRest {
         rest.PermissionDAO(userOpt).setItem(profile, ContentType.UserProfile,
             profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>

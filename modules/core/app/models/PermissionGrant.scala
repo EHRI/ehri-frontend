@@ -29,28 +29,28 @@ case class PermissionGrantF(
   permission: PermissionType.Value
 ) extends Model
 
-object PermissionGrantMeta {
-  implicit object Converter extends RestReadable[PermissionGrantMeta] with ClientConvertable[PermissionGrantMeta] {
+object PermissionGrant {
+  implicit object Converter extends RestReadable[PermissionGrant] with ClientConvertable[PermissionGrant] {
     private implicit val permissionGrantFormat = Json.format[PermissionGrantF]
 
     implicit val restReads = models.json.PermissionGrantFormat.metaReads
-    implicit val clientFormat: Format[PermissionGrantMeta] = (
+    implicit val clientFormat: Format[PermissionGrant] = (
       __.format[PermissionGrantF](PermissionGrantF.Converter.restReads) and
         (__ \ "accessor").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
         json.nullableListFormat((__ \ "targets"))(AnyModel.Converter.clientFormat) and
         (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-        (__ \ "grantedBy").lazyFormatNullable[UserProfileMeta](UserProfileMeta.Converter.clientFormat)
-      )(PermissionGrantMeta.apply _, unlift(PermissionGrantMeta.unapply _))
+        (__ \ "grantedBy").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat)
+      )(PermissionGrant.apply _, unlift(PermissionGrant.unapply _))
 
 
   }
 }
 
-case class PermissionGrantMeta(
+case class PermissionGrant(
   model: PermissionGrantF,
   accessor: Option[Accessor] = None,
   targets: List[AnyModel] = Nil,
   scope: Option[AnyModel] = None,
-  grantee: Option[UserProfileMeta] = None
+  grantee: Option[UserProfile] = None
 ) extends AnyModel
   with MetaModel[PermissionGrantF]

@@ -5,7 +5,7 @@ import models.base._
 import play.api.mvc._
 import play.api.data.{Form, FormError}
 import defines.{EntityType, PermissionType}
-import models.UserProfileMeta
+import models.UserProfile
 import rest.{DescriptionDAO, ValidationError}
 import models.json.{RestReadable, RestConvertable}
 
@@ -25,7 +25,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
    * @return
    */
   def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[D])(
-      f: MT => Either[Form[D], MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+      f: MT => Either[Form[D], MT] => Option[UserProfile] => Request[AnyContent] => Result)(
         implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
@@ -61,7 +61,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
    * @return
    */
   def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[D])(
-    f: MT => Either[Form[D],MT] => Option[UserProfileMeta] => Request[AnyContent] => Result)(
+    f: MT => Either[Form[D],MT] => Option[UserProfile] => Request[AnyContent] => Result)(
            implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
@@ -97,7 +97,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
    * @return
    */
   def deleteDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String)(
-      f: Boolean => Option[UserProfileMeta] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
