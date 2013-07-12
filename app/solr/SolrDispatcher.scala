@@ -27,7 +27,7 @@ case class ItemPage[+A](
   offset: Int,
   limit:Int,
   total: Long,
-  facets: List[SolrFacetClass],
+  facets: utils.search.FacetClassList,
   spellcheck: Option[(String,String)] = None
 ) extends utils.AbstractPage[A]
 
@@ -42,7 +42,7 @@ object ItemPage {
       (__ \ "offset").write[Int] and
       (__ \ "limit").write[Int] and
       (__ \ "total").write[Long] and
-      (__ \ "facets").lazyWrite[List[SolrFacetClass]](Writes.list[SolrFacetClass](SolrFacetClass.facetClassWrites)) and
+      (__ \ "facets").lazyWrite(Writes.list[FacetClass[Facet]](FacetClass.facetClassWrites)) and
       (__ \ "spellcheck").writeNullable(
         (__ \ "given").write[String] and
           (__ \ "correction").write[String]

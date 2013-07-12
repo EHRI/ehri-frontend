@@ -9,6 +9,7 @@ import play.api.libs.json.JsNumber
  * @author Mike Bryant (http://github.com/mikesname)
  */
 
+
 case object FacetSort extends Enumeration {
   val Name = Value("name")
   val Count = Value("count")
@@ -35,7 +36,7 @@ object Facet {
   }
 }
 
-trait FacetClass[T <: Facet] {
+trait FacetClass[+T <: Facet] {
   val key: String
   val name: String
   val param: String
@@ -53,7 +54,7 @@ trait FacetClass[T <: Facet] {
   }
   def render: String => String
 
-  def pretty(f: T): String = f.name.map(render).getOrElse(render(f.param))
+  def pretty[U <: Facet](f: U): String = f.name.map(render).getOrElse(render(f.param))
 }
 
 object FacetClass {
