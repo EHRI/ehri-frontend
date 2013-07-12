@@ -7,8 +7,8 @@ import play.api._
 import play.api.i18n.Messages
 import _root_.controllers.base._
 import defines.{ContentType, EntityType}
-import solr.SearchParams
 import scala.Some
+import utils.search.SearchParams
 
 object Vocabularies extends CRUD[VocabularyF,VocabularyMeta]
   with CreationContext[ConceptF, ConceptMeta, VocabularyMeta]

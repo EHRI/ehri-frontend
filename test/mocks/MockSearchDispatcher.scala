@@ -1,13 +1,12 @@
 package mocks
 
-import solr.{SearchDescription, SearchParams, Dispatcher}
+import solr.{SearchDescription, Dispatcher}
 import defines.EntityType
 import models.UserProfileMeta
 import scala.concurrent.Future
 import rest.RestError
 import solr.facet.{SolrFacetClass, AppliedFacet}
-import utils.search
-import utils.search.ItemPage
+import utils.search.{SearchParams, ItemPage}
 
 /**
  * User: michaelb
@@ -51,7 +50,7 @@ case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
     }
     Future.successful{
       Right {
-        search.ItemPage(items, 0, 20, items.size, Nil)
+        ItemPage(items, 0, 20, items.size, Nil)
       }
     }
   }

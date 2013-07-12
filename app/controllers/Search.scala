@@ -10,7 +10,7 @@ import models.IsadG
 import play.api.Logger
 import concurrent.Future
 import solr.SolrIndexer._
-import solr.{SearchOrder, SearchParams, SolrIndexer}
+import solr.{SolrIndexer}
 import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.{JsObject, Writes, Json}
@@ -19,6 +19,7 @@ import solr.facet.FieldFacetClass
 import solr.SolrIndexer.SolrUpdateResponse
 import solr.SolrIndexer.SolrErrorResponse
 import models.base.AnyModel
+import utils.search.{SearchOrder, SearchParams}
 
 
 object Search extends EntitySearch {

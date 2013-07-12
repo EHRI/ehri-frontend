@@ -1,4 +1,4 @@
-@(item: VocabularyMeta, result: utils.search.ItemPage[(AnyModel,String)], params: solr.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[AnnotationMeta]], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: VocabularyMeta, result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call, annotations: Map[String,List[AnnotationMeta]], links: List[LinkMeta])(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 

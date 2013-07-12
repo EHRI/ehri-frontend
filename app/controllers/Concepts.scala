@@ -11,8 +11,7 @@ import defines.{ContentType, EntityType}
 import collection.immutable.ListMap
 import solr.facet.FieldFacetClass
 import views.Helpers
-import solr.SearchParams
-import utils.search.FacetSort
+import utils.search.{SearchParams, FacetSort}
 
 object Concepts extends CreationContext[ConceptF, ConceptMeta, ConceptMeta]
   with VisibilityController[ConceptMeta]

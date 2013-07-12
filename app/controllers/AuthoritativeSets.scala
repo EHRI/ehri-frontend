@@ -6,8 +6,8 @@ import models._
 import play.api._
 import play.api.i18n.Messages
 import defines.{ContentType, EntityType}
-import solr.{SearchOrder, SearchParams}
 import scala.Some
+import utils.search.{SearchOrder, SearchParams}
 
 object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSetMeta]
   with CreationContext[HistoricalAgentF, HistoricalAgentMeta, AuthoritativeSetMeta]

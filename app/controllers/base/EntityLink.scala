@@ -10,13 +10,12 @@ import rest.LinkDAO
 import models.forms.LinkForm
 import play.api.mvc.Result
 import play.api.libs.json.{Writes, JsError, Json}
-import solr.SearchParams
 import solr.facet.AppliedFacet
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
 import play.api.Logger
-import utils.search.ItemPage
+import utils.search.{SearchParams, ItemPage}
 
 
 /**

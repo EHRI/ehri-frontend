@@ -7,8 +7,8 @@ import models._
 import play.api._
 import play.api.i18n.Messages
 import defines.{ContentType, EntityType}
-import solr.SearchParams
 import scala.Some
+import utils.search.SearchParams
 
 object Countries extends CRUD[CountryF,CountryMeta]
   with CreationContext[RepositoryF, RepositoryMeta, CountryMeta]

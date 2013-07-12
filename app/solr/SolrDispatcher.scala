@@ -11,7 +11,7 @@ import com.github.seratch.scalikesolr.request.QueryRequest
 import play.api.libs.json.{Writes, Json, Format}
 import scala.concurrent.Future
 import models.json.ClientConvertable
-import utils.search.{ItemPage, Facet, FacetClass}
+import utils.search.{SearchParams, ItemPage, Facet, FacetClass}
 import utils.search
 
 

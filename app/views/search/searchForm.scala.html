@@ -1,6 +1,6 @@
-@(result: utils.search.ItemPage[(AnyModel,String)], params: solr.SearchParams, action: Call, autofocus: Boolean = true)(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
+@(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, action: Call, autofocus: Boolean = true)(html: Html)(implicit userOpt: Option[UserProfileMeta], req: RequestHeader, lang: Lang, flash: Flash)
 
-@import solr.SearchParams
+@import utils.search.{SearchParams,SearchOrder}
 
 @helper.form(action = action, 'class -> "") {
     <div class="controls-row">
@@ -17,7 +17,7 @@
 
     <div class="controls-row">
         <div class="btn-group pull-right" style="margin-top: 10px">
-        @solr.SearchOrder.values.map { sortKey =>
+        @SearchOrder.values.map { sortKey =>
             @if(params.sort.equals(Some(sortKey))) {
                 <a class="btn btn-mini current-search-sort" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
                     @Messages("search." + sortKey)

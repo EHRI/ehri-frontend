@@ -1,42 +1,8 @@
-package solr
+package utils.search
 
 import defines.EntityType
 import models.json.ClientConvertable
-import play.api.libs.json.{Format, Json}
-
-/**
- * Helper for pagination.
- */
-
-object SearchField extends Enumeration {
-  type Field = Value
-  val All = Value("all")
-  val Title = Value("title")
-  val Creator = Value("creator")
-  val StartDate = Value("start_date")
-
-  implicit val format = defines.EnumUtils.enumFormat(SearchField)
-}
-
-object SearchOrder extends Enumeration {
-  type Order = Value
-  val Score = Value("score.desc")
-  val Name = Value("name_sort.asc")
-  val DateNewest = Value("lastUpdated.desc")
-
-  implicit val format = defines.EnumUtils.enumFormat(SearchOrder)
-}
-
-object SearchType extends Enumeration {
-  type Type = Value
-  val All = Value("all")
-  val Collection = Value("collection")
-  val Authority = Value("authority")
-  val Repository = Value("repository")
-
-  implicit val format = defines.EnumUtils.enumFormat(SearchType)
-}
-
+import play.api.libs.json.{Json, Format}
 
 /**
  * User: michaelb
@@ -70,6 +36,39 @@ case class SearchParams(
     )
     case None => this
   }
+}
+
+/**
+ * Helper for pagination.
+ */
+
+object SearchField extends Enumeration {
+  type Field = Value
+  val All = Value("all")
+  val Title = Value("title")
+  val Creator = Value("creator")
+  val StartDate = Value("start_date")
+
+  implicit val format = defines.EnumUtils.enumFormat(SearchField)
+}
+
+object SearchOrder extends Enumeration {
+  type Order = Value
+  val Score = Value("score.desc")
+  val Name = Value("name_sort.asc")
+  val DateNewest = Value("lastUpdated.desc")
+
+  implicit val format = defines.EnumUtils.enumFormat(SearchOrder)
+}
+
+object SearchType extends Enumeration {
+  type Type = Value
+  val All = Value("all")
+  val Collection = Value("collection")
+  val Authority = Value("authority")
+  val Repository = Value("repository")
+
+  implicit val format = defines.EnumUtils.enumFormat(SearchType)
 }
 
 object SearchParams {

@@ -12,6 +12,7 @@ import solr.facet._
 
 import defines.EntityType
 import models.UserProfileMeta
+import utils.search.SearchParams
 
 
 /**

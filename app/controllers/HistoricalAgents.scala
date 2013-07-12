@@ -10,8 +10,7 @@ import play.api._
 import play.api.i18n.Messages
 import defines._
 import collection.immutable.ListMap
-import solr.SearchParams
-import utils.search.FacetSort
+import utils.search.{SearchParams, FacetSort}
 
 
 object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgentMeta]

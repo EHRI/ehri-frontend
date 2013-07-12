@@ -8,7 +8,7 @@ import play.api.mvc._
 import play.api.i18n.Messages
 import defines._
 import collection.immutable.ListMap
-import solr.SearchParams
+import utils.search.SearchParams
 
 
 object UserProfiles extends PermissionHolderController[UserProfileMeta]

@@ -4,13 +4,12 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfileMeta
 import solr.facet.SolrFacetClass
-import solr.{SearchOrder, SearchParams}
 import defines.EntityType
 import play.api.Play._
 import solr.facet.AppliedFacet
 import models.json.{ClientConvertable, RestReadable}
 import play.api.libs.json.{Writes, Json}
-import utils.search.ItemPage
+import utils.search.{SearchOrder, SearchParams, ItemPage}
 
 
 /**
@@ -75,7 +74,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
         val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
 
         // Override the entity type with the controller entity type
-        val sp = solr.SearchParams.form.bindFromRequest
+        val sp = SearchParams.form.bindFromRequest
             .value.getOrElse(SearchParams())
             .setDefault(params)
 
@@ -113,7 +112,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
 
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
       // Override the entity type with the controller entity type
-      val sp = solr.SearchParams.form.bindFromRequest
+      val sp = SearchParams.form.bindFromRequest
         .value.getOrElse(SearchParams())
         .setDefault(params)
 

@@ -13,9 +13,8 @@ import controllers.base._
 import defines._
 import collection.immutable.ListMap
 import views.Helpers
-import solr.{SearchOrder, SearchParams}
 import play.api.libs.json.Json
-import utils.search.FacetSort
+import utils.search.{SearchParams, FacetSort}
 
 
 object DocumentaryUnits extends EntityRead[DocumentaryUnitMeta]
