@@ -1,4 +1,4 @@
-package solr
+package utils.search
 
 import defines.EntityType
 

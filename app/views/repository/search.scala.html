@@ -1,4 +1,4 @@
-@(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[solr.facet.AppliedFacet], action: Call)(
+@(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("repository.search")) {

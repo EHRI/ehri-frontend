@@ -1,12 +1,10 @@
 package mocks
 
-import solr.{SearchDescription, Dispatcher}
 import defines.EntityType
 import models.UserProfile
 import scala.concurrent.Future
 import rest.RestError
-import solr.facet.{SolrFacetClass, AppliedFacet}
-import utils.search.{SearchParams, ItemPage}
+import utils.search._
 
 /**
  * User: michaelb
@@ -33,18 +31,18 @@ case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
     }
   }
 
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
-    val items = params.entities.foldLeft(List[solr.SearchDescription]()) { case (listOfItems, et) =>
+    val items = params.entities.foldLeft(List[SearchDescription]()) { case (listOfItems, et) =>
       et match {
         case EntityType.DocumentaryUnit => listOfItems ++ List(
-          solr.SearchDescription(itemId = "c1", id = "cd1", name = "Collection 1", `type` = EntityType.DocumentaryUnit),
-          solr.SearchDescription(itemId = "c2", id = "cd2", name = "Collection 2", `type` = EntityType.DocumentaryUnit),
-          solr.SearchDescription(itemId = "c3", id = "cd3", name = "Collection 3", `type` = EntityType.DocumentaryUnit),
-          solr.SearchDescription(itemId = "c4", id = "cd4", name = "Collection 4", `type` = EntityType.DocumentaryUnit))
+          SearchDescription(itemId = "c1", id = "cd1", name = "Collection 1", `type` = EntityType.DocumentaryUnit),
+          SearchDescription(itemId = "c2", id = "cd2", name = "Collection 2", `type` = EntityType.DocumentaryUnit),
+          SearchDescription(itemId = "c3", id = "cd3", name = "Collection 3", `type` = EntityType.DocumentaryUnit),
+          SearchDescription(itemId = "c4", id = "cd4", name = "Collection 4", `type` = EntityType.DocumentaryUnit))
         case EntityType.Repository => listOfItems ++ List(
-          solr.SearchDescription(itemId = "r1", id = "rd1", name = "Repository 1", `type` = EntityType.Repository),
-          solr.SearchDescription(itemId = "r2", id = "rd2", name = "Repository 2", `type` = EntityType.Repository))
+          SearchDescription(itemId = "r1", id = "rd1", name = "Repository 1", `type` = EntityType.Repository),
+          SearchDescription(itemId = "r2", id = "rd2", name = "Repository 2", `type` = EntityType.Repository))
         case _ => listOfItems // TODO: Implement other types
       }
     }
@@ -55,8 +53,8 @@ case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
     }
   }
 
-  def facet(facet: String, sort: String, params: SearchParams, facets: List[AppliedFacet], allFacets: List[SolrFacetClass], filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[Either[RestError,solr.FacetPage[solr.facet.SolrFacet]]] = {
+  def facet(facet: String, sort: String, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
+      implicit userOpt: Option[UserProfile]): Future[Either[RestError,FacetPage[Facet]]] = {
 
     // UNIMPLEMENTED
     Future.failed(new NotImplementedError())

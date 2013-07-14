@@ -1,8 +1,10 @@
 package solr
 
-import solr.facet.{SolrFacetClass, AppliedFacet}
+import solr.facet.{QueryFacetClass, FieldFacetClass}
 import scala.xml.{Node, Elem}
 import defines.EntityType
+import utils.search.{AppliedFacet, SearchDescription, FacetClassList}
+import play.api.Logger
 
 /**
  * User: michaelb
@@ -60,11 +62,15 @@ case class SolrQueryParser(response: Elem) {
    * @param allFacets
    * @return
    */
-  def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: List[SolrFacetClass]): List[SolrFacetClass] = {
+  def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: FacetClassList): FacetClassList = {
     //allFacets.map(_.populateFromSolr(response, appliedFacets))
-    allFacets.map { fc => fc match {
-      case ffc: solr.facet.FieldFacetClass => extractFieldFacet(ffc, appliedFacets)
-      case qfc: solr.facet.QueryFacetClass => extractQueryFacet(qfc, appliedFacets)
+    allFacets.flatMap { fc => fc match {
+      case ffc: FieldFacetClass => List(extractFieldFacet(ffc, appliedFacets))
+      case qfc: QueryFacetClass => List(extractQueryFacet(qfc, appliedFacets))
+      case e => {
+        Logger.logger.warn("Unknown facet class type: {}", e)
+        Nil
+      }
     }}
   }
 

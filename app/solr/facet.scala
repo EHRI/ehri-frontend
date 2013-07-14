@@ -4,19 +4,6 @@ import com.github.seratch.scalikesolr.request.query.facet.{FacetParam, Param, Va
 import play.api.libs.json.{JsNumber, Json, Writes}
 import utils.search.{FacetClass, FacetSort}
 
-/**
- * A facet that has been "applied", i.e. a name of the field
- * and the set of values that should be used to constrain
- * a particular search.
- * @param name
- * @param values
- */
-case class AppliedFacet(name: String, values: List[String])
-
-object AppliedFacet {
-  implicit val appliedFacetWrites = Json.writes[AppliedFacet]
-}
-
 
 /**
  * Encapsulates a single facet.

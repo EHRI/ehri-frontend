@@ -3,13 +3,11 @@ package controllers.base
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
-import solr.facet.SolrFacetClass
 import defines.EntityType
 import play.api.Play._
-import solr.facet.AppliedFacet
 import models.json.{ClientConvertable, RestReadable}
-import play.api.libs.json.{Writes, Json}
-import utils.search.{SearchOrder, SearchParams, ItemPage}
+import play.api.libs.json.Json
+import utils.search._
 
 
 /**
@@ -18,15 +16,15 @@ import utils.search.{SearchOrder, SearchParams, ItemPage}
  */
 trait EntitySearch extends Controller with AuthController with ControllerHelpers {
 
-  lazy val solrDispatcher: solr.Dispatcher = current.plugin(classOf[solr.Dispatcher]).get
+  lazy val searchDispatcher: Dispatcher = current.plugin(classOf[Dispatcher]).get
 
   /**
    * Inheriting controllers should override a list of facets that
    * are available for the given entity type.
    */
-  val entityFacets: List[SolrFacetClass] = Nil
+  val entityFacets: FacetClassList = Nil
 
-  def bindFacetsFromRequest(facetClasses: List[SolrFacetClass])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
+  def bindFacetsFromRequest(facetClasses: List[FacetClass[Facet]])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
     val qs = request.queryString
     facetClasses.flatMap { fc =>
       qs.get(fc.param).map { values =>
@@ -80,7 +78,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
 
         val facets: List[AppliedFacet] = bindFacetsFromRequest(entityFacets)
         AsyncRest {
-          solrDispatcher.search(sp, facets, entityFacets, filters).map { resOrErr =>
+          searchDispatcher.search(sp, facets, entityFacets, filters).map { resOrErr =>
             resOrErr.right.map { res =>
               val ids = res.items.map(_.id)
               val itemIds = res.items.map(_.itemId)
@@ -117,7 +115,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
         .setDefault(params)
 
       AsyncRest {
-        solrDispatcher.filter(sp, filters).map { resOrErr =>
+        searchDispatcher.filter(sp, filters).map { resOrErr =>
           resOrErr.right.map { res =>
             f(res)(userOpt)(request)
           }
