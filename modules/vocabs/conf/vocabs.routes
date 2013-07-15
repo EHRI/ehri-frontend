@@ -2,7 +2,6 @@
 
 # FIXME: Sort out this weird double-slash business...
 GET     /                                        controllers.vocabs.Vocabularies.list
-GET     //                                       controllers.vocabs.Vocabularies.list
 GET     //show/:id                               controllers.vocabs.Vocabularies.get(id: String)
 GET     //history/:id                            controllers.vocabs.Vocabularies.history(id: String)
 GET     //create                                 controllers.vocabs.Vocabularies.create

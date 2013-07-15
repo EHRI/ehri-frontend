@@ -1,7 +1,6 @@
 # Routes for authority files and authoritative sets
 
 GET     /                                   controllers.authorities.AuthoritativeSets.list
-GET     //                                  controllers.authorities.AuthoritativeSets.list
 GET     //show/:id                          controllers.authorities.AuthoritativeSets.get(id: String)
 GET     //history/:id                       controllers.authorities.AuthoritativeSets.history(id: String)
 GET     //create                            controllers.authorities.AuthoritativeSets.create

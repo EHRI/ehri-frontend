@@ -5,7 +5,6 @@
 
 # Multimodule test
 -> /        core.Routes
--> /user    users.Routes
 -> /sets    authorities.Routes
 -> /arch    archdesc.Routes
 -> /voc     vocabs.Routes
