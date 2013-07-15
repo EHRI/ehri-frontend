@@ -1,10 +1,11 @@
-package controllers
+package controllers.core
 
 import defines._
 import models.Annotation
-import base.{EntityDelete, EntityAnnotate, VisibilityController, EntityRead}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.i18n.Messages
+import controllers.ListParams
+import controllers.base.{EntityRead, VisibilityController, EntityDelete, EntityAnnotate}
 
 
 object Annotations extends EntityRead[Annotation]
@@ -26,19 +27,20 @@ object Annotations extends EntityRead[Annotation]
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt =>
     implicit request =>
       Ok(views.html.permissions.visibility(item,
-        forms.VisibilityForm.form.fill(List.empty[String]), //item.accessors.map(_.id)),
-        users, groups, routes.Annotations.visibilityPost(id)))
+        forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
+        users, groups, controllers.core.routes.Annotations.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt =>
     implicit request =>
-      Redirect(routes.Annotations.get(id))
+      Redirect(controllers.core.routes.Annotations.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-      item, routes.Annotations.deletePost(id), routes.Concepts.get(id)))
+      item, controllers.core.routes.Annotations.deletePost(id),
+        controllers.core.routes.Annotations.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) {

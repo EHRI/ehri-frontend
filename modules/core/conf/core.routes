@@ -18,12 +18,33 @@ POST	/persona						controllers.core.PersonaLoginHandler.loginPost
 # Admin routes
 GET     /admin                          controllers.core.Admin.adminActions
 GET     /admin/createUser               controllers.core.Admin.createUser
-POST    /admin/createUser              controllers.core.Admin.createUserPost
+POST    /admin/createUser               controllers.core.Admin.createUserPost
 GET     /admin/login                    controllers.core.Admin.passwordLogin
 POST    /admin/login                    controllers.core.Admin.passwordLoginPost
 GET     /admin/changePassword           controllers.core.Admin.changePassword
 POST    /admin/changePassword           controllers.core.Admin.changePasswordPost
 
+GET     /link/show/:id                  controllers.core.Links.get(id: String)
+GET     /link/showrd/:id                controllers.core.Links.getAndRedirect(id: String, redirect: Option[String] ?= None)
+GET     /link/history/:id               controllers.core.Links.history(id: String)
+GET     /link/visibility/:id            controllers.core.Links.visibility(id: String)
+POST    /link/visibility/:id            controllers.core.Links.visibilityPost(id: String)
+GET     /link/delete/:id                controllers.core.Links.delete(id: String, redirect: Option[String] ?= None)
+POST    /link/delete/:id                controllers.core.Links.deletePost(id: String, redirect: Option[String] ?= None)
 
+GET     /admin/action                   controllers.core.SystemEvents.list
+GET     /admin/action/show/:id          controllers.core.SystemEvents.get(id: String)
 
 GET /assets/*file       controllers.core.Assets.at(path="/public", file)
+
+GET     /annotation/show/:id            controllers.core.Annotations.get(id: String)
+GET     /annotation/history/:id         controllers.core.Annotations.history(id: String)
+GET     /annotation/visibility/:id      controllers.core.Annotations.visibility(id: String)
+POST    /annotation/visibility/:id      controllers.core.Annotations.visibilityPost(id: String)
+GET     /annotation/delete/:id          controllers.core.Annotations.delete(id: String)
+POST    /annotation/delete/:id          controllers.core.Annotations.deletePost(id: String)
+
+# Ugh, ugly REST violation - create an annotation on *another* entity
+POST    /annotation/create/:id          controllers.core.Annotations.createAnnotationJsonPost(id: String)
+GET     /annotation/getFor/:id          controllers.core.Annotations.getAnnotationJson(id: String)
+

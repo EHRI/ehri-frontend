@@ -8,7 +8,7 @@
 	@page.items.map { item =>
 	  	<div class="list-item">
 			<h4>
-                <a data-timestamp="@item.time" href="@routes.SystemEvents.get(item.id)">
+                <a data-timestamp="@item.time" href="@controllers.core.routes.SystemEvents.get(item.id)">
                     @item.scope.map { scope =>
                         @scope.toStringLang -
                     }

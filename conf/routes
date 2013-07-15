@@ -241,28 +241,6 @@ GET     /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotate(id:
 POST    /concepts/link/:id/:toType/:to     controllers.Concepts.linkAnnotatePost(id: String, toType: String, to: String)
 
 
-GET     /admin/action                controllers.SystemEvents.list
-GET     /admin/action/show/:id       controllers.SystemEvents.get(id: String)
-
-GET     /annotation/show/:id       controllers.Annotations.get(id: String)
-GET     /annotation/history/:id       controllers.Annotations.history(id: String)
-GET     /annotation/visibility/:id     controllers.Annotations.visibility(id: String)
-POST    /annotation/visibility/:id     controllers.Annotations.visibilityPost(id: String)
-GET     /annotation/delete/:id     controllers.Annotations.delete(id: String)
-POST    /annotation/delete/:id     controllers.Annotations.deletePost(id: String)
-
-# Ugh, ugly REST violation - create an annotation on *another* entity
-POST    /annotation/create/:id      controllers.Annotations.createAnnotationJsonPost(id: String)
-GET     /annotation/getFor/:id      controllers.Annotations.getAnnotationJson(id: String)
-
-GET     /link/show/:id         controllers.Links.get(id: String)
-GET     /link/showrd/:id       controllers.Links.getAndRedirect(id: String, redirect: Option[String] ?= None)
-GET     /link/history/:id       controllers.Links.history(id: String)
-GET     /link/visibility/:id     controllers.Links.visibility(id: String)
-POST    /link/visibility/:id     controllers.Links.visibilityPost(id: String)
-GET     /link/delete/:id     controllers.Links.delete(id: String, redirect: Option[String] ?= None)
-POST    /link/delete/:id     controllers.Links.deletePost(id: String, redirect: Option[String] ?= None)
-
 # API
 
 GET     /api/:id                 controllers.ApiController.getAny(id: String)

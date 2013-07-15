@@ -1,9 +1,10 @@
-package controllers
+package controllers.core
 
 import defines._
 import models.SystemEvent
 import controllers.base.EntityRead
 import play.api.libs.concurrent.Execution.Implicits._
+import controllers.ListParams
 
 
 object SystemEvents extends EntityRead[SystemEvent] {

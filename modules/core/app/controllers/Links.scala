@@ -1,11 +1,12 @@
-package controllers
+package controllers.core
 
 import defines._
 import forms.VisibilityForm
 import models._
 import controllers.base._
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, Action}
+import play.api.mvc.{Call, AnyContent, Action}
+import controllers.ListParams
 
 
 object Links extends EntityRead[Link]
@@ -30,7 +31,7 @@ object Links extends EntityRead[Link]
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, routes.Links.visibilityPost(id)))
+        users, groups,  routes.Links.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
@@ -40,12 +41,15 @@ object Links extends EntityRead[Link]
 
   def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-      item, routes.Links.deletePost(id, redirect), routes.Application.get(id)))
+      item, routes.Links.deletePost(id, redirect), Call("GET", "/"))) // FIXME: routes.Application.get(id)))
   }
 
   def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(redirect.map(r => routes.Application.get(r)).getOrElse(routes.Search.search))
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+//    Redirect(redirect.map(r => routes.Application.get(r)).getOrElse(routes.Search.search))
+//        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        // FIXME!
+        Redirect(redirect.map(r => "/").getOrElse("/"))
+            .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }

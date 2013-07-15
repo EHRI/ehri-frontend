@@ -9,14 +9,18 @@
             @accessorOpt.map { accessor =>
                 @accessor match {
                     case u: UserProfile => {
+            @*
                         <a href="@routes.UserProfiles.revokePermission(accessor.id, perm.id)">
                             <i title="@Messages("actions.revokePermission")" class="icon-remove"></i>
                         </a>
+            *@
                     }
                     case u: Group => {
+            @*
                         <a href="@routes.Groups.revokePermission(accessor.id, perm.id)">
                             <i title="@Messages("actions.revokePermission")" class="icon-remove"></i>
                         </a>
+            *@
                     }
                 }
             }

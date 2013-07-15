@@ -69,8 +69,8 @@ object Application extends Controller with Auth with Authorizer with AuthControl
       case EntityType.Repository => Some(routes.Repositories.get(id))
       case EntityType.HistoricalAgent => Some(routes.HistoricalAgents.get(id))
       case EntityType.UserProfile => Some(routes.UserProfiles.get(id))
-      case EntityType.Link => Some(routes.Links.get(id))
-      case EntityType.Annotation => Some(routes.Annotations.get(id))
+      case EntityType.Link => Some(controllers.core.routes.Links.get(id))
+      case EntityType.Annotation => Some(controllers.core.routes.Annotations.get(id))
       case EntityType.Concept => Some(routes.Concepts.get(id))
       case EntityType.Vocabulary => Some(routes.Vocabularies.get(id))
       case _ => None

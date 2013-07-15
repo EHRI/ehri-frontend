@@ -8,7 +8,9 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 	@if(!item.groups.isEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;
 	  @item.groups.map { group =>
+        @*
 	    <a href="@routes.Groups.get(group.id)">@group</a>
+        *@
 	  }	  
 	}
 

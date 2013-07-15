@@ -8,24 +8,27 @@
         <h4>@Messages("link.items")</h4>
         <ul>
         @item.targets.map { item =>
-            <li><a href="@routes.Application.getType(item.isA, item.id)">@item.toStringLang</a></li>
+            <li>
+                <a href="@views.Helpers.urlFor(item.isA, item.id)">@item.toStringLang</a>
+            </li>
         }
         </ul>
 
         @item.user.map { u =>
             <h4>@Messages("link.creator")</h4>
-            <a href="@routes.Application.getType(u.isA, u.id)">@u</a>
+            TODO: Allow delete
+
         }
 
     }
 } {
-    @common.visibility(item, routes.Links.visibility(item.id), ContentType.Link)
-    @common.latestAction(item, routes.Links.history(item.id))
+    @common.visibility(item, controllers.core.routes.Links.visibility(item.id), ContentType.Link)
+    @common.latestAction(item, controllers.core.routes.Links.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
     @userOpt.map { user =>
         @if(user.hasPermission(ContentType.Link, PermissionType.Delete)) {
-            <li><a href="@routes.Links.delete(item.id, src)">@Messages("actions.deleteLink")</a></li>
+            <li><a href="@controllers.core.routes.Links.delete(item.id, src)">@Messages("actions.deleteLink")</a></li>
         }
     }
     </ul>
