@@ -14,7 +14,7 @@ import models.json.{RestReadable, RestConvertable}
  * for entities that can be multiply described.
  *
  */
-trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Described[D], MT] extends EntityRead[MT] {
+trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Described[D], MT <: MetaModel[T]] extends EntityRead[MT] {
 
   /**
    * Create an additional description for the given item.
@@ -85,6 +85,18 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
           }
         }
       })
+    }
+  }
+
+  def deleteDescriptionAction(id: String, did: String)(
+      f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Update, contentType) {
+        item => implicit userOpt => implicit request =>
+      item.model.description(did).map { desc =>
+        f(item)(desc)(userOpt)(request)
+      }.getOrElse {
+        NotFound(views.html.errors.itemNotFound())
+      }
     }
   }
 

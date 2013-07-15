@@ -344,6 +344,7 @@ submitButton.createCountry=Add Country
 submitButton.updateCountry=Update Country
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
+deleting.deleteDescriptionConfirmationMessage=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
 
 accessor.notInAnyGroups=This user does not belong to any groups.
 accessor.currentGroups=Current Groups

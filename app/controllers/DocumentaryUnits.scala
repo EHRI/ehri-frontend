@@ -213,14 +213,11 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnit]
     }
   }
 
-  def deleteDescription(id: String, did: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
-      item => implicit userOpt => implicit request =>
-    // TODO: Make nicer
-    if (item.model.description(did).isDefined)
-      Ok(views.html.delete(
-            item, routes.DocumentaryUnits.deleteDescriptionPost(id, did),
-            routes.DocumentaryUnits.get(id)))
-    else NotFound
+  def deleteDescription(id: String, did: String) = deleteDescriptionAction(id, did) {
+      item => description => implicit userOpt => implicit request =>
+    Ok(views.html.deleteDescription(item, description,
+        routes.DocumentaryUnits.deleteDescriptionPost(id, did),
+        routes.DocumentaryUnits.get(id)))
   }
 
   def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
