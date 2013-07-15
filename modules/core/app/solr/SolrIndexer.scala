@@ -163,10 +163,11 @@ object SolrIndexer extends RestDAO {
       },
       valid = { any =>
         any match {
-          case d: DocumentaryUnit => docToSolr(d, item)
+          /*case d: DocumentaryUnit => docToSolr(d, item)
           case d: HistoricalAgent => actorToSolr(d, item)
           case d: Repository => repoToSolr(d, item)
-          case d: Concept => conceptToSolr(d, item)
+          case d: Concept => conceptToSolr(d, item)*/
+          //case d: DescribedMeta[Description, Described[Description]] with Accessible => describedEntityToSolr(d, item)
           case d: Accessible => anyToSolr(d, item)
           case d => {
             Logger.logger.error(s"Unexpected non-accessible item recieved for indexing: ${d.isA}: ${d.id}}")
@@ -177,6 +178,7 @@ object SolrIndexer extends RestDAO {
     )
   }
 
+/*
   private def docToSolr(d: DocumentaryUnit, json: JsObject): List[JsObject] = {
     val descriptions = describedEntityToSolr[DocumentaryUnitDescriptionF,DocumentaryUnitF,DocumentaryUnit](d, json)
     descriptions.map { desc =>
@@ -227,6 +229,7 @@ object SolrIndexer extends RestDAO {
         + ("holderName" -> Json.toJson(d.vocabulary.map(_.toStringLang))))
     }
   }
+*/
 
   /**
    * Convert a DescribedEntity into one flat Solr representation
