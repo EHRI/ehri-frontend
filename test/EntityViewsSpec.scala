@@ -28,13 +28,6 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
     "list should get some items" in new FakeApp {
 
-      // HACK! Initialize the routing system!!!
-      // The first request to hit this route returns none due to
-      // some weirdness with the sub-project system. Subsequent
-      // requests are okay...
-      route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        controllers.authorities.routes.HistoricalAgents.list.url))
-
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
           controllers.authorities.routes.HistoricalAgents.list.url)).get
       status(list) must equalTo(OK)

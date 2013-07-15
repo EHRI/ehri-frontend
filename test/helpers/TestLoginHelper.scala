@@ -27,7 +27,13 @@ trait TestLoginHelper {
     /**
      * A Global object that loads fixtures on application start.
      */
-    object FakeGlobal extends CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings
+    object FakeGlobal extends CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings {
+      override def onStart(app: play.api.Application) {
+        // Workaround for issue #845
+        app.routes
+        super.onStart(app)
+      }
+    }
     FakeGlobal
   }
 
@@ -138,6 +144,10 @@ trait TestRealLoginHelper extends TestLoginHelper {
    */
   object FakeGlobal extends CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings {
     override def onStart(app: play.api.Application) = {
+      // Initialize routes to fix #845
+      app.routes
+
+      // Initialize user fixtures
       UserFixtures.all.map { user =>
         OpenIDUser.findByProfileId(user.profile_id) orElse OpenIDUser.create(user.email, user.profile_id).map { u =>
           u.setPassword(BCrypt.hashpw(testPassword, BCrypt.gensalt()))

@@ -11,8 +11,8 @@ import org.apache.commons.codec.binary.Base64
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
 import rest.EntityDAO
-import scala.Some
 import solr.SolrIndexer.SolrErrorResponse
+
 
 /**
  * Filter that applies CSRF protection unless a particular
@@ -39,6 +39,9 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     
   override def onStart(app: Application) {
 
+    // Hack for bug #845
+    app.routes
+
     // Register JSON models!
     models.json.Utils.registerModels
 
@@ -63,11 +66,11 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     views.MenuConfig.putMain(
       "contentTypes.documentaryUnit", controllers.routes.DocumentaryUnits.search.url)
     views.MenuConfig.putMain(
-      "contentTypes.historicalAgent", "/sets" + controllers.authorities.routes.HistoricalAgents.search.url.substring(1))
+      "contentTypes.historicalAgent", controllers.authorities.routes.HistoricalAgents.search.url)
     views.MenuConfig.putMain(
       "contentTypes.repository", controllers.routes.Repositories.search.url)
     views.MenuConfig.putMain(
-      "contentTypes.cvocConcept", "/voc" + controllers.vocabs.routes.Concepts.search.url.substring(1)) // FIXME:
+      "contentTypes.cvocConcept", controllers.vocabs.routes.Concepts.search.url)
 
     Logger.logger.info("Configuring admin menu...")
     views.MenuConfig.putAdmin(
@@ -77,9 +80,9 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     views.MenuConfig.putAdmin(
       "contentTypes.country", controllers.routes.Countries.search.url)
     views.MenuConfig.putAdmin(
-      "contentTypes.cvocVocabulary", "/voc" + controllers.vocabs.routes.Vocabularies.list.url.substring(1)) // FIXME:
+      "contentTypes.cvocVocabulary", controllers.vocabs.routes.Vocabularies.list.url)
     views.MenuConfig.putAdmin(
-      "contentTypes.authoritativeSet", "/sets" + controllers.authorities.routes.AuthoritativeSets.list.url.substring(1))
+      "contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list.url)
     views.MenuConfig.putAdmin("s1", "-")
     views.MenuConfig.putAdmin(
       "contentTypes.systemEvent", controllers.core.routes.SystemEvents.list.url)
