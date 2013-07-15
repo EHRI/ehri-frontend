@@ -142,6 +142,7 @@ concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrow
 vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.description=Description
 vocabulary.items=Search Terms
+vocabulary.search=Search Vocabularies
 
 #
 # Countries

@@ -1,6 +1,7 @@
 @(item: Concept, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @import models.ConceptF._
+@import controllers.vocabs.Concepts
 
 @rightSidebarLayout(item.toStringLang, breadcrumbs = concept.breadcrumbs(item)) {
     <div class="row-fluid">
@@ -41,14 +42,14 @@
                 <div class="well well-small">
                 @item.vocabulary.map { v =>
                     <h5>@Messages("concept.inVocabulary")</h5>
-                    <p class="muted"><a href="@routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
+                    <p class="muted"><a href="@controllers.vocabs.routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
                 }
                 @if(!item.broaderTerms.isEmpty) {
                     <hr />
                     <h5>@Messages("concept.broaderTerms")</h5>
                     <ul>
                     @item.broaderTerms.sortBy(_.toString).map { t =>
-                        <li><a href="@routes.Concepts.get(t.id)">@t.toStringLang</a></li>
+                        <li><a href="@controllers.vocabs.routes.Concepts.get(t.id)">@t.toStringLang</a></li>
                     }
                     </ul>
                 }
@@ -64,24 +65,24 @@
     }
 } {
 
-    @common.visibility(item, routes.Concepts.visibility(item.id), ContentType.Concept)
-    @common.latestAction(item, routes.Concepts.history(item.id))
+    @common.visibility(item, controllers.vocabs.routes.Concepts.visibility(item.id), ContentType.Concept)
+    @common.latestAction(item, controllers.vocabs.routes.Concepts.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @userOpt.map { user =>
             @if(user.hasPermission(ContentType.Concept, PermissionType.Create)) {
-                <li><a href="@routes.Concepts.createConcept(item.id)">@Messages("actions.createNarrowerConcept")</a></li>
+                <li><a href="@controllers.vocabs.routes.Concepts.createConcept(item.id)">@Messages("actions.createNarrowerConcept")</a></li>
             }
             @if(user.hasPermission(ContentType.Concept, PermissionType.Update)) {
-                <li><a href="@routes.Concepts.update(item.id)">@Messages("actions.updateItem")</a></li>
+                <li><a href="@controllers.vocabs.routes.Concepts.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
             @if(user.hasPermission(ContentType.Concept, PermissionType.Delete)) {
-                <li><a href="@routes.Concepts.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+                <li><a href="@controllers.vocabs.routes.Concepts.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
             @if(user.hasPermission(ContentType.Concept, PermissionType.Grant)) {
-                <li><a href="@routes.Concepts.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+                <li><a href="@controllers.vocabs.routes.Concepts.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-            <li><a href="@routes.Concepts.history(item.id)">@Messages("actions.showHistory")</a></li>
+            <li><a href="@controllers.vocabs.routes.Concepts.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

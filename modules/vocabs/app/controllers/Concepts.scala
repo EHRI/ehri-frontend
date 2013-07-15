@@ -1,5 +1,6 @@
-package controllers
+package controllers.vocabs
 
+import _root_.controllers.ListParams
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.base._
@@ -58,7 +59,7 @@ object Concepts extends CreationContext[ConceptF, Concept, Concept]
 
   override val entityFacets = List(
     FieldFacetClass(
-      key=IsadG.LANG_CODE, // FIXME - define elsewhere
+      key="languageCode", // FIXME - define elsewhere
       name=Messages("concept.languageCode"),
       param="lang",
       render=Helpers.languageCodeToName
@@ -83,7 +84,7 @@ object Concepts extends CreationContext[ConceptF, Concept, Concept]
   def search = {
     searchAction[Concept](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
         page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.concept.search(page, params, facets, routes.Concepts.search))
+      Ok(views.html.concept.search(page, params, facets, controllers.vocabs.routes.Concepts.search))
     }
   }
 
@@ -97,15 +98,15 @@ object Concepts extends CreationContext[ConceptF, Concept, Concept]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.concept.edit(item, form.fill(item.model),routes.Concepts.updatePost(id)))
+    Ok(views.html.concept.edit(item, form.fill(item.model),controllers.vocabs.routes.Concepts.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       oldItem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.concept.edit(
-          oldItem, errorForm, routes.Concepts.updatePost(id)))
-      case Right(item) => Redirect(routes.Concepts.get(item.id))
+          oldItem, errorForm, controllers.vocabs.routes.Concepts.updatePost(id)))
+      case Right(item) => Redirect(controllers.vocabs.routes.Concepts.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }
   }
@@ -113,7 +114,7 @@ object Concepts extends CreationContext[ConceptF, Concept, Concept]
   def createConcept(id: String) = childCreateAction(id, ContentType.Concept) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.concept.create(
-        item, childForm, VisibilityForm.form, users, groups, routes.Concepts.createConceptPost(id)))
+        item, childForm, VisibilityForm.form, users, groups, controllers.vocabs.routes.Concepts.createConceptPost(id)))
   }
 
   def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) {
@@ -121,21 +122,21 @@ object Concepts extends CreationContext[ConceptF, Concept, Concept]
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.concept.create(item,
-          errorForm, accForm, users, groups, routes.Concepts.createConceptPost(id)))
+          errorForm, accForm, users, groups, controllers.vocabs.routes.Concepts.createConceptPost(id)))
       }
-      case Right(citem) => Redirect(routes.Concepts.get(id))
+      case Right(citem) => Redirect(controllers.vocabs.routes.Concepts.get(id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
     }
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        item, routes.Concepts.deletePost(id), routes.Concepts.get(id)))
+        item, controllers.vocabs.routes.Concepts.deletePost(id), controllers.vocabs.routes.Concepts.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(routes.Concepts.search())
+    Redirect(controllers.vocabs.routes.Concepts.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
@@ -143,12 +144,12 @@ object Concepts extends CreationContext[ConceptF, Concept, Concept]
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, routes.Concepts.visibilityPost(id)))
+        users, groups, controllers.vocabs.routes.Concepts.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(routes.Concepts.get(id))
+    Redirect(controllers.vocabs.routes.Concepts.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
@@ -156,49 +157,49 @@ object Concepts extends CreationContext[ConceptF, Concept, Concept]
     manageScopedPermissionsAction(id, page, spage, limit) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
-        routes.Concepts.addItemPermissions(id), routes.Concepts.addScopedPermissions(id)))
+        controllers.vocabs.routes.Concepts.addItemPermissions(id), controllers.vocabs.routes.Concepts.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        routes.Concepts.setItemPermissions _))
+        controllers.vocabs.routes.Concepts.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        routes.Concepts.setScopedPermissions _))
+        controllers.vocabs.routes.Concepts.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
-        routes.Concepts.setItemPermissionsPost(id, userType, userId)))
+        controllers.vocabs.routes.Concepts.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
-    Redirect(routes.Concepts.managePermissions(id))
+    Redirect(controllers.vocabs.routes.Concepts.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
-        routes.Concepts.setScopedPermissionsPost(id, userType, userId)))
+        controllers.vocabs.routes.Concepts.setScopedPermissionsPost(id, userType, userId)))
   }
 
   def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
-    Redirect(routes.Concepts.managePermissions(id))
+    Redirect(controllers.vocabs.routes.Concepts.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.linking.link(target, source,
-            LinkForm.form, routes.Concepts.linkAnnotatePost(id, toType, to)))
+            LinkForm.form, controllers.vocabs.routes.Concepts.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
@@ -206,10 +207,10 @@ object Concepts extends CreationContext[ConceptF, Concept, Concept]
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
           BadRequest(views.html.linking.link(target, source,
-              errorForm, routes.Concepts.linkAnnotatePost(id, toType, to)))
+              errorForm, controllers.vocabs.routes.Concepts.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {
-        Redirect(routes.Concepts.get(id))
+        Redirect(controllers.vocabs.routes.Concepts.get(id))
           .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
       }
     }

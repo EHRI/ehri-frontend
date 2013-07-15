@@ -42,36 +42,6 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     // Register JSON models!
     models.json.Utils.registerModels
 
-    // Register menu parts
-    views.MenuConfig.putMain(
-      "pages.search", controllers.routes.Search.search.url)
-    views.MenuConfig.putMain(
-      "contentTypes.documentaryUnit", controllers.routes.DocumentaryUnits.search.url)
-    views.MenuConfig.putMain(
-      "contentTypes.historicalAgent", controllers.routes.HistoricalAgents.search.url)
-    views.MenuConfig.putMain(
-      "contentTypes.repository", controllers.routes.Repositories.search.url)
-    views.MenuConfig.putMain(
-      "contentTypes.cvocConcept", controllers.routes.Concepts.search.url)
-
-    views.MenuConfig.putAdmin(
-      "contentTypes.userProfile", controllers.core.routes.UserProfiles.search.url)
-    views.MenuConfig.putAdmin(
-      "contentTypes.group", controllers.core.routes.Groups.list.url)
-    views.MenuConfig.putAdmin(
-      "contentTypes.country", controllers.routes.Countries.search.url)
-    views.MenuConfig.putAdmin(
-      "contentTypes.cvocVocabulary", controllers.routes.Vocabularies.list.url)
-    views.MenuConfig.putAdmin(
-      "contentTypes.authoritativeSet", controllers.routes.AuthoritativeSets.list.url)
-    views.MenuConfig.putAdmin("s1", "-")
-    views.MenuConfig.putAdmin(
-      "contentTypes.systemEvent", controllers.core.routes.SystemEvents.list.url)
-    views.MenuConfig.putAdmin("s2", "-")
-    views.MenuConfig.putAdmin(
-      "search.updateIndex", controllers.routes.Search.updateIndex.url
-    )
-
     import views.Helpers.RouteRegistry
     RouteRegistry.setUrl(EntityType.SystemEvent, controllers.core.routes.SystemEvents.get _)
     RouteRegistry.setUrl(EntityType.DocumentaryUnit, controllers.routes.DocumentaryUnits.get _)
@@ -81,11 +51,42 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     RouteRegistry.setUrl(EntityType.UserProfile, controllers.core.routes.UserProfiles.get _)
     RouteRegistry.setUrl(EntityType.Annotation, controllers.core.routes.Annotations.get _)
     RouteRegistry.setUrl(EntityType.Link, controllers.core.routes.Links.get _)
-    RouteRegistry.setUrl(EntityType.Vocabulary, controllers.routes.Vocabularies.get _)
+    RouteRegistry.setUrl(EntityType.Vocabulary, controllers.vocabs.routes.Vocabularies.get _)
     RouteRegistry.setUrl(EntityType.AuthoritativeSet, controllers.routes.AuthoritativeSets.get _)
-    RouteRegistry.setUrl(EntityType.Concept, controllers.routes.Concepts.get _)
+    RouteRegistry.setUrl(EntityType.Concept, controllers.vocabs.routes.Concepts.get _)
     RouteRegistry.setUrl(EntityType.Country, controllers.routes.Countries.get _)
 
+    // Register menu parts - MASSIVE HACK to put this here!!!
+    Logger.logger.info("Configuring menu... " + controllers.vocabs.routes.Concepts.search.url)
+    views.MenuConfig.putMain(
+      "pages.search", controllers.routes.Search.search.url)
+    views.MenuConfig.putMain(
+      "contentTypes.documentaryUnit", controllers.routes.DocumentaryUnits.search.url)
+    views.MenuConfig.putMain(
+      "contentTypes.historicalAgent", controllers.routes.HistoricalAgents.search.url)
+    views.MenuConfig.putMain(
+      "contentTypes.repository", controllers.routes.Repositories.search.url)
+    views.MenuConfig.putMain(
+      "contentTypes.cvocConcept", "/voc" + controllers.vocabs.routes.Concepts.search.url.substring(1)) // FIXME:
+
+    Logger.logger.info("Configuring admin menu...")
+    views.MenuConfig.putAdmin(
+      "contentTypes.userProfile", controllers.core.routes.UserProfiles.search.url)
+    views.MenuConfig.putAdmin(
+      "contentTypes.group", controllers.core.routes.Groups.list.url)
+    views.MenuConfig.putAdmin(
+      "contentTypes.country", controllers.routes.Countries.search.url)
+    views.MenuConfig.putAdmin(
+      "contentTypes.cvocVocabulary", "/voc" + controllers.vocabs.routes.Vocabularies.list.url.substring(1)) // FIXME:
+    views.MenuConfig.putAdmin(
+      "contentTypes.authoritativeSet", controllers.routes.AuthoritativeSets.list.url)
+    views.MenuConfig.putAdmin("s1", "-")
+    views.MenuConfig.putAdmin(
+      "contentTypes.systemEvent", controllers.core.routes.SystemEvents.list.url)
+    views.MenuConfig.putAdmin("s2", "-")
+    views.MenuConfig.putAdmin(
+      "search.updateIndex", controllers.routes.Search.updateIndex.url
+    )
 
     import play.api.libs.concurrent.Execution.Implicits._
 

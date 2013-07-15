@@ -1,9 +1,9 @@
 @(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("concept.search")) {
+@rightSidebarLayout(Messages("vocabulary.search")) {
     @views.html.search.searchForm(result, params, action) {
-        @views.html.search.searchItemList(result)
+        @vocabulary.searchItemList(result)
     }
 } {
     @common.facetList(result.facets, action)

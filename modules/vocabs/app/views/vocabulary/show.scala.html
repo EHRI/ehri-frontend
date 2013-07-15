@@ -10,28 +10,28 @@
 
     @views.html.search.searchSection(Messages("vocabulary.items")) {
         @views.html.search.searchForm(result, params, action, autofocus = false) {
-            @views.html.search.searchItemList(result)
+            @concept.searchItemList(result)
         }
     }
 } {
-    @common.visibility(item, routes.Vocabularies.visibility(item.id), ContentType.Vocabulary)
-    @common.latestAction(item, routes.Vocabularies.history(item.id))
+    @common.visibility(item, controllers.vocabs.routes.Vocabularies.visibility(item.id), ContentType.Vocabulary)
+    @common.latestAction(item, controllers.vocabs.routes.Vocabularies.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @userOpt.map { user =>
             @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Create)) {
-                <li><a href="@routes.Vocabularies.createConcept(item.id)">@Messages("actions.createTopLevelConcept")</a></li>
+                <li><a href="@controllers.vocabs.routes.Vocabularies.createConcept(item.id)">@Messages("actions.createTopLevelConcept")</a></li>
             }
             @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Update)) {
-                <li><a href="@routes.Vocabularies.update(item.id)">@Messages("actions.updateItem")</a></li>
+                <li><a href="@controllers.vocabs.routes.Vocabularies.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
             @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Delete)) {
-                <li><a href="@routes.Vocabularies.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+                <li><a href="@controllers.vocabs.routes.Vocabularies.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
             @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Grant)) {
-                <li><a href="@routes.Vocabularies.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+                <li><a href="@controllers.vocabs.routes.Vocabularies.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-            <li><a href="@routes.Vocabularies.history(item.id)">@Messages("actions.showHistory")</a></li>
+            <li><a href="@controllers.vocabs.routes.Vocabularies.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }
