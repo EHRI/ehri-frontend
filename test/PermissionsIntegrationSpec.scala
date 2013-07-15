@@ -54,13 +54,13 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
         "description" -> Seq("Group for UK archivists")
       )
       val groupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.routes.Groups.create.url)
+        controllers.core.routes.Groups.create.url)
         .withHeaders(formPostHeaders.toSeq: _*), groupData).get
       status(groupCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the group
       val groupRead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.routes.Groups.get(groupId).url)).get
+        controllers.core.routes.Groups.get(groupId).url)).get
       status(groupRead) must equalTo(OK)
 
       // Grant scoped permissions for the group to create repos and docs in country gb
@@ -94,7 +94,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
 
       // Check we can read the user's page
       val userRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.routes.UserProfiles.get(userId).url)).get
+        controllers.core.routes.UserProfiles.get(userId).url)).get
       status(userRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -116,7 +116,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
       // Check the user can read their profile as themselves...
       // Check we can read the user's page
       val userReadAsSelf =  route(fakeLoggedInHtmlRequest(fakeAccount, GET,
-        controllers.routes.UserProfiles.get(userId).url)).get
+        controllers.core.routes.UserProfiles.get(userId).url)).get
       status(userReadAsSelf) must equalTo(OK)
 
       // Now we're going to create a repository as the new user
@@ -216,7 +216,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
         "description" -> Seq("Group for the Head Archivists in Test Repo")
       )
       val headArchivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.routes.Groups.create.url)
+        controllers.core.routes.Groups.create.url)
         .withHeaders(formPostHeaders.toSeq: _*), headArchivistsGroupData).get
       status(headArchivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
@@ -227,17 +227,17 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
         "description" -> Seq("Group for the Archivists in Test Repo")
       )
       val archivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.routes.Groups.create.url)
+        controllers.core.routes.Groups.create.url)
         .withHeaders(formPostHeaders.toSeq: _*), archivistsGroupData).get
       status(archivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read both groups
       val groupRead1 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.routes.Groups.get(headArchivistsGroupId).url)).get
+        controllers.core.routes.Groups.get(headArchivistsGroupId).url)).get
       status(groupRead1) must equalTo(OK)
 
       val groupRead2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.routes.Groups.get(archivistsGroupId).url)).get
+        controllers.core.routes.Groups.get(archivistsGroupId).url)).get
       status(groupRead2) must equalTo(OK)
 
       // Grant scoped permissions for the head archivists to create, update, and delete
@@ -286,7 +286,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
 
       // Check we can read the user's page
       val haUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.routes.UserProfiles.get(headArchivistUserId).url)).get
+        controllers.core.routes.UserProfiles.get(headArchivistUserId).url)).get
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -318,7 +318,7 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
 
       // Check we can read the user's page
       val aUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.routes.UserProfiles.get(archivistUserId).url)).get
+        controllers.core.routes.UserProfiles.get(archivistUserId).url)).get
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -334,11 +334,11 @@ class PermissionsIntegrationSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec
 
       // Check each user can read their profile as themselves...
       val haUserReadAsSelf =  route(fakeLoggedInHtmlRequest(haAccount, GET,
-        controllers.routes.UserProfiles.get(headArchivistUserId).url)).get
+        controllers.core.routes.UserProfiles.get(headArchivistUserId).url)).get
       status(haUserReadAsSelf) must equalTo(OK)
 
       val aUserReadAsSelf =  route(fakeLoggedInHtmlRequest(aAccount, GET,
-        controllers.routes.UserProfiles.get(archivistUserId).url)).get
+        controllers.core.routes.UserProfiles.get(archivistUserId).url)).get
       status(aUserReadAsSelf) must equalTo(OK)
 
       // Test the Head Archivist can Create, Update, and Delete documentary units within repoId

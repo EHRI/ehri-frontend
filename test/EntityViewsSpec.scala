@@ -138,7 +138,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
           ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
         )
         val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          controllers.core.routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
         status(cr) must equalTo(SEE_OTHER)
 
         // Now check we can read back the same permissions.
@@ -152,20 +152,20 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       }
 
       "link to other privileged actions when logged in" in new FakeApp {
-        val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.UserProfiles.get(id).url)).get
+        val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.core.routes.UserProfiles.get(id).url)).get
         status(show) must equalTo(OK)
-        contentAsString(show) must contain(routes.UserProfiles.update(id).url)
-        contentAsString(show) must contain(routes.UserProfiles.delete(id).url)
-        contentAsString(show) must contain(routes.UserProfiles.permissions(id).url)
-        contentAsString(show) must contain(routes.UserProfiles.grantList(id).url)
-        contentAsString(show) must contain(routes.UserProfiles.search().url)
-        contentAsString(show) must contain(routes.Groups.membership(EntityType.UserProfile.toString, id).url)
+        contentAsString(show) must contain(controllers.core.routes.UserProfiles.update(id).url)
+        contentAsString(show) must contain(controllers.core.routes.UserProfiles.delete(id).url)
+        contentAsString(show) must contain(controllers.core.routes.UserProfiles.permissions(id).url)
+        contentAsString(show) must contain(controllers.core.routes.UserProfiles.grantList(id).url)
+        contentAsString(show) must contain(controllers.core.routes.UserProfiles.search().url)
+        contentAsString(show) must contain(controllers.core.routes.Groups.membership(EntityType.UserProfile.toString, id).url)
       }
 
       "allow adding users to groups" in new FakeApp {
         // Going to add user Reto to group Niod
         val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          routes.Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)
+          controllers.core.routes.Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)
             .withFormUrlEncodedBody()).get
         status(add) must equalTo(SEE_OTHER)
 
@@ -177,7 +177,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       "allow removing users from groups" in new FakeApp {
         // Going to add remove Reto from group KCL
         val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          routes.Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)
+          controllers.core.routes.Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)
             .withFormUrlEncodedBody()).get
         status(rem) must equalTo(SEE_OTHER)
 
@@ -192,20 +192,20 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       val id = "kcl"
 
       "detail when logged in should link to other privileged actions" in new FakeApp {
-        val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.Groups.get(id).url)).get
+        val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.core.routes.Groups.get(id).url)).get
         status(show) must equalTo(OK)
-        contentAsString(show) must contain(routes.Groups.update(id).url)
-        contentAsString(show) must contain(routes.Groups.delete(id).url)
-        contentAsString(show) must contain(routes.Groups.permissions(id).url)
-        contentAsString(show) must contain(routes.Groups.grantList(id).url)
-        contentAsString(show) must contain(routes.Groups.membership(EntityType.Group.toString, id).url)
-        contentAsString(show) must contain(routes.Groups.list().url)
+        contentAsString(show) must contain(controllers.core.routes.Groups.update(id).url)
+        contentAsString(show) must contain(controllers.core.routes.Groups.delete(id).url)
+        contentAsString(show) must contain(controllers.core.routes.Groups.permissions(id).url)
+        contentAsString(show) must contain(controllers.core.routes.Groups.grantList(id).url)
+        contentAsString(show) must contain(controllers.core.routes.Groups.membership(EntityType.Group.toString, id).url)
+        contentAsString(show) must contain(controllers.core.routes.Groups.list().url)
       }
 
       "allow adding groups to groups" in new FakeApp {
         // Add KCL to Admin
         val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          routes.Groups.addMemberPost("admin", EntityType.Group.toString, id).url)
+          controllers.core.routes.Groups.addMemberPost("admin", EntityType.Group.toString, id).url)
             .withFormUrlEncodedBody()).get
         status(add) must equalTo(SEE_OTHER)
 
@@ -217,7 +217,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       "allow removing groups from groups" in new FakeApp {
         // Remove NIOD from Admin
         val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          routes.Groups.removeMemberPost("admin", EntityType.Group.toString, "niod").url)
+          controllers.core.routes.Groups.removeMemberPost("admin", EntityType.Group.toString, "niod").url)
             .withFormUrlEncodedBody()).get
         status(rem) must equalTo(SEE_OTHER)
 
