@@ -27,7 +27,9 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   "HistoricalAgent views" should {
 
     "list should get some items" in new FakeApp {
-      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, routes.HistoricalAgents.list().url)).get
+      println(controllers.authorities.routes.HistoricalAgents.list.url)
+      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+          controllers.authorities.routes.HistoricalAgents.list.url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("a1")
@@ -47,7 +49,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        routes.AuthoritativeSets
+        controllers.authorities.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
@@ -62,7 +64,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        routes.AuthoritativeSets
+        controllers.authorities.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
@@ -75,23 +77,23 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "descriptions[0].languageCode" -> Seq("en")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        routes.AuthoritativeSets
+        controllers.authorities.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        routes.AuthoritativeSets
+        controllers.authorities.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
 
     "link to other privileged actions when logged in" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, routes.HistoricalAgents.get("a1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
       status(show) must equalTo(OK)
-      contentAsString(show) must contain(routes.HistoricalAgents.update("a1").url)
-      contentAsString(show) must contain(routes.HistoricalAgents.delete("a1").url)
-      contentAsString(show) must contain(routes.HistoricalAgents.visibility("a1").url)
-      contentAsString(show) must contain(routes.HistoricalAgents.search().url)
+      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.update("a1").url)
+      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.delete("a1").url)
+      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.visibility("a1").url)
+      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.search().url)
     }
 
     "allow updating items when logged in as privileged user" in new FakeApp {
@@ -107,7 +109,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -120,7 +122,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "identifier" -> Seq("a1")
       )
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
     }
   }

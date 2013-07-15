@@ -45,14 +45,14 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     import views.Helpers.RouteRegistry
     RouteRegistry.setUrl(EntityType.SystemEvent, controllers.core.routes.SystemEvents.get _)
     RouteRegistry.setUrl(EntityType.DocumentaryUnit, controllers.routes.DocumentaryUnits.get _)
-    RouteRegistry.setUrl(EntityType.HistoricalAgent, controllers.routes.HistoricalAgents.get _)
+    RouteRegistry.setUrl(EntityType.HistoricalAgent, controllers.authorities.routes.HistoricalAgents.get _)
     RouteRegistry.setUrl(EntityType.Repository, controllers.routes.Repositories.get _)
     RouteRegistry.setUrl(EntityType.Group, controllers.core.routes.Groups.get _)
     RouteRegistry.setUrl(EntityType.UserProfile, controllers.core.routes.UserProfiles.get _)
     RouteRegistry.setUrl(EntityType.Annotation, controllers.core.routes.Annotations.get _)
     RouteRegistry.setUrl(EntityType.Link, controllers.core.routes.Links.get _)
     RouteRegistry.setUrl(EntityType.Vocabulary, controllers.vocabs.routes.Vocabularies.get _)
-    RouteRegistry.setUrl(EntityType.AuthoritativeSet, controllers.routes.AuthoritativeSets.get _)
+    RouteRegistry.setUrl(EntityType.AuthoritativeSet, controllers.authorities.routes.AuthoritativeSets.get _)
     RouteRegistry.setUrl(EntityType.Concept, controllers.vocabs.routes.Concepts.get _)
     RouteRegistry.setUrl(EntityType.Country, controllers.routes.Countries.get _)
 
@@ -63,7 +63,7 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     views.MenuConfig.putMain(
       "contentTypes.documentaryUnit", controllers.routes.DocumentaryUnits.search.url)
     views.MenuConfig.putMain(
-      "contentTypes.historicalAgent", controllers.routes.HistoricalAgents.search.url)
+      "contentTypes.historicalAgent", "/sets" + controllers.authorities.routes.HistoricalAgents.search.url.substring(1))
     views.MenuConfig.putMain(
       "contentTypes.repository", controllers.routes.Repositories.search.url)
     views.MenuConfig.putMain(
@@ -79,7 +79,7 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     views.MenuConfig.putAdmin(
       "contentTypes.cvocVocabulary", "/voc" + controllers.vocabs.routes.Vocabularies.list.url.substring(1)) // FIXME:
     views.MenuConfig.putAdmin(
-      "contentTypes.authoritativeSet", controllers.routes.AuthoritativeSets.list.url)
+      "contentTypes.authoritativeSet", "/sets" + controllers.authorities.routes.AuthoritativeSets.list.url.substring(1))
     views.MenuConfig.putAdmin("s1", "-")
     views.MenuConfig.putAdmin(
       "contentTypes.systemEvent", controllers.core.routes.SystemEvents.list.url)

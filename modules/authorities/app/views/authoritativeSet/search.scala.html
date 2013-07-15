@@ -1,0 +1,10 @@
+@(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("authoritativeSet.search")) {
+    @views.html.search.searchForm(result, params, action) {
+        @authoritativeSet.searchItemList(result)
+    }
+} {
+    @common.facetList(result.facets, action)
+}

@@ -1,5 +1,44 @@
 # Routes for authority files and authoritative sets
 
-GET /                   controllers.authorities.Application.index
+GET     /                                   controllers.authorities.AuthoritativeSets.list
+GET     //                                  controllers.authorities.AuthoritativeSets.list
+GET     //show/:id                          controllers.authorities.AuthoritativeSets.get(id: String)
+GET     //history/:id                       controllers.authorities.AuthoritativeSets.history(id: String)
+GET     //create                            controllers.authorities.AuthoritativeSets.create
+POST    //create                            controllers.authorities.AuthoritativeSets.createPost
+GET     //delete/:id                        controllers.authorities.AuthoritativeSets.delete(id: String)
+POST    //delete/:id                        controllers.authorities.AuthoritativeSets.deletePost(id: String)
+GET     //update/:id                        controllers.authorities.AuthoritativeSets.update(id: String)
+POST    //update/:id                        controllers.authorities.AuthoritativeSets.updatePost(id: String)
+GET     //create/:id                        controllers.authorities.AuthoritativeSets.createHistoricalAgent(id: String)
+POST    //create/:id                        controllers.authorities.AuthoritativeSets.createHistoricalAgentPost(id: String)
+GET     //visibility/:id                    controllers.authorities.AuthoritativeSets.visibility(id: String)
+POST    //visibility/:id                    controllers.authorities.AuthoritativeSets.visibilityPost(id: String)
+GET     //permissions/:id/manage            controllers.authorities.AuthoritativeSets.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     //permissions/:id/add               controllers.authorities.AuthoritativeSets.addItemPermissions(id: String)
+GET     //permissions/:id/:userType/:userId controllers.authorities.AuthoritativeSets.setItemPermissions(id: String, userType: String, userId: String)
+POST    //permissions/:id/:userType/:userId controllers.authorities.AuthoritativeSets.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     //scope/:id/add                     controllers.authorities.AuthoritativeSets.addScopedPermissions(id: String)
+GET     //scope/:id/:userType/:userId       controllers.authorities.AuthoritativeSets.setScopedPermissions(id: String, userType: String, userId: String)
+POST    //scope/:id/:userType/:userId       controllers.authorities.AuthoritativeSets.setScopedPermissionsPost(id: String, userType: String, userId: String)
+
+GET     //cpf                               controllers.authorities.HistoricalAgents.search
+GET     //cpf/list                          controllers.authorities.HistoricalAgents.list
+GET     //cpf/show/:id                      controllers.authorities.HistoricalAgents.get(id: String)
+GET     //cpf/history/:id                   controllers.authorities.HistoricalAgents.history(id: String)
+GET     //cpf/delete/:id                    controllers.authorities.HistoricalAgents.delete(id: String)
+POST    //cpf/delete/:id                    controllers.authorities.HistoricalAgents.deletePost(id: String)
+GET     //cpf/update/:id                    controllers.authorities.HistoricalAgents.update(id: String)
+POST    //cpf/update/:id                    controllers.authorities.HistoricalAgents.updatePost(id: String)
+GET     //cpf/visibility/:id                controllers.authorities.HistoricalAgents.visibility(id: String)
+POST    //cpf/visibility/:id                controllers.authorities.HistoricalAgents.visibilityPost(id: String)
+GET     //cpf/perms/:id/manage              controllers.authorities.HistoricalAgents.managePermissions(id: String, page: Int ?= 1, limit: Int ?=20)
+GET     //cpf/perms/:id/add                 controllers.authorities.HistoricalAgents.addItemPermissions(id: String)
+GET     //cpf/perms/:id/:userType/:userId   controllers.authorities.HistoricalAgents.setItemPermissions(id: String, userType: String, userId: String)
+POST    //cpf/perms/:id/:userType/:userId   controllers.authorities.HistoricalAgents.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     //cpf/link/:id                      controllers.authorities.HistoricalAgents.linkTo(id: String)
+GET     //cpf/link/:id/:toType              controllers.authorities.HistoricalAgents.linkAnnotateSelect(id: String, toType: String)
+GET     //cpf/link/:id/:toType/:to          controllers.authorities.HistoricalAgents.linkAnnotate(id: String, toType: String, to: String)
+POST    //cpf/link/:id/:toType/:to          controllers.authorities.HistoricalAgents.linkAnnotatePost(id: String, toType: String, to: String)
 
 GET /assets/*file       controllers.authorities.Assets.at(path="/public", file)

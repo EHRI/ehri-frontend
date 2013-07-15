@@ -1,5 +1,6 @@
-package controllers
+package controllers.authorities
 
+import _root_.controllers.ListParams
 import controllers.base._
 import forms.VisibilityForm
 import models._
@@ -18,7 +19,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   with EntityAnnotate[HistoricalAgent]
   with EntitySearch {
 
-  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+  //val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 
   val entityType = EntityType.HistoricalAgent
   val contentType = ContentType.HistoricalAgent
@@ -57,8 +58,13 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   override def processParams(params: ListParams): rest.RestPageParams = {
     params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
   }
-  override def processChildParams(params: ListParams) = DocumentaryUnits.processChildParams(params)
 
+  /**
+   * Child list forms are handled the same as the main one
+   * @param params
+   * @return
+   */
+  override def processChildParams(params: ListParams) = processParams(params)
 
 
   // Search params
@@ -68,7 +74,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   def search = {
     searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
         page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.historicalAgent.search(page, params, facets, routes.HistoricalAgents.search))
+      Ok(views.html.historicalAgent.search(page, params, facets, controllers.authorities.routes.HistoricalAgents.search))
     }
   }
 
@@ -88,63 +94,63 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.edit(item, form.fill(item.model), routes.HistoricalAgents.updatePost(id)))
+    Ok(views.html.historicalAgent.edit(item, form.fill(item.model), controllers.authorities.routes.HistoricalAgents.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.historicalAgent.edit(item, errorForm, routes.HistoricalAgents.updatePost(id)))
-      case Right(item) => Redirect(routes.HistoricalAgents.get(item.id))
+        BadRequest(views.html.historicalAgent.edit(item, errorForm, controllers.authorities.routes.HistoricalAgents.updatePost(id)))
+      case Right(item) => Redirect(controllers.authorities.routes.HistoricalAgents.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
   }
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(item, routes.HistoricalAgents.deletePost(id),
-        routes.HistoricalAgents.get(id)))
+    Ok(views.html.delete(item, controllers.authorities.routes.HistoricalAgents.deletePost(id),
+        controllers.authorities.routes.HistoricalAgents.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(routes.HistoricalAgents.search())
+    Redirect(controllers.authorities.routes.HistoricalAgents.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
       VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, routes.HistoricalAgents.visibilityPost(id)))
+      users, groups, controllers.authorities.routes.HistoricalAgents.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(routes.HistoricalAgents.get(id))
+    Redirect(controllers.authorities.routes.HistoricalAgents.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.managePermissions(item, perms,
-        routes.HistoricalAgents.addItemPermissions(id)))
+        controllers.authorities.routes.HistoricalAgents.addItemPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        routes.HistoricalAgents.setItemPermissions _))
+        controllers.authorities.routes.HistoricalAgents.setItemPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
-        routes.HistoricalAgents.setItemPermissionsPost(id, userType, userId)))
+        controllers.authorities.routes.HistoricalAgents.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
-    Redirect(routes.HistoricalAgents.managePermissions(id))
+    Redirect(controllers.authorities.routes.HistoricalAgents.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
@@ -156,14 +162,14 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
       item => page => params => facets => etype => implicit userOpt => implicit request =>
     Ok(views.html.linking.linkSourceList(item, page, params, facets, etype,
-        routes.HistoricalAgents.linkAnnotateSelect(id, toType),
-        routes.HistoricalAgents.linkAnnotate _))
+        controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(id, toType),
+        controllers.authorities.routes.HistoricalAgents.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.linking.link(target, source,
-        LinkForm.form, routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
+        LinkForm.form, controllers.authorities.routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
@@ -171,10 +177,10 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
       formOrAnnotation match {
         case Left((target,source,errorForm)) => {
           BadRequest(views.html.linking.link(target, source,
-            errorForm, routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
+            errorForm, controllers.authorities.routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
         }
         case Right(annotation) => {
-          Redirect(routes.HistoricalAgents.get(id))
+          Redirect(controllers.authorities.routes.HistoricalAgents.get(id))
             .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
         }
       }

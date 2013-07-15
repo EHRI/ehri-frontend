@@ -1,4 +1,4 @@
-package controllers
+package controllers.core
 
 import controllers.base.AuthController
 import play.api.mvc.{Action, Controller}
@@ -66,7 +66,7 @@ object ApiController extends Controller with AuthController with ControllerHelpe
 
   def sparql = userProfileAction { implicit userOpt => implicit request =>
     Ok(views.html.sparqlForm(sparqlForm.fill(defaultSparql),
-        routes.ApiController.sparqlQuery))
+        controllers.core.routes.ApiController.sparqlQuery))
   }
 
   def sparqlQuery = userProfileAction { implicit userOpt => implicit request =>

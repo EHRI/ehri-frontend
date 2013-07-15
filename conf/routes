@@ -6,16 +6,12 @@
 # Multimodule test
 -> /        core.Routes
 -> /user    users.Routes
--> /auths   authorities.Routes
+-> /sets    authorities.Routes
 -> /arch    archdesc.Routes
 -> /voc     vocabs.Routes
 
 GET     /admin/updateIndex              controllers.Search.updateIndex
 POST    /admin/updateIndex              controllers.Search.updateIndexPost
-
-# API Sparql queries - TESTING
-GET /sparql                             controllers.ApiController.sparql
-GET /sparqlQuery                        controllers.ApiController.sparqlQuery
 
 # Search testing
 GET /search                             controllers.Search.search
@@ -100,46 +96,6 @@ GET     /repository/scope/:id/add    controllers.Repositories.addScopedPermissio
 GET     /repository/scope/:id/:userType/:userId    controllers.Repositories.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /repository/scope/:id/:userType/:userId    controllers.Repositories.setScopedPermissionsPost(id: String, userType: String, userId: String)
 
-GET     /cpf                controllers.HistoricalAgents.search
-GET     /cpf/list           controllers.HistoricalAgents.list
-GET     /cpf/show/:id       controllers.HistoricalAgents.get(id: String)
-GET     /cpf/history/:id    controllers.HistoricalAgents.history(id: String)
-GET     /cpf/delete/:id     controllers.HistoricalAgents.delete(id: String)
-POST    /cpf/delete/:id     controllers.HistoricalAgents.deletePost(id: String)
-GET     /cpf/update/:id     controllers.HistoricalAgents.update(id: String)
-POST    /cpf/update/:id     controllers.HistoricalAgents.updatePost(id: String)
-GET     /cpf/visibility/:id     controllers.HistoricalAgents.visibility(id: String)
-POST    /cpf/visibility/:id     controllers.HistoricalAgents.visibilityPost(id: String)
-GET     /cpf/permissions/:id/manage    controllers.HistoricalAgents.managePermissions(id: String, page: Int ?= 1, limit: Int ?=20)
-GET     /cpf/permissions/:id/add    controllers.HistoricalAgents.addItemPermissions(id: String)
-GET     /cpf/permissions/:id/:userType/:userId    controllers.HistoricalAgents.setItemPermissions(id: String, userType: String, userId: String)
-POST    /cpf/permissions/:id/:userType/:userId    controllers.HistoricalAgents.setItemPermissionsPost(id: String, userType: String, userId: String)
-GET     /cpf/link/:id          controllers.HistoricalAgents.linkTo(id: String)
-GET     /cpf/link/:id/:toType     controllers.HistoricalAgents.linkAnnotateSelect(id: String, toType: String)
-GET     /cpf/link/:id/:toType/:to     controllers.HistoricalAgents.linkAnnotate(id: String, toType: String, to: String)
-POST    /cpf/link/:id/:toType/:to     controllers.HistoricalAgents.linkAnnotatePost(id: String, toType: String, to: String)
-
-GET     /sets                controllers.AuthoritativeSets.list
-GET     /sets/show/:id       controllers.AuthoritativeSets.get(id: String)
-GET     /sets/history/:id    controllers.AuthoritativeSets.history(id: String)
-GET     /sets/create          controllers.AuthoritativeSets.create
-POST    /sets/create          controllers.AuthoritativeSets.createPost
-GET     /sets/delete/:id     controllers.AuthoritativeSets.delete(id: String)
-POST    /sets/delete/:id     controllers.AuthoritativeSets.deletePost(id: String)
-GET     /sets/update/:id     controllers.AuthoritativeSets.update(id: String)
-POST    /sets/update/:id     controllers.AuthoritativeSets.updatePost(id: String)
-GET     /sets/create/:id     controllers.AuthoritativeSets.createHistoricalAgent(id: String)
-POST    /sets/create/:id     controllers.AuthoritativeSets.createHistoricalAgentPost(id: String)
-GET     /sets/visibility/:id     controllers.AuthoritativeSets.visibility(id: String)
-POST    /sets/visibility/:id     controllers.AuthoritativeSets.visibilityPost(id: String)
-GET     /sets/permissions/:id/manage    controllers.AuthoritativeSets.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
-GET     /sets/permissions/:id/add    controllers.AuthoritativeSets.addItemPermissions(id: String)
-GET     /sets/permissions/:id/:userType/:userId    controllers.AuthoritativeSets.setItemPermissions(id: String, userType: String, userId: String)
-POST    /sets/permissions/:id/:userType/:userId    controllers.AuthoritativeSets.setItemPermissionsPost(id: String, userType: String, userId: String)
-GET     /sets/scope/:id/add    controllers.AuthoritativeSets.addScopedPermissions(id: String)
-GET     /sets/scope/:id/:userType/:userId    controllers.AuthoritativeSets.setScopedPermissions(id: String, userType: String, userId: String)
-POST    /sets/scope/:id/:userType/:userId    controllers.AuthoritativeSets.setScopedPermissionsPost(id: String, userType: String, userId: String)
-
 GET     /country                controllers.Countries.search
 GET     /country/show/:id       controllers.Countries.get(id: String)
 GET     /country/history/:id    controllers.Countries.history(id: String)
@@ -160,14 +116,6 @@ POST    /country/permissions/:id/:userType/:userId    controllers.Countries.setI
 GET     /country/scope/:id/add    controllers.Countries.addScopedPermissions(id: String)
 GET     /country/scope/:id/:userType/:userId    controllers.Countries.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /country/scope/:id/:userType/:userId    controllers.Countries.setScopedPermissionsPost(id: String, userType: String, userId: String)
-
-
-# API
-
-GET     /api/:id                 controllers.ApiController.getAny(id: String)
-GET     /api/:contentType/list          controllers.ApiController.listItems(contentType: String)
-GET     /api/:contentType/:id           controllers.ApiController.getItem(contentType: String, id: String)
-GET     /api/*path               controllers.ApiController.get(path: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
