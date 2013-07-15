@@ -3,7 +3,7 @@
 
 @rightSidebarLayout(Messages("users.search")) {
     @views.html.search.searchForm(result, params, action) {
-        @views.html.search.searchItemList(result)
+        @userProfile.searchItemList(result)
     }
 } {
     @userOpt.map { user =>

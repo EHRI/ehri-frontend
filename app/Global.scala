@@ -55,9 +55,9 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
       "contentTypes.cvocConcept", controllers.routes.Concepts.search.url)
 
     views.MenuConfig.putAdmin(
-      "contentTypes.userProfile", controllers.routes.UserProfiles.search.url)
+      "contentTypes.userProfile", controllers.core.routes.UserProfiles.search.url)
     views.MenuConfig.putAdmin(
-      "contentTypes.group", controllers.routes.Groups.list.url)
+      "contentTypes.group", controllers.core.routes.Groups.list.url)
     views.MenuConfig.putAdmin(
       "contentTypes.country", controllers.routes.Countries.search.url)
     views.MenuConfig.putAdmin(
@@ -77,8 +77,8 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     RouteRegistry.setUrl(EntityType.DocumentaryUnit, controllers.routes.DocumentaryUnits.get _)
     RouteRegistry.setUrl(EntityType.HistoricalAgent, controllers.routes.HistoricalAgents.get _)
     RouteRegistry.setUrl(EntityType.Repository, controllers.routes.Repositories.get _)
-    RouteRegistry.setUrl(EntityType.Group, controllers.routes.Groups.get _)
-    RouteRegistry.setUrl(EntityType.UserProfile, controllers.routes.UserProfiles.get _)
+    RouteRegistry.setUrl(EntityType.Group, controllers.core.routes.Groups.get _)
+    RouteRegistry.setUrl(EntityType.UserProfile, controllers.core.routes.UserProfiles.get _)
     RouteRegistry.setUrl(EntityType.Annotation, controllers.core.routes.Annotations.get _)
     RouteRegistry.setUrl(EntityType.Link, controllers.core.routes.Links.get _)
     RouteRegistry.setUrl(EntityType.Vocabulary, controllers.routes.Vocabularies.get _)

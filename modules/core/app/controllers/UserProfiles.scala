@@ -1,5 +1,6 @@
-package controllers
+package controllers.core
 
+import _root_.controllers.ListParams
 import forms.VisibilityForm
 import controllers.base._
 import models._
@@ -53,7 +54,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   def search = {
     searchAction[UserProfile](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
         page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.userProfile.search(page, params, facets, routes.UserProfiles.search))
+      Ok(views.html.userProfile.search(page, params, facets, controllers.core.routes.UserProfiles.search))
     }
   }
 
@@ -67,7 +68,7 @@ object UserProfiles extends PermissionHolderController[UserProfile]
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.userProfile.edit(
-        item, form.fill(item.model), routes.UserProfiles.updatePost(id)))
+        item, form.fill(item.model), controllers.core.routes.UserProfiles.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
@@ -75,22 +76,22 @@ object UserProfiles extends PermissionHolderController[UserProfile]
     formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.userProfile.edit(
-          item, errorForm, routes.UserProfiles.updatePost(id)))
-      case Right(item) => Redirect(routes.UserProfiles.get(item.id))
+          item, errorForm, controllers.core.routes.UserProfiles.updatePost(id)))
+      case Right(item) => Redirect(controllers.core.routes.UserProfiles.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
   }
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(item, routes.UserProfiles.deletePost(id),
-          routes.UserProfiles.get(id)))
+    Ok(views.html.delete(item, controllers.core.routes.UserProfiles.deletePost(id),
+          controllers.core.routes.UserProfiles.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     // For the users we need to clean up by deleting their profile id, if any...
     userFinder.findByProfileId(id).map(_.delete())
-    Redirect(routes.UserProfiles.search())
+    Redirect(controllers.core.routes.UserProfiles.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
@@ -102,24 +103,24 @@ object UserProfiles extends PermissionHolderController[UserProfile]
   def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.editGlobalPermissions(item, perms,
-        routes.UserProfiles.permissionsPost(id)))
+        controllers.core.routes.UserProfiles.permissionsPost(id)))
   }
 
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) {
       item => perms => implicit userOpt => implicit request =>
-    Redirect(routes.UserProfiles.get(id))
+    Redirect(controllers.core.routes.UserProfiles.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
       item => perm => implicit userOpt => implicit request =>
         Ok(views.html.permissions.revokePermission(item, perm,
-          routes.UserProfiles.revokePermissionPost(id, permId), routes.UserProfiles.grantList(id)))
+          controllers.core.routes.UserProfiles.revokePermissionPost(id, permId), controllers.core.routes.UserProfiles.grantList(id)))
   }
 
   def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
     item => bool => implicit userOpt => implicit request =>
-      Redirect(routes.UserProfiles.grantList(id))
+      Redirect(controllers.core.routes.UserProfiles.grantList(id))
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }

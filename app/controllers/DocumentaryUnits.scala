@@ -242,7 +242,7 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnit]
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
-        VisibilityForm.form.fill(List.empty[String]), //item.accessors.map(_.id)),
+        VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, routes.DocumentaryUnits.visibilityPost(id)))
   }
 

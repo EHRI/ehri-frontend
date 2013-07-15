@@ -20,7 +20,7 @@
         @userOpt.map { user =>
             @{println(user.globalPermissions)}
             @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@routes.Groups.create">@Messages("Create New Group")</a>
+                <a class="btn btn-primary" href="@controllers.core.routes.Groups.create">@Messages("Create New Group")</a>
             }
         }
     }

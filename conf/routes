@@ -76,40 +76,6 @@ GET     /docs/accessPointsJs/:id   controllers.DocumentaryUnits.getAccessPointsJ
 POST    /docs/deleteAccessPoint/:id/:accessPoint  controllers.DocumentaryUnits.deleteAccessPoint(id: String, accessPoint: String)
 POST    /docs/deleteLink/:id/:link  controllers.DocumentaryUnits.deleteLink(id: String, link: String)
 
-GET     /admin/users                controllers.UserProfiles.search
-GET     /admin/users/list           controllers.UserProfiles.list
-GET     /admin/users/show/:id       controllers.UserProfiles.get(id: String)
-GET     /admin/users/history/:id    controllers.UserProfiles.history(id: String)
-GET     /admin/users/delete/:id     controllers.UserProfiles.delete(id: String)
-POST    /admin/users/delete/:id     controllers.UserProfiles.deletePost(id: String)
-GET     /admin/users/update/:id     controllers.UserProfiles.update(id: String)
-POST    /admin/users/update/:id     controllers.UserProfiles.updatePost(id: String)
-GET     /admin/users/permissions/:id     controllers.UserProfiles.permissions(id: String)
-POST    /admin/users/permissions/:id     controllers.UserProfiles.permissionsPost(id: String)
-GET     /admin/users/permissions/:id/list     controllers.UserProfiles.grantList(id: String, page: Int ?= 1, limit: Int ?= 20)
-GET     /admin/users/permissions/revoke/:id/:perm     controllers.UserProfiles.revokePermission(id: String, perm: String)
-POST    /admin/users/permissions/revoke/:id/:perm     controllers.UserProfiles.revokePermissionPost(id: String, perm: String)
-
-GET     /admin/group                controllers.Groups.list
-GET     /admin/group/show/:id       controllers.Groups.get(id: String)
-GET     /admin/group/history/:id    controllers.Groups.history(id: String)
-GET     /admin/group/create         controllers.Groups.create
-POST    /admin/group/create         controllers.Groups.createPost
-GET     /admin/group/delete/:id     controllers.Groups.delete(id: String)
-POST    /admin/group/delete/:id     controllers.Groups.deletePost(id: String)
-GET     /admin/group/update/:id     controllers.Groups.update(id: String)
-POST    /admin/group/update/:id     controllers.Groups.updatePost(id: String)
-GET     /admin/group/permissions/:id     controllers.Groups.permissions(id: String)
-POST    /admin/group/permissions/:id     controllers.Groups.permissionsPost(id: String)
-GET     /admin/group/permissions/:id/list     controllers.Groups.grantList(id: String, page: Int ?= 1, limit: Int ?= 20)
-GET     /admin/group/permissions/revoke/:id/:perm     controllers.Groups.revokePermission(id: String, perm: String)
-POST    /admin/group/permissions/revoke/:id/:perm     controllers.Groups.revokePermissionPost(id: String, perm: String)
-GET		/admin/group/members/:userType/:userId	controllers.Groups.membership(userType: String, userId: String)
-GET		/admin/group/add/:id/:userType/:userId	controllers.Groups.addMember(id: String, userType: String, userId: String)
-POST	/admin/group/add/:id/:userType/:userId	controllers.Groups.addMemberPost(id: String, userType: String, userId: String)
-GET		/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMember(id: String, userType: String, userId: String)
-POST	/admin/group/remove/:id/:userType/:userId	controllers.Groups.removeMemberPost(id: String, userType: String, userId: String)
-
 
 # Testing
 GET     /repository/meta/:id       controllers.Repositories.getClientJson(id)

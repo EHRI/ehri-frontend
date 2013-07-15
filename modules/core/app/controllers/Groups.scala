@@ -1,5 +1,6 @@
-package controllers
+package controllers.core
 
+import _root_.controllers.ListParams
 import models.base.Accessor
 import controllers.base._
 import forms.VisibilityForm
@@ -36,16 +37,16 @@ object Groups extends PermissionHolderController[Group]
 
   def create = createAction {
       users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.group.create(form, VisibilityForm.form, users, groups, routes.Groups.createPost))
+    Ok(views.html.group.create(form, VisibilityForm.form, users, groups, controllers.core.routes.Groups.createPost))
   }
 
   def createPost = createPostAction(form) {
       formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.group.create(errorForm, accForm, users, groups, routes.Groups.createPost))
+        BadRequest(views.html.group.create(errorForm, accForm, users, groups, controllers.core.routes.Groups.createPost))
       }
-      case Right(item) => Redirect(routes.Groups.get(item.id))
+      case Right(item) => Redirect(controllers.core.routes.Groups.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
     }
   }
@@ -53,15 +54,15 @@ object Groups extends PermissionHolderController[Group]
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.group.edit(
-        item, form.fill(item.model), routes.Groups.updatePost(id)))
+        item, form.fill(item.model), controllers.core.routes.Groups.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.group.edit(item, errorForm, routes.Groups.updatePost(id)))
-      case Right(item) => Redirect(routes.Groups.get(item.id))
+        BadRequest(views.html.group.edit(item, errorForm, controllers.core.routes.Groups.updatePost(id)))
+      case Right(item) => Redirect(controllers.core.routes.Groups.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
   }
@@ -69,12 +70,12 @@ object Groups extends PermissionHolderController[Group]
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        item, routes.Groups.deletePost(id), routes.Groups.get(id)))
+        item, controllers.core.routes.Groups.deletePost(id), controllers.core.routes.Groups.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(routes.Groups.list())
+    Redirect(controllers.core.routes.Groups.list())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
@@ -86,12 +87,12 @@ object Groups extends PermissionHolderController[Group]
   def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.editGlobalPermissions(item, perms,
-          routes.Groups.permissionsPost(id)))
+          controllers.core.routes.Groups.permissionsPost(id)))
   }
 
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) {
       item => perms => implicit userOpt => implicit request =>
-    Redirect(routes.Groups.get(id))
+    Redirect(controllers.core.routes.Groups.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
@@ -99,12 +100,12 @@ object Groups extends PermissionHolderController[Group]
   def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
       item => perm => implicit userOpt => implicit request =>
     Ok(views.html.permissions.revokePermission(item, perm,
-        routes.Groups.revokePermissionPost(id, permId), routes.Groups.grantList(id)))
+        controllers.core.routes.Groups.revokePermissionPost(id, permId), controllers.core.routes.Groups.grantList(id)))
   }
 
   def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
     item => bool => implicit userOpt => implicit request =>
-      Redirect(routes.Groups.grantList(id))
+      Redirect(controllers.core.routes.Groups.grantList(id))
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
@@ -154,7 +155,7 @@ object Groups extends PermissionHolderController[Group]
         } yield {
           groupOrErr.right.map { group =>
             Ok(views.html.group.confirmMembership(group, item,
-              routes.Groups.addMemberPost(id, userType, userId)))
+              controllers.core.routes.Groups.addMemberPost(id, userType, userId)))
           }
         }
       }
@@ -170,7 +171,7 @@ object Groups extends PermissionHolderController[Group]
         AsyncRest {
           rest.PermissionDAO(userOpt).addGroup(id, userId).map { boolOrErr =>
             boolOrErr.right.map { ok =>
-              Redirect(routes.Groups.membership(userType, userId))
+              Redirect(controllers.core.routes.Groups.membership(userType, userId))
                 .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
             }
           }
@@ -190,7 +191,7 @@ object Groups extends PermissionHolderController[Group]
           } yield {
             groupOrErr.right.map { group =>
               Ok(views.html.group.removeMembership(group, item,
-                routes.Groups.removeMemberPost(id, userType, userId)))
+                controllers.core.routes.Groups.removeMemberPost(id, userType, userId)))
             }
           }
         }
@@ -206,7 +207,7 @@ object Groups extends PermissionHolderController[Group]
         AsyncRest {
           rest.PermissionDAO(userOpt).removeGroup(id, userId).map { boolOrErr =>
             boolOrErr.right.map { ok =>
-              Redirect(routes.Groups.membership(userType, userId))
+              Redirect(controllers.core.routes.Groups.membership(userType, userId))
                 .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
             }
           }
