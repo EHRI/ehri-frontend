@@ -44,41 +44,37 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
   )
 
-  val sharedSettings = Defaults.defaultSettings ++ Seq(
+
+  val otherSettings = Seq(
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
 
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com"
-  ) ++ play.Project.intellijCommandSettings("SCALA")
+  )
 
   lazy val core = play.Project(
     appName + "-core", appVersion, appDependencies, path = file("modules/core"),
-    settings = sharedSettings
-  )
-
-  lazy val users = play.Project(
-    appName + "-users", appVersion, appDependencies, path = file("modules/users"),
-    settings = sharedSettings
-  ).dependsOn(core)
+    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  ).settings(otherSettings:_*)
 
   lazy val archdesc = play.Project(
     appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc"),
-    settings = sharedSettings
-  ).dependsOn(core)
+    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  ).settings(otherSettings:_*).dependsOn(core)
 
   lazy val authorities = play.Project(
     appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities"),
-    settings = sharedSettings
-  ).dependsOn(core)
+    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  ).settings(otherSettings:_*).dependsOn(core)
 
   lazy val vocabs = play.Project(
     appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs"),
-    settings = sharedSettings
-  ).dependsOn(core)
+    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  ).settings(otherSettings:_*).dependsOn(core)
 
-  lazy val main = play.Project(appName, appVersion, appDependencies,
-    settings = sharedSettings
-  ).dependsOn(core, archdesc, authorities, vocabs)
+  lazy val aaMain = play.Project(appName, appVersion, appDependencies,
+    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
     .aggregate(core, archdesc, authorities, vocabs)
 }
