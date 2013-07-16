@@ -20,11 +20,11 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
     "allow creating and reading" in new FakeApp {
       val json = Json.toJson(new AccessPointLink("a1", description = Some("Test link")))
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.createLink("c1", "ur1").url)
+        controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        routes.DocumentaryUnits.getLink("c1", "ur1").url)).get
+        controllers.archdesc.routes.DocumentaryUnits.getLink("c1", "ur1").url)).get
       status(cr2) must equalTo(OK)
       Json.parse(contentAsString(cr2)) mustEqual json
     }
@@ -33,7 +33,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       val ap = new AccessPointF(id = None, accessPointType=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
       val json = Json.toJson(ap)(controllers.base.AccessPointLink.accessPointFormat)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.createAccessPoint("c1", "cd1").url)
+        controllers.archdesc.routes.DocumentaryUnits.createAccessPoint("c1", "cd1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
       println(contentAsString(cr))
@@ -43,7 +43,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       val link = new AccessPointLink("a1", description = Some("Test link"))
       val json = Json.toJson(link)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        routes.DocumentaryUnits.createLink("c1", "ur1").url)
+        controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
       println(contentAsString(cr))

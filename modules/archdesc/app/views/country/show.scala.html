@@ -9,29 +9,29 @@
 
     @views.html.search.searchSection(Messages("country.searchInside", item.toStringAbbr)) {
         @views.html.search.searchForm(result, params, action, autofocus = false) {
-            @views.html.search.searchItemList(result)
+            @repository.searchItemList(result)
         }
     }
 } {
     @common.facetList(result.facets, action)
-    @common.visibility(item, routes.Countries.visibility(item.id), ContentType.Country)
-    @common.latestAction(item, routes.Countries.history(item.id))
+    @common.visibility(item, controllers.archdesc.routes.Countries.visibility(item.id), ContentType.Country)
+    @common.latestAction(item, controllers.archdesc.routes.Countries.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @userOpt.map { user =>
             @if(user.hasPermission(ContentType.Repository, PermissionType.Create)) {
-                <li><a href="@routes.Countries.createRepository(item.id)">@Messages("actions.createRepository")</a></li>
+                <li><a href="@controllers.archdesc.routes.Countries.createRepository(item.id)">@Messages("actions.createRepository")</a></li>
             }
             @if(user.hasPermission(ContentType.Country, PermissionType.Update)) {
-                <li><a href="@routes.Countries.update(item.id)">@Messages("actions.updateItem")</a></li>
+                <li><a href="@controllers.archdesc.routes.Countries.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
             @if(user.hasPermission(ContentType.Country, PermissionType.Delete)) {
-                <li><a href="@routes.Countries.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+                <li><a href="@controllers.archdesc.routes.Countries.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
             @if(user.hasPermission(ContentType.Country, PermissionType.Grant)) {
-                <li><a href="@routes.Countries.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+                <li><a href="@controllers.archdesc.routes.Countries.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
-            <li><a href="@routes.Countries.history(item.id)">@Messages("actions.showHistory")</a></li>
+            <li><a href="@controllers.archdesc.routes.Countries.history(item.id)">@Messages("actions.showHistory")</a></li>
         }
     </ul>
 }

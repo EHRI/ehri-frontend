@@ -3,13 +3,13 @@
 
 @rightSidebarLayout(Messages("country.search")) {
     @views.html.search.searchForm(result, params, action) {
-        @views.html.search.searchItemList(result)
+        @country.searchItemList(result)
     }
 } {
     @common.sidebarSection(None) {
         @userOpt.map { user =>
             @if(user.hasPermission(ContentType.Country, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@routes.Countries.create">@Messages("actions.createCountry")</a>
+                <a class="btn btn-primary" href="@controllers.archdesc.routes.Countries.create">@Messages("actions.createCountry")</a>
             }
         }
     }

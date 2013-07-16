@@ -3,7 +3,7 @@
 
 @rightSidebarLayout(Messages("repository.search")) {
     @views.html.search.searchForm(result, params, action) {
-        @views.html.search.searchItemList(result)
+        @repository.searchItemList(result)
     }
 } {
     @common.facetList(result.facets, action)

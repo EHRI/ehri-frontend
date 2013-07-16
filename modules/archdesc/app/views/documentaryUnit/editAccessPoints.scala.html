@@ -3,21 +3,21 @@
     @extrascripts = {
         <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
-        <script src="@routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/AccessPointLinker.js")" type="text/javascript"></script>
+        <script src="@controllers.core.routes.Assets.at("javascripts/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
+        <script src="@controllers.core.routes.Assets.at("javascripts/AccessPointLinker.js")" type="text/javascript"></script>
 
         @helper.javascriptRouter("jsRoutes")(
-            routes.javascript.Application.get,
+            /*routes.javascript.Application.get,
             routes.javascript.Application.getType,
-            routes.javascript.Search.filter,
-            routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
-            routes.javascript.DocumentaryUnits.get,
-            routes.javascript.DocumentaryUnits.createLink,
-            routes.javascript.DocumentaryUnits.createAccessPoint,
-            routes.javascript.DocumentaryUnits.getLink,
-            routes.javascript.DocumentaryUnits.getAccessPointsJson,
-            routes.javascript.DocumentaryUnits.deleteAccessPoint,
-            routes.javascript.DocumentaryUnits.deleteLink
+            routes.javascript.Search.filter,*/  // FIXME: These are necessary, but how???
+            controllers.archdesc.routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.get,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.createLink,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.createAccessPoint,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.getLink,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.getAccessPointsJson,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteAccessPoint,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLink
         )
     }
 

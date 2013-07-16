@@ -3,7 +3,7 @@
 @import Isdiah._
 
 @common.searchItemOutline(item.id) {
-    <a href="@routes.Repositories.get(item.id)">@item.toStringLang</a>
+    <a href="@controllers.archdesc.routes.Repositories.get(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription.map { desc =>
 
@@ -23,7 +23,7 @@
         <small>
             <ul class="unstyled muted inline inline-separator">
                 @item.country.map { ct =>
-                    <li><strong><a class="alt" href="@routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
+                    <li><strong><a class="alt" href="@controllers.archdesc.routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
                 }
                 @desc.addresses.headOption.map { address =>
                     @common.propertyList(address.streetAddress, address.city, address.region)

@@ -11,9 +11,9 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="@routes.DocumentaryUnits.manageAccessPoints(id, did)">@Messages("actions.manageAccessPoints")</a></li>
-                    <li><a href="@routes.DocumentaryUnits.updateDescription(id, did)">@Messages("describedEntity.editDescription")</a></li>
-                    <li><a class="alert alert-danger" href="@routes.DocumentaryUnits.deleteDescription(id, did)">@Messages("describedEntity.deleteDescription")</a></li>
+                    <li><a href="@controllers.archdesc.routes.DocumentaryUnits.manageAccessPoints(id, did)">@Messages("actions.manageAccessPoints")</a></li>
+                    <li><a href="@controllers.archdesc.routes.DocumentaryUnits.updateDescription(id, did)">@Messages("describedEntity.editDescription")</a></li>
+                    <li><a class="alert alert-danger" href="@controllers.archdesc.routes.DocumentaryUnits.deleteDescription(id, did)">@Messages("describedEntity.deleteDescription")</a></li>
                 </ul>
             </div>
         }
@@ -42,7 +42,7 @@
             <p>
                 <small>
                     <i class="icon icon-plus-sign"></i>
-                    <a href="@routes.DocumentaryUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
+                    <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
                 </small>
             </p>
         </div>
@@ -54,11 +54,11 @@
 
         <div class="header-actions clearfix">
             @item.holder.map { holder =>
-            <h4>@Messages("documentaryUnit.heldBy"): <a href="@routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
+            <h4>@Messages("documentaryUnit.heldBy"): <a href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
             }
 
             @item.parent.map { parent =>
-            <h4>@Messages("documentaryUnit.parentItem"): <a href="@routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
+            <h4>@Messages("documentaryUnit.parentItem"): <a href="@controllers.archdesc.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
             }
         </div>
 
@@ -74,7 +74,7 @@
                 </div>
             } else {
                 <p class="muted">@Messages("documentaryUnit.noDescriptions")</p>
-                <a href="@routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
+                <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
             }
         }
 
@@ -83,7 +83,7 @@
 
     @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
         @views.html.search.searchForm(result, params, action, autofocus = false) {
-            @views.html.search.searchItemList(result)
+            @documentaryUnit.searchItemList(result)
         }
     }
 }

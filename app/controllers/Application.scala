@@ -65,8 +65,8 @@ object Application extends Controller with Auth with Authorizer with AuthControl
   private def getUrlForType(`type`: EntityType.Value, id: String): Option[Call] = {
     `type` match {
       // FIXME: Handle case not given here!
-      case EntityType.DocumentaryUnit => Some(routes.DocumentaryUnits.get(id))
-      case EntityType.Repository => Some(routes.Repositories.get(id))
+      case EntityType.DocumentaryUnit => Some(controllers.archdesc.routes.DocumentaryUnits.get(id))
+      case EntityType.Repository => Some(controllers.archdesc.routes.Repositories.get(id))
       case EntityType.HistoricalAgent => Some(controllers.authorities.routes.HistoricalAgents.get(id))
       case EntityType.UserProfile => Some(controllers.core.routes.UserProfiles.get(id))
       case EntityType.Link => Some(controllers.core.routes.Links.get(id))

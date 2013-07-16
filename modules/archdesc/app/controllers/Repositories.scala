@@ -1,5 +1,6 @@
-package controllers
+package controllers.archdesc
 
+import _root_.controllers.ListParams
 import forms.VisibilityForm
 import controllers.base._
 import models._
@@ -85,7 +86,7 @@ object Repositories extends EntityRead[Repository]
 
   def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.repository.search(page, params, facets, routes.Repositories.search))
+    Ok(views.html.repository.search(page, params, facets, controllers.archdesc.routes.Repositories.search))
 
   }
 
@@ -98,7 +99,7 @@ object Repositories extends EntityRead[Repository]
     searchAction[DocumentaryUnit](Map("holderId" -> item.id, "depthOfDescription" -> "0"),
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
       page => params => facets => _ => _ =>
-        Ok(views.html.repository.show(item, page, params, facets, routes.Repositories.get(id), annotations, links))
+        Ok(views.html.repository.show(item, page, params, facets, controllers.archdesc.routes.Repositories.get(id), annotations, links))
     }.apply(request)
   }
 
@@ -113,15 +114,15 @@ object Repositories extends EntityRead[Repository]
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.repository.edit(item, form.fill(item.model), routes.Repositories.updatePost(id)))
+    Ok(views.html.repository.edit(item, form.fill(item.model), controllers.archdesc.routes.Repositories.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.repository.edit(item, errorForm, routes.Repositories.updatePost(id)))
-      case Right(item) => Redirect(routes.Repositories.get(item.id))
+        BadRequest(views.html.repository.edit(item, errorForm, controllers.archdesc.routes.Repositories.updatePost(id)))
+      case Right(item) => Redirect(controllers.archdesc.routes.Repositories.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
   }
@@ -129,7 +130,7 @@ object Repositories extends EntityRead[Repository]
   def createDoc(id: String) = childCreateAction(id, ContentType.DocumentaryUnit) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(item, childForm,
-        VisibilityForm.form, users, groups, routes.Repositories.createDocPost(id)))
+        VisibilityForm.form, users, groups, controllers.archdesc.routes.Repositories.createDocPost(id)))
   }
 
   def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentType.DocumentaryUnit) {
@@ -139,75 +140,75 @@ object Repositories extends EntityRead[Repository]
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.documentaryUnit.create(item,
-          errorForm, accForm, users, groups, routes.Repositories.createDocPost(id)))
+          errorForm, accForm, users, groups, controllers.archdesc.routes.Repositories.createDocPost(id)))
       }
-      case Right(citem) => Redirect(routes.DocumentaryUnits.get(citem.id))
+      case Right(citem) => Redirect(controllers.archdesc.routes.DocumentaryUnits.get(citem.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
     }
   }
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(item, routes.Repositories.deletePost(id),
-        routes.Repositories.get(id)))
+    Ok(views.html.delete(item, controllers.archdesc.routes.Repositories.deletePost(id),
+        controllers.archdesc.routes.Repositories.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(routes.Repositories.search())
+    Redirect(controllers.archdesc.routes.Repositories.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
       VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, routes.Repositories.visibilityPost(id)))
+      users, groups, controllers.archdesc.routes.Repositories.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(routes.Repositories.get(id))
+    Redirect(controllers.archdesc.routes.Repositories.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) = manageScopedPermissionsAction(id, page, spage, limit) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
-        routes.Repositories.addItemPermissions(id), routes.Repositories.addScopedPermissions(id)))
+        controllers.archdesc.routes.Repositories.addItemPermissions(id), controllers.archdesc.routes.Repositories.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        routes.Repositories.setItemPermissions _))
+        controllers.archdesc.routes.Repositories.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        routes.Repositories.setScopedPermissions _))
+        controllers.archdesc.routes.Repositories.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
-        routes.Repositories.setItemPermissionsPost(id, userType, userId)))
+        controllers.archdesc.routes.Repositories.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
-    Redirect(routes.Repositories.managePermissions(id))
+    Redirect(controllers.archdesc.routes.Repositories.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
-        routes.Repositories.setScopedPermissionsPost(id, userType, userId)))
+        controllers.archdesc.routes.Repositories.setScopedPermissionsPost(id, userType, userId)))
   }
 
   def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
-    Redirect(routes.Repositories.managePermissions(id))
+    Redirect(controllers.archdesc.routes.Repositories.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 }

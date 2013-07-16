@@ -1,5 +1,7 @@
 @(page: rest.Page[DocumentaryUnit], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
+@import controllers.archdesc.DocumentaryUnits
+
 @noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
     @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
         @documentaryUnit.itemList(page)
