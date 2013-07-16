@@ -26,17 +26,17 @@
 
     $provide.factory('$service', function() {
       return {
-        get: jsRoutes.controllers.Application.get,
-        getType: jsRoutes.controllers.Application.getType,
-        filter: jsRoutes.controllers.Search.filter,
-        createLink: jsRoutes.controllers.DocumentaryUnits.createLink,
-        createMultipleLinks: jsRoutes.controllers.DocumentaryUnits.createMultipleLinks,
-        createAccessPoint: jsRoutes.controllers.DocumentaryUnits.createAccessPoint,
-        getAccessPoints: jsRoutes.controllers.DocumentaryUnits.getAccessPointsJson,
-        deleteLink: jsRoutes.controllers.DocumentaryUnits.deleteLink,
-        deleteAccessPoint: jsRoutes.controllers.DocumentaryUnits.deleteAccessPoint,
+        get: jsRoutes.controllers.core.Application.get,
+        getType: jsRoutes.controllers.core.Application.getType,
+        filter: jsRoutes.controllers.core.SearchFilter.filter,
+        createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
+        createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.createMultipleLinks,
+        createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
+        getAccessPoints: jsRoutes.controllers.archdesc.DocumentaryUnits.getAccessPointsJson,
+        deleteLink: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLink,
+        deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPoint,
         redirectUrl: function(id) {
-          return jsRoutes.controllers.DocumentaryUnits.get(id).url;
+          return jsRoutes.controllers.archdesc.DocumentaryUnits.get(id).url;
         }
       };
     });

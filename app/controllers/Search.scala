@@ -10,7 +10,7 @@ import models.IsadG
 import play.api.Logger
 import concurrent.Future
 import solr.SolrIndexer._
-import solr.{SolrIndexer}
+import solr.SolrIndexer
 import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.{JsObject, Writes, Json}

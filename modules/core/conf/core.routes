@@ -17,6 +17,13 @@ GET     /login                          controllers.core.Application.login
 POST	/login							controllers.core.Application.loginPost
 GET     /logout                         controllers.core.Application.logout
 
+# Generic item redirection
+GET /item/:id                           controllers.core.Application.get(id: String)
+GET /item/:type/:id                     controllers.core.Application.getType(type: String, id: String)
+
+# Simple filtering
+GET /filter                             controllers.core.SearchFilter.filter
+
 # Plugin-handled login
 # OpenID
 GET     /openid                         controllers.core.OpenIDLoginHandler.openIDCallback

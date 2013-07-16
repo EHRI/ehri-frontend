@@ -15,10 +15,6 @@ POST    /admin/updateIndex              controllers.Search.updateIndexPost
 # Search testing
 GET /search                             controllers.Search.search
 
-# Generic item redirection
-GET /item/:id                           controllers.Application.get(id: String)
-GET /item/:type/:id                           controllers.Application.getType(type: String, id: String)
-
 # Get JSON (id,name) pair for a given type
 GET /filter                       controllers.Search.filter
 

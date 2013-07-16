@@ -101,6 +101,7 @@ package object Helpers {
 
   def urlFor(e: AnyModel): Call = RouteRegistry.urls.getOrElse(e.isA, RouteRegistry.getDefault).apply(e.id)
   def urlFor(t: EntityType.Value, id: String): Call = RouteRegistry.urls.getOrElse(t, RouteRegistry.getDefault).apply(id)
+  def optionalUrlFor(t: EntityType.Value, id: String): Option[Call] = RouteRegistry.urls.get(t).map(_.apply(id))
 
 
   /**

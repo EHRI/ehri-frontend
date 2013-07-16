@@ -7,9 +7,9 @@
         <script src="@controllers.core.routes.Assets.at("javascripts/AccessPointLinker.js")" type="text/javascript"></script>
 
         @helper.javascriptRouter("jsRoutes")(
-            /*routes.javascript.Application.get,
-            routes.javascript.Application.getType,
-            routes.javascript.Search.filter,*/  // FIXME: These are necessary, but how???
+            controllers.core.routes.javascript.Application.get,
+            controllers.core.routes.javascript.Application.getType,
+            controllers.core.routes.javascript.SearchFilter.filter,
             controllers.archdesc.routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
             controllers.archdesc.routes.javascript.DocumentaryUnits.get,
             controllers.archdesc.routes.javascript.DocumentaryUnits.createLink,
