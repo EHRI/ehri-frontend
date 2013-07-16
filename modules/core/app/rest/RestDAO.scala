@@ -1,12 +1,14 @@
 package rest
 
 import models.{UserProfile, Entity}
-import play.api.libs.json._
 import play.api.{Logger, Play}
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
 import play.api.libs.ws.Response
 import play.api.data.validation.{ValidationError => PlayValidationError}
+import play.api.libs.json.util._
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 
 sealed trait RestError extends Throwable
@@ -19,25 +21,43 @@ case class PermissionDenied(
 case class ValidationError(errorSet: ErrorSet) extends RestError
 case class DeserializationError() extends RestError
 case class IntegrityError() extends RestError
-case class ItemNotFound() extends RestError
+case class ItemNotFound(
+  key: Option[String] = None,
+  value: Option[String] = None,
+  message: Option[String] = None
+) extends RestError
 case class ServerError(error: String) extends RestError
 case class CriticalError(error: String) extends RestError
 case class BadJson(error: Seq[(JsPath,Seq[PlayValidationError])]) extends RestError {
   override def toString = Json.prettyPrint(JsError.toFlatJson(error))
 }
 
+object ItemNotFound {
+  val itemNotFoundReads: Reads[ItemNotFound] = (
+    (__ \ "details" \ "key").readNullable[String] and
+    (__ \ "details" \ "value").readNullable[String] and
+    (__ \ "details" \ "message").readNullable[String]
+  )(ItemNotFound.apply _)
+
+  val itemNotFoundWrites: Writes[ItemNotFound] = (
+    (__ \ "key").writeNullable[String] and
+    (__ \ "value").writeNullable[String] and
+    (__ \ "message").writeNullable[String]
+  )(unlift(ItemNotFound.unapply _))
+
+  implicit val itemNotFoundFormat = Format(itemNotFoundReads, itemNotFoundWrites)
+}
+
+
 object PermissionDenied {
-  import play.api.libs.json.util._
-  import play.api.libs.json._
-  import play.api.libs.functional.syntax._
-  implicit val permissionDeniedReads: Reads[PermissionDenied] = (
+  val permissionDeniedReads: Reads[PermissionDenied] = (
     (__ \ "details" \ "accessor").readNullable[String] and
     (__ \ "details" \ "permission").readNullable[String] and
     (__ \ "details" \ "item").readNullable[String] and
     (__ \ "details" \ "scope").readNullable[String]
   )(PermissionDenied.apply _)
   
-  implicit val permissionDeniedWrites: Writes[PermissionDenied] = (
+  val permissionDeniedWrites: Writes[PermissionDenied] = (
     (__ \ "accessor").writeNullable[String] and
     (__ \ "permission").writeNullable[String] and
     (__ \ "item").writeNullable[String] and
@@ -65,14 +85,6 @@ object ErrorSet {
     (__ \ "errors").lazyRead(map[List[String]]) and
     (__ \ Entity.RELATIONSHIPS).lazyRead(
       map[List[Option[ErrorSet]]](list(optionNoError(errorReads)))))(ErrorSet.apply _)
-
-
-  def fromJson(json: JsValue): ErrorSet = json.validate[ErrorSet].fold(
-    valid = { item => item },
-    invalid = { e =>
-      sys.error("Unable to parse error: " + json + " -> " + e)
-    }
-  )
 }
 
 case class ErrorSet(
@@ -184,8 +196,17 @@ trait RestDAO {
             }
           }
         )
-        case NOT_FOUND => Logger.logger.error("404: {} -> {}", Array(
-          response.ahcResponse.getUri, response.body)); Left(ItemNotFound())
+        case NOT_FOUND => {
+          Logger.logger.error("404: {} -> {}", Array(response.ahcResponse.getUri, response.body))
+          response.json.validate[ItemNotFound].fold(
+            valid = { item =>
+              Left(item)
+            },
+            invalid = { e =>
+              Left(ItemNotFound())
+            }
+          )
+        }
         case _ => {
           Logger.logger.error(response.body)
           sys.error(response.body)

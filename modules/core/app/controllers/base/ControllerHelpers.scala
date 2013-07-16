@@ -86,7 +86,12 @@ trait ControllerHelpers {
                 case _ => authenticationFailed(request)
               }
             }
-            case e: ItemNotFound => NotFound(views.html.errors.itemNotFound())
+            case e: ItemNotFound => {
+              render {
+                case Accepts.Json() => NotFound(Json.toJson(e))
+                case _ => NotFound(views.html.errors.itemNotFound())
+              }
+            }
             case e: ValidationError => BadRequest(err.toString())
             case e: ServerError => InternalServerError(views.html.errors.serverTimeout())
             case e => BadRequest(e.toString())
