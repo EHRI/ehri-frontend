@@ -2,10 +2,11 @@ package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base.{Described, MetaModel, Model, Description}
-import defines.EntityType
-import models.{LinkF,AccessPointF}
+import defines.{PermissionType, EntityType}
+import models.{UserProfile, LinkF, AccessPointF}
 import play.api.libs.json.Json
-import models.json.RestReadable
+import models.json.{ClientConvertable, RestReadable}
+import play.api.mvc.{Request, Result, AnyContent}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -16,6 +17,17 @@ trait EntityAccessPoints[D <: Description, T <: Model with Described[D], MT <: M
   // should probably check if a bug has been reported.
   case class Target(id: String, `type`: EntityType.Value)
   case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF], target: Option[Target])
+
+  def manageAccessPointsAction(id: String, descriptionId: String)(f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+      item.model.description(descriptionId).map { desc =>
+        f(item)(desc)(userOpt)(request)
+      }.getOrElse {
+        NotFound(descriptionId)
+      }
+    }
+  }
+
 
   def getAccessPointsJson(id: String)(
       implicit rd: RestReadable[MT]) = userProfileAction { implicit userOpt => implicit request =>

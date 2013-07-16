@@ -349,14 +349,9 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnit]
     }
   }
 
-  def manageAccessPoints(id: String, descriptionId: String) = getAction(id) {
-      item => annotations => links => implicit userOpt => implicit request =>
-    implicit val prefix = IsadG.FIELD_PREFIX
-    item.model.description(descriptionId).map { desc =>
-      Ok(views.html.documentaryUnit.editAccessPoints(item, desc))
-    }.getOrElse {
-      NotFound(descriptionId)
-    }
+  def manageAccessPoints(id: String, descriptionId: String) = manageAccessPointsAction(id, descriptionId) {
+      item => desc => implicit userOpt => implicit request =>
+    Ok(views.html.documentaryUnit.editAccessPoints(item, desc))
   }
 }
 
