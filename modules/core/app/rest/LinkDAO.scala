@@ -58,9 +58,9 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
    * Remove a link on an item.
    */
   def deleteLink(id: String, linkId: String): Future[Either[RestError,Boolean]] = {
-    WS.url(enc(requestUrl, "for", id, linkId))
-      .withHeaders(authHeaders.toSeq: _*)
-      .delete.map { response =>
+    val url = enc(requestUrl, "for", id, linkId)
+    Logger.logger.debug(s"DELETE LINK: $url")
+    WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       checkError(response).right.map { r =>
         EntityDAO.handleDelete(linkId)
         true
@@ -75,9 +75,9 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
    * this somewhere better.
    */
   def deleteAccessPoint(id: String): Future[Either[RestError,Boolean]] = {
-    WS.url(enc(requestUrl, "accessPoint", id))
-      .withHeaders(authHeaders.toSeq: _*)
-      .delete.map { response =>
+    val url = enc(requestUrl, "accessPoint", id)
+    Logger.logger.debug(s"DELETE ACCESS POINT $url")
+    WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       checkError(response).right.map { r =>
         EntityDAO.handleDelete(id)
         true
