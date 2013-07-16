@@ -146,6 +146,9 @@ trait Described[+T <: Description] extends Model {
     // TODO:!!!
     description(id)
   }
+
+  def accessPoints: List[AccessPointF]
+      = descriptions.flatMap(_.accessPoints)
 }
 
 trait Temporal {
