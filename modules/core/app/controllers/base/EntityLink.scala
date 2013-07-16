@@ -14,7 +14,6 @@ import utils.search.AppliedFacet
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
-import play.api.Logger
 import utils.search.{SearchParams, ItemPage}
 
 
@@ -240,7 +239,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
    * @param id
    * @return
    */
-  def deleteAccessPoint(id: String, accessPointId: String)(implicit rd: RestReadable[MT]) = withItemPermission[MT](id, PermissionType.Update, contentType) {
+  def deleteAccessPointAction(id: String, accessPointId: String)(implicit rd: RestReadable[MT]) = withItemPermission[MT](id, PermissionType.Update, contentType) {
       bool => implicit userOpt => implicit request =>
     AsyncRest {
       LinkDAO(userOpt).deleteAccessPoint(accessPointId).map { boolOrErr =>

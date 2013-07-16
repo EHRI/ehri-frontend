@@ -34,7 +34,7 @@
         createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
         getAccessPoints: jsRoutes.controllers.archdesc.DocumentaryUnits.getAccessPointsJson,
         deleteLink: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLink,
-        deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPoint,
+        deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPointAction,
         redirectUrl: function(id) {
           return jsRoutes.controllers.archdesc.DocumentaryUnits.get(id).url;
         }
@@ -225,17 +225,19 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
     $scope.getAccessPointList();
   }
 
-  // Nasty stateful var tracking an access point
-  // in the process of being created.
-  // {
-  //    type: "otherAccess",
-  //    name: "Some text",
-  //    description: "",
-  //    link: {
-  //      type: "associative",
-  //      target: "some-other-item-id"
-  //    }
-  // }
+  /* Nasty stateful var tracking an access point
+   * in the process of being created.
+   * {
+   *     type: "otherAccess",
+   *     name: "Some text",
+   *     description: "",
+   *     link: {
+   *       type: "associative",
+   *       target: "some-other-item-id"
+   *     }
+   * }
+   *
+   */
   $scope.tempAccessPoint = null;
 
   // List of access points populated via Ajax
@@ -287,6 +289,9 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
             headers: {"Accept": "application/json; charset=utf-8"},
             success: function(data) {
               if (data === true) {
+
+                console.log("Deleted link, now proceeding to delete access point ", accessPointId);
+
                 $service.deleteAccessPoint($scope.itemId, accessPointId).ajax({
                   headers: {"Accept": "application/json; charset=utf-8"},
                   success: function(data) {
@@ -351,9 +356,12 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
       .open()
       .then(function(result) {
         if (result == 1) {
+          console.log("Deleting access point", accessPointId);
+
           $service.deleteAccessPoint($scope.itemId, accessPointId).ajax({
             headers: {"Accept": "application/json; charset=utf-8"},
             success: function(data) {
+              console.log("Access point delete result: ", data)
               if (data === true) {
                 $scope.getAccessPointList();
               }
