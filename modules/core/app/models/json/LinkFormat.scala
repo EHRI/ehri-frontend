@@ -7,6 +7,7 @@ import models._
 import defines.EntityType
 import defines.EnumUtils._
 import models.base.{AnyModel, Accessible, MetaModel, Accessor}
+import eu.ehri.project.definitions.Ontology
 
 object LinkFormat {
   import models.LinkF._
@@ -51,9 +52,9 @@ object LinkFormat {
       Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ LinkF.BODY_REL).lazyReadNullable[List[AccessPointF]](
         Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
   )(Link.apply _)
 }

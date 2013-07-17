@@ -6,6 +6,7 @@ import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
 import models.base.Description
+import eu.ehri.project.definitions.Ontology
 
 
 object ConceptDescriptionFormat {
@@ -26,8 +27,8 @@ object ConceptDescriptionFormat {
           SCOPENOTE -> d.scopeNote
         ),
         RELATIONSHIPS -> Json.obj(
-          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
-          Description.UNKNOWN_PROP -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
+          Ontology.HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
+          Ontology.HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -42,9 +43,9 @@ object ConceptDescriptionFormat {
       (__ \ DATA \ ALTLABEL).readNullable[List[String]] and
       (__ \ DATA \ DEFINITION).readNullable[List[String]] and
       (__ \ DATA \ SCOPENOTE).readNullable[List[String]] and
-      (__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyReadNullable(
+      (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).lazyReadNullable(
         Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-      (__ \ RELATIONSHIPS \ Description.UNKNOWN_PROP)
+      (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY)
         .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
     )(ConceptDescriptionF.apply _)
 

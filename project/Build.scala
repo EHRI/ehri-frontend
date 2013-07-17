@@ -22,7 +22,6 @@ object ApplicationBuild extends Build {
     anorm,
     filters,
 
-    // Add your project dependencies here
     "jp.t2v" %% "play21.auth" % "0.6",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     // Forced logback to older version due to conflict with Neo4j
@@ -37,6 +36,8 @@ object ApplicationBuild extends Build {
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final",
     //"com.typesafe" % "play-plugins-mailer_2.10" % "2.1-SNAPSHOT",
+
+    "ehri-project" % "ehri-definitions" % "1.0",
 
     // Test dependencies...
     "com.sun.jersey" % "jersey-core" % "1.9" % "test",

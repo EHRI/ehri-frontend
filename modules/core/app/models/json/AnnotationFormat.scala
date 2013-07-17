@@ -7,6 +7,7 @@ import models.{SystemEvent, UserProfile, Annotation, AnnotationF}
 import defines.EntityType
 import defines.EnumUtils._
 import models.base.{AnyModel, Accessible, Accessor, MetaModel}
+import eu.ehri.project.definitions.Ontology
 
 object AnnotationFormat {
   import AnnotationF._
@@ -54,9 +55,9 @@ object AnnotationFormat {
       Reads.list(userProfileMetaReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ AnnotationF.SOURCE_REL).lazyReadNullable[List[AnyModel]](
       Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
     )(Annotation.apply _)
 }

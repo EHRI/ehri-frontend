@@ -9,6 +9,7 @@ import models.base.{Described, Accessible, Accessor}
 import models._
 import play.api.data.validation.ValidationError
 import defines.EnumUtils._
+import eu.ehri.project.definitions.Ontology
 
 
 object HistoricalAgentFormat {
@@ -53,9 +54,9 @@ object HistoricalAgentFormat {
     __.read[HistoricalAgentF] and
     (__ \ RELATIONSHIPS \ HistoricalAgentF.IN_SET_REL).lazyReadNullable[List[AuthoritativeSet]](
       Reads.list[AuthoritativeSet]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
   )(HistoricalAgent.apply _)
 }

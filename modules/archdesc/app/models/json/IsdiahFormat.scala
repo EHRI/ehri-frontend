@@ -14,6 +14,7 @@ object IsdiahFormat {
   import Entity._
   import Isdiah._
   import AccessPointFormat._
+  import eu.ehri.project.definitions.Ontology._
 
   implicit val isdiahWrites = new Writes[RepositoryDescriptionF] {
     def writes(d: RepositoryDescriptionF): JsValue = {
@@ -51,9 +52,9 @@ object IsdiahFormat {
           MAINTENANCE_NOTES -> d.control.maintenanceNotes
         ),
         RELATIONSHIPS -> Json.obj(
-          RepositoryF.ADDRESS_REL -> Json.toJson(d.addresses.map(Json.toJson(_)).toSeq),
-          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
-          Description.UNKNOWN_PROP -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
+          ENTITY_HAS_ADDRESS -> Json.toJson(d.addresses.map(Json.toJson(_)).toSeq),
+          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
+          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -70,7 +71,7 @@ object IsdiahFormat {
         (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
         (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
-      (__ \ RELATIONSHIPS \ RepositoryF.ADDRESS_REL).lazyReadNullable[List[AddressF]](
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_ADDRESS).lazyReadNullable[List[AddressF]](
           Reads.list[AddressF]).map(_.getOrElse(List.empty[AddressF])) and
       (__ \ DATA).read[IsdiahDetails]((
         (__ \ HISTORY).readNullable[String] and
@@ -105,9 +106,9 @@ object IsdiahFormat {
             (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
           (__ \ MAINTENANCE_NOTES).readNullable[String]
         )(IsdiahControl.apply _)) and
-        (__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL)
+        (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT)
             .lazyReadNullable(Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-        (__ \ RELATIONSHIPS \ Description.UNKNOWN_PROP)
+        (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY)
             .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
     )(RepositoryDescriptionF.apply _)
 

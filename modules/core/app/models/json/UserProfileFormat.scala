@@ -7,6 +7,7 @@ import models._
 import defines.EntityType
 import defines.EnumUtils._
 import models.base.{Accessible, Accessor}
+import eu.ehri.project.definitions.Ontology
 
 
 object UserProfileFormat {
@@ -48,9 +49,9 @@ object UserProfileFormat {
     __.read[UserProfileF] and
     (__ \ RELATIONSHIPS \ Accessor.BELONGS_REL).lazyReadNullable[List[Group]](
       Reads.list[Group]).map(_.getOrElse(List.empty[Group])) and
-    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
   )(UserProfile.quickApply _)
 }

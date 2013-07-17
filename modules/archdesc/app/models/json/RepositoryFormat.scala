@@ -7,6 +7,7 @@ import play.api.libs.json._
 import defines.{EntityType, PublicationStatus}
 import models.base.{Described, Accessible, Accessor}
 import models._
+import eu.ehri.project.definitions.Ontology
 import defines.EnumUtils._
 
 
@@ -52,11 +53,11 @@ object RepositoryFormat {
   implicit lazy val metaReads: Reads[Repository] = (
     __.read[RepositoryF](repositoryReads) and
     // Country
-    (__ \ RELATIONSHIPS \ RepositoryF.COUNTRY_REL).lazyReadNullable[List[Country]](
+    (__ \ RELATIONSHIPS \ Ontology.REPOSITORY_HAS_COUNTRY).lazyReadNullable[List[Country]](
       Reads.list(CountryFormat.metaReads)).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+        Reads.list(Accessor.Converter.restReads)).map(_.toList.flatten) and
+    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
         Reads.list(SystemEventFormat.metaReads)).map(_.flatMap(_.headOption))
     )(Repository.apply _)
 

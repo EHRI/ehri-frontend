@@ -7,6 +7,7 @@ import models._
 import defines.EntityType
 import defines.EnumUtils._
 import models.base.{Accessible, Accessor}
+import eu.ehri.project.definitions.Ontology
 
 
 object CountryFormat {
@@ -35,9 +36,9 @@ object CountryFormat {
   implicit val metaReads: Reads[Country] = (
     __.read[CountryF](countryReads) and
       // Latest event
-    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list(SystemEventFormat.metaReads)).map(_.flatMap(_.headOption))
     )(Country.apply _)
 

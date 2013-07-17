@@ -7,6 +7,7 @@ import defines.EntityType
 import models.base.{Accessible, Described, Accessor}
 import models._
 import defines.EnumUtils._
+import eu.ehri.project.definitions.Ontology
 
 
 object ConceptFormat {
@@ -43,15 +44,15 @@ object ConceptFormat {
 
   implicit val metaReads: Reads[Concept] = (
     __.read[ConceptF] and
-    (__ \ RELATIONSHIPS \ ConceptF.IN_SET_REL).lazyReadNullable[List[Vocabulary]](
+    (__ \ RELATIONSHIPS \ Ontology.ITEM_IN_AUTHORITATIVE_SET).lazyReadNullable[List[Vocabulary]](
       Reads.list[Vocabulary]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ ConceptF.BT_REL).lazyReadNullable[List[Concept]](
+    (__ \ RELATIONSHIPS \ Ontology.CONCEPT_HAS_BROADER).lazyReadNullable[List[Concept]](
       Reads.list[Concept]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ ConceptF.BT_REL).lazyReadNullable[List[Concept]](
+    (__ \ RELATIONSHIPS \ Ontology.CONCEPT_HAS_BROADER).lazyReadNullable[List[Concept]](
       Reads.list[Concept]).map(_.getOrElse(List.empty[Concept])) and
-    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
         Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
   )(Concept.apply _)
 }

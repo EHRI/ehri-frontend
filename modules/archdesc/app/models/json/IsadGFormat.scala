@@ -6,6 +6,7 @@ import models.base.Description
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
+import eu.ehri.project.definitions.Ontology
 
 
 object IsadGFormat {
@@ -13,6 +14,7 @@ object IsadGFormat {
   import IsadG._
   import DatePeriodFormat._
   import AccessPointFormat._
+  import Ontology._
 
   implicit val isadGWrites = new Writes[DocumentaryUnitDescriptionF] {
     def writes(d: DocumentaryUnitDescriptionF): JsValue = {
@@ -48,9 +50,9 @@ object IsadGFormat {
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions
         ),
         RELATIONSHIPS -> Json.obj(
-          DatePeriodF.DATE_REL -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq),
-          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
-          Description.UNKNOWN_PROP -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
+          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq),
+          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
+          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -105,9 +107,9 @@ object IsadGFormat {
           (__ \ RULES_CONVENTIONS).readNullable[String] and
           (__ \ DATES_DESCRIPTIONS).readNullable[String]
         )(IsadGControl.apply _)) and
-      (__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyReadNullable(
+      (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).lazyReadNullable(
         Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-      (__ \ RELATIONSHIPS \ Description.UNKNOWN_PROP)
+      (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY)
         .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
     )(DocumentaryUnitDescriptionF.apply _)
 

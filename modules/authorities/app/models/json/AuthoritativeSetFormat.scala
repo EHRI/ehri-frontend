@@ -6,6 +6,7 @@ import play.api.libs.json._
 import models._
 import defines.EntityType
 import models.base.{Accessible, Accessor}
+import eu.ehri.project.definitions.Ontology
 
 
 object AuthoritativeSetFormat {
@@ -42,9 +43,9 @@ object AuthoritativeSetFormat {
 
   implicit val metaReads: Reads[AuthoritativeSet] = (
     __.read[AuthoritativeSetF] and
-    (__ \ RELATIONSHIPS \ Accessible.REL).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Accessible.EVENT_REL).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
   )(AuthoritativeSet.apply _)
 }

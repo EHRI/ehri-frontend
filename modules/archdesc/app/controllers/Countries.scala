@@ -219,4 +219,3 @@ object Countries extends CRUD[CountryF,Country]
   }
 }
 
-
