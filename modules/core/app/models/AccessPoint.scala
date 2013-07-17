@@ -12,7 +12,6 @@ object AccessPointF {
   val TYPE = "type"
   val DESCRIPTION = "description"
   val TARGET = "name" // Change to something better!
-  val RELATES_REL = "relatesTo"
 
   object AccessPointType extends Enumeration {
     type Type = Value

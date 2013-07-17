@@ -10,8 +10,6 @@ import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
 
 object SystemEventF {
-  val ACTIONER_REL = "hasActioner"
-  val SCOPE_REL = "hasEventScope"
 
   final val TIMESTAMP = "timestamp"
   final val LOG_MESSAGE = "logMessage"
@@ -25,12 +23,12 @@ object SystemEventF {
 }
 
 case class SystemEventF(
-                         isA: EntityType.Value = EntityType.SystemEvent,
-                         id: Option[String],
-                         timestamp: DateTime,
-                         logMessage: Option[String] = None,
-                         eventType: Option[EventType.Value] = None
-                         ) extends Model {
+  isA: EntityType.Value = EntityType.SystemEvent,
+  id: Option[String],
+  timestamp: DateTime,
+  logMessage: Option[String] = None,
+  eventType: Option[EventType.Value] = None
+) extends Model {
   lazy val datetime = ISODateTimeFormat.dateTime.withZoneUTC.print(timestamp)
 }
 
@@ -42,13 +40,10 @@ object SystemEvent {
     val restReads = models.json.SystemEventFormat.metaReads
     implicit val clientFormat: Format[SystemEvent] = (
       __.format[SystemEventF](SystemEventF.Converter.clientFormat) and
-        (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-        (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat)
-      )(SystemEvent.apply _, unlift(SystemEvent.unapply _))
-
-
+      (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
+      (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat)
+    )(SystemEvent.apply _, unlift(SystemEvent.unapply _))
   }
-
 }
 
 case class SystemEvent(

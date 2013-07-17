@@ -55,8 +55,6 @@ object UserProfile {
       lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
     )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply _))
-
-
   }
 
   // Constructor, sans account and perms
