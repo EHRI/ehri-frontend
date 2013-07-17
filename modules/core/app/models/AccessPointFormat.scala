@@ -2,7 +2,6 @@ package models.json
 
 import play.api.libs.json._
 import models.{AccessPointF, Entity}
-import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._

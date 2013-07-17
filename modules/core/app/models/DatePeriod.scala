@@ -10,8 +10,6 @@ import play.api.libs.json.Json
 
 object DatePeriodF {
 
-  final val DATE_REL = "hasDate"
-
   val TYPE = "type"
   val START_DATE = "startDate"
   val END_DATE = "endDate"

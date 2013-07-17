@@ -12,6 +12,7 @@ import eu.ehri.project.definitions.Ontology
 object LinkFormat {
   import models.LinkF._
   import models.Entity._
+  import Ontology._
 
   implicit val linkTypeReads = enumReads(LinkType)
 
@@ -46,15 +47,15 @@ object LinkFormat {
 
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
-    (__ \ RELATIONSHIPS \ LinkF.LINK_REL).lazyReadNullable[List[AnyModel]](
+    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadNullable[List[AnyModel]](
       Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
-    (__ \ RELATIONSHIPS \ LinkF.ACCESSOR_REL).lazyReadNullable[List[UserProfile]](
+    (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).lazyReadNullable[List[UserProfile]](
       Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ LinkF.BODY_REL).lazyReadNullable[List[AccessPointF]](
+    (__ \ RELATIONSHIPS \ LINK_HAS_BODY).lazyReadNullable[List[AccessPointF]](
         Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
   )(Link.apply _)
 }

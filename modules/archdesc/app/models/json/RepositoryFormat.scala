@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 
 import defines.{EntityType, PublicationStatus}
-import models.base.{Described, Accessible, Accessor}
+import models.base.{Described, Accessor}
 import models._
 import eu.ehri.project.definitions.Ontology
 import defines.EnumUtils._
@@ -15,6 +15,7 @@ object RepositoryFormat {
   import models.json.IsdiahFormat._
   import models.Entity._
   import models.RepositoryF._
+  import Ontology._
 
   implicit val publicationStatusReads = defines.EnumUtils.enumReads(PublicationStatus)
 
@@ -29,7 +30,7 @@ object RepositoryFormat {
           PRIORITY -> d.priority
         ),
         RELATIONSHIPS -> Json.obj(
-          DESC_REL -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
+          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -53,11 +54,11 @@ object RepositoryFormat {
   implicit lazy val metaReads: Reads[Repository] = (
     __.read[RepositoryF](repositoryReads) and
     // Country
-    (__ \ RELATIONSHIPS \ Ontology.REPOSITORY_HAS_COUNTRY).lazyReadNullable[List[Country]](
+    (__ \ RELATIONSHIPS \ REPOSITORY_HAS_COUNTRY).lazyReadNullable[List[Country]](
       Reads.list(CountryFormat.metaReads)).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
         Reads.list(Accessor.Converter.restReads)).map(_.toList.flatten) and
-    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
         Reads.list(SystemEventFormat.metaReads)).map(_.flatMap(_.headOption))
     )(Repository.apply _)
 

@@ -11,6 +11,7 @@ import models.base.{AnyModel, MetaModel, Accessor}
 object PermissionGrantFormat {
   import PermissionGrantF._
   import Entity._
+  import eu.ehri.project.definitions.Ontology._
 
   implicit val permissionTypeReads = defines.EnumUtils.enumFormat(defines.PermissionType)
 
@@ -27,13 +28,13 @@ object PermissionGrantFormat {
 
   implicit val metaReads: Reads[PermissionGrant] = (
     __.read[PermissionGrantF] and
-    (__ \ RELATIONSHIPS \ PermissionGrantF.ACCESSOR_REL).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ PermissionGrantF.TARGET_REL).lazyReadNullable[List[AnyModel]](
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyReadNullable[List[AnyModel]](
       Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
-    (__ \ RELATIONSHIPS \ PermissionGrantF.SCOPE_REL).lazyReadNullable[List[AnyModel]](
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
       Reads.list[AnyModel]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ PermissionGrantF.GRANTEE_REL).lazyReadNullable[List[UserProfile]](
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).lazyReadNullable[List[UserProfile]](
       Reads.list[UserProfile]).map(_.flatMap(_.headOption))
   )(PermissionGrant.apply _)
 }

@@ -124,7 +124,6 @@ object EntityDAO {
     e
   }
   def handleUpdate(e: JsObject): JsObject = {
-    Logger.logger.info("Running Solr update handler " + e + " -> " + onUpdate)
     onUpdate.foreach(f => f(e))
     e
   }

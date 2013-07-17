@@ -11,12 +11,9 @@ import base._
 import play.api.libs.json._
 import models.json._
 import play.api.libs.functional.syntax._
+import eu.ehri.project.definitions.Ontology
 
 object HistoricalAgentF {
-
-  final val DESC_REL = "describes"
-  final val ADDRESS_REL = "hasAddress"
-  final val IN_SET_REL = "inAuthoritativeSet"
 
   final val UNNAMED_PLACEHOLDER = "UNNAMED Authority"
 
@@ -35,8 +32,12 @@ case class HistoricalAgentF(
   id: Option[String],
   identifier: String,
   publicationStatus: Option[PublicationStatus.Value] = None,
-  @Annotations.Relation(HistoricalAgentF.DESC_REL) descriptions: List[HistoricalAgentDescriptionF] = Nil
-) extends Model with Persistable with Described[HistoricalAgentDescriptionF]
+
+  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY)
+  descriptions: List[HistoricalAgentDescriptionF] = Nil
+) extends Model
+  with Persistable
+  with Described[HistoricalAgentDescriptionF]
 
 
 object HistoricalAgent {

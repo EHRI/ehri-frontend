@@ -10,8 +10,9 @@ import models.base.{AnyModel, Accessible, Accessor, MetaModel}
 import eu.ehri.project.definitions.Ontology
 
 object AnnotationFormat {
-  import AnnotationF._
+  import AnnotationF.{ANNOTATION_TYPE => ANNOTATION_TYPE_PROP, _}
   import models.Entity._
+  import Ontology._
 
   implicit val annotationTypeReads = enumReads(AnnotationType)
 
@@ -21,7 +22,7 @@ object AnnotationFormat {
         ID -> d.id,
         TYPE -> d.isA,
         DATA -> Json.obj(
-          ANNOTATION_TYPE -> d.annotationType,
+          ANNOTATION_TYPE_PROP -> d.annotationType,
           BODY -> d.body,
           FIELD -> d.field,
           COMMENT -> d.comment
@@ -33,7 +34,7 @@ object AnnotationFormat {
   implicit val annotationReads: Reads[AnnotationF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Annotation)) and
     (__ \ ID).readNullable[String] and
-      ((__ \ DATA \ ANNOTATION_TYPE).readNullable[AnnotationType.Value]
+      ((__ \ DATA \ ANNOTATION_TYPE_PROP).readNullable[AnnotationType.Value]
           orElse Reads.pure(Some(AnnotationType.Comment))) and
       (__ \ DATA \ BODY).read[String] and
       (__ \ DATA \ FIELD).readNullable[String] and
@@ -49,15 +50,15 @@ object AnnotationFormat {
 
   implicit val metaReads: Reads[Annotation] = (
     __.read[AnnotationF] and
-    (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATES_REL).lazyReadNullable[List[Annotation]](
+    (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyReadNullable[List[Annotation]](
          Reads.list(metaReads)).map(_.getOrElse(List.empty[Annotation])) and
-    (__ \ RELATIONSHIPS \ AnnotationF.ANNOTATOR_REL).lazyReadNullable[List[UserProfile]](
+    (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).lazyReadNullable[List[UserProfile]](
       Reads.list(userProfileMetaReads)).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ AnnotationF.SOURCE_REL).lazyReadNullable[List[AnyModel]](
+    (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyReadNullable[List[AnyModel]](
       Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
     )(Annotation.apply _)
 }

@@ -4,6 +4,7 @@ import models.base._
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
 import play.api.libs.json.{Json, JsObject, JsValue}
+import eu.ehri.project.definitions.Ontology
 
 case class IsaarDetail(
   datesOfExistence: Option[String] = None,
@@ -55,28 +56,14 @@ case class HistoricalAgentDescriptionF(
   name: String,
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
-  @Annotations.Relation(DatePeriodF.DATE_REL)
+
+  @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
   dates: List[DatePeriodF] = Nil,
   details: IsaarDetail,
   control: IsaarControl,
   accessPoints: List[AccessPointF],
   unknownProperties: List[Entity] = Nil
-  ) extends Model with Persistable with Description with Temporal
-
-
-/*
-case class HistoricalAgentDescription(val e: Entity)
-  extends Description
-  with TemporalEntity
-  with Formable[HistoricalAgentDescriptionF] {
-  lazy val item: Option[HistoricalAgent] = e.relations(Described.REL).headOption.map(HistoricalAgent(_))
-
-  lazy val formable: HistoricalAgentDescriptionF = {
-    val json = Json.toJson(e)
-    println("JSON: " + json)
-    json.as[HistoricalAgentDescriptionF]
-  }
-
-  lazy val formableOpt: Option[HistoricalAgentDescriptionF] = Json.toJson(e).asOpt[HistoricalAgentDescriptionF]
-}
-*/
+) extends Model
+  with Persistable
+  with Description
+  with Temporal

@@ -4,6 +4,7 @@ import models.base._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
+import eu.ehri.project.definitions.Ontology
 
 case class IsadGContext(
   adminBiogHistory: Option[String] = None,
@@ -43,8 +44,6 @@ case class IsadGControl(
 
 object DocumentaryUnitDescriptionF {
 
-  //lazy implicit val documentaryUnitDescriptionFormat = json.IsadGFormat.restFormat
-
   implicit object Converter extends RestConvertable[DocumentaryUnitDescriptionF] with ClientConvertable[DocumentaryUnitDescriptionF] {
     val restFormat = models.json.IsadGFormat.restFormat
 
@@ -66,7 +65,7 @@ case class DocumentaryUnitDescriptionF(
   languageCode: String,
   name: String,
   `abstract`: Option[String],
-  @Annotations.Relation(DatePeriodF.DATE_REL)
+  @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
   dates: List[DatePeriodF] = Nil,
   levelOfDescription: Option[String] = None,
   extentAndMedium: Option[String] = None,

@@ -12,10 +12,6 @@ object LinkF {
   val LINK_TYPE = "type"
   val DESCRIPTION = "description"
 
-  final val LINK_REL = "hasLinkTarget"
-  final val ACCESSOR_REL = "hasLinker"
-  final val BODY_REL = "hasLinkBody"
-
   object LinkType extends Enumeration {
     type Type = Value
     val Hierarchical = Value("hierarchical")

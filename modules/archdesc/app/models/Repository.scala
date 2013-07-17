@@ -12,13 +12,10 @@ import models.base._
 import play.api.i18n.Lang
 import models.json._
 import play.api.libs.functional.syntax._
+import eu.ehri.project.definitions.Ontology
 
 
 object RepositoryF {
-
-  final val DESC_REL = "describes"
-  final val ADDRESS_REL = "hasAddress"
-  final val COUNTRY_REL = "hasCountry"
 
   val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
@@ -36,9 +33,14 @@ case class RepositoryF(
   id: Option[String],
   identifier: String,
   publicationStatus: Option[PublicationStatus.Value] = None,
-  @Annotations.Relation(RepositoryF.DESC_REL) descriptions: List[RepositoryDescriptionF] = Nil,
+
+  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY)
+  descriptions: List[RepositoryDescriptionF] = Nil,
+
   priority: Option[Int] = None
-) extends Model with Persistable with Described[RepositoryDescriptionF]
+) extends Model
+  with Persistable
+  with Described[RepositoryDescriptionF]
 
 
 object Repository {
@@ -51,8 +53,6 @@ object Repository {
       nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
     )(Repository.apply _, unlift(Repository.unapply _))
-
-
   }
 }
 

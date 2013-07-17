@@ -4,6 +4,7 @@ import models.base._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
+import eu.ehri.project.definitions.Ontology
 
 private[models] case class IsdiahDetails(
   history: Option[String] = None,
@@ -65,7 +66,7 @@ case class RepositoryDescriptionF(
   name: String,
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
-  @Annotations.Relation(RepositoryF.ADDRESS_REL) addresses: List[AddressF] = Nil,
+  @Annotations.Relation(Ontology.ENTITY_HAS_ADDRESS) addresses: List[AddressF] = Nil,
   details: IsdiahDetails,
   access: IsdiahAccess,
   services: IsdiahServices,

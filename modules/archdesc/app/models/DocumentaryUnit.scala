@@ -11,6 +11,7 @@ import scala.Some
 import scala.Some
 import play.api.libs.functional.syntax._
 import scala.Some
+import eu.ehri.project.definitions.Ontology
 
 
 object DocumentaryUnitF {
@@ -35,13 +36,6 @@ object DocumentaryUnitF {
   final val SCOPE = "scope"
   final val COPYRIGHT = "copyright"
 
-  final val DESC_REL = "describes"
-  final val ACCESS_REL = "access"
-  final val HELD_REL = "heldBy"
-  final val CHILD_REL = "childOf"
-
-  //lazy implicit val restFormat = json.DocumentaryUnitFormat.restFormat
-
   implicit object Converter extends RestConvertable[DocumentaryUnitF] with ClientConvertable[DocumentaryUnitF] {
     val restFormat = models.json.DocumentaryUnitFormat.restFormat
 
@@ -58,9 +52,11 @@ case class DocumentaryUnitF(
   copyrightStatus: Option[DocumentaryUnitF.CopyrightStatus.Value] = Some(DocumentaryUnitF.CopyrightStatus.Unknown),
   scope: Option[DocumentaryUnitF.Scope.Value] = Some(DocumentaryUnitF.Scope.Low),
 
-  @Annotations.Relation(DocumentaryUnitF.DESC_REL)
+  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: List[DocumentaryUnitDescriptionF] = Nil
-) extends Model with Persistable with Described[DocumentaryUnitDescriptionF] {
+) extends Model
+  with Persistable
+  with Described[DocumentaryUnitDescriptionF] {
   def withDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = copy(descriptions = descriptions ++ List(d))
 
   /**

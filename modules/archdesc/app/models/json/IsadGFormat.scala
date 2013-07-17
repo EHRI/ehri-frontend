@@ -2,7 +2,6 @@ package models.json
 
 import play.api.libs.json._
 import models._
-import models.base.Description
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
@@ -69,8 +68,8 @@ object IsadGFormat {
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).read[String] and
       (__ \ DATA \ ABSTRACT).readNullable[String] and
-      ((__ \ RELATIONSHIPS \ DatePeriodF.DATE_REL).lazyRead[List[DatePeriodF]](
-        Reads.list[DatePeriodF](datePeriodReads)) orElse Reads.pure(Nil)) and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).lazyReadNullable[List[DatePeriodF]](
+        Reads.list[DatePeriodF](datePeriodReads)).map(_.toList.flatten) and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String] and
       (__ \ DATA).read[IsadGContext]((

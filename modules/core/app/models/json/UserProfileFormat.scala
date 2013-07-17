@@ -13,6 +13,7 @@ import eu.ehri.project.definitions.Ontology
 object UserProfileFormat {
   import models.UserProfileF._
   import models.Entity._
+  import Ontology._
 
   implicit val userProfileWrites: Writes[UserProfileF] = new Writes[UserProfileF] {
     def writes(d: UserProfileF): JsValue = {
@@ -47,11 +48,11 @@ object UserProfileFormat {
 
   implicit val metaReads: Reads[UserProfile] = (
     __.read[UserProfileF] and
-    (__ \ RELATIONSHIPS \ Accessor.BELONGS_REL).lazyReadNullable[List[Group]](
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadNullable[List[Group]](
       Reads.list[Group]).map(_.getOrElse(List.empty[Group])) and
-    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
   )(UserProfile.quickApply _)
 }

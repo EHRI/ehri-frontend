@@ -13,6 +13,8 @@ object IsaarFormat {
   import HistoricalAgentF._
   import AccessPointFormat._
   import Isaar._
+  import DatePeriodFormat._
+  import eu.ehri.project.definitions.Ontology._
 
   implicit val HistoricalAgentTypeReads = defines.EnumUtils.enumReads(HistoricalAgentType)
 
@@ -47,14 +49,13 @@ object IsaarFormat {
           MAINTENANCE_NOTES -> d.control.maintenanceNotes
         ),
         RELATIONSHIPS -> Json.obj(
-          Description.ACCESS_REL -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
-          Description.UNKNOWN_PROP -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
+          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
+          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq),
+          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)))
         )
       )
     }
   }
-
-  private implicit val datePeriodReads = DatePeriodFormat.datePeriodReads
 
   import HistoricalAgentDescriptionF._
   implicit val isaarReads: Reads[HistoricalAgentDescriptionF] = (
@@ -69,8 +70,8 @@ object IsaarFormat {
         (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
       ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
         (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
-      ((__ \ RELATIONSHIPS \ DatePeriodF.DATE_REL).lazyRead[List[DatePeriodF]](
-        Reads.list[DatePeriodF]) orElse Reads.pure(Nil)) and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).lazyReadNullable[List[DatePeriodF]](
+        Reads.list[DatePeriodF]).map(_.toList.flatten) and
       (__ \ DATA).read[IsaarDetail]((
         (__ \ DATES_OF_EXISTENCE).readNullable[String] and
         (__ \ HISTORY).readNullable[String] and
@@ -94,9 +95,9 @@ object IsaarFormat {
           (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
         (__ \ MAINTENANCE_NOTES).readNullable[String]
       )(IsaarControl.apply _)) and
-      (__ \ RELATIONSHIPS \ AccessPointF.RELATES_REL).lazyReadNullable(
+      (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).lazyReadNullable(
           Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-      (__ \ RELATIONSHIPS \ Description.UNKNOWN_PROP)
+      (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY)
         .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
   )(HistoricalAgentDescriptionF.apply _)
 

@@ -9,10 +9,6 @@ import play.api.libs.functional.syntax._
 
 object ConceptF {
 
-  final val IN_SET_REL = "inAuthoritativeSet"
-  final val NT_REL = "narrower"
-  final val BT_REL = "broader"
-
   val ACCESS_POINTS = "accessPoints"
   val UNKNOWN_DATA = "unknownData"
 

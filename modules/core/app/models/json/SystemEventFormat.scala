@@ -10,8 +10,9 @@ import models.base.AnyModel
 
 
 object SystemEventFormat {
-  import SystemEventF._
+  import SystemEventF.{EVENT_TYPE => EVENT_PROP, _}
   import Entity._
+  import eu.ehri.project.definitions.Ontology._
 
   implicit val eventTypeReads = defines.EnumUtils.enumFormat(defines.EventType)
 
@@ -25,7 +26,7 @@ object SystemEventFormat {
         DATA -> Json.obj(
           TIMESTAMP -> d.timestamp,
           LOG_MESSAGE -> d.logMessage,
-          EVENT_TYPE -> d.eventType
+          EVENT_PROP -> d.eventType
         )
       )
     }
@@ -36,16 +37,16 @@ object SystemEventFormat {
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ TIMESTAMP).read[String].map(new DateTime(_)) and
       (__ \ DATA \ LOG_MESSAGE).readNullable[String] and
-      (__ \ DATA \ EVENT_TYPE).readNullable[EventType.Value]
+      (__ \ DATA \ EVENT_PROP).readNullable[EventType.Value]
     )(SystemEventF.apply _)
 
   implicit val restFormat: Format[SystemEventF] = Format(systemEventReads,systemEventWrites)
 
   implicit val metaReads: Reads[SystemEvent] = (
     __.read[SystemEventF] and
-    (__ \ RELATIONSHIPS \ SystemEventF.SCOPE_REL).lazyReadNullable[List[AnyModel]](
+    (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
       Reads.list(AnyModel.Converter.restReads)).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ SystemEventF.ACTIONER_REL).lazyReadNullable[List[UserProfile]](
+    (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadNullable[List[UserProfile]](
       Reads.list(UserProfileFormat.metaReads)).map(_.flatMap(_.headOption))
   )(SystemEvent.apply _)
 }

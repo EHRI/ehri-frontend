@@ -18,10 +18,6 @@ object AnnotationF {
   val ANNOTATION_TYPE = "annotationType"
   val COMMENT = "comment"
 
-  final val ANNOTATES_REL = "hasAnnotationTarget"
-  final val ANNOTATOR_REL = "hasAnnotation"
-  final val SOURCE_REL = "hasAnnotationBody"
-
   object AnnotationType extends Enumeration {
     type Type = Value
     val Comment = Value("comment")

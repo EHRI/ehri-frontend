@@ -9,8 +9,6 @@ import play.api.libs.functional.syntax._
 
 object GroupF {
 
-  final val BELONGS_REL = "belongsTo"
-
   val NAME = "name"
   val DESCRIPTION = "description"
 

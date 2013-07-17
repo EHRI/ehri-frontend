@@ -16,6 +16,7 @@ object HistoricalAgentFormat {
   import models.json.IsaarFormat._
   import models.Entity._
   import models.HistoricalAgentF._
+  import Ontology._
 
   implicit val publicationStatusReads = defines.EnumUtils.enumReads(PublicationStatus)
 
@@ -29,7 +30,7 @@ object HistoricalAgentFormat {
           PUBLICATION_STATUS -> d.publicationStatus
         ),
         RELATIONSHIPS -> Json.obj(
-          DESC_REL -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
+          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -40,7 +41,7 @@ object HistoricalAgentFormat {
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      (__ \ RELATIONSHIPS \ Described.REL).lazyReadNullable[List[HistoricalAgentDescriptionF]](
+      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[HistoricalAgentDescriptionF]](
         Reads.list[HistoricalAgentDescriptionF]).map(_.getOrElse(List.empty[HistoricalAgentDescriptionF]))
     )(HistoricalAgentF.apply _)
 
@@ -52,11 +53,11 @@ object HistoricalAgentFormat {
 
   implicit val metaReads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
-    (__ \ RELATIONSHIPS \ HistoricalAgentF.IN_SET_REL).lazyReadNullable[List[AuthoritativeSet]](
+    (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).lazyReadNullable[List[AuthoritativeSet]](
       Reads.list[AuthoritativeSet]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
   )(HistoricalAgent.apply _)
 }

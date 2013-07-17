@@ -13,6 +13,7 @@ import eu.ehri.project.definitions.Ontology
 object GroupFormat {
   import models.GroupF._
   import models.Entity._
+  import Ontology._
 
   implicit val groupWrites: Writes[GroupF] = new Writes[GroupF] {
     def writes(d: GroupF): JsValue = {
@@ -41,11 +42,11 @@ object GroupFormat {
 
   implicit val metaReads: Reads[Group] = (
     __.read[GroupF] and
-    (__ \ RELATIONSHIPS \ Accessor.BELONGS_REL).lazyReadNullable[List[Group]](
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadNullable[List[Group]](
       Reads.list[Group]).map(_.getOrElse(List.empty[Group])) and
-    (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
   )(Group.apply _)
 }
