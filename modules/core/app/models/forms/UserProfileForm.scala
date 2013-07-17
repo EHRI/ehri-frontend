@@ -20,7 +20,7 @@ object UserProfileForm {
       NAME -> nonEmptyText,
       LOCATION -> optional(text),
       ABOUT -> optional(text),
-      LANGUAGES -> optional(list(nonEmptyText))
+      LANGUAGES -> list(nonEmptyText)
     )(UserProfileF.apply)(UserProfileF.unapply)
   )
 }

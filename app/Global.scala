@@ -3,6 +3,7 @@
 //
 
 import defines.EntityType
+import global.RouteRegistry
 import play.api._
 import play.api.mvc._
 
@@ -45,7 +46,6 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     // Register JSON models!
     models.json.Utils.registerModels
 
-    import views.Helpers.RouteRegistry
     RouteRegistry.setUrl(EntityType.SystemEvent, controllers.core.routes.SystemEvents.get _)
     RouteRegistry.setUrl(EntityType.DocumentaryUnit, controllers.archdesc.routes.DocumentaryUnits.get _)
     RouteRegistry.setUrl(EntityType.HistoricalAgent, controllers.authorities.routes.HistoricalAgents.get _)
@@ -61,33 +61,33 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
     // Register menu parts - MASSIVE HACK to put this here!!!
     Logger.logger.info("Configuring menu... " + controllers.vocabs.routes.Concepts.search.url)
-    views.MenuConfig.putMain(
+    global.MainMenuConfig.putMain(
       "pages.search", controllers.routes.Search.search.url)
-    views.MenuConfig.putMain(
+    global.MainMenuConfig.putMain(
       "contentTypes.documentaryUnit", controllers.archdesc.routes.DocumentaryUnits.search.url)
-    views.MenuConfig.putMain(
+    global.MainMenuConfig.putMain(
       "contentTypes.historicalAgent", controllers.authorities.routes.HistoricalAgents.search.url)
-    views.MenuConfig.putMain(
+    global.MainMenuConfig.putMain(
       "contentTypes.repository", controllers.archdesc.routes.Repositories.search.url)
-    views.MenuConfig.putMain(
+    global.MainMenuConfig.putMain(
       "contentTypes.cvocConcept", controllers.vocabs.routes.Concepts.search.url)
 
     Logger.logger.info("Configuring admin menu...")
-    views.MenuConfig.putAdmin(
+    global.MainMenuConfig.putAdmin(
       "contentTypes.userProfile", controllers.core.routes.UserProfiles.search.url)
-    views.MenuConfig.putAdmin(
+    global.MainMenuConfig.putAdmin(
       "contentTypes.group", controllers.core.routes.Groups.list.url)
-    views.MenuConfig.putAdmin(
+    global.MainMenuConfig.putAdmin(
       "contentTypes.country", controllers.archdesc.routes.Countries.search.url)
-    views.MenuConfig.putAdmin(
+    global.MainMenuConfig.putAdmin(
       "contentTypes.cvocVocabulary", controllers.vocabs.routes.Vocabularies.list.url)
-    views.MenuConfig.putAdmin(
+    global.MainMenuConfig.putAdmin(
       "contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list.url)
-    views.MenuConfig.putAdmin("s1", "-")
-    views.MenuConfig.putAdmin(
+    global.MainMenuConfig.putAdmin("s1", "-")
+    global.MainMenuConfig.putAdmin(
       "contentTypes.systemEvent", controllers.core.routes.SystemEvents.list.url)
-    views.MenuConfig.putAdmin("s2", "-")
-    views.MenuConfig.putAdmin(
+    global.MainMenuConfig.putAdmin("s2", "-")
+    global.MainMenuConfig.putAdmin(
       "search.updateIndex", controllers.routes.Search.updateIndex.url
     )
 

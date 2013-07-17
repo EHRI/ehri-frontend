@@ -104,7 +104,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
         } getOrElse {
           // It's not registered, so create the account...
           val user = UserProfileF(id=None, identifier=username, name=name,
-            location=None, about=None, languages=None)
+            location=None, about=None, languages=Nil)
           val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
 
           createUserProfile(user, groups) { profile =>

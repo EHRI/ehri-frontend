@@ -9,8 +9,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 
                     <li>
                         <a href="@linkAction(item.id, entityType.toString, otherItem.id)">
-                            @otherItem
-                            @* FIXME: Check this    LinkableEntity.fromEntity(otherItem).map(_.toStringLang).getOrElse(item)*@
+                            @otherItem.toStringLang
                         </a>
                     </li>
                 }

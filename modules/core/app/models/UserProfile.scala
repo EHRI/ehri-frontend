@@ -41,7 +41,7 @@ case class UserProfileF(
   name: String,
   location: Option[String] = None,
   about: Option[String] = None,
-  languages: Option[List[String]] = None
+  languages: List[String] = Nil
 ) extends Model with Persistable
 
 

@@ -11,6 +11,7 @@ import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
 import models._
 import play.api.mvc.Call
+import defines.EntityType
 
 
 package object Helpers {
@@ -81,27 +82,17 @@ package object Helpers {
   /**
    * Get the URL for an unknown type of entity.
    */
-  import defines.EntityType
+  import global.RouteRegistry
 
-  object RouteRegistry {
-    val urls = collection.mutable.Map.empty[String,String => Call]
 
-    private var default: String => Call = s => new Call("GET", "/")
+  def urlFor(e: AnyModel): Call
+          = RouteRegistry.urls.getOrElse(e.isA, RouteRegistry.getDefault).apply(e.id)
 
-    def setDefault(c: String => Call): Unit = {
-      default = c
-    }
+  def urlFor(t: EntityType.Value, id: String): Call
+          = RouteRegistry.urls.getOrElse(t, RouteRegistry.getDefault).apply(id)
 
-    def getDefault: String => Call = default
-
-    def setUrl(e: EntityType.Value, c: String => Call): Unit = {
-      urls.put(e, c)
-    }
-  }
-
-  def urlFor(e: AnyModel): Call = RouteRegistry.urls.getOrElse(e.isA, RouteRegistry.getDefault).apply(e.id)
-  def urlFor(t: EntityType.Value, id: String): Call = RouteRegistry.urls.getOrElse(t, RouteRegistry.getDefault).apply(id)
-  def optionalUrlFor(t: EntityType.Value, id: String): Option[Call] = RouteRegistry.urls.get(t).map(_.apply(id))
+  def optionalUrlFor(t: EntityType.Value, id: String): Option[Call]
+          = RouteRegistry.urls.get(t).map(_.apply(id))
 
 
   /**

@@ -1,4 +1,4 @@
-package views
+package global
 
 import java.util
 
@@ -6,7 +6,7 @@ import java.util
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object MenuConfig {
+object MainMenuConfig {
 
   import collection.JavaConverters._
 

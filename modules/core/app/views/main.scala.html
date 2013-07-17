@@ -242,7 +242,7 @@
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
                     <ul class="nav">
-                        @views.MenuConfig.main.map { case (key, url) =>
+                        @global.MainMenuConfig.main.map { case (key, url) =>
                             @activeIfCurrent(url, key)
                         }
                         <li class="dropdown">
@@ -251,7 +251,7 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                @views.MenuConfig.admin.map { case (key, url) =>
+                                @global.MainMenuConfig.admin.map { case (key, url) =>
                                     @if(url == "-") {
                                         <li role="presentation" class="divider"></li>
                                     } else {
@@ -274,9 +274,7 @@
                                     <b class="caret"></b>
                                 </a>
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                    @* IGNORED UNTIL CONTROLLERS ARE MOVED TO CORE
-                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@routes.UserProfiles.get(account.profile_id)">@Messages("actions.viewProfile")</a> </li>
-                                    *@
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.UserProfiles.get(account.profile_id)">@Messages("actions.viewProfile")</a> </li>
                                     <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.Admin.changePassword">@Messages("login.changePassword")</a></li>
                                     <li role="presentation" class="divider"></li>
                                     <li>
@@ -288,7 +286,7 @@
                                 </ul>
                             </li>
                         }.getOrElse {
-                            <li><a href="/login" id="signin">@Messages("banner.signin")</a></li>
+                            <li><a href="@controllers.core.routes.Application.login" id="signin">@Messages("banner.signin")</a></li>
                         }
                     </ul>
                 </div>
