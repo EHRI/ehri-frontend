@@ -32,7 +32,7 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends Specification with BeforeE
 
   val runner: ServerRunner = new ServerRunner(cls.getName, testPort)
   runner.getConfigurator
-    .getThirdpartyJaxRsClasses()
+    .getThirdpartyJaxRsPackages()
     .add(new ThirdPartyJaxRsPackage(
     classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"));
   runner.start
