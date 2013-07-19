@@ -179,6 +179,6 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   }
 
   step {
-    runner.stop
+    runner.stop()
   }
 }

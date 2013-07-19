@@ -8,6 +8,7 @@ import controllers.routes
 import controllers.ListParams
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
+import play.api.http.{MimeTypes, HeaderNames}
 
 
 class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
@@ -220,7 +221,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "should redirect to login page when permission denied when not logged in" in new FakeApp {
-      val show = route(FakeRequest(GET, controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(FakeRequest(GET, controllers.archdesc.routes.DocumentaryUnits.get("c1").url)
+        .withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML)).get
       status(show) must equalTo(SEE_OTHER)
     }
 
@@ -229,176 +231,9 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         controllers.archdesc.routes.DocumentaryUnits.history("c1").url)).get
       status(show) must equalTo(OK)
     }
-
-    "allow granting permissions to create a doc within the scope of r2" in new FakeApp {
-
-      import ContentType._
-
-      val testRepo = "r2"
-      val testData: Map[String, Seq[String]] = Map(
-        "identifier" -> Seq("test"),
-        "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Test Item"),
-        "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
-        "publicationStatus" -> Seq("Draft")
-      )
-
-      // Trying to create the item should fail initially.
-      // Check we cannot create an item...
-      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r2").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(UNAUTHORIZED)
-
-      // Grant permissions to create docs within the scope of r2
-      val permTestData: Map[String, List[String]] = Map(
-        DocumentaryUnit.toString -> List("create", "update", "delete")
-      )
-      val permReq = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.setScopedPermissionsPost(testRepo, ContentType.UserProfile, unprivilegedUser.profile_id).url)
-        .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
-      status(permReq) must equalTo(SEE_OTHER)
-      // Now try again and create the item... it should succeed.
-      // Check we cannot create an item...
-      val cr2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost(testRepo).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr2) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
-      status(getR) must equalTo(OK)
-    }
-
-    "allow granting permissions on a specific item" in new FakeApp {
-
-      import ContentType._
-
-      val testItem = "c4"
-      val testData: Map[String, Seq[String]] = Map(
-        "identifier" -> Seq(testItem),
-        "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Changed Name"),
-        "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
-        "publicationStatus" -> Seq("Draft")
-      )
-
-      // Trying to create the item should fail initially.
-      // Check we cannot create an item...
-      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(UNAUTHORIZED)
-
-      // Grant permissions to update item c1
-      val permTestData: Map[String, List[String]] = Map(
-        DocumentaryUnit.toString -> List("update")
-      )
-      val permReq = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.setItemPermissionsPost(testItem, ContentType.UserProfile, unprivilegedUser.profile_id).url)
-        .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
-      status(permReq) must equalTo(SEE_OTHER)
-      // Now try again to update the item, which should succeed
-      // Check we can update the item
-      val cr2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr2) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
-      status(getR) must equalTo(OK)
-    }
-
-    "allow linking to items via annotation" in new FakeApp {
-      val testItem = "c1"
-      val linkSrc = "cvocc1"
-      val body = "This is a link"
-      val testData: Map[String, Seq[String]] = Map(
-        LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
-        LinkF.DESCRIPTION -> Seq(body)
-      )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.linkAnnotatePost(testItem, EntityType.Concept.toString, linkSrc).url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must contain(linkSrc)
-      contentAsString(getR) must contain(body)
-    }
-
-    "allow linking to multiple items via a single form submission" in new FakeApp {
-      val testItem = "c1"
-      val body1 = "This is a link 1"
-      val body2 = "This is a link 2"
-      val testData: Map[String, Seq[String]] = Map(
-        "link[0].id" -> Seq("c2"),
-        "link[0].data." + LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
-        "link[0].data." + LinkF.DESCRIPTION -> Seq(body1),
-        "link[1].id" -> Seq("c3"),
-        "link[1].data." + LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
-        "link[1].data." + LinkF.DESCRIPTION -> Seq(body2)
-      )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.linkMultiAnnotatePost(testItem).url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must contain("c2")
-      contentAsString(getR) must contain(body1)
-      contentAsString(getR) must contain("c3")
-      contentAsString(getR) must contain(body2)
-    }
-
-    "allow adding extra descriptions" in new FakeApp {
-      val testItem = "c1"
-      val testData: Map[String, Seq[String]] = Map(
-        "languageCode" -> Seq("en"),
-        "name" -> Seq("A Second Description"),
-        "contentArea.scopeAndContent" -> Seq("This is a second description")
-      )
-      // Now try again to update the item, which should succeed
-      // Check we can update the item
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.createDescriptionPost(testItem).url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must contain("This is a second description")
-    }
-
-    "allow updating individual descriptions" in new FakeApp {
-      val testItem = "c1"
-      val testItemDesc = "cd1"
-      val testData: Map[String, Seq[String]] = Map(
-        "languageCode" -> Seq("en"),
-        "id" -> Seq("cd1"),
-        "name" -> Seq("An Updated Description"),
-        "contentArea.scopeAndContent" -> Seq("This is an updated description")
-      )
-      // Now try again to update the item, which should succeed
-      // Check we can update the item
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.updateDescriptionPost(testItem, testItemDesc).url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must contain("This is an updated description")
-      contentAsString(getR) must not contain ("Some description text for c1")
-    }
-
-    "allow deleting individual descriptions" in new FakeApp {
-      val testItem = "c1"
-      val testItemDesc = "cd1-2"
-      // Now try again to update the item, which should succeed
-      // Check we can update the item
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.deleteDescriptionPost(testItem, testItemDesc).url)
-        .withHeaders(formPostHeaders.toSeq: _*)).get
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must not contain ("Some alternate description text for c1")
-    }
   }
 
   step {
-    runner.stop
+    runner.stop()
   }
 }

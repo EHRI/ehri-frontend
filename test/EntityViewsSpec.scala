@@ -127,109 +127,109 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
     }
   }
 
-    "UserProfile views" should {
+  "UserProfile views" should {
 
-      import rest.PermissionDAO
+    import rest.PermissionDAO
 
-      val subjectUser = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
-      val id = "reto"
+    val subjectUser = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
+    val id = "reto"
 
-      "reliably set permissions" in new FakeApp {
-        val testData: Map[String, List[String]] = Map(
-          ContentType.Repository.toString -> List(PermissionType.Create.toString),
-          ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
-        )
-        val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.core.routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-        status(cr) must equalTo(SEE_OTHER)
+    "reliably set permissions" in new FakeApp {
+      val testData: Map[String, List[String]] = Map(
+        ContentType.Repository.toString -> List(PermissionType.Create.toString),
+        ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.core.routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
 
-        // Now check we can read back the same permissions.
-        val permCall = await(PermissionDAO[UserProfile](Some(userProfile)).get(subjectUser))
-        permCall must beRight
-        val perms = permCall.right.get
-        perms.get(ContentType.Repository, PermissionType.Create) must beSome
-        perms.get(ContentType.Repository, PermissionType.Create).get.inheritedFrom must beNone
-        perms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
-        perms.get(ContentType.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
-      }
-
-      "link to other privileged actions when logged in" in new FakeApp {
-        val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.core.routes.UserProfiles.get(id).url)).get
-        status(show) must equalTo(OK)
-        contentAsString(show) must contain(controllers.core.routes.UserProfiles.update(id).url)
-        contentAsString(show) must contain(controllers.core.routes.UserProfiles.delete(id).url)
-        contentAsString(show) must contain(controllers.core.routes.UserProfiles.permissions(id).url)
-        contentAsString(show) must contain(controllers.core.routes.UserProfiles.grantList(id).url)
-        contentAsString(show) must contain(controllers.core.routes.UserProfiles.search().url)
-        contentAsString(show) must contain(controllers.core.routes.Groups.membership(EntityType.UserProfile.toString, id).url)
-      }
-
-      "allow adding users to groups" in new FakeApp {
-        // Going to add user Reto to group Niod
-        val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.core.routes.Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)
-            .withFormUrlEncodedBody()).get
-        status(add) must equalTo(SEE_OTHER)
-
-        val userFetch = await(EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(id))
-        userFetch must beRight
-        userFetch.right.get.groups.map(_.id) must contain("niod")
-      }
-
-      "allow removing users from groups" in new FakeApp {
-        // Going to add remove Reto from group KCL
-        val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.core.routes.Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)
-            .withFormUrlEncodedBody()).get
-        status(rem) must equalTo(SEE_OTHER)
-
-        val userFetch = await(EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(id))
-        userFetch must beRight
-        userFetch.right.get.groups.map(_.id) must not contain("kcl")
-      }
+      // Now check we can read back the same permissions.
+      val permCall = await(PermissionDAO[UserProfile](Some(userProfile)).get(subjectUser))
+      permCall must beRight
+      val perms = permCall.right.get
+      perms.get(ContentType.Repository, PermissionType.Create) must beSome
+      perms.get(ContentType.Repository, PermissionType.Create).get.inheritedFrom must beNone
+      perms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
+      perms.get(ContentType.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
     }
 
-    "Group views" should {
-
-      val id = "kcl"
-
-      "detail when logged in should link to other privileged actions" in new FakeApp {
-        val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.core.routes.Groups.get(id).url)).get
-        status(show) must equalTo(OK)
-        contentAsString(show) must contain(controllers.core.routes.Groups.update(id).url)
-        contentAsString(show) must contain(controllers.core.routes.Groups.delete(id).url)
-        contentAsString(show) must contain(controllers.core.routes.Groups.permissions(id).url)
-        contentAsString(show) must contain(controllers.core.routes.Groups.grantList(id).url)
-        contentAsString(show) must contain(controllers.core.routes.Groups.membership(EntityType.Group.toString, id).url)
-        contentAsString(show) must contain(controllers.core.routes.Groups.list().url)
-      }
-
-      "allow adding groups to groups" in new FakeApp {
-        // Add KCL to Admin
-        val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.core.routes.Groups.addMemberPost("admin", EntityType.Group.toString, id).url)
-            .withFormUrlEncodedBody()).get
-        status(add) must equalTo(SEE_OTHER)
-
-        val groupFetch = await(EntityDAO[Group](EntityType.Group, Some(userProfile)).get(id))
-        groupFetch must beRight
-        groupFetch.right.get.groups.map(_.id) must contain("admin")
-      }
-
-      "allow removing groups from groups" in new FakeApp {
-        // Remove NIOD from Admin
-        val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.core.routes.Groups.removeMemberPost("admin", EntityType.Group.toString, "niod").url)
-            .withFormUrlEncodedBody()).get
-        status(rem) must equalTo(SEE_OTHER)
-
-        val groupFetch = await(EntityDAO[Group](EntityType.Group, Some(userProfile)).get("niod"))
-        groupFetch must beRight
-        groupFetch.right.get.groups.map(_.id) must not contain("admin")
-      }
+    "link to other privileged actions when logged in" in new FakeApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.core.routes.UserProfiles.get(id).url)).get
+      status(show) must equalTo(OK)
+      contentAsString(show) must contain(controllers.core.routes.UserProfiles.update(id).url)
+      contentAsString(show) must contain(controllers.core.routes.UserProfiles.delete(id).url)
+      contentAsString(show) must contain(controllers.core.routes.UserProfiles.permissions(id).url)
+      contentAsString(show) must contain(controllers.core.routes.UserProfiles.grantList(id).url)
+      contentAsString(show) must contain(controllers.core.routes.UserProfiles.search().url)
+      contentAsString(show) must contain(controllers.core.routes.Groups.membership(EntityType.UserProfile.toString, id).url)
     }
+
+    "allow adding users to groups" in new FakeApp {
+      // Going to add user Reto to group Niod
+      val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.core.routes.Groups.addMemberPost("niod", EntityType.UserProfile.toString, id).url)
+          .withFormUrlEncodedBody()).get
+      status(add) must equalTo(SEE_OTHER)
+
+      val userFetch = await(EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(id))
+      userFetch must beRight
+      userFetch.right.get.groups.map(_.id) must contain("niod")
+    }
+
+    "allow removing users from groups" in new FakeApp {
+      // Going to add remove Reto from group KCL
+      val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.core.routes.Groups.removeMemberPost("kcl", EntityType.UserProfile.toString, id).url)
+          .withFormUrlEncodedBody()).get
+      status(rem) must equalTo(SEE_OTHER)
+
+      val userFetch = await(EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(id))
+      userFetch must beRight
+      userFetch.right.get.groups.map(_.id) must not contain("kcl")
+    }
+  }
+
+  "Group views" should {
+
+    val id = "kcl"
+
+    "detail when logged in should link to other privileged actions" in new FakeApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.core.routes.Groups.get(id).url)).get
+      status(show) must equalTo(OK)
+      contentAsString(show) must contain(controllers.core.routes.Groups.update(id).url)
+      contentAsString(show) must contain(controllers.core.routes.Groups.delete(id).url)
+      contentAsString(show) must contain(controllers.core.routes.Groups.permissions(id).url)
+      contentAsString(show) must contain(controllers.core.routes.Groups.grantList(id).url)
+      contentAsString(show) must contain(controllers.core.routes.Groups.membership(EntityType.Group.toString, id).url)
+      contentAsString(show) must contain(controllers.core.routes.Groups.list().url)
+    }
+
+    "allow adding groups to groups" in new FakeApp {
+      // Add KCL to Admin
+      val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.core.routes.Groups.addMemberPost("admin", EntityType.Group.toString, id).url)
+          .withFormUrlEncodedBody()).get
+      status(add) must equalTo(SEE_OTHER)
+
+      val groupFetch = await(EntityDAO[Group](EntityType.Group, Some(userProfile)).get(id))
+      groupFetch must beRight
+      groupFetch.right.get.groups.map(_.id) must contain("admin")
+    }
+
+    "allow removing groups from groups" in new FakeApp {
+      // Remove NIOD from Admin
+      val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.core.routes.Groups.removeMemberPost("admin", EntityType.Group.toString, "niod").url)
+          .withFormUrlEncodedBody()).get
+      status(rem) must equalTo(SEE_OTHER)
+
+      val groupFetch = await(EntityDAO[Group](EntityType.Group, Some(userProfile)).get("niod"))
+      groupFetch must beRight
+      groupFetch.right.get.groups.map(_.id) must not contain("admin")
+    }
+  }
 
   step {
-    runner.stop
+    runner.stop()
   }
 }

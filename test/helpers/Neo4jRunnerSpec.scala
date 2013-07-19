@@ -30,7 +30,7 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends Specification with BeforeE
     }
   }
 
-  val runner: ServerRunner = new ServerRunner(cls.getName, testPort)
+  val runner: ServerRunner = ServerRunner.getInstance(cls.getName, testPort)
   runner.getConfigurator
     .getThirdpartyJaxRsPackages()
     .add(new ThirdPartyJaxRsPackage(
