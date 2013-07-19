@@ -77,6 +77,11 @@ object SolrConstants {
   final val LAST_MODIFIED = "lastUpdated"
 
   /**
+   * Language code for descriptions
+   */
+  final val LANGUAGE_CODE = "languageCode"
+
+  /**
    * Default limit, if none is set
    */
   final val DEFAULT_SEARCH_LIMIT = 20
@@ -85,6 +90,17 @@ object SolrConstants {
    * Default filter limit.
    */
   final val DEFAULT_FILTER_LIMIT = 100
+
+  /**
+   * Holder id for hierarchical items.
+   */
+  final val HOLDER_ID = "holderId"
+
+  /**
+   * Holder name for hierarchical items.
+   */
+  final val HOLDER_NAME = "holderName"
+
 
 
 }

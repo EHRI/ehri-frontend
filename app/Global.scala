@@ -2,6 +2,7 @@
 // Global request object
 //
 
+import _root_.models.{HistoricalAgent, Repository, DocumentaryUnit, Concept}
 import defines.EntityType
 import global.RouteRegistry
 import play.api._
@@ -12,6 +13,7 @@ import org.apache.commons.codec.binary.Base64
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
 import rest.EntityDAO
+import solr.SolrIndexer
 import solr.SolrIndexer.SolrErrorResponse
 
 
@@ -90,6 +92,12 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     global.MainMenuConfig.putAdmin(
       "search.updateIndex", controllers.routes.Search.updateIndex.url
     )
+
+    // Solr indexing
+    SolrIndexer.conversionRegistry.put(EntityType.Concept, Concept.toSolr)
+    SolrIndexer.conversionRegistry.put(EntityType.DocumentaryUnit, DocumentaryUnit.toSolr)
+    SolrIndexer.conversionRegistry.put(EntityType.Repository, Repository.toSolr)
+    SolrIndexer.conversionRegistry.put(EntityType.HistoricalAgent, HistoricalAgent.toSolr)
 
     import play.api.libs.concurrent.Execution.Implicits._
 

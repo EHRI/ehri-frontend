@@ -12,6 +12,10 @@ import play.api.libs.json._
 import models.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
+import solr.{SolrIndexer, SolrConstants}
+import solr.SolrConstants._
+import play.api.libs.json.JsString
+import play.api.libs.json.JsObject
 
 object HistoricalAgentF {
 
@@ -51,6 +55,32 @@ object HistoricalAgent {
         (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
       )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply _))
 
+  }
+
+  val toSolr: JsObject => Seq[JsObject] = { js =>
+    import SolrConstants._
+    val c = js.as[HistoricalAgent](Converter.restReads)
+    val descriptionData = (js \ Entity.RELATIONSHIPS \ Ontology.DESCRIPTION_FOR_ENTITY)
+      .asOpt[List[JsObject]].getOrElse(List.empty[JsObject])
+
+    c.descriptions.zipWithIndex.map { case (desc, i) =>
+      val data = SolrIndexer.dynamicData((descriptionData(i) \ Entity.DATA).as[JsObject])
+      data ++ Json.obj(
+        ID -> Json.toJson(desc.id),
+        TYPE -> JsString(c.isA.toString),
+        NAME_EXACT -> JsString(desc.name),
+        LANGUAGE_CODE -> JsString(desc.languageCode),
+        ITEM_ID -> JsString(c.id),
+        ACCESSOR_FIELD -> c.accessors.map(_.id),
+        LAST_MODIFIED -> c.latestEvent.map(_.model.datetime),
+        OTHER_NAMES -> Json.toJson(desc.otherFormsOfName.toList.flatten),
+        PARALLEL_NAMES -> Json.toJson(desc.parallelFormsOfName.toList.flatten),
+        HOLDER_ID -> Json.toJson(c.set.map(_.id)),
+        HOLDER_NAME -> Json.toJson(c.set.map(_.toStringLang)),
+        Isaar.IDENTIFIER -> c.model.identifier,
+        Isaar.ENTITY_TYPE -> Json.toJson(desc.entityType.toString)
+      )
+    }
   }
 }
 
