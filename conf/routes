@@ -2,6 +2,7 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+POST  /iteratee         controllers.Search.testIteratee
 
 # Multimodule test
 -> /        core.Routes
