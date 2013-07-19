@@ -20,6 +20,10 @@ import solr.SolrIndexer.SolrUpdateResponse
 import solr.SolrIndexer.SolrErrorResponse
 import models.base.AnyModel
 import utils.search.{SearchOrder, SearchParams}
+import play.extras.iteratees.{Combinators, JsonIteratees, JsonEnumeratees, Encoding}
+import play.api.libs.ws.ResponseHeaders
+import play.api.http.{HeaderNames, ContentTypes}
+import play.api.libs.iteratee.Enumeratee.CheckDone
 
 
 object Search extends EntitySearch {
@@ -51,6 +55,75 @@ object Search extends EntitySearch {
       render=s => Messages("scope." + s)
     )
   )
+
+  // Fun fun fun, iteratees test
+  def testIteratee = Action { implicit request =>
+
+    import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+    import play.api.libs.json._
+    import play.api.libs.iteratee._
+    import play.extras.iteratees.JsonEnumeratees._
+    import play.extras.iteratees.JsonIteratees._
+
+    case class Item(id: String, `type`: String)
+    case class Errors(id: Int = 0, errors: List[String] = Nil)
+
+    val extractor: Enumeratee[Array[Char], JsObject] = jsArray(jsValues(jsSimpleObject))
+
+    // Enumeratee that parses a JsObject into an item.  Uses a simple mapping Enumeratee.
+    def parseItem: Enumeratee[JsObject, Option[Item]] = Enumeratee.map {obj =>
+      for {
+        id <- (obj \ "id").asOpt[String]
+        t <- (obj \ "type").asOpt[String]
+      } yield Item(id, t)
+    }
+
+    def printItem: Enumeratee[Option[Item], String] = Enumeratee.mapInput( _ match {
+      case Input.El(Some(obj)) => println(obj.id); Input.Empty
+      case Input.El(None) => Input.El("An error!")
+      case other => other.map (_ => "")
+    })
+
+    def printList: Enumeratee[List[Item], String] = Enumeratee.mapInput( _ match {
+      case Input.El(list) => list.foreach(obj => println(obj.id)); Input.Empty
+      case other => other.map (_ => "")
+    })
+
+    def buffer2(count: Int) = for {
+      chunk <- Enumeratee.take[Option[Item]](count)  &>> Iteratee.getChunks
+    } yield chunk.flatMap((i: Option[Item]) => i.toList)
+
+
+    def buffer(count: Int, list: List[Item] = Nil): Iteratee[Option[Item], List[Item]] = Cont {
+      case Input.El(Some(obj)) => if (list.size < count) buffer(count, list ::: List(obj))
+                            else buffer(count, List(obj))
+      case Input.El(None) => buffer(count, list)
+      case Input.Empty => buffer(count, list)
+      case in @ Input.EOF => Done(list, in)
+    }
+
+    val extractAndPrint = extractor ><> parseItem ><> Enumeratee.grouped(buffer2(200)) ><> printList
+
+    val handler: (ResponseHeaders) => Iteratee[Array[Byte], Errors => Errors] = { rh =>
+      Encoding.decode()
+        .transform(
+            extractAndPrint
+              .transform(Iteratee.getChunks[String].map(errorList => (e: Errors) => Errors(e.id, errorList))))
+    }
+
+    // .transform(Iteratee.fold[Errors => Errors, Errors](Errors())((e, f) => f(e)))
+
+    println("Running...")
+    Async {
+      play.api.libs.ws.WS
+          .url("http://localhost:7474/ehri/repository/list?limit=1000000")
+          .withHeaders(HeaderNames.ACCEPT -> ContentTypes.JSON).get(handler).map { r =>
+        println("finished...")
+        Ok("done\n");
+      }
+    }
+  }
 
   /**
    * Full text search action that returns a complete page of item data.
@@ -155,7 +228,7 @@ object Search extends EntitySearch {
         jobs.map { response =>
           response match {
             case r@SolrUpdateResponse(SolrHeader(code, time), Some(SolrError(msg, _))) => {
-              Logger.logger.error(msg)
+              Logger.logger.error("Got an error: " + msg)
               chan.push(wrapMsg(msg))
               r
             }
