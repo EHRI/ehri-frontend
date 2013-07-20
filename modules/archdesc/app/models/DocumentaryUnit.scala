@@ -97,7 +97,7 @@ object DocumentaryUnit {
     val clientFormat: Format[DocumentaryUnit] = (
       __.format[DocumentaryUnitF](DocumentaryUnitF.Converter.clientFormat) and
         (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
-        (__ \ "parent").formatNullable[DocumentaryUnit](clientFormat) and
+        (__ \ "parent").lazyFormatNullable[DocumentaryUnit](clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
       )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply _))
