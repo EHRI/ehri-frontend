@@ -3,7 +3,18 @@
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
-        TODO
+        @common.stringValue(Some(item.model.annotationType.toString), AnnotationF.ANNOTATION_TYPE)
+
+        @item.model.body.map { body =>
+            <div class="well well-small">
+                @body
+            </div>
+        }
+
+        @item.user.map { u =>
+            <h4>@Messages("link.creator")</h4>
+            <a href="@views.Helpers.urlFor(u)">@u.toStringLang</a>
+        }
     }
 } {
     @common.visibility(item, controllers.core.routes.Annotations.visibility(item.id), ContentType.Annotation)
