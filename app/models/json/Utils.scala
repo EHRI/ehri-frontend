@@ -6,11 +6,7 @@ import models._
 import play.api.libs.json.{Format, Reads}
 
 /**
- * Created with IntelliJ IDEA.
- * User: michaelb
- * Date: 09/07/13
- * Time: 12:38
- * To change this template use File | Settings | File Templates.
+ * @author Mike Bryant (http://github.com/mikesname
  */
 object Utils {
   def registerModels: Unit = {
@@ -43,6 +39,4 @@ object Utils {
     AnyModel.registerClient(EntityType.Annotation, Annotation.Converter.clientFormat.asInstanceOf[Format[AnyModel]])
     AnyModel.registerClient(EntityType.PermissionGrant, PermissionGrant.Converter.clientFormat.asInstanceOf[Format[AnyModel]])
   }
-
-
 }
