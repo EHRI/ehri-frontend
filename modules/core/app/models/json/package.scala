@@ -57,7 +57,7 @@ package object json {
     }
   }
 
-  def lazyNullableListReads[T](path: JsPath)(fmt: Reads[T]): Reads[List[T]]
+  def lazyNullableListReads[T](path: JsPath)(fmt: => Reads[T]): Reads[List[T]]
       = Reads(js => nullableListReads(path)(fmt).reads(js))
 
   def nullableListWrites[T](path: JsPath)(implicit fmt: Writes[T]): OWrites[List[T]] = {
@@ -68,7 +68,7 @@ package object json {
     }
   }
 
-  def lazyNullableListWrites[T](path: JsPath)(fmt: Writes[T]): OWrites[List[T]]
+  def lazyNullableListWrites[T](path: JsPath)(fmt: => Writes[T]): OWrites[List[T]]
       = OWrites((t: List[T]) => nullableListWrites[T](path)(fmt).writes(t).as[JsObject])
 
   /**
@@ -82,6 +82,6 @@ package object json {
   def nullableListFormat[T](path: JsPath)(implicit fmt: Format[T]): OFormat[List[T]] =
       OFormat[List[T]](nullableListReads(path)(fmt), nullableListWrites(path)(fmt))
 
-  def lazyNullableListFormat[T](path: JsPath)(fmt: Format[T]): OFormat[List[T]]
+  def lazyNullableListFormat[T](path: JsPath)(fmt: => Format[T]): OFormat[List[T]]
       = OFormat[List[T]](lazyNullableListReads(path)(fmt), lazyNullableListWrites(path)(fmt))
 }
