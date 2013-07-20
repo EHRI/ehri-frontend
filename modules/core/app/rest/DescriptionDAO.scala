@@ -89,7 +89,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
           EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
               EntityDAO.handleUpdate(item)
-              //Cache.remove(id)
+              Cache.remove(id)
               Right((item.as[MT](rd.restReads), r.json.as[DT](fmt.restFormat)))
             }
             case Left(err) => Left(err)
