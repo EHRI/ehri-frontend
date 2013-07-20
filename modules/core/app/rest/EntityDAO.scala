@@ -10,7 +10,8 @@ import models.json.{ClientConvertable, RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
-import models.base.{AnyModel, MetaModel}
+import models.base.AnyModel
+
 
 /**
  * Class representing a page of data.
@@ -143,17 +144,18 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
 
   def get(id: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
-    //val cached = Cache.getAs[MT](id)
-    //if (cached.isDefined) Future.successful(Right(cached.get))
-    //else {
+    val cached = Cache.getAs[JsValue](id)
+    if (cached.isDefined) {
+      Future.successful(Right(cached.get.as[MT](rd.restReads)))
+    } else {
       Logger.logger.debug("GET {} ", enc(requestUrl, id))
       WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkErrorAndParse(response)(rd.restReads).right.map { entity =>
-          //Cache.set(id, entity, cacheTime)
+          Cache.set(id, response.json, cacheTime)
           entity
         }
       }
-    //}
+    }
   }
 
   def getJson(id: String): Future[Either[RestError, JsObject]] = {
@@ -211,6 +213,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
       checkErrorAndParse(response)(rd.restReads).right.map { item =>
         EntityDAO.handleUpdate(response.json.as[JsObject])
+        Cache.set(id, response.json)
         item
       }
     }
@@ -223,7 +226,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
         EntityDAO.handleDelete(id)
-        //Cache.remove(id)
+        Cache.remove(id)
         r.status == OK
       })
     }

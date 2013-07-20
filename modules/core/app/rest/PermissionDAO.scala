@@ -10,6 +10,7 @@ import models.{PermissionGrant, UserProfile}
 import play.api.libs.json.Json
 import play.api.Play.current
 import play.api.cache.Cache
+import play.api.Logger
 
 
 case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extends RestDAO {
@@ -24,17 +25,26 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
 
   def get: Future[Either[RestError, GlobalPermissionSet[UserProfile]]] = {
     userProfile.map { up =>
-        val url = enc(requestUrl, up.id)
+      val url = enc(requestUrl, up.id)
+      val cached = Cache.getAs[GlobalPermissionSet[UserProfile]](url)
+      if (cached.isDefined) {
+        Future.successful(Right(cached.get))
+      } else {
+        Logger.logger.debug("Fetch perms: {}", url)
         WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
           checkError(response).right.map { r =>
             val globalPerms = GlobalPermissionSet(up, r.json)
-            Cache.set(url, globalPerms, cacheTime)
+            // NB: We cache permissions for a shorter time since they are effectively
+            // impossible to correctly invalidate when inherited permissions change.
+            // Hence we just live with some uncertainty here.
+            Cache.set(url, globalPerms, cacheTime / 2)
             globalPerms
           }
         }
-      } getOrElse {
-      // If we don't have a user we can't get our own profile, so just return PermissionDenied
-        Future.successful(Left(PermissionDenied()))
+      }
+    } getOrElse {
+    // If we don't have a user we can't get our own profile, so just return PermissionDenied
+      Future.successful(Left(PermissionDenied()))
     }
   }
 
@@ -97,6 +107,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
       val cached = Cache.getAs[ItemPermissionSet[UserProfile]](url)
       if (cached.isDefined) Future.successful(Right(cached.get))
       else {
+        Logger.logger.debug("Fetch item perms: {}", url)
         WS.url(url)
           .withHeaders(authHeaders.toSeq: _*).get.map { response =>
           checkError(response).right.map { r =>
@@ -116,6 +127,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     val cached = Cache.getAs[ItemPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(Right(cached.get))
     else {
+      Logger.logger.debug("Fetch item perms: {}", url)
       WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkError(response).right.map { r =>
           val iperms = ItemPermissionSet[T](user, contentType, r.json)
@@ -147,6 +159,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
       var cached = Cache.getAs[GlobalPermissionSet[UserProfile]](url)
       if (cached.isDefined) Future.successful(Right(cached.get))
       else {
+        Logger.logger.debug("Fetch scoped perms: {}", url)
         WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
           checkError(response).right.map { r =>
             val sperms = GlobalPermissionSet[UserProfile](up, r.json)
@@ -165,6 +178,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(Right(cached.get))
     else {
+      Logger.logger.debug("Fetch scoped perms: {}", url)
       WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkError(response).right.map { r =>
           val sperms = GlobalPermissionSet[T](user, r.json)
@@ -190,7 +204,8 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
         .withHeaders(authHeaders.toSeq: _*).post(Map[String, List[String]]()).map { response =>
       checkError(response).right.map { r =>
-        Cache.remove(userId)
+        Cache remove(userId)
+        Cache.remove(enc(requestUrl, userId))
         r.status == OK
       }
     }
@@ -200,7 +215,8 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
         .withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       checkError(response).right.map { r =>
-        Cache.remove(userId)
+        Cache remove(userId)
+        Cache.remove(enc(requestUrl, userId))
         r.status == OK
       }
     }
