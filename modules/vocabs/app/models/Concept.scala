@@ -72,7 +72,7 @@ object Concept {
         "identifier" -> c.model.identifier,
         ITEM_ID -> JsString(c.id),
         HOLDER_ID -> Json.toJson(c.vocabulary.map(_.id)),
-        HOLDER_NAME -> c.toStringLang,
+        HOLDER_NAME -> Json.toJson(c.vocabulary.map(_.toStringLang)),
         ACCESSOR_FIELD -> c.accessors.map(_.id),
         LAST_MODIFIED -> c.latestEvent.map(_.model.datetime)
       )
