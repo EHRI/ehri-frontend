@@ -79,8 +79,8 @@ object Search extends EntitySearch {
       } yield Item(id, t)
     }
 
-    def printItem: Enumeratee[Option[Item], String] = Enumeratee.mapInput( _ match {
-      case Input.El(Some(obj)) => println(obj.id); Input.Empty
+    def printItem(chan: Concurrent.Channel[String]): Enumeratee[Option[Item], String] = Enumeratee.mapInput( _ match {
+      case Input.El(Some(obj)) => chan.push(obj.id + "\n"); Input.Empty
       case Input.El(None) => Input.El("An error!")
       case other => other.map (_ => "")
     })
@@ -103,26 +103,30 @@ object Search extends EntitySearch {
       case in @ Input.EOF => Done(list, in)
     }
 
-    val extractAndPrint = extractor ><> parseItem ><> Enumeratee.grouped(buffer2(200)) ><> printList
+    def extractAndPrint(chan: Concurrent.Channel[String]) = {
+      extractor ><> parseItem ><> printItem(chan)
+    }
 
-    val handler: (ResponseHeaders) => Iteratee[Array[Byte], Errors => Errors] = { rh =>
-      Encoding.decode()
-        .transform(
-            extractAndPrint
-              .transform(Iteratee.getChunks[String].map(errorList => (e: Errors) => Errors(e.id, errorList))))
+    def getHandler(chan: Concurrent.Channel[String]) = {
+      val handler: (ResponseHeaders) => Iteratee[Array[Byte], Errors => Errors] = { rh =>
+        Encoding.decode()
+          .transform(
+              extractAndPrint(chan)
+                .transform(Iteratee.getChunks[String].map(errorList => (e: Errors) => Errors(e.id, errorList))))
+      }
+      handler
     }
 
     // .transform(Iteratee.fold[Errors => Errors, Errors](Errors())((e, f) => f(e)))
 
     println("Running...")
-    Async {
+    val channel = Concurrent.unicast[String] { chan =>
       play.api.libs.ws.WS
-          .url("http://localhost:7474/ehri/repository/list?limit=1000000")
-          .withHeaders(HeaderNames.ACCEPT -> ContentTypes.JSON).get(handler).map { r =>
-        println("finished...")
-        Ok("done\n");
+          .url("http://localhost:7474/ehri/cvocVocabulary/list?limit=1000000")
+          .withHeaders(HeaderNames.ACCEPT -> ContentTypes.JSON).get(getHandler(chan)).map { r =>
       }
     }
+    Ok.stream(channel.andThen(Enumerator.eof))
   }
 
   /**
