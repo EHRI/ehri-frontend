@@ -139,6 +139,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
             val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
             rest.LinkDAO(userOpt).link(id, ann.target, link, Some(apid)).map { annOrErr =>
               annOrErr.right.map { ann =>
+                Cache.remove(id)
                 Created(Json.toJson(ann)(Link.Converter.clientFormat))
               }
             }
@@ -170,6 +171,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
             )
             rest.LinkDAO(userOpt).linkMultiple(id, links).map { linksOrErr =>
               linksOrErr.right.map { newlinks =>
+                Cache.remove(id)
                 Created(Json.toJson(newlinks)(Writes.list(Link.Converter.clientFormat)))
               }
             }
