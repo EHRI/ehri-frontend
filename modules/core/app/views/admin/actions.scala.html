@@ -1,0 +1,20 @@
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@noSidebarLayout(Messages("pages.admin.title")) {
+
+    @Messages("pages.admin.message")
+
+    <h3>@Messages("pages.admin.userManagement")</h3>
+
+    <ul>
+        <li><a href="@controllers.core.routes.Admin.createUser">@Messages("actions.createUserProfile")</a></li>
+    </ul>
+
+    <h3>@Messages("pages.admin.searchAdmin")</h3>
+
+    <ul>
+        FIXME - ADD BACK IN
+        @* <li><a href="@routes.Search.updateIndex">@Messages("search.updateIndex")</a></li> *@
+    </ul>
+
+}

@@ -1,0 +1,14 @@
+@(item: Group)(implicit req: RequestHeader, lang: Lang)
+
+@common.searchItemOutline(item.id) {
+    <a href="@controllers.core.routes.Groups.get(item.id)">@item.toStringLang</a>
+} {
+    <small>
+        <ul class="unstyled muted inline inline-separator">
+            @item.latestEvent.map { event =>
+                <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))</li>
+            }
+        </ul>
+    </small>
+    @item.model.description
+}

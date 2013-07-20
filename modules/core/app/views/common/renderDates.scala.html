@@ -1,0 +1,19 @@
+@(item: Temporal, label: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+
+@if(!item.dates.isEmpty) {
+    <h4>@Messages(fieldPrefix + "." + label)</h4>
+    <table>
+        @item.dates.map { dp =>
+        <tr id="@dp.id">
+            <td>
+                @defining(dp.`type`) { typeOpt =>
+                   @typeOpt.map { t =>
+                        @Messages(fieldPrefix + "." + t)
+                    }
+                }
+            </td>
+            <td>@dp.years.trim</td>
+        </tr>
+        }
+    </table>
+}

@@ -1,0 +1,12 @@
+@(name: Option[String] = None)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+<div class="sidebar-section">
+    @name.map { n =>
+        <div class="sidebar-section-header">
+            @n
+        </div>
+    }
+    <div class="sidebar-section-body">
+        @html
+    </div>
+</div>

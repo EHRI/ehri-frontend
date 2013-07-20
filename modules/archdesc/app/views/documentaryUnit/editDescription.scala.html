@@ -1,0 +1,30 @@
+@(item: DocumentaryUnit, f: Form[models.DocumentaryUnitDescriptionF], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+ 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@extrascripts = {
+    <script src="@controllers.core.routes.Assets.at("javascripts/bootstrap-datepicker.js")" type="text/javascript"></script>
+						
+	<script>
+		$(document).ready(function() {
+				$(document).on('click', 'input.datepicker', function () {
+					$(this).datepicker({startView: 'decade', format:'yyyy-mm-dd'}).datepicker('show');
+				});
+		});
+	</script>
+}
+
+@rightSidebarLayout(Messages("actions.updateDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = extrascripts) {
+
+    @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+        @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+            @formHelpers.csrfToken()
+            @documentaryUnit.renderDescriptionForm(f(""))
+
+            @common.submitButtonWithLogMessageInput(Messages("submitButton.updateDescription"), cancel = Some(item))
+        }
+    }
+} {
+   @documentaryUnit.formNav();
+}

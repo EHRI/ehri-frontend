@@ -1,0 +1,41 @@
+@(item: Accessible, accessor: Accessor, perms: ItemPermissionSet[Accessor], contentType: ContentType.Value, action: Call)(
+        implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token
+        )
+
+@rightSidebarLayout(Messages("actions.grantPermissionsOnItem", item, accessor), breadcrumbs = common.breadcrumbs(List(item))) {
+
+    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        <fieldset id="permissionItem-area">
+
+            <table class="table table-bordered permissions-matrix">
+                <tr>
+                @PermissionType.values.toList.map { perm =>
+                    <th>@Messages("permissionTypes." + perm.toString)</th>
+                }
+                </tr>
+                <tr>
+                @PermissionType.values.toList.map { perm =>
+                    <td>
+                        @defining(perms.get(perm)) { permOpt =>
+                            <input type="checkbox" name="@contentType" value="@perm"
+                        @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
+                            checked
+                        } />
+                        @permOpt.flatMap(_.inheritedFrom).map { user =>
+                            <span title="@Messages("permissions.inheritedFrom", user)">*</span>
+                        }
+                        }
+                    </td>
+                }
+                </tr>
+            </table>
+
+
+        </fieldset>
+
+        @common.submitButtonWithLogMessageInput(Messages("actions.updatePermissions"), cancel = Some(item))
+    }
+} {
+
+}

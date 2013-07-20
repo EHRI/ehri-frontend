@@ -1,0 +1,101 @@
+# Routes for core functionality
+
+GET     /                               controllers.core.Application.index
+
+# API
+GET     /api/:id                        controllers.core.ApiController.getAny(id: String)
+GET     /api/:contentType/list          controllers.core.ApiController.listItems(contentType: String)
+GET     /api/:contentType/:id           controllers.core.ApiController.getItem(contentType: String, id: String)
+GET     /api/*path                      controllers.core.ApiController.get(path: String)
+
+# API Sparql queries - TESTING
+GET     /sparql                         controllers.core.ApiController.sparql
+GET     /sparqlQuery                    controllers.core.ApiController.sparqlQuery
+
+# OpenID
+GET     /login                          controllers.core.Application.login
+POST	/login							controllers.core.Application.loginPost
+GET     /logout                         controllers.core.Application.logout
+
+# Generic item redirection
+GET /item/:id                           controllers.core.Application.get(id: String)
+GET /item/:type/:id                     controllers.core.Application.getType(type: String, id: String)
+
+# Simple filtering
+GET /filter                             controllers.core.SearchFilter.filter
+
+# Plugin-handled login
+# OpenID
+GET     /openid                         controllers.core.OpenIDLoginHandler.openIDCallback
+POST	/openid							controllers.core.OpenIDLoginHandler.loginPost
+
+# Mozilla Persona
+POST	/persona						controllers.core.PersonaLoginHandler.loginPost
+
+# Admin routes
+GET     /admin                          controllers.core.Admin.adminActions
+GET     /admin/createUser               controllers.core.Admin.createUser
+POST    /admin/createUser               controllers.core.Admin.createUserPost
+GET     /admin/login                    controllers.core.Admin.passwordLogin
+POST    /admin/login                    controllers.core.Admin.passwordLoginPost
+GET     /admin/changePassword           controllers.core.Admin.changePassword
+POST    /admin/changePassword           controllers.core.Admin.changePasswordPost
+
+GET     /link/show/:id                  controllers.core.Links.get(id: String)
+GET     /link/showrd/:id                controllers.core.Links.getAndRedirect(id: String, redirect: Option[String] ?= None)
+GET     /link/history/:id               controllers.core.Links.history(id: String)
+GET     /link/visibility/:id            controllers.core.Links.visibility(id: String)
+POST    /link/visibility/:id            controllers.core.Links.visibilityPost(id: String)
+GET     /link/delete/:id                controllers.core.Links.delete(id: String, redirect: Option[String] ?= None)
+POST    /link/delete/:id                controllers.core.Links.deletePost(id: String, redirect: Option[String] ?= None)
+
+GET     /admin/action                   controllers.core.SystemEvents.list
+GET     /admin/action/show/:id          controllers.core.SystemEvents.get(id: String)
+
+GET /assets/*file       controllers.core.Assets.at(path="/public", file)
+
+GET     /annotation/show/:id            controllers.core.Annotations.get(id: String)
+GET     /annotation/history/:id         controllers.core.Annotations.history(id: String)
+GET     /annotation/visibility/:id      controllers.core.Annotations.visibility(id: String)
+POST    /annotation/visibility/:id      controllers.core.Annotations.visibilityPost(id: String)
+GET     /annotation/delete/:id          controllers.core.Annotations.delete(id: String)
+POST    /annotation/delete/:id          controllers.core.Annotations.deletePost(id: String)
+
+# Ugh, ugly REST violation - create an annotation on *another* entity
+POST    /annotation/create/:id          controllers.core.Annotations.createAnnotationJsonPost(id: String)
+GET     /annotation/getFor/:id          controllers.core.Annotations.getAnnotationJson(id: String)
+
+GET     /users                          controllers.core.UserProfiles.search
+GET     /users/list                     controllers.core.UserProfiles.list
+GET     /users/show/:id                 controllers.core.UserProfiles.get(id: String)
+GET     /users/history/:id              controllers.core.UserProfiles.history(id: String)
+GET     /users/delete/:id               controllers.core.UserProfiles.delete(id: String)
+POST    /users/delete/:id               controllers.core.UserProfiles.deletePost(id: String)
+GET     /users/update/:id               controllers.core.UserProfiles.update(id: String)
+POST    /users/update/:id               controllers.core.UserProfiles.updatePost(id: String)
+GET     /users/permissions/:id          controllers.core.UserProfiles.permissions(id: String)
+POST    /users/permissions/:id          controllers.core.UserProfiles.permissionsPost(id: String)
+GET     /users/permissions/:id/list     controllers.core.UserProfiles.grantList(id: String, page: Int ?= 1, limit: Int ?= 20)
+GET     /users/permissions/revoke/:id/:perm     controllers.core.UserProfiles.revokePermission(id: String, perm: String)
+POST    /users/permissions/revoke/:id/:perm     controllers.core.UserProfiles.revokePermissionPost(id: String, perm: String)
+
+GET     /group                          controllers.core.Groups.list
+GET     /group/show/:id                 controllers.core.Groups.get(id: String)
+GET     /group/history/:id              controllers.core.Groups.history(id: String)
+GET     /group/create                   controllers.core.Groups.create
+POST    /group/create                   controllers.core.Groups.createPost
+GET     /group/delete/:id               controllers.core.Groups.delete(id: String)
+POST    /group/delete/:id               controllers.core.Groups.deletePost(id: String)
+GET     /group/update/:id               controllers.core.Groups.update(id: String)
+POST    /group/update/:id               controllers.core.Groups.updatePost(id: String)
+GET     /group/permissions/:id          controllers.core.Groups.permissions(id: String)
+POST    /group/permissions/:id          controllers.core.Groups.permissionsPost(id: String)
+GET     /group/permissions/:id/list     controllers.core.Groups.grantList(id: String, page: Int ?= 1, limit: Int ?= 20)
+GET     /group/permissions/revoke/:id/:perm     controllers.core.Groups.revokePermission(id: String, perm: String)
+POST    /group/permissions/revoke/:id/:perm     controllers.core.Groups.revokePermissionPost(id: String, perm: String)
+GET		/group/members/:userType/:userId	controllers.core.Groups.membership(userType: String, userId: String)
+GET		/group/add/:id/:userType/:userId	controllers.core.Groups.addMember(id: String, userType: String, userId: String)
+POST	/group/add/:id/:userType/:userId	controllers.core.Groups.addMemberPost(id: String, userType: String, userId: String)
+GET		/group/remove/:id/:userType/:userId	controllers.core.Groups.removeMember(id: String, userType: String, userId: String)
+POST	/group/remove/:id/:userType/:userId	controllers.core.Groups.removeMemberPost(id: String, userType: String, userId: String)
+

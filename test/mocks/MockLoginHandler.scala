@@ -16,7 +16,7 @@ class MockLoginHandler(app: play.api.Application) extends LoginHandler {
 
   def login = Action { implicit request =>
     implicit val userOpt = None
-    Ok(views.html.login(models.forms.OpenIDForm.openid, routes.Application.login))
+    Ok(views.html.login(forms.OpenIDForm.openid, controllers.core.routes.Application.login))
   }
 
   def loginPost = Action { implicit request =>

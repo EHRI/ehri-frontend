@@ -1,7 +1,0 @@
-@(page: rest.Page[HistoricalAgent])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
-
-<ul class="unstyled">
-    @page.items.map { item =>
-        @historicalAgent.listItem(item)
-    }
-    </ul>

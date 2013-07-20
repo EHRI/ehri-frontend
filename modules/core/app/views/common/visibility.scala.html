@@ -1,0 +1,25 @@
+@(item: Accessible, url: Call, contentType: ContentType.Value)(implicit userOpt: Option[UserProfile])
+
+<div class="well well-small">
+    @if(!item.accessors.isEmpty) {
+        <h4>
+            <i class="icon-lock"></i>
+            @Messages("visibility.visibilityRestrictedTo")
+        </h4>
+        <ul>
+            @item.accessors.map { acc =>
+                <li><a href="@views.Helpers.urlFor(acc)">@acc.toStringLang</a></li>
+            }
+        </ul>
+    } else {
+        <h4>
+            <i class="icon-eye-open"></i>
+            @Messages("visibility.visibleToEveryone")
+        </h4>
+    }
+    @userOpt.map { user =>
+        @if(user.hasPermission(contentType, PermissionType.Update)) {
+            <p><small><a href="@url">@Messages("actions.setVisibility")</a></small></p>
+        }
+    }
+</div>

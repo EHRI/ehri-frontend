@@ -1,7 +1,0 @@
-@(page: rest.Page[DocumentaryUnit])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
-
-<ul class="unstyled">
-@page.items.map { item =>
-    @documentaryUnit.listItem(item)
-}
-</ul>

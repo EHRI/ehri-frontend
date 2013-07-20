@@ -1,36 +1,36 @@
-@(result: solr.ItemPage[(Entity,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(result: utils.search.ItemPage[(AnyModel,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 <ul class="unstyled">
     @result.items.map { case(item, id) =>
         @defining(Some(id)) { implicit descriptionId =>
             <li>
-                @item.isA match {
-                    case EntityType.DocumentaryUnit => {
-                        @documentaryUnit.listItem(DocumentaryUnit(item))
+                @item match {
+                    case d: DocumentaryUnit => {
+                        @documentaryUnit.listItem(d)
                     }
-                    case EntityType.HistoricalAgent => {
-                        @historicalAgent.listItem(HistoricalAgent(item))
+                    case d: HistoricalAgent => {
+                        @historicalAgent.listItem(d)
                     }
-                    case EntityType.Repository => {
-                        @repository.listItem(Repository(item))
+                    case d: Repository => {
+                        @repository.listItem(d)
                     }
-                    case EntityType.Concept => {
-                        @concept.listItem(Concept(item))
+                    case d: Concept => {
+                        @concept.listItem(d)
                     }
-                    case EntityType.Country => {
-                        @country.searchItem(Country(item))
+                    case d: Country => {
+                        @country.searchItem(d)
                     }
-                    case EntityType.UserProfile => {
-                        @userProfile.searchItem(UserProfile(item))
+                    case d: UserProfile => {
+                        @userProfile.listItem(d)
                     }
-                    case EntityType.Group => {
-                        @group.searchItem(Group(item))
+                    case d: Group => {
+                        @group.listItem(d)
                     }
-                    case EntityType.AuthoritativeSet => {
-                        @authoritativeSet.searchItem(AuthoritativeSet(item))
+                    case d: AuthoritativeSet => {
+                        @authoritativeSet.listItem(d)
                     }
-                    case EntityType.Vocabulary => {
-                        @vocabulary.searchItem(Vocabulary(item))
+                    case d: Vocabulary => {
+                        @vocabulary.listItem(d)
                     }
                     case _ => {
                         @common.searchItem(item)

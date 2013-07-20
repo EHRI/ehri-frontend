@@ -1,0 +1,11 @@
+@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
+
+@common.searchItemOutline(item.id) {
+        <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)">@item.toStringLang</a>
+} {
+    @item.model.primaryDescription(descriptionId).map { desc =>
+        @documentaryUnit.searchItemBody(item, desc)
+    }.getOrElse {
+        <small>@Messages("describedEntity.noDescriptions")</small>
+    }
+}

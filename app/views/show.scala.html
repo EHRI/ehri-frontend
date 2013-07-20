@@ -1,32 +1,6 @@
-@(item: models.base.AccessibleEntity)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
-
-@accView(item: models.base.AccessibleEntity) = {
-	<table>
-		<tr>
-			<th>Item:</th>
-			<th>@item</th>
-		</tr>
-		<tr>
-			<td></td>
-			<td>@itemView(item)</td>
-		</tr>
-	</table>    
-}
-
-@itemView(item: models.base.AccessibleEntity) = {
-	<table>
-		@item.data.map { case (k, v) =>
-			<tr>
-				<td>@k</td>
-				<td>@v</td>
-			</tr>
-		}
-	</table>  
-}
+@(item: AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
 
 @noSidebarLayout("View item") {
-	
-  
-	<h4>Properties</h4>
-	@itemView(item)
+
+	<h1>No show here...</h1>
 }

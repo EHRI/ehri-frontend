@@ -3,7 +3,7 @@ package helpers
 import org.specs2.mutable._
 import org.specs2.specification.BeforeExample
 import defines.EntityType
-import play.api.GlobalSettings
+import play.api.{Application, GlobalSettings}
 import eu.ehri.extension.test.utils.ServerRunner
 import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import eu.ehri.extension.AbstractAccessibleEntityResource
@@ -21,16 +21,23 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends Specification with BeforeE
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
 
-  object FakeGlobal extends GlobalSettings
+  object FakeGlobal extends GlobalSettings {
+    override def onStart(app: Application) {
+      // Workaround for issue #845
+      app.routes
+      models.json.Utils.registerModels
+      super.onStart(app)
+    }
+  }
 
-  val runner: ServerRunner = new ServerRunner(cls.getName, testPort)
+  val runner: ServerRunner = ServerRunner.getInstance(cls.getName, testPort)
   runner.getConfigurator
-    .getThirdpartyJaxRsClasses()
+    .getThirdpartyJaxRsPackages()
     .add(new ThirdPartyJaxRsPackage(
     classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"));
   runner.start
 
-  class FakeApp extends WithApplication(fakeApplication(additionalConfiguration = config))
+  class FakeApp extends WithApplication(fakeApplication(additionalConfiguration = config, global = FakeGlobal))
 
   def before = {
     runner.tearDown

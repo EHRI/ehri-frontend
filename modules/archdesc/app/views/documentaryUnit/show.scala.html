@@ -1,0 +1,89 @@
+@(item: DocumentaryUnit, result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@import models.IsadG._
+
+@actions(title: String, id: String, did: String) = {
+    @userOpt.map { user =>
+        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
+            <div class="btn-group pull-right">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    @title
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="@controllers.archdesc.routes.DocumentaryUnits.manageAccessPoints(id, did)">@Messages("actions.manageAccessPoints")</a></li>
+                    <li><a href="@controllers.archdesc.routes.DocumentaryUnits.updateDescription(id, did)">@Messages("describedEntity.editDescription")</a></li>
+                    <li><a class="alert alert-danger" href="@controllers.archdesc.routes.DocumentaryUnits.deleteDescription(id, did)">@Messages("describedEntity.deleteDescription")</a></li>
+                </ul>
+            </div>
+        }
+    }
+}
+
+@extrascripts = {
+
+}
+
+@sidebar = {
+    @if(!item.model.descriptions.isEmpty) {
+        <div class="well well-small">
+            <h4>@Messages("describedEntity.availableDescriptions")</h4>
+            <p>
+                <ul class="nav nav-list">
+                    @item.descriptions.map { d =>
+                    <li>
+                        <a class="description-switch" href="#desc-@d.id">
+                            @views.Helpers.languageCodeToName(d.languageCode) - @d.name
+                        </a>
+                    </li>
+                    }
+                </ul>
+            </p>
+            <p>
+                <small>
+                    <i class="icon icon-plus-sign"></i>
+                    <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
+                </small>
+            </p>
+        </div>
+    }
+}
+
+@documentaryUnit.itemPage(item, scripts = extrascripts, sidebar = sidebar) {
+    @common.annotated(item, annotations) {
+
+        <div class="header-actions clearfix">
+            @item.holder.map { holder =>
+            <h4>@Messages("documentaryUnit.heldBy"): <a href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
+            }
+
+            @item.parent.map { parent =>
+            <h4>@Messages("documentaryUnit.parentItem"): <a href="@controllers.archdesc.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
+            }
+        </div>
+
+        @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+            @if(!item.model.descriptions.isEmpty) {
+                <div class="description-viewport">
+                    @item.descriptions.zipWithIndex.map { case (desc,i) =>
+                        <div class="description-holder" id="desc-@desc.id">
+                            @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
+                            @documentaryUnit.renderDescription(item, desc, links)
+                        </div>
+                    }
+                </div>
+            } else {
+                <p class="muted">@Messages("documentaryUnit.noDescriptions")</p>
+                <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
+            }
+        }
+
+        @common.annotationLinks(item, links)
+    }
+
+    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
+        @views.html.search.searchForm(result, params, action, autofocus = false) {
+            @documentaryUnit.searchItemList(result)
+        }
+    }
+}

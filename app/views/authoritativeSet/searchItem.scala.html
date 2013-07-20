@@ -1,7 +1,0 @@
-@(item: AuthoritativeSet)(implicit req: RequestHeader, lang: Lang)
-
-@common.searchItemOutline(item.id) {
-    <a href="@routes.AuthoritativeSets.get(item.id)">@item</a>
-} {
-    @item.stringProperty(AuthoritativeSetF.DESCRIPTION)
-}

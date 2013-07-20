@@ -1,0 +1,16 @@
+@(item: AnyModel, description: Description, action: Call, cancel: Call)(
+implicit userOpt: Option[UserProfile], request: RequestHeader, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@rightSidebarLayout(Messages("actions.deleteItem", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+
+    <p>@Messages("deleting.deleteDescriptionConfirmationMessage", description.name)</p>
+    @helper.form(action = action, 'class -> "form-actions") {
+        @formHelpers.csrfToken()
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.deleteItem")) {
+            <a href="@cancel.url" class="btn">@Messages("actions.cancel")</a>
+        }
+    }
+} {
+
+}
+

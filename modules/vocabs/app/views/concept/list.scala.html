@@ -1,0 +1,14 @@
+@(page: rest.Page[Concept], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@noSidebarLayout(Messages("actions.listConcepts")) {
+
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+
+	<ul class="unstyled">
+	@page.items.map { item =>
+	  	@concept.listItem(item)
+	}
+	</ul>
+
+    @common.pagination(page)
+}

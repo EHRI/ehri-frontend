@@ -1,0 +1,27 @@
+@(items: rest.Page[Group], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@import defines._
+
+@rightSidebarLayout(Messages("actions.listGroups")) {
+	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
+
+    @common.pagination(items)
+	
+	<ul class="unstyled">
+	@items.items.map { item =>
+	  	<li>
+            @group.listItem(item)
+		</li>
+	}
+	</ul>
+    
+} {
+    @common.sidebarSection(None) {
+        @userOpt.map { user =>
+            @{println(user.globalPermissions)}
+            @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@controllers.core.routes.Groups.create">@Messages("Create New Group")</a>
+            }
+        }
+    }
+}

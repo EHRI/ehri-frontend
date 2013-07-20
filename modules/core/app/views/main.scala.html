@@ -1,0 +1,316 @@
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+<!DOCTYPE html>
+
+@import collection.JavaConverters._
+
+<html lang="@lang.code">
+    <head>
+        <title>@title</title>
+
+        <!--<link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.at("stylesheets/main.css")">-->
+        <link rel="shortcut icon" type="image/png" href="@controllers.core.routes.Assets.at("images/favicon.png")">
+        <link href="@controllers.core.routes.Assets.at("stylesheets/bootstrap/css/bootstrap.css")" rel="stylesheet">
+        <link href="@controllers.core.routes.Assets.at("stylesheets/bootstrap/css/bootstrap-modal.css")" rel="stylesheet">
+        <link href="@controllers.core.routes.Assets.at("jquery-openid/openid.css")" rel="stylesheet">
+        <link href="@controllers.core.routes.Assets.at("chosen/chosen.css")" rel="stylesheet">
+        <link href="@controllers.core.routes.Assets.at("chosen/chosen.css")" rel="stylesheet">
+		<link href="@controllers.core.routes.Assets.at("stylesheets/bootstrap/css/datepicker.css")" rel="stylesheet">
+        @styles
+
+        <style>
+
+            /** Cut off text in description switch without wrap... */
+            .description-switch {
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                font-size: 0.8em;
+            }
+
+            /** Add spacing for description header */
+            .header-actions {
+                margin-bottom: 1em;
+            }
+
+            .facet-list li a {
+                color: #666;
+                font-weight: bold;
+            }
+
+            .facet-list li.selected-filter {
+                font-weight: bolder;
+                text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+            }
+
+            .entity-form fieldset legend {
+                padding-top: 80px;
+            }
+
+            /** Template fields for inline formset items should be display: none;
+                This will prevent them being submitted like normal values. */
+            .form-template {
+                display: none;
+            }
+
+            /** Required inputs */
+            .required-input {
+                color: #FF0000;
+            }
+
+            /* Highlight the current search sort */
+            .current-search-sort {
+                text-decoration: underline;
+                text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+            }
+
+            /** Facet list */
+            .facet-list li {
+                margin-bottom: 0.2em;
+            }
+
+            .facet-list li:before {
+                content: '\u2022';
+                color: #bbb;
+            }
+
+            /** Prevent scrolling when a Bootstrap modal is open */
+            .modal-body {
+                max-height: 800px;
+            }
+
+            body.modal-open {
+                overflow: hidden;
+            }
+
+            /* Prettification for unknown-data-section collapsable trigger */
+            .unknown-data-toggle:after {
+                content: '\u25BC';
+            }
+
+            .unknown-data-toggle.collapsed:after {
+                font-size: 0.9em;
+                content: '\u25B6';
+            }
+
+            /** 'Sticky' footers which pin themselves to the
+                botton of the viewport when initially outside it. */
+            .sticky {
+                -webkit-box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
+                box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
+            }
+
+            /** Search items */
+            .search-item {
+                padding-bottom: 0.5em;
+                border-bottom: 1px dashed #EBEBEB;
+                margin-bottom: 1.5em;
+            }
+
+            .search-item-heading {
+                font-size: 1.0em;
+                font-weight: bolder;
+                margin-bottom: 0.2em;
+            }
+
+            /** Inline lists - Bootstrap doesn't actually do this by itself */
+            ul.inline li {
+                display: inline;
+                padding-left: 0em;
+            }
+
+            /** Put a separator between the bars of inline lists */
+            ul.inline-separator li:after {
+                content:" | ";
+            }
+            ul.inline-separator li:last-child:after {
+                content:"";
+            }
+
+            /** Alternative link color - just bolded */
+            a.alt {
+                color: #000;
+                font-weight: bolder;
+            }
+
+            .search-item h4 {
+                margin-bottom: 0.2em;
+            }
+
+            /** Turn of link styling on badges... */
+            .badge a {
+                color: inherit;
+                font-weight: inherit;
+            }
+            #signin, #signout {
+                color: #999999;
+            }
+
+            #signin:hover, #signout:hover {
+                color: #ffffff;
+                text-decoration: none;
+            }
+
+            .page-content {
+                padding-top: 40px;
+                padding-bottom: 40px;
+            }
+
+            #form-nav-sidebar {
+                top: 80px;
+            }
+
+            #head-signin {
+                padding: 10px 15px 10px;
+                color: #f5f5f5;
+            }
+
+            #footer {
+                text-align: center;
+             /*   padding: 20px 20px;*/
+                border-top: 1px solid #e5e5e5;
+                background-color: #f5f5f5;
+            }
+
+            .remove-inline-element {
+                margin-left: 0.5em;
+            }
+
+        </style>
+
+        <style type="text/css">
+
+            /* Sticky footer styles
+            -------------------------------------------------- */
+
+            html,
+            body {
+            height: 100%;
+            /* The html and body elements cannot have any padding or margin. */
+            }
+
+            /* Wrapper for page content to push down footer */
+            #wrap {
+            min-height: 100%;
+            height: auto !important;
+            height: 100%;
+            /* Negative indent footer by it's height */
+            margin: 0 auto -100px;
+            }
+
+            /* Set the fixed height of the footer here */
+            #push,
+            #footer {
+                height: 99px;
+            }
+            #footer .container {
+                margin-top: 20px;
+            }
+            #footer {
+            background-color: #f5f5f5;
+            }
+
+            #footer {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            /** Experimental! Collapse username under 900px */
+            .navbar-inner {
+                min-width: 800px;
+            }
+            @@media (max-width: 900px) {
+               .nav-collapse.collapse{
+                    height:0 !important;
+                    overflow:hidden !important;
+                }
+            }
+
+        </style>
+
+        <!-- Temporary var for Angular file location -->
+        <script>
+            var ANGULAR_ROOT = "@controllers.core.routes.Assets.at("javascripts")";
+        </script>
+    </head>
+    <body data-spy="scroll" data-target="#form-nav-sidebar">
+
+        @activeIfCurrent(url: String, text: String) = {
+            <li class="@{if(req.path.startsWith(url)) "active" else ""}"><a href="@url">@Messages(text)</a></li>
+        }
+
+        <div id="wrap" class="page-container">
+            <div class="navbar navbar-inverse navbar-fixed-top">
+                <div class="navbar-inner">
+                    <ul class="nav">
+                        @global.MainMenuConfig.main.map { case (key, url) =>
+                            @activeIfCurrent(url, key)
+                        }
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                @Messages("pages.more")
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+                                @global.MainMenuConfig.admin.map { case (key, url) =>
+                                    @if(url == "-") {
+                                        <li role="presentation" class="divider"></li>
+                                    } else {
+                                        @activeIfCurrent(url, key)
+                                    }
+                                }
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        @userOpt.flatMap(_.account).map { account =>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <span class="nav-collapse collapse responsive-collapse">
+                                        @account.email
+                                        @if(userOpt.map(_.isAdmin).getOrElse(false)) {
+                                            [@Messages("group.admin")]
+                                        }
+                                    </span>
+                                    <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.UserProfiles.get(account.profile_id)">@Messages("actions.viewProfile")</a> </li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.Admin.changePassword">@Messages("login.changePassword")</a></li>
+                                    <li role="presentation" class="divider"></li>
+                                    <li>
+                                        <a href="@controllers.core.routes.Application.logout" id="signout">
+                                            @Messages("banner.signout")
+                                            <i class="icon icon-off"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }.getOrElse {
+                            <li><a href="@controllers.core.routes.Application.login" id="signin">@Messages("banner.signin")</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="page-content">
+                @content
+                <div id="push"></div>
+            </div>
+        </div>
+        <div id="footer">
+            <div class="container">
+                <p class="muted">@Messages("footer.footerText")</p>
+                @layout.versionInfo()
+            </div>
+        </div>
+
+        <script src="@controllers.core.routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+        <script src="@controllers.core.routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
+        <script src="@controllers.core.routes.Assets.at("stylesheets/bootstrap/js/bootstrap.js")"></script>
+        <script src="@controllers.core.routes.Assets.at("stylesheets/bootstrap/js/bootstrap-modal.js")"></script>
+        <script src="@controllers.core.routes.Assets.at("stylesheets/bootstrap/js/bootstrap-modalmanager.js")"></script>
+        <script src="@controllers.core.routes.Assets.at("chosen/chosen.jquery.min.js")"></script>
+        <script type="text/javascript" src="@controllers.core.routes.Assets.at("javascripts/jquery.ba-hashchange.min.js")"></script>
+        <script src="@controllers.core.routes.Assets.at("javascripts/docview.js")" type="text/javascript"></script>
+        @scripts
+    </body>
+</html>

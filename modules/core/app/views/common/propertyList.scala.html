@@ -1,0 +1,19 @@
+@(properties: Any*)(implicit lang: Lang)
+
+@properties.map { property =>
+    @property match {
+        case None => {
+        }
+        case s: String if s.isEmpty => {
+        }
+        case Some(s) => {
+            <li>@s</li>
+        }
+        case s: String => {
+            <li>@s</li>
+        }
+        case s => {
+            <li>@s</li>
+        }
+    }
+}

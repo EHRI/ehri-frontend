@@ -1,0 +1,21 @@
+@(item: AnyModel, page: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], entityType: EntityType.Value, action: Call, linkAction: (String,String,String) => Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("actions.linkTo"), breadcrumbs = common.breadcrumbs(List(item))) {
+    @views.html.search.searchSection(Messages("contentTypes." + entityType.toString)) {
+        @views.html.search.searchForm(page, params, action, autofocus = false) {
+            <ul>
+                @page.items.map { case (otherItem, descId) =>
+
+                    <li>
+                        <a href="@linkAction(item.id, entityType.toString, otherItem.id)">
+                            @otherItem.toStringLang
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+    }
+} {
+
+}

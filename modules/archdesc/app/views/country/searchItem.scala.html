@@ -1,0 +1,7 @@
+@(item: Country)(implicit req: RequestHeader, lang: Lang)
+
+@common.searchItemOutline(item.id) {
+    <a href="@controllers.archdesc.routes.Countries.get(item.id)">@item.toStringLang</a>
+} {
+
+}

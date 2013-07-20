@@ -1,0 +1,40 @@
+@(item: Group, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
+
+    @defining("group") { implicit prefix =>
+        @common.stringValue(item.model.description, models.GroupF.DESCRIPTION)
+    }
+
+    @if(!item.groups.isEmpty) {
+        <hr />
+        <strong>Parent Groups: </strong>&nbsp;
+        @item.groups.map { group =>
+            <a href="@controllers.core.routes.Groups.get(group.id)">@group</a>
+        }
+    }
+} {
+    @common.latestAction(item, controllers.core.routes.Groups.history(item.id))
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+        @userOpt.map { user =>
+            @if(user.hasPermission(ContentType.Group, PermissionType.Create)) {
+                <li><a href="@controllers.core.routes.Groups.create">@Messages("actions.createNewGroup")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Update)) {
+                <li><a href="@controllers.core.routes.Groups.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
+                <li><a href="@controllers.core.routes.Groups.permissions(item.id)">@Messages("actions.manageGlobalPermissions")</a></li>
+                  <li><a href="@controllers.core.routes.Groups.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Grant)) {
+                <li><a href="@controllers.core.routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Group, PermissionType.Delete)) {
+                <li><a href="@controllers.core.routes.Groups.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+            <li><a href="@controllers.core.routes.Groups.history(item.id)">@Messages("actions.showHistory")</a></li>
+        }
+    </ul>
+}

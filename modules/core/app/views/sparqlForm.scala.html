@@ -1,0 +1,51 @@
+@(form: Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+
+@extrascripts = {
+    <script type="application/javascript">
+        jQuery(function($) {
+            var $f = $("#sparql-form");
+            $f.submit(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var q = $("[name='q']").val();
+                $.ajax({
+                    url: $f.attr("action"),
+                    data: {
+                        q: q
+                    }
+                }).done(function(data, msg) {
+                    $("#update-progress").html("<pre>" + JSON.stringify(data, null, "  ") + "</pre>");
+                }).error(function(xhr, error, errorString) {
+                    $("#update-progress").html(xhr.responseText);
+                });
+            });
+        });
+    </script>
+}
+
+@extrastyles = {
+    <style>
+        textarea[name='q'] {
+        border:1px solid #999999;
+        font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+        min-height: 300px;
+        min-width: 600px;
+        }
+    </style>
+}
+
+@noSidebarLayout("Sparql", scripts = extrascripts, styles = extrastyles) {
+
+    @helper.form(action = action, 'id -> "sparql-form") {
+        @helper.textarea(form("q"))
+
+        <div class="control-group">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    }
+
+    <div id="update-progress">
+    </div>
+}

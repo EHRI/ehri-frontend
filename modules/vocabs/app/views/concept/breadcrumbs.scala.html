@@ -1,0 +1,3 @@
+@(item: Concept)(implicit lang: Lang)
+
+@common.breadcrumbs(item.vocabulary.toList ::: item.ancestors.reverse ::: List(item))

@@ -1,0 +1,53 @@
+@(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, action: Call, autofocus: Boolean = true)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@import utils.search.{SearchParams,SearchOrder}
+
+@helper.form(action = action, 'class -> "") {
+    <div class="controls-row">
+        <div class="input-append search-query span10">
+            <input type="text"
+                placeholder="@Messages("search.queryPlaceholder")"
+                class="input-block-level span15" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
+            <button class="btn">
+                <i class="icon-search"></i>
+                @Messages("forms.search")
+            </button>
+        </div>
+    </div>
+
+    <div class="controls-row">
+        <div class="btn-group pull-right" style="margin-top: 10px">
+        @SearchOrder.values.map { sortKey =>
+            @if(params.sort.equals(Some(sortKey))) {
+                <a class="btn btn-mini current-search-sort" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
+                    @Messages("search." + sortKey)
+                </a>
+            } else {
+                <a class="btn btn-mini" href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
+                    @Messages("search." + sortKey)
+                </a>
+            }
+        }
+        </div>
+        <h4>
+            @Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)
+
+            @result.spellcheck.map { case (actual, corrected) =>
+                @defining(params.query.map(_.toLowerCase.replace(actual.toLowerCase, corrected))) { suggestion =>
+                    (@Messages("search.spellingSuggestion")
+                    <i>
+                        <strong>
+                            <a href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.QUERY, suggestion.toSeq))">@suggestion</a>
+                    </strong>
+                    </i>?)
+                }
+            }
+        </h4>
+    </div>
+    <p>
+        @common.selectedFacets(result)
+    </p>
+
+    @html
+    @common.pagination(result)
+}

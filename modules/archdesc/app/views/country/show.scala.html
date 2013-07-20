@@ -1,0 +1,37 @@
+@(item: Country, result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(
+        implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
+
+    @common.annotated(item, annotations) {
+        <p class="alert-info">TODO: Add country information here</p>
+    }
+
+    @views.html.search.searchSection(Messages("country.searchInside", item.toStringAbbr)) {
+        @views.html.search.searchForm(result, params, action, autofocus = false) {
+            @repository.searchItemList(result)
+        }
+    }
+} {
+    @common.facetList(result.facets, action)
+    @common.visibility(item, controllers.archdesc.routes.Countries.visibility(item.id), ContentType.Country)
+    @common.latestAction(item, controllers.archdesc.routes.Countries.history(item.id))
+
+    <ul class="item-actions nav nav-tabs nav-stacked">
+        @userOpt.map { user =>
+            @if(user.hasPermission(ContentType.Repository, PermissionType.Create)) {
+                <li><a href="@controllers.archdesc.routes.Countries.createRepository(item.id)">@Messages("actions.createRepository")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Country, PermissionType.Update)) {
+                <li><a href="@controllers.archdesc.routes.Countries.update(item.id)">@Messages("actions.updateItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Country, PermissionType.Delete)) {
+                <li><a href="@controllers.archdesc.routes.Countries.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            }
+            @if(user.hasPermission(ContentType.Country, PermissionType.Grant)) {
+                <li><a href="@controllers.archdesc.routes.Countries.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+            }
+            <li><a href="@controllers.archdesc.routes.Countries.history(item.id)">@Messages("actions.showHistory")</a></li>
+        }
+    </ul>
+}

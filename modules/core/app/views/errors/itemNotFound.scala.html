@@ -1,0 +1,6 @@
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+
+@noSidebarLayout(Messages("errors.itemNotFound")) {
+
+    <p class="text-error">@Messages("errors.itemNotFoundExplanation")</p>
+}
