@@ -1,14 +1,31 @@
 <ul>
-<li id="identity" title="Identity" class="documentBlock" show="(desc.data.extentAndMedium)">
+<li id="identity" title="Identity" class="documentBlock" show="(desc.relationships.hasDate) || (desc.data.extentAndMedium)||(desc.data.levelOfDescription)||(desc.data.extentAndMedium)">
 
+	<div id="dates" ng-show="(desc.relationships.hasDate)">
+		<h3>Dates </h3>
+		<ul class="unstyled" ng-repeat="date in desc.relationships.hasDate" id="{{date.type + '' + date.id}}">
+			<li title="Start date">
+			{{formatDate(date.data.startDate)}}
+			</li>
+			<li title="End date">
+			{{formatDate(date.data.endDate)}}
+			</li>
+		</ul>
+	</div>
+	
+	<div id="levelOfDescription" ng-show="(desc.data.levelOfDescription)">
+		<h3>Level of Description</h3>
+		<p>{{desc.data.levelOfDescription}}</p>
+	</div>
+	
 	<div id="extentAndMedium" ng-show="(desc.data.extentAndMedium)">
-		<h3>Extent and Medium of the Unit of Description </h3>
+		<h3>Extent and Medium</h3>
 		<p>{{desc.data.extentAndMedium}}</p>
 	</div>
 
 </li>
 
-<li id="context" title="Context" class="documentBlock" show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory)">
+<li id="context" title="Context" class="documentBlock" show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory) || (desc.data.acquisition)">
 
 	<div id="adminBiogHistory" ng-show="(desc.data.adminBiogHistory)">
 		<h3>Administrative and biographical history</h3>
@@ -17,6 +34,10 @@
 	<div id="archivalHistory" ng-show="(desc.data.archivalHistory)">
 		<h3>Archival History</h3>
 		<p>{{desc.data.archivalHistory}}</p>
+	</div>
+	<div id="acquisition" ng-show="(desc.data.acquisition)">
+		<h3>Acquisition</h3>
+		<p>{{desc.data.acquisition}}</p>
 	</div>
 
 </li>
@@ -44,7 +65,7 @@
 </li>
 
 
-<li title="Conditions" class="documentBlock"  id="conditions" show="(desc.data.conditionsOfAccess || desc.data.conditionsOfReproduction || desc.data.physicalCharacteristics || desc.data.findingAids)">
+<li title="Conditions" class="documentBlock"  id="conditions" show="(desc.data.conditionsOfAccess ||desc.data.scriptOfMaterials || desc.data.conditionsOfReproduction || desc.data.languageOfMaterials || desc.data.physicalCharacteristics || desc.data.findingAids)">
 	<div id="conditionsOfAccess" ng-show="(desc.data.conditionsOfAccess)">
 		<h3>Conditions Governing Access </h3>
 		<p>{{desc.data.conditionsOfAccess}}</p>
@@ -52,6 +73,14 @@
 	<div id="conditionsOfReproduction" ng-show="(desc.data.conditionsOfReproduction)">
 		<h3>Conditions Governing Reproduction </h3>
 		<p>{{desc.data.conditionsOfReproduction}}</p>
+	</div>
+	<div id="languageOfMaterials" ng-show="(desc.data.languageOfMaterials)">
+		<h3>Language of Materials</h3>
+		<ul ng-repeat="lg in desc.data.languageOfMaterials" class="unstyled"><li>{{lg}}</li></ul>
+	</div>
+	<div id="scriptOfMaterials" ng-show="(desc.data.scriptOfMaterials)">
+		<h3>Scripts of Materials</h3>
+		<ul ng-repeat="lg in desc.data.scriptOfMaterials" class="unstyled"><li>{{lg}}</li></ul>
 	</div>
 	<div id="physicalCharacteristics" ng-show="(desc.data.physicalCharacteristics)">
 		<h3>Physical Characteristics and Technical Requirements </h3>
@@ -97,6 +126,14 @@
 		<p>{{desc.data.datesOfDescriptions}}</p>
 	</div>
 </li>
+
+<li title="Unknown property" class="documentBlock" id="unknownFields" show="desc.relationships.hasUnknownProperty" reduce="true">
+	<div ng-repeat="(key,val) in desc.relationships.hasUnknownProperty.0.data" id="unknown-{{key}}">
+		<h3>{{key}}</h3>
+		<p>{{val}}</p>
+	</div>
+</li>
+
 <li title="Access" class="documentBlock" id="accessPoints" show="desc.relationships.relatesTo">
 	<div>
 		<ul class="tags accessPoints">
