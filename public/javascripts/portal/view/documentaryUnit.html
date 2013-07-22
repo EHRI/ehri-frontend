@@ -5,8 +5,9 @@
 	
 	
 	<div class="row">
-		<div class="span8" ui-sortable>
-			<dud></dud>
+		<div class="span8">
+			<dud src="desc"></dud>
+			<dud ng-repeat="newItem in compared" src="newItem.relationships.describes.0" id="newItem-{{desc.id}}"></dud>
 		</div>
 		<div class="span4">
 			<div class="ui-block">

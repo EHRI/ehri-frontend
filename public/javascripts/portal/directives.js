@@ -87,9 +87,12 @@ portal.directive('whenScrolled', function ($window) {
         restrict: 'E',
         replace: true,
 		transclude: true,
+		scope: {desc: '=src'},
         templateUrl: ANGULAR_ROOT + "/portal/templates/descriptionFields.html",
 		link: function(scope,element, attrs) {
-			console.log(scope.desc);
+			scope.$watch('desc', function(walks) {
+				console.log(scope.desc);
+			});
 		}
 	}
 }]).directive("documentBlock", ['$rootScope', function($rootScope) {
@@ -100,12 +103,20 @@ portal.directive('whenScrolled', function ($window) {
 		scope: { title:'@title', id:'@id', show:'=', reduce:'=' },
 		templateUrl: ANGULAR_ROOT + "/portal/templates/ui-blocks.html",
 		controller: ['$scope', '$element', '$attrs', '$transclude', function($scope, $element, $attrs, $transclude) {
-				console.log($attrs.reduce);
+				console.log($scope.$parent);
+				
 				if($attrs.reduce) {
 					$scope.closed = true;
 				} else { 
 					$scope.closed = false;
 				}
+				
+				console.log($attrs.id);
+				
+				$scope.$watch('$attrs.id', function(walks) {
+					console.log(walks);
+				});
+				/*
 				
 				$scope.$parent.blocks[$attrs.id] = {
 					legend: $attrs.title, 
@@ -122,6 +133,7 @@ portal.directive('whenScrolled', function ($window) {
 				$scope.hide = function() {
 					$scope.$parent.blocks[$attrs.id].hidden = !$scope.$parent.blocks[$attrs.id].hidden;
 				}
+				*/
 			}]
 	}
 	
