@@ -24,15 +24,39 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$rout
 	});
 	// Set id of desc -->
 	
+	
+	//Color for compared desc
+	$scope.descNbr = 0;
+	$scope.getColor = function () {
+		var available = ['deepblue', 'green', 'purple', 'alizarin']
+		if($scope.descNbr  < 3) {
+			$scope.descNbr = $scope.descNbr + 1;
+		} else {
+			$scope.descNbr = 0;
+		}
+		return available[$scope.descNbr - 1];
+	}
+	
 	$scope.compareWith = function(itemId, load) {
 		$http.get('./api/documentaryUnit/'+itemId).success(function(data) {
 			console.log(data);
 			$scope.compared[itemId] = data;
+			$scope.compared[itemId].color = $scope.getColor();
 			console.log($scope.compared);
 			if(load) { $scope.loadDesc(); }
 		});
 	}
 	
+	$scope.closeAll = function () {
+		angular.forEach($scope.blocks, function(value, key){
+			$scope.blocks[key].closed = true;
+		});
+	}
+	$scope.hideAll = function () {
+		angular.forEach($scope.blocks, function(value, key){
+			$scope.blocks[key].hidden = true;
+		});
+	}
 	
 	//<-- Select good desc 
 	$scope.loadDesc = function() {

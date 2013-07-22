@@ -87,7 +87,7 @@ portal.directive('whenScrolled', function ($window) {
         restrict: 'E',
         replace: true,
 		transclude: true,
-		scope: {desc: '=src'},
+		scope: {desc: '=src', colorclass:'='},
         templateUrl: ANGULAR_ROOT + "/portal/templates/descriptionFields.html",
 		link: function(scope,element, attrs) {
 			scope.$watch('desc', function(walks) {
@@ -100,26 +100,26 @@ portal.directive('whenScrolled', function ($window) {
 		restrict: 'C', 
 		replace: true,
 		transclude: true,
-		scope: { title:'@title', id:'@id', show:'=', reduce:'=' },
+		scope: { itemtitle:"=", itemid:'=', show:'=', reduce:'=' },
 		templateUrl: ANGULAR_ROOT + "/portal/templates/ui-blocks.html",
-		controller: ['$scope', '$element', '$attrs', '$transclude', function($scope, $element, $attrs, $transclude) {
+		link: function($scope,$element, $attrs) {
 				console.log($scope.$parent);
+				$scope.id = $attrs.identifier + "-" + $scope.itemid;
 				
 				if($attrs.reduce) {
 					$scope.closed = true;
 				} else { 
 					$scope.closed = false;
 				}
+				$scope.title = $attrs.title + " : " + $scope.itemtitle;
+				console.log($scope.id);
 				
-				console.log($attrs.id);
+				console.log($scope.$parent.$parent.blocks);
+				console.log("Closed :");
+				console.log($scope.closed);
 				
-				$scope.$watch('$attrs.id', function(walks) {
-					console.log(walks);
-				});
-				/*
-				
-				$scope.$parent.blocks[$attrs.id] = {
-					legend: $attrs.title, 
+				$scope.$parent.$parent.blocks[$scope.id] = {
+					legend: $scope.title, 
 					hidden: false, 
 					closed:$scope.closed 
 				};
@@ -127,14 +127,13 @@ portal.directive('whenScrolled', function ($window) {
 				//console.log($element);
 				
 				$scope.close = function() {
-					$scope.$parent.blocks[$attrs.id].closed = !$scope.$parent.blocks[$attrs.id].closed;
-					$scope.closed = $scope.$parent.blocks[$attrs.id].closed;
+					$scope.$parent.$parent.blocks[$scope.id].closed = !$scope.$parent.$parent.blocks[$scope.id].closed;
+					$scope.closed = $scope.$parent.$parent.blocks[$scope.id].closed;
 				}
 				$scope.hide = function() {
-					$scope.$parent.blocks[$attrs.id].hidden = !$scope.$parent.blocks[$attrs.id].hidden;
+					$scope.$parent.$parent.blocks[$scope.id].hidden = !$scope.$parent.$parent.blocks[$scope.id].hidden;
 				}
-				*/
-			}]
+			}
 	}
 	
 }]).directive("annotate", ['$rootScope', function($rootScope) {

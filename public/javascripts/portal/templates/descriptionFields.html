@@ -1,5 +1,5 @@
-<ul>
-<li id="identity-{{desc.id}}" title="Identity" class="documentBlock" show="(desc.relationships.hasDate) || (desc.data.extentAndMedium)||(desc.data.levelOfDescription)||(desc.data.extentAndMedium)">
+<ul class="{{colorclass}}">
+<li identifier="identity" title="Identity" itemtitle="desc.data.name" class="documentBlock"  itemid="desc.id" show="(desc.relationships.hasDate) || (desc.data.extentAndMedium)||(desc.data.levelOfDescription)||(desc.data.extentAndMedium)">
 
 	<div id="dates" ng-show="(desc.relationships.hasDate)">
 		<h3>Dates </h3>
@@ -25,7 +25,7 @@
 
 </li>
 
-<li id="context-{{desc.id}}" title="Context" class="documentBlock" show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory) || (desc.data.acquisition)">
+<li identifier="context"  title="Context" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id" show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory) || (desc.data.acquisition)">
 
 	<div id="adminBiogHistory" ng-show="(desc.data.adminBiogHistory)">
 		<h3>Administrative and biographical history</h3>
@@ -42,7 +42,7 @@
 
 </li>
 
-<li id="content-{{desc.id}}" title="Content" class="documentBlock" show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement)">
+<li identifier="content"  title="Content" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id" show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement)">
 	<div id="scopeAndContent" ng-show="(desc.data.scopeAndContent)">
 		<h3> Scope and Content </h3>
 		<p>{{desc.data.scopeAndContent}}</p>
@@ -65,7 +65,7 @@
 </li>
 
 
-<li title="Conditions" class="documentBlock"  id="conditions-{{desc.id}}" show="(desc.data.conditionsOfAccess ||desc.data.scriptOfMaterials || desc.data.conditionsOfReproduction || desc.data.languageOfMaterials || desc.data.physicalCharacteristics || desc.data.findingAids)">
+<li title="Conditions" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id"  identifier="conditions"  show="(desc.data.conditionsOfAccess ||desc.data.scriptOfMaterials || desc.data.conditionsOfReproduction || desc.data.languageOfMaterials || desc.data.physicalCharacteristics || desc.data.findingAids)">
 	<div id="conditionsOfAccess" ng-show="(desc.data.conditionsOfAccess)">
 		<h3>Conditions Governing Access </h3>
 		<p>{{desc.data.conditionsOfAccess}}</p>
@@ -92,7 +92,7 @@
 	</div>
 </li>
 
-<li  title="Materials" class="documentBlock"  id="materials-{{desc.id}}" show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote)">
+<li  title="Materials" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id"  identifier="materials"  show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote)">
 	<div id="locationOfOriginals" ng-show="(desc.data.locationOfOriginals)">
 		<h3>Existence and Location of Originals </h3>
 		<p>{{desc.data.locationOfOriginals}}</p>
@@ -112,7 +112,7 @@
 
 </li>
 
-<li title="Control" class="documentBlock"  id="control-{{desc.id}}" show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions)">
+<li title="Control" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id"  identifier="control"  show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions)">
 	<div id="archivistNote" ng-show="(desc.data.archivistNote)">
 		<h3>Archivist Note </h3>
 		<p>{{desc.data.archivistNote}}</p>
@@ -127,14 +127,14 @@
 	</div>
 </li>
 
-<li title="Unknown property" class="documentBlock" id="unknownFields-{{desc.id}}" show="desc.relationships.hasUnknownProperty" reduce="true">
+<li title="Unknown property" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id" identifier="unknownFields"  show="desc.relationships.hasUnknownProperty" reduce="true">
 	<div ng-repeat="(key,val) in desc.relationships.hasUnknownProperty.0.data" id="unknown-{{key}}">
 		<h3>{{key}}</h3>
 		<p>{{val}}</p>
 	</div>
 </li>
 
-<li title="Access" class="documentBlock" id="accessPoints-{{desc.id}}" show="desc.relationships.relatesTo">
+<li title="Access" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id" identifier="accessPoints"  show="desc.relationships.relatesTo">
 	<div>
 		<ul class="tags accessPoints">
 			<li ng-repeat="access in desc.relationships.relatesTo" class="{{access.data.type}}">{{access.data.name}}</li>

@@ -7,11 +7,11 @@
 	<div class="row">
 		<div class="span8">
 			<dud src="desc"></dud>
-			<dud ng-repeat="newItem in compared" src="newItem.relationships.describes.0" id="newItem-{{desc.id}}"></dud>
+			<dud ng-repeat="newItem in compared" src="newItem.relationships.describes.0" id="newItem-{{desc.id}}" colorclass="newItem.color"></dud>
 		</div>
 		<div class="span4">
 			<div class="ui-block">
-				<h2 class="nomargin">Available blocks</h2>
+				<h2 class="nomargin">Available blocks<div class="pull-right"><a class="filterBar-icon" ng-click="closeAll()"><i class="icon-minus"></i></a><a class="filterBar-icon" ng-click="hideAll()"><i class="icon-remove"></i></a></div></h2>
 				<ul class="list-item">
 					<li ng-repeat="block in blocks" ng-show="(block.hidden)">
 						{{block.legend}}
