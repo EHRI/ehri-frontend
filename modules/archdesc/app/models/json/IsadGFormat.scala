@@ -26,7 +26,7 @@ object IsadGFormat {
           LANG_CODE -> d.languageCode,
           LEVEL_OF_DESCRIPTION -> d.levelOfDescription,
           EXTENT_MEDIUM -> d.extentAndMedium,
-          ADMIN_BIOG -> d.context.adminBiogHistory,
+          ADMIN_BIOG -> d.context.biographicalHistory,
           ARCH_HIST -> d.context.archivalHistory,
           ACQUISITION -> d.context.acquisition,
           SCOPE_CONTENT -> d.content.scopeAndContent,

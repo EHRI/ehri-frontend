@@ -7,7 +7,7 @@ import models.json.{ClientConvertable, RestConvertable}
 import eu.ehri.project.definitions.Ontology
 
 case class IsadGContext(
-  adminBiogHistory: Option[String] = None,
+  biographicalHistory: Option[String] = None,
   archivalHistory: Option[String] = None,
   acquisition: Option[String] = None
 ) extends AttributeSet

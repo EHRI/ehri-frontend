@@ -35,7 +35,7 @@ case object IsadG {
   val ADMINISTRATION_AREA = "administrationArea"
 
   val CONTEXT_AREA = "contextArea"
-  val ADMIN_BIOG = "adminBiogHistory"
+  val ADMIN_BIOG = "biographicalHistory"
   val ARCH_HIST = "archivalHistory"
   val ACQUISITION = "acquisition"
 
