@@ -14,7 +14,27 @@ import solr.facet.FieldFacetClass
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}
 
-object Concepts extends CreationContext[ConceptF, Concept, Concept]
+import utils.search.Dispatcher
+import com.google.inject._
+
+object Concepts {
+  /**
+   * Mapping between incoming list filter parameters
+   * and the data values accessed via the server.
+   */
+  val listFilterMappings: ListMap[String,String] = ListMap(
+    ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}",
+    ConceptF.SCOPENOTE -> s"<-describes.${ConceptF.SCOPENOTE}",
+    ConceptF.DEFINITION -> s"<-describes.${ConceptF.DEFINITION}"
+  )
+
+  val orderMappings: ListMap[String,String] = ListMap(
+    ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}"
+  )
+}
+
+@Singleton
+class Concepts @Inject()(val searchDispatcher: Dispatcher) extends CreationContext[ConceptF, Concept, Concept]
   with VisibilityController[Concept]
   with EntityRead[Concept]
   with EntityUpdate[ConceptF, Concept]
@@ -29,23 +49,9 @@ object Concepts extends CreationContext[ConceptF, Concept, Concept]
 
   val DEFAULT_SORT = ConceptF.PREFLABEL
 
-  /**
-   * Mapping between incoming list filter parameters
-   * and the data values accessed via the server.
-   */
-  val listFilterMappings: ListMap[String,String] = ListMap(
-    ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}",
-    ConceptF.SCOPENOTE -> s"<-describes.${ConceptF.SCOPENOTE}",
-    ConceptF.DEFINITION -> s"<-describes.${ConceptF.DEFINITION}"
-  )
-
-  val orderMappings: ListMap[String,String] = ListMap(
-    ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}"
-  )
-
 
   override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
+    params.toRestParams(Concepts.listFilterMappings, Concepts.orderMappings, Some(DEFAULT_SORT))
   }
   override def processChildParams(params: ListParams) = processParams(params)
 

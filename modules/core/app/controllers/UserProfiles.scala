@@ -10,16 +10,10 @@ import play.api.i18n.Messages
 import defines._
 import collection.immutable.ListMap
 import utils.search.SearchParams
+import utils.search.Dispatcher
+import com.google.inject._
 
-
-object UserProfiles extends PermissionHolderController[UserProfile]
-  with EntityRead[UserProfile]
-  with EntityUpdate[UserProfileF,UserProfile]
-  with EntityDelete[UserProfile]
-  with EntitySearch {
-
-  val DEFAULT_SORT = "name"
-
+object UserProfiles {
   val listFilterMappings: ListMap[String,String] = ListMap(
     "name" -> "name",
     Entity.IDENTIFIER -> Entity.IDENTIFIER
@@ -29,10 +23,20 @@ object UserProfiles extends PermissionHolderController[UserProfile]
     "name" -> "name",
     Entity.IDENTIFIER -> Entity.IDENTIFIER
   )
+}
 
+
+@Singleton
+class UserProfiles @Inject()(val searchDispatcher: Dispatcher) extends PermissionHolderController[UserProfile]
+  with EntityRead[UserProfile]
+  with EntityUpdate[UserProfileF,UserProfile]
+  with EntityDelete[UserProfile]
+  with EntitySearch {
+
+  val DEFAULT_SORT = "name"
 
   override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
+    params.toRestParams(UserProfiles.listFilterMappings, UserProfiles.orderMappings, Some(DEFAULT_SORT))
   }
 
   val entityType = EntityType.UserProfile

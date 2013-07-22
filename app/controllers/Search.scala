@@ -19,14 +19,23 @@ import solr.facet.FieldFacetClass
 import solr.SolrIndexer.SolrUpdateResponse
 import solr.SolrIndexer.SolrErrorResponse
 import models.base.AnyModel
-import utils.search.{SearchOrder, SearchParams}
+import utils.search.{Dispatcher, SearchOrder, SearchParams}
 import play.extras.iteratees.{Combinators, JsonIteratees, JsonEnumeratees, Encoding}
 import play.api.libs.ws.ResponseHeaders
 import play.api.http.{HeaderNames, ContentTypes}
-import play.api.libs.iteratee.Enumeratee.CheckDone
+import utils.search.Dispatcher
+import com.google.inject._
 
+object Search {
+  /**
+   * Message that terminates a long-lived streaming response, such
+   * as the search index update job.
+   */
+  val DONE_MESSAGE = "Done"
+}
 
-object Search extends EntitySearch {
+@Singleton
+class Search @Inject()(val searchDispatcher: Dispatcher) extends EntitySearch {
 
   val searchEntities = List() // i.e. Everything
   override val entityFacets = List(
@@ -166,12 +175,6 @@ object Search extends EntitySearch {
     ))
   }
 
-
-  /**
-   * Message that terminates a long-lived streaming response, such
-   * as the search index update job.
-   */
-  val DONE_MESSAGE = "Done"
 
 
   import play.api.data.Form
@@ -342,7 +345,7 @@ object Search extends EntitySearch {
                 chan.push(wrapMsg("Committed in " + ok.responseHeader.time))
               }
             }
-            chan.push(wrapMsg(DONE_MESSAGE))
+            chan.push(wrapMsg(Search.DONE_MESSAGE))
             chan.eofAndEnd()
           }
         }

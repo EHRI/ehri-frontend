@@ -12,7 +12,7 @@ import utils.search._
  * TODO: Integrate better with fixtures.
  *
  */
-case class MockSearchDispatcher(app: play.api.Application) extends Dispatcher {
+case class MockSearchDispatcher() extends Dispatcher {
 
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String, EntityType.Value)]]] = {

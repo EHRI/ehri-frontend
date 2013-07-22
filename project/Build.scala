@@ -39,6 +39,10 @@ object ApplicationBuild extends Build {
 
     "ehri-project" % "ehri-definitions" % "1.0",
 
+    // Injection guff
+    "com.google.inject" % "guice" % "3.0",
+    "com.tzavellas" % "sse-guice" % "0.7.1",
+
     // Test dependencies...
     "com.sun.jersey" % "jersey-core" % "1.9" % "test",
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",

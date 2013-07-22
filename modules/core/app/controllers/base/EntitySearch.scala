@@ -16,7 +16,7 @@ import utils.search._
  */
 trait EntitySearch extends Controller with AuthController with ControllerHelpers {
 
-  lazy val searchDispatcher: Dispatcher = current.plugin(classOf[Dispatcher]).get
+  val searchDispatcher: Dispatcher
 
   /**
    * Inheriting controllers should override a list of facets that

@@ -10,9 +10,24 @@ import play.api.i18n.Messages
 import defines._
 import collection.immutable.ListMap
 import utils.search.{SearchParams, FacetSort}
+import utils.search.Dispatcher
+import com.google.inject._
 
+object HistoricalAgents {
+  val listFilterMappings = ListMap[String,String](
+    "name" -> s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}",
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    Isaar.HISTORY -> s"<-describes.${Isaar.HISTORY}"
+  )
 
-object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
+  val orderMappings = ListMap[String,String](
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    "name" -> "name"
+  )
+}
+
+@Singleton
+class HistoricalAgents @Inject()(val searchDispatcher: Dispatcher) extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with VisibilityController[HistoricalAgent]
   with PermissionItemController[HistoricalAgent]
   with EntityLink[HistoricalAgent]
@@ -25,17 +40,6 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
   val contentType = ContentType.HistoricalAgent
 
   val form = models.forms.HistoricalAgentForm.form
-
-  val listFilterMappings = ListMap[String,String](
-    "name" -> s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}",
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    Isaar.HISTORY -> s"<-describes.${Isaar.HISTORY}"
-  )
-
-  val orderMappings = ListMap[String,String](
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    "name" -> "name"
-  )
 
   val DEFAULT_SORT = s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}"
 
@@ -56,7 +60,7 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
     )
   )
   override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
+    params.toRestParams(HistoricalAgents.listFilterMappings, HistoricalAgents.orderMappings, Some(DEFAULT_SORT))
   }
 
   /**

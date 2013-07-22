@@ -21,15 +21,6 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends Specification with BeforeE
   val testPort = 7575
   val config = Map("neo4j.server.port" -> testPort)
 
-  object FakeGlobal extends GlobalSettings {
-    override def onStart(app: Application) {
-      // Workaround for issue #845
-      app.routes
-      models.json.Utils.registerModels
-      super.onStart(app)
-    }
-  }
-
   val runner: ServerRunner = ServerRunner.getInstance(cls.getName, testPort)
   runner.getConfigurator
     .getThirdpartyJaxRsPackages()
@@ -37,7 +28,7 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends Specification with BeforeE
     classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"));
   runner.start
 
-  class FakeApp extends WithApplication(fakeApplication(additionalConfiguration = config, global = FakeGlobal))
+  class FakeApp extends WithApplication(fakeApplication(additionalConfiguration = config, global = getGlobal))
 
   def before = {
     runner.tearDown

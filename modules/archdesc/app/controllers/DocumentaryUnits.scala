@@ -15,9 +15,31 @@ import views.Helpers
 import play.api.libs.json.Json
 import utils.search.{SearchParams, FacetSort}
 import controllers.archdesc.{routes => archdescRoutes}
+import utils.search.Dispatcher
+import com.google.inject._
 
+object DocumentaryUnits {
+  /**
+   * Mapping between incoming list filter parameters
+   * and the data values accessed via the server.
+   */
+  val listFilterMappings: ListMap[String,String] = ListMap(
+    "name" -> "name",
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    IsadG.ARCH_HIST -> s"<-describes.${IsadG.ARCH_HIST}",
+    IsadG.SCOPE_CONTENT -> s"<-describes.${IsadG.SCOPE_CONTENT}",
+    "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
+  )
 
-object DocumentaryUnits extends EntityRead[DocumentaryUnit]
+  val orderMappings: ListMap[String,String] = ListMap(
+    Entity.IDENTIFIER -> Entity.IDENTIFIER,
+    "name" -> "name",
+    "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
+  )
+}
+
+@Singleton
+class DocumentaryUnits @Inject()(val searchDispatcher: Dispatcher) extends EntityRead[DocumentaryUnit]
   with VisibilityController[DocumentaryUnit]
   with CreationContext[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
@@ -62,27 +84,9 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnit]
   )
 
 
-  /**
-   * Mapping between incoming list filter parameters
-   * and the data values accessed via the server.
-   */
-  val listFilterMappings: ListMap[String,String] = ListMap(
-    "name" -> "name",
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    IsadG.ARCH_HIST -> s"<-describes.${IsadG.ARCH_HIST}",
-    IsadG.SCOPE_CONTENT -> s"<-describes.${IsadG.SCOPE_CONTENT}",
-    "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
-  )
-
-  val orderMappings: ListMap[String,String] = ListMap(
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    "name" -> "name",
-    "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
-  )
-
 
   override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
+    params.toRestParams(DocumentaryUnits.listFilterMappings, DocumentaryUnits.orderMappings, Some(DEFAULT_SORT))
   }
 
   /**

@@ -13,6 +13,7 @@ import play.filters.csrf.CSRF.Token
 import models.sql.{User, OpenIDUser}
 import org.mindrot.jbcrypt.BCrypt
 import mocks.UserFixtures
+import models.json.Utils
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -28,9 +29,28 @@ trait TestLoginHelper {
      * A Global object that loads fixtures on application start.
      */
     object FakeGlobal extends CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings {
+
+      import com.tzavellas.sse.guice.ScalaModule
+      import utils.search.Dispatcher
+
+      class TestModule extends ScalaModule {
+        def configure() {
+          bind[Dispatcher].to[mocks.MockSearchDispatcher]
+        }
+      }
+
+      private lazy val injector = {
+        com.google.inject.Guice.createInjector(new TestModule)
+      }
+
+      override def getControllerInstance[A](clazz: Class[A]) = {
+        injector.getInstance(clazz)
+      }
+
       override def onStart(app: play.api.Application) {
         // Workaround for issue #845
         app.routes
+        Utils.registerModels
         super.onStart(app)
       }
     }
@@ -46,7 +66,7 @@ trait TestLoginHelper {
   def fakeApplication(additionalConfiguration: Map[String, Any] = Map(), global: GlobalSettings = getGlobal) = {
     FakeApplication(
       additionalConfiguration = additionalConfiguration ++ getConfig,
-      additionalPlugins = getPlugins ++ Seq("mocks.MockSearchDispatcher"),
+      additionalPlugins = getPlugins,
       withGlobal = Some(global)
     )
   }

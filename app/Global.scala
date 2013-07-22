@@ -38,8 +38,26 @@ class AjaxCSRFFilter extends EssentialFilter {
 }
 
 
+
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
-    
+
+  import com.tzavellas.sse.guice.ScalaModule
+  import utils.search.Dispatcher
+
+  class ProdModule extends ScalaModule {
+    def configure() {
+      bind[Dispatcher].to[solr.SolrDispatcher]
+    }
+  }
+
+  private lazy val injector = {
+    com.google.inject.Guice.createInjector(new ProdModule)
+  }
+
+  override def getControllerInstance[A](clazz: Class[A]) = {
+    injector.getInstance(clazz)
+  }
+
   override def onStart(app: Application) {
 
     // Hack for bug #845

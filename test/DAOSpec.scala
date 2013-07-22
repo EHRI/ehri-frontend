@@ -15,7 +15,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
   val entityType = EntityType.UserProfile
 
-  class FakeApp extends WithApplication(FakeApplication(additionalConfiguration = config, withGlobal = Some(FakeGlobal)))
+  class FakeApp extends WithApplication(FakeApplication(additionalConfiguration = config, withGlobal = Some(getGlobal)))
 
   "EntityDAO" should {
     "get an item by id" in new FakeApp {

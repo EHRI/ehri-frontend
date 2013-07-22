@@ -2,23 +2,23 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-POST  /iteratee         controllers.Search.testIteratee
+POST  /iteratee                         @controllers.Search.testIteratee
 
-GET     /admin/updateIndex              controllers.Search.updateIndex
-POST    /admin/updateIndex              controllers.Search.updateIndexPost
+GET     /admin/updateIndex              @controllers.Search.updateIndex
+POST    /admin/updateIndex              @controllers.Search.updateIndexPost
 
 # Search testing
-GET /search                             controllers.Search.search
+GET /search                             @controllers.Search.search
 
 # Get JSON (id,name) pair for a given type
-GET /filter                       controllers.Search.filter
+GET /filter                             @controllers.Search.filter
 
 # Change locale
 GET     /locale                         controllers.Application.changeLocale
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file                   controllers.Assets.at(path="/public", file)
 
 # Defer other routes to modules
 -> /        core.Routes

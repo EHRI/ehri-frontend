@@ -10,8 +10,11 @@ import play.api.i18n.Messages
 import defines.{ContentType, EntityType}
 import scala.Some
 import utils.search.SearchParams
+import utils.search.Dispatcher
+import com.google.inject._
 
-object Countries extends CRUD[CountryF,Country]
+@Singleton
+class Countries @Inject()(val searchDispatcher: Dispatcher) extends CRUD[CountryF,Country]
   with CreationContext[RepositoryF, Repository, Country]
   with VisibilityController[Country]
   with PermissionScopeController[Country]
@@ -28,10 +31,10 @@ object Countries extends CRUD[CountryF,Country]
    */
   val targetContentTypes = Seq(ContentType.Repository, ContentType.DocumentaryUnit)
 
-  override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(Repositories.listFilterMappings, Repositories.orderMappings, Some(Repositories.DEFAULT_SORT))
-  }
-  override def processChildParams(params: ListParams) = Repositories.processParams(params)
+//  override def processParams(params: ListParams): rest.RestPageParams = {
+//    params.toRestParams(Repositories.listFilterMappings, Repositories.orderMappings, Some(Repositories.DEFAULT_SORT))
+//  }
+//  override def processChildParams(params: ListParams) = Repositories.processParams(params)
 
   val entityType = EntityType.Country
   val contentType = ContentType.Country
