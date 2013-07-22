@@ -195,7 +195,9 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         controllers.archdesc.routes.DocumentaryUnits.updatePost("c1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      // Get the item history page and check the message is there...
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.archdesc.routes.DocumentaryUnits.history("c1").url)).get
       status(show) must equalTo(OK)
       // Log message should be in the history section...
       contentAsString(show) must contain(msg)
