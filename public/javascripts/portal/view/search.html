@@ -39,11 +39,11 @@
 					</form>
 					<div class="container">
 						<div class="row">
-							<div class="filterBar ">
+							<form class="filterBar" ng-submit="setQuery('q', searchTerm)">
 								<input type="text" class="filterBar-input span8 open" style="width:80%; padding-left:10px;" ng-change="(!noSearchOnChange && setQuery('q', searchTerm))" ng-model="searchTerm" placeholder="Type your query here"/><div class="filterBar-icon">
 									<a ng-click="setQuery('q', searchTerm)"><i class="icon-search"></i></a></div><div class="filterBar-icon" ng-class="(noSearchOnChange && 'desactivated')">
 									<a ng-click="noSearchOnChange = !noSearchOnChange;"><i class="icon-refresh"></a></i></div>
-							</div>
+							</form>
 							<p class="muted">
 								<small>
 									<em>
