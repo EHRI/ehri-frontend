@@ -3,48 +3,73 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$rout
 	$scope.item = $item.data;
 	$scope.alt = {};
 	$scope.compared = {};
+	
+	
+	
+//-------------------------------------URL AND ADD/DEL DESC
+	$scope.urlParams = {};
+	
 	//<-- Set id of desc
 	if($location.search().description) {
 		$scope.descId = $location.search().description;
 	}
 	$scope.$on('$routeUpdate', function(){
-		if($location.search().description) {
-			$scope.descId = $location.search().description;
-			$scope.loadDesc();// Change desc
-		} else if ($location.search().comparedWith) {
-			if($scope.compared[$location.search().comparedWith])
-			{
-				$scope.loadDesc();// Change desc
-			}
-			else
-			{
-				$scope.compareWith($location.search().comparedWith, loadDesc);
-			}
-		}
+		$scope.fromUrl();
 	});
 	// Set id of desc -->
 	
+	$scope.fromUrl = function() {
+		$scope.urlParams = $location.search();
+		console.log(typeof $location.search().compared );
+		if(typeof $location.search().compared == "string") {
+			$scope.urlParams.compared = $scope.urlParams.compared.split(",");
+		}
+		if($location.search().description) {
+			$scope.descId = $location.search().description;
+			$scope.loadDesc();// Change desc
+		}
+		if ($location.search().compared) {
+			$scope.compared = {};
+			angular.forEach($scope.urlParams.compared, function(value, key) {
+				$scope.compareWith(value);
+			});
+		}
+	}
+	
+	
+	$scope.setSearch = function () {
+		$location.search($scope.urlParams);
+	}
+	
+	$scope.resetCompared = function() {
+		$scope.urlParams.compared = [];
+		angular.forEach($scope.compared, function(value, key) {
+			$scope.urlParams.compared.push(key);
+		});
+		$scope.setSearch();
+	}
+	
+	$scope.setDesc = function(descId) {
+		$scope.urlParams.description = descId;
+		$scope.setSearch();
+	}
+	
+	$scope.removeDesc = function (descId) {
+		delete $scope.compared[descId];
+		$scope.resetCompared();
+	}
+//-------------------------------------URL AND ADD/DEL DESC
 	
 	//Color for compared desc
 	$scope.descNbr = 0;
 	$scope.getColor = function () {
 		var available = ['deepblue', 'green', 'purple', 'alizarin']
-		if($scope.descNbr  < 3) {
+		if($scope.descNbr  <= 3) {
 			$scope.descNbr = $scope.descNbr + 1;
 		} else {
 			$scope.descNbr = 0;
 		}
 		return available[$scope.descNbr - 1];
-	}
-	
-	$scope.compareWith = function(itemId, load) {
-		$http.get('./api/documentaryUnit/'+itemId).success(function(data) {
-			console.log(data);
-			$scope.compared[itemId] = data;
-			$scope.compared[itemId].color = $scope.getColor();
-			console.log($scope.compared);
-			if(load) { $scope.loadDesc(); }
-		});
 	}
 	
 	$scope.closeAll = function () {
@@ -58,15 +83,17 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$rout
 		});
 	}
 	
+	$scope.compareWith = function(itemId) {
+		$http.get('./api/documentaryUnit/'+itemId).success(function(data) {
+			$scope.compared[itemId] = data;
+			$scope.compared[itemId].color = $scope.getColor();
+			if(!$scope.compared[itemId]) { $scope.resetCompared(); }
+		});
+	}
+	
 	//<-- Select good desc 
 	$scope.loadDesc = function() {
-		if($location.search().comparedWith)
-		{
-			console.log("loadDesc");
-			$scope.desc = $scope.compared[$location.search().comparedWith].relationships.describes[0];
-			console.log($scope.desc);
-		}
-		else if($scope.descId)
+		if($scope.descId)
 		{
 			$scope.desc = $filter("descLang")($scope.item.relationships.describes, false, {"id" : $scope.descId})[0];
 			$scope.alt = [];
@@ -147,6 +174,7 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$rout
 	
 	//<-- Load data 
 	$scope.loadDesc();
+	$scope.fromUrl();
 	// Load data-->
 }]);
 

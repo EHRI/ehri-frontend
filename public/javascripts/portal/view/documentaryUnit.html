@@ -24,13 +24,13 @@
 				<ul class="list-item">
 					<li ng-repeat="desc in item.relationships.describes">
 					{{desc.data.languageCode}} - {{desc.data.name}}
-					<a class="filterBar-icon" href="#/item/documentaryUnit/{{item.id}}?description={{desc.id}}"><i class="icon-chevron-right"></i></a>
+					<a class="filterBar-icon" ng-click="setDesc(desc.id)"><i class="icon-chevron-right"></i></a>
 					</li>
 				</ul>
 				<ul class="list-item" ng-repeat="comparedItem in compared">
 					<li ng-repeat="desc in comparedItem.relationships.describes">
 					{{desc.data.languageCode}} - {{desc.data.name}}
-					<a class="filterBar-icon" href="#/item/documentaryUnit/{{item.id}}?comparedWith={{comparedItem.id}}"><i class="icon-chevron-right"></i></a>
+					<a class="filterBar-icon" ng-click="removeDesc(comparedItem.id)"><i class="icon-remove"></i></a>
 					</li>
 				</ul>
 			</div>
