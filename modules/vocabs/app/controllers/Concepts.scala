@@ -17,22 +17,6 @@ import utils.search.{SearchParams, FacetSort}
 import utils.search.Dispatcher
 import com.google.inject._
 
-object Concepts {
-  /**
-   * Mapping between incoming list filter parameters
-   * and the data values accessed via the server.
-   */
-  val listFilterMappings: ListMap[String,String] = ListMap(
-    ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}",
-    ConceptF.SCOPENOTE -> s"<-describes.${ConceptF.SCOPENOTE}",
-    ConceptF.DEFINITION -> s"<-describes.${ConceptF.DEFINITION}"
-  )
-
-  val orderMappings: ListMap[String,String] = ListMap(
-    ConceptF.PREFLABEL -> s"<-describes.${ConceptF.PREFLABEL}"
-  )
-}
-
 @Singleton
 class Concepts @Inject()(val searchDispatcher: Dispatcher) extends CreationContext[ConceptF, Concept, Concept]
   with VisibilityController[Concept]
@@ -46,15 +30,6 @@ class Concepts @Inject()(val searchDispatcher: Dispatcher) extends CreationConte
   with ApiBase[Concept] {
 
   val targetContentTypes = Seq(ContentType.Concept)
-
-  val DEFAULT_SORT = ConceptF.PREFLABEL
-
-
-  override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(Concepts.listFilterMappings, Concepts.orderMappings, Some(DEFAULT_SORT))
-  }
-  override def processChildParams(params: ListParams) = processParams(params)
-
 
   val entityType = EntityType.Concept
   val contentType = ContentType.Concept

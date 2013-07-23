@@ -3,7 +3,7 @@
 @import controllers.authorities.HistoricalAgents
 
 @rightSidebarLayout(Messages("actions.listHistoricalAgents")) {
-    @common.filterableList("pagination.displayingItems", page, params, HistoricalAgents.listFilterMappings.keys, HistoricalAgents.orderMappings.keys) {
+    @common.filterableList("pagination.displayingItems", page, params) {
         @historicalAgent.itemList(page)
     }
 } {

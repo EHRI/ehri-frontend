@@ -16,19 +16,6 @@ import utils.search.{SearchParams, FacetSort}
 import utils.search.Dispatcher
 import com.google.inject._
 
-object Repositories {
-  val listFilterMappings = ListMap[String,String](
-    "name" -> "name",
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    Isdiah.GEOCULTURAL_CONTEXT -> s"<-describes.${Isdiah.GEOCULTURAL_CONTEXT}"
-  )
-
-  val orderMappings = ListMap[String,String](
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    "name" -> "name"
-  )
-}
-
 @Singleton
 class Repositories @Inject()(val searchDispatcher: Dispatcher) extends EntityRead[Repository]
   with EntityUpdate[RepositoryF, Repository]
@@ -90,7 +77,6 @@ class Repositories @Inject()(val searchDispatcher: Dispatcher) extends EntityRea
   def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.repository.search(page, params, facets, controllers.archdesc.routes.Repositories.search))
-
   }
 
   /**

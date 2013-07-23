@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    @common.filterableList("concept.narrowerTermsPageHeader", page, params, Concepts.listFilterMappings.keys, Concepts.orderMappings.keys) {
+    @common.filterableList("concept.narrowerTermsPageHeader", page, params) {
         <ul>
             @page.items.map(c => concept.listItem(c))
         </ul>

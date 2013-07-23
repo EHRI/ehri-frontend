@@ -31,11 +31,6 @@ class Countries @Inject()(val searchDispatcher: Dispatcher) extends CRUD[Country
    */
   val targetContentTypes = Seq(ContentType.Repository, ContentType.DocumentaryUnit)
 
-//  override def processParams(params: ListParams): rest.RestPageParams = {
-//    params.toRestParams(Repositories.listFilterMappings, Repositories.orderMappings, Some(Repositories.DEFAULT_SORT))
-//  }
-//  override def processChildParams(params: ListParams) = Repositories.processParams(params)
-
   val entityType = EntityType.Country
   val contentType = ContentType.Country
 

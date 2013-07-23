@@ -3,7 +3,7 @@
 @import controllers.archdesc.DocumentaryUnits
 
 @noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
-    @common.filterableList("pagination.displayingItems", page, params, DocumentaryUnits.listFilterMappings.keys, DocumentaryUnits.orderMappings.keys) {
+    @common.filterableList("pagination.displayingItems", page, params) {
         @documentaryUnit.itemList(page)
     }
 }

@@ -13,10 +13,6 @@ import utils.search.SearchParams
 import utils.search.Dispatcher
 import com.google.inject._
 
-object Vocabularies {
-
-}
-
 @Singleton
 class Vocabularies @Inject()(val searchDispatcher: Dispatcher) extends CRUD[VocabularyF,Vocabulary]
   with CreationContext[ConceptF, Concept, Vocabulary]
@@ -26,12 +22,6 @@ class Vocabularies @Inject()(val searchDispatcher: Dispatcher) extends CRUD[Voca
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.Concept)
-
-//  override def processParams(params: ListParams): rest.RestPageParams = {
-//    params.toRestParams(Concepts.listFilterMappings, Concepts.orderMappings, Some(Concepts.DEFAULT_SORT))
-//  }
-  //override def processChildParams(params: ListParams) = Concepts.processParams(params)
-
 
   val entityType = EntityType.Vocabulary
   val contentType = ContentType.Vocabulary

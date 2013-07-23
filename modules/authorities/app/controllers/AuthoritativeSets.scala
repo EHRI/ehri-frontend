@@ -12,10 +12,6 @@ import utils.search.{SearchOrder, SearchParams}
 import utils.search.Dispatcher
 import com.google.inject._
 
-object AuthoritativeSets {
-
-}
-
 @Singleton
 class AuthoritativeSets @Inject()(val searchDispatcher: Dispatcher) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with CreationContext[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
@@ -25,12 +21,6 @@ class AuthoritativeSets @Inject()(val searchDispatcher: Dispatcher) extends CRUD
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.HistoricalAgent)
-
-//  override def processParams(params: ListParams): rest.RestPageParams = {
-//    params.toRestParams(HistoricalAgents.listFilterMappings, HistoricalAgents.orderMappings, Some(HistoricalAgents.DEFAULT_SORT))
-//  }
-  //override def processChildParams(params: ListParams) = HistoricalAgents.processParams(params)
-
 
   val entityType = EntityType.AuthoritativeSet
   val contentType = ContentType.AuthoritativeSet

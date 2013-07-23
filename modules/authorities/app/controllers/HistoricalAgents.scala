@@ -13,19 +13,6 @@ import utils.search.{SearchParams, FacetSort}
 import utils.search.Dispatcher
 import com.google.inject._
 
-object HistoricalAgents {
-  val listFilterMappings = ListMap[String,String](
-    "name" -> s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}",
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    Isaar.HISTORY -> s"<-describes.${Isaar.HISTORY}"
-  )
-
-  val orderMappings = ListMap[String,String](
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    "name" -> "name"
-  )
-}
-
 @Singleton
 class HistoricalAgents @Inject()(val searchDispatcher: Dispatcher) extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with VisibilityController[HistoricalAgent]
@@ -34,14 +21,10 @@ class HistoricalAgents @Inject()(val searchDispatcher: Dispatcher) extends CRUD[
   with EntityAnnotate[HistoricalAgent]
   with EntitySearch {
 
-  //val targetContentTypes = Seq(ContentType.DocumentaryUnit)
-
   val entityType = EntityType.HistoricalAgent
   val contentType = ContentType.HistoricalAgent
 
   val form = models.forms.HistoricalAgentForm.form
-
-  val DEFAULT_SORT = s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}"
 
   // Documentary unit facets
   import solr.facet._
@@ -59,17 +42,6 @@ class HistoricalAgents @Inject()(val searchDispatcher: Dispatcher) extends CRUD[
       sort = FacetSort.Name
     )
   )
-  override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(HistoricalAgents.listFilterMappings, HistoricalAgents.orderMappings, Some(DEFAULT_SORT))
-  }
-
-  /**
-   * Child list forms are handled the same as the main one
-   * @param params
-   * @return
-   */
-  override def processChildParams(params: ListParams) = processParams(params)
-
 
   // Search params
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
