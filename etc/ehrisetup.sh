@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Set up the EHRI server
 
 SOLR_VERS=4.4.0
