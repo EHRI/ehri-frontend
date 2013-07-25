@@ -9,22 +9,25 @@ import play.api.libs.iteratee.{Concurrent, Enumerator}
 import models.IsadG
 import play.api.Logger
 import concurrent.Future
-import solr.SolrIndexer._
-import solr.SolrIndexer
 import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.{JsObject, Writes, Json}
-import solr.SolrIndexer.SolrHeader
+import solr._
 import solr.facet.FieldFacetClass
-import solr.SolrIndexer.SolrUpdateResponse
-import solr.SolrIndexer.SolrErrorResponse
 import models.base.AnyModel
-import utils.search.{Dispatcher, SearchOrder, SearchParams}
+import utils.search._
 import play.extras.iteratees.{Combinators, JsonIteratees, JsonEnumeratees, Encoding}
 import play.api.libs.ws.ResponseHeaders
 import play.api.http.{HeaderNames, ContentTypes}
-import utils.search.Dispatcher
+
 import com.google.inject._
+import solr.SolrErrorResponse
+import play.api.libs.ws.ResponseHeaders
+import solr.facet.FieldFacetClass
+import scala.Some
+import solr.SolrErrorResponse
+import play.api.libs.ws.ResponseHeaders
+import play.api.libs.json.JsObject
 
 object Search {
   /**
@@ -35,7 +38,7 @@ object Search {
 }
 
 @Singleton
-class Search @Inject()(val searchDispatcher: Dispatcher) extends EntitySearch {
+class Search @Inject()(val globalConfig: global.GlobalConfig, val searchIndexer: Indexer) extends EntitySearch {
 
   val searchEntities = List() // i.e. Everything
   override val entityFacets = List(
@@ -221,9 +224,9 @@ class Search @Inject()(val searchDispatcher: Dispatcher) extends EntitySearch {
     /**
      * Clear everything from the index...
      */
-    def optionallyClearIndex(doit: Boolean): Future[Option[SolrResponse]] = {
+    def optionallyClearIndex(doit: Boolean): Future[Option[IndexerResponse]] = {
       if (!doit) Future.successful(None)
-      else solr.SolrIndexer.deleteAll().map(r => Some(r))
+      else searchIndexer.deleteAll().map(r => Some(r))
     }
 
     /**
@@ -231,7 +234,7 @@ class Search @Inject()(val searchDispatcher: Dispatcher) extends EntitySearch {
      */
     def updatePage(entityType: EntityType.Value, params: RestPageParams, list: List[JsObject], chan: Concurrent.Channel[String]
                     ): Future[List[SolrResponse]] = {
-      solr.SolrIndexer.updateItems(list.toStream, commit = false).map { jobs =>
+      searchIndexer.updateItems(list.toStream, commit = false).map { jobs =>
         jobs.map { response =>
           response match {
             case r@SolrUpdateResponse(SolrHeader(code, time), Some(SolrError(msg, _))) => {
@@ -281,7 +284,7 @@ class Search @Inject()(val searchDispatcher: Dispatcher) extends EntitySearch {
 
         // Now get on with the real work...
         chan.push(wrapMsg(s"Initiating update for entities: ${entities.mkString(", ")}"))
-        var all: List[Future[List[SolrResponse]]] = entities.map { entity =>
+        var all: List[Future[List[IndexerResponse]]] = entities.map { entity =>
           EntityDAO(entity, userOpt).count().flatMap { countOrErr =>
             if (countOrErr.isLeft) {
               Logger.logger.error("Unable to fetch first page of data for $entity: " + countOrErr.left.get)
@@ -293,15 +296,15 @@ class Search @Inject()(val searchDispatcher: Dispatcher) extends EntitySearch {
             val pageCount = (count / batchSize) + (count % batchSize).min(1)
 
             // Clear all Entities from the index...
-            var allUpdateResponses: Future[List[SolrResponse]] = solr.SolrIndexer.deleteItemsByType(entity, commit = false).flatMap { response =>
+            var allUpdateResponses: Future[List[IndexerResponse]] = searchIndexer.deleteItemsByType(entity, commit = false).flatMap { response =>
               response match {
                 case e: SolrErrorResponse => {
                   chan.push(wrapMsg(s"Error deleting items for entity: $entity: ${e.err}"))
-                  Future.successful(List(response))
+                  Future.successful(List(e))
                 }
                 case ok => {
                   // Run each page in sequence...
-                  var pages: List[Future[List[SolrResponse]]] = 1L.to(pageCount).map { p =>
+                  var pages: List[Future[List[IndexerResponse]]] = 1L.to(pageCount).map { p =>
                     val page = updateItemSet(entity, p.toInt, chan)
                     page onFailure {
                       case e => chan.push(wrapMsg(e.getMessage))
@@ -335,7 +338,7 @@ class Search @Inject()(val searchDispatcher: Dispatcher) extends EntitySearch {
             }
           }
           chan.push(wrapMsg("Completed indexing in: " + totaltime + " - committing..."))
-          SolrIndexer.commit.map { resOrErr =>
+          searchIndexer.commit.map { resOrErr =>
             resOrErr match {
               case e: SolrErrorResponse => {
                 chan.push(wrapMsg("Error committing Solr data: " + e.err))

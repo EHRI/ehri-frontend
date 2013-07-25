@@ -1,6 +1,7 @@
 package helpers
 
 import controllers.routes
+import globalconfig.RunConfiguration
 import play.api.http.{MimeTypes, HeaderNames}
 import play.api.test.FakeApplication
 import play.api.test.FakeRequest
@@ -12,8 +13,11 @@ import play.filters.csrf.{CSRFFilter, CSRF}
 import play.filters.csrf.CSRF.Token
 import models.sql.{User, OpenIDUser}
 import org.mindrot.jbcrypt.BCrypt
-import mocks.UserFixtures
+import mocks.{MockSearchIndexer, UserFixtures}
 import models.json.Utils
+import global.{MenuConfig, GlobalConfig}
+import controllers.base.LoginHandler
+import utils.search.{Indexer, Dispatcher}
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -23,6 +27,13 @@ trait TestLoginHelper {
 
   val fakeCsrfString = "fake-csrf-token"
   val testPassword = "testpass"
+
+  object TestConfig extends GlobalConfig {
+    val searchIndexer: Indexer = mocks.MockSearchIndexer()
+    val searchDispatcher: Dispatcher = mocks.MockSearchDispatcher()
+    implicit lazy val menuConfig: MenuConfig = RunConfiguration.menuConfig
+    val loginHandler: LoginHandler = mocks.MockLoginHandler()
+  }
 
   def getGlobal: GlobalSettings = {
     /**
@@ -35,7 +46,8 @@ trait TestLoginHelper {
 
       class TestModule extends ScalaModule {
         def configure() {
-          bind[Dispatcher].to[mocks.MockSearchDispatcher]
+          bind[GlobalConfig].toInstance(TestConfig)
+          bind[Indexer].toInstance(MockSearchIndexer())
         }
       }
 
@@ -137,7 +149,7 @@ trait TestLoginHelper {
  */
 trait TestMockLoginHelper extends TestLoginHelper {
 
-  override def getPlugins = Seq("mocks.MockUserDAO", "mocks.MockLoginHandler")
+  override def getPlugins = Seq("mocks.MockUserDAO")
 
   /**
    * Get a user auth cookie using the Mock login mechanism, which depends

@@ -6,12 +6,10 @@ import controllers.base.ControllerHelpers
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Execution.Implicits._
 
-/**
- * Simple proxy controller that authorizes users and passes a request
- * directly on the the REST server. Currently only GET actions are
- * supported.
- */
-object ApiController extends Controller with AuthController with ControllerHelpers {
+import com.google.inject._
+import global.GlobalConfig
+
+class ApiController @Inject()(val globalConfig: GlobalConfig) extends Controller with AuthController with ControllerHelpers {
 
   def listItems(contentType: String) = Action { implicit request =>
     get(s"$contentType/list")(request)

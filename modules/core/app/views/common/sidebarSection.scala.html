@@ -1,4 +1,4 @@
-@(name: Option[String] = None)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(name: Option[String] = None)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, menuConfig: MenuConfig, lang: Lang)
 
 <div class="sidebar-section">
     @name.map { n =>

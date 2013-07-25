@@ -51,7 +51,7 @@ object ApplicationBuild extends Build {
 
 
   val otherSettings = Seq(
-    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._", "global.MenuConfig"),
 
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",

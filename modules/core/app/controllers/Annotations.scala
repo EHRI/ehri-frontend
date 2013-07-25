@@ -7,8 +7,10 @@ import play.api.i18n.Messages
 import controllers.ListParams
 import controllers.base.{EntityRead, VisibilityController, EntityDelete, EntityAnnotate}
 
+import com.google.inject._
+import global.GlobalConfig
 
-object Annotations extends EntityRead[Annotation]
+class Annotations @Inject()(val globalConfig: GlobalConfig) extends EntityRead[Annotation]
   with VisibilityController[Annotation]
   with EntityDelete[Annotation]
   with EntityAnnotate[Annotation] {

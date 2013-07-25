@@ -11,14 +11,9 @@ import concurrent.Future
 import play.api.i18n.Messages
 
 /**
- * Default object instantiation
- */
-object OpenIDLoginHandler extends OpenIDLoginHandler(play.api.Play.current)
-
-/**
  * OpenID login handler implementation.
  */
-class OpenIDLoginHandler(app: play.api.Application) extends LoginHandler {
+class OpenIDLoginHandler(implicit val menuConfig: global.MenuConfig) extends LoginHandler {
 
   import models.sql._
 
@@ -61,7 +56,6 @@ class OpenIDLoginHandler(app: play.api.Application) extends LoginHandler {
             Async {
               rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                 case Right(entity) => {
-                  println("GOT ENTITY: " + entity)
                   models.sql.OpenIDUser.create(email.toLowerCase, entity.id).map { user =>
                     user.addAssociation(info.id)
                     gotoLoginSucceeded(user.profile_id)

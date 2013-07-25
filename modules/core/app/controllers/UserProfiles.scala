@@ -27,7 +27,7 @@ object UserProfiles {
 
 
 @Singleton
-class UserProfiles @Inject()(val searchDispatcher: Dispatcher) extends PermissionHolderController[UserProfile]
+class UserProfiles @Inject()(val globalConfig: global.GlobalConfig) extends PermissionHolderController[UserProfile]
   with EntityRead[UserProfile]
   with EntityUpdate[UserProfileF,UserProfile]
   with EntityDelete[UserProfile]

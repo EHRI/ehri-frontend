@@ -1,5 +1,5 @@
 @(paginationKey: String, page: rest.Page[AnyModel], params: ListParams, filterNames: Iterable[String] = Nil, orderNames: Iterable[String] = Nil
-)(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+)(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, menuConfig: MenuConfig, lang: Lang, flash: Flash)
 
 
 @if(page.items.isEmpty && params.pfn.isEmpty) {

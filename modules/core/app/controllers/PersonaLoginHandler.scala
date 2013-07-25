@@ -8,9 +8,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsString
 
 
-object PersonaLoginHandler extends PersonaLoginHandler(play.api.Play.current)
 
-class PersonaLoginHandler(app: play.api.Application) extends LoginHandler {
+class PersonaLoginHandler(implicit val menuConfig: global.MenuConfig) extends LoginHandler {
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"

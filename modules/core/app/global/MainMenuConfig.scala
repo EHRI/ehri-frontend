@@ -1,23 +1,16 @@
 package global
 
 import java.util
+import controllers.base.LoginHandler
 
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
-object MainMenuConfig {
+trait GlobalConfig {
+  val menuConfig: MenuConfig
+  val loginHandler: LoginHandler
+  val searchDispatcher: utils.search.Dispatcher
+}
 
-  import collection.JavaConverters._
-
-  // Ugh, cannot find a mutable sorted Scala collection, so using
-  // this Java LinkedHashMap with a converter
-  private val mainSection = new java.util.LinkedHashMap[String,String]()
-  private val adminSection = new util.LinkedHashMap[String,String]()
-
-  def putMain(key: String, url: String) = mainSection.put(key, url)
-  def putAdmin(key: String, url: String) = adminSection.put(key, url)
-
-  def main = mainSection.asScala
-  def admin = adminSection.asScala
+trait MenuConfig {
+  val mainSection: Iterable[(String,String)]
+  val adminSection: Iterable[(String,String)]
 }

@@ -17,7 +17,7 @@ import utils.search.Dispatcher
 import com.google.inject._
 
 @Singleton
-class Repositories @Inject()(val searchDispatcher: Dispatcher) extends EntityRead[Repository]
+class Repositories @Inject()(val globalConfig: global.GlobalConfig) extends EntityRead[Repository]
   with EntityUpdate[RepositoryF, Repository]
   with EntityDelete[Repository]
   with CreationContext[DocumentaryUnitF,DocumentaryUnit, Repository]

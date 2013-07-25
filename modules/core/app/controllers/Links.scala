@@ -8,8 +8,10 @@ import play.api.i18n.Messages
 import play.api.mvc.{Call, AnyContent, Action}
 import controllers.ListParams
 
+import com.google.inject._
+import global.GlobalConfig
 
-object Links extends EntityRead[Link]
+class Links @Inject()(val globalConfig: GlobalConfig) extends EntityRead[Link]
   with VisibilityController[Link]
   with EntityDelete[Link]
   with EntityAnnotate[Link] {

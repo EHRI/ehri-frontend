@@ -11,6 +11,7 @@ import java.net.ConnectException
 import models.UserProfile
 import play.api.Play.current
 import play.api.libs.json.Json
+import global.{MenuConfig, GlobalConfig}
 
 object ControllerHelpers {
   def isAjax(implicit request: RequestHeader): Boolean =
@@ -20,6 +21,10 @@ object ControllerHelpers {
 
 trait ControllerHelpers {
   this: Controller with AuthController =>
+
+  implicit val globalConfig: GlobalConfig
+  implicit lazy val menuConfig: MenuConfig = globalConfig.menuConfig
+  implicit lazy val searchDispatcher: utils.search.Dispatcher = globalConfig.searchDispatcher
 
   /**
    * Ensure that an action is performed by a logged-in user. This can be globally

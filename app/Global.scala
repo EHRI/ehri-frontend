@@ -2,9 +2,10 @@
 // Global request object
 //
 
+import _root_.controllers.core.OpenIDLoginHandler
 import _root_.models.{HistoricalAgent, Repository, DocumentaryUnit, Concept}
 import defines.EntityType
-import global.RouteRegistry
+import global.{GlobalConfig, MenuConfig, RouteRegistry}
 import play.api._
 import play.api.mvc._
 
@@ -13,8 +14,11 @@ import org.apache.commons.codec.binary.Base64
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
 import rest.EntityDAO
-import solr.SolrIndexer
-import solr.SolrIndexer.SolrErrorResponse
+import solr.{SolrErrorResponse, SolrIndexer}
+
+import com.tzavellas.sse.guice.ScalaModule
+import utils.search.{Indexer, Dispatcher}
+import global.GlobalConfig
 
 
 /**
@@ -37,16 +41,50 @@ class AjaxCSRFFilter extends EssentialFilter {
   }
 }
 
+package globalconfig {
+  object RunConfiguration extends GlobalConfig {
+    val searchDispatcher: Dispatcher = solr.SolrDispatcher()
 
+    implicit lazy val menuConfig: MenuConfig = new MenuConfig {
+      val mainSection: Iterable[(String, String)] = Seq(
+        ("pages.search",                  controllers.routes.Search.search.url),
+        ("contentTypes.documentaryUnit",  controllers.archdesc.routes.DocumentaryUnits.search.url),
+        ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search.url),
+        ("contentTypes.repository",       controllers.archdesc.routes.Repositories.search.url),
+        ("contentTypes.cvocConcept",      controllers.vocabs.routes.Concepts.search.url)
+      )
+      val adminSection: Iterable[(String, String)] = Seq(
+        ("contentTypes.userProfile",      controllers.core.routes.UserProfiles.search.url),
+        ("contentTypes.group",            controllers.core.routes.Groups.list.url),
+        ("contentTypes.country",          controllers.archdesc.routes.Countries.search.url),
+        ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list.url),
+        ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list.url),
+        ("s1", "-"),
+        ("contentTypes.systemEvent",      controllers.core.routes.SystemEvents.list.url),
+        ("s2", "-"),
+        ("search.updateIndex",            controllers.routes.Search.updateIndex.url)
+      )
+    }
+    val loginHandler = new OpenIDLoginHandler
+  }
+
+
+}
 
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
-  import com.tzavellas.sse.guice.ScalaModule
-  import utils.search.Dispatcher
+  lazy val searchIndexer = new SolrIndexer(typeRegistry = Map(
+    EntityType.Concept -> models.Concept.toSolr,
+    EntityType.DocumentaryUnit -> models.DocumentaryUnit.toSolr,
+    EntityType.Repository -> models.Repository.toSolr,
+    EntityType.HistoricalAgent -> models.HistoricalAgent.toSolr
+  ))
+
 
   class ProdModule extends ScalaModule {
     def configure() {
-      bind[Dispatcher].to[solr.SolrDispatcher]
+      bind[GlobalConfig].toInstance(globalconfig.RunConfiguration)
+      bind[Indexer].toInstance(searchIndexer)
     }
   }
 
@@ -79,51 +117,13 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     RouteRegistry.setUrl(EntityType.Concept, controllers.vocabs.routes.Concepts.get _)
     RouteRegistry.setUrl(EntityType.Country, controllers.archdesc.routes.Countries.get _)
 
-    // Register menu parts - MASSIVE HACK to put this here!!!
-    Logger.logger.info("Configuring menu... " + controllers.vocabs.routes.Concepts.search.url)
-    global.MainMenuConfig.putMain(
-      "pages.search", controllers.routes.Search.search.url)
-    global.MainMenuConfig.putMain(
-      "contentTypes.documentaryUnit", controllers.archdesc.routes.DocumentaryUnits.search.url)
-    global.MainMenuConfig.putMain(
-      "contentTypes.historicalAgent", controllers.authorities.routes.HistoricalAgents.search.url)
-    global.MainMenuConfig.putMain(
-      "contentTypes.repository", controllers.archdesc.routes.Repositories.search.url)
-    global.MainMenuConfig.putMain(
-      "contentTypes.cvocConcept", controllers.vocabs.routes.Concepts.search.url)
-
-    Logger.logger.info("Configuring admin menu...")
-    global.MainMenuConfig.putAdmin(
-      "contentTypes.userProfile", controllers.core.routes.UserProfiles.search.url)
-    global.MainMenuConfig.putAdmin(
-      "contentTypes.group", controllers.core.routes.Groups.list.url)
-    global.MainMenuConfig.putAdmin(
-      "contentTypes.country", controllers.archdesc.routes.Countries.search.url)
-    global.MainMenuConfig.putAdmin(
-      "contentTypes.cvocVocabulary", controllers.vocabs.routes.Vocabularies.list.url)
-    global.MainMenuConfig.putAdmin(
-      "contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list.url)
-    global.MainMenuConfig.putAdmin("s1", "-")
-    global.MainMenuConfig.putAdmin(
-      "contentTypes.systemEvent", controllers.core.routes.SystemEvents.list.url)
-    global.MainMenuConfig.putAdmin("s2", "-")
-    global.MainMenuConfig.putAdmin(
-      "search.updateIndex", controllers.routes.Search.updateIndex.url
-    )
-
-    // Solr indexing
-    SolrIndexer.conversionRegistry.put(EntityType.Concept, Concept.toSolr)
-    SolrIndexer.conversionRegistry.put(EntityType.DocumentaryUnit, DocumentaryUnit.toSolr)
-    SolrIndexer.conversionRegistry.put(EntityType.Repository, Repository.toSolr)
-    SolrIndexer.conversionRegistry.put(EntityType.HistoricalAgent, HistoricalAgent.toSolr)
-
     import play.api.libs.concurrent.Execution.Implicits._
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers
     EntityDAO.addCreateHandler { item =>
       Logger.logger.info("Binding creation event to Solr create action")
-        solr.SolrIndexer.updateItem(item, commit = true).map { r => r match {
+      searchIndexer.updateItem(item, commit = true).map { r => r match {
           case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
           case ok => ok
         }
@@ -132,7 +132,7 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
     EntityDAO.addUpdateHandler { item =>
       Logger.logger.info("Binding update event to Solr update action")
-        solr.SolrIndexer.updateItem(item, commit = true).map { r => r match {
+      searchIndexer.updateItem(item, commit = true).map { r => r match {
           case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
           case ok => ok
         }
@@ -141,7 +141,7 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
     EntityDAO.addDeleteHandler { item =>
       Logger.logger.info("Binding delete event to Solr delete action")
-      solr.SolrIndexer.deleteItemsById(Stream(item)).map { r => r match {
+      searchIndexer.deleteItemsById(Stream(item)).map { r => r match {
           case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
           case ok => ok
         }

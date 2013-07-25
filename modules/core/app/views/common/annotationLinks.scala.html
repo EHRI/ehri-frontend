@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AnyModel, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader)
+@(item: AnyModel, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, menuConfig: MenuConfig)
 
 @**
   Get the "other" item in this link's targets.

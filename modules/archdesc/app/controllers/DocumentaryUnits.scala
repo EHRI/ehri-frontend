@@ -20,7 +20,7 @@ import com.google.inject._
 
 
 @Singleton
-class DocumentaryUnits @Inject()(val searchDispatcher: Dispatcher) extends EntityRead[DocumentaryUnit]
+class DocumentaryUnits @Inject()(val globalConfig: global.GlobalConfig) extends EntityRead[DocumentaryUnit]
   with VisibilityController[DocumentaryUnit]
   with CreationContext[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]

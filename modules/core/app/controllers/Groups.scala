@@ -9,8 +9,11 @@ import play.api._
 import play.api.i18n.Messages
 import defines.{ ContentType, EntityType, PermissionType }
 import play.api.libs.concurrent.Execution.Implicits._
+import utils.search.Dispatcher
+import com.google.inject._
+import global.GlobalConfig
 
-object Groups extends PermissionHolderController[Group]
+class Groups @Inject()(val globalConfig: GlobalConfig) extends PermissionHolderController[Group]
   with VisibilityController[Group]
   with CRUD[GroupF, Group] {
 
