@@ -1,0 +1,33 @@
+<div class="search-bar">
+<h1>{{item.relationships.describes.0.data.name}}</h1>
+</div>
+<article class="container document" style="padding-top:30px;">
+	
+	<div class="row">
+		<div class="span8">
+			<ul class="unstyled">
+				<li title="Concept translations" class="simpleBlock">
+					<div ng-repeat="desc in item.relationships.describes">
+					<h3>{{desc.data.languageCode}}</h3>
+					{{desc.data.name}}
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div class="span4">
+			<ul class="unstyled">
+				<li title="Identifier" class="simpleBlock">
+					<a href="{{item.data.identifier}}" target="_blank">Link to identifier</a>
+				</li>
+				<li title="Broader terms" class="simpleBlock" ng-show="item.relationships.broader">
+					<ul class="list-item">
+						<li ng-repeat="term in item.relationships.broader" >
+							{{term.relationships.describes.0.data.name}}
+							<a href="#/item/cvocConcept/{{term.id}}" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</article>

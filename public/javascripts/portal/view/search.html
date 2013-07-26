@@ -99,7 +99,7 @@
 										<!-- If desc not inside relationship -->
 										<div class="content" ng-show="(!item.relationships.describes)">
 											<header>
-												<a ng-click="getLink(item.type, item.id)">
+												<a href="#/item/{{item.type}}/{{item.id}}">
 													<b>{{item.data.name || item.data.identifier}}</b>
 												</a>
 												<span class="filterBar filterBar-inline pull-right">

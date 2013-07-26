@@ -1,0 +1,68 @@
+<div class="search-bar">
+<h1>{{item.data.name}}</h1>
+</div>
+<article class="container document" style="padding-top:30px;">
+	
+	<div class="row">
+		<div class="span8">
+			<ul class="unstyled">
+				<li class="ui-block">
+					<h2 class="nomargin">Repositories in this country</h2>
+					<form class="form" ng-submit="doSearch()">
+						<a class="filterBar-icon" ng-click="doSearch();"><i class="icon-search"></i></a><input type="text" ng-model="searchParams.q" placeholder="Type your query here" 
+						/>
+						
+						<div class="pull-right">
+							<div class="filterBar-icon dropdown">
+							<a class="dropdown-toggle"><i class="icon-sort-by-order icon-large"></i></a>
+							<ul class="dropdown-menu">
+								<li><a ng-click="doFilter('type', 'lastUpdated')"><i class="icon-sort-by-order icon-large"></i><div class="legend">Update Time</div></a></li>
+								<li><a ng-click="doFilter('type', 'name_sort')"><i class="icon-sort-by-alphabet icon-large"></i><div class="legend">Name</div></a></li>
+								<li><a ng-click="doFilter('type', 'score')"><i class="icon-sort-by-attributes icon-large"></i><div class="legend">Relevance</div></a></li>
+							</ul>
+						</div><div class="filterBar-icon dropdown">
+							<a class="dropdown-toggle"><i class="icon-sort icon-large"></i></a>
+							<ul class="dropdown-menu">
+								<li><a ng-click="doFilter('order', 'desc')"><i class="icon-long-arrow-down icon-large"></i><div class="legend">Descendant</div></a></li>
+								<li><a ng-click="doFilter('order', 'asc')"><i class="icon-long-arrow-up icon-large"></i><div class="legend">Ascendant</div></a></li>
+							</ul>
+						</div><div
+							 class="filterBar-icon tooltiped" data-tooltiped="Previous page">
+							<a><i class="icon-chevron-left icon-large"></i></a>
+						</div><input type="text" ng-model="children.page" class="square" data-tooltiped="Actual page" /><div class="filterBar-icon tooltiped" data-tooltiped="Next page">
+							<a><i class="icon-chevron-right icon-large tooltiped" data-tooltiped="Actual page"></i></a>
+						</div>
+						</div>
+					</form>
+					<div ng-show="children.loading" class="children-list text-centered">
+						<i class="icon-spinner icon-spin icon-large"></i>
+					</div>
+					<ul ng-show="!children.loading" class="list-item" ng-class="(childrenShown && 'closed') || 'open'">
+						<li ng-show="!children.quickview.show" ng-repeat="child in children.data">
+							<div ng-repeat="desc in child.relationships.describes | descLang:langFilter">
+								<a>{{desc.data.name}}</a>
+								<div class="filterBar-icon filterBar-icon-empty pull-right">
+									<a href="#/item/documentaryUnit/{{child.id}}">
+										<i class="icon-chevron-right"></i>
+									</a>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div class="span4">
+			<ul class="unstyled">
+				<li class="simpleBlock" title="Location">
+					<div class="square-container">
+						<div class="square-hack"></div>
+						<div class="square-content">
+							<sap id="map" style="width:100%; height:100%; background-color:red;" data-lat="{{geoloc.lat}}" data-lon="{{geoloc.lon}}"></sap>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+</article>

@@ -1,190 +1,96 @@
-<div class="search-bar">
-	<nav class="navbar">
-		<div class="navbar-inner">
-			<ul class="nav">
-				<li ng-repeat="desc in item.relationships.describes">
-					<a href="#/item/documentaryUnit/{{item.id}}?description={{desc.id}}" title="{{desc.data.name}}">{{desc.data.languageCode}}</a>
+<h1>{{desc.data.name}}</h1>
+<div class="container document">
+	<div class="row">
+		<div class="span8">
+			<rud src="desc"></rud>
+			<div class="ui-block">
+				<h2 class="nomargin">Held by this repository</h2>
+				<form class="form" ng-submit="doSearch()">
+					<a class="filterBar-icon" ng-click="doSearch();"><i class="icon-search"></i></a><input type="text" ng-model="searchParams.q" placeholder="Type your query here" 
+					/>
+					
+					<div class="pull-right">
+						<div class="filterBar-icon dropdown">
+						<a class="dropdown-toggle"><i class="icon-sort-by-order icon-large"></i></a>
+						<ul class="dropdown-menu">
+							<li><a ng-click="doFilter('type', 'lastUpdated')"><i class="icon-sort-by-order icon-large"></i><div class="legend">Update Time</div></a></li>
+							<li><a ng-click="doFilter('type', 'name_sort')"><i class="icon-sort-by-alphabet icon-large"></i><div class="legend">Name</div></a></li>
+							<li><a ng-click="doFilter('type', 'score')"><i class="icon-sort-by-attributes icon-large"></i><div class="legend">Relevance</div></a></li>
+						</ul>
+					</div><div class="filterBar-icon dropdown">
+						<a class="dropdown-toggle"><i class="icon-sort icon-large"></i></a>
+						<ul class="dropdown-menu">
+							<li><a ng-click="doFilter('order', 'desc')"><i class="icon-long-arrow-down icon-large"></i><div class="legend">Descendant</div></a></li>
+							<li><a ng-click="doFilter('order', 'asc')"><i class="icon-long-arrow-up icon-large"></i><div class="legend">Ascendant</div></a></li>
+						</ul>
+					</div><div
+						 class="filterBar-icon tooltiped" data-tooltiped="Previous page">
+						<a><i class="icon-chevron-left icon-large"></i></a>
+					</div><input type="text" ng-model="children.page" class="square" data-tooltiped="Actual page" /><div class="filterBar-icon tooltiped" data-tooltiped="Next page">
+						<a><i class="icon-chevron-right icon-large tooltiped" data-tooltiped="Actual page"></i></a>
+					</div>
+					</div>
+				</form>
+				<div ng-show="children.loading" class="children-list text-centered">
+					<i class="icon-spinner icon-spin icon-large"></i>
+				</div>
+				<ul ng-show="!children.loading" class="list-item" ng-class="(childrenShown && 'closed') || 'open'">
+					<li ng-show="!children.quickview.show" ng-repeat="child in children.data">
+						<div ng-repeat="desc in child.relationships.describes | descLang:langFilter">
+							<a>{{desc.data.name}}</a>
+							<div class="filterBar-icon filterBar-icon-empty pull-right">
+								<a href="#/item/documentaryUnit/{{child.id}}">
+									<i class="icon-chevron-right"></i>
+								</a>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="span4">
+			<ul class="unstyled">
+				<li class="simpleBlock" title="Informations">
+					<small>Ref. : {{itemId}}</small>
+					<div id="Address"  ng-show="address.street || address.postalCode || address.municipality || address.countryCode">
+						<h3>Address</h3>
+						<address>
+							{{address.street}} <br />
+							{{address.postalCode}},  {{address.municipality}}, {{address.countryCode}}
+						</address>
+					</div>
+					<div id="contact"  ng-show="address.telephone || address.fax || address.email || address.webpage">
+						<h3>Contact</h3>
+						<ul class="unstyled">
+							<li ng-show="address.telephone" title="Phone"><i class="icon-phone"></i> <abbr>Tel.</abbr> {{address.telephone}}</li>
+							<li ng-show="address.fax" title="Fax"><i class="icon-print"></i> <abbr>Fax</abbr> {{address.fax}}</li>
+							<li nf-show="address.email" title="Email"><i class="icon-envelope-alt"></i> <a href="mailto:{{address.email}}">Email</a></li>
+							<li ng-show="address.webpage" title="Webpage"><i class="icon-globe"></i> <a href="{{address.webpage}}" target="_blank">Webpage</a></li>
+						</ul>
+					</div>
+					<div id="openingTimes" ng-show="desc.data.openingTimes">
+						<h3>Opening Times</h3>
+						{{desc.data.openingTimes}}
+					</div>
+				</li>
+				<li class="ui-block">
+					<h2 class="nomargin">Available blocks<div class="pull-right"><a class="filterBar-icon" ng-click="closeAll()"><i class="icon-minus"></i></a><a class="filterBar-icon" ng-click="hideAll()"><i class="icon-remove"></i></a></div></h2>
+					<ul class="list-item">
+						<li ng-repeat="block in blocks" ng-show="(block.hidden)">
+							{{block.legend}}
+							<a ng-click="block.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+						</li>
+					</ul>
+				</li>
+				<li class="simpleBlock" title="Location">
+					<div class="square-container">
+						<div class="square-hack"></div>
+						<div class="square-content">
+							<sap id="map" style="width:100%; height:100%; background-color:red;" data-lat="{{geoloc.lat}}" data-lon="{{geoloc.lon}}"></sap>
+						</div>
+					</div>
 				</li>
 			</ul>
 		</div>
-	</nav>
+	</div>
 </div>
-<article class="container document" style="padding-top:30px;">
-	<header class="span4 pull-right">
-		<div class="well well-small">
-			<div class="text-center"><h5 class="text-center">{{desc.data.name}}</h5></div>
-			<small>Ref. : {{itemId}}</small>
-			<dl>
-				<dt>Address</dt>
-				<dd class="address" title='@Messages("isdiah.addressArea")'>
-					<address>
-						{{address.street}} <br />
-						{{address.postalCode}},  {{address.municipality}} <br />
-						{{address.countryCode}}
-					</address>
-				</dd>
-				<dt>Contact</dt>
-				<dd>
-					<ul class="unstyled">
-						<li title="Phone"><i class="icon-phone"></i> <abbr>Tel.</abbr> {{address.telephone}}</li>
-						<li title="Fax"><i class="icon-print"></i> <abbr>Fax</abbr> {{address.fax}}</li>
-						<li title="Email"><i class="icon-envelope-alt"></i> <a href="mailto:{{address.email}}">Email</a></li>
-						<li title="Webpage"><i class="icon-globe"></i> <a href="{{address.webpage}}" target="_blank">Webpage</a></li>
-					</ul>
-				</dd>
-				<dt>Opening times</dt>
-				<dd>{{desc.data.openingTimes}}</dd>
-				<dt>Other forms of name</dt>
-				<dd>{{desc.data.otherFormsOfName}}</dd>
-				<dt>Parallel forms of name</dt>
-				<dd>{{desc.data.parallelFormsOfName}}</dd>
-			</dl>
-		</div>
-		<div class="square-container">
-			<div class="square-hack"></div>
-			<div class="square-content">
-				<sap id="map" style="width:100%; height:100%; background-color:red;" data-lat="{{geoloc.lat}}" data-lon="{{geoloc.lon}}"></sap>
-			</div>
-		</div>
-	</header>
-	
-	
-	<h1>{{desc.data.name}}</h1>
-	<div id="identity">
-		<h2>Identity Area</h2>
-		<p>Other forms of name : {{desc.data.otherFormsOfName}}</p>
-	</div>
-		
-	<h3>Description Area</h3>
-		<h4 id="history">History</h4>
-		<p>{{desc.data.history}}</p>
-		<h4 id="history">Holdings</h4>
-		<p>{{desc.data.holdings}}</p>
-		<h4 id="history">Finding Aids </h4>
-		<p>{{desc.data.findingAids}}</p>
-		
-	<h3>Access</h3>
-	{{desc.data.accessibility}}
-	
-	<div class="children-container">
-		<h2>Held by this repository</h2>
-		<div class="filterBar" style="height:30px; width:100%; text-align:right;">
-			<input class="filterBar-input" ng-class="(searchShow && 'open')" style="" placeholder="Type your filter here" /><div class="filterBar-icon">
-				<a ng-click="searchShow = (!searchShow);"><i class="icon-search icon-large"></i></a>
-			</div><div class="filterBar-icon" ng-class="(noSearchOnChange && 'desactivated')">
-				<a ng-click="noSearchOnChange = !noSearchOnChange;"><i class="icon-refresh"></a></i></div><div class="filterBar-icon filterBar-icon-empty">
-				&nbsp;
-			</div><div class="filterBar-icon">
-				<a ng-click="childrenShown = (!childrenShown);"><i ng-class="(childrenShown && 'icon-plus') || 'icon-minus'"class="icon-large"></i></a>
-			</div><div class="filterBar-icon dropdown">
-				<a class="dropdown-toggle"><i class="icon-sort-by-order icon-large"></i></a>
-				<ul class="dropdown-menu">
-					<li><a><i class="icon-sort-by-order icon-large"></i><div class="legend">Update Time</div></a></li>
-					<li><a><i class="icon-sort-by-alphabet icon-large"></i><div class="legend">Name</div></a></li>
-					<li><a><i class="icon-sort-by-attributes icon-large"></i><div class="legend">Relevance</div></a></li>
-				</ul>
-			</div><div class="filterBar-icon dropdown">
-				<a class="dropdown-toggle"><i class="icon-sort icon-large"></i></a>
-				<ul class="dropdown-menu">
-					<li><a><i class="icon-long-arrow-down icon-large"></i><div class="legend">Descendant</div></a></li>
-					<li><a><i class="icon-long-arrow-up icon-large"></i><div class="legend">Ascendant</div></a></li>
-				</ul>
-			</div><div class="filterBar-icon filterBar-icon-empty">
-				&nbsp;
-			</div><div class="filterBar-icon tooltiped" data-tooltiped="Previous page">
-				<a><i class="icon-chevron-left icon-large"></i></a>
-			</div><input type="text" ng-model="children.page" class="filterBar-page tooltiped" data-tooltiped="Actual page" /><div class="filterBar-icon tooltiped" data-tooltiped="Next page">
-				<a><i class="icon-chevron-right icon-large tooltiped" data-tooltiped="Actual page"></i></a>
-			</div>
-		</div>
-		<div ng-show="children.loading" class="children-list text-centered">
-			<i class="icon-spinner icon-spin icon-large"></i>
-		</div>
-		<ul ng-show="!children.loading" class="children-list" ng-class="(childrenShown && 'closed') || 'open'">
-			<li class="children-item-head">Details about research</li>
-			<li ng-show="!children.quickview.show" class="children-item" ng-repeat="child in children.data">
-				<div ng-repeat="desc in child.relationships.describes | descLang:langFilter">
-					<a>{{desc.data.name}}</a>
-					<div class="filterBar-icon filterBar-icon-empty pull-right">
-						<a ng-click="children.quickview.desc = desc;children.quickview.id = child.id; children.quickview.show = !children.quickview.show;">
-							<i class="icon-chevron-right"></i>
-						</a>
-					</div>
-				</div>
-			</li>
-			<li class="children-quickview" ng-show="children.quickview.show">
-				<div style="line-height:30px">
-				<div class="filterBar-icon filterBar-icon-empty pull-left" style="margin-right:10px;">
-					<a ng-click="children.quickview.show = !children.quickview.show;">
-						<i class="icon-chevron-left"></i>
-					</a>
-				</div>
-				<b><a href="#/item/documentaryUnit/{{children.quickview.id}}">{{children.quickview.desc.data.name}}</a></b>
-				</div>
-				<p ng-show="children.quickview.desc.data.biographicalHistory">
-					<u>Biographical History :</u> {{children.quickview.desc.data.biographicalHistory}}
-				</p>
-				<p ng-show="children.quickview.desc.data.archivalHistory">
-					<u>Archival History :</u>
-					{{children.quickview.desc.data.archivalHistory}}
-				</p>
-				<p ng-show="children.quickview.desc.data.scopeAndContent">
-					<u>Scope and Content :</u>
-					{{children.quickview.desc.data.scopeAndContent}}
-				</p>
-				 
-			</li>
-		</ul>
-	</div>
-	<!--
-	@descriptionSection(IDENTITY_AREA) {
-		@common.stringValue(desc, AUTHORIZED_FORM_OF_NAME)
-		@common.listValue(desc, PARALLEL_FORMS_OF_NAME)
-		@common.listValue(desc, OTHER_FORMS_OF_NAME)
-	}
-
-
-
-	@descriptionSection(DESCRIPTION_AREA) {
-		@common.stringValue(desc, HISTORY)
-		@common.stringValue(desc, GEOCULTURAL_CONTEXT)
-		@common.stringValue(desc, MANDATES)
-		@common.stringValue(desc, ADMINISTRATIVE_STRUCTURE)
-		@common.stringValue(desc, RECORDS)
-		@common.stringValue(desc, BUILDINGS)
-		@common.stringValue(desc, HOLDINGS)
-		@common.stringValue(desc, FINDING_AIDS)
-	}
-
-	@descriptionSection(ACCESS_AREA) {
-		@common.stringValue(desc, OPENING_TIMES)
-		@common.stringValue(desc, CONDITIONS)
-		@common.stringValue(desc, ACCESSIBILITY)
-	}
-
-	@descriptionSection(SERVICES_AREA) {
-		@common.stringValue(desc, RESEARCH_SERVICES)
-		@common.stringValue(desc, REPROD_SERVICES)
-		@common.stringValue(desc, PUBLIC_AREAS)
-	}
-
-	@descriptionSection(CONTROL_AREA) {
-		@common.stringValue(desc, DESCRIPTION_IDENTIFIER)
-		@common.stringValue(desc, INSTITUTION_IDENTIFIER)
-		@common.stringValue(desc, RULES_CONVENTIONS)
-		@common.stringValue(desc, STATUS)
-		@common.stringValue(desc, LEVEL_OF_DETAIL)
-		@common.stringValue(desc, DATES_CVD)
-		@common.listValue(desc, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-		@common.listValue(desc, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
-		@common.stringValue(desc, SOURCES)
-		@common.stringValue(desc, MAINTENANCE_NOTES)
-	}
-
-	@common.relatedLinks(item, desc, links)
-
-	@desc.unknownProperty.map { e =>
-		@common.unknownData(e)
-	}
-	-->
-</article>

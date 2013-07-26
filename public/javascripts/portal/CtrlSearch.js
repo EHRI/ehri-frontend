@@ -10,7 +10,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	$scope.maxSize = 5; // Number of pagination buttons shown
 	$scope.numPages = false; // Number of pages (get from query)
 	$scope.loadedPage = {1 : true};
-	
+	$scope.noSearchOnChange = true;
 	
 	$scope.lastFilter = false;
 	$scope.loadingPage = false;

@@ -82,7 +82,20 @@ portal.directive('whenScrolled', function ($window) {
       });
     }
   }
-}]).directive("dud", ['Item', function($item) {
+}]).directive("rud", [function() {
+	return {
+        restrict: 'E',
+        replace: true,
+		transclude: true,
+		scope: {desc: '=src', colorclass:'='},
+        templateUrl: ANGULAR_ROOT + "/portal/templates/repoFields.html",
+		link: function(scope,element, attrs) {
+			scope.$watch('desc', function(walks) {
+				console.log(scope.desc);
+			});
+		}
+	}
+}]).directive("dud", [function() {
 	return {
         restrict: 'E',
         replace: true,
@@ -95,12 +108,21 @@ portal.directive('whenScrolled', function ($window) {
 			});
 		}
 	}
+}]).directive("simpleBlock", ['$rootScope', function($rootScope) {
+	return {
+		restrict: 'C', 
+		replace: true,
+		transclude: true,
+		scope: { title:"@" },
+		templateUrl: ANGULAR_ROOT + "/portal/templates/simple-block.html"
+	}
+	
 }]).directive("documentBlock", ['$rootScope', function($rootScope) {
 	return {
 		restrict: 'C', 
 		replace: true,
 		transclude: true,
-		scope: { itemtitle:"=", itemid:'=', show:'=', reduce:'=' },
+		scope: { itemtitle:"=", itemid:'=', show:'=', show:'=', reduce:'=' },
 		templateUrl: ANGULAR_ROOT + "/portal/templates/ui-blocks.html",
 		link: function($scope,$element, $attrs) {
 				console.log($scope.$parent);

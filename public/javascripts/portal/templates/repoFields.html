@@ -1,0 +1,102 @@
+<ul class="{{colorclass}} unstyled">
+	<li identifier="IDENTITY" title="Identity" itemtitle="desc.data.name" class="documentBlock"  itemid="desc.id" show="(desc.data.authorizedFormOfName)||(desc.data.parallelFormsOfName)||(desc.data.otherFormsOfName)">
+		<div id="authorizedFormOfName" ng-show="desc.data.authorizedFormOfName">
+			<h3>Authorized form of name</h3>
+			{{desc.data.authorizedFormOfName}}
+		</div>
+		<div id="parallelFormsOfName" ng-show="desc.data.parallelFormsOfName">
+			<h3>Parallel forms of name</h3>
+			{{desc.data.parallelFormsOfName}}
+		</div>
+		<div id="otherFormsOfName" ng-show="desc.data.otherFormsOfName">
+			<h3>Other forms of name</h3>
+			{{desc.data.otherFormsOfName}}
+		</div>
+	</li>
+	<li identifier="DESCRIPTION_AREA" title="Description" itemtitle="desc.data.name" class="documentBlock"  itemid="desc.id" show="(desc.data.history)||(desc.data.geoculturalContext)||(desc.data.mandates)||(desc.data.administrativeStructure)||(desc.data.records)||(desc.data.buildings)||(desc.data.holdings)||(desc.data.findingAids)">
+		<div id="history" ng-show="desc.data.history">
+			<h3>History</h3>
+			{{desc.data.history}}
+		</div>
+		<div id="geoculturalContext" ng-show="desc.data.geoculturalContext">
+			<h3>Geocultural Context</h3>
+			{{desc.data.geoculturalContext}}
+		</div>
+		<div id="mandates" ng-show="desc.data.mandates">
+			<h3>Mandates</h3>
+			{{desc.data.mandates}}
+		</div>
+		<div id="administrativeStructure" ng-show="desc.data.administrativeStructure">
+			<h3>Administrative Structure</h3>
+			{{desc.data.administrativeStructure}}
+		</div>
+		<div id="history" ng-show="desc.data.history">
+			<h3>History</h3>
+			{{desc.data.history}}
+		</div>
+		<div id="records" ng-show="desc.data.records">
+			<h3>Records</h3>
+			{{desc.data.records}}
+		</div>
+		<div id="buildings" ng-show="desc.data.buildings">
+			<h3>Buildings</h3>
+			{{desc.data.buildings}}
+		</div>
+		<div id="holdings" ng-show="desc.data.holdings">
+			<h3>Holdings</h3>
+			{{desc.data.holdings}}
+		</div>
+		<div id="findingAids" ng-show="desc.data.findingAids">
+			<h3>FindingAids</h3>
+			{{desc.data.findingAids}}
+		</div>
+	</li>
+	<li identifier="ACCESS" title="Access" itemtitle="desc.data.name" class="documentBlock"  itemid="desc.id" show="(desc.data.openingTimes)||(desc.data.conditions)||(desc.data.accessibility)">
+		<div id="openingTimes" ng-show="desc.data.openingTimes">
+			<h3>Opening Times</h3>
+			{{desc.data.openingTimes}}
+		</div>
+		<div id="conditions" ng-show="desc.data.conditions">
+			<h3>Conditions</h3>
+			{{desc.data.conditions}}
+		</div>
+		<div id="accessibility" ng-show="desc.data.accessibility">
+			<h3>Accessibility</h3>
+			{{desc.data.accessibility}}
+		</div>
+	</li>
+	<li identifier="SERVICES_AREA" title="Services" itemtitle="desc.data.name" class="documentBlock"  itemid="desc.id" show="(desc.data.researchServices)||(desc.data.reprodServices)||(desc.data.publicAreas)">
+		<div id="researchServices" ng-show="desc.data.researchServices">
+			<h3>Research Services</h3>
+			{{desc.data.researchServices}}
+		</div>
+		<div id="reprodServices" ng-show="desc.data.reprodServices">
+			<h3>Reproduction Services</h3>
+			{{desc.data.reprodServices}}
+		</div>
+		<div id="publicAreas" ng-show="desc.data.publicAreas">
+			<h3>Public Areas</h3>
+			{{desc.data.publicAreas}}
+		</div>
+	</li>
+	
+	<!--
+
+	@descriptionSection(CONTROL_AREA) {
+		@common.stringValue(desc, DESCRIPTION_IDENTIFIER)
+		@common.stringValue(desc, INSTITUTION_IDENTIFIER)
+		@common.stringValue(desc, RULES_CONVENTIONS)
+		@common.stringValue(desc, STATUS)
+		@common.stringValue(desc, LEVEL_OF_DETAIL)
+		@common.stringValue(desc, DATES_CVD)
+		@common.listValue(desc, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+		@common.listValue(desc, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+		@common.stringValue(desc, SOURCES)
+		@common.stringValue(desc, MAINTENANCE_NOTES)
+	}
+
+	@desc.unknownProperty.map { e =>
+		@common.unknownData(e)
+	}
+	-->
+</ul>
