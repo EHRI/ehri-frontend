@@ -1,6 +1,6 @@
 package views
 
-import java.util.{IllformedLocaleException, Locale}
+import java.util.Locale
 
 import views.html.helper.FieldConstructor
 import models.base.AnyModel
@@ -137,20 +137,27 @@ package object Helpers {
   }
 
   /**
-   * Get the script name for a given code.
+   * Get the script name for a given code. This doesn't work with Java 6 so we have to sacrifice
+   * localised script names. On Java 7 we'd do:
+   *
+   * var tmploc = new Locale.Builder().setScript(code).build()
+   *   tmploc.getDisplayScript(lang.toLocale) match {
+   *   case d if !d.isEmpty => d
+   *   case _ => code
+   * }
+   *
    * @param code
    * @param lang
    * @return
    */
   def scriptCodeToName(code: String)(implicit lang: Lang): String = {
     try {
-      var tmploc = new Locale.Builder().setScript(code).build()
-      tmploc.getDisplayScript(lang.toLocale) match {
-        case d if !d.isEmpty => d
-        case _ => code
-      }
+      // NB: Current ignores lang...
+      utils.Data.scripts.toMap.getOrElse(code, code)
     } catch {
-      case _: IllformedLocaleException => code
+      // This should be an IllformedLocaleException
+      // but we need to work with Java 6
+      case _: Exception => code
     }
   }
 
