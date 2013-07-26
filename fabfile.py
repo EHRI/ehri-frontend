@@ -13,13 +13,13 @@ env.use_ssh_config = True
 def stage():
     "Use the remote staging server"
     env.hosts = ['ehristage']
-    env.path = '/opt/docview'
+    env.path = '/opt/webapps/docview'
     env.user = 'michaelb'
 
 def production():
     "Use the remote virtual server"
     env.hosts = ['ehriprod']
-    env.path = '/opt/docview'
+    env.path = '/opt/webapps/docview'
     env.user = 'michaelb'
     env.prod = True
 
@@ -29,7 +29,12 @@ def setup():
     """
     require('hosts', provided_by=[local])
     require('path')
-    deploy()
+    sudo('mkdir -p %(path)s' % env)
+    sudo('chgrp webadm %(path)s' % env)
+    sudo('chmod 775 %(path)s' % env)
+    play_stage()
+    install_symlink()
+    restart()
 
 def deploy():
     """
@@ -39,12 +44,16 @@ def deploy():
     play_stage()
     restart()
 
+def install_symlink():
+    "Create a symlink to the init script."
+    require("path")
+    sudo('ln -s %(path)s/target/start /etc/init.d/docview' % env)
+
 # Helpers. These are called by other functions rather than directly
 def play_stage():
     "Create an archive from the current Git master branch and upload it"
     require("path")
     #local('play clean stage')
-    sudo('mkdir -p %(path)s' % env)
     #put('target', env.path, use_sudo=True, mirror_local_mode=True)
     rsync_project(local_dir="target", remote_dir=env.path, delete=True)
 
