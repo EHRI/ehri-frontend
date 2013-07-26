@@ -34,7 +34,7 @@
 
         </fieldset>
 
-        @common.submitButtonWithLogMessageInput(Messages("actions.updatePermissions"), cancel = Some(item))
+        @common.submitButtonWithLogMessageInput(Messages("actions.updatePermissions"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
     }
 } {
 

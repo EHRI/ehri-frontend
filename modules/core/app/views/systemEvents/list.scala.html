@@ -18,7 +18,7 @@
             <small>
                 <ul class="unstyled muted inline inline-separator">
                     @item.actioner.map { accessor =>
-                        <li><a class="alt" href="@views.Helpers.urlFor(accessor)">@accessor.toStringLang</a></li>
+                        <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
                     }
                     <li>@views.Helpers.prettyDate(item.model.timestamp)</li>
                 </ul>

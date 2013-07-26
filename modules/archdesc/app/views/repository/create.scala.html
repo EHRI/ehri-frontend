@@ -8,7 +8,7 @@
         @formHelpers.csrfToken()
         @repository.renderForm(None, f)
         @permissions.renderVisibilityForm(vf, users, groups)
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createRepository"), cancel = Some(item))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createRepository"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
 	@formNav()

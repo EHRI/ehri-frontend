@@ -13,7 +13,7 @@
 
         @item.user.map { u =>
             <h4>@Messages("link.creator")</h4>
-            <a href="@views.Helpers.urlFor(u)">@u.toStringLang</a>
+            <a href="@globalConfig.routeRegistry.urlFor(u)">@u.toStringLang</a>
         }
     }
 } {

@@ -1,4 +1,4 @@
-@(item: Accessible, url: Call, contentType: ContentType.Value)(implicit userOpt: Option[UserProfile])
+@(item: Accessible, url: Call, contentType: ContentType.Value)(implicit userOpt: Option[UserProfile], globalConfig: GlobalConfig)
 
 <div class="well well-small">
     @if(!item.accessors.isEmpty) {
@@ -8,7 +8,7 @@
         </h4>
         <ul>
             @item.accessors.map { acc =>
-                <li><a href="@views.Helpers.urlFor(acc)">@acc.toStringLang</a></li>
+                <li><a href="@globalConfig.routeRegistry.urlFor(acc)">@acc.toStringLang</a></li>
             }
         </ul>
     } else {

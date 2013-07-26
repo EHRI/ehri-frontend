@@ -31,7 +31,8 @@ trait TestLoginHelper {
   object TestConfig extends GlobalConfig {
     val searchIndexer: Indexer = mocks.MockSearchIndexer()
     val searchDispatcher: Dispatcher = mocks.MockSearchDispatcher()
-    implicit lazy val menuConfig: MenuConfig = RunConfiguration.menuConfig
+    val menuConfig: MenuConfig = RunConfiguration.menuConfig
+    val routeRegistry = RunConfiguration.routeRegistry
 
     private implicit lazy val globalConfig = this
     val loginHandler: LoginHandler = new mocks.MockLoginHandler

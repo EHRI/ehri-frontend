@@ -13,7 +13,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalC
         @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
         </fieldset>
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateHistoricalAgent"), cancel = Some(item))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateHistoricalAgent"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
     }
 } {
     @formNav()

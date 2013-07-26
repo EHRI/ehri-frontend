@@ -1,6 +1,5 @@
 package global
 
-import java.util
 import controllers.base.LoginHandler
 
 
@@ -8,6 +7,7 @@ trait GlobalConfig {
   val menuConfig: MenuConfig
   val loginHandler: LoginHandler
   val searchDispatcher: utils.search.Dispatcher
+  val routeRegistry: RouteRegistry
 }
 
 trait MenuConfig {

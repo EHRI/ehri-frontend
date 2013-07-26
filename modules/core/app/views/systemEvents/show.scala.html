@@ -11,7 +11,7 @@
 
     <p>
     @item.actioner.map { accessor =>
-        <a href="@views.Helpers.urlFor(accessor)">@accessor.toStringLang</a>:
+        <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>:
     }
         <time>@item.time</time>
         (@views.Helpers.prettyDate(item.model.timestamp))
@@ -22,14 +22,14 @@
     }
 
     @item.scope.map { scope =>
-        @Messages("systemEvents.scope"):  <a href="@views.Helpers.urlFor(scope)">@scope.toStringLang</a>
+        @Messages("systemEvents.scope"):  <a href="@globalConfig.routeRegistry.urlFor(scope)">@scope.toStringLang</a>
     }
 
     <h4>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)}</h4>
     @common.pagination(page)
     <ul class="unstyled">
     @page.items.map { item =>
-        <li><a href="@views.Helpers.urlFor(item)">@item.toStringLang</a></li>
+        <li><a href="@globalConfig.routeRegistry.urlFor(item)">@item.toStringLang</a></li>
     }
     </ul>
 

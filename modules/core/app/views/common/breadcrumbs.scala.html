@@ -1,15 +1,15 @@
-@(items: List[AnyModel] = Nil)(implicit lang: Lang)
+@(items: List[AnyModel] = Nil)(implicit lang: Lang, globalConfig: GlobalConfig)
 <div>
 <small><span class="alert alert-danger pull-right"><strong>Warning</strong>: Data is for test purposes only.</span></small>
 <ul class="breadcrumb">
     @defining(if (!items.isEmpty) 200 / items.length else 300) { truncateLength =>
         @if(!items.isEmpty) {
             @items.init.map { i =>
-                <li><a title="@i" href="@views.Helpers.urlFor(i)">@views.Helpers.ellipsize(i.toStringAbbr, truncateLength)</a> <span class="divider">/</span></li>
+                <li><a title="@i" href="@globalConfig.routeRegistry.urlFor(i)">@views.Helpers.ellipsize(i.toStringAbbr, truncateLength)</a> <span class="divider">/</span></li>
             }
 
                 <!-- TODO: Decide whether to show the last time -->
-            <li title="@items.last" class="muted"><a href="@views.Helpers.urlFor(items.last)"><em>@views.Helpers.ellipsize(items.last.toStringAbbr, truncateLength)</em></a></li>
+            <li title="@items.last" class="muted"><a href="@globalConfig.routeRegistry.urlFor(items.last)"><em>@views.Helpers.ellipsize(items.last.toStringAbbr, truncateLength)</em></a></li>
         } else {
             <li></li>
         }

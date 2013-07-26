@@ -52,7 +52,7 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
             list match {
               case Nil => NotFound(views.html.errors.itemNotFound())
               case mm :: _ =>
-                views.Helpers.optionalUrlFor(mm.isA, mm.id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
+                globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
             }
           }
         }
@@ -69,7 +69,7 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
     Secured {
-      views.Helpers.optionalUrlFor(EntityType.withName(`type`), id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
+      globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
     }
   }
 }

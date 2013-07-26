@@ -80,22 +80,6 @@ package object Helpers {
   def ellipsize(text: String, max: Int) = StringUtils.abbreviateMiddle(text, "...", max)
 
   /**
-   * Get the URL for an unknown type of entity.
-   */
-  import global.RouteRegistry
-
-
-  def urlFor(e: AnyModel): Call
-          = RouteRegistry.urls.getOrElse(e.isA, RouteRegistry.getDefault).apply(e.id)
-
-  def urlFor(t: EntityType.Value, id: String): Call
-          = RouteRegistry.urls.getOrElse(t, RouteRegistry.getDefault).apply(id)
-
-  def optionalUrlFor(t: EntityType.Value, id: String): Option[Call]
-          = RouteRegistry.urls.get(t).map(_.apply(id))
-
-
-  /**
    * Get the display language of the given code in the current locale.
    * @param code
    * @param lang

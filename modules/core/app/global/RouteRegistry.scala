@@ -1,25 +1,15 @@
 package global
 
 import play.api.mvc.Call
+import models.base.AnyModel
+import defines.EntityType
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object RouteRegistry {
-
-  import defines.EntityType
-
-  val urls = collection.mutable.Map.empty[String,String => Call]
-
-  private var default: String => Call = s => new Call("GET", "/")
-
-  def setDefault(c: String => Call): Unit = {
-    default = c
-  }
-
-  def getDefault: String => Call = default
-
-  def setUrl(e: EntityType.Value, c: String => Call): Unit = {
-    urls.put(e, c)
-  }
+case class RouteRegistry(urls: Map[EntityType.Value, String => Call], default: String => Call) {
+  def urlFor(a: AnyModel): Call = urlFor(a.isA, a.id)
+  def urlFor(t: EntityType.Value, id: String): Call = urls.getOrElse(t, default)(id)
+  def optionalUrlFor(a: AnyModel): Option[Call] = optionalUrlFor(a.isA, a.id)
+  def optionalUrlFor(t: EntityType.Value, id: String): Option[Call] = urls.get(t).map(f => f.apply(id))
 }

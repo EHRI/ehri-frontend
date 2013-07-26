@@ -42,6 +42,9 @@ class AjaxCSRFFilter extends EssentialFilter {
 }
 
 package globalconfig {
+
+  import global.RouteRegistry
+
   object RunConfiguration extends GlobalConfig {
 
     val searchDispatcher: Dispatcher = solr.SolrDispatcher()
@@ -71,10 +74,24 @@ package globalconfig {
     // to the current global inside the login handler.
     private implicit lazy val globalConfig = this
     val loginHandler = new OpenIDLoginHandler
+
+    val routeRegistry = new RouteRegistry(Map(
+      EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get _,
+      EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get _,
+      EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get _,
+      EntityType.Repository -> controllers.archdesc.routes.Repositories.get _,
+      EntityType.Group -> controllers.core.routes.Groups.get _,
+      EntityType.UserProfile -> controllers.core.routes.UserProfiles.get _,
+      EntityType.Annotation -> controllers.core.routes.Annotations.get _,
+      EntityType.Link -> controllers.core.routes.Links.get _,
+      EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get _,
+      EntityType.AuthoritativeSet -> controllers.authorities.routes.AuthoritativeSets.get _,
+      EntityType.Concept -> controllers.vocabs.routes.Concepts.get _,
+      EntityType.Country -> controllers.archdesc.routes.Countries.get _
+    ), default = (s: String) => new Call("GET", "/"))
   }
-
-
 }
+
 
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
@@ -106,26 +123,16 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     // Hack for bug #845
     app.routes
 
-    // Register JSON models!
+    // Register JSON models! This is still currently
+    // operating on mutable state until I can work out
+    // how to inject it without
     models.json.Utils.registerModels
 
-    RouteRegistry.setUrl(EntityType.SystemEvent, controllers.core.routes.SystemEvents.get _)
-    RouteRegistry.setUrl(EntityType.DocumentaryUnit, controllers.archdesc.routes.DocumentaryUnits.get _)
-    RouteRegistry.setUrl(EntityType.HistoricalAgent, controllers.authorities.routes.HistoricalAgents.get _)
-    RouteRegistry.setUrl(EntityType.Repository, controllers.archdesc.routes.Repositories.get _)
-    RouteRegistry.setUrl(EntityType.Group, controllers.core.routes.Groups.get _)
-    RouteRegistry.setUrl(EntityType.UserProfile, controllers.core.routes.UserProfiles.get _)
-    RouteRegistry.setUrl(EntityType.Annotation, controllers.core.routes.Annotations.get _)
-    RouteRegistry.setUrl(EntityType.Link, controllers.core.routes.Links.get _)
-    RouteRegistry.setUrl(EntityType.Vocabulary, controllers.vocabs.routes.Vocabularies.get _)
-    RouteRegistry.setUrl(EntityType.AuthoritativeSet, controllers.authorities.routes.AuthoritativeSets.get _)
-    RouteRegistry.setUrl(EntityType.Concept, controllers.vocabs.routes.Concepts.get _)
-    RouteRegistry.setUrl(EntityType.Country, controllers.archdesc.routes.Countries.get _)
-
-    import play.api.libs.concurrent.Execution.Implicits._
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers
+    import play.api.libs.concurrent.Execution.Implicits._
+
     EntityDAO.addCreateHandler { item =>
       Logger.logger.info("Binding creation event to Solr create action")
       searchIndexer.updateItem(item, commit = true).map { r => r match {
