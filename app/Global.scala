@@ -43,6 +43,7 @@ class AjaxCSRFFilter extends EssentialFilter {
 
 package globalconfig {
   object RunConfiguration extends GlobalConfig {
+
     val searchDispatcher: Dispatcher = solr.SolrDispatcher()
 
     implicit lazy val menuConfig: MenuConfig = new MenuConfig {
@@ -65,6 +66,10 @@ package globalconfig {
         ("search.updateIndex",            controllers.routes.Search.updateIndex.url)
       )
     }
+
+    // Implicit 'this' var so we can have a circular reference
+    // to the current global inside the login handler.
+    private implicit lazy val globalConfig = this
     val loginHandler = new OpenIDLoginHandler
   }
 

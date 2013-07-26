@@ -1,4 +1,4 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, menuConfig: MenuConfig, lang: Lang)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
 <!DOCTYPE html>
 
 @import collection.JavaConverters._
@@ -242,7 +242,7 @@
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
                     <ul class="nav">
-                        @menuConfig.mainSection.map { case (key, url) =>
+                        @globalConfig.menuConfig.mainSection.map { case (key, url) =>
                             @activeIfCurrent(url, key)
                         }
                         <li class="dropdown">
@@ -251,7 +251,7 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                @menuConfig.adminSection.map { case (key, url) =>
+                                @globalConfig.menuConfig.adminSection.map { case (key, url) =>
                                     @if(url == "-") {
                                         <li role="presentation" class="divider"></li>
                                     } else {

@@ -14,7 +14,7 @@ import utils.search.Dispatcher
 import com.google.inject._
 
 @Singleton
-class HistoricalAgents @Inject()(val globalConfig: global.GlobalConfig) extends CRUD[HistoricalAgentF,HistoricalAgent]
+class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig) extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with VisibilityController[HistoricalAgent]
   with PermissionItemController[HistoricalAgent]
   with EntityLink[HistoricalAgent]

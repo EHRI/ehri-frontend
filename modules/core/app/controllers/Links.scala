@@ -11,7 +11,7 @@ import controllers.ListParams
 import com.google.inject._
 import global.GlobalConfig
 
-class Links @Inject()(val globalConfig: GlobalConfig) extends EntityRead[Link]
+class Links @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[Link]
   with VisibilityController[Link]
   with EntityDelete[Link]
   with EntityAnnotate[Link] {

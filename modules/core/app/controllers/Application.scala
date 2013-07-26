@@ -13,7 +13,7 @@ import defines.EntityType
 import utils.search.Dispatcher
 import com.google.inject._
 
-class Application @Inject()(val globalConfig: GlobalConfig) extends Controller with Auth with LoginLogout with Authorizer with AuthController {
+class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with LoginLogout with Authorizer with AuthController {
 
   lazy val loginHandler: LoginHandler = globalConfig.loginHandler
 

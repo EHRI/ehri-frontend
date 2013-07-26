@@ -1,4 +1,4 @@
-@(page: rest.Page[Repository])(implicit userOpt: Option[UserProfile], req: RequestHeader, menuConfig: MenuConfig, lang: Lang)
+@(page: rest.Page[Repository])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
 
 <ul class="unstyled">
     @page.items.map { item =>

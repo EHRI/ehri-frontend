@@ -13,7 +13,7 @@ import play.api.i18n.Messages
 /**
  * OpenID login handler implementation.
  */
-class OpenIDLoginHandler(implicit val menuConfig: global.MenuConfig) extends LoginHandler {
+class OpenIDLoginHandler(implicit val globalConfig: global.GlobalConfig) extends LoginHandler {
 
   import models.sql._
 

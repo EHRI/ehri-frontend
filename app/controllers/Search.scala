@@ -38,7 +38,7 @@ object Search {
 }
 
 @Singleton
-class Search @Inject()(val globalConfig: global.GlobalConfig, val searchIndexer: Indexer) extends EntitySearch {
+class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchIndexer: Indexer) extends EntitySearch {
 
   val searchEntities = List() // i.e. Everything
   override val entityFacets = List(

@@ -10,9 +10,9 @@ import play.api.data.Form
 
 /**
  * Mock loginhandler implementation.
- * @param menuConfig
+ * @param globalConfig
  */
-case class MockLoginHandler(implicit menuConfig: global.MenuConfig) extends LoginHandler {
+case class MockLoginHandler(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
 
   def login = Action { implicit request =>
     implicit val userOpt = None

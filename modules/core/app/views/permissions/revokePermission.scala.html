@@ -1,5 +1,5 @@
 @(item: Accessor, perm: PermissionGrant, action: Call, cancel: Call)(
-implicit userOpt: Option[UserProfile], menuConfig: MenuConfig, request: RequestHeader, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @rightSidebarLayout(Messages("actions.deleteItem", perm), breadcrumbs = common.breadcrumbs(List(item))) {
 

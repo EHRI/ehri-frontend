@@ -9,7 +9,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
 import global.GlobalConfig
 
-class ApiController @Inject()(val globalConfig: GlobalConfig) extends Controller with AuthController with ControllerHelpers {
+class ApiController @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with AuthController with ControllerHelpers {
 
   def listItems(contentType: String) = Action { implicit request =>
     get(s"$contentType/list")(request)

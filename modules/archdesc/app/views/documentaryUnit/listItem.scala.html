@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, menuConfig: MenuConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @common.searchItemOutline(item.id) {
         <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)">@item.toStringLang</a>

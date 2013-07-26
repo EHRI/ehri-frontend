@@ -1,5 +1,5 @@
 @(item: Vocabulary, f: play.api.data.Form[models.VocabularyF], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, menuConfig: MenuConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @rightSidebarLayout(Messages("actions.updateVocabulary"), breadcrumbs = common.breadcrumbs(List(item))) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {

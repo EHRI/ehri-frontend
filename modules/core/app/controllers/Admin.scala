@@ -16,7 +16,7 @@ import controllers.base.{ControllerHelpers, AuthController}
 import utils.search.Dispatcher
 import com.google.inject._
 
-class Admin @Inject()(val globalConfig: global.GlobalConfig) extends Controller with AuthController with ControllerHelpers {
+class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with ControllerHelpers {
 
   val userPasswordForm = Form(
     tuple(
@@ -143,7 +143,7 @@ class Admin @Inject()(val globalConfig: global.GlobalConfig) extends Controller 
         OpenIDUser.findByEmail(email.toLowerCase).flatMap { acc =>
           acc.password.flatMap { hashed =>
             if (BCrypt.checkpw(pw, hashed)) {
-              Some(new Application(globalConfig).gotoLoginSucceeded(acc.profile_id))
+              Some(new controllers.core.Application().gotoLoginSucceeded(acc.profile_id))
             } else {
               None
             }

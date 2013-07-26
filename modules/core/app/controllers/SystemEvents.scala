@@ -8,7 +8,7 @@ import controllers.ListParams
 import com.google.inject._
 import global.GlobalConfig
 
-class SystemEvents @Inject()(val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
+class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
   val entityType = EntityType.SystemEvent
   val contentType = ContentType.SystemEvent
 

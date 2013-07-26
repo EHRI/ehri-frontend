@@ -1,4 +1,4 @@
-@(form: Form[(Boolean,Int,List[EntityType.Value])], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, menuConfig: MenuConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(form: Form[(Boolean,Int,List[EntityType.Value])], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 @import defines.EntityType
 

@@ -13,7 +13,7 @@ import utils.search.Dispatcher
 import com.google.inject._
 import global.GlobalConfig
 
-class Groups @Inject()(val globalConfig: GlobalConfig) extends PermissionHolderController[Group]
+class Groups @Inject()(implicit val globalConfig: GlobalConfig) extends PermissionHolderController[Group]
   with VisibilityController[Group]
   with CRUD[GroupF, Group] {
 
