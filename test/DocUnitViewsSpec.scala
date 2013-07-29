@@ -54,14 +54,6 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(search) must contain("c4")
     }
 
-    "list when logged with identifier filter in should get one" in new FakeApp {
-      val params = s"${ListParams.PROPERTY_NAME}[0]=identifier&${ListParams.PROPERTY_VALUE}[0]=c3"
-      val list = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.list.url + s"?$params")).get
-      status(list) must equalTo(OK)
-      contentAsString(list) must contain(oneItemHeader)
-      contentAsString(list) must contain("c3")
-    }
-
     "link to other privileged actions when logged in" in new FakeApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
