@@ -15,7 +15,6 @@ import views.Helpers
 import play.api.libs.json.Json
 import utils.search.{SearchParams, FacetSort}
 import controllers.archdesc.{routes => archdescRoutes}
-import utils.search.Dispatcher
 import com.google.inject._
 
 
