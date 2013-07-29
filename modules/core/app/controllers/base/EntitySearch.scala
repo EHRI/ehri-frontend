@@ -1,5 +1,6 @@
 package controllers.base
 
+import global.GlobalConfig
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
@@ -16,7 +17,8 @@ import utils.search._
  */
 trait EntitySearch extends Controller with AuthController with ControllerHelpers {
 
-  val searchDispatcher: Dispatcher
+  val globalConfig: GlobalConfig
+  implicit lazy val searchDispatcher: utils.search.Dispatcher = globalConfig.searchDispatcher
 
   /**
    * Inheriting controllers should override a list of facets that
