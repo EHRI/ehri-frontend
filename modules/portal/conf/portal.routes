@@ -1,0 +1,6 @@
+# Routes for portal routes
+
+GET     /                                   controllers.portal.Application.index
+GET     /routes                             controllers.portal.Application.routes
+
+GET     /assets/*file                       controllers.portal.Assets.at(path="/public", file)

@@ -81,8 +81,14 @@ object ApplicationBuild extends Build {
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
   ).settings(otherSettings:_*).dependsOn(core)
 
-  lazy val aaMain = play.Project(appName, appVersion, appDependencies ++ testDependencies,
+  lazy val portal = play.Project(
+    appName + "-portal", appVersion, appDependencies, path = file("modules/portal"),
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
   ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
     .aggregate(core, archdesc, authorities, vocabs)
+
+  lazy val aaMain = play.Project(appName, appVersion, appDependencies ++ testDependencies,
+    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs, portal)
+    .aggregate(core, archdesc, authorities, vocabs, portal)
 }

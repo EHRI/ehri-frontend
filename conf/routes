@@ -21,5 +21,6 @@ GET     /assets/*file                   controllers.Assets.at(path="/public", fi
 -> /sets    authorities.Routes
 -> /arch    archdesc.Routes
 -> /voc     vocabs.Routes
+-> /portal  portal.Routes
 
 
