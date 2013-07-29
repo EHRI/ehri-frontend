@@ -1,186 +1,142 @@
-var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$routeParams', '$http', 'Item', function($scope, $filter, $location, $routeParams, $http, $item) {
-	$scope.blocks = {};
-	$scope.item = $item.data;
-	$scope.alt = {};
-	$scope.compared = {};
-	
-	
-	
-//-------------------------------------URL AND ADD/DEL DESC
-	$scope.urlParams = {};
-	
-	//<-- Set id of desc
-	if($location.search().description) {
-		$scope.descId = $location.search().description;
+var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http', 'Item', '$rootScope', function($scope, $filter, $location, $http, $item, $rootScope) {
+
+	$scope.item = { 
+		raw : $item.data, // Raw Datas
+		id : $item.data.id, // Item ID
+		desc : {
+			id : false,
+			data : {},
+			load : function() { //Load desc depending on chosen desc (scope.desc.id) OR on language prority through filter.descLang
+				if(this.id)	{ 
+					this.data = $filter("descLang")($scope.item.raw.relationships.describes, false, {"id" : $scope.item.desc.id})[0];
+				} else {
+					this.data = $filter("descLang")($scope.item.raw.relationships.describes)[0];
+				}
+			},
+			set : function(descId) { // Set description id
+				$scope.ui.url.params.description = descId; // Set url params
+				$scope.ui.url.set();	// Apply it to url
+			}
+		} //Description
 	}
+
+	
+	$scope.ui = { 
+		blocks : {
+			functions : {
+				//Hide all blocks
+				toggleHide : function (id) {
+					if(id) {
+						$scope.ui.blocks.list[id].hidden = !$scope.ui.blocks.list[id].hidden;
+						$rootScope.$broadcast('ui.blocks.functions.toggleHide.'+id);
+					} else {
+						angular.forEach($scope.ui.blocks.list, function(value, key){
+							$scope.ui.blocks.list[key].hidden = true;
+							$rootScope.$broadcast('ui.blocks.functions.toggleHide.'+key);
+						});
+					}
+				}, // End toggleHide
+				//Close all blocks
+				toggleClose : function (id) {
+					if(id) {
+						$scope.ui.blocks.list[id].closed = !$scope.ui.blocks.list[id].closed;
+						$rootScope.$broadcast('ui.blocks.functions.toggleClose.'+id);
+					} else {
+						console.log("toggleHide all");
+						angular.forEach($scope.ui.blocks.list, function(value, key){
+							$scope.ui.blocks.list[key].closed = true;
+							$rootScope.$broadcast('ui.blocks.functions.toggleClose.'+key);
+						});
+					}
+				} // End toggleHide
+			},
+			list : {}
+		},
+		search: {	//Quick Search Module
+			results : {},// Results object
+			params : { q: "", type: "score", order: "desc"}, // Original filters
+			get: function () {	// Function to get results
+				url = '/search?type=documentaryUnit&sort=' + $scope.ui.search.params.type + '.' + $scope.ui.search.params.order+ '&q=' + $scope.ui.search.params.q;
+				$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
+					$scope.ui.search.results = data.page.items;
+				});
+			},
+			filter : function(key, value) { // Change a filter
+				$scope.searchParams[type] = val;
+				this.get();
+			}
+		},
+		url : {
+			params : $location.search(), //Url parameters Search (?YOURITEM)
+			resetCompared : function() {// Reset compared array in params using compared.data object loop
+				this.params.compared = [];
+				angular.forEach($scope.ui.compare.data, function(value, key) {
+					this.params.compared.push(key);
+				});
+				this.setUrl();
+			},
+			set : function () { // Set search params in Url
+				$location.search(this.params);
+			},
+			get : function() { // Set Compared items AND desc.id if in URL
+				this.params = $location.search();
+				
+				if(typeof this.params.compared == "string") { // If we get a string instead of an array for compared item
+					this.params.compared = this.params.compared.split(",");	//Split the results
+				}
+				
+				if(this.params.description) { // If description has been submit through search url param
+					$scope.item.desc.id = this.params.description;
+					$scope.item.desc.load(); 
+				}
+				if (this.params.compared) { //If we got compared params, we erase previous loaded stuff and load their desc
+					$scope.ui.compared.data = {};
+					angular.forEach(this.params.compared, function(value, key) {
+						$scope.ui.compared.load(value);
+					});
+				}
+			} // End setFromUrl
+		},
+		compare : { // Compare part of UI
+			data: {}, //Compared data
+			load: function(itemId) { // Load a description for a compared item
+				$http.get('./api/documentaryUnit/'+itemId).success(function(data) {
+					$scope.ui.compare.data[itemId] = data;
+					$scope.ui.compare.data[itemId].color = $scope.ui.compare.color();
+					if(!$scope.ui.compare.data[itemId]) { $scope.ui.url.resetCompared(); }
+				});
+			},
+			remove: function (descId) {
+				delete this.data[descId];
+				$scope.ui.url.resetCompared();
+			},
+			amount: 0, //Used for color
+			color:	function () { //Return alternative color
+				var available = ['deepblue', 'green', 'purple', 'alizarin']	// Available color
+				if(this.amount  <= (parseInt(available.length) - 1)) {
+					this.amount = this.amount+ 1;
+				} else {
+					this.amount = 0;
+				}
+				return available[this.amount - 1];
+			}
+		}
+	};
+	
+	//Watch url changes
 	$scope.$on('$routeUpdate', function(){
-		$scope.fromUrl();
+		$scope.ui.url.get();
 	});
-	// Set id of desc -->
 	
-	$scope.fromUrl = function() {
-		$scope.urlParams = $location.search();
-		console.log(typeof $location.search().compared );
-		if(typeof $location.search().compared == "string") {
-			$scope.urlParams.compared = $scope.urlParams.compared.split(",");
-		}
-		if($location.search().description) {
-			$scope.descId = $location.search().description;
-			$scope.loadDesc();// Change desc
-		}
-		if ($location.search().compared) {
-			$scope.compared = {};
-			angular.forEach($scope.urlParams.compared, function(value, key) {
-				$scope.compareWith(value);
-			});
-		}
-	}
+	//Launch Page
+	$scope.item.desc.load();
+	$scope.ui.url.get();
 	
-	
-	$scope.setSearch = function () {
-		$location.search($scope.urlParams);
-	}
-	
-	$scope.resetCompared = function() {
-		$scope.urlParams.compared = [];
-		angular.forEach($scope.compared, function(value, key) {
-			$scope.urlParams.compared.push(key);
-		});
-		$scope.setSearch();
-	}
-	
-	$scope.setDesc = function(descId) {
-		$scope.urlParams.description = descId;
-		$scope.setSearch();
-	}
-	
-	$scope.removeDesc = function (descId) {
-		delete $scope.compared[descId];
-		$scope.resetCompared();
-	}
-//-------------------------------------URL AND ADD/DEL DESC
-	
-	//Color for compared desc
-	$scope.descNbr = 0;
-	$scope.getColor = function () {
-		var available = ['deepblue', 'green', 'purple', 'alizarin']
-		if($scope.descNbr  <= 3) {
-			$scope.descNbr = $scope.descNbr + 1;
-		} else {
-			$scope.descNbr = 0;
-		}
-		return available[$scope.descNbr - 1];
-	}
-	
-	$scope.closeAll = function () {
-		angular.forEach($scope.blocks, function(value, key){
-			$scope.blocks[key].closed = true;
-		});
-	}
-	$scope.hideAll = function () {
-		angular.forEach($scope.blocks, function(value, key){
-			$scope.blocks[key].hidden = true;
-		});
-	}
-	
-	$scope.compareWith = function(itemId) {
-		$http.get('./api/documentaryUnit/'+itemId).success(function(data) {
-			$scope.compared[itemId] = data;
-			$scope.compared[itemId].color = $scope.getColor();
-			if(!$scope.compared[itemId]) { $scope.resetCompared(); }
-		});
-	}
-	
-	//<-- Select good desc 
-	$scope.loadDesc = function() {
-		if($scope.descId)
-		{
-			$scope.desc = $filter("descLang")($scope.item.relationships.describes, false, {"id" : $scope.descId})[0];
-			$scope.alt = [];
-		}
-		else
-		{
-			$scope.desc = $filter("descLang")($scope.item.relationships.describes)[0];
-			$scope.alt = [];
-		}
-		//console.log($scope.desc);
-		//$scope.$apply();
-	}
-	// Select good desc -->
-	
-	//<-- No Desc ? GOT ONE !
-	$scope.getAlt = function (check, path, ret)
-	{
-		if($scope.desc != undefined) {
-			// console.log("-----------------------");
-			// console.log("Check : "+check);
-			// console.log($scope.desc.data[check]);
-			// console.log($scope.alt[path]);
-			// console.log("-----------------------");
-			if($scope.desc.data[check] == undefined && !$scope.alt[path]) {
-				var alt = $filter("descLang")($scope.item.relationships.describes, false, {"not" : $scope.descId, "property": path, "returnProp" : ret});
-				$scope.alt[path] = alt;
-				return alt;
-			}
-			else {
-				return $scope.alt[path];
-			}
-		}
-	}
-	// No desc -->
-	
-	//<-- Date format
-	$scope.formatDate = function(dateMs) {
-		var more = function(X) {
-			if(X >= 10)	{
-				return X;
-			}
-			else {
-				return "0"+X;
-			}
-		}
-		var date = new Date(dateMs);
-		var month = date.getMonth()+1;
-		var day = date.getDate();
-		var year = date.getFullYear();
-		return more(month) + '-' + more(day) + '-' + year;
-	}
-	// Date format -->
-	
-	//<-- Search Engine
-	$scope.searchParams = {type: "score", order: "desc"};
-	$scope.quickSearch = {};
-	$scope.getUrl = function(url) {
-		url = url + '?type=documentaryUnit&sort=' + $scope.searchParams.type + '.' + $scope.searchParams.order+ '&q=' + $scope.searchParams.q;
-		
-		return url;
-	}
-	
-	$scope.doFilter = function(type, val) {
-		$scope.searchParams[type] = val;
-		$scope.doSearch();
-	}
-	
-	$scope.doSearch = function() {	
-		url = $scope.getUrl('/search');
-		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
-				//Datas
-				$scope.quickSearch = data.page.items;
-			});
-	}
-	// Search Engine -->
-	
-	
-	
-	//<-- Load data 
-	$scope.loadDesc();
-	$scope.fromUrl();
-	// Load data-->
 }]);
 
+//Load data before UI
 Doc.resolveDoc = {
 	itemData: function($route, Item) {
-		console.log("Resolving in doc ???");
 		var result = Item.query("documentaryUnit", $route.current.params.itemID);
 		return result;
 	},

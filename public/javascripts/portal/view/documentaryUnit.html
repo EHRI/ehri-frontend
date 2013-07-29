@@ -6,60 +6,65 @@
 	
 	<div class="row">
 		<div class="span8">
-			<dud src="desc"></dud>
-			<dud ng-repeat="newItem in compared" src="newItem.relationships.describes.0" id="newItem-{{desc.id}}" colorclass="newItem.color"></dud>
+			<dud src="item.desc.data"></dud>
+			<dud ng-repeat="newItem in ui.compare.data" src="newItem.relationships.describes.0" id="newItem-{{desc.id}}" colorclass="newItem.color"></dud>
 		</div>
 		<div class="span4">
-			<div class="ui-block">
-				<h2 class="nomargin">Available blocks<div class="pull-right"><a class="filterBar-icon" ng-click="closeAll()"><i class="icon-minus"></i></a><a class="filterBar-icon" ng-click="hideAll()"><i class="icon-remove"></i></a></div></h2>
-				<ul class="list-item">
-					<li ng-repeat="block in blocks" ng-show="(block.hidden)">
-						{{block.legend}}
-						<a ng-click="block.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
-					</li>
-				</ul>
-			</div>
-			<div class="ui-block">
-				<h2 class="nomargin">Available descriptions</h2>
-				<ul class="list-item">
-					<li ng-repeat="desc in item.relationships.describes">
-					{{desc.data.languageCode}} - {{desc.data.name}}
-					<a class="filterBar-icon" ng-click="setDesc(desc.id)"><i class="icon-chevron-right"></i></a>
-					</li>
-				</ul>
-				<ul class="list-item" ng-repeat="comparedItem in compared">
-					<li ng-repeat="desc in comparedItem.relationships.describes">
-					{{desc.data.languageCode}} - {{desc.data.name}}
-					<a class="filterBar-icon" ng-click="removeDesc(comparedItem.id)"><i class="icon-remove"></i></a>
-					</li>
-				</ul>
-			</div>
-			<div class="ui-block">
-				<h2 class="nomargin">Compare with</h2>
-				<form class="form" ng-submit="doSearch()">
-					<a class="filterBar-icon" ng-click="doSearch();"><i class="icon-search"></i></a><input type="text" ng-model="searchParams.q" placeholder="Type your query here" 
-					/><div class="filterBar-icon dropdown">
-						<a class="dropdown-toggle"><i class="icon-sort-by-order icon-large"></i></a>
-						<ul class="dropdown-menu">
-							<li><a ng-click="doFilter('type', 'lastUpdated')"><i class="icon-sort-by-order icon-large"></i><div class="legend">Update Time</div></a></li>
-							<li><a ng-click="doFilter('type', 'name_sort')"><i class="icon-sort-by-alphabet icon-large"></i><div class="legend">Name</div></a></li>
-							<li><a ng-click="doFilter('type', 'score')"><i class="icon-sort-by-attributes icon-large"></i><div class="legend">Relevance</div></a></li>
-						</ul>
-					</div><div class="filterBar-icon dropdown">
-						<a class="dropdown-toggle"><i class="icon-sort icon-large"></i></a>
-						<ul class="dropdown-menu">
-							<li><a ng-click="doFilter('order', 'desc')"><i class="icon-long-arrow-down icon-large"></i><div class="legend">Descendant</div></a></li>
-							<li><a ng-click="doFilter('order', 'asc')"><i class="icon-long-arrow-up icon-large"></i><div class="legend">Ascendant</div></a></li>
-						</ul>
-					</div>
+			<ul class="unstyled">
 			
-				</form>
-				<ul class="list-item">
-					<li ng-repeat="item in quickSearch">{{item.relationships.describes[0].data.name}}
-						<a class="filterBar-icon" ng-click="compareWith(item.id)"><i class="icon-plus"></i></a>
-					</li>
-				</ul>
-			</div>
+				<li class="ui-block">
+						<h2 class="nomargin">Available blocks<div class="pull-right"><a class="filterBar-icon" ng-click="ui.blocks.functions.toggleClose()"><i class="icon-minus"></i></a><a class="filterBar-icon" ng-click="ui.blocks.functions.toggleHide()"><i class="icon-remove"></i></a></div></h2>
+						<ul class="list-item">
+							<li ng-repeat="(blockId, block) in ui.blocks.list" ng-show="(block.hidden)">
+								{{block.legend}}
+								<a ng-click="ui.blocks.functions.toggleHide(blockId)" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+							</li>
+						</ul>
+				</li>
+				
+				<li class="ui-block">
+					<h2 class="nomargin">Available descriptions</h2>
+					<ul class="list-item">
+						<li ng-repeat="desc in item.raw.relationships.describes">
+						{{desc.data.languageCode}} - {{desc.data.name}}
+						<a class="filterBar-icon" ng-click="item.desc.set(desc.id)"><i class="icon-chevron-right"></i></a>
+						</li>
+					</ul>
+					<ul class="list-item" ng-repeat="comparedItem in item.ui.compare.data">
+						<li ng-repeat="desc in comparedItem.relationships.describes">
+						{{desc.data.languageCode}} - {{desc.data.name}}
+						<a class="filterBar-icon" ng-click="ui.compare.remove(comparedItem.id)"><i class="icon-remove"></i></a>
+						</li>
+					</ul>
+				</li>
+				
+				<li class="ui-block">
+					<h2 class="nomargin">Compare with</h2>
+					<form class="form" ng-submit="ui.search.get()">
+						<a class="filterBar-icon" ng-click="ui.search.get();"><i class="icon-search"></i></a><input type="text" ng-model="ui.search.params.q" placeholder="Type your query here" 
+						/><div class="filterBar-icon dropdown">
+							<a class="dropdown-toggle"><i class="icon-sort-by-order icon-large"></i></a>
+							<ul class="dropdown-menu">
+								<li><a ng-click="ui.search.filter('type', 'lastUpdated')"><i class="icon-sort-by-order icon-large"></i><div class="legend">Update Time</div></a></li>
+								<li><a ng-click="ui.search.filter('type', 'name_sort')"><i class="icon-sort-by-alphabet icon-large"></i><div class="legend">Name</div></a></li>
+								<li><a ng-click="ui.search.filter('type', 'score')"><i class="icon-sort-by-attributes icon-large"></i><div class="legend">Relevance</div></a></li>
+							</ul>
+						</div><div class="filterBar-icon dropdown">
+							<a class="dropdown-toggle"><i class="icon-sort icon-large"></i></a>
+							<ul class="dropdown-menu">
+								<li><a ng-click="ui.search.filter('order', 'desc')"><i class="icon-long-arrow-down icon-large"></i><div class="legend">Descendant</div></a></li>
+								<li><a ng-click="ui.search.filter('order', 'asc')"><i class="icon-long-arrow-up icon-large"></i><div class="legend">Ascendant</div></a></li>
+							</ul>
+						</div>
+				
+					</form>
+					<ul class="list-item">
+						<li ng-repeat="item in ui.search.results">{{item.relationships.describes[0].data.name}}
+							<a class="filterBar-icon" ng-click="ui.compare.load(item.id)"><i class="icon-plus"></i></a>
+						</li>
+					</ul>
+				</li>
+			</ul>
 		</div>
 	</div>
 </article>

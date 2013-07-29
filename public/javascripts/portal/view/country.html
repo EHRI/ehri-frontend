@@ -40,9 +40,9 @@
 					<ul ng-show="!children.loading" class="list-item" ng-class="(childrenShown && 'closed') || 'open'">
 						<li ng-show="!children.quickview.show" ng-repeat="child in children.data">
 							<div ng-repeat="desc in child.relationships.describes | descLang:langFilter">
-								<a>{{desc.data.name}}</a>
+								<a href="#/item/repository/{{child.id}}">{{desc.data.name}}</a>
 								<div class="filterBar-icon filterBar-icon-empty pull-right">
-									<a href="#/item/documentaryUnit/{{child.id}}">
+									<a ng-click="map.load(desc)">
 										<i class="icon-chevron-right"></i>
 									</a>
 								</div>

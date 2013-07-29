@@ -1,4 +1,4 @@
-<li class="ui-block" id="{{id}}" ng-class="{'closed':$parent.$parent.blocks[id].closed==true, 'hidden':$parent.$parent.blocks[id].hidden==true}" ng-show="show">
+<li class="ui-block" id="{{id}}" ng-class="{'closed':closed==true, 'hidden':hidden==true}" ng-show="show">
 	<h2>{{title}}
 		<div class="pull-right">
 		<a class="filterBar-icon" ng-click="close()"><i ng-class="(closed && 'icon-plus') || 'icon-minus'"></i>

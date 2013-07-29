@@ -1,0 +1,137 @@
+<article class="container document">
+<h1>{{item.desc.data.name}}</h1>
+
+<div class="row">
+		<div class="span8">
+			<ul class="unstyled">
+				<li identifier="Description" title="Description" itemtitle="item.desc.data.name" class="documentBlock" level="1" itemid="item.desc.id" show="(item.desc.data.biographicalHistory)||(item.desc.data.dateOfBirth)|| (item.desc.data.dateOfDeath)||(item.desc.data.placeOfBirth)||(item.desc.data.placeOfDeath)||(item.desc.data.nationality)">
+					<div id="dateOfBirth-dateOfDeath" ng-show="item.desc.data.dateOfBirth || item.desc.data.dateOfDeath">
+						<h3>Dates if birth and death</h3>
+						{{item.desc.data.dateOfBirth}} / {{item.desc.data.dateOfDeath}}
+					</div>
+					<div id="placeOfBirth" ng-show="item.desc.data.placeOfBirth || item.desc.data.placeOfBirth">
+						<h3>Place of birth</h3>
+						{{item.desc.data.placeOfBirth}}
+					</div>
+					<div id="placeOfDeath" ng-show="item.desc.data.placeOfDeath">
+						<h3>Place of Death</h3>
+						{{item.desc.data.placeOfDeath}}
+					</div>
+					<div id="nationality" ng-show="item.desc.data.nationality">
+						<h3>Nationality</h3>
+						{{item.desc.data.nationality}}
+					</div>
+					<div id="biographicalHistory" ng-show="item.desc.data.biographicalHistory">
+						<h3>Biographical History</h3>
+						{{item.desc.data.biographicalHistory}}
+					</div>
+					<div id="otherFormsOfName" ng-show="item.desc.data.otherFormsOfName">
+						<h3>Other forms of name</h3>
+						{{item.desc.data.otherFormsOfName}}
+					</div>
+				</li>
+				<li identifier="Control Area" title="Control" itemtitle="item.desc.data.name" class="documentBlock" level="1" itemid="item.desc.id" show="(item.desc.data.authorizedFormOfName)||(item.desc.data.parallelFormsOfName)||(item.desc.data.otherFormsOfName)">
+					<div id="authorizedFormOfName" ng-show="item.desc.data.authorizedFormOfName">
+						<h3>Authorized form of name</h3>
+						{{item.desc.data.authorizedFormOfName}}
+					</div>
+					<div id="parallelFormsOfName" ng-show="item.desc.data.parallelFormsOfName">
+						<h3>Parallel forms of name</h3>
+						{{item.desc.data.parallelFormsOfName}}
+					</div>
+					<div id="otherFormsOfName" ng-show="item.desc.data.otherFormsOfName">
+						<h3>Other forms of name</h3>
+						{{item.desc.data.otherFormsOfName}}
+					</div>
+				</li>
+				<li identifier="Identity" title="Identity" itemtitle="item.desc.data.name" class="documentBlock" level="1" itemid="item.desc.id" show="(item.desc.data.authorizedFormOfName)||(item.desc.data.parallelFormsOfName)||(item.desc.data.otherFormsOfName)">
+					<div id="authorizedFormOfName" ng-show="item.desc.data.authorizedFormOfName">
+						<h3>Authorized form of name</h3>
+						{{item.desc.data.authorizedFormOfName}}
+					</div>
+					<div id="parallelFormsOfName" ng-show="item.desc.data.parallelFormsOfName">
+						<h3>Parallel forms of name</h3>
+						{{item.desc.data.parallelFormsOfName}}
+					</div>
+					<div id="otherFormsOfName" ng-show="item.desc.data.otherFormsOfName">
+						<h3>Other forms of name</h3>
+						{{item.desc.data.otherFormsOfName}}
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div class="span4">
+			<ul class="unstyled">
+				<li class="ui-block">
+					<h2 class="nomargin">Available blocks<div class="pull-right"><a class="filterBar-icon" ng-click="ui.blocks.functions.toggleClose()"><i class="icon-minus"></i></a><a class="filterBar-icon" ng-click="ui.blocks.functions.toggleHide()"><i class="icon-remove"></i></a></div></h2>
+					<ul class="list-item">
+						<li ng-repeat="(blockId, block) in ui.blocks.list" ng-show="(block.hidden)">
+							{{block.legend}}
+							<a ng-click="ui.blocks.functions.toggleHide(blockId)" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+						</li>
+					</ul>
+				</li>
+				<li class="ui-block">
+					<h2 class="nomargin">Sources</h2>
+					<ul class="list-item list-item-no-max-size">
+						<li ng-repeat="source in item.desc.data.source" ng-bind-html-unsafe="source | parseUrl"></li>
+					</ul>
+					
+				</li>
+			</ul>
+		</div>
+	</div>
+</article>
+<!--
+        @descriptionFormSection(IDENTITY_AREA) {
+            @hiddenInput(desc(Entity.ID))
+            @enumChoiceInput(desc(ENTITY_TYPE), HistoricalAgentType, ENTITY_TYPE, blank=true)
+            @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
+            @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+            @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
+        }
+
+        @descriptionFormSection(DESCRIPTION_AREA) {
+            <div class="inline-formset control-group clearfix">
+                Template for adding inline date forms via JS 
+                <label class="control-label">
+                    @Messages(fieldPrefix + "." + DATES)
+                    <a href="#" class="add-inline-element"><i class="icon-plus-sign"></i></a>
+                </label>
+                <div class="inline-element-template form-template">
+                    @common.renderDateSetForm(desc(DATES + "[IDX]"))
+                </div>
+                <div class="inline-element-list">
+                    @helper.repeat(desc(DATES), min = 0) { desc =>
+                    @common.renderDateSetForm(desc)
+                    }
+                </div>
+            </div>
+
+            @defining(desc(DESCRIPTION_AREA)) { desc =>
+                @textInput(desc, DATES_OF_EXISTENCE)
+                @textInput(desc, HISTORY)
+                @textInput(desc, PLACES)
+                @textInput(desc, LEGAL_STATUS)
+                @textInput(desc, FUNCTIONS)
+                @textInput(desc, MANDATES)
+                @textInput(desc, INTERNAL_STRUCTURE)
+                @textInput(desc, GENERAL_CONTEXT)
+            }
+        }
+
+        @descriptionFormSection(CONTROL_AREA) {
+            @defining(desc(CONTROL_AREA)) { desc =>
+                @lineInput(desc, DESCRIPTION_IDENTIFIER)
+                @lineInput(desc, INSTITUTION_IDENTIFIER)
+                @textInput(desc, RULES_CONVENTIONS)
+                @textInput(desc, STATUS)
+                @textInput(desc, LEVEL_OF_DETAIL)
+                @textInput(desc, DATES_CVD)
+                @multiselectInput(desc(LANGUAGES_USED), LANGUAGES_USED, views.Helpers.languagePairList)
+                @multiselectInput(desc(SCRIPTS_USED), SCRIPTS_USED, views.Helpers.scriptPairList)
+                @inlineTextSet(desc, SOURCES)
+                @textInput(desc, MAINTENANCE_NOTES)
+            }
+        }
+-->

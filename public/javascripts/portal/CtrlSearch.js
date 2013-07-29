@@ -1,36 +1,178 @@
 portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', 'myBasketService', 'Map', function($scope, $http, $routeParams, $location, $service, $anchorScroll, paginationService, $basket, $map) {
-	//Scope var
-	$scope.searchParams = {'page' : 1, 'sort' : 'score.desc'};
-	$scope.langFilter = "en";
-	
-	$scope.pages = {};
-	
-	$scope.currentPage = 1; //Current page of pagination
-	$scope.justLoaded = false;
-	$scope.maxSize = 5; // Number of pagination buttons shown
-	$scope.numPages = false; // Number of pages (get from query)
-	$scope.loadedPage = {1 : true};
-	$scope.noSearchOnChange = true;
-	
-	$scope.lastFilter = false;
-	$scope.loadingPage = false;
-	
-	$scope.fromSearch = function() {
-		angular.forEach($location.search(), function(value, key) {
-			$scope.searchParams[key] = value;
-			if(key == "q")
-			{
-				$scope.searchTerm = value;
+	$scope.results = {	//Results object
+		raw: {	//Raw Results
+		},
+		pages: {	//Results divided by page
+			/*
+			#id# : {
+				id: string,
+				items : {}
 			}
-			else if(key == "page")
-			{
-				$scope.currentPage = parseInt(value);
-				$scope.loadedPage[parseInt(value)] = true;
+			*/
+		},
+		loaded: {	//Loaded pages
+		}
+	};
+	$scope.ui = {
+		general: {	//General params, such as default language
+			lang: "en",	//Default language for descriptions
+			loading: true // If data are being loaded (previously loadingPage)
+		},
+		pagination : {
+			available: false, //Number of available pages for said query (previously numPages)
+			next: function() { //Previously loadMore
+				var next = $scope.ui.search.params.page + 1;
+				/*	
+					//Debug
+					console.log("Available =" +this.available);
+					console.log("Next = " + next);
+					console.log("Next loaded = " + (!$scope.results.loaded[next]));
+					//End debug
+				*/
+				if(	$scope.ui.general.loading == false && //Check if not currently loading, avoiding multiple load
+					next <= this.available &&	//Check if current page is not maximum
+					(!$scope.results.loaded[next]))	{	//Check if not already loaded
+					
+					$scope.ui.general.loading = true;	//Set loading
+					$scope.ui.search.params.page = next;	//Set param
+					$scope.ui.search.load();	//Load data (!= New query)
+					//console.log("ScrolltoCall for page " + $scope.currentPage);
+				}
 			}
-		});
-	}
+		},
+		search: {	//Quick Search Module
+			input : function () {	//Function triggered on ng-change for  searchTerm
+				if(this.auto) {
+					this.filter.set('q', $scope.searchTerm);
+				} else {
+					this.params.q = $scope.searchTerm;
+				}
+					
+			},
+			facets : {},
+			auto: false,	//True : search while typing, false : need to press enter or submit button (previously noSearchOnChange)
+			params : { q: "", sort: "score.desc", page:1}, // Original filters, page added as 1 (previously currentPage)
+			get: function () {	// Function to get results for a new query
+				var url = this.url('/search');	//Get url with params
+				$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {	//Get json
+					//Erase every results data and put raw data results in it
+					$scope.results = {	raw: data, pages: {},loaded: {	}};
+					$scope.results.pages[$scope.ui.search.params.page] = { 
+						id:	$scope.ui.search.params.page, 
+						items : data.page.items 
+					}
+					// console.log(data.page.items);
+					$scope.results.loaded[$scope.ui.search.params.page] = true;	//Set page as loaded
+					/*= {	//Erase every data
+						raw: data,	//Save raw results
+						loaded: {	$scope.ui.search.params.page : true},	//Set given page as loaded
+						pages: {
+							$scope.ui.search.params.page : {
+								id: $scope.ui.search.params.page.toString(),
+								items: data.page.items
+							}
+						}
+					}*/
+					
+					//Set facets
+					$scope.ui.search.facets = data.page.facets;
+					//Set number of available pages
+					$scope.ui.pagination.available = data.numPages;
+					//Stop loading
+					$scope.ui.general.loading = false;
+					//console.log($scope.results);
+				});
+				//Set the current page id on first child of scope.results.pages.X
+				//$scope.results.pages[$scope.ui.search.params.page].items[0].page = $scope.ui.search.params.page;	
+			},
+			load: function() {	// Function for loading a page with same query
+				var url = this.url('/search');	//Get url with params
+					$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {	//Get json
+					//Insert data
+					$scope.results.raw = data;
+					$scope.results.pages[$scope.ui.search.params.page] = {
+						id: $scope.ui.search.params.page.toString(),
+						items: data.page.items
+					};
+
+					//Stop loading
+					$scope.ui.general.loading = false;
+					//Set the current page id on first child of scope.results.pages.X
+					//$scope.results.pages[$scope.ui.search.params.page].items[0].page = $scope.ui.search.params.page;	
+					
+					//Pagination
+					$scope.results.loaded[$scope.ui.search.params.page] = true;
+					//if(scroll)	{	$location.hash('page-' + $scope.currentPage);	$anchorScroll();	}	//Scroll to function
+				});
+			},
+			filter : {
+				set : function(key, value) { // Change a filter
+					$scope.ui.search.params[key] = value;	//Set param
+					$scope.ui.url.set();	//Set Url
+					$scope.ui.search.get();	//Refresh data
+					this.last = key;
+				},
+				remove : function(value) {	//Remove a filter
+					delete $scope.ui.search.params[key];
+					$scope.ui.url.set();
+					//Need to update url
+				},
+				last : false //For debugging, if last filter causes bug				
+			},
+			url : function(url) {	//Set the API search url
+				url = url + '?';	//Add question mark
+				
+				var urlArr = [];
+				angular.forEach($scope.ui.search.params, function(value, key) {
+					urlArr.push(key + "=" + value);
+				});
+				
+				return url + urlArr.join('&');
+			}
+		},
+		url : {	//Url for browser functions
+			params : $location.search(),	//Search params in url
+			set : function () { // Set search params in Url
+				$location.search(this.params);
+			},
+			get: function () {	//Get search params through url
+				this.params = $location.search();
+				angular.forEach($scope.ui.url.params, function(value, key) {
+					$scope.ui.search.params[key] = value;
+				});
+			}
+		},
+		basket : { //Basket functions
+			add : function(item) {	//Add item to basket
+				$basket.add(item);
+			}
+		},
+		map : {
+			state : false,
+			activate : function() {
+				this.state = true;
+			},
+			desactivate : function () {
+				this.state = false;
+			},
+			toggle : function () {
+				this.state = !this.state;
+			},
+			marker : {
+				add : function(item, title, id) { $map.addMarker(item, title, id); },
+				center : function(marker) { $map.reCenter(marker); }
+			}
+		}
+	};
 	
-	//<----
+	
+	/*
+	For get and load, previous error system
+	.error(function() { 
+			$scope.removeFilterByKey($scope.lastFilter);
+			//alert('Server error, reloading datas');
+		}); 
+	
 	//Pagination System with outside pagination render
 	$scope.$watch('currentPage + numPages', function(newValue) {
 		//{'current' : 1, 'max': 10, 'num': false}
@@ -55,190 +197,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 		}
     });
 	
-	//---->
-	
-	//<--- Basket function
-	$scope.addBasket = function(item) {
-		$basket.add(item);
-	}
-	//Basket Function --->
-	
-	
-	//<---QUERY FUNCTIONS
-	//Query functions
-	$scope.setQuery = function(type, q) {
-		if($scope.searchParams[type] == q && type != 'page' && type != 'q' && type != 'sort')
-		{
-			$scope.removeFilterByKey(type);
-			$location.search('page', 1);
-			$scope.searchParams.page = 1;
-			$scope.currentPage = 1;
-		}
-		else
-		{
-			if(type != 'page')
-			{
-				$location.search('page', 1);
-				$scope.searchParams.page = 1;
-				$scope.currentPage = 1;
-			}
-			else {
-				q = parseInt(q);
-			}
-			$scope.lastFilter = type;
-			$scope.searchParams[type] = q;
-			$location.search(type, q);
-			
-			$scope.doSearch();
-		}
-	}
-	
-	$scope.getUrl = function(url) {
-		url = url + '?';
-		
-		var urlArr = [];
-		angular.forEach($scope.searchParams, function(value, key) {
-			urlArr.push(key + "=" + value);
-		});
-		
-		return url + urlArr.join('&');
-	}
-	
-	$scope.doSearch = function(push, scroll) {	
-		if(!push) { $scope.searchParams.page = 1; $scope.currentPage = 1; }
-		url = $scope.getUrl('/search');
-		$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
-			if(push)
-			{
-				//Data themself
-				$scope.pages[$scope.currentPage] = {"id_page": $scope.currentPage.toString()};
-				$scope.pages[$scope.currentPage].items = data.page.items;
-				if(!$scope.pages[$scope.currentPage].items[0]) {
-					$scope.pages[$scope.currentPage].items[0] = {}
-				}
-				$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
-				
-				//Facets
-				$scope.facets = data.facets;
-				
-				//Pagination
-				$scope.loadedPage[$scope.currentPage] = true;
-				if(scroll)
-				{
-					$location.hash('page-' + $scope.currentPage);
-					$anchorScroll();
-				}
-			}
-			else
-			{
-				//Datas
-				$scope.currentPage = 1;
-				$scope.loadedPage = {1 : true};
-				$scope.page = data.page;
-				$scope.pages = {};
-				$scope.pages[$scope.currentPage] = {"id_page": $scope.currentPage.toString()};
-				$scope.pages[$scope.currentPage].items = data.page.items;
-				if(data.page.total > 0)
-				{
-					if(!$scope.pages[$scope.currentPage].items[0]) {
-						$scope.pages[$scope.currentPage].items[0] = {}
-					}
-					$scope.pages[$scope.currentPage].items[0].page = $scope.currentPage;
-				}
-				$scope.facets = data.facets;
-				
-				//Pagination
-				$scope.loadedPage = {};
-				$scope.loadedPage[$scope.currentPage] = true;
-				$scope.numPages = data.numPages;
-			}
-			// console.log($scope.items);
-			//Get the loading possible again
-			$scope.loadingPage = false;
-			console.log($scope.pages);
-		}).error(function() { 
-			$scope.removeFilterByKey($scope.lastFilter);
-			//alert('Server error, reloading datas');
-		});
-	}
-	
-	$scope.loadMore = function () {
-		if($scope.loadingPage == false && $scope.currentPage != $scope.numPages && (!$scope.loadedPage[($scope.currentPage + 1)]))
-		{
-			$scope.loadingPage = true;
-			$scope.currentPage = $scope.currentPage + 1;
-			$scope.searchParams.page = $scope.currentPage;
-			$scope.doSearch(true);
-			//console.log("ScrolltoCall for page " + $scope.currentPage);
-		}
-	}
-	
-	$scope.removeFilterByKey = function(key){
-		delete $scope.searchParams[key];
-		$location.search(key, null);
-		$scope.doSearch();
-		return true;
-	}
-	
-	$scope.removeFilter = function (value) {
-		angular.forEach($scope.searchParams, function(v,k) {
-			if(v == value)
-			{
-				delete $scope.searchParams[k];
-			}
-		});
-		angular.forEach($location.search(), function(v, k) {
-			if(v == value)
-			{
-				$location.search(k, null);
-			}
-		});
-		$scope.doSearch();
-		return true;
-	}
-	//QUERY FUNCTIONS ---->
-	
-	
-	//<--- Map Functions
-	$scope.map = { }
-	$scope.map.activate = function() { $scope.map.activated = true; }
-	$scope.map.deactivate = function() { $scope.map.activated = false; }
-	$scope.map.addMarker = function(item, title, id) { $map.addMarker(item, title, id); }
-	$scope.map.center = function(marker) { $map.reCenter(marker); }
-	//Map Functions -->
-	
-/**********
-**
-**
-**
-**
-*/
-	$scope.getLink = function(type,id) {
-        //location.href = $service.redirectUrl(type, id);
-		console.log($service.redirectUrl(type, id));
-	}
-	//Description functions	
-	$scope.getTitleAction = function(item) {
-		//2013-05-15 15:42:23 Mike Bryant: Imported from command-line
-		if(item.relationships && item.relationships.lifecycleEvent && item.relationships.lifecycleEvent[0])
-		{
-			event = item.relationships.lifecycleEvent[0];
-			message = event.data.logMessage;
-			return message;
-		}
-	}
-	
-	$scope.getSimpleTimeDesc = function(item) {
-		//console.log(item);
-		//Updated 5 days ago
-		if(item.relationships && item.relationships.lifecycleEvent && item.relationships.lifecycleEvent[0])
-		{
-			event = item.relationships.lifecycleEvent[0];
-			//d = new Date(event.data.timestamp);
-			return event.data.timestamp;
-		}
-	}
-	
-	$scope.fromSearch();
-	$scope.doSearch();
+	*/
+	//$scope.fromSearch();
+	//$scope.doSearch();
 }]);

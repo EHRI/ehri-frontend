@@ -1,41 +1,41 @@
-<h1>{{desc.data.name}}</h1>
+<h1>{{item.desc.data.name}}</h1>
 <div class="container document">
 	<div class="row">
 		<div class="span8">
-			<rud src="desc"></rud>
+			<rud src="item.desc"></rud>
 			<div class="ui-block">
 				<h2 class="nomargin">Held by this repository</h2>
-				<form class="form" ng-submit="doSearch()">
-					<a class="filterBar-icon" ng-click="doSearch();"><i class="icon-search"></i></a><input type="text" ng-model="searchParams.q" placeholder="Type your query here" 
-					/>
+				<form class="form" ng-submit="item.children.get()">
+					<a class="filterBar-icon" ng-click="item.children.get();"><i class="icon-search"></i>
+					</a><input type="text" ng-model="item.children.searchParams.q" placeholder="Type your query here" />
 					
 					<div class="pull-right">
 						<div class="filterBar-icon dropdown">
 						<a class="dropdown-toggle"><i class="icon-sort-by-order icon-large"></i></a>
 						<ul class="dropdown-menu">
-							<li><a ng-click="doFilter('type', 'lastUpdated')"><i class="icon-sort-by-order icon-large"></i><div class="legend">Update Time</div></a></li>
-							<li><a ng-click="doFilter('type', 'name_sort')"><i class="icon-sort-by-alphabet icon-large"></i><div class="legend">Name</div></a></li>
-							<li><a ng-click="doFilter('type', 'score')"><i class="icon-sort-by-attributes icon-large"></i><div class="legend">Relevance</div></a></li>
+							<li><a ng-click="item.children.filter('type', 'lastUpdated')"><i class="icon-sort-by-order icon-large"></i><div class="legend">Update Time</div></a></li>
+							<li><a ng-click="item.children.filter('type', 'name_sort')"><i class="icon-sort-by-alphabet icon-large"></i><div class="legend">Name</div></a></li>
+							<li><a ng-click="item.children.filter('type', 'score')"><i class="icon-sort-by-attributes icon-large"></i><div class="legend">Relevance</div></a></li>
 						</ul>
-					</div><div class="filterBar-icon dropdown">
-						<a class="dropdown-toggle"><i class="icon-sort icon-large"></i></a>
-						<ul class="dropdown-menu">
-							<li><a ng-click="doFilter('order', 'desc')"><i class="icon-long-arrow-down icon-large"></i><div class="legend">Descendant</div></a></li>
-							<li><a ng-click="doFilter('order', 'asc')"><i class="icon-long-arrow-up icon-large"></i><div class="legend">Ascendant</div></a></li>
-						</ul>
-					</div><div
-						 class="filterBar-icon tooltiped" data-tooltiped="Previous page">
-						<a><i class="icon-chevron-left icon-large"></i></a>
-					</div><input type="text" ng-model="children.page" class="square" data-tooltiped="Actual page" /><div class="filterBar-icon tooltiped" data-tooltiped="Next page">
-						<a><i class="icon-chevron-right icon-large tooltiped" data-tooltiped="Actual page"></i></a>
-					</div>
+						</div><div class="filterBar-icon dropdown">
+							<a class="dropdown-toggle"><i class="icon-sort icon-large"></i></a>
+							<ul class="dropdown-menu">
+								<li><a ng-click="item.children.filter('order', 'desc')"><i class="icon-long-arrow-down icon-large"></i><div class="legend">Descendant</div></a></li>
+								<li><a ng-click="item.children.filter('order', 'asc')"><i class="icon-long-arrow-up icon-large"></i><div class="legend">Ascendant</div></a></li>
+							</ul>
+						</div><div
+							 class="filterBar-icon tooltiped" data-tooltiped="Previous page">
+							<a><i class="icon-chevron-left icon-large"></i></a>
+						</div><input type="text" ng-model="item.children.page" class="square" data-tooltiped="Actual page" /><div class="filterBar-icon tooltiped" data-tooltiped="Next page">
+							<a><i class="icon-chevron-right icon-large tooltiped" data-tooltiped="Actual page"></i></a>
+						</div>
 					</div>
 				</form>
-				<div ng-show="children.loading" class="children-list text-centered">
+				<div ng-show="item.children.loading" class="children-list text-centered">
 					<i class="icon-spinner icon-spin icon-large"></i>
 				</div>
-				<ul ng-show="!children.loading" class="list-item" ng-class="(childrenShown && 'closed') || 'open'">
-					<li ng-show="!children.quickview.show" ng-repeat="child in children.data">
+				<ul ng-show="!item.children.loading" class="list-item" ng-class="(item.childrenShown && 'closed') || 'open'">
+					<li ng-show="!item.children.quickview.show" ng-repeat="child in item.children.data">
 						<div ng-repeat="desc in child.relationships.describes | descLang:langFilter">
 							<a>{{desc.data.name}}</a>
 							<div class="filterBar-icon filterBar-icon-empty pull-right">
@@ -51,21 +51,21 @@
 		<div class="span4">
 			<ul class="unstyled">
 				<li class="simpleBlock" title="Informations">
-					<small>Ref. : {{itemId}}</small>
-					<div id="Address"  ng-show="address.street || address.postalCode || address.municipality || address.countryCode">
+					<small>Ref. : {{item.id}}</small>
+					<div id="Address"  ng-show="item.address.street || item.address.postalCode || item.address.municipality || item.address.countryCode">
 						<h3>Address</h3>
 						<address>
-							{{address.street}} <br />
-							{{address.postalCode}},  {{address.municipality}}, {{address.countryCode}}
+							{{item.address.street}} <br />
+							{{item.address.postalCode}},  {{item.address.municipality}}, {{item.address.countryCode}}
 						</address>
 					</div>
-					<div id="contact"  ng-show="address.telephone || address.fax || address.email || address.webpage">
+					<div id="contact"  ng-show="item.address.telephone || item.address.fax || item.address.email || item.address.webpage">
 						<h3>Contact</h3>
 						<ul class="unstyled">
-							<li ng-show="address.telephone" title="Phone"><i class="icon-phone"></i> <abbr>Tel.</abbr> {{address.telephone}}</li>
-							<li ng-show="address.fax" title="Fax"><i class="icon-print"></i> <abbr>Fax</abbr> {{address.fax}}</li>
-							<li nf-show="address.email" title="Email"><i class="icon-envelope-alt"></i> <a href="mailto:{{address.email}}">Email</a></li>
-							<li ng-show="address.webpage" title="Webpage"><i class="icon-globe"></i> <a href="{{address.webpage}}" target="_blank">Webpage</a></li>
+							<li ng-show="item.address.telephone" title="Phone"><i class="icon-phone"></i> <abbr>Tel.</abbr> {{item.address.telephone}}</li>
+							<li ng-show="item.address.fax" title="Fax"><i class="icon-print"></i> <abbr>Fax</abbr> {{item.address.fax}}</li>
+							<li nf-show="item.address.email" title="Email"><i class="icon-envelope-alt"></i> <a href="mailto:{{item.address.email}}">Email</a></li>
+							<li ng-show="item.address.webpage" title="Webpage"><i class="icon-globe"></i> <a href="{{item.address.webpage}}" target="_blank">Webpage</a></li>
 						</ul>
 					</div>
 					<div id="openingTimes" ng-show="desc.data.openingTimes">
@@ -74,11 +74,11 @@
 					</div>
 				</li>
 				<li class="ui-block">
-					<h2 class="nomargin">Available blocks<div class="pull-right"><a class="filterBar-icon" ng-click="closeAll()"><i class="icon-minus"></i></a><a class="filterBar-icon" ng-click="hideAll()"><i class="icon-remove"></i></a></div></h2>
+					<h2 class="nomargin">Available blocks<div class="pull-right"><a class="filterBar-icon" ng-click="ui.blocks.functions.toggleClose()"><i class="icon-minus"></i></a><a class="filterBar-icon" ng-click="ui.blocks.functions.toggleHide()"><i class="icon-remove"></i></a></div></h2>
 					<ul class="list-item">
-						<li ng-repeat="block in blocks" ng-show="(block.hidden)">
+						<li ng-repeat="(blockId, block) in ui.blocks.list" ng-show="(block.hidden)">
 							{{block.legend}}
-							<a ng-click="block.hidden = false;" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
+							<a ng-click="ui.blocks.functions.toggleHide(blockId)" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
 						</li>
 					</ul>
 				</li>
@@ -86,7 +86,7 @@
 					<div class="square-container">
 						<div class="square-hack"></div>
 						<div class="square-content">
-							<sap id="map" style="width:100%; height:100%; background-color:red;" data-lat="{{geoloc.lat}}" data-lon="{{geoloc.lon}}"></sap>
+							<sap id="map" style="width:100%; height:100%; background-color:red;" data-lat="{{item.geoloc.lat}}" data-lon="{{item.geoloc.lon}}"></sap>
 						</div>
 					</div>
 				</li>

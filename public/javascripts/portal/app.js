@@ -17,6 +17,7 @@ portal.
 		when('/item/cvocConcept/:itemID', {templateUrl: ANGULAR_ROOT + '/portal/view/concept.html', controller:"ConceptCtrl", resolve: Concept.resolveConcept}).
 		when('/item/country/:itemID', {templateUrl: ANGULAR_ROOT + '/portal/view/country.html', controller:"CountryCtrl", resolve: Country.resolveCountry}).
 		when('/item/documentaryUnit/:itemID', {templateUrl: ANGULAR_ROOT + '/portal/view/documentaryUnit.html', controller:"DocCtrl", resolve: Doc.resolveDoc, reloadOnSearch: false}).
+		when('/item/historicalAgent/:itemID', {templateUrl: ANGULAR_ROOT + '/portal/view/historicalAgent.html', controller:"AgentCtrl", resolve: Agent.resolveAgent, reloadOnSearch: false}).
 		when('/', {templateUrl: ANGULAR_ROOT + '/portal/view/search.html', controller:"SearchCtrl", reloadOnSearch: false}).
 		when('/', {templateUrl: ANGULAR_ROOT + '/portal/view/search.html', controller:"SearchCtrl", reloadOnSearch: false}).
 		otherwise({redirectTo: '/'});
