@@ -69,7 +69,8 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
     Secured {
-      globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
+      globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
+        .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
     }
   }
 }

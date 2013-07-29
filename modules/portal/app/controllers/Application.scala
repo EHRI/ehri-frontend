@@ -63,6 +63,7 @@ class Application @Inject()(implicit val globalConfig: global.GlobalConfig) exte
       Routes.javascriptRouter("jsRoutes")(
         controllers.portal.routes.javascript.Application.search,
         controllers.portal.routes.javascript.Application.filter,
+        Application.getType,
         UserProfiles.list,
         UserProfiles.get,
         Groups.list,
