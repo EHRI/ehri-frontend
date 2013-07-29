@@ -10,34 +10,21 @@ import play.api.i18n.Messages
 import defines._
 import collection.immutable.ListMap
 import utils.search.{SearchParams, FacetSort}
+import utils.search.Dispatcher
+import com.google.inject._
 
-
-object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
+@Singleton
+class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig) extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with VisibilityController[HistoricalAgent]
   with PermissionItemController[HistoricalAgent]
   with EntityLink[HistoricalAgent]
   with EntityAnnotate[HistoricalAgent]
   with EntitySearch {
 
-  //val targetContentTypes = Seq(ContentType.DocumentaryUnit)
-
   val entityType = EntityType.HistoricalAgent
   val contentType = ContentType.HistoricalAgent
 
   val form = models.forms.HistoricalAgentForm.form
-
-  val listFilterMappings = ListMap[String,String](
-    "name" -> s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}",
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    Isaar.HISTORY -> s"<-describes.${Isaar.HISTORY}"
-  )
-
-  val orderMappings = ListMap[String,String](
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    "name" -> "name"
-  )
-
-  val DEFAULT_SORT = s"<-describes.${Isaar.AUTHORIZED_FORM_OF_NAME}"
 
   // Documentary unit facets
   import solr.facet._
@@ -55,17 +42,6 @@ object HistoricalAgents extends CRUD[HistoricalAgentF,HistoricalAgent]
       sort = FacetSort.Name
     )
   )
-  override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
-  }
-
-  /**
-   * Child list forms are handled the same as the main one
-   * @param params
-   * @return
-   */
-  override def processChildParams(params: ListParams) = processParams(params)
-
 
   // Search params
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))

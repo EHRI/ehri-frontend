@@ -1,5 +1,5 @@
 @(item: Accessible, f: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 
 @rightSidebarLayout(Messages("actions.setVisibility"), breadcrumbs = common.breadcrumbs(List(item))) {
@@ -16,7 +16,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
             @Messages("visibility.restrictedVisibilityMessage")
             <ul>
                 @item.accessors.sortBy(_.isA).map { a =>
-                    <li><a href="@views.Helpers.urlFor(a)">@a</a></li>
+                    <li><a href="@globalConfig.routeRegistry.urlFor(a)">@a</a></li>
                 }
             </ul>
         </p>
@@ -26,7 +26,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @permissions.renderVisibilityForm(f, users, groups)
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.setVisibility"), cancel = Some(item))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.setVisibility"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
 

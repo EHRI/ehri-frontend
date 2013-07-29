@@ -3,9 +3,11 @@ package controllers.core
 import controllers.base.EntitySearch
 import play.api.mvc._
 import play.api.libs.json.Json
+import utils.search.Dispatcher
+import com.google.inject._
 
-
-object SearchFilter extends EntitySearch {
+@Singleton
+class SearchFilter @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntitySearch {
 
   val searchEntities = List() // i.e. Everything
 

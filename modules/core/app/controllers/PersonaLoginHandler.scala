@@ -8,9 +8,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsString
 
 
-object PersonaLoginHandler extends PersonaLoginHandler(play.api.Play.current)
 
-class PersonaLoginHandler(app: play.api.Application) extends LoginHandler {
+class PersonaLoginHandler(implicit val globalConfig: global.GlobalConfig) extends LoginHandler {
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
@@ -22,7 +21,7 @@ class PersonaLoginHandler(app: play.api.Application) extends LoginHandler {
   
   def loginPost = Action { implicit request =>
     val assertion: String = request.body.asFormUrlEncoded.map(
-      _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("");
+      _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("")
 
     val validate = Map("assertion" -> Seq(assertion), "audience" -> Seq(EHRI_URL))
 

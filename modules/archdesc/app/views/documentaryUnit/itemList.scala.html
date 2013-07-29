@@ -1,4 +1,4 @@
-@(page: rest.Page[DocumentaryUnit])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(page: rest.Page[DocumentaryUnit])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
 
 <ul class="unstyled">
 @page.items.map { item =>

@@ -2,14 +2,13 @@ package utils.search
 
 import concurrent.Future
 import rest.RestError
-import play.api.Plugin
 import models.UserProfile
 import defines.EntityType
 
 /**
  * User: mikebryant
  */
-trait Dispatcher extends Plugin {
+trait Dispatcher {
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String,EntityType.Value)]]]
 

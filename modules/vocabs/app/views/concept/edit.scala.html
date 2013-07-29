@@ -1,5 +1,5 @@
 @(item: Concept, f: play.api.data.Form[models.ConceptF], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -9,7 +9,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.csrfToken()
 		@concept.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateConcept"), cancel = Some(item))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateConcept"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
 

@@ -193,7 +193,9 @@ object SolrQueryBuilder {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 
-    val queryString = params.query.getOrElse("*").trim + excludeIds
+    val searchFilters = params.filters.toList.flatten.filter(_.contains(":")).map(f => " +" + f).mkString
+
+    val queryString = params.query.getOrElse("*").trim + excludeIds + searchFilters
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
 

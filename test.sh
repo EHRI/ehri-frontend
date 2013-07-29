@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export _JAVA_OPTIONS="-Xms64m -Xmx1024m -Xss2m -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M"
+
 play "test-only test.DocUnitViewsSpec" && \
 play "test-only test.DocUnitPermissionsSpec" && \
 play "test-only test.DocUnitLinkAnnotateSpec" && \

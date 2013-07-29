@@ -1,9 +1,9 @@
-@(page: rest.Page[HistoricalAgent], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[HistoricalAgent], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @import controllers.authorities.HistoricalAgents
 
 @rightSidebarLayout(Messages("actions.listHistoricalAgents")) {
-    @common.filterableList("pagination.displayingItems", page, params, HistoricalAgents.listFilterMappings.keys, HistoricalAgents.orderMappings.keys) {
+    @common.filterableList("pagination.displayingItems", page, params) {
         @historicalAgent.itemList(page)
     }
 } {

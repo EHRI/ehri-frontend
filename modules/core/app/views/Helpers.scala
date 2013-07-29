@@ -1,6 +1,6 @@
 package views
 
-import java.util.{IllformedLocaleException, Locale}
+import java.util.Locale
 
 import views.html.helper.FieldConstructor
 import models.base.AnyModel
@@ -80,22 +80,6 @@ package object Helpers {
   def ellipsize(text: String, max: Int) = StringUtils.abbreviateMiddle(text, "...", max)
 
   /**
-   * Get the URL for an unknown type of entity.
-   */
-  import global.RouteRegistry
-
-
-  def urlFor(e: AnyModel): Call
-          = RouteRegistry.urls.getOrElse(e.isA, RouteRegistry.getDefault).apply(e.id)
-
-  def urlFor(t: EntityType.Value, id: String): Call
-          = RouteRegistry.urls.getOrElse(t, RouteRegistry.getDefault).apply(id)
-
-  def optionalUrlFor(t: EntityType.Value, id: String): Option[Call]
-          = RouteRegistry.urls.get(t).map(_.apply(id))
-
-
-  /**
    * Get the display language of the given code in the current locale.
    * @param code
    * @param lang
@@ -153,20 +137,27 @@ package object Helpers {
   }
 
   /**
-   * Get the script name for a given code.
+   * Get the script name for a given code. This doesn't work with Java 6 so we have to sacrifice
+   * localised script names. On Java 7 we'd do:
+   *
+   * var tmploc = new Locale.Builder().setScript(code).build()
+   *   tmploc.getDisplayScript(lang.toLocale) match {
+   *   case d if !d.isEmpty => d
+   *   case _ => code
+   * }
+   *
    * @param code
    * @param lang
    * @return
    */
   def scriptCodeToName(code: String)(implicit lang: Lang): String = {
     try {
-      var tmploc = new Locale.Builder().setScript(code).build()
-      tmploc.getDisplayScript(lang.toLocale) match {
-        case d if !d.isEmpty => d
-        case _ => code
-      }
+      // NB: Current ignores lang...
+      utils.Data.scripts.toMap.getOrElse(code, code)
     } catch {
-      case _: IllformedLocaleException => code
+      // This should be an IllformedLocaleException
+      // but we need to work with Java 6
+      case _: Exception => code
     }
   }
 

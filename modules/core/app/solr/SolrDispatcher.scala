@@ -17,7 +17,7 @@ import com.github.seratch.scalikesolr.request.QueryRequest
  * Implements the plugin implementation so other search
  * engines/mocks can be substituted.
  */
-case class SolrDispatcher(app: play.api.Application) extends rest.RestDAO with Dispatcher {
+case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
 
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None

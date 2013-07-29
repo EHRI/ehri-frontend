@@ -13,8 +13,10 @@ import models.sql.OpenIDUser
 import play.filters.csrf.CSRF
 import controllers.base.{ControllerHelpers, AuthController}
 
+import utils.search.Dispatcher
+import com.google.inject._
 
-object Admin extends Controller with AuthController with ControllerHelpers {
+class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with ControllerHelpers {
 
   val userPasswordForm = Form(
     tuple(
@@ -141,7 +143,7 @@ object Admin extends Controller with AuthController with ControllerHelpers {
         OpenIDUser.findByEmail(email.toLowerCase).flatMap { acc =>
           acc.password.flatMap { hashed =>
             if (BCrypt.checkpw(pw, hashed)) {
-              Some(Application.gotoLoginSucceeded(acc.profile_id))
+              Some(new controllers.core.Application().gotoLoginSucceeded(acc.profile_id))
             } else {
               None
             }

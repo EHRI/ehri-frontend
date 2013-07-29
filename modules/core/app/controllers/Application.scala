@@ -4,15 +4,18 @@ import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{LoginHandler, AuthController, Authorizer}
 import models.base.AnyModel
 import models.json.RestReadable
+import global.GlobalConfig
 import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.{LoginLogout, Auth}
 import play.api.Play._
 import defines.EntityType
+import utils.search.Dispatcher
+import com.google.inject._
 
-object Application extends Controller with Auth with LoginLogout with Authorizer with AuthController {
+class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with LoginLogout with Authorizer with AuthController {
 
-  lazy val loginHandler: LoginHandler = current.plugin(classOf[LoginHandler]).get
+  lazy val loginHandler: LoginHandler = globalConfig.loginHandler
 
   def login = loginHandler.login
   def loginPost = loginHandler.loginPost
@@ -49,7 +52,7 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
             list match {
               case Nil => NotFound(views.html.errors.itemNotFound())
               case mm :: _ =>
-                views.Helpers.optionalUrlFor(mm.isA, mm.id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
+                globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
             }
           }
         }
@@ -66,7 +69,7 @@ object Application extends Controller with Auth with LoginLogout with Authorizer
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
     Secured {
-      views.Helpers.optionalUrlFor(EntityType.withName(`type`), id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
+      globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
     }
   }
 }

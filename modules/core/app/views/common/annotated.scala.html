@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AnyModel, annotations: Map[String,List[Annotation]])(body: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader)
+@(item: AnyModel, annotations: Map[String,List[Annotation]])(body: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig)
 
 @annotationList(notes: List[Annotation]) = {
     @if(!notes.isEmpty) {
@@ -10,7 +10,7 @@
         @notes.map { ann =>
             <li class="annotatable" id="@ann.id">
                 @ann.user.map { accessor =>
-                    <a href="@views.Helpers.urlFor(accessor)">@accessor.toStringLang</a> -
+                    <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a> -
                 }
                 @ann.model.body
                 @if(!ann.annotations.isEmpty) {

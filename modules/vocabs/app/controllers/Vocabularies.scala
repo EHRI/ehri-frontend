@@ -10,8 +10,11 @@ import _root_.controllers.base._
 import defines.{ContentType, EntityType}
 import scala.Some
 import utils.search.SearchParams
+import utils.search.Dispatcher
+import com.google.inject._
 
-object Vocabularies extends CRUD[VocabularyF,Vocabulary]
+@Singleton
+class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig) extends CRUD[VocabularyF,Vocabulary]
   with CreationContext[ConceptF, Concept, Vocabulary]
   with VisibilityController[Vocabulary]
   with PermissionScopeController[Vocabulary]
@@ -19,12 +22,6 @@ object Vocabularies extends CRUD[VocabularyF,Vocabulary]
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.Concept)
-
-  override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(Concepts.listFilterMappings, Concepts.orderMappings, Some(Concepts.DEFAULT_SORT))
-  }
-  override def processChildParams(params: ListParams) = Concepts.processParams(params)
-
 
   val entityType = EntityType.Vocabulary
   val contentType = ContentType.Vocabulary

@@ -15,9 +15,12 @@ import views.Helpers
 import play.api.libs.json.Json
 import utils.search.{SearchParams, FacetSort}
 import controllers.archdesc.{routes => archdescRoutes}
+import utils.search.Dispatcher
+import com.google.inject._
 
 
-object DocumentaryUnits extends EntityRead[DocumentaryUnit]
+@Singleton
+class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntityRead[DocumentaryUnit]
   with VisibilityController[DocumentaryUnit]
   with CreationContext[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]
@@ -29,8 +32,6 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnit]
   with EntityAccessPoints[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
   with EntitySearch
   with ApiBase[DocumentaryUnit] {
-
-  val DEFAULT_SORT = "name"
 
   // Documentary unit facets
   import solr.facet._
@@ -61,36 +62,6 @@ object DocumentaryUnits extends EntityRead[DocumentaryUnit]
     )
   )
 
-
-  /**
-   * Mapping between incoming list filter parameters
-   * and the data values accessed via the server.
-   */
-  val listFilterMappings: ListMap[String,String] = ListMap(
-    "name" -> "name",
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    IsadG.ARCH_HIST -> s"<-describes.${IsadG.ARCH_HIST}",
-    IsadG.SCOPE_CONTENT -> s"<-describes.${IsadG.SCOPE_CONTENT}",
-    "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
-  )
-
-  val orderMappings: ListMap[String,String] = ListMap(
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    "name" -> "name",
-    "date" -> s"->hasDate.${DatePeriodF.START_DATE}"
-  )
-
-
-  override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
-  }
-
-  /**
-   * Child list forms are handled the same as the main one
-   * @param params
-   * @return
-   */
-  override def processChildParams(params: ListParams) = processParams(params)
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
 

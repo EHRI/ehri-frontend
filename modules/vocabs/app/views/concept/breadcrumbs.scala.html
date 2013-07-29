@@ -1,3 +1,3 @@
-@(item: Concept)(implicit lang: Lang)
+@(item: Concept)(implicit lang: Lang, globalConfig: GlobalConfig)
 
 @common.breadcrumbs(item.vocabulary.toList ::: item.ancestors.reverse ::: List(item))

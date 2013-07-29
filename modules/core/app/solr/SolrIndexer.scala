@@ -15,24 +15,65 @@ import rest.RestDAO
 import play.api.Logger
 import defines.EntityType
 import play.api.i18n.Lang
-import play.api.libs.json.JsArray
-import play.api.libs.json.JsString
-import play.api.libs.json.JsBoolean
-import play.api.libs.json.JsNumber
-import play.api.libs.json.JsObject
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
+import utils.search.{IndexerResponse, Indexer}
+
+case class SolrError(msg: String, code: Int)
+object SolrError {
+  implicit val solrErrorReads = Json.reads[SolrError]
+}
+
+case class SolrHeader(status: Int, time: Int)
+object SolrHeader {
+  implicit val solrHeaderReads: Reads[SolrHeader] = (
+  (__ \ "status").read[Int] and
+  (__ \ "QTime").read[Int]
+  )(SolrHeader.apply _)
+}
+
+sealed trait SolrResponse extends IndexerResponse
+case class SolrErrorResponse(err: String) extends SolrResponse
+case class SolrUpdateResponse(responseHeader: SolrHeader, error: Option[SolrError] = None) extends SolrResponse
+object SolrUpdateResponse {
+  implicit val solrUpdateResponseReads: Reads[SolrUpdateResponse] = (
+  (__ \ "responseHeader").read[SolrHeader] and
+  (__ \ "error").readNullable[SolrError]
+  )(SolrUpdateResponse.apply _)
+}
+
+
+object SolrIndexer {
+
+  def dynamicData(js: JsObject): JsObject = Json.toJson(js.value.map { case (k,v) =>
+    dynamicFieldName(k, v) -> v
+  }.toMap).as[JsObject]
+
+  private def dynamicFieldName(key: String, jsValue: JsValue): String = {
+    jsValue match {
+      // Ugh, this is temporary hopefully...
+      case s: JsString if s == "languageCode" => key
+      case v: JsArray => key + "_ss" // Multivalue string
+      case v: JsNumber => key + "_i"  // integer ???
+      case v: JsString => key + "_t"  // Text general
+      case v: JsBoolean => key + "_b" // Boolean
+      case _ => key
+    }
+  }
+}
 
 /**
  * Object containing functions for managing the Solr index.
  * Most of this should eventually go away when we have a
  * proper external indexing service.
  */
-object SolrIndexer extends RestDAO {
+case class SolrIndexer(typeRegistry: Map[EntityType.Value, JsObject => Seq[JsObject]]) extends Indexer with RestDAO {
 
   import SolrConstants._
+  import SolrIndexer._
 
   implicit val lang: Lang = Lang.defaultLang
-
 
   // We don't need a user here yet unless we want to log
   // when the Solr index is changed.
@@ -50,24 +91,6 @@ object SolrIndexer extends RestDAO {
   /**
    * Possible responses from Solr calls.
    */
-
-  case class SolrError(msg: String, code: Int)
-  implicit val solrErrorReads = Json.reads[SolrError]
-
-  case class SolrHeader(status: Int, time: Int)
-  import play.api.libs.functional.syntax._
-  implicit val solrHeaderReads: Reads[SolrHeader] = (
-    (__ \ "status").read[Int] and
-    (__ \ "QTime").read[Int]
-  )(SolrHeader.apply _)
-
-  sealed trait SolrResponse
-  case class SolrErrorResponse(err: String) extends SolrResponse
-  case class SolrUpdateResponse(responseHeader: SolrHeader, error: Option[SolrError] = None) extends SolrResponse
-  implicit val solrUpdateResponseReads: Reads[SolrUpdateResponse] = (
-    (__ \ "responseHeader").read[SolrHeader] and
-    (__ \ "error").readNullable[SolrError]
-  )(SolrUpdateResponse.apply _)
 
   /**
    * Commit all pending docs
@@ -155,18 +178,11 @@ object SolrIndexer extends RestDAO {
   }
 
   /**
-   * Mutable map holding conversions for a JsObject for some entity type
-   * and its corresponding Solr document objects.
-   */
-  val conversionRegistry: collection.mutable.Map[EntityType.Value, JsObject => Seq[JsObject]]
-      = collection.mutable.Map.empty
-
-  /**
    * Very generic fallback Solr converter for types that haven't
    * registered their own converter.
    */
   val genericConversion: JsObject => Seq[JsObject] = { item =>
-    val data = SolrIndexer.dynamicData((item \ Entity.DATA).as[JsObject])
+    val data = dynamicData((item \ Entity.DATA).as[JsObject])
     Seq(data ++ Json.obj(
       ID -> (item \ ID),
       ITEM_ID -> (item \ ID),
@@ -187,27 +203,11 @@ object SolrIndexer extends RestDAO {
    */
   private def itemToJson(item: JsObject): Seq[JsObject] = {
     item.value.get(Entity.TYPE).map(_.as[String]).map { et =>
-      conversionRegistry.get(EntityType.withName(et)).map { func =>
+      typeRegistry.get(EntityType.withName(et)).map { func =>
         func(item)
       }.getOrElse {
         genericConversion(item)
       }
     }.getOrElse(Nil)
-  }
-
-  def dynamicData(js: JsObject): JsObject = Json.toJson(js.value.map { case (k,v) =>
-    dynamicFieldName(k, v) -> v
-  }.toMap).as[JsObject]
-
-  private def dynamicFieldName(key: String, jsValue: JsValue): String = {
-    jsValue match {
-      // Ugh, this is temporary hopefully...
-      case s: JsString if s == "languageCode" => key
-      case v: JsArray => key + "_ss" // Multivalue string
-      case v: JsNumber => key + "_i"  // integer ???
-      case v: JsString => key + "_t"  // Text general
-      case v: JsBoolean => key + "_b" // Boolean
-      case _ => key
-    }
   }
 }

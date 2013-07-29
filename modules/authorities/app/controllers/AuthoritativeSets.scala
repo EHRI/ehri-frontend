@@ -9,8 +9,11 @@ import play.api.i18n.Messages
 import defines.{ContentType, EntityType}
 import scala.Some
 import utils.search.{SearchOrder, SearchParams}
+import utils.search.Dispatcher
+import com.google.inject._
 
-object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+@Singleton
+class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with CreationContext[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with VisibilityController[AuthoritativeSet]
   with PermissionScopeController[AuthoritativeSet]
@@ -18,12 +21,6 @@ object AuthoritativeSets extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentType.HistoricalAgent)
-
-  override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(HistoricalAgents.listFilterMappings, HistoricalAgents.orderMappings, Some(HistoricalAgents.DEFAULT_SORT))
-  }
-  override def processChildParams(params: ListParams) = HistoricalAgents.processParams(params)
-
 
   val entityType = EntityType.AuthoritativeSet
   val contentType = ContentType.AuthoritativeSet

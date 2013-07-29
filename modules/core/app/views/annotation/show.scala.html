@@ -1,4 +1,4 @@
-@(item: Annotation, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: Annotation, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
@@ -13,7 +13,7 @@
 
         @item.user.map { u =>
             <h4>@Messages("link.creator")</h4>
-            <a href="@views.Helpers.urlFor(u)">@u.toStringLang</a>
+            <a href="@globalConfig.routeRegistry.urlFor(u)">@u.toStringLang</a>
         }
     }
 } {

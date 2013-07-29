@@ -15,7 +15,8 @@ case class SearchParams(
   reverse: Option[Boolean] = Some(false),
   entities: List[EntityType.Value] = Nil,
   fields: Option[List[String]] = None,
-  excludes: Option[List[String]] = None
+  excludes: Option[List[String]] = None,
+  filters: Option[List[String]] = None
 ) {
 
   /**
@@ -32,7 +33,8 @@ case class SearchParams(
       reverse = reverse orElse d.reverse,
       entities = if (entities.isEmpty) d.entities else entities,
       fields = fields orElse d.fields,
-      excludes = excludes orElse d.excludes
+      excludes = excludes orElse d.excludes,
+      filters = filters orElse d.filters
     )
     case None => this
   }
@@ -81,6 +83,7 @@ object SearchParams {
   final val FIELD = "qf"
   final val ENTITY = "st"
   final val EXCLUDE = "ex"
+  final val FILTERS = "f"
 
   import play.api.data.Forms._
   import play.api.data.Form
@@ -94,7 +97,8 @@ object SearchParams {
       REVERSE -> optional(boolean),
       ENTITY -> list(models.forms.enum(EntityType)),
       FIELD -> optional(list(nonEmptyText)),
-      EXCLUDE -> optional(list(nonEmptyText))
+      EXCLUDE -> optional(list(nonEmptyText)),
+      FILTERS -> optional(list(nonEmptyText))
     )(SearchParams.apply _)(SearchParams.unapply _)
   )
 

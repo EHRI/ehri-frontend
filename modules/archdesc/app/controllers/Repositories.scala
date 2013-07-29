@@ -13,8 +13,11 @@ import play.filters.csrf.CSRF.Token
 import collection.immutable.ListMap
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}
+import utils.search.Dispatcher
+import com.google.inject._
 
-object Repositories extends EntityRead[Repository]
+@Singleton
+class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntityRead[Repository]
   with EntityUpdate[RepositoryF, Repository]
   with EntityDelete[Repository]
   with CreationContext[DocumentaryUnitF,DocumentaryUnit, Repository]
@@ -28,16 +31,6 @@ object Repositories extends EntityRead[Repository]
 
   }*/
 
-  val listFilterMappings = ListMap[String,String](
-    "name" -> "name",
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    Isdiah.GEOCULTURAL_CONTEXT -> s"<-describes.${Isdiah.GEOCULTURAL_CONTEXT}"
-  )
-
-  val orderMappings = ListMap[String,String](
-    Entity.IDENTIFIER -> Entity.IDENTIFIER,
-    "name" -> "name"
-  )
   val DEFAULT_SORT = "name"
 
   // Documentary unit facets
@@ -67,10 +60,7 @@ object Repositories extends EntityRead[Repository]
     )
   )
 
-  override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(listFilterMappings, orderMappings, Some(DEFAULT_SORT))
-  }
-  override def processChildParams(params: ListParams) = DocumentaryUnits.processChildParams(params)
+  //override def processChildParams(params: ListParams) = DocumentaryUnits.processChildParams(params)
 
 
   val targetContentTypes = Seq(ContentType.DocumentaryUnit)
@@ -87,7 +77,6 @@ object Repositories extends EntityRead[Repository]
   def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.repository.search(page, params, facets, controllers.archdesc.routes.Repositories.search))
-
   }
 
   /**

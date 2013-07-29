@@ -1,5 +1,5 @@
 @(item: Accessible, itemPage: rest.Page[PermissionGrant], scopePage: rest.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(
-    implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

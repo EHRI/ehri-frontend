@@ -1,5 +1,5 @@
 @(item: HistoricalAgent, f: play.api.data.Form[HistoricalAgentF], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -13,7 +13,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Fl
         @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
         </fieldset>
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateHistoricalAgent"), cancel = Some(item))
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateHistoricalAgent"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
     }
 } {
     @formNav()

@@ -1,10 +1,11 @@
 package controllers.base
 
-import play.Plugin
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.{LoginLogout,Auth}
 
-trait LoginHandler extends Plugin with Controller with Auth with LoginLogout with Authorizer {
+trait LoginHandler extends Controller with Auth with LoginLogout with Authorizer {
+
+  implicit val globalConfig: global.GlobalConfig
 
   def login: Action[play.api.mvc.AnyContent]
   def loginPost: Action[play.api.mvc.AnyContent]

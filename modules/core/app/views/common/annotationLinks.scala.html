@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: AnyModel, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader)
+@(item: AnyModel, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig)
 
 @**
   Get the "other" item in this link's targets.
@@ -23,7 +23,7 @@
                 @annotationLinks.map { link =>
                     @opposingTarget(item, link).map { other =>
                         <li class="resolved-access-point">
-                            <a href="@views.Helpers.urlFor(other)">@other.toStringLang</a>
+                            <a href="@globalConfig.routeRegistry.urlFor(other)">@other.toStringLang</a>
                             <a class="alt" href="@controllers.core.routes.Links.getAndRedirect(link.id, Some(item.id))">
                                 &times;
                             </a>

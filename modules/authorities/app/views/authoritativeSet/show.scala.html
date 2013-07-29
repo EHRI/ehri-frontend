@@ -1,4 +1,4 @@
-@(item: AuthoritativeSet, page: utils.search.ItemPage[(AnyModel, String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(item: AuthoritativeSet, page: utils.search.ItemPage[(AnyModel, String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 

@@ -1,4 +1,4 @@
-@(page: rest.Page[SystemEvent], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(page: rest.Page[SystemEvent], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listSystemEvents")) {
 
@@ -18,7 +18,7 @@
             <small>
                 <ul class="unstyled muted inline inline-separator">
                     @item.actioner.map { accessor =>
-                        <li><a class="alt" href="@views.Helpers.urlFor(accessor)">@accessor.toStringLang</a></li>
+                        <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
                     }
                     <li>@views.Helpers.prettyDate(item.model.timestamp)</li>
                 </ul>

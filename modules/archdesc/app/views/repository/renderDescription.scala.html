@@ -1,4 +1,4 @@
-@(item: Repository, desc: RepositoryDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, fieldPrefix: String)
+@(item: Repository, desc: RepositoryDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, fieldPrefix: String)
 
 @import Isdiah._
 @import common.descriptionSection

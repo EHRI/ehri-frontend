@@ -5,9 +5,10 @@ import models.SystemEvent
 import controllers.base.EntityRead
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.ListParams
+import com.google.inject._
+import global.GlobalConfig
 
-
-object SystemEvents extends EntityRead[SystemEvent] {
+class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
   val entityType = EntityType.SystemEvent
   val contentType = ContentType.SystemEvent
 
