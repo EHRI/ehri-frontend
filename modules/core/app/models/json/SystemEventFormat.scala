@@ -6,7 +6,7 @@ import play.api.libs.functional.syntax._
 import defines.{EntityType,EventType}
 import defines.EnumUtils._
 import org.joda.time.DateTime
-import models.base.AnyModel
+import models.base.{Accessor, AnyModel}
 
 
 object SystemEventFormat {
@@ -46,7 +46,7 @@ object SystemEventFormat {
     __.read[SystemEventF] and
     (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
       Reads.list(AnyModel.Converter.restReads)).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadNullable[List[UserProfile]](
-      Reads.list(UserProfileFormat.metaReads)).map(_.flatMap(_.headOption))
+    (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadNullable[List[Accessor]](
+      Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption))
   )(SystemEvent.apply _)
 }

@@ -1,6 +1,6 @@
 package models
 
-import models.base.{AnyModel, Model, MetaModel}
+import models.base.{Accessor, AnyModel, Model, MetaModel}
 import org.joda.time.DateTime
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import defines.{EntityType, EventType}
@@ -41,7 +41,7 @@ object SystemEvent {
     implicit val clientFormat: Format[SystemEvent] = (
       __.format[SystemEventF](SystemEventF.Converter.clientFormat) and
       (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat)
+      (__ \ "user").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat)
     )(SystemEvent.apply _, unlift(SystemEvent.unapply _))
   }
 }
@@ -49,7 +49,7 @@ object SystemEvent {
 case class SystemEvent(
   model: SystemEventF,
   scope: Option[AnyModel] = None,
-  actioner: Option[UserProfile] = None
+  actioner: Option[Accessor] = None
 ) extends AnyModel
   with MetaModel[SystemEventF] {
 
