@@ -71,9 +71,9 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http
 			resetCompared : function() {// Reset compared array in params using compared.data object loop
 				this.params.compared = [];
 				angular.forEach($scope.ui.compare.data, function(value, key) {
-					this.params.compared.push(key);
+					$scope.ui.url.params.compared.push(key);
 				});
-				this.setUrl();
+				this.set();
 			},
 			set : function () { // Set search params in Url
 				$location.search(this.params);
@@ -90,9 +90,9 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http
 					$scope.item.desc.load(); 
 				}
 				if (this.params.compared) { //If we got compared params, we erase previous loaded stuff and load their desc
-					$scope.ui.compared.data = {};
+					$scope.ui.compare.data = {};
 					angular.forEach(this.params.compared, function(value, key) {
-						$scope.ui.compared.load(value);
+						$scope.ui.compare.load(value);
 					});
 				}
 			} // End setFromUrl
@@ -100,11 +100,13 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http
 		compare : { // Compare part of UI
 			data: {}, //Compared data
 			load: function(itemId) { // Load a description for a compared item
-				$http.get('./api/documentaryUnit/'+itemId).success(function(data) {
-					$scope.ui.compare.data[itemId] = data;
-					$scope.ui.compare.data[itemId].color = $scope.ui.compare.color();
-					if(!$scope.ui.compare.data[itemId]) { $scope.ui.url.resetCompared(); }
-				});
+				if(!$scope.ui.compare.data[itemId])	{
+					$http.get('./api/documentaryUnit/'+itemId).success(function(data) {
+						$scope.ui.compare.data[itemId] = data;
+						$scope.ui.compare.data[itemId].color = $scope.ui.compare.color();
+						$scope.ui.url.resetCompared();
+					});
+				}
 			},
 			remove: function (descId) {
 				delete this.data[descId];
@@ -124,9 +126,11 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http
 	};
 	
 	//Watch url changes
+	/*
 	$scope.$on('$routeUpdate', function(){
 		$scope.ui.url.get();
 	});
+	*/
 	
 	//Launch Page
 	$scope.item.desc.load();

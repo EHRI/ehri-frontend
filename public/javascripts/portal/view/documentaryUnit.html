@@ -30,7 +30,7 @@
 						<a class="filterBar-icon" ng-click="item.desc.set(desc.id)"><i class="icon-chevron-right"></i></a>
 						</li>
 					</ul>
-					<ul class="list-item" ng-repeat="comparedItem in item.ui.compare.data">
+					<ul class="list-item" ng-repeat="comparedItem in ui.compare.data">
 						<li ng-repeat="desc in comparedItem.relationships.describes">
 						{{desc.data.languageCode}} - {{desc.data.name}}
 						<a class="filterBar-icon" ng-click="ui.compare.remove(comparedItem.id)"><i class="icon-remove"></i></a>
