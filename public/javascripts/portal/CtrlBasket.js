@@ -10,7 +10,7 @@ var Ba = portal.controller('BasketCtrl', ['$scope', '$filter', 'myBasketService'
 				$scope.basket.content.push(data);
 				if(($scope.basket.raw.length - parseInt(id)) > 0)	{ //We load next item if there is one
 					var next = 1 + parseInt(id) ;
-					$scope.load(next);
+					$scope.basket.load(next);
 				}
 				else {
 					$scope.ui.general.loading = false;

@@ -1,4 +1,4 @@
-<div class="navbar navbar-fixed-top">
+<div class="navbar navbar-fixed-top" ng-controller="headerCtrl">
 	<img src="/assets/images/logo2.png" alt="EHRI" class="pull-left navbar-fixed-top-picture" />
 	<div class="navbar-inner">
 		<ul class="nav">
@@ -10,6 +10,7 @@
 			<li>
 				<a class="orange" href="#/basket">
 					<i class="icon-shopping-cart"></i>	Basket
+					<span class="badge badge-warning" ng-show="(ui.basket.size.val > 0)">{{ui.basket.size.val}}</span>
 				</a>
 			</li>
 			<li>
@@ -24,9 +25,9 @@
 			</li>
 		</ul>
 		<div class="pull-right flat-form ">
-			<input class="input" type="text" name="search-query" placeholder="Quick search" ng-class="(topFormShow && 'open')"/><a class="icon" ng-click="topFormShow = !topFormShow;">
+			<form ng-submit="ui.search.submit()" class="quick-search"><input class="input" type="text" ng-model="searchTerm" placeholder="Quick search" ng-class="(topFormShow && 'open')"/><a class="icon" ng-click="topFormShow = !topFormShow;">
 				<i class="icon-large icon-search"></i>
-			</a><div class="menu-container" >
+			</a></form><div class="menu-container" >
 				<a class="icon" ng-click="topLoginShow = !topLoginShow;"><i class="icon-large icon-signin"></i></a>
 				<div class="login-menu" ng-class="(topLoginShow && 'open')">
 					<a class="icon"><i class="icon-large icon-google-plus"></i>

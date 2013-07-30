@@ -40,7 +40,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 				}
 			}
 		},
-		search: {	//Quick Search Module
+		search: {
 			/*advanced : function (input) {	//Parse the query for advanced use of research
 				//console.log("checking advanced us of input in "+input);
 				var regexp = {
