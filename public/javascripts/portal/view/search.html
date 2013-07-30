@@ -5,55 +5,55 @@
 		
 			<article>
 					<header>
-					<form class="search-bar">
-						<nav class="navbar">
-							<div class="navbar-inner">
-								<ul class="nav">
-									<li class="dropdown">
-										<a class="dropdown-toggle"><i class="icon-sort-by-order"></i> Sort</a> 
-										<ul class="dropdown-menu">
-											<li>
-												<a ng-click="ui.search.filter.set('sort', 'score.desc')"> Relevance </a>
-												<a ng-click="ui.search.filter.set('sort', 'name_sort.desc')"> Name </a>
-												<a ng-click="ui.search.filter.set('sort', 'lastUpdated.desc')"> Recently Updated </a>
-											</li>
-										</ul>
-									</li>
-									<li ng-repeat="facet in ui.search.facets" ng-show="facet.count > 1"  class="dropdown">
-										<a class="dropdown-toggle"><i class="icon-{{facet.param}}"></i> {{(searchParams[facet.param]) || facet.name}}</a> 
-										<ul class="dropdown-menu">
-											<li ng-click="removeFilterByKey(facet.param)"><a>All</a></li>
-											<li ng-repeat="option in facet.facets.0" ng-show="option.count != 0" ng-click="ui.search.filter.set(facet.param, option.param)" ng-class="(option.applied && 'disabled')">
-												<a>{{option.param}} ({{option.count}})</a>
-											</li>
-										</ul>
-									</li>
-								</ul>
-								<ul class="nav pull-right">
-									<li><a ng-click="ui.map.activate()"><i class="icon-map-marker"></i> Activate map</a></li>
-								</ul>
+						<div class="search-bar">
+							<nav class="navbar">
+								<div class="navbar-inner">
+									<ul class="nav">
+										<li class="dropdown">
+											<a class="dropdown-toggle"><i class="icon-sort-by-order"></i> Sort</a> 
+											<ul class="dropdown-menu">
+												<li>
+													<a ng-click="ui.search.filter.set('sort', 'score.desc')"> Relevance </a>
+													<a ng-click="ui.search.filter.set('sort', 'name_sort.desc')"> Name </a>
+													<a ng-click="ui.search.filter.set('sort', 'lastUpdated.desc')"> Recently Updated </a>
+												</li>
+											</ul>
+										</li>
+										<li ng-repeat="facet in ui.search.facets" ng-show="facet.count > 1"  class="dropdown">
+											<a class="dropdown-toggle"><i class="icon-{{facet.param}}"></i> {{(searchParams[facet.param]) || facet.name}}</a> 
+											<ul class="dropdown-menu">
+												<li ng-click="ui.search.filter.remove(facet.param)"><a>All</a></li>
+												<li ng-repeat="option in facet.facets.0" ng-show="option.count != 0" ng-click="ui.search.filter.set(facet.param, option.param)" ng-class="(option.applied && 'disabled')">
+													<a>{{option.param}} ({{option.count}})</a>
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<ul class="nav pull-right">
+										<li><a ng-click="ui.map.activate()"><i class="icon-map-marker"></i> Activate map</a></li>
+									</ul>
+								</div>
+							</nav>
 							</div>
-						</nav>
+							
 						</div>
-						
-					</form>
-					<div class="container">
-						<div class="row">
-							<form class="filterBar" ng-submit="ui.search.filter.set('q', searchTerm)">
-								<input type="text" class="filterBar-input span8 open" style="width:80%; padding-left:10px;" ng-change="ui.search.input()" ng-model="searchTerm" placeholder="Type your query here"/><div class="filterBar-icon">
-									<a ng-click="ui.search.filter.set('q', searchTerm)"><i class="icon-search"></i></a></div><div class="filterBar-icon" ng-class="{'desactivated':ui.search.auto==false}">
-									<a ng-click="ui.search.auto = !ui.search.auto;"><i class="icon-refresh"></a></i></div>
-							</form>
-							<p class="muted" ng-show="(bla)">
-								<small>
-									<em>
-										Displaying item {{(page.offset + 1)}} to {{page.limit + page.offset}} of {{page.total}}
-									</em>
-								</small>
-							</p>
+						<div class="container">
+							<div class="row">
+								<form class="filterBar" ng-submit="ui.search.filter.set('q', searchTerm)">
+									<input type="text" class="filterBar-input span8 open" style="width:80%; padding-left:10px;" ng-change="ui.search.input()" ng-model="searchTerm" placeholder="Type your query here"/><div class="filterBar-icon">
+										<a ng-click="ui.search.filter.set('q', searchTerm)"><i class="icon-search"></i></a></div><div class="filterBar-icon" ng-class="{'desactivated':ui.search.auto==false}">
+										<a ng-click="ui.search.auto = !ui.search.auto;"><i class="icon-refresh"></a></i></div>
+								</form>
+								<p class="muted" ng-show="(bla)">
+									<small>
+										<em>
+											Displaying item {{(page.offset + 1)}} to {{page.limit + page.offset}} of {{page.total}}
+										</em>
+									</small>
+								</p>
+							</div>
+							
 						</div>
-						
-					</div>
 					</header>
 					<div class="container-fluid">
 						<div class="row-fluid">
@@ -78,13 +78,13 @@
 											<header>
 												<a ng-show="desc.data.name" href="#/item/{{item.type}}/{{item.id}}"><b>{{desc.data.name}}</b></a> 
 												<span class="filterBar filterBar-inline pull-right">
-													<a class="filterBar-icon" title="Add to basket" ng-click="addBasket(item)">
+													<a class="filterBar-icon" title="Add to basket" ng-click="ui.basket.add(item)">
 														<i class="icon-bookmark"></i>
 													</a>
 													<a class="filterBar-icon" title="Drag this item" drag="item" dragStyle="drag">
 														<i class="icon-move"></i>
 													</a>
-													<a ng-show="map.activated" class="filterBar-icon" title="See on map" ng-click="map.addMarker(item, desc.data.name, item.id)">
+													<a ng-show="map.activated" class="filterBar-icon" title="See on map" ng-click="map.marker.add(item, desc.data.name, item.id)">
 														<i class="icon-map-marker"></i>
 													</a>
 												</span>
@@ -111,7 +111,7 @@
 										</div>
 									</article>
 								</div>
-								<div ng-show="loadingPage" class="well" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></div>
+								<div ng-show="ui.general.loading" class="well" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></div>
 							</div>
 							<div ng-class="(map.activated && 'span3') || 'span2'">
 								&nbsp;

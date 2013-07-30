@@ -16,7 +16,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	$scope.ui = {
 		general: {	//General params, such as default language
 			lang: "en",	//Default language for descriptions
-			loading: true // If data are being loaded (previously loadingPage)
+			loading: false // If data are being loaded (previously loadingPage)
 		},
 		pagination : {
 			available: false, //Number of available pages for said query (previously numPages)
@@ -41,7 +41,24 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 			}
 		},
 		search: {	//Quick Search Module
+			/*advanced : function (input) {	//Parse the query for advanced use of research
+				//console.log("checking advanced us of input in "+input);
+				var regexp = {
+					type : /TYPE\(([A-z]+)\)/,
+					sort : /SORT\(([A-z]+)\)/
+				}
+				//console.log(regexp);
+				angular.forEach(regexp, function(value, key) {
+					//console.log("Checking with regexp "+key+" for "+input);
+					r = new RegExp(value);
+					results = r.exec(input);
+					if(results != null) {
+						$scope.ui.search.filter.set(key, results[1]);
+					}
+				});
+			},*/
 			input : function () {	//Function triggered on ng-change for  searchTerm
+				//this.advanced($scope.searchTerm);
 				if(this.auto) {
 					this.filter.set('q', $scope.searchTerm);
 				} else {
@@ -81,6 +98,9 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 					//Stop loading
 					$scope.ui.general.loading = false;
 					//console.log($scope.results);
+					
+					//Refreshing url
+					$scope.ui.url.set();
 				});
 				//Set the current page id on first child of scope.results.pages.X
 				//$scope.results.pages[$scope.ui.search.params.page].items[0].page = $scope.ui.search.params.page;	
@@ -112,16 +132,16 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 					$scope.ui.search.get();	//Refresh data
 					this.last = key;
 				},
-				remove : function(value) {	//Remove a filter
+				remove : function(key) {	//Remove a filter
 					delete $scope.ui.search.params[key];
-					$scope.ui.url.set();
+					$scope.ui.url.set();	//Change url
+					$scope.ui.search.get();	//Get the search
 					//Need to update url
 				},
 				last : false //For debugging, if last filter causes bug				
 			},
 			url : function(url) {	//Set the API search url
 				url = url + '?';	//Add question mark
-				
 				var urlArr = [];
 				angular.forEach($scope.ui.search.params, function(value, key) {
 					urlArr.push(key + "=" + value);
@@ -133,12 +153,23 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 		url : {	//Url for browser functions
 			params : $location.search(),	//Search params in url
 			set : function () { // Set search params in Url
-				$location.search(this.params);
+				$location.search($scope.ui.search.params);
+			},
+			check: function () {	//Check if search data has been put in URL
+				if(!isEmptyObject($location.search())) {	//If we have some datas in url for search
+					this.get();
+					$scope.ui.search.get();
+				}
 			},
 			get: function () {	//Get search params through url
 				this.params = $location.search();
 				angular.forEach($scope.ui.url.params, function(value, key) {
 					$scope.ui.search.params[key] = value;
+					
+					
+					if(key == "q") { 	//We update the input
+						$scope.searchTerm = value;
+					}
 				});
 			}
 		},
@@ -200,4 +231,5 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 	*/
 	//$scope.fromSearch();
 	//$scope.doSearch();
+	$scope.ui.url.check();
 }]);
