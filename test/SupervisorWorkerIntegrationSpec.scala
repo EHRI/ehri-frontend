@@ -7,6 +7,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import defines._
 import rest.EntityDAO
+import mocks.MockUser
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -20,7 +21,7 @@ import rest.EntityDAO
  *  - check that these perms are respected
  */
 class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[SupervisorWorkerIntegrationSpec]) {
-  import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
+  import mocks.{privilegedUser,unprivilegedUser}
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
@@ -147,8 +148,8 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val headArchivistProfile = haFetchProfile.right.get
 
       // Add their account to the mocks
-      val haAccount = new models.sql.OpenIDUser(1L, "head-archivist@example.com", headArchivistUserId)
-      mocks.UserFixtures.all.append(haAccount)
+      val haAccount = MockUser("head-archivist@example.com", headArchivistUserId)
+      mocks.userFixtures.put(haAccount.profile_id, haAccount)
 
 
       // Now create a new user and add them to the archivists group. Do this
@@ -179,8 +180,8 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val archivistProfile = aFetchProfile.right.get
 
       // Add the archivists group to the account mocks
-      val aAccount = new models.sql.OpenIDUser(2L, "archivist1@example.com", archivistUserId)
-      mocks.UserFixtures.all.append(aAccount)
+      val aAccount = MockUser("archivist1@example.com", archivistUserId)
+      mocks.userFixtures.put(aAccount.profile_id, aAccount)
 
 
       // Check each user can read their profile as themselves...

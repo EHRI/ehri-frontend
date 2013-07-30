@@ -9,14 +9,16 @@ import defines.{EntityType, PermissionType, ContentType}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
 import models.{UserProfile, UserProfileF}
-import models.sql.OpenIDUser
 import play.filters.csrf.CSRF
 import controllers.base.{ControllerHelpers, AuthController}
 
-import utils.search.Dispatcher
 import com.google.inject._
+import play.api.data.FormError
+import play.api.mvc.AsyncResult
 
 class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with ControllerHelpers {
+
+  lazy val userDAO: models.sql.UserDAO = play.api.Play.current.plugin(classOf[models.sql.UserDAO]).get
 
   val userPasswordForm = Form(
     tuple(
@@ -57,7 +59,8 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
       implicit userOpt => implicit request =>
     val csrf = CSRF.getToken(request)
     getGroups { groups =>
-      Ok(views.html.admin.createUser(userPasswordForm, groupMembershipForm, groups, routes.Admin.createUserPost))
+      Ok(views.html.admin.createUser(userPasswordForm, groupMembershipForm, groups,
+        controllers.core.routes.Admin.createUserPost))
     }
   }
 
@@ -90,18 +93,18 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
       errorForm => {
         getGroups { groups =>
           Ok(views.html.admin.createUser(errorForm, groupMembershipForm.bindFromRequest,
-              groups, routes.Admin.createUserPost))
+              groups, controllers.core.routes.Admin.createUserPost))
         }
       },
       values => {
         val (email, username, name, pw, _) = values
         // check if the email is already registered...
-        OpenIDUser.findByEmail(email.toLowerCase).map { account =>
+        userDAO.findByEmail(email.toLowerCase).map { account =>
           val errForm = userPasswordForm.bindFromRequest
             .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.profile_id)))
           getGroups { groups =>
             BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
-                groups, routes.Admin.createUserPost))
+                groups, controllers.core.routes.Admin.createUserPost))
           }
         } getOrElse {
           // It's not registered, so create the account...
@@ -110,7 +113,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
           val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
 
           createUserProfile(user, groups) { profile =>
-            OpenIDUser.create(email.toLowerCase, profile.id).map { account =>
+            userDAO.create(email.toLowerCase, profile.id).map { account =>
               account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
               // Final step, grant user permissions on their own account
               grantOwnerPerms(profile) {
@@ -129,18 +132,18 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   }
 
   def passwordLogin = Action { implicit request =>
-    Ok(views.html.pwLogin(passwordLoginForm, routes.Admin.passwordLoginPost))
+    Ok(views.html.pwLogin(passwordLoginForm, controllers.core.routes.Admin.passwordLoginPost))
   }
 
   def passwordLoginPost = Action { implicit request =>
-    val action = routes.Admin.passwordLoginPost
+    val action = controllers.core.routes.Admin.passwordLoginPost
     passwordLoginForm.bindFromRequest.fold(
       errorForm => {
         BadRequest(views.html.pwLogin(errorForm, action))
       },
       data => {
         val (email, pw) = data
-        OpenIDUser.findByEmail(email.toLowerCase).flatMap { acc =>
+        userDAO.findByEmail(email.toLowerCase).flatMap { acc =>
           acc.password.flatMap { hashed =>
             if (BCrypt.checkpw(pw, hashed)) {
               Some(new controllers.core.Application().gotoLoginSucceeded(acc.profile_id))
@@ -149,7 +152,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
             }
           }
         } getOrElse {
-          Redirect(routes.Admin.passwordLogin).flashing("error" -> Messages("login.badUsernameOrPassword"))
+          Redirect(controllers.core.routes.Admin.passwordLogin).flashing("error" -> Messages("login.badUsernameOrPassword"))
         }
       }
     )
@@ -159,19 +162,19 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   // Allow a logged-in user to change their account password.
   //
   def changePassword = userProfileAction { implicit user => implicit request =>
-    Ok(views.html.pwChangePassword(changePasswordForm, routes.Admin.changePasswordPost))
+    Ok(views.html.pwChangePassword(changePasswordForm, controllers.core.routes.Admin.changePasswordPost))
   }
 
   def changePasswordPost = userProfileAction { implicit user => implicit request =>
     changePasswordForm.bindFromRequest.fold(
       errorForm => {
-        BadRequest(views.html.pwChangePassword(errorForm, routes.Admin.changePasswordPost))
+        BadRequest(views.html.pwChangePassword(errorForm, controllers.core.routes.Admin.changePasswordPost))
       },
       data => {
         val (current, pw, _) = data
         user.flatMap(_.account.map(_.email)).flatMap { email =>
           println("Finding by email: " + email)
-          OpenIDUser.findByEmail(email.toLowerCase).flatMap { acc =>
+          userDAO.findByEmail(email.toLowerCase).flatMap { acc =>
             acc.password.flatMap { hashed =>
               if (BCrypt.checkpw(current, hashed)) {
                 acc.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))
@@ -182,7 +185,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
             }
           }
         } getOrElse {
-          Redirect(routes.Admin.changePassword).flashing("error" -> Messages("login.badUsernameOrPassword"))
+          Redirect(controllers.core.routes.Admin.changePassword).flashing("error" -> Messages("login.badUsernameOrPassword"))
         }
       }
     )

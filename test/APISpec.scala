@@ -14,7 +14,7 @@ import controllers.base.{EntityAnnotate, AccessPointLink}
  */
 class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
 
-  import mocks.UserFixtures.{privilegedUser, unprivilegedUser}
+  import mocks.privilegedUser
 
   "Link JSON endpoints" should {
     "allow creating and reading" in new FakeApp {

@@ -1,9 +1,7 @@
 package helpers
 
-import controllers.routes
 import globalconfig.RunConfiguration
 import play.api.http.{MimeTypes, HeaderNames}
-import play.api.test.FakeApplication
 import play.api.test.FakeRequest
 import play.api.test.Helpers.POST
 import play.api.test.Helpers.header
@@ -13,11 +11,16 @@ import play.filters.csrf.{CSRFFilter, CSRF}
 import play.filters.csrf.CSRF.Token
 import models.sql.{User, OpenIDUser}
 import org.mindrot.jbcrypt.BCrypt
-import mocks.{MockSearchIndexer, UserFixtures}
+import mocks.userFixtures
 import models.json.Utils
 import global.{MenuConfig, GlobalConfig}
 import controllers.base.LoginHandler
 import utils.search.{Indexer, Dispatcher}
+import play.api.Play._
+import scala.Some
+import mocks.MockSearchIndexer
+import play.api.test.FakeApplication
+import com.tzavellas.sse.guice.ScalaModule
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -38,15 +41,11 @@ trait TestLoginHelper {
     val loginHandler: LoginHandler = new mocks.MockLoginHandler
   }
 
+  /**
+   * A Global object that loads fixtures on application start.
+   */
   def getGlobal: GlobalSettings = {
-    /**
-     * A Global object that loads fixtures on application start.
-     */
-    object FakeGlobal extends CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings {
-
-      import com.tzavellas.sse.guice.ScalaModule
-      import utils.search.Dispatcher
-
+    new CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings {
       class TestModule extends ScalaModule {
         def configure() {
           bind[GlobalConfig].toInstance(TestConfig)
@@ -66,10 +65,10 @@ trait TestLoginHelper {
         // Workaround for issue #845
         app.routes
         Utils.registerModels
+
         super.onStart(app)
       }
     }
-    FakeGlobal
   }
 
   /**
@@ -86,12 +85,7 @@ trait TestLoginHelper {
     )
   }
 
-  def getConfig = Map(
-    "db.default.driver" -> "org.h2.Driver",
-    "db.default.url" -> "jdbc:h2:mem:play",
-    "db.default.user" -> "sa",
-    "db.default.password" -> ""
-  )
+  def getConfig = Map()
 
   /**
    * Get a set of plugins necessary to enable to desired login method.
@@ -183,7 +177,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
       app.routes
 
       // Initialize user fixtures
-      UserFixtures.all.map { user =>
+      userFixtures.values.map { user =>
         OpenIDUser.findByProfileId(user.profile_id) orElse OpenIDUser.create(user.email, user.profile_id).map { u =>
           u.setPassword(BCrypt.hashpw(testPassword, BCrypt.gensalt()))
         }

@@ -12,7 +12,7 @@ import rest.EntityDAO
  * Spec to test various page views operate as expected.
  */
 class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
-  import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
+  import mocks.{privilegedUser,unprivilegedUser}
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),

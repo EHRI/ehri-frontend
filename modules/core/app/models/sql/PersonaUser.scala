@@ -16,10 +16,9 @@ case class PersonaUser(profile_id: String, email: String) extends User {
     res == 1
   }
 
-  // TODO: Refactor accounts so we don't need this.
-  def updatePassword(hashed: String): PersonaUser = {
-    throw new UnsupportedOperationException("Unable to set Persona account password directly.")
-  }
+  // Unsupported operations
+  def setPassword(data: String) = ???
+  def updatePassword(data: String) = ???
 }
 
 object PersonaUser extends UserDAO {
@@ -45,7 +44,7 @@ object PersonaUser extends UserDAO {
     ).on('profile_id -> profile_id).as(PersonaUser.simple.singleOpt)
   }
   
-  def authenticate(email: String): Option[PersonaUser] = DB.withConnection { implicit connection =>
+  def findByEmail(email: String): Option[PersonaUser] = DB.withConnection { implicit connection =>
     SQL(
       """
         SELECT * FROM users WHERE email = {email}
@@ -53,7 +52,7 @@ object PersonaUser extends UserDAO {
     ).on('email -> email).as(PersonaUser.simple.singleOpt)
   } 
 
-  def create(profile_id: String, email: String): Option[User] = DB.withConnection { implicit connection =>
+  def create(email: String, profile_id: String): Option[User] = DB.withConnection { implicit connection =>
     SQL(
       """INSERT INTO users (profile_id, email) VALUES ({profile_id},{email})"""
     ).on('profile_id -> profile_id, 'email -> email).executeUpdate
@@ -63,4 +62,6 @@ object PersonaUser extends UserDAO {
 
 class PersonaUserDAOPlugin(app: play.api.Application) extends UserDAO {
   def findByProfileId(profile_id: String) = PersonaUser.findByProfileId(profile_id)
+  def findByEmail(email: String) = PersonaUser.findByEmail(email)
+  def create(email: String, profile_id: String) = PersonaUser.create(email, profile_id)
 }

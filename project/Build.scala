@@ -15,7 +15,12 @@ object ApplicationBuild extends Build {
   val appName = "docview"
   val appVersion = "1.0-SNAPSHOT"
 
-  javaOptions in test += "-Xmx8G"
+  javaOptions in Test ++= Seq(
+    "-Xmx8G",
+    "-XX:+CMSClassUnloadingEnabled",
+    "-XX:MaxPermSize=256M",
+    "-Dconfig.file=conf/test.conf"
+  )
 
 
   val appDependencies = Seq(
@@ -32,6 +37,7 @@ object ApplicationBuild extends Build {
 
     "jp.t2v" %% "play21.auth" % "0.6",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
+    "mysql" % "mysql-connector-java" % "5.1.25",
     "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4",
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",

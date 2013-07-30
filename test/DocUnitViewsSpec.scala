@@ -12,7 +12,7 @@ import play.api.http.{MimeTypes, HeaderNames}
 
 
 class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
-  import mocks.UserFixtures.{privilegedUser, unprivilegedUser}
+  import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),

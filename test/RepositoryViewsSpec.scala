@@ -11,7 +11,7 @@ import defines._
  * Created by mike on 05/06/13.
  */
 class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
-  import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
+  import mocks.{privilegedUser,unprivilegedUser}
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(

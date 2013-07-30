@@ -7,6 +7,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import defines._
 import rest.EntityDAO
+import mocks.MockUser
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -22,7 +23,7 @@ import rest.EntityDAO
  *  - check that the user cannot write outside the country
  */
 class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIntegrationSpec]) {
-  import mocks.UserFixtures.{privilegedUser,unprivilegedUser}
+  import mocks.{privilegedUser,unprivilegedUser}
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
@@ -102,16 +103,12 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
 
       fetchProfile must beRight
       val profile = fetchProfile.right.get
-      println(profile)
-      println(profile.groups)
-      //println(await(rest.PermissionDAO(None).getScope(profile, countryId)).right.get)
-
 
       // TESTING MAGIC!!! We have to create an account for subsequent logins...
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
-      val fakeAccount = new models.sql.OpenIDUser(1L, "test-user@example.com", userId)
-      mocks.UserFixtures.all.append(fakeAccount)
+      val fakeAccount = MockUser("test-user@example.com", userId)
+      mocks.userFixtures.put(fakeAccount.profile_id, fakeAccount)
 
       // Check the user can read their profile as themselves...
       // Check we can read the user's page

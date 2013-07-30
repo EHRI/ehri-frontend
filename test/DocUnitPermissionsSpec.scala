@@ -11,7 +11,7 @@ import play.api.test.FakeRequest
 
 
 class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsSpec]) {
-  import mocks.UserFixtures.{privilegedUser, unprivilegedUser}
+  import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),

@@ -31,7 +31,7 @@ class PersonaLoginHandler(implicit val globalConfig: global.GlobalConfig) extend
           case js @ JsString("okay") => {
             val email: String = (response.json \ "email").as[String]
 
-            models.sql.PersonaUser.authenticate(email) match {
+            models.sql.PersonaUser.findByEmail(email) match {
               case Some(user) => gotoLoginSucceeded(email)
               case None => {
                 Async {

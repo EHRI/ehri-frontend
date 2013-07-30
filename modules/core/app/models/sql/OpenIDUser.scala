@@ -138,12 +138,22 @@ object OpenIDUser extends UserDAO {
   }
 
   def create(email: String, profile_id: String): Option[OpenIDUser] = DB.withConnection { implicit connection =>
+    println("Inserting new user: " + email)
     SQL(
       """INSERT INTO users (id, email, profile_id) VALUES (DEFAULT,{email},{profile_id})"""
     ).on('email -> email, 'profile_id -> profile_id).executeUpdate
-    SQL(
-      """SELECT * FROM users WHERE id = currval('users_id_seq')"""
-    ).as(OpenIDUser.simple.singleOpt)
+
+    // Nasty hack around DB types...
+    if (connection.getMetaData.getURL.contains("mysql")) {
+      SQL(
+        """SELECT * FROM users WHERE id = LAST_INSERT_ID()"""
+      ).as(OpenIDUser.simple.singleOpt)
+    } else {
+      // Assuming POSTGRES
+      SQL(
+        """SELECT * FROM users WHERE id = currval('users_id_seq')"""
+      ).as(OpenIDUser.simple.singleOpt)
+    }
   }
 }
 
@@ -199,5 +209,7 @@ object OpenIDAssociation {
 
 class OpenIDUserDAOPlugin(app: play.api.Application) extends UserDAO {
   def findByProfileId(profile_id: String) = OpenIDUser.findByProfileId(profile_id)
+  def findByEmail(email: String) = OpenIDUser.findByEmail(email)
+  def create(email: String, profile_id: String) = OpenIDUser.create(email, profile_id)
 }
 
