@@ -81,9 +81,9 @@
 													<a class="filterBar-icon" title="Add to basket" ng-click="ui.basket.add(item)">
 														<i class="icon-bookmark"></i>
 													</a>
-													<a class="filterBar-icon" title="Drag this item" drag="item" dragStyle="drag">
+													<!--<a class="filterBar-icon" title="Drag this item" drag="item" dragStyle="drag">
 														<i class="icon-move"></i>
-													</a>
+													</a>-->
 													<!--
 													<a ng-show="map.activated" class="filterBar-icon" title="See on map" ng-click="map.marker.add(item, desc.data.name, item.id)">
 														<i class="icon-map-marker"></i>
@@ -105,7 +105,7 @@
 													<b>{{item.data.name || item.data.identifier}}</b>
 												</a>
 												<span class="filterBar filterBar-inline pull-right">
-													<a class="filterBar-icon" title="Add to basket" ng-click="addBasket(item)">
+													<a class="filterBar-icon" title="Add to basket" ng-click="ui.basket.add(item)">
 														<i class="icon-bookmark"></i>
 													</a>
 												</span>

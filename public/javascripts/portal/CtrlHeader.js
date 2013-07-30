@@ -61,8 +61,8 @@ var header = portal.controller('headerCtrl', ['$scope', '$location', 'myBasketSe
 		}
 	}
 	//Check for basket event
-    $scope.$on('handleBasketBroadcast', function() {
-        $scope.ui.basket.raw[$basket.toBasket.id] = $basket.toBasket.id;	// Dont need more data than id
+    $scope.$on('ui.basket.get', function() {
+        $scope.ui.basket.raw[$basket.content.transit.id] = $basket.content.transit.id;	// Dont need more data than id
 		$scope.ui.basket.size.get();
     });
 	

@@ -22,28 +22,25 @@ portal.factory('myPaginationService', function($rootScope) {
     };
     return paginationService;
 }).factory('myBasketService', function($rootScope) {
-    var basketservice = {};
-    
-    basketservice.toBasket = {};
-	basketservice.content = [];
-
-    basketservice.add = function(item) {
-		// console.log(this);
-		this.toBasket = item;
-        //this.list.push(item);
-        this.broadcastBasket();
-		basketservice.content.push({id : item.id, type: item.type});
-		console.log(basketservice.content);
-		
-    };
-	
-	basketservice.get = function() {
-		return basketservice.content;
-	};
-	
-    basketservice.broadcastBasket = function() {
-        $rootScope.$broadcast('handleBasketBroadcast');
-    };
+    var basketservice = {
+		content : {
+			raw : [],
+			transit : {}
+		},
+		add : function(item) {
+			// console.log(this);
+			this.content.transit = item;
+			this.content.raw.push({id : item.id, type: item.type});
+			//this.list.push(item);
+			this.broadcast();
+		},
+		get : function() {
+			return this.content.raw;
+		},
+		broadcast : function() {
+			$rootScope.$broadcast('ui.basket.get');
+		}
+	};   
 	
     return basketservice;
 }).factory('Item', function($http){
