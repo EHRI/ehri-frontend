@@ -30,7 +30,7 @@
 										</li>
 									</ul>
 									<ul class="nav pull-right">
-										<li><a ng-click="ui.map.activate()"><i class="icon-map-marker"></i> Activate map</a></li>
+										<li><a ng-click="ui.map.toggle()" ng-show="!ui.map.state"><i class="icon-map-marker"></i> Activate map</a></li>
 									</ul>
 								</div>
 							</nav>
@@ -57,7 +57,7 @@
 					</header>
 					<div class="container-fluid">
 						<div class="row-fluid">
-							<div class="span2" ng-class="(map.activated && 'hide')">
+							<div class="span2" ng-class="(ui.map.state && 'hide')">
 							</div>
 							
 							<div id="content" class="span8" when-scrolled="ui.pagination.next()" >
@@ -84,9 +84,11 @@
 													<a class="filterBar-icon" title="Drag this item" drag="item" dragStyle="drag">
 														<i class="icon-move"></i>
 													</a>
+													<!--
 													<a ng-show="map.activated" class="filterBar-icon" title="See on map" ng-click="map.marker.add(item, desc.data.name, item.id)">
 														<i class="icon-map-marker"></i>
 													</a>
+													-->
 												</span>
 												
 											</header>
@@ -113,11 +115,16 @@
 								</div>
 								<div ng-show="ui.general.loading" class="well" style="text-align:center;"><i class="icon-spinner icon-spin icon-large"></i></div>
 							</div>
-							<div ng-class="(map.activated && 'span3') || 'span2'">
+							<div ng-class="(ui.map.state && 'span3') || 'span2'">
 								&nbsp;
-								<div ng-show="map.activated">
-									<sap id="map" style="width:100%!important; height:400px;" mapMarkers="mapMarkers">
-									</sap>
+								<div>
+									
+									<div class="square-container">
+										<div class="square-hack"></div>
+										<div class="square-content">
+											<sap id="map" style="width:100%; height:100%; background-color:red;" data-lat="49.32" data-lon="10.15"></sap>
+										</div>
+									</div>
 									<ul class="unstyled basket">
 										<li class="basket-item" ng-repeat="marker in mapMarkers.markers">
 											<div class="basket-item-title">{{marker.data.title}}</div>

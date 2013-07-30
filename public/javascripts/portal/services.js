@@ -84,97 +84,94 @@ portal.factory('myPaginationService', function($rootScope) {
 	
 	return Item;
 }).factory('Map', function($http, $rootScope){
-	var Map = {}
-	if(!$rootScope.mapMarkers)
-	{
-		$rootScope.mapMarkers = [];
-	}
-	//<--- Geolocation
-	Map.getLocation = function () {
-		try {
-			if (typeof navigator.geolocation === 'undefined'){
-				gl = google.gears.factory.create('beta.geolocation');
-			} else {
-				gl = navigator.geolocation;
-			}
-		} catch(e) {}
+	var Map = {
+		location : {	//Geolocation and location functions
+			get: function () {	//Get geolocation of user through navigator, 
+				try {
+					if (typeof navigator.geolocation === 'undefined'){
+						gl = google.gears.factory.create('beta.geolocation');
+					} else {
+						gl = navigator.geolocation;
+					}
+				} catch(e) {}
 
-		if (gl) {
-			gl.getCurrentPosition(Map.getPosition, Map.getError);
-		} else {
-			alert("Geolocation services are not supported by your web browser.");
-		}
-	}
-	
-	Map.getPosition = function(position)
-	{
-		$rootScope.position = position;
-		Map.broadcastMapLocation();
-		console.log($rootScope.position);
-	}
-	Map.getError = function(position) {
-		console.log(position);
-	}
-	
-	Map.getLocation();
-	
-    Map.broadcastMapLocation = function() {
-        $rootScope.$broadcast('broadcastMapLocation');
-    };
-	//Geolocation --->
-	
-	//<--- Recenter
-    Map.broadcastMapCenter = function() {
-        $rootScope.$broadcast('broadcastMapCenter');
-    };
-	Map.reCenter = function(data) {
-		//{lat: data.lat, lng: data.lon}
-		console.log(data);
-		$rootScope.mapCenter = {lat: data.lat, lng: data.lng};
-		Map.broadcastMapCenter();
-		//panTo( <LatLng> latlng,
-	}
-	
-	//Recenter --->
-	//Markers
-    Map.broadcastNewMapMarker = function() {
-        $rootScope.$broadcast('broadcastNewMapMarker');
-    };
-	Map.returnLonLag = function (data, title, id) {
-		if(data[0])
-		{
-			$rootScope.mapMarkers = {lat: data[0].lat, lng: data[0].lon, title: title, id:id};
-			Map.broadcastNewMapMarker();
-			//Map.reCenter(data[0]);
-		}
-	}
-	Map.addMarker = function(item, title, id) {
-		if(item.relationships.describes[0].relationships.hasAddress)
-		{
-			address = item.relationships.describes[0].relationships.hasAddress[0].data;
-			/*
-				format=[html|xml|json]
-				street=<housenumber> <streetname>
-				city=<city>
-				county=<county>
-				state=<state>
-				country=<country>
-				postalcode=<postalcode>
-			*/
-			$http.get('http://nominatim.openstreetmap.org/search/?format=json&street='+address.street+'&postalcode='+address.postalCode+'&country='+address.countryCode+'').success(function(data) {
-				if(data[0])	{
-					Map.returnLonLag (data, title, id);
+				if (gl) {
+					gl.getCurrentPosition(Map.location.set, Map.error);
 				} else {
-					$http.get('http://nominatim.openstreetmap.org/search/?format=json&postalcode='+address.postalCode+'&country='+address.countryCode+'').success(function(data) {
+					alert("Geolocation services are not supported by your web browser.");
+				}
+			},
+			set: function(position) {	//Broadcast said position previously getPosition
+				console.log(position);
+				$rootScope.position = position;
+				Map.broadcast.center();
+			}
+		},
+		position : {	//Raw data for position
+		},
+		broadcast : {
+			reset : function() {
+				$rootScope.$broadcast('ui.map.reset');
+			},
+			location : function() {
+				$rootScope.$broadcast('ui.map.location');
+			},
+			center : function () {	//Broadcast map center event
+				$rootScope.$broadcast('ui.map.marker.center');
+			},
+			marker : {
+				add : function() {	//PReviously broadcastNewMapMarker
+					$rootScope.$broadcast('ui.map.marker.new');
+				}
+			}
+		},
+		error : function() {
+			console.log(map.position);
+		},
+		marker : {
+			center : function(data) {	//Center map on {lat: data.lat, lng: data.lon} through broadcast
+				$rootScope.mapCenter = {lat: data.lat, lng: data.lng};
+				Map.broadcast.center();
+			},
+			add : function (data, title, id) {
+				if(data[0])	{	//If we actually got data
+					$rootScope.map.markers = {lat: data[0].lat, lng: data[0].lon, title: title, id:id};
+					Map.ui.broadcast.marker.add();
+				}
+			},
+			query : function(item, title, id) {	//Query API for lon and lat
+				if(item.relationships.describes[0].relationships.hasAddress)
+				{
+					address = item.relationships.describes[0].relationships.hasAddress[0].data;
+					/*
+						format=[html|xml|json]
+						street=<housenumber> <streetname>
+						city=<city>
+						county=<county>
+						state=<state>
+						country=<country>
+						postalcode=<postalcode>
+					*/
+					$http.get('http://nominatim.openstreetmap.org/search/?format=json&street='+address.street+'&postalcode='+address.postalCode+'&country='+address.countryCode+'').success(function(data) {
 						if(data[0])	{
-							Map.returnLonLag (data, title, id);
+							Map.marked.add (data, title, id);
+						} else {
+							$http.get('http://nominatim.openstreetmap.org/search/?format=json&postalcode='+address.postalCode+'&country='+address.countryCode+'').success(function(data) {
+								if(data[0])	{
+									Map.marked.add (data, title, id);
+								}
+							});
 						}
+						
 					});
 				}
-				
-			});
+			},
+			temp : {}
 		}
 	}
+	
+	//Get location of users
+	Map.location.get();
 	
 	return Map;
 }); 

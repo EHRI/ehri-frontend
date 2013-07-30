@@ -188,10 +188,11 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 			},
 			toggle : function () {
 				this.state = !this.state;
+				if(this.state) { $map.broadcast.reset(); }
 			},
 			marker : {
-				add : function(item, title, id) { $map.addMarker(item, title, id); },
-				center : function(marker) { $map.reCenter(marker); }
+				add : function(item, title, id) { $map.marker.add(item, title, id); },
+				center : function(marker) { $map.marker.center(marker); }
 			}
 		}
 	};

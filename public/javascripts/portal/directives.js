@@ -52,7 +52,7 @@ portal.directive('whenScrolled', function ($window) {
       element.bind('dragover', dragOver);
       element.bind('drop', function(evt) {
         drop(evt, element, scope.dropStyle);
-        $rootScope.$broadcast('dropEvent', $rootScope.draggedElement, scope.dropData);
+        $rootScope.$broadcast('ui.dom.drop', $rootScope.draggedElement, scope.dropData);
       });
     }
   }
@@ -209,7 +209,7 @@ portal.directive('whenScrolled', function ($window) {
 		//console.log(scope.annotateData);
 		if(scope.selectedText != false)
 		{
-			$rootScope.$broadcast('getAnnotation', scope.annotateData, scope.selectedText);
+			$rootScope.$broadcast('ui.annotation.get', scope.annotateData, scope.selectedText);
 		}
       });
     }
@@ -220,67 +220,68 @@ portal.directive('whenScrolled', function ($window) {
         replace: true,
         template: '<div></div>',
         link: function(scope, element, attrs) {
-			mapFunctions = {};
-			mapOptions = {};
-			scope.mapMarkers = {markers: {}, array : []};
-			if($rootScope.position)
-			{
-					mapFunctions.init();
-			}
-			else
-			{
-				$rootScope.$on('broadcastMapLocation', function () { 
-					mapFunctions.init();
-				});
-			}
-			
-			mapFunctions.create = function() {
-				mapOptions.map = L.map(attrs.id, {
-					center: [mapOptions.lat, mapOptions.lon],
-					zoom: mapOptions.zoom
-				});
-				mapOptions.map.whenReady(function() {
-					mapOptions.on = true;
-				});
-				L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-					maxZoom: 18
-				}).addTo(mapOptions.map);
-				
-				if(mapOptions.points) { mapFunctions.updatePoints(mapOptions.points); }
-			}
-			
-			mapFunctions.init = function() {
-				if(scope.geoloc) {
-					mapOptions.lat = scope.geoloc.lat;
-					mapOptions.lon = scope.geoloc.lon;
-					mapOptions.zoom = 6;
-					mapOptions.points = [{lat: lat, lng: lon}];
-				}
-				else {
-					//Default values
-					mapOptions.lat = $rootScope.position.coords.latitude;
-					mapOptions.lon = $rootScope.position.coords.longitude;
-					mapOptions.zoom = 6;
-				}
-				
-				mapFunctions.create();
-				
-			}
+			$rootScope.map = {
+				functions : {
+					create : function() {	//Create the map element
+						$rootScope.map.ui = L.map(attrs.id, {
+							center: [$rootScope.map.options.lat, $rootScope.map.options.lon],
+							zoom: $rootScope.map.options.zoom
+						});
+						$rootScope.map.ui.whenReady(function() {	
+							L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo($rootScope.map.ui);
+							
+							$rootScope.map.options.on = true;
+							$rootScope.$broadcast('ui.map.ready');
+							
+							//Debug
+							$rootScope.map.ui.on('movestart', function(e) {
+								console.log(e);
+							});
+						});
 						
-            //<--- Markers
+						//Debug functions
+						//console.log($rootScope.map.ui.getCenter());
+						//console.log([$rootScope.map.options.lat, $rootScope.map.options.lon]);
+						// ??? if(mapOptions.points) { mapFunctions.updatePoints(mapOptions.points); }
+					},
+					init : function() {
+						if(scope.geoloc) {
+							$rootScope.map.options.lat = scope.geoloc.lat;
+							$rootScope.map.options.lon = scope.geoloc.lon;
+							$rootScope.map.options.zoom = 6;
+							$rootScope.map.options.points = [{lat: lat, lng: lon}];
+						}
+						else {
+							//Default values
+							$rootScope.map.options.lat = 49.32512199104001;
+							$rootScope.map.options.lon = 10.1513671875;
+							$rootScope.map.options.zoom = 5;
+						}
+						
+						this.create();
+						
+					},
+					reset : function () {
+						$rootScope.map.ui._resetView($rootScope.map.ui.getCenter(), $rootScope.map.ui.getZoom(), true);	
+					}
+				},
+				options : {
+					lat:false,
+					lon:false,
+					zoom:false,
+					on:false
+				},
+				markers : {
+					raw : {},
+					array : []
+				}
+			}
 			
-			mapFunctions.updateLayers = function() {
-				angular.forEach(scope.mapMarkers.markers, function(value, key) {
-					scope.mapMarkers.array.push(value.leaflet);
-				});
-				mapOptions.markers = L.layerGroup(scope.mapMarkers.array);
-				mapOptions.markers.addTo(mapOptions.map);
-            }
 			
-            $rootScope.$on('broadcastNewMapMarker', function() {
-				console.log("New marker");
+						
+           //Add marker to layer on broadcasting a new one
+            $rootScope.$on('ui.map.marker.new', function() {
 				marker = $rootScope.mapMarkers;
-				console.log(marker);
 				//Marker Leaflet version
 				scope.mapMarkers.markers[marker.id] = {
 					leaflet: L.marker([marker.lat, marker.lng], {title: marker.title}).bindPopup(marker.title), 
@@ -289,18 +290,26 @@ portal.directive('whenScrolled', function ($window) {
 				mapFunctions.updateLayers();
             });
 			
-			//Markers -->
-			
-			//<--- Center
-			$rootScope.$on('broadcastMapCenter', function () {
-				console.log("Recenter");
-				if(mapOptions.on)
-				{
-					mapOptions.map.setView([$rootScope.mapCenter.lat, $rootScope.mapCenter.lng], 6);
+			//Center on broadcast
+			$rootScope.$on('ui.map.reset', function () {
+				$rootScope.map.functions.reset();	
+			});
+			$rootScope.$on('ui.map.marker.ready', function () {
+				$rootScope.map.functions.reset();	
+			});
+			$rootScope.$on('ui.map.marker.center', function () {
+				if($rootScope.map.options.on) {
+					$rootScope.map.ui.setView([$rootScope.map.options.lat, $rootScope.map.options.lon], 6);	
 				}
 			});
 			
-			//Center --->
+			//Init stuf
+			//if($rootScope.map.options.lat)	{	//If we already have position
+			$rootScope.map.functions.init();
+			/*} else {	//If not
+				$rootScope.$on('ui.map.init', function () { 
+				});
+			}*/
         }
     };
 }]);
