@@ -299,7 +299,7 @@ package object json {
             "id" : "812552fc-7169-40c1-a428-5f2af5727e36",
             "data" : {
               "languageCode" : "en",
-              "prefLabel" : "Art culture science religion"
+              "name" : "Art culture science religion"
             },
             "type" : "cvocConceptDescription",
             "relationships" : {

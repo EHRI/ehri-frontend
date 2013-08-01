@@ -1,0 +1,8 @@
+@(item: Concept, desc: ConceptDescriptionF)(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+
+@import models.ConceptF._
+
+@desc.name
+@common.propertyList(desc.altLabels.toList.flatten: _*)
+@common.propertyList(desc.scopeNote.toList.flatten: _*)
+@common.propertyList(desc.definition.toList.flatten: _*)

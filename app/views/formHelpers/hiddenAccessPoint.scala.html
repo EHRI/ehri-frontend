@@ -1,7 +1,0 @@
-@(desc: play.api.data.Field)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
-
-@import AccessPointF._
-
-@List(Entity.ID, TARGET, DESCRIPTION, TYPE).map { fname =>
-    @formHelpers.hiddenInput(desc(fname))
-}

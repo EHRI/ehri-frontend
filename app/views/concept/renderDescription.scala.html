@@ -1,8 +1,0 @@
-@(item: Concept, desc: ConceptDescription)(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
-
-@import models.ConceptF._
-
-@common.stringValue(desc, PREFLABEL)
-@common.listValue(desc, ALTLABEL)
-@common.listValue(desc, SCOPENOTE)
-@common.listValue(desc, DEFINITION)

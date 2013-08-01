@@ -1,0 +1,7 @@
+@(message: String)(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@noSidebarLayout(Messages("pages.home.title")) {
+
+    @Messages("pages.home.message")
+    
+}

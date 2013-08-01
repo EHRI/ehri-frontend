@@ -1,0 +1,60 @@
+@(item: HistoricalAgent, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@import Isaar._
+@import common.descriptionSection
+
+@historicalAgent.itemPage(item) {
+
+    @common.annotated(item, annotations) {
+        @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
+            @item.model.identifier
+            @if(!item.model.descriptions.isEmpty) {
+                @item.model.descriptions.map { desc =>
+                    @common.descriptionOutline(desc, desc.languageCode) {
+
+                        @common.renderDates(desc, DATES_OF_EXISTENCE)
+
+                        @descriptionSection(IDENTITY_AREA) {
+                            @common.stringValue(Some(desc.entityType.toString), ENTITY_TYPE)
+                            @common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
+                            @common.listValue(desc.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
+                            @common.listValue(desc.otherFormsOfName, OTHER_FORMS_OF_NAME)
+                        }
+
+                        @descriptionSection(DESCRIPTION_AREA) {
+                            @common.stringValue(desc.details.datesOfExistence, DATES_OF_EXISTENCE)
+                            @common.stringValue(desc.details.history, HISTORY)
+                            @common.stringValue(desc.details.places, PLACES)
+                            @common.stringValue(desc.details.legalStatus, LEGAL_STATUS)
+                            @common.stringValue(desc.details.functions, FUNCTIONS)
+                            @common.stringValue(desc.details.mandates, MANDATES)
+                            @common.stringValue(desc.details.internalStructure, INTERNAL_STRUCTURE)
+                            @common.stringValue(desc.details.generalContext, GENERAL_CONTEXT)
+                        }
+
+                        @descriptionSection(CONTROL_AREA) {
+                            @common.stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
+                            @common.stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
+                            @common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
+                            @common.stringValue(desc.control.status, STATUS)
+                            @common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
+                            @common.stringValue(desc.control.datesCDR, DATES_CVD)
+                            @common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+                            @common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+                            @common.listValue(desc.control.sources, SOURCES)
+                            @common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+                        }
+
+                        @common.relatedLinks(item, desc, links)
+
+                        @desc.unknownProperties.map { e =>
+                            @common.unknownData(e)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @common.annotationLinks(item, links)
+}

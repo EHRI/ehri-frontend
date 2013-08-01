@@ -1,4 +1,4 @@
-@(items: rest.Page[models.UserProfile], showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
+@(items: rest.Page[UserProfile], showAction: String => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @noSidebarLayout("View item") {
 
@@ -7,7 +7,7 @@
 	<ul>
 	@items.items.map { item =>
 	  	<li>
-			<a href="@showAction(item.id)">@item.name</a>
+			<a href="@showAction(item.id)">@item</a>
 		</li>
 	}
 	</ul>

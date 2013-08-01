@@ -1,0 +1,40 @@
+@(desc: play.api.data.Field)(implicit userOpt: Option[UserProfile], prefix: String, lang: Lang)
+
+@import ConceptF._
+@import formHelpers._
+
+<div class="concept-description-form inline-element well well-small">
+    <a class="remove-inline-element pull-right" tabindex="-1" href="#">
+        <i class="icon-remove-sign"></i>
+        @Messages("actions.deleteConceptDescription")
+    </a>
+    @hiddenInput(desc(Entity.ID))
+    @choiceInput(desc(LANGUAGE), LANGUAGE, views.Helpers.languagePairList, blank=true)
+    @lineInput(desc, PREFLABEL)
+    @concept.renderInlineNameSet(desc, ALTLABEL)
+
+    @* Fixme - not allowing more than one scopenote, definition for now... *@
+    @helper.repeat(desc(SCOPENOTE), min = 1) { desc =>
+        <div class="control-group ">
+            <label class="control-label" for="@desc.id">@Messages(prefix + ".scopeNote")</label>
+            <div class="controls controls-row">
+                <textarea id="@desc.id" name="@desc.name" rows="4" class="span8">@desc.value</textarea>
+                <span class="help-inline errors">@desc.errors.mkString(", ") </span>
+            </div>
+        </div>
+    }
+    @helper.repeat(desc(DEFINITION), min = 1) { desc =>
+        <div class="control-group ">
+            <label class="control-label" for="@desc.id">@Messages(prefix + ".definition")</label>
+            <div class="controls controls-row">
+                <textarea id="@desc.id" name="@desc.name" rows="4" class="span8">@desc.value</textarea>
+                <span class="help-inline errors">@desc.errors.mkString(", ") </span>
+            </div>
+        </div>
+    }
+    <hr />
+
+    @hiddenAccessPointSet(desc, ACCESS_POINTS)
+    @hiddenUnknownDataSet(desc, UNKNOWN_DATA)
+
+</div>

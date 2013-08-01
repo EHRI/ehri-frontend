@@ -1,0 +1,36 @@
+@**
+* Render annotation comments around some HTML content
+*
+*@
+@(item: AnyModel, annotations: Map[String,List[Annotation]])(body: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig)
+
+@annotationList(notes: List[Annotation]) = {
+    @if(!notes.isEmpty) {
+        <ul>
+        @notes.map { ann =>
+            <li class="annotatable" id="@ann.id">
+                @ann.user.map { accessor =>
+                    <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a> -
+                }
+                @ann.model.body
+                @if(!ann.annotations.isEmpty) {
+                    @annotationList(ann.annotations)
+                }
+            </li>
+        }
+        </ul>
+
+    }
+}
+
+<div class="annotatable" id="@item.id">
+    @body
+    @annotations.get(item.id).map { list =>
+        @if(!list.isEmpty) {
+            <hr />
+            <div class="item-annotations">
+                @annotationList(list)
+            </div>
+        }
+    }
+</div>

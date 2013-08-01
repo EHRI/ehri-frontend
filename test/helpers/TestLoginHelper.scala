@@ -1,8 +1,7 @@
 package helpers
 
-import controllers.routes
-import play.api.http.HeaderNames
-import play.api.test.FakeApplication
+import globalconfig.RunConfiguration
+import play.api.http.{MimeTypes, HeaderNames}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.POST
 import play.api.test.Helpers.header
@@ -12,23 +11,64 @@ import play.filters.csrf.{CSRFFilter, CSRF}
 import play.filters.csrf.CSRF.Token
 import models.sql.{User, OpenIDUser}
 import org.mindrot.jbcrypt.BCrypt
-import mocks.UserFixtures
+import mocks.userFixtures
+import models.json.Utils
+import global.{MenuConfig, GlobalConfig}
+import controllers.base.LoginHandler
+import utils.search.{Indexer, Dispatcher}
+import play.api.Play._
+import scala.Some
+import mocks.MockSearchIndexer
+import play.api.test.FakeApplication
+import com.tzavellas.sse.guice.ScalaModule
 
 /**
  * Mixin trait that provides some handy methods to test actions that
- * have authorisation, such as fakeApplication and fakeLoggedInRequest.
+ * have authorisation, such as fakeApplication and fakeLoggedInHtmlRequest.
  */
 trait TestLoginHelper {
 
   val fakeCsrfString = "fake-csrf-token"
   val testPassword = "testpass"
 
+  object TestConfig extends GlobalConfig {
+    val searchIndexer: Indexer = mocks.MockSearchIndexer()
+    val searchDispatcher: Dispatcher = mocks.MockSearchDispatcher()
+    val menuConfig: MenuConfig = RunConfiguration.menuConfig
+    val routeRegistry = RunConfiguration.routeRegistry
+
+    private implicit lazy val globalConfig = this
+    val loginHandler: LoginHandler = new mocks.MockLoginHandler
+  }
+
+  /**
+   * A Global object that loads fixtures on application start.
+   */
   def getGlobal: GlobalSettings = {
-    /**
-     * A Global object that loads fixtures on application start.
-     */
-    object FakeGlobal extends CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings
-    FakeGlobal
+    new CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings {
+      class TestModule extends ScalaModule {
+        def configure() {
+          bind[GlobalConfig].toInstance(TestConfig)
+          bind[Indexer].toInstance(MockSearchIndexer())
+        }
+      }
+
+      private lazy val injector = {
+        com.google.inject.Guice.createInjector(new TestModule)
+      }
+
+      override def getControllerInstance[A](clazz: Class[A]) = {
+        injector.getInstance(clazz)
+      }
+
+      override def onStart(app: play.api.Application) {
+        // Workaround for issue #845
+        app.routes
+        Utils.registerModels
+
+        super.onStart(app)
+      }
+    }
   }
 
   /**
@@ -40,17 +80,12 @@ trait TestLoginHelper {
   def fakeApplication(additionalConfiguration: Map[String, Any] = Map(), global: GlobalSettings = getGlobal) = {
     FakeApplication(
       additionalConfiguration = additionalConfiguration ++ getConfig,
-      additionalPlugins = getPlugins ++ Seq("mocks.MockSearchDispatcher"),
+      additionalPlugins = getPlugins,
       withGlobal = Some(global)
     )
   }
 
-  def getConfig = Map(
-    "db.default.driver" -> "org.h2.Driver",
-    "db.default.url" -> "jdbc:h2:mem:play",
-    "db.default.user" -> "sa",
-    "db.default.password" -> ""
-  )
+  def getConfig = Map()
 
   /**
    * Get a set of plugins necessary to enable to desired login method.
@@ -65,9 +100,9 @@ trait TestLoginHelper {
    */
   def getAuthCookies(user: User): String
 
-
   /**
-   * Get a FakeRequest with authorization cookies for the given user.
+   * Get a FakeRequest with authorization cookies for the given user
+   * and HTML Accept.
    * @param user
    * @param rtype
    * @param path
@@ -81,6 +116,29 @@ trait TestLoginHelper {
     // the token is there when the form tries to render it.
     fr.withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)
   }
+
+  /**
+   * Get a FakeRequest with authorization cookies for the given user
+   * and HTML Accept.
+   * @param user
+   * @param rtype
+   * @param path
+   * @return
+   */
+  def fakeLoggedInHtmlRequest(user: User, rtype: String, path: String)
+        = fakeLoggedInRequest(user, rtype, path)
+            .withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML, HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
+
+  /**
+   * Get a FakeRequest with authorization cookies for the given user
+   * and HTML Accept.
+   * @param user
+   * @param rtype
+   * @param path
+   * @return
+   */
+  def fakeLoggedInJsonRequest(user: User, rtype: String, path: String)
+  = fakeLoggedInRequest(user, rtype, path).withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON)
 }
 
 /**
@@ -88,7 +146,7 @@ trait TestLoginHelper {
  */
 trait TestMockLoginHelper extends TestLoginHelper {
 
-  override def getPlugins = Seq("mocks.MockUserDAO", "mocks.MockLoginHandler")
+  override def getPlugins = Seq("mocks.MockUserDAO")
 
   /**
    * Get a user auth cookie using the Mock login mechanism, which depends
@@ -98,7 +156,7 @@ trait TestMockLoginHelper extends TestLoginHelper {
    */
   def getAuthCookies(user: User): String = {
     header(HeaderNames.SET_COOKIE,
-      route(play.api.test.FakeRequest(POST, routes.Application.login.url),
+      route(play.api.test.FakeRequest(POST, controllers.core.routes.Application.login.url),
           Map("profile" -> Seq(user.profile_id))).get)
       .getOrElse(sys.error("No Authorization cookie found"))
   }
@@ -115,7 +173,11 @@ trait TestRealLoginHelper extends TestLoginHelper {
    */
   object FakeGlobal extends CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings {
     override def onStart(app: play.api.Application) = {
-      UserFixtures.all.map { user =>
+      // Initialize routes to fix #845
+      app.routes
+
+      // Initialize user fixtures
+      userFixtures.values.map { user =>
         OpenIDUser.findByProfileId(user.profile_id) orElse OpenIDUser.create(user.email, user.profile_id).map { u =>
           u.setPassword(BCrypt.hashpw(testPassword, BCrypt.gensalt()))
         }
@@ -137,7 +199,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
       "password" -> Seq(testPassword)
     )
     header(HeaderNames.SET_COOKIE,
-      route(play.api.test.FakeRequest(POST, routes.Admin.passwordLoginPost.url), loginData).get)
+      route(play.api.test.FakeRequest(POST, controllers.core.routes.Admin.passwordLoginPost.url), loginData).get)
         .getOrElse(sys.error("No Authorization cookie found"))
   }
 }

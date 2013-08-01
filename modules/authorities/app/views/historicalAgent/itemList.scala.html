@@ -1,0 +1,7 @@
+@(page: rest.Page[HistoricalAgent])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+
+<ul class="unstyled">
+    @page.items.map { item =>
+        @historicalAgent.listItem(item)
+    }
+    </ul>

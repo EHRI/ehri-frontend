@@ -116,6 +116,9 @@ errors.noFurtherInfo=No additional information is available.
 pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 # What we say when a logical item has no descriptions
+describedEntity.availableDescriptions=Available Descriptions
+describedEntity.editDescription=Edit Description
+describedEntity.deleteDescription=Delete Description
 describedEntity.noDescriptions=This item has not been provided with a description
 describedEntity.noData=No information given
 describedEntity.additionalData=Additional Harvested Data (Click to display)
@@ -139,6 +142,7 @@ concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrow
 vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 vocabulary.description=Description
 vocabulary.items=Search Terms
+vocabulary.search=Search Vocabularies
 
 #
 # Countries
@@ -341,6 +345,7 @@ submitButton.createCountry=Add Country
 submitButton.updateCountry=Update Country
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
+deleting.deleteDescriptionConfirmationMessage=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
 
 accessor.notInAnyGroups=This user does not belong to any groups.
 accessor.currentGroups=Current Groups
@@ -526,8 +531,8 @@ isdiah.postalcode=Post Code
 isdiah.postalcode.description=
 isdiah.fax=Fax
 isdiah.fax.description=
-isdiah.url=Website Address
-isdiah.url.description=
+isdiah.webpage=Website Address
+isdiah.webpage.description=
 
 # Description
 isdiah.history=History of the Institution with Archival Holdings
@@ -1000,8 +1005,11 @@ Record the extent of the unit of description by giving the number of physical or
  of the unit of description. (3.1.5)
 isadg.languageCode=Language of Description
 
-isadg.adminBiogHistory=Administrative and Biographical History
-isadg.adminBiogHistory.description=To provide an administrative history of, or biographical details on,\
+isadg.abstract=Abstract
+isadg.abstract.description=
+
+isadg.biographicalHistory=Administrative and Biographical History
+isadg.biographicalHistory.description=To provide an administrative history of, or biographical details on,\
   the creator (or creators) of the unit of description to place the material in context and make it\
   better understood.\n\n\
 Record concisely any significant information on the origin, progress, development and work\

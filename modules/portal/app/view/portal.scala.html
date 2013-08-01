@@ -1,0 +1,75 @@
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash)
+
+@title = { }
+@extrascripts = {
+	<script>
+		var ANGULAR_ROOT = "/assets/javascripts";
+	</script>
+	
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"type="text/javascript"></script>
+	
+	 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+	 
+	<script src="@routes.Assets.at("javascripts/libs/ui-bootstrap-0.2.0.min.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/libs/ng-infinite-scroll.min.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/libs/ui-sortable.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/app.js")" type="text/javascript"></script>
+	
+	<script src="@routes.Assets.at("javascripts/portal/modules/helpers.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/modules/directives.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/modules/services.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/modules/filters.js")" type="text/javascript"></script>
+	
+	<script src="@routes.Assets.at("javascripts/portal/controller/CtrlSearch.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/controller/CtrlBottom.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/controller/CtrlRepo.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/controller/CtrlDoc.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/controller/CtrlBasket.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/controller/CtrlConcept.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/controller/CtrlCountry.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/controller/CtrlAgent.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/portal/controller/CtrlHeader.js")" type="text/javascript"></script>
+	
+	<script src="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.js" type="text/javascript"></script>
+
+	
+	
+	@helper.javascriptRouter("jsRoutes")(
+        routes.javascript.Application.getType
+    )
+}
+
+@extrastyles = { 
+}
+
+<!DOCTYPE html>
+<html lang="en" >
+	<head>
+	<title> </title>
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/portal.css")' />
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/portal.responsive.css")' />
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")' />
+		<link rel="stylesheet" href='http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.css' />
+	</head>
+	<body ng-app="portalSearch" > 
+		<script type="text/ng-template" id="fileTree.html">
+				<li ng-repeat="item in item.children" id="{{item.id}}">
+					<i ng-show="item.type=='Folder'" class="icon-folder-open" ></i>
+					<i ng-show="item.type=='File'" class="icon-file" ></i> {{item.name}} ( {{item.children.length}} )
+					<ul ng-show="item.children.length > 0" ng-include src="'fileTree.html'"></ul>
+				</li>
+		</script>
+		
+	<ng-include src="'@routes.Assets.at("javascripts/view/common-view/header.html")'"></ng-include>
+	
+	<div ng-view>
+	
+	</div>
+	
+	
+	
+	@extrascripts
+	</body>
+</html>

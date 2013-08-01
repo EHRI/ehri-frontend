@@ -1,4 +1,0 @@
-@(doc: DocumentaryUnit)(implicit lang: Lang)
-@import models.base.AccessibleEntity
-
-@common.breadcrumbs((doc.holder.flatMap(_.country).toList.map(_.asInstanceOf[AccessibleEntity]) ++ doc.holder.toList) ::: doc.ancestors.reverse.map(DocumentaryUnit(_)) ::: List(doc))

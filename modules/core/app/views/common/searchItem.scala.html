@@ -1,0 +1,7 @@
+@(item: AnyModel)(implicit req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+
+@common.searchItemOutline(item.id) {
+    <a href="@globalConfig.routeRegistry.urlFor(item)">@item</a>
+} {
+    @* no body yet *@
+}

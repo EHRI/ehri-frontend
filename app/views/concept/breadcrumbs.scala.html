@@ -1,3 +1,0 @@
-@(item: Concept)(implicit lang: Lang)
-
-@common.breadcrumbs(item.vocabulary.map(List(_)).getOrElse(Nil) ::: item.ancestors.reverse.map(Concept(_)) ::: List(item))
