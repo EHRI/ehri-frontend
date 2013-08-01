@@ -1,0 +1,17 @@
+@(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("country.search")) {
+    @views.html.search.searchForm(result, params, action) {
+        @country.searchItemList(result)
+    }
+} {
+    @common.sidebarSection(None) {
+        @userOpt.map { user =>
+            @if(user.hasPermission(ContentType.Country, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@controllers.archdesc.routes.Countries.create">@Messages("actions.createCountry")</a>
+            }
+        }
+    }
+    @common.facetList(result.facets, action)
+}

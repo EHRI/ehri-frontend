@@ -1,0 +1,11 @@
+@(page: rest.Page[Repository], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@import controllers.archdesc.Repositories
+
+@rightSidebarLayout(Messages("actions.listRepositories")) {
+    @common.filterableList("pagination.displayingItems", page, params) {
+        @repository.itemList(page)
+    }
+} {
+
+}

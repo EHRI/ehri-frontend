@@ -1,0 +1,5 @@
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@noSidebarLayout(Messages("errors.databaseError")) {
+	<p class="text-error">@Messages("errors.databaseErrorExplanation")</p>
+}

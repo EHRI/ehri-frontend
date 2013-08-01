@@ -1,0 +1,18 @@
+@(result: utils.search.ItemPage[(AnyModel,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+
+<ul class="unstyled">
+    @result.items.map { case(item, id) =>
+        @defining(Some(id)) { implicit descriptionId =>
+            <li>
+                @item match {
+                    case d: AuthoritativeSet => {
+                        @authoritativeSet.listItem(d)
+                    }
+                    case _ => {
+                        <div>Unknown model for list: @item</div>
+                    }
+                }
+            </li>
+        }
+    }
+</ul>

@@ -1,3 +1,0 @@
-5000:models.sql.OpenIDUserDAOPlugin
-5001:controllers.OpenIDLoginHandler
-5002:solr.SolrDispatcher

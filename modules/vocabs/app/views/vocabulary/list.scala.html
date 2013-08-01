@@ -1,0 +1,26 @@
+@(page: rest.Page[Vocabulary], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("actions.listVocabularies")) {
+
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+
+    @common.pagination(page)
+	
+	<ul class="unstyled">
+	    @page.items.map { item =>
+            <li>
+                @vocabulary.listItem(item)
+            </li>
+        }
+	</ul>
+
+} {
+    @common.sidebarSection(None) {
+        @userOpt.map { user =>
+            @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Create)) {
+                <a class="btn btn-primary" href="@controllers.vocabs.routes.Vocabularies.create">@Messages("actions.createVocabulary")</a>
+            }
+        }
+    }
+
+}

@@ -1,0 +1,13 @@
+@(f: play.api.data.Form[UserProfileF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@rightSidebarLayout(Messages("actions.createUserProfile")) {
+    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @userProfile.renderForm(None, f)
+
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.createUserProfile"))
+	}
+} {
+
+}

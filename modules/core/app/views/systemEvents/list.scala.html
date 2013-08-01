@@ -1,0 +1,38 @@
+@(page: rest.Page[SystemEvent], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("actions.listSystemEvents")) {
+
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+
+	<ul class="unstyled">
+	@page.items.map { item =>
+	  	<div class="list-item">
+			<h4>
+                <a data-timestamp="@item.time" href="@controllers.core.routes.SystemEvents.get(item.id)">
+                    @item.scope.map { scope =>
+                        @scope.toStringLang -
+                    }
+                    <i>@item.toStringLang</i>
+                </a>
+			</h4>
+            <small>
+                <ul class="unstyled muted inline inline-separator">
+                    @item.actioner.map { accessor =>
+                        <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
+                    }
+                    <li>@views.Helpers.prettyDate(item.model.timestamp)</li>
+                </ul>
+            </small>
+            <small>
+            @item.model.logMessage.map { lm =>
+                <p>@lm</p>
+            }
+            </small>
+		</div>
+	}
+	</ul>
+    @common.pagination(page)
+
+} {
+
+}

@@ -1,0 +1,14 @@
+@(item: Accessible, historyUrl: Call)
+
+@item.latestEvent.map { ev =>
+    <div class="well well-small latest-event">
+        <strong title="@common.eventTitle(ev)">@views.Helpers.prettyDate(ev.model.timestamp)</strong>
+        <p class="muted">
+            <em>@ev.toStringLang</em>
+        </p>
+        <p>
+            <small><a href="@historyUrl">@Messages("actions.history")</a></small>
+        </p>
+
+    </div>
+}

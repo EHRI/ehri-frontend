@@ -1,0 +1,97 @@
+# Routes for countries/repositories/documentary units
+
+# Default to country list...
+GET     /                                               @controllers.archdesc.Countries.search
+
+# Home page
+GET     /docs                                           @controllers.archdesc.DocumentaryUnits.search
+GET     /docs/list                                      @controllers.archdesc.DocumentaryUnits.list
+# Testing
+GET     /docs/meta/:id                                  @controllers.archdesc.DocumentaryUnits.getClientJson(id)
+
+GET     /docs/show/:id                                  @controllers.archdesc.DocumentaryUnits.get(id: String)
+GET     /docs/history/:id                               @controllers.archdesc.DocumentaryUnits.history(id: String)
+GET     /docs/delete/:id                                @controllers.archdesc.DocumentaryUnits.delete(id: String)
+POST    /docs/delete/:id                                @controllers.archdesc.DocumentaryUnits.deletePost(id: String)
+GET     /docs/update/:id                                @controllers.archdesc.DocumentaryUnits.update(id: String)
+POST    /docs/update/:id                                @controllers.archdesc.DocumentaryUnits.updatePost(id: String)
+GET     /docs/create/:id                                @controllers.archdesc.DocumentaryUnits.createDoc(id: String)
+POST    /docs/create/:id                                @controllers.archdesc.DocumentaryUnits.createDocPost(id: String)
+GET     /docs/createDescription/:id                     @controllers.archdesc.DocumentaryUnits.createDescription(id: String)
+POST    /docs/createDescription/:id                     @controllers.archdesc.DocumentaryUnits.createDescriptionPost(id: String)
+GET     /docs/updateDescription/:id/:did                @controllers.archdesc.DocumentaryUnits.updateDescription(id: String, did: String)
+POST    /docs/updateDescription/:id/:did                @controllers.archdesc.DocumentaryUnits.updateDescriptionPost(id: String, did: String)
+GET     /docs/deleteDescription/:id/:did                @controllers.archdesc.DocumentaryUnits.deleteDescription(id: String, did: String)
+POST    /docs/deleteDescription/:id/:did                @controllers.archdesc.DocumentaryUnits.deleteDescriptionPost(id: String, did: String)
+GET     /docs/visibility/:id                            @controllers.archdesc.DocumentaryUnits.visibility(id: String)
+POST    /docs/visibility/:id                            @controllers.archdesc.DocumentaryUnits.visibilityPost(id: String)
+GET     /docs/permissions/:id/manage                    @controllers.archdesc.DocumentaryUnits.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     /docs/permissions/:id/add                       @controllers.archdesc.DocumentaryUnits.addItemPermissions(id: String)
+GET     /docs/permissions/:id/:userType/:userId         @controllers.archdesc.DocumentaryUnits.setItemPermissions(id: String, userType: String, userId: String)
+POST    /docs/permissions/:id/:userType/:userId         @controllers.archdesc.DocumentaryUnits.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /docs/scope/:id/add                             @controllers.archdesc.DocumentaryUnits.addScopedPermissions(id: String)
+GET     /docs/scope/:id/:userType/:userId               @controllers.archdesc.DocumentaryUnits.setScopedPermissions(id: String, userType: String, userId: String)
+POST    /docs/scope/:id/:userType/:userId               @controllers.archdesc.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: String, userId: String)
+
+GET     /docs/link/:id                                  @controllers.archdesc.DocumentaryUnits.linkTo(id: String)
+GET     /docs/link/:id/:toType                          @controllers.archdesc.DocumentaryUnits.linkAnnotateSelect(id: String, toType: String)
+GET     /docs/link/:id/:toType/:to                      @controllers.archdesc.DocumentaryUnits.linkAnnotate(id: String, toType: String, to: String)
+POST    /docs/link/:id/:toType/:to                      @controllers.archdesc.DocumentaryUnits.linkAnnotatePost(id: String, toType: String, to: String)
+GET     /docs/linkm/:id                                 @controllers.archdesc.DocumentaryUnits.linkMultiAnnotate(id: String)
+POST    /docs/linkm/:id                                 @controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost(id)
+POST    /docs/linkjs/:id/:accessPoint                   @controllers.archdesc.DocumentaryUnits.createLink(id: String, accessPoint: String)
+GET     /docs/linkjs/:id/:accessPoint                   @controllers.archdesc.DocumentaryUnits.getLink(id: String, accessPoint: String)
+POST    /docs/linkjs/:id                                @controllers.archdesc.DocumentaryUnits.createMultipleLinks(id: String)
+# Refetch access point HTML@
+GET     /docs/accessPoints/:id/:desc                    @controllers.archdesc.DocumentaryUnits.manageAccessPoints(id: String, desc: String)
+POST    /docs/accessPoints/create/:id/:desc             @controllers.archdesc.DocumentaryUnits.createAccessPoint(id: String, desc: String)
+GET     /docs/accessPointsJs/:id                        @controllers.archdesc.DocumentaryUnits.getAccessPointsJson(id: String)
+POST    /docs/deleteAccess/:id/:accessPoint             @controllers.archdesc.DocumentaryUnits.deleteAccessPointAction(id: String, accessPoint: String)
+POST    /docs/deleteLink/:id/:link                      @controllers.archdesc.DocumentaryUnits.deleteLink(id: String, link: String)
+
+
+# Testing
+GET     /repository/meta/:id                            @controllers.archdesc.Repositories.getClientJson(id)
+
+GET     /repository                                     @controllers.archdesc.Repositories.search
+GET     /repository/list                                @controllers.archdesc.Repositories.list
+GET     /repository/show/:id                            @controllers.archdesc.Repositories.get(id: String)
+GET     /repository/history/:id                         @controllers.archdesc.Repositories.history(id: String)
+GET     /repository/delete/:id                          @controllers.archdesc.Repositories.delete(id: String)
+POST    /repository/delete/:id                          @controllers.archdesc.Repositories.deletePost(id: String)
+GET     /repository/update/:id                          @controllers.archdesc.Repositories.update(id: String)
+POST    /repository/update/:id                          @controllers.archdesc.Repositories.updatePost(id: String)
+GET     /repository/create/:id                          @controllers.archdesc.Repositories.createDoc(id: String)
+POST    /repository/create/:id                          @controllers.archdesc.Repositories.createDocPost(id: String)
+GET     /repository/visibility/:id                      @controllers.archdesc.Repositories.visibility(id: String)
+POST    /repository/visibility/:id                      @controllers.archdesc.Repositories.visibilityPost(id: String)
+GET     /repository/permissions/:id/manage              @controllers.archdesc.Repositories.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     /repository/permissions/:id/add                 @controllers.archdesc.Repositories.addItemPermissions(id: String)
+GET     /repository/permissions/:id/:userType/:userId   @controllers.archdesc.Repositories.setItemPermissions(id: String, userType: String, userId: String)
+POST    /repository/permissions/:id/:userType/:userId   @controllers.archdesc.Repositories.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /repository/scope/:id/add                       @controllers.archdesc.Repositories.addScopedPermissions(id: String)
+GET     /repository/scope/:id/:userType/:userId         @controllers.archdesc.Repositories.setScopedPermissions(id: String, userType: String, userId: String)
+POST    /repository/scope/:id/:userType/:userId         @controllers.archdesc.Repositories.setScopedPermissionsPost(id: String, userType: String, userId: String)
+
+GET     /country/show/:id                               @controllers.archdesc.Countries.get(id: String)
+GET     /country/history/:id                            @controllers.archdesc.Countries.history(id: String)
+GET     /country/create                                 @controllers.archdesc.Countries.create
+POST    /country/create                                 @controllers.archdesc.Countries.createPost
+GET     /country/delete/:id                             @controllers.archdesc.Countries.delete(id: String)
+POST    /country/delete/:id                             @controllers.archdesc.Countries.deletePost(id: String)
+GET     /country/update/:id                             @controllers.archdesc.Countries.update(id: String)
+POST    /country/update/:id                             @controllers.archdesc.Countries.updatePost(id: String)
+GET     /country/create/:id                             @controllers.archdesc.Countries.createRepository(id: String)
+POST    /country/create/:id                             @controllers.archdesc.Countries.createRepositoryPost(id: String)
+GET     /country/visibility/:id                         @controllers.archdesc.Countries.visibility(id: String)
+POST    /country/visibility/:id                         @controllers.archdesc.Countries.visibilityPost(id: String)
+GET     /country/permissions/:id/manage                 @controllers.archdesc.Countries.managePermissions(id: String, page: Int ?= 1, spage: Int ?= 1, limit: Int ?=20)
+GET     /country/permissions/:id/add                    @controllers.archdesc.Countries.addItemPermissions(id: String)
+GET     /country/permissions/:id/:userType/:userId      @controllers.archdesc.Countries.setItemPermissions(id: String, userType: String, userId: String)
+POST    /country/permissions/:id/:userType/:userId      @controllers.archdesc.Countries.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /country/scope/:id/add                          @controllers.archdesc.Countries.addScopedPermissions(id: String)
+GET     /country/scope/:id/:userType/:userId            @controllers.archdesc.Countries.setScopedPermissions(id: String, userType: String, userId: String)
+POST    /country/scope/:id/:userType/:userId            @controllers.archdesc.Countries.setScopedPermissionsPost(id: String, userType: String, userId: String)
+
+# Assets...
+GET /assets/*file                   controllers.archdesc.Assets.at(path="/public", file)

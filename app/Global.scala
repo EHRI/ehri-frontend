@@ -2,6 +2,10 @@
 // Global request object
 //
 
+import _root_.controllers.core.OpenIDLoginHandler
+import _root_.models.{HistoricalAgent, Repository, DocumentaryUnit, Concept}
+import defines.EntityType
+import global.{GlobalConfig, MenuConfig, RouteRegistry}
 import play.api._
 import play.api.mvc._
 
@@ -10,8 +14,12 @@ import org.apache.commons.codec.binary.Base64
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
 import rest.EntityDAO
-import solr.SolrIndexer
-import solr.SolrIndexer.SolrErrorResponse
+import solr.{SolrErrorResponse, SolrIndexer}
+
+import com.tzavellas.sse.guice.ScalaModule
+import utils.search.{Indexer, Dispatcher}
+import global.GlobalConfig
+
 
 /**
  * Filter that applies CSRF protection unless a particular
@@ -33,41 +41,119 @@ class AjaxCSRFFilter extends EssentialFilter {
   }
 }
 
+package globalconfig {
 
-// Note: this is in the default package.
+  import global.RouteRegistry
+
+  object RunConfiguration extends GlobalConfig {
+
+    val searchDispatcher: Dispatcher = solr.SolrDispatcher()
+
+    implicit lazy val menuConfig: MenuConfig = new MenuConfig {
+      val mainSection: Iterable[(String, String)] = Seq(
+        ("pages.search",                  controllers.routes.Search.search.url),
+        ("contentTypes.documentaryUnit",  controllers.archdesc.routes.DocumentaryUnits.search.url),
+        ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search.url),
+        ("contentTypes.repository",       controllers.archdesc.routes.Repositories.search.url),
+        ("contentTypes.cvocConcept",      controllers.vocabs.routes.Concepts.search.url)
+      )
+      val adminSection: Iterable[(String, String)] = Seq(
+        ("contentTypes.userProfile",      controllers.core.routes.UserProfiles.search.url),
+        ("contentTypes.group",            controllers.core.routes.Groups.list.url),
+        ("contentTypes.country",          controllers.archdesc.routes.Countries.search.url),
+        ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list.url),
+        ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list.url),
+        ("s1", "-"),
+        ("contentTypes.systemEvent",      controllers.core.routes.SystemEvents.list.url),
+        ("s2", "-"),
+        ("search.updateIndex",            controllers.routes.Search.updateIndex.url)
+      )
+    }
+
+    // Implicit 'this' var so we can have a circular reference
+    // to the current global inside the login handler.
+    private implicit lazy val globalConfig = this
+    val loginHandler = new OpenIDLoginHandler
+
+    val routeRegistry = new RouteRegistry(Map(
+      EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get _,
+      EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get _,
+      EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get _,
+      EntityType.Repository -> controllers.archdesc.routes.Repositories.get _,
+      EntityType.Group -> controllers.core.routes.Groups.get _,
+      EntityType.UserProfile -> controllers.core.routes.UserProfiles.get _,
+      EntityType.Annotation -> controllers.core.routes.Annotations.get _,
+      EntityType.Link -> controllers.core.routes.Links.get _,
+      EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get _,
+      EntityType.AuthoritativeSet -> controllers.authorities.routes.AuthoritativeSets.get _,
+      EntityType.Concept -> controllers.vocabs.routes.Concepts.get _,
+      EntityType.Country -> controllers.archdesc.routes.Countries.get _
+    ), default = (s: String) => new Call("GET", "/"))
+  }
+}
+
+
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
+
+  lazy val searchIndexer = new SolrIndexer(typeRegistry = Map(
+    EntityType.Concept -> models.Concept.toSolr,
+    EntityType.DocumentaryUnit -> models.DocumentaryUnit.toSolr,
+    EntityType.Repository -> models.Repository.toSolr,
+    EntityType.HistoricalAgent -> models.HistoricalAgent.toSolr
+  ))
+
+
+  class ProdModule extends ScalaModule {
+    def configure() {
+      bind[GlobalConfig].toInstance(globalconfig.RunConfiguration)
+      bind[Indexer].toInstance(searchIndexer)
+    }
+  }
+
+  private lazy val injector = {
+    com.google.inject.Guice.createInjector(new ProdModule)
+  }
+
+  override def getControllerInstance[A](clazz: Class[A]) = {
+    injector.getInstance(clazz)
+  }
 
   override def onStart(app: Application) {
 
-    import play.api.libs.concurrent.Execution.Implicits._
+    // Hack for bug #845
+    app.routes
+
+    // Register JSON models! This is still currently
+    // operating on mutable state until I can work out
+    // how to inject it without
+    models.json.Utils.registerModels
+
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers
+    import play.api.libs.concurrent.Execution.Implicits._
+
     EntityDAO.addCreateHandler { item =>
       Logger.logger.info("Binding creation event to Solr create action")
-      solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
-        batchList.map { r => r match {
-            case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
-            case ok => ok
-          }
+      searchIndexer.updateItem(item, commit = true).map { r => r match {
+          case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
+          case ok => ok
         }
       }
     }
 
     EntityDAO.addUpdateHandler { item =>
       Logger.logger.info("Binding update event to Solr update action")
-      solr.SolrIndexer.updateItems(Stream(item)).map { batchList =>
-        batchList.map { r => r match {
-            case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
-            case ok => ok
-          }
+      searchIndexer.updateItem(item, commit = true).map { r => r match {
+          case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
+          case ok => ok
         }
       }
     }
 
     EntityDAO.addDeleteHandler { item =>
       Logger.logger.info("Binding delete event to Solr delete action")
-      solr.SolrIndexer.deleteItemsById(Stream(item)).map { r => r match {
+      searchIndexer.deleteItemsById(Stream(item)).map { r => r match {
           case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
           case ok => ok
         }

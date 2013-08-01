@@ -1,8 +1,0 @@
-@(page: rest.Page[HistoricalAgent], params: ListParams)(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang, flash: Flash)
-
-@rightSidebarLayout(Messages("actions.listHistoricalAgents")) {
-    @common.filterableList("pagination.displayingItems", page, params, HistoricalAgents.listFilterMappings.keys, HistoricalAgents.orderMappings.keys) {
-        @historicalAgent.itemList(page)
-    }
-} {
-}

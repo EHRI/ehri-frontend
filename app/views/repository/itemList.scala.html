@@ -1,7 +1,0 @@
-@(page: rest.Page[Repository])(implicit maybeUser: Option[UserProfile], req: RequestHeader, lang: Lang)
-
-<ul class="unstyled">
-    @page.items.map { item =>
-        @repository.listItem(item)
-    }
-    </ul>

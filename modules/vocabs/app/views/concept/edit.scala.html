@@ -1,0 +1,17 @@
+@(item: Concept, f: play.api.data.Form[models.ConceptF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+ 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@rightSidebarLayout(Messages("actions.updateConcept"), breadcrumbs = concept.breadcrumbs(item)) {
+		
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+		@concept.renderForm(Some(item), f)
+
+        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateConcept"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+	}
+} {
+
+}
+`
