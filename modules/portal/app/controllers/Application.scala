@@ -1,5 +1,6 @@
 package controllers.portal
 
+import _root_.models.UserProfile
 import controllers.base.EntitySearch
 import models.base.AnyModel
 import play.api._
@@ -9,16 +10,16 @@ import play.api.http.MimeTypes
 
 import com.google.inject._
 import utils.search.{SearchOrder, SearchParams}
-import play.api.libs.json.{Writes, Json}
+import play.api.libs.json.{Format, Writes, Json}
 
 
 @Singleton
 class Application @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with EntitySearch {
 
   /**
-   * Full text search action that returns a complete page of item data.
-   * @return
-   */
+* Full text search action that returns a complete page of item data.
+* @return
+*/
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
   def search = searchAction[AnyModel](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score)))) {
@@ -31,10 +32,10 @@ class Application @Inject()(implicit val globalConfig: global.GlobalConfig) exte
   }
 
   /**
-   * Quick filter action that searches applies a 'q' string filter to
-   * only the name_ngram field and returns an id/name pair.
-   * @return
-   */
+* Quick filter action that searches applies a 'q' string filter to
+* only the name_ngram field and returns an id/name pair.
+* @return
+*/
   def filter = filterAction() { page => implicit userOpt => implicit request =>
     Ok(Json.obj(
       "numPages" -> page.numPages,
@@ -48,7 +49,7 @@ class Application @Inject()(implicit val globalConfig: global.GlobalConfig) exte
 
 
 
-  def routes = Action { implicit request =>
+  def jsRoutes = Action { implicit request =>
 
     import controllers.core.routes.javascript._
     import controllers.archdesc.routes.javascript.DocumentaryUnits
@@ -61,6 +62,8 @@ class Application @Inject()(implicit val globalConfig: global.GlobalConfig) exte
 
     Ok(
       Routes.javascriptRouter("jsRoutes")(
+        controllers.portal.routes.javascript.Application.account,
+        controllers.portal.routes.javascript.Application.profile,
         controllers.portal.routes.javascript.Application.search,
         controllers.portal.routes.javascript.Application.filter,
         Application.getType,
@@ -86,8 +89,16 @@ class Application @Inject()(implicit val globalConfig: global.GlobalConfig) exte
     ).as(MimeTypes.JAVASCRIPT)
   }
 
-  def index = Action { implicit request =>
-		Ok(views.html.portal())
+  def account = userProfileAction { implicit userOpt => implicit request =>
+    Ok(Json.toJson(userOpt.flatMap(_.account)))
+  }
+
+  def profile = userProfileAction { implicit userOpt => implicit request =>
+    Ok(Json.toJson(userOpt)(Format.optionWithNull(UserProfile.Converter.clientFormat)))
+  }
+
+  def index = userProfileAction { implicit userOpt => implicit request =>
+    Ok(views.html.portal())
   }
 }
 
