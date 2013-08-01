@@ -10,6 +10,10 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
 object CountryF {
+
+  val REPORT = "report"
+  val ABSTRACT = "abstract"
+
   implicit object Converter extends RestConvertable[CountryF] with ClientConvertable[CountryF] {
     lazy val restFormat = models.json.CountryFormat.restFormat
     lazy val clientFormat = Json.format[CountryF]
@@ -19,7 +23,9 @@ object CountryF {
 case class CountryF(
   isA:EntityType.Value = EntityType.Country,
   id: Option[String],
-  identifier: String
+  identifier: String,
+  abs: Option[String],
+  report: Option[String]
 ) extends Model with Persistable
 
 

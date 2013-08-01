@@ -9,13 +9,15 @@ import defines.EntityType
  * Country model form.
  */
 object CountryForm {
-
+  import CountryF._
 
   val form = Form(
     mapping(
       Entity.ISA -> ignored(EntityType.Country),
       Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText(minLength=2,maxLength=2) // ISO 2-letter field
+      Entity.IDENTIFIER -> nonEmptyText(minLength=2,maxLength=2), // ISO 2-letter field
+      ABSTRACT -> optional(nonEmptyText),
+      REPORT -> optional(nonEmptyText)
     )(CountryF.apply)(CountryF.unapply)
   )
 }

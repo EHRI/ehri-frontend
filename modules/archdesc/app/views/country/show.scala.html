@@ -4,7 +4,11 @@
 @rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
-        <p class="alert-info">TODO: Add country information here</p>
+        @item.model.report.map { report =>
+            <div class="national-report">
+                @Html(report)
+            </div>
+        }
     }
 
     @views.html.search.searchSection(Messages("country.searchInside", item.toStringAbbr)) {
