@@ -1,8 +1,10 @@
 # Routes for portal routes
 
 GET     /                                   @controllers.portal.Application.index
+GET     /account                            @controllers.portal.Application.account
+GET     /profile                            @controllers.portal.Application.profile
 GET     /search                             @controllers.portal.Application.search
 GET     /filter                             @controllers.portal.Application.filter
-GET     /routes                             @controllers.portal.Application.routes
+GET     /routes                             @controllers.portal.Application.jsRoutes
 
 GET     /assets/*file                       controllers.portal.Assets.at(path="/public", file)
