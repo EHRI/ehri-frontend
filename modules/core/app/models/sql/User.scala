@@ -1,6 +1,16 @@
 package models.sql
 
 import play.api.Plugin
+import play.api.libs.json.{JsValue, Json, Writes}
+
+object User {
+  implicit val userWrites: Writes[User] = new Writes[User] {
+    def writes(user: User): JsValue = Json.obj(
+      "email" -> user.email,
+      "profile_id" -> user.profile_id
+    )
+  }
+}
 
 trait User {
 	def email: String

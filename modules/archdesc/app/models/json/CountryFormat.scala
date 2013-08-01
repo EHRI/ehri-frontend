@@ -12,6 +12,7 @@ import eu.ehri.project.definitions.Ontology
 
 object CountryFormat {
   import models.Entity._
+  import models.CountryF._
 
   implicit val countryWrites: Writes[CountryF] = new Writes[CountryF] {
     def writes(d: CountryF): JsValue = {
@@ -19,7 +20,9 @@ object CountryFormat {
         ID -> d.id,
         TYPE -> d.isA,
         DATA -> Json.obj(
-          IDENTIFIER -> d.identifier
+          IDENTIFIER -> d.identifier,
+          ABSTRACT -> d.abs,
+          REPORT -> d.report
         )
       )
     }
@@ -28,7 +31,9 @@ object CountryFormat {
   lazy implicit val countryReads: Reads[CountryF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Country)) and
     (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String]
+      (__ \ DATA \ IDENTIFIER).read[String] and
+      (__ \ DATA \ ABSTRACT).readNullable[String] and
+      (__ \ DATA \ REPORT).readNullable[String]
     )(CountryF.apply _)
 
   implicit val restFormat: Format[CountryF] = Format(countryReads,countryWrites)
