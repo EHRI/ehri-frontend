@@ -3,5 +3,11 @@
 @common.searchItemOutline(item.id) {
     <a href="@controllers.archdesc.routes.Countries.get(item.id)">@item.toStringLang</a>
 } {
+<<<<<<< HEAD
 
+=======
+    @item.model.abs.map { abs =>
+        <div class="national-report">@Html(abs)</div>
+    }
+>>>>>>> 304ea30... Hack around formatting issue
 }
