@@ -1,4 +1,4 @@
-portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', 'myBasketService', 'Map', function($scope, $http, $routeParams, $location, $service, $anchorScroll, paginationService, $basket, $map) {
+portal.controller('SearchCtrl', ['$scope', 'portal', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', 'myBasketService', 'Map', function($scope, $portal, $http, $routeParams, $location, $service, $anchorScroll, paginationService, $basket, $map) {
 	$scope.results = {	//Results object
 		raw: {	//Raw Results
 		},
@@ -21,18 +21,18 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 		pagination : {
 			available: false, //Number of available pages for said query (previously numPages)
 			next: function() { //Previously loadMore
-				var next = $scope.ui.search.params.page + 1;
-				/*	
+				console.log("Next page");
+				var next = parseInt($scope.ui.search.params.page) + 1;
+				// /*	
 					//Debug
 					console.log("Available =" +this.available);
 					console.log("Next = " + next);
 					console.log("Next loaded = " + (!$scope.results.loaded[next]));
 					//End debug
-				*/
+				// */
 				if(	$scope.ui.general.loading == false && //Check if not currently loading, avoiding multiple load
 					next <= this.available &&	//Check if current page is not maximum
 					(!$scope.results.loaded[next]))	{	//Check if not already loaded
-					
 					$scope.ui.general.loading = true;	//Set loading
 					$scope.ui.search.params.page = next;	//Set param
 					$scope.ui.search.load();	//Load data (!= New query)
@@ -70,7 +70,7 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 			auto: false,	//True : search while typing, false : need to press enter or submit button (previously noSearchOnChange)
 			params : { q: "", sort: "score.desc", page:1}, // Original filters, page added as 1 (previously currentPage)
 			get: function () {	// Function to get results for a new query
-				var url = this.url('/search');	//Get url with params
+				var url = this.url();	//Get url with params
 				$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {	//Get json
 					//Erase every results data and put raw data results in it
 					$scope.results = {	raw: data, pages: {},loaded: {	}};
@@ -94,7 +94,11 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 					//Set facets
 					$scope.ui.search.facets = data.page.facets;
 					//Set number of available pages
-					$scope.ui.pagination.available = data.numPages;
+					
+					//Calculate the number of available pages
+					var numPages = Math.ceil(data.page.total / data.page.limit);
+					
+					$scope.ui.pagination.available = numPages;
 					//Stop loading
 					$scope.ui.general.loading = false;
 					//console.log($scope.results);
@@ -140,7 +144,8 @@ portal.controller('SearchCtrl', ['$scope', '$http', '$routeParams', '$location',
 				},
 				last : false //For debugging, if last filter causes bug				
 			},
-			url : function(url) {	//Set the API search url
+			url : function() {	//Set the API search url
+				url = $portal.controllers.portal.Application.search().url;
 				url = url + '?';	//Add question mark
 				var urlArr = [];
 				angular.forEach($scope.ui.search.params, function(value, key) {

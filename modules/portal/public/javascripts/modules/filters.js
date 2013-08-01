@@ -76,7 +76,7 @@ portal
 							// console.log("not called");
 							// console.log(opt.returnProp);
 							if(opt.returnProp) {
-								filtered[0] = {"text" : deepVal, "id" : description.id, "name" : description.data.name};
+								filtered[0] = {"text" : deepVal, "id" : description.id, "name" : description.name};
 							} else {
 								filtered[0] = description;
 							}
@@ -87,7 +87,7 @@ portal
 							// console.log("not not called");
 							// console.log(opt.returnProp);
 							if(opt.returnProp) {
-								filtered[0] = {"text" : deepVal, "id" : description.id, "name" : description.data.name};
+								filtered[0] = {"text" : deepVal, "id" : description.id, "name" : description.name};
 							} else {
 								filtered[0] = description;
 							}
@@ -107,7 +107,7 @@ portal
 							filtered[0] = description;
 							
 							//Last option is definitly lang
-						} else if((lang) && (description.data.languageCode == lang)) {
+						} else if((lang) && (description.languageCode == lang)) {
 							filtered[0] = description;
 						} 
 					}

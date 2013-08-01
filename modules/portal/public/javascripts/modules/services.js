@@ -1,4 +1,7 @@
-portal.factory('myPaginationService', function($rootScope) {
+portal.factory("portal", function() {
+	var portal = jsRoutes;
+	return portal;
+}).factory('myPaginationService', function($rootScope) {
     var paginationService = {};
     
     paginationService.paginationDatas = {'current' : 1, 'max': 5, 'num': false};
@@ -99,7 +102,7 @@ portal.factory('myPaginationService', function($rootScope) {
 				}
 			},
 			set: function(position) {	//Broadcast said position previously getPosition
-				console.log(position);
+				//console.log(position);
 				$rootScope.position = position;
 				Map.broadcast.center();
 			}
