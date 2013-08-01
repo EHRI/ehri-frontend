@@ -101,7 +101,7 @@ portal.directive('whenScrolled', function ($window) {
         replace: true,
 		transclude: true,
 		scope: {desc: '=src', colorclass:'='},
-        templateUrl: ANGULAR_ROOT + "/view/directive-viewdescriptionFields.html",
+        templateUrl: ANGULAR_ROOT + "/view/directive-view/descriptionFields.html",
 		link: function(scope,element, attrs) {
 			scope.$watch('desc', function(walks) {
 				console.log(scope.desc);
@@ -114,7 +114,7 @@ portal.directive('whenScrolled', function ($window) {
 		replace: true,
 		transclude: true,
 		scope: { title:"@" },
-		templateUrl: ANGULAR_ROOT + "/view/directive-viewsimple-block.html"
+		templateUrl: ANGULAR_ROOT + "/view/directive-view/simple-block.html"
 	}
 	
 }]).directive("documentBlock", ['$rootScope', function($rootScope) {
@@ -123,7 +123,7 @@ portal.directive('whenScrolled', function ($window) {
 		replace: true,
 		transclude: true,
 		scope: { itemtitle:"=", itemid:'=', show:'=', show:'=', reduce:'='},
-		templateUrl: ANGULAR_ROOT + "/view/directive-viewui-blocks.html",
+		templateUrl: ANGULAR_ROOT + "/view/directive-view/ui-blocks.html",
 		link: function($scope,$element, $attrs) {
 				
 				//Id for element
