@@ -7,7 +7,7 @@
 	<div class="row">
 		<div class="span8">
 			<dud src="item.desc.data"></dud>
-			<dud ng-repeat="newItem in ui.compare.data" src="newItem.relationships.describes.0" id="newItem-{{desc.id}}" colorclass="newItem.color"></dud>
+			<dud ng-repeat="newItem in ui.compare.data" src="newItem.descriptions.0" id="newItem-{{desc.id}}" colorclass="newItem.color"></dud>
 		</div>
 		<div class="span4">
 			<ul class="unstyled">
@@ -25,14 +25,14 @@
 				<li class="ui-block">
 					<h2 class="nomargin">Available descriptions</h2>
 					<ul class="list-item">
-						<li ng-repeat="desc in item.raw.relationships.describes">
-						{{desc.data.languageCode}} - {{desc.data.name}}
+						<li ng-repeat="desc in item.raw.descriptions">
+						{{desc.languageCode}} - {{desc.name}}
 						<a class="filterBar-icon" ng-click="item.desc.set(desc.id)"><i class="icon-chevron-right"></i></a>
 						</li>
 					</ul>
 					<ul class="list-item" ng-repeat="comparedItem in ui.compare.data">
-						<li ng-repeat="desc in comparedItem.relationships.describes">
-						{{desc.data.languageCode}} - {{desc.data.name}}
+						<li ng-repeat="desc in comparedItem.descriptions">
+						{{desc.languageCode}} - {{desc.name}}
 						<a class="filterBar-icon" ng-click="ui.compare.remove(comparedItem.id)"><i class="icon-remove"></i></a>
 						</li>
 					</ul>
@@ -59,7 +59,7 @@
 				
 					</form>
 					<ul class="list-item">
-						<li ng-repeat="item in ui.search.results">{{item.relationships.describes[0].data.name}}
+						<li ng-repeat="item in ui.search.results">{{item.descriptions[0].name}}
 							<a class="filterBar-icon" ng-click="ui.compare.load(item.id)"><i class="icon-plus"></i></a>
 						</li>
 					</ul>

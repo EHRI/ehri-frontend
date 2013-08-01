@@ -56,8 +56,8 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http
 			results : {},// Results object
 			params : { q: "", type: "score", order: "desc"}, // Original filters
 			get: function () {	// Function to get results
-				url = '/search?type=documentaryUnit&sort=' + $scope.ui.search.params.type + '.' + $scope.ui.search.params.order+ '&q=' + $scope.ui.search.params.q;
-				$http.get(url, {headers: {'Accept': "application/json"}}).success(function(data) {
+				query = '?sort=' + $scope.ui.search.params.type + '.' + $scope.ui.search.params.order+ '&q=' + $scope.ui.search.params.q;
+				$http.get($item.search("documentaryUnit").url + query, $item.search("documentaryUnit").headers).success(function(data) {
 					$scope.ui.search.results = data.page.items;
 				});
 			},
@@ -101,8 +101,12 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http
 			data: {}, //Compared data
 			load: function(itemId) { // Load a description for a compared item
 				if(!$scope.ui.compare.data[itemId])	{
-					$http.get('./api/documentaryUnit/'+itemId).success(function(data) {
+					$http.get($item.get("documentaryUnit", itemId).url, $item.get("documentaryUnit", itemId).headers).success(function(data) {
 						$scope.ui.compare.data[itemId] = data;
+						angular.forEach($scope.ui.compare.data[itemId].descriptions, function(value, key) {
+							console.log(value);
+							$scope.ui.compare.data[itemId].descriptions[key] = $item.format(value);
+						});
 						$scope.ui.compare.data[itemId].color = $scope.ui.compare.color();
 						$scope.ui.url.resetCompared();
 					});

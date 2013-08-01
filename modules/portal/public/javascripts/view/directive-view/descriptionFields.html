@@ -1,5 +1,4 @@
 <div>
-{{desc.extentAndMedium}}
 <ul class="{{colorclass}} unstyled">
 <li identifier="identity" title="Identity" itemtitle="desc.name" class="documentBlock"  itemid="desc.id" show="(desc.identity)">
 	<div ng-repeat="(fieldName, fieldValue) in desc.identity" id="{{fieldName}}">
@@ -38,18 +37,10 @@
 
 </li>
 
-<li title="Control" itemtitle="desc.name" class="documentBlock"  itemId="desc.id"  identifier="control"  show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions)">
-	<div id="archivistNote" ng-show="(desc.data.archivistNote)">
-		<h3>Archivist Note </h3>
-		<p>{{desc.data.archivistNote}}</p>
-	</div>
-	<div id="rulesAndConventions" ng-show="(desc.data.rulesAndConventions)">
-		<h3>Rules and Conventions </h3>
-		<p">{{desc.data.rulesAndConventions}}</p>
-	</div>
-	<div id="datesOfDescriptions" ng-show="(desc.data.datesOfDescriptions)">
-		<h3>Dates of Descriptions </h3>
-		<p>{{desc.data.datesOfDescriptions}}</p>
+<li title="Control" itemtitle="desc.name" class="documentBlock"  itemId="desc.id"  identifier="control"  show="(desc.control)">
+	<div ng-repeat="(fieldName, fieldValue) in desc.control" id="{{fieldName}}">
+		<h3>{{fieldName}}</h3>
+		<p>{{fieldValue}}</p>
 	</div>
 </li>
 

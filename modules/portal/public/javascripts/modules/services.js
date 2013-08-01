@@ -97,6 +97,12 @@ portal.factory("portal", function() {
 			if(desc.levelOfDescription) { identity.levelOfDescription = desc.levelOfDescription }
 			desc.identity = identity;
 			return desc;
+		},
+		search : function(type) {
+			return {url: $routing.item[type].search(), headers : {headers: {'Accept': "application/json"}}};
+		},
+		get : function(type, key) {
+			return {url: $routing.item[type].get(key), headers : {headers: {'Accept': "application/json"}}};
 		}
 	}
 	
