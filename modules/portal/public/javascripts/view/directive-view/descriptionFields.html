@@ -1,118 +1,44 @@
+<div>
+{{desc.extentAndMedium}}
 <ul class="{{colorclass}} unstyled">
-<li identifier="identity" title="Identity" itemtitle="desc.data.name" class="documentBlock"  itemid="desc.id" show="(desc.relationships.hasDate) || (desc.data.extentAndMedium)||(desc.data.levelOfDescription)||(desc.data.extentAndMedium)">
-
-	<div id="dates" ng-show="(desc.relationships.hasDate)">
-		<h3>Dates </h3>
-		<ul class="unstyled" ng-repeat="date in desc.relationships.hasDate" id="{{date.type + '' + date.id}}">
-			<li title="Start date">
-			{{formatDate(date.data.startDate)}}
-			</li>
-			<li title="End date">
-			{{formatDate(date.data.endDate)}}
-			</li>
-		</ul>
+<li identifier="identity" title="Identity" itemtitle="desc.name" class="documentBlock"  itemid="desc.id" show="(desc.identity)">
+	<div ng-repeat="(fieldName, fieldValue) in desc.identity" id="{{fieldName}}">
+		<h3>{{fieldName}}</h3>
+		<p>{{fieldValue}}</p>
 	</div>
-	
-	<div id="levelOfDescription" ng-show="(desc.data.levelOfDescription)">
-		<h3>Level of Description</h3>
-		<p>{{desc.data.levelOfDescription}}</p>
-	</div>
-	
-	<div id="extentAndMedium" ng-show="(desc.data.extentAndMedium)">
-		<h3>Extent and Medium</h3>
-		<p>{{desc.data.extentAndMedium}}</p>
-	</div>
-
 </li>
 
-<li identifier="context"  title="Context" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id" show="(desc.data.adminBiogHistory) || (desc.data.archivalHistory) || (desc.data.acquisition)">
-
-	<div id="adminBiogHistory" ng-show="(desc.data.adminBiogHistory)">
-		<h3>Administrative and biographical history</h3>
-		<p>{{desc.data.adminBiogHistory}}</p>
+<li identifier="context"  title="Context" itemtitle="desc.name" class="documentBlock"  itemId="desc.id" show="(desc.context)">
+	<div ng-repeat="(fieldName, fieldValue) in desc.context" id="{{fieldName}}">
+		<h3>{{fieldName}}</h3>
+		<p>{{fieldValue}}</p>
 	</div>
-	<div id="archivalHistory" ng-show="(desc.data.archivalHistory)">
-		<h3>Archival History</h3>
-		<p>{{desc.data.archivalHistory}}</p>
-	</div>
-	<div id="acquisition" ng-show="(desc.data.acquisition)">
-		<h3>Acquisition</h3>
-		<p>{{desc.data.acquisition}}</p>
-	</div>
-
 </li>
 
-<li identifier="content"  title="Content" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id" show="(desc.data.scopeAndContent || desc.data.appraisal || desc.data.accruals || desc.data.systemOfArrangement)">
-	<div id="scopeAndContent" ng-show="(desc.data.scopeAndContent)">
-		<h3> Scope and Content </h3>
-		<p>{{desc.data.scopeAndContent}}</p>
-	</div>
-	
-	<div id="appraisal" ng-show="(desc.data.appraisal)">
-		<h3> Appraisal </h3>
-		<p>{{desc.data.appraisal}}</p>
-	</div>
-	
-	<div id="accruals" ng-show="(desc.data.accruals)">
-		<h3> Accruals </h3>
-		<p>{{desc.data.accruals}}</p>
-	</div>
-	
-	<div id="systemOfArrangement" ng-show="(desc.data.systemOfArrangement)">
-		<h3> System of Arrangement </h3>
-		<p>{{desc.data.systemOfArrangement}}</p>
+<li identifier="content"  title="Content" itemtitle="desc.name" class="documentBlock"  itemId="desc.id" show="(desc.content)">
+	<div ng-repeat="(fieldName, fieldValue) in desc.content" id="{{fieldName}}">
+		<h3>{{fieldName}}</h3>
+		<p>{{fieldValue}}</p>
 	</div>
 </li>
 
 
-<li title="Conditions" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id"  identifier="conditions"  show="(desc.data.conditionsOfAccess ||desc.data.scriptOfMaterials || desc.data.conditionsOfReproduction || desc.data.languageOfMaterials || desc.data.physicalCharacteristics || desc.data.findingAids)">
-	<div id="conditionsOfAccess" ng-show="(desc.data.conditionsOfAccess)">
-		<h3>Conditions Governing Access </h3>
-		<p>{{desc.data.conditionsOfAccess}}</p>
-	</div>
-	<div id="conditionsOfReproduction" ng-show="(desc.data.conditionsOfReproduction)">
-		<h3>Conditions Governing Reproduction </h3>
-		<p>{{desc.data.conditionsOfReproduction}}</p>
-	</div>
-	<div id="languageOfMaterials" ng-show="(desc.data.languageOfMaterials)">
-		<h3>Language of Materials</h3>
-		<ul ng-repeat="lg in desc.data.languageOfMaterials" class="unstyled"><li>{{lg}}</li></ul>
-	</div>
-	<div id="scriptOfMaterials" ng-show="(desc.data.scriptOfMaterials)">
-		<h3>Scripts of Materials</h3>
-		<ul ng-repeat="lg in desc.data.scriptOfMaterials" class="unstyled"><li>{{lg}}</li></ul>
-	</div>
-	<div id="physicalCharacteristics" ng-show="(desc.data.physicalCharacteristics)">
-		<h3>Physical Characteristics and Technical Requirements </h3>
-		<p>{{desc.data.physicalCharacteristics}}</p>
-	</div>
-	<div id="findingAids" ng-show="(desc.data.findingAids)">
-		<h3>Finding Aids</h3>
-		<p>{{desc.data.findingAids}}</p>
+<li title="Conditions" itemtitle="desc.name" class="documentBlock"  itemId="desc.id"  identifier="conditions"  show="(desc.conditions)">
+	<div ng-repeat="(fieldName, fieldValue) in desc.conditions" id="{{fieldName}}">
+		<h3>{{fieldName}}</h3>
+		<p>{{fieldValue}}</p>
 	</div>
 </li>
 
-<li  title="Materials" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id"  identifier="materials"  show="(desc.data.locationOfOriginals || desc.data.locationOfCopies || desc.data.relatedUnitsOfDescription || desc.data.publicationNote)">
-	<div id="locationOfOriginals" ng-show="(desc.data.locationOfOriginals)">
-		<h3>Existence and Location of Originals </h3>
-		<p>{{desc.data.locationOfOriginals}}</p>
-	</div>
-	<div id="locationOfCopies" ng-show="(desc.data.locationOfCopies)">
-		<h3>Existence and Location of Copies </h3>
-		<p>{{desc.data.locationOfCopies}}</p>
-	</div>
-	<div id="relatedUnitsOfDescription" ng-show="(desc.data.relatedUnitsOfDescription)">
-		<h3>Related Units of Description </h3>
-		<p>{{desc.data.relatedUnitsOfDescription}}</p>
-	</div>
-	<div id="publicationNote" ng-show="(desc.data.publicationNote)">
-		<h3>Publication Note </h3>
-		<p>{{desc.data.publicationNote}}</p>
+<li  title="Materials" itemtitle="desc.name" class="documentBlock"  itemId="desc.id"  identifier="materials"  show="(desc.materials)">
+	<div ng-repeat="(fieldName, fieldValue) in desc.materials" id="{{fieldName}}">
+		<h3>{{fieldName}}</h3>
+		<p>{{fieldValue}}</p>
 	</div>
 
 </li>
 
-<li title="Control" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id"  identifier="control"  show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions)">
+<li title="Control" itemtitle="desc.name" class="documentBlock"  itemId="desc.id"  identifier="control"  show="(desc.data.archivistNote || desc.data.rulesAndConventions || desc.data.datesOfDescriptions)">
 	<div id="archivistNote" ng-show="(desc.data.archivistNote)">
 		<h3>Archivist Note </h3>
 		<p>{{desc.data.archivistNote}}</p>
@@ -127,14 +53,14 @@
 	</div>
 </li>
 
-<li title="Unknown property" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id" identifier="unknownFields"  show="desc.relationships.hasUnknownProperty" reduce="true">
+<li title="Unknown property" itemtitle="desc.name" class="documentBlock"  itemId="desc.id" identifier="unknownFields"  show="desc.relationships.hasUnknownProperty" reduce="true">
 	<div ng-repeat="(key,val) in desc.relationships.hasUnknownProperty.0.data" id="unknown-{{key}}">
 		<h3>{{key}}</h3>
 		<p>{{val}}</p>
 	</div>
 </li>
 
-<li title="Access" itemtitle="desc.data.name" class="documentBlock"  itemId="desc.id" identifier="accessPoints"  show="desc.relationships.relatesTo">
+<li title="Access" itemtitle="desc.name" class="documentBlock"  itemId="desc.id" identifier="accessPoints"  show="desc.relationships.relatesTo">
 	<div>
 		<ul class="tags accessPoints">
 			<li ng-repeat="access in desc.relationships.relatesTo" class="{{access.data.type}}">{{access.data.name}}</li>
@@ -142,3 +68,4 @@
 	</div>
 </li>
 </ul>
+</pre>

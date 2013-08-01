@@ -1,5 +1,5 @@
 var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http', 'Item', '$rootScope', function($scope, $filter, $location, $http, $item, $rootScope) {
-
+	console.log($item);
 	$scope.item = { 
 		raw : $item.data, // Raw Datas
 		id : $item.data.id, // Item ID
@@ -8,9 +8,9 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http
 			data : {},
 			load : function() { //Load desc depending on chosen desc (scope.desc.id) OR on language prority through filter.descLang
 				if(this.id)	{ 
-					this.data = $filter("descLang")($scope.item.raw.relationships.describes, false, {"id" : $scope.item.desc.id})[0];
+					this.data = $item.format($filter("descLang")($scope.item.raw.descriptions, false, {"id" : $scope.item.desc.id})[0]);
 				} else {
-					this.data = $filter("descLang")($scope.item.raw.relationships.describes)[0];
+					this.data = $item.format($filter("descLang")($scope.item.raw.descriptions)[0]);
 				}
 			},
 			set : function(descId) { // Set description id

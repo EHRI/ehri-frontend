@@ -47,39 +47,57 @@ portal.factory("portal", function() {
 	
     return basketservice;
 }).factory('Item', function($http){
-	var Item = {}
 	
-	Item.query = function(type, item, returned) {
-		//console.log(type);
-		return $http.get('./api/'+type+'/'+item).success(function(data) {
-			if(returned) {
-				return data;
+	
+	$routing = {
+		item : {
+			documentaryUnit : {
+				get : function(k) { return jsRoutes.controllers.archdesc.DocumentaryUnits.get(k).url},
+				search : function() { return jsRoutes.controllers.archdesc.DocumentaryUnits.search().url}
 			}
-			else {
-				Item.data = data;
-				if(type == "repository" && (data.relationships.describes[0].relationships.hasAddress[0]))
-				{
-					console.log("Getting Address");
-					address = data.relationships.describes[0].relationships.hasAddress[0].data;
-				/*
-					format=[html|xml|json]
-					street=<housenumber> <streetname>
-					city=<city>
-					county=<county>
-					state=<state>
-					country=<country>
-					postalcode=<postalcode>
-				*/
-					$http.get('http://nominatim.openstreetmap.org/search/?format=json&street='+address.street+'&postalcode='+address.postalCode+'&country='+address.countryCode+'').success(function(data) {
-						if(data[0])
-						{
-							Item.geoloc = data[0];
-							console.log(Item.address);
-						}
-					});
+		}
+	}
+	var Item = {
+		query : function(type, item, returned) {
+			//console.log(type);
+			return $http.get($routing.item[type].get(item), {headers: {'Accept': "application/json"}}).success(function(data) {
+				if(returned) {
+					return data;
 				}
-			}
-		});
+				else {
+					Item.data = data;
+					if(type == "repository" && (data.relationships.describes[0].relationships.hasAddress[0]))
+					{
+						console.log("Getting Address");
+						address = data.relationships.describes[0].relationships.hasAddress[0].data;
+					/*
+						format=[html|xml|json]
+						street=<housenumber> <streetname>
+						city=<city>
+						county=<county>
+						state=<state>
+						country=<country>
+						postalcode=<postalcode>
+					*/
+						$http.get('http://nominatim.openstreetmap.org/search/?format=json&street='+address.street+'&postalcode='+address.postalCode+'&country='+address.countryCode+'').success(function(data) {
+							if(data[0])
+							{
+								Item.geoloc = data[0];
+								console.log(Item.address);
+							}
+						});
+					}
+				}
+			});
+		},
+		format : function(desc) {
+			var identity = {};
+			if(desc.dates && desc.dates.length > 0) { identity.dates = desc.dates }
+			if(desc.extentAndMedium) { identity.extentAndMedium = desc.extentAndMedium }
+			if(desc.levelOfDescription) { identity.levelOfDescription = desc.levelOfDescription }
+			desc.identity = identity;
+			return desc;
+		}
 	}
 	
 	return Item;

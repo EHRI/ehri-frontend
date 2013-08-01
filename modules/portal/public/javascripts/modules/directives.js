@@ -125,69 +125,74 @@ portal.directive('whenScrolled', function ($window) {
 		scope: { itemtitle:"=", itemid:'=', show:'=', show:'=', reduce:'='},
 		templateUrl: ANGULAR_ROOT + "/view/directive-view/ui-blocks.html",
 		link: function($scope,$element, $attrs) {
-				
-				//Id for element
-				$scope.id = $attrs.identifier + "-" + $scope.itemid;
-				
-				//Get reduce state (ie. for other properties) for auto closed 
-				if($attrs.reduce) {
-					$scope.closed = true;
-				} else { 
-					$scope.closed = false;
-				}
-				
-				//Merging area name with title of object
-				$scope.title = $attrs.title + " : " + $scope.itemtitle;
-				
-				//If $parent used, and not $parent.$parent
-				if($attrs.level) {
-					$scope.$parent.ui.blocks.list[$scope.id] = {
-						legend: $scope.title, 
-						hidden: false, 
-						closed:$scope.closed 
-					};
+				console.log($scope.show);
+				if(!isEmptyObject($scope.show)) {
+					//Id for element
+					$scope.id = $attrs.identifier + "-" + $scope.itemid;
 					
-					$scope.close = function() {
-						$scope.$parent.ui.blocks.list[$scope.id].closed = !$scope.$parent.ui.blocks.list[$scope.id].closed;
-						$scope.closed = $scope.$parent.ui.blocks.list[$scope.id].closed;
+					//Get reduce state (ie. for other properties) for auto closed 
+					if($attrs.reduce) {
+						$scope.closed = true;
+					} else { 
+						$scope.closed = false;
 					}
-					$scope.hide = function() {
-						$scope.$parent.ui.blocks.list[$scope.id].hidden = !$scope.$parent.ui.blocks.list[$scope.id].hidden;
-						$scope.hidden = $scope.$parent.ui.blocks.list[$scope.id].hidden;
-					}
-					$scope.$on('ui.blocks.functions.toggleClose.'+$scope.id, function() {
-						$scope.closed = $scope.$parent.ui.blocks.list[$scope.id].closed;						
-					});
-					$scope.$on('ui.blocks.functions.toggleHide.'+$scope.id, function() {
-						$scope.hidden = $scope.$parent.ui.blocks.list[$scope.id].hidden;						
-					});
 					
+					//Merging area name with title of object
+					$scope.title = $attrs.title + " : " + $scope.itemtitle;
+					
+					//If $parent used, and not $parent.$parent
+					if($attrs.level) {
+						$scope.$parent.ui.blocks.list[$scope.id] = {
+							legend: $scope.title, 
+							hidden: false, 
+							closed:$scope.closed 
+						};
+						
+						$scope.close = function() {
+							$scope.$parent.ui.blocks.list[$scope.id].closed = !$scope.$parent.ui.blocks.list[$scope.id].closed;
+							$scope.closed = $scope.$parent.ui.blocks.list[$scope.id].closed;
+						}
+						$scope.hide = function() {
+							$scope.$parent.ui.blocks.list[$scope.id].hidden = !$scope.$parent.ui.blocks.list[$scope.id].hidden;
+							$scope.hidden = $scope.$parent.ui.blocks.list[$scope.id].hidden;
+						}
+						$scope.$on('ui.blocks.functions.toggleClose.'+$scope.id, function() {
+							$scope.closed = $scope.$parent.ui.blocks.list[$scope.id].closed;						
+						});
+						$scope.$on('ui.blocks.functions.toggleHide.'+$scope.id, function() {
+							$scope.hidden = $scope.$parent.ui.blocks.list[$scope.id].hidden;						
+						});
+						
+					} else {
+						$scope.$parent.$parent.ui.blocks.list[$scope.id] = {
+							legend: $scope.title, 
+							hidden: false, 
+							closed:$scope.closed 
+						};
+						
+						
+						$scope.close = function() {
+							$scope.$parent.$parent.ui.blocks.list[$scope.id].closed = !$scope.$parent.$parent.ui.blocks.list[$scope.id].closed;
+							$scope.closed = $scope.$parent.$parent.ui.blocks.list[$scope.id].closed;
+						}
+						$scope.hide = function() {
+							$scope.$parent.$parent.ui.blocks.list[$scope.id].hidden = !$scope.$parent.$parent.ui.blocks.list[$scope.id].hidden;
+							$scope.hidden = $scope.$parent.$parent.ui.blocks.list[$scope.id].hidden;
+						}
+						$scope.$on('ui.blocks.functions.toggleClose.'+$scope.id, function() {
+							$scope.closed = $scope.$parent.$parent.ui.blocks.list[$scope.id].closed;						
+						});
+						$scope.$on('ui.blocks.functions.toggleHide.'+$scope.id, function() {
+							$scope.hidden = $scope.$parent.$parent.ui.blocks.list[$scope.id].hidden;						
+						});
+					}
 				} else {
-					$scope.$parent.$parent.ui.blocks.list[$scope.id] = {
-						legend: $scope.title, 
-						hidden: false, 
-						closed:$scope.closed 
-					};
-					
-					
-					$scope.close = function() {
-						$scope.$parent.$parent.ui.blocks.list[$scope.id].closed = !$scope.$parent.$parent.ui.blocks.list[$scope.id].closed;
-						$scope.closed = $scope.$parent.$parent.ui.blocks.list[$scope.id].closed;
-					}
-					$scope.hide = function() {
-						$scope.$parent.$parent.ui.blocks.list[$scope.id].hidden = !$scope.$parent.$parent.ui.blocks.list[$scope.id].hidden;
-						$scope.hidden = $scope.$parent.$parent.ui.blocks.list[$scope.id].hidden;
-					}
-					$scope.$on('ui.blocks.functions.toggleClose.'+$scope.id, function() {
-						$scope.closed = $scope.$parent.$parent.ui.blocks.list[$scope.id].closed;						
-					});
-					$scope.$on('ui.blocks.functions.toggleHide.'+$scope.id, function() {
-						$scope.hidden = $scope.$parent.$parent.ui.blocks.list[$scope.id].hidden;						
-					});
+					$scope.show = false;
+					return true;
 				}
-			}
+			
+		}
 	}
-	
 }]).directive("annotate", ['$rootScope', function($rootScope) {
   function getSelected(evt) {
 	if (window.getSelection) {
