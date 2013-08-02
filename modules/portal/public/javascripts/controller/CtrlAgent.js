@@ -11,13 +11,14 @@ var Agent = portal.controller('AgentCtrl', ['$scope', 'Item', '$http', '$filter'
 */
 
 
-	$scope.item = { raw : $item.data };
-	$scope.item.descId = false;
-	$scope.item.desc = $filter("descLang")($scope.item.raw.relationships.describes, false, {"id" : $scope.descId})[0];
-	console.log($scope.item.desc);
+	$scope.item = { 
+		raw : $item.data,
+		descId : false,
+		desc : $item.format($filter("descLang")($item.data.descriptions, false, {"id" : $scope.descId})[0])
+	};
 	
 	
-	
+	console.log($item.format($filter("descLang")($item.data.descriptions, false, {"id" : $scope.descId})[0]));
 	// Wikimedia image api url request http://en.wikipedia.org/w/api.php?action=query&list=allimages&aiprop=url&format=json&ailimit=5&aifrom=Georgi%20Dimitrov&aiprop=comment
 	/*
 	$http.get('http://en.wikipedia.org/w/api.php?action=query&list=allimages&aiprop=url&format=json&ailimit=5&aifrom='+$scope.item.desc.data.name+'&aiprop=comment', {headers:  {'userAgent': 'portalTestEHRI/1.1 (http://ehri.com; ehri@ehri.com) AngularHS/1.4'}}).success(function(data) {

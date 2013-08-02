@@ -1,61 +1,35 @@
 <article class="container document">
-<h1>{{item.desc.data.name}}</h1>
+<h1>{{item.desc.name}}</h1>
 
 <div class="row">
 		<div class="span8">
 			<ul class="unstyled">
-				<li identifier="Description" title="Description" itemtitle="item.desc.data.name" class="documentBlock" level="1" itemid="item.desc.id" show="(item.desc.data.biographicalHistory)||(item.desc.data.dateOfBirth)|| (item.desc.data.dateOfDeath)||(item.desc.data.placeOfBirth)||(item.desc.data.placeOfDeath)||(item.desc.data.nationality)">
-					<div id="dateOfBirth-dateOfDeath" ng-show="item.desc.data.dateOfBirth || item.desc.data.dateOfDeath">
-						<h3>Dates if birth and death</h3>
-						{{item.desc.data.dateOfBirth}} / {{item.desc.data.dateOfDeath}}
-					</div>
-					<div id="placeOfBirth" ng-show="item.desc.data.placeOfBirth || item.desc.data.placeOfBirth">
-						<h3>Place of birth</h3>
-						{{item.desc.data.placeOfBirth}}
-					</div>
-					<div id="placeOfDeath" ng-show="item.desc.data.placeOfDeath">
-						<h3>Place of Death</h3>
-						{{item.desc.data.placeOfDeath}}
-					</div>
-					<div id="nationality" ng-show="item.desc.data.nationality">
-						<h3>Nationality</h3>
-						{{item.desc.data.nationality}}
-					</div>
-					<div id="biographicalHistory" ng-show="item.desc.data.biographicalHistory">
-						<h3>Biographical History</h3>
-						{{item.desc.data.biographicalHistory}}
-					</div>
-					<div id="otherFormsOfName" ng-show="item.desc.data.otherFormsOfName">
-						<h3>Other forms of name</h3>
-						{{item.desc.data.otherFormsOfName}}
+				<li identifier="Identity" title="Identity" itemtitle="item.desc.name" class="documentBlock" level="1" itemid="item.desc.id" show="item.desc.identity">
+					<div ng-repeat="(fieldName, fieldValue) in item.desc.identity" id="{{fieldName}}">
+						<h3>{{fieldName}}</h3>
+						<p ng-show="fieldName != 'dates'">{{fieldValue}}</p>
+						<ul ng-show="fieldName == 'dates'" class="unstyled">
+							<li ng-repeat="date in fieldValue" id="{{desc.id}}-{{fieldName}}-{{date.isA}}">
+								{{date.startDate}} / {{date.endDate}}
+							</li>
+						</ul>
 					</div>
 				</li>
-				<li identifier="Control Area" title="Control" itemtitle="item.desc.data.name" class="documentBlock" level="1" itemid="item.desc.id" show="(item.desc.data.authorizedFormOfName)||(item.desc.data.parallelFormsOfName)||(item.desc.data.otherFormsOfName)">
-					<div id="authorizedFormOfName" ng-show="item.desc.data.authorizedFormOfName">
-						<h3>Authorized form of name</h3>
-						{{item.desc.data.authorizedFormOfName}}
-					</div>
-					<div id="parallelFormsOfName" ng-show="item.desc.data.parallelFormsOfName">
-						<h3>Parallel forms of name</h3>
-						{{item.desc.data.parallelFormsOfName}}
-					</div>
-					<div id="otherFormsOfName" ng-show="item.desc.data.otherFormsOfName">
-						<h3>Other forms of name</h3>
-						{{item.desc.data.otherFormsOfName}}
+				<li identifier="Details" title="Details" itemtitle="item.desc.name" class="documentBlock" level="1" itemid="item.desc.id" show="item.desc.details">
+					<div ng-repeat="(fieldName, fieldValue) in item.desc.details" id="{{fieldName}}">
+						<h3>{{fieldName}}</h3>
+						<p>{{fieldValue}}</p>
 					</div>
 				</li>
-				<li identifier="Identity" title="Identity" itemtitle="item.desc.data.name" class="documentBlock" level="1" itemid="item.desc.id" show="(item.desc.data.authorizedFormOfName)||(item.desc.data.parallelFormsOfName)||(item.desc.data.otherFormsOfName)">
-					<div id="authorizedFormOfName" ng-show="item.desc.data.authorizedFormOfName">
-						<h3>Authorized form of name</h3>
-						{{item.desc.data.authorizedFormOfName}}
-					</div>
-					<div id="parallelFormsOfName" ng-show="item.desc.data.parallelFormsOfName">
-						<h3>Parallel forms of name</h3>
-						{{item.desc.data.parallelFormsOfName}}
-					</div>
-					<div id="otherFormsOfName" ng-show="item.desc.data.otherFormsOfName">
-						<h3>Other forms of name</h3>
-						{{item.desc.data.otherFormsOfName}}
+				<li identifier="Control" title="Control" itemtitle="item.desc.name" class="documentBlock" level="1" itemid="item.desc.id" show="item.desc.control">
+					<div ng-repeat="(fieldName, fieldValue) in item.desc.control" id="{{control}}">
+						<h3>{{fieldName}}</h3>
+						<p ng-show="fieldValue.0.length == 1">{{fieldValue}}</p>
+						<ul ng-show="fieldValue.0.length > 1" class="unstyled">
+							<li ng-repeat="row in fieldValue">
+								{{row}}
+							</li>
+						</ul>
 					</div>
 				</li>
 			</ul>
@@ -70,13 +44,6 @@
 							<a ng-click="ui.blocks.functions.toggleHide(blockId)" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
 						</li>
 					</ul>
-				</li>
-				<li class="ui-block">
-					<h2 class="nomargin">Sources</h2>
-					<ul class="list-item list-item-no-max-size">
-						<li ng-repeat="source in item.desc.data.source" ng-bind-html-unsafe="source | parseUrl"></li>
-					</ul>
-					
 				</li>
 			</ul>
 		</div>
