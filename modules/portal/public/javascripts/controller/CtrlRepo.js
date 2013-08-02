@@ -12,8 +12,8 @@ var Repo = portal.controller('RepoCtrl', ['$scope', '$service', '$http', '$route
 	$scope.item = { 
 		raw : $item.data, // Raw Datas
 		id : $item.data.id, // Description
-		desc : $item.data.relationships.describes[0], // Chosen description
-		address : $item.data.relationships.describes[0].relationships.hasAddress[0].data, // Address
+		desc : $item.data.descriptions[0], // Chosen description
+		address : $item.data.descriptions[0].addresses[0], // Address
 		geoloc : $item.geoloc,	//Geolocalisation data
 		children : {	//Children of repository
 			loading : true,	//Loading Status

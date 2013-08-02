@@ -52,20 +52,20 @@
 			<ul class="unstyled">
 				<li class="simpleBlock" title="Informations">
 					<small>Ref. : {{item.id}}</small>
-					<div id="Address"  ng-show="item.address.street || item.address.postalCode || item.address.municipality || item.address.countryCode">
+					<div id="Address"  ng-show="item.address">
 						<h3>Address</h3>
 						<address>
-							{{item.address.street}} <br />
-							{{item.address.postalCode}},  {{item.address.municipality}}, {{item.address.countryCode}}
+							{{item.address.streetAddress}} <br />
+							{{item.address.postalCode}}  {{item.address.city}}, {{item.address.countryCode}}
 						</address>
 					</div>
 					<div id="contact"  ng-show="item.address.telephone || item.address.fax || item.address.email || item.address.webpage">
 						<h3>Contact</h3>
 						<ul class="unstyled">
-							<li ng-show="item.address.telephone" title="Phone"><i class="icon-phone"></i> <abbr>Tel.</abbr> {{item.address.telephone}}</li>
-							<li ng-show="item.address.fax" title="Fax"><i class="icon-print"></i> <abbr>Fax</abbr> {{item.address.fax}}</li>
-							<li nf-show="item.address.email" title="Email"><i class="icon-envelope-alt"></i> <a href="mailto:{{item.address.email}}">Email</a></li>
-							<li ng-show="item.address.webpage" title="Webpage"><i class="icon-globe"></i> <a href="{{item.address.webpage}}" target="_blank">Webpage</a></li>
+							<li ng-show="item.address.telephone" title="Phone"><i class="icon-phone"></i> <abbr>Tel.</abbr> <span ng-repeat="val in item.address.telephone">{{val}}</span></li>
+							<li ng-show="item.address.fax" title="Fax"><i class="icon-print"></i> <abbr>Fax</abbr> <span ng-repeat="val in item.address.fax">{{val}}</span></li>
+							<li nf-show="item.address.email" title="Email"><i class="icon-envelope-alt"></i> <a ng-repeat="val in item.address.email" href="mailto:{{val}}">Email</a></li>
+							<li ng-show="item.address.url" title="Webpage" ng-repeat="val in item.address.url" ><i class="icon-globe"></i> <a href="{{val}}" target="_blank">Webpage</a></li>
 						</ul>
 					</div>
 					<div id="openingTimes" ng-show="desc.data.openingTimes">

@@ -71,10 +71,10 @@ portal.factory("portal", function() {
 				}
 				else {
 					Item.data = data;
-					if(type == "repository" && (data.relationships.describes[0].relationships.hasAddress[0]))
+					if(type == "repository" && (data.descriptions[0].addresses[0]))
 					{
-						console.log("Getting Address");
-						address = data.relationships.describes[0].relationships.hasAddress[0].data;
+						//console.log("Getting Address");
+						address = data.descriptions[0].addresses[0];
 					/*
 						format=[html|xml|json]
 						street=<housenumber> <streetname>
@@ -84,11 +84,11 @@ portal.factory("portal", function() {
 						country=<country>
 						postalcode=<postalcode>
 					*/
-						$http.get('http://nominatim.openstreetmap.org/search/?format=json&street='+address.street+'&postalcode='+address.postalCode+'&country='+address.countryCode+'').success(function(data) {
+						$http.get('http://nominatim.openstreetmap.org/search/?format=json&street='+address.streetAddress+'&country='+address.city+'').success(function(data) {
 							if(data[0])
 							{
 								Item.geoloc = data[0];
-								console.log(Item.address);
+								//console.log(address);
 							}
 						});
 					}

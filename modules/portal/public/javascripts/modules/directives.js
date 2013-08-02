@@ -90,9 +90,9 @@ portal.directive('whenScrolled', function ($window) {
 		scope: {desc: '=src', colorclass:'='},
         templateUrl: ANGULAR_ROOT + "/view/directive-view/repoFields.html",
 		link: function(scope,element, attrs) {
-			scope.$watch('desc', function(walks) {
-				console.log(scope.desc);
-			});
+			/*scope.$watch('desc', function(walks) {
+				//console.log(scope.desc);
+			});*/
 		}
 	}
 }]).directive("dud", [function() {
@@ -103,9 +103,9 @@ portal.directive('whenScrolled', function ($window) {
 		scope: {desc: '=src', colorclass:'='},
         templateUrl: ANGULAR_ROOT + "/view/directive-view/descriptionFields.html",
 		link: function(scope,element, attrs) {
-			scope.$watch('desc', function(walks) {
-				console.log(scope.desc);
-			});
+			/*scope.$watch('desc', function(walks) {
+				//console.log(scope.desc);
+			});*/
 		}
 	}
 }]).directive("simpleBlock", ['$rootScope', function($rootScope) {
@@ -125,7 +125,7 @@ portal.directive('whenScrolled', function ($window) {
 		scope: { itemtitle:"=", itemid:'=', show:'=', show:'=', reduce:'='},
 		templateUrl: ANGULAR_ROOT + "/view/directive-view/ui-blocks.html",
 		link: function($scope,$element, $attrs) {
-				console.log($scope.show);
+				//console.log($scope.show);
 				if(!isEmptyObject($scope.show)) {
 					//Id for element
 					$scope.id = $attrs.identifier + "-" + $scope.itemid;
