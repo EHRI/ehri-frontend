@@ -1,15 +1,33 @@
 <div class="search-bar">
-<h1>{{item.relationships.describes.0.data.name}}</h1>
+<h1>{{item.descriptions.0.name}}</h1>
 </div>
 <article class="container document" style="padding-top:30px;">
 	
 	<div class="row">
 		<div class="span8">
 			<ul class="unstyled">
-				<li title="Concept translations" class="simpleBlock">
-					<div ng-repeat="desc in item.relationships.describes">
-					<h3>{{desc.data.languageCode}}</h3>
-					{{desc.data.name}}
+				<li title="Concept connections" class="simpleBlock">
+					<div id="Translation">
+						<h3>Translations</h3>
+						<span class="badge" ng-repeat="desc in item.descriptions" style="margin-right:5px;">{{desc.name}} ({{desc.languageCode}})</span> 
+					</div>
+					<div id="Vocab">
+						<h3>Vocabulary</h3>
+						<span class="badge" >{{item.vocabulary.id}}</span> 
+					</div>
+					<div id="parent" ng-show="item.parent">
+						<h3>Parent</h3>
+						<a class="badge badge-info" title="Go to this term page" href="#/item/cvocConcept/{{item.parent.id}}">+</a>
+						<span class="badge" ng-repeat="desc in item.parent.descriptions" style="margin-right:5px;">>{{desc.name}} ({{desc.languageCode}})</span> 
+					</div>
+					<div id="broaderTerms" ng-show="item.broaderTerms">
+						<h3>Broader Terms</h3>
+						<ul class="unstyled">
+							<li ng-repeat="term in item.broaderTerms">
+								<a class="badge badge-info" title="Go to this term page" href="#/item/cvocConcept/{{term.id}}">+</a>
+								<span class="badge" ng-repeat="desc in term.descriptions" style="margin-right:5px;">{{desc.name}} ({{desc.languageCode}})</span> 
+							</li>
+						</ul>
 					</div>
 				</li>
 			</ul>
@@ -17,15 +35,7 @@
 		<div class="span4">
 			<ul class="unstyled">
 				<li title="Identifier" class="simpleBlock">
-					<a href="{{item.data.identifier}}" target="_blank">Link to identifier</a>
-				</li>
-				<li title="Broader terms" class="simpleBlock" ng-show="item.relationships.broader">
-					<ul class="list-item">
-						<li ng-repeat="term in item.relationships.broader" >
-							{{term.relationships.describes.0.data.name}}
-							<a href="#/item/cvocConcept/{{term.id}}" class="filterBar-icon"><i class="icon-chevron-right"></i></a>
-						</li>
-					</ul>
+					<a href="{{item.identifier}}" target="_blank">Link to identifier</a>
 				</li>
 			</ul>
 		</div>

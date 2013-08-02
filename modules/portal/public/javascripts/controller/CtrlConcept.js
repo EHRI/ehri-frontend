@@ -1,7 +1,5 @@
 var Concept = portal.controller('ConceptCtrl', ['$scope', '$http', '$routeParams', 'Item', function($scope, $http, $routeParams, $item) {
 	$scope.item = $item.data;
-	console.log($scope.item);
-	$scope.descs = $item.data.relationships.describes;
 }]);
 
 Concept.resolveConcept = {
