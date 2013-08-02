@@ -9,6 +9,7 @@ var Repo = portal.controller('RepoCtrl', ['$scope', '$service', '$http', '$route
 	}
 	ui.blocks { } //Block for UI
 */
+	console.log($item);
 	$scope.item = { 
 		raw : $item.data, // Raw Datas
 		id : $item.data.id, // Description
@@ -67,6 +68,7 @@ var Repo = portal.controller('RepoCtrl', ['$scope', '$service', '$http', '$route
 	
 	//Getting data for children
 	$scope.item.children.get();
+	console.log($scope.item.geoloc);
 }]);
 
 Repo.resolveRepo = {

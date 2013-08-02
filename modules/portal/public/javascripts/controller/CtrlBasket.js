@@ -1,4 +1,4 @@
-var Ba = portal.controller('BasketCtrl', ['$scope', '$filter', 'myBasketService', '$http', function($scope, $filter, $basket, $http) {
+var Ba = portal.controller('BasketCtrl', ['$scope', 'portal', '$filter', 'myBasketService', '$http', function($scope, $portal, $filter, $basket, $http) {
 	$scope.basket = {
 		content: [],	//Content of basket
 		raw: $basket.get(),	//Gets data from $basket service
@@ -6,7 +6,8 @@ var Ba = portal.controller('BasketCtrl', ['$scope', '$filter', 'myBasketService'
 		
 			var key = parseInt(id) - 1; // Key ids for array, so starting at 0 ( 1 -1 )
 			var currentItem = $scope.basket.raw[key];	//Current item in raw data
-			$http.get('./api/'+currentItem.type+'/'+currentItem.id).success(function(data) {
+			//console.log(currentItem.type);
+			$http.get($portal.item[currentItem.type].get(currentItem.id), {headers: {'Accept': "application/json"}}).success(function(data) {
 				$scope.basket.content.push(data);
 				if(($scope.basket.raw.length - parseInt(id)) > 0)	{ //We load next item if there is one
 					var next = 1 + parseInt(id) ;

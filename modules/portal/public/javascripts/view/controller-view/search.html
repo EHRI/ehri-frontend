@@ -72,7 +72,7 @@
 											<i class="iehri-{{item.isA}} icon-4x"></i>
 										</div>
 										<!-- If desc inside relationship -->
-										<div ng-show="(item.descriptions)" ng-repeat="desc in item.descriptions | descLang:ui.general.lang">
+										<div ng-repeat="desc in item.descriptions | descLang:ui.general.lang">
 											<header>
 												<a ng-show="desc.name" href="#/item/{{item.isA}}/{{item.id}}"><b>{{desc.name}}</b></a> 
 												<span class="filterBar filterBar-inline pull-right">

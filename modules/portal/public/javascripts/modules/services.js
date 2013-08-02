@@ -9,6 +9,18 @@ portal.factory("portal", function() {
 				get : function(k) { return jsRoutes.controllers.archdesc.Repositories.get(k).url; },
 				search : function() { return jsRoutes.controllers.archdesc.Repositories.search().url; }
 			},
+			country : {
+				get : function(k) { return jsRoutes.controllers.archdesc.Countries.get(k).url; },
+				search : function() { return jsRoutes.controllers.archdesc.Countries.search().url; }
+			},
+			cvocConcept : {
+				get : function(k) { return jsRoutes.controllers.vocabs.Concepts.get(k).url; },
+				search : function() { return jsRoutes.controllers.vocabs.Concepts.search().url; }
+			},
+			historicalAgent : {
+				get : function(k) { return jsRoutes.controllers.authorities.HistoricalAgents.get(k).url; },
+				search : function() { return jsRoutes.controllers.authorities.HistoricalAgents.search().url; }
+			},
 			all : {
 				search : function() { console.log(jsRoutes.controllers.portal.Application.search().url); return jsRoutes.controllers.portal.Application.search().url;}
 			}
@@ -47,7 +59,7 @@ portal.factory("portal", function() {
 		add : function(item) {
 			// console.log(this);
 			this.content.transit = item;
-			this.content.raw.push({id : item.id, type: item.type});
+			this.content.raw.push({id : item.id, type: item.isA});
 			//this.list.push(item);
 			this.broadcast();
 		},
@@ -88,7 +100,7 @@ portal.factory("portal", function() {
 							if(data[0])
 							{
 								Item.geoloc = data[0];
-								//console.log(address);
+								console.log("We push geolog" + data[0]);
 							}
 						});
 					}
