@@ -2,11 +2,15 @@ portal.factory("portal", function() {
 	var portal = {
 		item : {
 			documentaryUnit : {
-				get : function(k) { return jsRoutes.controllers.archdesc.DocumentaryUnits.get(k).url},
-				search : function() { return jsRoutes.controllers.archdesc.DocumentaryUnits.search().url}
+				get : function(k) { return jsRoutes.controllers.archdesc.DocumentaryUnits.get(k).url;},
+				search : function() { return jsRoutes.controllers.archdesc.DocumentaryUnits.search().url;}
+			},
+			repository : {
+				get : function(k) { return jsRoutes.controllers.archdesc.Repositories.get(k).url; },
+				search : function() { return jsRoutes.controllers.archdesc.Repositories.search().url; }
 			},
 			all : {
-				search : function() { console.log(jsRoutes.controllers.portal.Application.search().url); return jsRoutes.controllers.portal.Application.search().url}
+				search : function() { console.log(jsRoutes.controllers.portal.Application.search().url); return jsRoutes.controllers.portal.Application.search().url;}
 			}
 		}
 	}
