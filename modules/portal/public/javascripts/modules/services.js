@@ -1,5 +1,15 @@
 portal.factory("portal", function() {
-	var portal = jsRoutes;
+	var portal = {
+		item : {
+			documentaryUnit : {
+				get : function(k) { return jsRoutes.controllers.archdesc.DocumentaryUnits.get(k).url},
+				search : function() { return jsRoutes.controllers.archdesc.DocumentaryUnits.search().url}
+			},
+			all : {
+				search : function() { console.log(jsRoutes.controllers.portal.Application.search().url); return jsRoutes.controllers.portal.Application.search().url}
+			}
+		}
+	}
 	return portal;
 }).factory('myPaginationService', function($rootScope) {
     var paginationService = {};
@@ -46,21 +56,12 @@ portal.factory("portal", function() {
 	};   
 	
     return basketservice;
-}).factory('Item', function($http){
+}).factory('Item', function($http, portal){
 	
-	
-	$routing = {
-		item : {
-			documentaryUnit : {
-				get : function(k) { return jsRoutes.controllers.archdesc.DocumentaryUnits.get(k).url},
-				search : function() { return jsRoutes.controllers.archdesc.DocumentaryUnits.search().url}
-			}
-		}
-	}
 	var Item = {
 		query : function(type, item, returned) {
 			//console.log(type);
-			return $http.get($routing.item[type].get(item), {headers: {'Accept': "application/json"}}).success(function(data) {
+			return $http.get(portal.item[type].get(item), {headers: {'Accept': "application/json"}}).success(function(data) {
 				if(returned) {
 					return data;
 				}
@@ -99,10 +100,10 @@ portal.factory("portal", function() {
 			return desc;
 		},
 		search : function(type) {
-			return {url: $routing.item[type].search(), headers : {headers: {'Accept': "application/json"}}};
+			return {url: portal.item[type].search(), headers : {headers: {'Accept': "application/json"}}};
 		},
 		get : function(type, key) {
-			return {url: $routing.item[type].get(key), headers : {headers: {'Accept': "application/json"}}};
+			return {url: portal.item[type].get(key), headers : {headers: {'Accept': "application/json"}}};
 		}
 	}
 	

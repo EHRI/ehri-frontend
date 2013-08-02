@@ -145,7 +145,7 @@ portal.controller('SearchCtrl', ['$scope', 'portal', '$http', '$routeParams', '$
 				last : false //For debugging, if last filter causes bug				
 			},
 			url : function() {	//Set the API search url
-				url = $portal.controllers.portal.Application.search().url;
+				url = $portal.item.all.search();
 				url = url + '?';	//Add question mark
 				var urlArr = [];
 				angular.forEach($scope.ui.search.params, function(value, key) {
