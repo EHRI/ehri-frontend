@@ -3,7 +3,12 @@
 <li identifier="identity" title="Identity" itemtitle="desc.name" class="documentBlock"  itemid="desc.id" show="(desc.identity)">
 	<div ng-repeat="(fieldName, fieldValue) in desc.identity" id="{{fieldName}}">
 		<h3>{{fieldName}}</h3>
-		<p>{{fieldValue}}</p>
+		<p ng-show="fieldName != 'dates'">{{fieldValue}}</p>
+		<ul ng-show="fieldName == 'dates'" class="unstyled">
+			<li ng-repeat="date in fieldValue" id="{{desc.id}}-{{fieldName}}-{{date.isA}}">
+				{{date.startDate}} / {{date.endDate}}
+			</li>
+		</ul>
 	</div>
 </li>
 
@@ -25,7 +30,12 @@
 <li title="Conditions" itemtitle="desc.name" class="documentBlock"  itemId="desc.id"  identifier="conditions"  show="(desc.conditions)">
 	<div ng-repeat="(fieldName, fieldValue) in desc.conditions" id="{{fieldName}}">
 		<h3>{{fieldName}}</h3>
-		<p>{{fieldValue}}</p>
+		<p ng-show="fieldValue.0.length == 1">{{fieldValue}}</p>
+		<ul ng-show="fieldValue.0.length > 1" class="unstyled">
+			<li ng-repeat="row in fieldValue">
+				{{row}}
+			</li>
+		</ul>
 	</div>
 </li>
 
