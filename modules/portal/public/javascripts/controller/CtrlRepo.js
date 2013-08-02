@@ -1,4 +1,4 @@
-var Repo = portal.controller('RepoCtrl', ['$scope', '$service', '$http', '$routeParams', '$rootScope', 'Item', function($scope, $service, $http, $routeParams, $rootScope, $item) {
+var Repo = portal.controller('RepoCtrl', ['$scope', 'ui', '$service', '$http', '$routeParams', '$rootScope', 'Item', function($scope, $ui, $service, $http, $routeParams, $rootScope, $item) {
 /*
 	Object model :
 	item {
@@ -68,7 +68,8 @@ var Repo = portal.controller('RepoCtrl', ['$scope', '$service', '$http', '$route
 	
 	//Getting data for children
 	$scope.item.children.get();
-	console.log($scope.item.geoloc);
+	//console.log($scope.item.geoloc);
+	$ui.title("Repository | "+$scope.item.desc.name);
 }]);
 
 Repo.resolveRepo = {

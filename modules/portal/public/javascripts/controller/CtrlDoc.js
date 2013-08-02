@@ -1,4 +1,4 @@
-var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http', 'Item', '$rootScope', function($scope, $filter, $location, $http, $item, $rootScope) {
+var Doc = portal.controller('DocCtrl', ['$scope', 'ui', '$filter', '$location', '$http', 'Item', '$rootScope', function($scope, $ui, $filter, $location, $http, $item, $rootScope) {
 	console.log($item);
 	$scope.item = { 
 		raw : $item.data, // Raw Datas
@@ -12,6 +12,7 @@ var Doc = portal.controller('DocCtrl', ['$scope', '$filter', '$location', '$http
 				} else {
 					this.data = $item.format($filter("descLang")($scope.item.raw.descriptions)[0]);
 				}
+				$ui.title("Collection | "+ this.data.name);
 			},
 			set : function(descId) { // Set description id
 				$scope.ui.url.params.description = descId; // Set url params

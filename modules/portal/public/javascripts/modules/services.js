@@ -1,4 +1,20 @@
-portal.factory("portal", function() {
+portal.factory("ui", function($window) {
+	var ui = {
+		title : function(title) { $window.document.title = "EHRI Portal | " + title; },
+		bookmark : function() {
+			//http://stackoverflow.com/questions/3024745/cross-browser-bookmark-add-to-favorites-javascript
+			if (window.sidebar) { // Mozilla Firefox Bookmark
+				window.sidebar.addPanel(location.href,document.title,"");
+			} else if(window.external) { // IE Favorite
+				window.external.AddFavorite(location.href,document.title); }
+			else if(window.opera && window.print) { // Opera Hotlist
+				this.title=document.title;
+				return true;
+			}
+		}
+	};
+	return ui;
+}).factory("portal", function() {
 	var portal = {
 		item : {
 			documentaryUnit : {

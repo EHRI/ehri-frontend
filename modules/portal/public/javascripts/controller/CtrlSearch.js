@@ -1,4 +1,4 @@
-portal.controller('SearchCtrl', ['$scope', 'portal', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', 'myBasketService', 'Map', function($scope, $portal, $http, $routeParams, $location, $service, $anchorScroll, paginationService, $basket, $map) {
+portal.controller('SearchCtrl', ['$scope', 'ui', 'portal', '$http', '$routeParams', '$location', '$service', '$anchorScroll', 'myPaginationService', 'myBasketService', 'Map', function($scope, $ui, $portal, $http, $routeParams, $location, $service, $anchorScroll, paginationService, $basket, $map) {
 	$scope.results = {	//Results object
 		raw: {	//Raw Results
 		},
@@ -105,6 +105,7 @@ portal.controller('SearchCtrl', ['$scope', 'portal', '$http', '$routeParams', '$
 					
 					//Refreshing url
 					$scope.ui.url.set();
+					$ui.title("Search for : "+$scope.ui.search.params.q);
 				});
 				//Set the current page id on first child of scope.results.pages.X
 				//$scope.results.pages[$scope.ui.search.params.page].items[0].page = $scope.ui.search.params.page;	
@@ -238,4 +239,5 @@ portal.controller('SearchCtrl', ['$scope', 'portal', '$http', '$routeParams', '$
 	//$scope.fromSearch();
 	//$scope.doSearch();
 	$scope.ui.url.check();
+	$ui.title("Search Engine");
 }]);

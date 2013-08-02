@@ -1,4 +1,4 @@
-var Country = portal.controller('CountryCtrl', ['$scope', 'Item', '$http', function($scope, $item, $http) {
+var Country = portal.controller('CountryCtrl', ['$scope','ui',  'Item', '$http', function($scope, $ui, $item, $http) {
 	$scope.item = $item.data;
 	
 	$scope.children = {}
@@ -10,6 +10,7 @@ var Country = portal.controller('CountryCtrl', ['$scope', 'Item', '$http', funct
 	}).error(function (data) {
 		console.log("Error loading children json datas from country");
 	});
+	$ui.title("Country | "+$scope.item.identifier);
 }]);
 
 Country.resolveCountry = {

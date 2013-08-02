@@ -1,4 +1,4 @@
-var Agent = portal.controller('AgentCtrl', ['$scope', 'Item', '$http', '$filter', '$rootScope', function($scope, $item, $http, $filter, $rootScope) {
+var Agent = portal.controller('AgentCtrl', ['$scope','ui',  'Item', '$http', '$filter', '$rootScope', function($scope, $ui, $item, $http, $filter, $rootScope) {
 /*
 	Object model :
 	item {
@@ -18,7 +18,7 @@ var Agent = portal.controller('AgentCtrl', ['$scope', 'Item', '$http', '$filter'
 	};
 	
 	
-	console.log($item.format($filter("descLang")($item.data.descriptions, false, {"id" : $scope.descId})[0]));
+	//console.log($item.format($filter("descLang")($item.data.descriptions, false, {"id" : $scope.descId})[0]));
 	// Wikimedia image api url request http://en.wikipedia.org/w/api.php?action=query&list=allimages&aiprop=url&format=json&ailimit=5&aifrom=Georgi%20Dimitrov&aiprop=comment
 	/*
 	$http.get('http://en.wikipedia.org/w/api.php?action=query&list=allimages&aiprop=url&format=json&ailimit=5&aifrom='+$scope.item.desc.data.name+'&aiprop=comment', {headers:  {'userAgent': 'portalTestEHRI/1.1 (http://ehri.com; ehri@ehri.com) AngularHS/1.4'}}).success(function(data) {
@@ -60,6 +60,8 @@ var Agent = portal.controller('AgentCtrl', ['$scope', 'Item', '$http', '$filter'
 			}
 		} 
 	};
+	
+	$ui.title("Agent | " + $scope.item.desc.name);
 }]);
 
 Agent.resolveAgent = {
