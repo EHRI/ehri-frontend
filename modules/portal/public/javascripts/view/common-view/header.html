@@ -13,16 +13,6 @@
 					<span class="badge badge-warning" ng-show="(ui.basket.size.val > 0)">{{ui.basket.size.val}}</span>
 				</a>
 			</li>
-			<li>
-				<a class="red" href="#/map">
-					<i class="icon-map-marker"></i>	Map
-				</a>
-			</li>
-			<li>
-				<a class="grey" href="#/map">
-					<i class="icon-map-marker"></i>	Map
-				</a>
-			</li>
 		</ul>
 		<div class="pull-right flat-form ">
 			<form ng-submit="ui.search.submit()" class="quick-search"><input class="input" type="text" ng-model="searchTerm" placeholder="Quick search" ng-class="(topFormShow && 'open')"/><a class="icon" ng-click="topFormShow = !topFormShow;">
