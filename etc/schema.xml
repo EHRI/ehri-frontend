@@ -107,6 +107,7 @@ also applies synonyms. -->
   <field name="scope" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="languageCode" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="countryCode" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="countryName" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="depthOfDescription" type="int" indexed="true" stored="true" multiValued="false"/>
   <field name="levelOfDescription" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="typeOfEntity" type="string" indexed="true" stored="true" multiValued="false"/>
