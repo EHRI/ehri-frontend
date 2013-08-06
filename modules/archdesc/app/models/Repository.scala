@@ -80,6 +80,7 @@ object Repository {
         PARALLEL_NAMES -> Json.toJson(desc.parallelFormsOfName.toList.flatten),
         "identifier" -> c.model.identifier,
         "countryCode" -> Json.toJson(c.country.map(_.id)),
+        "countryName" -> Json.toJson(c.country.map(c => views.Helpers.countryCodeToName(c.id)(Lang.defaultLang))),
         "addresses" -> Json.toJson(desc.addresses.map(_.toString)),
         "priority" -> Json.toJson(c.model.priority)
       )
