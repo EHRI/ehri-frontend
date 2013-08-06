@@ -22,6 +22,7 @@ GET     /logout                                 @controllers.core.Application.lo
 
 # Generic item redirection
 GET /item/:id                                   @controllers.core.Application.get(id: String)
+GET /anyitem/:id                                @controllers.core.Application.getGeneric(id: String)
 GET /item/:type/:id                             @controllers.core.Application.getType(type: String, id: String)
 
 # Simple filtering

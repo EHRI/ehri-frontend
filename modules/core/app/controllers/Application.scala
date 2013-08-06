@@ -12,6 +12,9 @@ import play.api.Play._
 import defines.EntityType
 import utils.search.Dispatcher
 import com.google.inject._
+import play.api.http.ContentTypes
+import rest.SearchDAO
+import play.api.libs.json.Json
 
 class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with LoginLogout with Authorizer with AuthController {
 
@@ -60,6 +63,17 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
     }
   }
 
+  def getGeneric(id: String) = userProfileAction {
+    implicit userOpt => implicit request =>
+      AsyncRest {
+        SearchDAO(userOpt).get[AnyModel](id)(AnyModel.Converter).map { itemOrErr =>
+          itemOrErr.right.map { item =>
+            Ok(Json.toJson(item)(AnyModel.Converter.clientFormat))
+          }
+        }
+      }
+  }
+
   /**
    * Action for redirecting to any item page, given a raw id.
    * TODO: Ultimately implement this in a better way, not
@@ -69,8 +83,13 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
     Secured {
-      globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
-        .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
+      // TODO: Redirect with content negotiation does NOT work...
+      globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id).map { call =>
+        request match {
+          case Accepts.Json() => Redirect(call).as(ContentTypes.JSON)
+          case _ => Redirect(call)
+        }
+      } getOrElse NotFound(views.html.errors.itemNotFound())
     }
   }
 }

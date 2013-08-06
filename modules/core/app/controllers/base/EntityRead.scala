@@ -1,10 +1,10 @@
 package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.{Model, MetaModel}
+import models.base.{AnyModel, Model, MetaModel}
 import play.api.mvc._
 import models._
-import rest.{Page, RestPageParams}
+import rest.{SearchDAO, Page, RestPageParams}
 import controllers.ListParams
 import models.json.{RestReadable, ClientConvertable}
 import play.api.libs.json.{Format, Json}
