@@ -4,6 +4,7 @@ GET     /                                   @controllers.portal.Application.inde
 GET     /account                            @controllers.portal.Application.account
 GET     /profile                            @controllers.portal.Application.profile
 GET     /search                             @controllers.portal.Application.search
+GET     /global                             @controllers.portal.Application.globalData
 GET     /filter                             @controllers.portal.Application.filter
 GET     /routes                             @controllers.portal.Application.jsRoutes
 

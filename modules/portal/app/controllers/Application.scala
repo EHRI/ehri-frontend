@@ -67,6 +67,7 @@ class Application @Inject()(implicit val globalConfig: global.GlobalConfig) exte
         controllers.portal.routes.javascript.Application.search,
         controllers.portal.routes.javascript.Application.filter,
         Application.getType,
+        Application.getGeneric,
         UserProfiles.list,
         UserProfiles.get,
         Groups.list,
@@ -86,6 +87,22 @@ class Application @Inject()(implicit val globalConfig: global.GlobalConfig) exte
         HistoricalAgents.search,
         HistoricalAgents.get
       )
+    ).as(MimeTypes.JAVASCRIPT)
+  }
+
+  /**
+   * Render entity types into the view to serve as JS constants.
+   * @return
+   */
+  def globalData = Action { implicit request =>
+    import defines.EntityType
+    Ok(
+      """
+        |var EntityTypes = {
+        |%s
+        |};
+      """.stripMargin.format(
+        "\t" + EntityType.values.map(et => s"$et: '$et'").mkString(",\n\t"))
     ).as(MimeTypes.JAVASCRIPT)
   }
 

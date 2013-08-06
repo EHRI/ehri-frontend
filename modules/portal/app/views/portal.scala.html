@@ -9,20 +9,24 @@
         <style type="text/css">
         </style>
     </head>
-    <body ng-controller="AppController">
+    <body ng-controller="AppCtrl">
 
-        <h1>Hello, {{profile.name}} ({{account.email}})</h1>
+        <h1>Hello, {{profile.name}}</h1>
 
-        <h2>Here are some items:</h2>
-        <ul>
-            <li ng-repeat="doc in search.page">
-                <strong>{{doc.id}}</strong>
-            </li>
-        </ul>
+        <ng-view></ng-view>
 
         <!-- JavaScript Includes, at the bottom... -->
+
+        <script>
+            var ANGULAR_PARTIALS = "@controllers.portal.routes.Assets.at("partials")";
+        </script>
+
+        <script type="text/javascript" src="@controllers.portal.routes.Application.globalData"></script>
         <script type="text/javascript" src="@controllers.portal.routes.Application.jsRoutes"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.2/angular.min.js"></script>
-        <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/site.js")"></script>
+
+        <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/services.js")"></script>
+        <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/controllers.js")"></script>
+        <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/app.js")"></script>
     </body>
 </html>
