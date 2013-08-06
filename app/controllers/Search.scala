@@ -150,16 +150,18 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   def search = searchAction[AnyModel](
       defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score)))) {
       page => params => facets => implicit userOpt => implicit request =>
-    render {
-      case Accepts.Json() => {
-        Ok(Json.toJson(Json.obj(
-          "numPages" -> page.numPages,
-          "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
-          "facets" -> facets
-        ))
-        )
+    Secured {
+      render {
+        case Accepts.Json() => {
+          Ok(Json.toJson(Json.obj(
+            "numPages" -> page.numPages,
+            "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
+            "facets" -> facets
+          ))
+          )
+        }
+        case _ => Ok(views.html.search.search(page, params, facets, routes.Search.search))
       }
-      case _ => Ok(views.html.search.search(page, params, facets, routes.Search.search))
     }
   }
 
