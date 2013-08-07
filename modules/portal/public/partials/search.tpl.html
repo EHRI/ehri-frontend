@@ -1,8 +1,30 @@
-<div class="search-page">
-
-    <ul class="search-results">
-        <li ng-repeat="result in results.page">
-            <a href="#/item/{{result.isA}}/{{result.id}}">{{result.id}}</a>
-        </li>
-    </ul>
+<form name="search-form">
+<div class="row-fluid search-params">
+    <div class="form-inline">
+        <input type="text" class="span8" ng-model="searchParams.q" ng-change="updateUrl()" />
+        <button ng-click="doSearch()">Search</button>
+    </div>
 </div>
+<div class="row-fluid">
+    <div class="span8 search-results">
+        <ul class="search-results unstyled">
+            <li class="search-result" ng-repeat="result in results.page.items">
+                <h4><a href="/portal/item/{{result.isA}}/{{result.id}}">{{result.descriptions[0].name}}</a></h4>
+                <div class="search-result-body">
+
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="span4 search-filters">
+        <div class="search-facet" ng-repeat="facetclass in results.page.facetClasses">
+            <h4>{{facetclass.name}}</h4>
+            <ul class="unstyled">
+                <li ng-repeat="facet in facetclass.facets">
+                    {{facet.param}}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</form>

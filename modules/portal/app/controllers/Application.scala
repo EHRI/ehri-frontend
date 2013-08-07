@@ -1,6 +1,6 @@
 package controllers.portal
 
-import _root_.models.UserProfile
+import _root_.models.{IsadG, UserProfile}
 import controllers.base.EntitySearch
 import models.base.AnyModel
 import play.api._
@@ -11,10 +11,40 @@ import play.api.http.MimeTypes
 import com.google.inject._
 import utils.search.{SearchOrder, SearchParams}
 import play.api.libs.json.{Format, Writes, Json}
+import solr.facet.FieldFacetClass
+import play.api.i18n.Messages
+import views.Helpers
 
 
 @Singleton
 class Application @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with EntitySearch {
+
+  override val entityFacets = List(
+    FieldFacetClass(
+      key=IsadG.LANG_CODE,
+      name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+      param="lang",
+      render=Helpers.languageCodeToName
+    ),
+    FieldFacetClass(
+      key="type",
+      name=Messages("search.type"),
+      param="type",
+      render=s => Messages("contentTypes." + s)
+    ),
+    FieldFacetClass(
+      key="copyrightStatus",
+      name=Messages("copyrightStatus.copyright"),
+      param="copyright",
+      render=s => Messages("copyrightStatus." + s)
+    ),
+    FieldFacetClass(
+      key="scope",
+      name=Messages("scope.scope"),
+      param="scope",
+      render=s => Messages("scope." + s)
+    )
+  )
 
   /**
    * Full text search action that returns a complete page of item data.
@@ -25,9 +55,9 @@ class Application @Inject()(implicit val globalConfig: global.GlobalConfig) exte
   def search = searchAction[AnyModel](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score)))) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(Json.toJson(Json.obj(
-      "numPages" -> page.numPages,
+      "numPages" -> Json.toJson(page.numPages),
       "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
-      "facets" -> facets
+      "facets" -> Json.toJson(facets)
     )))
   }
 

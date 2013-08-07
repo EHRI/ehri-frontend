@@ -2,21 +2,21 @@ var Portal = angular.module('Portal', []).service("$search", [SearchService]);
 
 Portal.config(['$routeProvider', function($routeProvider) {
   $routeProvider
-      .when("/profile/", {
+      .when("/portal/profile/", {
         templateUrl: ANGULAR_PARTIALS + "/profile.tpl.html",
         controller: ProfileCtrl
       })
-      .when("/search/", {
+      .when("/portal/search/", {
         templateUrl: ANGULAR_PARTIALS + "/search.tpl.html",
         controller: SearchCtrl
       })
-      .when("/item/:itemType/:itemId", {
+      .when("/portal/item/:itemType/:itemId", {
         templateUrl: ANGULAR_PARTIALS + "/item.tpl.html",
         controller: ItemCtrl
       })
-      .otherwise({redirectTo: "/search/"});
+      .otherwise({redirectTo: "/portal/search/"});
 }]).config(['$locationProvider', function($locationProvider) {
-  $locationProvider.html5Mode(false);
+  $locationProvider.html5Mode(true);
   $locationProvider.hashPrefix = "/portal";
 }]);
 

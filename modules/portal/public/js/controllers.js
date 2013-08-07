@@ -1,19 +1,35 @@
 
-function SearchCtrl($scope, $rootScope, $search, $http) {
+function SearchCtrl($scope, $rootScope, $search, $location, $http) {
   console.log("Loading searchctrl")
 
-  $http.get(jsRoutes.controllers.portal.Application.search().url).success(function(data) {
-    $scope.results = data;
-    console.log("Got data: ", data);
-  });
+  $scope.doSearch = function() {
+    $http({url: getSearchUrl(), method: "GET", headers:{Accept: "application/json"}}).success(function(data) {
+      $scope.results = data;
+      console.log("Got data: ", data);
+    });
+  };
+
+  $scope.updateUrl = function() {
+
+  }
 
   $scope.searchParams = {
-    q:"",
+    q: $location.search().q || "",
     excludes: [],
     facets: []
   };
 
+  var getSearchUrl = function() {
+    var url = jsRoutes.controllers.portal.Application.search().url;
+    if (!$scope.searchParams.q.trim() == "") {
+      url += "?q=" + $scope.searchParams.q.trim();
+    }
+    return url;
+  }
+
   $scope.results = {};
+
+  $scope.doSearch();
 }
 
 function ProfileCtrl($scope, $rootScope, $http) {
