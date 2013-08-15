@@ -18,6 +18,8 @@ GET     /assets/*file                   controllers.Assets.at(path="/public", fi
 
 # Defer other routes to modules
 -> /        core.Routes
+-> /link    linking.Routes
+-> /annotation    annotation.Routes
 -> /sets    authorities.Routes
 -> /arch    archdesc.Routes
 -> /voc     vocabs.Routes

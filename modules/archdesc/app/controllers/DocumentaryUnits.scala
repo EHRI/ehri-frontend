@@ -79,8 +79,8 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
     // has no parent items...
     val filters = Map("depthOfDescription" -> 0)
     searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
-      page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.documentaryUnit.search(page, params, facets, archdescRoutes.DocumentaryUnits.search))
+        page => params => facets => implicit userOpt => implicit request =>
+      Ok(views.html.documentaryUnit.search(page, params, facets, archdescRoutes.DocumentaryUnits.search))
     }
   }
 
@@ -279,14 +279,14 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
     item => page => params => facets => etype => implicit userOpt => implicit request =>
-      Ok(views.html.linking.linkSourceList(item, page, params, facets, etype,
+      Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
           archdescRoutes.DocumentaryUnits.linkAnnotateSelect(id, toType),
           archdescRoutes.DocumentaryUnits.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.linking.link(target, source,
+    Ok(views.html.link.link(target, source,
         LinkForm.form, archdescRoutes.DocumentaryUnits.linkAnnotatePost(id, toType, to)))
   }
 
@@ -294,7 +294,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
-        BadRequest(views.html.linking.link(target, source,
+        BadRequest(views.html.link.link(target, source,
           errorForm, archdescRoutes.DocumentaryUnits.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {
@@ -306,7 +306,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
 
   def linkMultiAnnotate(id: String) = linkMultiAction(id) {
       target => implicit userOpt => implicit request =>
-    Ok(views.html.linking.linkMulti(target,
+    Ok(views.html.link.linkMulti(target,
         LinkForm.multiForm, archdescRoutes.DocumentaryUnits.linkMultiAnnotatePost(id)))
   }
 
@@ -314,7 +314,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
       formOrAnnotations => implicit userOpt => implicit request =>
     formOrAnnotations match {
       case Left((target,errorForms)) => {
-        BadRequest(views.html.linking.linkMulti(target,
+        BadRequest(views.html.link.linkMulti(target,
           errorForms, archdescRoutes.DocumentaryUnits.linkMultiAnnotatePost(id)))
       }
       case Right(annotations) => {

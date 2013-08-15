@@ -179,7 +179,7 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig) extends
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.linking.link(target, source,
+    Ok(views.html.link.link(target, source,
             LinkForm.form, controllers.vocabs.routes.Concepts.linkAnnotatePost(id, toType, to)))
   }
 
@@ -187,7 +187,7 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig) extends
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
-          BadRequest(views.html.linking.link(target, source,
+          BadRequest(views.html.link.link(target, source,
               errorForm, controllers.vocabs.routes.Concepts.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {

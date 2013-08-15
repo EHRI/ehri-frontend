@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.linking
 
 import defines._
 import forms.VisibilityForm
@@ -33,17 +33,17 @@ class Links @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRea
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups,  routes.Links.visibilityPost(id)))
+        users, groups,  controllers.linking.routes.Links.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(routes.Links.get(id))
+    Redirect(controllers.linking.routes.Links.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-      item, routes.Links.deletePost(id, redirect), Call("GET", "/"))) // FIXME: routes.Application.get(id)))
+      item, controllers.linking.routes.Links.deletePost(id, redirect), Call("GET", "/"))) // FIXME: routes.Application.get(id)))
   }
 
   def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
