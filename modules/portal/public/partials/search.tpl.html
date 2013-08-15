@@ -9,21 +9,45 @@
     <div class="span8 search-results">
         <ul class="search-results unstyled">
             <li class="search-result" ng-repeat="result in results.page.items">
-                <h4><a href="/portal/item/{{result.isA}}/{{result.id}}">{{result.descriptions[0].name}}</a></h4>
+                <h4><a href="#/item/{{result.isA}}/{{result.id}}">{{result.descriptions[0].name}}</a></h4>
                 <div class="search-result-body">
 
                 </div>
             </li>
         </ul>
+
+        <div class="search-pagination">
+            <a ng-click="prevPage()" href="">Prev</a>
+            <a ng-click="nextPage()" href="">Next</a>
+        </div>
     </div>
     <div class="span4 search-filters">
         <div class="search-facet" ng-repeat="facetclass in results.page.facetClasses">
-            <h4>{{facetclass.name}}</h4>
-            <ul class="unstyled">
-                <li ng-repeat="facet in facetclass.facets">
-                    {{facet.param}}
-                </li>
-            </ul>
+
+            <div ng-switch on="facetclass.param">
+                <div ng-switch-when="type">
+                    <h4>{{facetclass.name}}</h4>
+                    <ul class="unstyled">
+                        <li ng-repeat="facet in facetclass.facets">
+                            <span ng-switch on="isSelectedType(facet.param)">
+                                <div ng-switch-when="true">
+                                    {{facet.param}}
+                                    <a ng-click="removeTypeFilter(facet.param)" href="">x</a>
+                                </div>
+                                <a ng-switch-when="false" ng-click="addTypeFilter(facet.param)" href="">{{facet.param}}</a>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div ng-switch-default>
+                    <h4>{{facetclass.param}}</h4>
+                    <ul class="unstyled">
+                        <li ng-repeat="facet in facetclass.facets">
+                            {{facet.param}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>
