@@ -72,29 +72,39 @@ object ApplicationBuild extends Build {
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
   ).settings(otherSettings:_*)
 
+  lazy val annotation = play.Project(
+    appName + "-annotation", appVersion, appDependencies, path = file("modules/annotation"),
+    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  ).settings(otherSettings:_*).dependsOn(core)
+
+  lazy val linking = play.Project(
+    appName + "-linking", appVersion, appDependencies, path = file("modules/linking"),
+    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  ).settings(otherSettings:_*).dependsOn(core, annotation)
+
   lazy val archdesc = play.Project(
     appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc"),
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
-  ).settings(otherSettings:_*).dependsOn(core)
+  ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val authorities = play.Project(
     appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities"),
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
-  ).settings(otherSettings:_*).dependsOn(core)
+  ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val vocabs = play.Project(
     appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs"),
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
-  ).settings(otherSettings:_*).dependsOn(core)
+  ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val portal = play.Project(
     appName + "-portal", appVersion, appDependencies, path = file("modules/portal"),
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
   ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
-    .aggregate(core, archdesc, authorities, vocabs)
+    .aggregate(core, annotation, linking, archdesc, authorities, vocabs)
 
   lazy val aaMain = play.Project(appName, appVersion, appDependencies ++ testDependencies,
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
   ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs, portal)
-    .aggregate(core, archdesc, authorities, vocabs, portal)
+    .aggregate(core, annotation, linking, archdesc, authorities, vocabs, portal)
 }

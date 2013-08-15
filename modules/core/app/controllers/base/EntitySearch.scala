@@ -9,6 +9,7 @@ import play.api.Play._
 import models.json.{ClientConvertable, RestReadable}
 import play.api.libs.json.Json
 import utils.search._
+import play.api.Logger
 
 
 /**
@@ -85,6 +86,11 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
             AsyncRest {
               rest.SearchDAO(userOpt).list[MT](itemIds).map { listOrErr =>
                 listOrErr.right.map { list =>
+                  // Sanity check!
+                  if (list.size != ids.size) {
+                    Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
+                      (ids, list))
+                  }
                   val page = res.copy(items = list.zip(ids))
                   render {
                     case Accepts.Json() => Ok(Json.obj(
