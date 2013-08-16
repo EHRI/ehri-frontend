@@ -4,9 +4,12 @@ import play.api.libs.json._
 import defines.EntityType
 import play.api.i18n.Lang
 import models.json.{Utils, ClientConvertable, RestReadable}
-import models.{Entity,SystemEvent,AccessPointF,DatePeriodF}
+import models._
 import play.api.data.validation.ValidationError
 import play.api.Logger
+import scala.Some
+import play.api.data.validation.ValidationError
+import play.api.libs.json.KeyPathNode
 
 
 trait AnyModel {
@@ -100,8 +103,37 @@ trait MetaModel[+T <: Model] extends AnyModel {
   override def toStringAbbr(implicit lang: Lang): String = toStringLang(lang)
 }
 
-trait DescribedMeta[TD <: Description, T <: Described[TD]] extends MetaModel[T] {
+trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] {
   def descriptions: List[TD] = model.descriptions
+
+  private lazy val allAccessPoints = descriptions.flatMap(_.accessPoints)
+
+  /**
+   * Links that relate to access points on this item's description(s)
+   * @param links
+   * @return
+   */
+  def accessPointLinks(links: Seq[Link]): Seq[Link]
+      = links.filterNot(link => link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
+
+
+  /**
+   * Links that point to this item from other item's access points.
+   * @param links
+   * @return
+   */
+  def externalLinks(links: Seq[Link]): Seq[Link]
+      = links.filter(link =>
+          !link.bodies.isEmpty
+              && link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
+
+  /**
+   * Links that don't relate to access points.
+   * @param links
+   * @return
+   */
+  def annotationLinks(links: Seq[Link]): Seq[Link]
+      = links.filter(link => link.bodies.isEmpty)
 }
 
 trait Hierarchical[+T] extends AnyModel {
