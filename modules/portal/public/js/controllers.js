@@ -24,6 +24,18 @@ function SearchCtrl($scope, $rootScope, $search, $location, $http) {
     $scope.doSearch();
   }
 
+  $scope.removeFacet = function(facetClass, facet) {
+    $scope.searchParams.facets = $scope.searchParams.facets.filter(function(i) {
+      return i[0].param != facetClass && i[1].value != facet.value;
+    });
+    $scope.doSearch();
+  }
+
+  $scope.addFacet = function(facetClass, facet) {
+    $scope.searchParams.facets.push([facetClass, facet]);
+    $scope.doSearch();
+  }
+
   $scope.isSelectedType = function(type) {
     return $scope.searchParams.st.indexOf(type) != -1;
   }
@@ -45,6 +57,7 @@ function SearchCtrl($scope, $rootScope, $search, $location, $http) {
     //$location.search({st: undefined})
     $http({url: getSearchUrl(), method: "GET", headers:{Accept: "application/json"}}).success(function(data) {
       $scope.results = data;
+      console.log("Data", data)
     });
   };
 
@@ -63,10 +76,13 @@ function SearchCtrl($scope, $rootScope, $search, $location, $http) {
     if ($scope.searchParams.page > 1) {
       url += "&page=" + $scope.searchParams.page;
     }
-    if ($scope.searchParams.st.length > 0) {
-      for (i in $scope.searchParams.st) {
-        url += "&st[]=" + $scope.searchParams.st[i];
-      }
+    for (i in $scope.searchParams.st) {
+      url += "&st[]=" + $scope.searchParams.st[i];
+    }
+    for (i in $scope.searchParams.facets) {
+      var cls = $scope.searchParams.facets[i][0];
+      var f = $scope.searchParams.facets[i][1];
+      url += "&" + cls.param + "=" + f.value;
     }
     console.log(url)
     return url;
