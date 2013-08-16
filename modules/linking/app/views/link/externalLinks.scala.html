@@ -1,0 +1,39 @@
+@**
+* Render links to external items that have an access point pointing to this item.
+*
+*@
+@(item: DescribedMeta[Description, Described[Description]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig)
+
+@opposingTarget(item: AnyModel, link: Link) = @{
+    link.targets.filterNot(p => item.id == p.id).headOption
+}
+
+
+@if(!links.isEmpty) {
+    @defining(item.descriptions.flatMap(_.accessPoints)) { allAccessPoints =>
+        @* Get all links that don't have a body that exists in this item's access points! *@
+        @defining(links.filter(l => !l.bodies.isEmpty && l.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)) { notLinked =>
+            @if(!notLinked.isEmpty) {
+                <div class="external-links">
+                    <hr />
+                    <h3>@Messages("accessPoints.externalReferences")</h3>
+                    <ul>
+                        @notLinked.map { link =>
+                            @opposingTarget(item, link).map { other =>
+                                <li class="resolved-access-point">
+                                    <a href="@globalConfig.routeRegistry.urlFor(other)">@other.toStringLang</a>
+                                    <a class="alt" href="@controllers.linking.routes.Links.getAndRedirect(link.id, Some(item.id))">
+                                        &times;
+                                    </a>
+                                    @link.model.description.map { desc =>
+                                        <p>@desc</p>
+                                    }
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+        }
+    }
+}

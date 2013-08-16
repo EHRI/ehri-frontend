@@ -451,6 +451,9 @@ accessPoints.browse=Search
 accessPoints.name=Name of link target...
 accessPoints.description=Optional description...
 
+# References not on this item, but from another item's access points
+accessPoints.externalReferences=External references to this item
+
 #
 # ISDIAH Field definitions
 #
