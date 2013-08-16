@@ -123,12 +123,6 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     // Hack for bug #845
     app.routes
 
-    // Register JSON models! This is still currently
-    // operating on mutable state until I can work out
-    // how to inject it without
-    models.json.Utils.registerModels
-
-
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers
     import play.api.libs.concurrent.Execution.Implicits._
