@@ -3,10 +3,13 @@ package models.base
 import play.api.libs.json._
 import defines.EntityType
 import play.api.i18n.Lang
-import models.json.{ClientConvertable, RestReadable}
-import models.{Entity,SystemEvent,AccessPointF,DatePeriodF}
+import models.json.{Utils, ClientConvertable, RestReadable}
+import models._
 import play.api.data.validation.ValidationError
 import play.api.Logger
+import scala.Some
+import play.api.data.validation.ValidationError
+import play.api.libs.json.KeyPathNode
 
 
 trait AnyModel {
@@ -28,26 +31,17 @@ trait Model {
 
 object AnyModel {
 
-  private val restReadRegistry: collection.mutable.Map[EntityType.Value, Reads[AnyModel]]
-      = collection.mutable.Map.empty
-
-  private val clientFormatRegistry: collection.mutable.Map[EntityType.Value, Format[AnyModel]]
-      = collection.mutable.Map.empty
-
-  def registerRest(e: EntityType.Value, r: Reads[AnyModel]) = restReadRegistry.put(e, r)
-  def registerClient(e: EntityType.Value, f: Format[AnyModel]) = clientFormatRegistry.put(e, f)
-
   implicit object Converter extends RestReadable[AnyModel] with ClientConvertable[AnyModel] {
     implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
         // Sniff the type...
         val et = (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType))
-        restReadRegistry.get(et).map { reads =>
+        Utils.restReadRegistry.get(et).map { reads =>
           json.validate(reads)
         }.getOrElse {
           JsError(
             JsPath(List(KeyPathNode("type"))),
-            ValidationError(s"Unregistered AnyModel type for REST: $et (registered: ${restReadRegistry.keySet}"))
+            ValidationError(s"Unregistered AnyModel type for REST: $et (registered: ${Utils.restReadRegistry.keySet}"))
         }
       }
     }
@@ -55,7 +49,7 @@ object AnyModel {
     implicit val clientFormat: Format[AnyModel] = new Format[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
         val et = (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType))
-        clientFormatRegistry.get(et).map { format =>
+        Utils.clientFormatRegistry.get(et).map { format =>
           json.validate(format)
         }.getOrElse {
           JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unregistered AnyModel type for Client read: " + et))
@@ -63,7 +57,7 @@ object AnyModel {
       }
 
       def writes(a: AnyModel): JsValue = {
-        clientFormatRegistry.get(a.isA).map { format =>
+        Utils.clientFormatRegistry.get(a.isA).map { format =>
           Json.toJson(a)(format)
         }.getOrElse {
           // FIXME: Throw an error here???
@@ -109,8 +103,37 @@ trait MetaModel[+T <: Model] extends AnyModel {
   override def toStringAbbr(implicit lang: Lang): String = toStringLang(lang)
 }
 
-trait DescribedMeta[TD <: Description, T <: Described[TD]] extends MetaModel[T] {
+trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] {
   def descriptions: List[TD] = model.descriptions
+
+  private lazy val allAccessPoints = descriptions.flatMap(_.accessPoints)
+
+  /**
+   * Links that relate to access points on this item's description(s)
+   * @param links
+   * @return
+   */
+  def accessPointLinks(links: Seq[Link]): Seq[Link]
+      = links.filterNot(link => link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
+
+
+  /**
+   * Links that point to this item from other item's access points.
+   * @param links
+   * @return
+   */
+  def externalLinks(links: Seq[Link]): Seq[Link]
+      = links.filter(link =>
+          !link.bodies.isEmpty
+              && link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
+
+  /**
+   * Links that don't relate to access points.
+   * @param links
+   * @return
+   */
+  def annotationLinks(links: Seq[Link]): Seq[Link]
+      = links.filter(link => link.bodies.isEmpty)
 }
 
 trait Hierarchical[+T] extends AnyModel {

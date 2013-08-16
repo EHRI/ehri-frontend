@@ -82,8 +82,8 @@ package globalconfig {
       EntityType.Repository -> controllers.archdesc.routes.Repositories.get _,
       EntityType.Group -> controllers.core.routes.Groups.get _,
       EntityType.UserProfile -> controllers.core.routes.UserProfiles.get _,
-      EntityType.Annotation -> controllers.core.routes.Annotations.get _,
-      EntityType.Link -> controllers.core.routes.Links.get _,
+      EntityType.Annotation -> controllers.annotation.routes.Annotations.get _,
+      EntityType.Link -> controllers.linking.routes.Links.get _,
       EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get _,
       EntityType.AuthoritativeSet -> controllers.authorities.routes.AuthoritativeSets.get _,
       EntityType.Concept -> controllers.vocabs.routes.Concepts.get _,
@@ -122,12 +122,6 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
     // Hack for bug #845
     app.routes
-
-    // Register JSON models! This is still currently
-    // operating on mutable state until I can work out
-    // how to inject it without
-    models.json.Utils.registerModels
-
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers

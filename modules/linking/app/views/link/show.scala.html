@@ -21,13 +21,13 @@
 
     }
 } {
-    @common.visibility(item, controllers.core.routes.Links.visibility(item.id), ContentType.Link)
-    @common.latestAction(item, controllers.core.routes.Links.history(item.id))
+    @common.visibility(item, controllers.linking.routes.Links.visibility(item.id), ContentType.Link)
+    @common.latestAction(item, controllers.linking.routes.Links.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
     @userOpt.map { user =>
         @if(user.hasPermission(ContentType.Link, PermissionType.Delete)) {
-            <li><a href="@controllers.core.routes.Links.delete(item.id, src)">@Messages("actions.deleteLink")</a></li>
+            <li><a href="@controllers.linking.routes.Links.delete(item.id, src)">@Messages("actions.deleteLink")</a></li>
         }
     }
     </ul>

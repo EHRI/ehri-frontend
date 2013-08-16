@@ -89,7 +89,7 @@
         @common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
     }
 
-    @common.relatedLinks(item, desc, links)
+    @link.relatedLinks(item, desc, links)
 
     @desc.unknownProperties.map { e =>
         @common.unknownData(e)

@@ -35,7 +35,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "list when logged in should get more items" in new FakeApp {
-      val list = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.list.url)).get
+      val list = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.list.url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("c1")
@@ -45,7 +46,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "search should find some items" in new FakeApp {
-      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.search.url)).get
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.search.url)).get
       status(search) must equalTo(OK)
       contentAsString(search) must contain(multipleItemsHeader)
       contentAsString(search) must contain("c1")
@@ -55,7 +57,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "link to other privileged actions when logged in" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.archdesc.routes.DocumentaryUnits.update("c1").url)
       contentAsString(show) must contain(controllers.archdesc.routes.DocumentaryUnits.delete("c1").url)
@@ -65,33 +68,38 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "link to holder" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(controllers.archdesc.routes.Repositories.get("r1").url)
     }
 
     "link to holder when a child item" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(controllers.archdesc.routes.Repositories.get("r1").url)
     }
 
     "give access to c1 when logged in" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("c1")
     }
 
     "deny access to c1 when logged in as an ordinary user" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
+      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
       status(show) must equalTo(UNAUTHORIZED)
       contentAsString(show) must not contain ("Collection 2")
     }
 
     "allow deleting c4 when logged in" in new FakeApp {
-      val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST, controllers.archdesc.routes.DocumentaryUnits.deletePost("c4").url)).get
+      val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+          controllers.archdesc.routes.DocumentaryUnits.deletePost("c4").url)).get
       status(del) must equalTo(SEE_OTHER)
     }
 

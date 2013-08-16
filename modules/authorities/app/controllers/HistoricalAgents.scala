@@ -137,14 +137,14 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
 
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
       item => page => params => facets => etype => implicit userOpt => implicit request =>
-    Ok(views.html.linking.linkSourceList(item, page, params, facets, etype,
+    Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
         controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(id, toType),
         controllers.authorities.routes.HistoricalAgents.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.linking.link(target, source,
+    Ok(views.html.link.link(target, source,
         LinkForm.form, controllers.authorities.routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
   }
 
@@ -152,7 +152,7 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
     formOrAnnotation => implicit userOpt => implicit request =>
       formOrAnnotation match {
         case Left((target,source,errorForm)) => {
-          BadRequest(views.html.linking.link(target, source,
+          BadRequest(views.html.link.link(target, source,
             errorForm, controllers.authorities.routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
         }
         case Right(annotation) => {

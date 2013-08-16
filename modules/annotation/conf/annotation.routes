@@ -1,0 +1,12 @@
+# Routes for annotation functionality
+
+GET     /show/:id                    @controllers.annotation.Annotations.get(id: String)
+GET     /history/:id                 @controllers.annotation.Annotations.history(id: String)
+GET     /visibility/:id              @controllers.annotation.Annotations.visibility(id: String)
+POST    /visibility/:id              @controllers.annotation.Annotations.visibilityPost(id: String)
+GET     /delete/:id                  @controllers.annotation.Annotations.delete(id: String)
+POST    /delete/:id                  @controllers.annotation.Annotations.deletePost(id: String)
+
+# Ugh, ugly REST violation - create an annotation on *another* entity
+POST    /create/:id                  @controllers.annotation.Annotations.createAnnotationJsonPost(id: String)
+GET     /getFor/:id                  @controllers.annotation.Annotations.getAnnotationJson(id: String)

@@ -78,7 +78,9 @@
             }
         }
 
-        @common.annotationLinks(item, links)
+        @link.externalLinks(item, links)
+
+        @link.annotationLinks(item, links)
     }
 
     @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
