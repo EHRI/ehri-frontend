@@ -9,19 +9,19 @@ import utils.search.{FacetClass, FacetSort}
  * Encapsulates a single facet.
  *
  * @param solr   the value of this facet to Solr
- * @param param  the value as a web parameter
+ * @param value  the value as a web parameter
  * @param name  the human-readable value
  * @param count     the number of objects to which this facet applies
  * @param applied   whether or not this facet is activated in the response
  */
 case class SolrFacet(
   solr: String,
-  param: String,
+  value: String,
   name: Option[String] = None,
   count: Int = 0,
   applied: Boolean = false
 ) extends utils.search.Facet {
-  def sort = name.getOrElse(param)
+  def sort = name.getOrElse(value)
 }
 
 object SolrFacet {

@@ -18,7 +18,7 @@ case object FacetSort extends Enumeration {
 
 
 trait Facet {
-  val param: String
+  val value: String
   val name: Option[String]
   val applied: Boolean
   val count: Int
@@ -29,7 +29,7 @@ object Facet {
   implicit def facetWrites: Writes[Facet] = new Writes[Facet] {
     def writes(f: Facet) = Json.obj(
       "count" -> JsNumber(f.count),
-      "param" -> JsString(f.param),
+      "value" -> JsString(f.value),
       "name" -> Json.toJson(f.name),
       "applied" -> JsBoolean(f.applied)
     )
@@ -54,7 +54,7 @@ trait FacetClass[+T <: Facet] {
   }
   def render: String => String
 
-  def pretty[U <: Facet](f: U): String = f.name.map(render).getOrElse(render(f.param))
+  def pretty[U <: Facet](f: U): String = f.name.map(render).getOrElse(render(f.value))
 }
 
 object FacetClass {
