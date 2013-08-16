@@ -11,8 +11,7 @@
 
 @if(!links.isEmpty) {
     @defining(item.descriptions.flatMap(_.accessPoints)) { allAccessPoints =>
-        @* Get all links that don't have a body that exists in this item's access points! *@
-        @defining(links.filter(l => !l.bodies.isEmpty && l.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)) { notLinked =>
+        @defining(item.externalLinks(links)) { notLinked =>
             @if(!notLinked.isEmpty) {
                 <div class="external-links">
                     <hr />
