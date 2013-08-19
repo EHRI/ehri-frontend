@@ -17,7 +17,7 @@ echo "Creating Solr install..."
 # Create a directory to house the multicore install
 mkdir /opt/solr4
 
-SOLR_NEW=/opt/solr4/ehri
+SOLR_NEW=/opt/webapps/solr4/ehri
 
 # Copy the example directory from the downloaded install to the Solr4 dir
 cp -r $SOLR_SRC/example/solr $SOLR_NEW
