@@ -93,7 +93,7 @@ trait ControllerHelpers {
             case e: ItemNotFound => {
               render {
                 case Accepts.Json() => NotFound(Json.toJson(e))
-                case _ => NotFound(views.html.errors.itemNotFound())
+                case _ => NotFound(views.html.errors.itemNotFound(e.value))
               }
             }
             case e: ValidationError => BadRequest(err.toString())
