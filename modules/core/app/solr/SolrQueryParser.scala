@@ -114,8 +114,8 @@ case class SolrQueryParser(response: Elem) {
       response.descendant.filter(n => (n \\ "@name").text == nameval).text match {
         case "" => Nil
         case v => List(
-          solr.facet.SolrFacet(f.solr, f.param, f.name, v.toInt,
-            applied.contains(f.param))
+          solr.facet.SolrFacet(f.solr, f.value, f.name, v.toInt,
+            applied.contains(f.value))
         )
       }
     })

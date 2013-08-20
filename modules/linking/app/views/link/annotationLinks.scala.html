@@ -24,7 +24,7 @@
                     @opposingTarget(item, link).map { other =>
                         <li class="resolved-access-point">
                             <a href="@globalConfig.routeRegistry.urlFor(other)">@other.toStringLang</a>
-                            <a class="alt" href="@controllers.core.routes.Links.getAndRedirect(link.id, Some(item.id))">
+                            <a class="alt" href="@controllers.linking.routes.Links.getAndRedirect(link.id, Some(item.id))">
                                 &times;
                             </a>
                             @link.model.description.map { desc =>

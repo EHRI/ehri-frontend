@@ -64,8 +64,6 @@ trait TestLoginHelper {
       override def onStart(app: play.api.Application) {
         // Workaround for issue #845
         app.routes
-        Utils.registerModels
-
         super.onStart(app)
       }
     }

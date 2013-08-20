@@ -38,21 +38,17 @@ case class LinkF(
 
 object Link {
   implicit object Converter extends RestReadable[Link] with ClientConvertable[Link] {
+    val restReads = models.json.LinkFormat.metaReads
+
     private implicit val linkFormat = Json.format[LinkF]
-
-    implicit val restReads = models.json.LinkFormat.metaReads
-    //implicit val clientFormat = models.json.client.linkMetaFormat
-
-    implicit val clientFormat: Format[Link] = (
+    val clientFormat: Format[Link] = (
       __.format[LinkF](LinkF.Converter.clientFormat) and
         nullableListFormat(__ \ "targets")(AnyModel.Converter.clientFormat) and
         (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
         nullableListFormat(__ \ "accessPoints")(AccessPointF.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
-      )(Link.apply _, unlift(Link.unapply _))
-
-
+    )(Link.apply _, unlift(Link.unapply _))
   }
 }
 

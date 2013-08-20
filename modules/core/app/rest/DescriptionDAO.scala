@@ -68,7 +68,10 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         .delete.flatMap { response =>
       EntityDAO[MT](entityType, userProfile).getJson(id).map {
         case Right(updated) => {
-          EntityDAO.handleUpdate(updated)
+          // NB: This should successfully remove the description
+          // because it handles both id AND itemID... but overall
+          // we still need to rationalise this properly somehow...
+          EntityDAO.handleDelete(did)
           Cache.remove(id)
           Right(true)
         }

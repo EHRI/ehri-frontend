@@ -8,11 +8,7 @@
         @Messages("login.adminLoginMessage")
     </div>
 
-    @form.globalErrors.map { e =>
-        <div class="alert alert-error">
-            @Messages(e.message)
-        </div>
-    }
+    @formHelpers.globalErrors(form)
 
     @helper.form(action = action, 'class -> "login-form form-horizontal") {
         @formHelpers.csrfToken()

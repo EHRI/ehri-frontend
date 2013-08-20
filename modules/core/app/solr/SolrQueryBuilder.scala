@@ -70,7 +70,7 @@ object SolrQueryBuilder {
           case fc: FieldFacetClass => paramVals.map(v => fc.key + ":\"" + v + "\"") // Grr, interpolation...
           case fc: QueryFacetClass => {
             fc.facets.flatMap(facet => {
-              if (paramVals.contains(facet.param)) {
+              if (paramVals.contains(facet.value)) {
                 List(s"${fc.key}:${facet.solr}")
               } else Nil
             })

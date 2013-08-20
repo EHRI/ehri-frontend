@@ -1,19 +1,96 @@
 
-function SearchCtrl($scope, $rootScope, $search, $http) {
+function SearchCtrl($scope, $rootScope, $search, $location, $http) {
   console.log("Loading searchctrl")
 
-  $http.get(jsRoutes.controllers.portal.Application.search().url).success(function(data) {
-    $scope.results = data;
-    console.log("Got data: ", data);
-  });
+  function filterParams(params) {
+    var filtered = {};
+    for (key in params) {
+      if (params.hasOwnProperty(key)) {
+        if (params[key] !== undefined && params[key] != null && params[key] != "") {
+          filtered[key] = params[key] + "";
+        }
+      }
+    }
+    return filtered;
+  }
 
-  $scope.searchParams = {
-    q:"",
-    excludes: [],
-    facets: []
+  $scope.nextPage = function() {
+    $scope.searchParams.page++;
+    $scope.doSearch();
+  }
+
+  $scope.prevPage = function() {
+    $scope.searchParams.page = Math.max(1, $scope.searchParams.page - 1);
+    $scope.doSearch();
+  }
+
+  $scope.removeFacet = function(facetClass, facet) {
+    $scope.searchParams.facets = $scope.searchParams.facets.filter(function(i) {
+      return i[0].param != facetClass && i[1].value != facet.value;
+    });
+    $scope.doSearch();
+  }
+
+  $scope.addFacet = function(facetClass, facet) {
+    $scope.searchParams.facets.push([facetClass, facet]);
+    $scope.doSearch();
+  }
+
+  $scope.isSelectedType = function(type) {
+    return $scope.searchParams.st.indexOf(type) != -1;
+  }
+
+  $scope.addTypeFilter = function(type) {
+    $scope.searchParams.st.push(type);
+    $scope.doSearch();
+  }
+
+  $scope.removeTypeFilter = function(type) {
+    $scope.searchParams.st.splice($scope.searchParams.st.indexOf(type), 1);
+    $scope.doSearch();
+  }
+
+  $scope.doSearch = function() {
+    console.log("Setting search: ", filterParams($scope.searchParams))
+    // Setting location causes problems!
+    //$location.search(filterParams($scope.searchParams));
+    //$location.search({st: undefined})
+    $http({url: getSearchUrl(), method: "GET", headers:{Accept: "application/json"}}).success(function(data) {
+      $scope.results = data;
+      console.log("Data", data)
+    });
   };
 
+  $scope.searchParams = {
+    q: $location.search().q || "",
+    page: parseInt($location.search().page, 10) || 1,
+    excludes: [],
+    facets: [],
+    st: []
+  };
+
+
+  var getSearchUrl = function() {
+    var url = jsRoutes.controllers.portal.Application.search().url;
+    url += "?q=" + $scope.searchParams.q.trim();
+    if ($scope.searchParams.page > 1) {
+      url += "&page=" + $scope.searchParams.page;
+    }
+    for (i in $scope.searchParams.st) {
+      url += "&st[]=" + $scope.searchParams.st[i];
+    }
+    for (i in $scope.searchParams.facets) {
+      var cls = $scope.searchParams.facets[i][0];
+      var f = $scope.searchParams.facets[i][1];
+      url += "&" + cls.param + "=" + f.value;
+    }
+    console.log(url)
+    return url;
+  }
+
   $scope.results = {};
+
+  $scope.doSearch();
 }
 
 function ProfileCtrl($scope, $rootScope, $http) {

@@ -37,7 +37,7 @@ package object search {
   def pathWithoutFacet[F <: Facet, FC <: FacetClass[F]](fc: FC, f: F, path: String, qs: Map[String, Seq[String]]): String = {
     joinPath(path, qs.map(qv => {
       qv._1 match {
-        case fc.param => (qv._1, qv._2.filter(_!=f.param))
+        case fc.param => (qv._1, qv._2.filter(_!=f.value))
         case _ => qv
       }
     }))
@@ -47,11 +47,11 @@ package object search {
     joinPath(path, if (qs.contains(fc.param)) {
       qs.map(qv => {
         qv._1 match {
-          case fc.param => (qv._1, qv._2.union(Seq(f.param)).distinct)
+          case fc.param => (qv._1, qv._2.union(Seq(f.value)).distinct)
           case _ => qv
         }
       })
-    } else qs.updated(fc.param, Seq(f.param))
+    } else qs.updated(fc.param, Seq(f.value))
     )
   }
 

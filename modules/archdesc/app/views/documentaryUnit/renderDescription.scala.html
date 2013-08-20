@@ -53,7 +53,7 @@
         @common.stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
     }
 
-    @common.relatedLinks(item, desc, links)
+    @link.relatedLinks(item, desc, links)
 
     @desc.unknownProperties.map { e =>
         @common.unknownData(e)

@@ -9,7 +9,6 @@ tmp
 .project
 .settings
 .target
-bin
 dist
 *.sublime-workspace
 

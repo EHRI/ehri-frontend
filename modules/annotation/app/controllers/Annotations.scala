@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.annotation
 
 import defines._
 import models.Annotation
@@ -30,19 +30,19 @@ class Annotations @Inject()(implicit val globalConfig: GlobalConfig) extends Ent
     implicit request =>
       Ok(views.html.permissions.visibility(item,
         forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, controllers.core.routes.Annotations.visibilityPost(id)))
+        users, groups, controllers.annotation.routes.Annotations.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt =>
     implicit request =>
-      Redirect(controllers.core.routes.Annotations.get(id))
+      Redirect(controllers.annotation.routes.Annotations.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-      item, controllers.core.routes.Annotations.deletePost(id),
-        controllers.core.routes.Annotations.get(id)))
+      item, controllers.annotation.routes.Annotations.deletePost(id),
+        controllers.annotation.routes.Annotations.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) {
