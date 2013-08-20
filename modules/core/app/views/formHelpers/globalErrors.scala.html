@@ -1,0 +1,12 @@
+@(form: Form[_])(implicit lang: Lang)
+
+@if(!form.globalErrors.isEmpty) {
+    <div class="alert alert-error alert-block">
+        <h4>@Messages("error.globalErrors")</h4>
+        <ul>
+        @form.globalErrors.map { error =>
+            <li>@Messages(error.message)</li>
+        }
+        </ul>
+    </div>
+}
