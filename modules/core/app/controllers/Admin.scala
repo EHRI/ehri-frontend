@@ -55,10 +55,19 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
 
   private val groupMembershipForm = Form(single("group" -> list(nonEmptyText)))
 
+  /**
+   * Show the admin home page.
+   * @return
+   */
   def adminActions = adminAction { implicit userOpt => implicit request =>
     Ok(views.html.admin.actions())
   }
 
+  /**
+   * Create a user's account for them with a pre-set password. This is an
+   * admin only function and should be removed eventually.
+   * @return
+   */
   def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) {
       implicit userOpt => implicit request =>
     getGroups { groups =>
@@ -68,7 +77,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   }
 
   /**
-   * Create a user.
+   * Create a user. Currently this gets a bit gnarly.
    * @return
    */
   def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) {
@@ -139,10 +148,18 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
     )
   }
 
+  /**
+   * Login via a password...
+   * @return
+   */
   def passwordLogin = Action { implicit request =>
     Ok(views.html.admin.pwLogin(passwordLoginForm, controllers.core.routes.Admin.passwordLoginPost))
   }
 
+  /**
+   * Check password and store credentials.
+   * @return
+   */
   def passwordLoginPost = Action { implicit request =>
     val action = controllers.core.routes.Admin.passwordLoginPost
     passwordLoginForm.bindFromRequest.fold(
