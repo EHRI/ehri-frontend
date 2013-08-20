@@ -1,7 +1,7 @@
 package models.json
 
 import play.api.libs.json._
-import models.{AccessPointF, Entity}
+import models.{AccessPoint, AccessPointF, Entity}
 import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
@@ -39,4 +39,9 @@ object AccessPointFormat {
   }
 
   implicit val restFormat: Format[AccessPointF] = Format(accessPointReads,accessPointWrites)
+
+  implicit val metaReads: Reads[AccessPoint] = (
+    __.read[AccessPointF].map { l => AccessPoint(l)}
+  )
+
 }

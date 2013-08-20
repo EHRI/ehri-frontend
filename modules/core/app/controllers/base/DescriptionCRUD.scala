@@ -95,7 +95,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
       item.model.description(did).map { desc =>
         f(item)(desc)(userOpt)(request)
       }.getOrElse {
-        NotFound(views.html.errors.itemNotFound())
+        NotFound(views.html.errors.itemNotFound(Some(did)))
       }
     }
   }

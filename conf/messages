@@ -20,6 +20,7 @@ forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
 forms.search=Search
 
 # Form errors.
+error.globalErrors=There were problems with that form:
 error.date=Date is incorrect or badly formatted
 error.required=Required
 constraint.required=*
