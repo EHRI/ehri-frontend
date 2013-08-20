@@ -3,8 +3,9 @@ package models
 import models.base._
 
 import defines.EntityType
-import models.json.{ClientConvertable, RestConvertable}
-import play.api.libs.json.Json
+import models.json.{RestReadable, ClientConvertable, RestConvertable}
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 
 object AccessPointF {
@@ -61,3 +62,21 @@ case class AccessPointF(
     }
   }
 }
+
+object AccessPoint {
+  implicit object Converter extends RestReadable[AccessPoint] with ClientConvertable[AccessPoint] {
+    val restReads = models.json.AccessPointFormat.metaReads
+
+    // This hassle necessary because single-field case classes require special handling,
+    // see: http://stackoverflow.com/a/17282296/285374
+    private implicit val accessPointFormat = Json.format[AccessPointF]
+    private val clr: Reads[AccessPoint] = (__.read[AccessPointF].map{l => AccessPoint(l)})
+    private val clw: Writes[AccessPoint] = (__.write[AccessPointF].contramap{(l: AccessPoint) => l.model})
+    val clientFormat: Format[AccessPoint] = Format(clr, clw)
+  }
+}
+
+
+case class AccessPoint(
+  model: AccessPointF
+) extends AnyModel with MetaModel[AccessPointF]
