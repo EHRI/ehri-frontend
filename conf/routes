@@ -2,17 +2,6 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-POST  /iteratee                         @controllers.Search.testIteratee
-
-GET     /admin/updateIndex              @controllers.Search.updateIndex
-POST    /admin/updateIndex              @controllers.Search.updateIndexPost
-
-# Search testing
-GET /search                             @controllers.Search.search
-
-# Get JSON (id,name) pair for a given type
-GET /filter                             @controllers.Search.filter
-
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)
 
@@ -24,5 +13,6 @@ GET     /assets/*file                   controllers.Assets.at(path="/public", fi
 -> /arch    archdesc.Routes
 -> /voc     vocabs.Routes
 -> /portal  portal.Routes
+-> /admin   admin.Routes
 
 

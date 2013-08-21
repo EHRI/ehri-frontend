@@ -1,0 +1,12 @@
+# Routes for portal routes
+
+POST    /iteratee                          @controllers.admin.Search.testIteratee
+
+GET     /updateIndex                        @controllers.admin.Search.updateIndex
+POST    /updateIndex                        @controllers.admin.Search.updateIndexPost
+
+# Search testing
+GET     /search                             @controllers.admin.Search.search
+
+# Get JSON (id,name) pair for a given type
+GET     /filter                             @controllers.admin.Search.filter

@@ -65,7 +65,7 @@
                             var anUpdate = unprocessed.substring(0, endOfFirstMessageIndex);
                             appendProgressMessage(anUpdate);
                             nextReadPos += endOfFirstMessageIndex;
-                            if (anUpdate == "<message>@controllers.Search.DONE_MESSAGE</message>") {
+                            if (anUpdate == "<message>@controllers.admin.Search.DONE_MESSAGE</message>") {
                                 doneFunc();
                                 clearInterval(pollTimer);
                             }
