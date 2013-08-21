@@ -37,8 +37,8 @@ class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig) ext
     }.apply(request)
   }
 
-  def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
+  def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
+    Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>

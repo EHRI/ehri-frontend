@@ -13,19 +13,6 @@ import utils.search.SearchParams
 import utils.search.Dispatcher
 import com.google.inject._
 
-object UserProfiles {
-  val listFilterMappings: ListMap[String,String] = ListMap(
-    "name" -> "name",
-    Entity.IDENTIFIER -> Entity.IDENTIFIER
-  )
-
-  val orderMappings: ListMap[String,String] = ListMap(
-    "name" -> "name",
-    Entity.IDENTIFIER -> Entity.IDENTIFIER
-  )
-}
-
-
 @Singleton
 class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig) extends PermissionHolderController[UserProfile]
   with EntityRead[UserProfile]
@@ -34,10 +21,6 @@ class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig) ext
   with EntitySearch {
 
   val DEFAULT_SORT = "name"
-
-  override def processParams(params: ListParams): rest.RestPageParams = {
-    params.toRestParams(UserProfiles.listFilterMappings, UserProfiles.orderMappings, Some(DEFAULT_SORT))
-  }
 
   val entityType = EntityType.UserProfile
   val contentType = ContentType.UserProfile
@@ -62,8 +45,8 @@ class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig) ext
     }
   }
 
-  def history(id: String) = historyAction(id) { item => page => implicit userOptOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
+  def history(id: String) = historyAction(id) { item => page => params => implicit userOptOpt => implicit request =>
+    Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
   def list = listAction { page => params => implicit userOptOpt => implicit request =>

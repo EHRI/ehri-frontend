@@ -59,9 +59,8 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
     Ok(views.html.historicalAgent.show(item, annotations, links))
   }
 
-  def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
-    // TODO: Add relevant params
-    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
+  def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
+    Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
   def list = listAction { page => params => implicit userOpt => implicit request =>

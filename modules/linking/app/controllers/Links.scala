@@ -25,8 +25,9 @@ class Links @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRea
     Ok(views.html.link.show(item, links, redirect))
   }
 
-  def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
+  def history(id: String) = historyAction(id) {
+      item => page => params => implicit userOpt => implicit request =>
+    Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
   def visibility(id: String) = visibilityAction(id) {
