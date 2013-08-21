@@ -4,7 +4,7 @@
 
 @rightSidebarLayout(Messages("actions.listUserProfiles")) {
 
-    @common.filterableList("pagination.displayingItems", items, params, controllers.core.UserProfiles.listFilterMappings.keys, UserProfiles.orderMappings.keys) {
+    @common.filterableList("pagination.displayingItems", items, params) {
         <ul class="unstyled">
         @items.items.map { item =>
             <li>

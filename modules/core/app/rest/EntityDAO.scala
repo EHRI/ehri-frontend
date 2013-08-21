@@ -74,40 +74,22 @@ object RestPageParams {
  * Class for handling page parameter data
  * @param page
  * @param limit
- * @param filters
- * @param sort
  */
-case class RestPageParams(page: Option[Int] = None, limit: Option[Int] = None, filters: List[String] = Nil, sort: List[String] = Nil) {
+case class RestPageParams(page: Option[Int] = None, limit: Option[Int] = None) {
 
   import RestPageParams._
 
   def mergeWith(default: RestPageParams): RestPageParams = RestPageParams(
     page = page.orElse(default.page),
-    limit = limit.orElse(default.limit),
-    filters = if (filters.isEmpty) default.filters else filters,
-    sort = if (sort.isEmpty) default.sort else sort
+    limit = limit.orElse(default.limit)
   )
 
   def offset: Int = (page.getOrElse(1) - 1) * limit.getOrElse(DEFAULT_LIST_LIMIT)
   def range: String = s"$offset-${offset + limit.getOrElse(DEFAULT_LIST_LIMIT)}"
 
-  override def toString = {
-    "?" + List(
-      s"${OFFSET_PARAM}=${offset}",
-      s"${LIMIT_PARAM}=${limit.getOrElse(DEFAULT_LIST_LIMIT)}",
-      multiParam(FILTER_PARAM, filters),
-      multiParam(ORDER_PARAM, sort)
-    ).filterNot(_.trim.isEmpty).mkString("&")
-  }
-
   def toSeq: Seq[(String,String)]
-        = (filters.map(f => FILTER_PARAM -> f) :::
-            sort.map(s => ORDER_PARAM -> s) :::
-            List(OFFSET_PARAM -> offset.toString) :::
+        = (List(OFFSET_PARAM -> offset.toString) :::
             List(LIMIT_PARAM -> limit.getOrElse(DEFAULT_LIST_LIMIT).toString)).toSeq
-
-  private def multiParam(key: String, values: List[String]) = values.map(s => s"${key}=${s}").mkString("&")
-
 }
 
 object EntityDAO {
@@ -182,7 +164,6 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
   def create[T](item: T, accessors: List[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
       logMsg: Option[String] = None)(implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
-    val qs = utils.joinQueryString(params)
     val url = enc(requestUrl)
     Logger.logger.debug("CREATE {} ", url)
     WS.url(url)
@@ -233,24 +214,25 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
         EntityDAO.handleDelete(id)
-        //Cache.remove(id)
+        Cache.remove(id)
         r.status == OK
       })
     }
   }
 
   def listJson(params: RestPageParams = RestPageParams()): Future[Either[RestError, List[JsObject]]] = {
-    val url = enc(requestUrl, "list" + params.toString)
+    val url = enc(requestUrl, "list")
     Logger.logger.debug("LIST: {}", url)
-    WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(url).withQueryString(params.toSeq: _*)
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[List[JsObject]](response)
     }
   }
 
   def list(params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
-    val url = enc(requestUrl, "list" + params.toString)
+    val url = enc(requestUrl, "list")
     Logger.logger.debug("LIST: {}", url)
-    WS.url(url)
+    WS.url(url).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
@@ -258,8 +240,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
 
   def listChildren[CMT](id: String, params: RestPageParams = RestPageParams())(
       implicit rd: RestReadable[CMT]): Future[Either[RestError, List[CMT]]] = {
-    WS.url(enc(requestUrl, id, "list"))
-        .withQueryString(params.toSeq:_*)
+    WS.url(enc(requestUrl, id, "list")).withQueryString(params.toSeq:_*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
@@ -268,35 +249,37 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
   def pageJson(params: RestPageParams = RestPageParams()): Future[Either[RestError, Page[JsObject]]] = {
     val url = enc(requestUrl, "page")
     Logger.logger.debug("PAGE: {}", url)
-    WS.url(url).withQueryString(params.toSeq:_*).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(url).withQueryString(params.toSeq:_*)
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads[JsObject])
     }
   }
 
   def page(params: RestPageParams = RestPageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, Page[MT]]] = {
-    val url = enc(requestUrl, "page" + params.toString)
+    val url = enc(requestUrl, "page")
     Logger.logger.debug("PAGE: {}", url)
-    WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(url).withHeaders(authHeaders.toSeq: _*)
+        .withQueryString(params.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
 
   def pageChildren[CMT](id: String, params: RestPageParams = RestPageParams())(implicit rd: RestReadable[CMT]): Future[Either[RestError, Page[CMT]]] = {
-    WS.url(enc(requestUrl, id, "page" + params.toString))
+    WS.url(enc(requestUrl, id, "page")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
 
   def count(params: RestPageParams = RestPageParams()): Future[Either[RestError, Long]] = {
-    WS.url(enc(requestUrl, "count" + params.toString))
+    WS.url(enc(requestUrl, "count")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 
   def countChildren(id: String, params: RestPageParams = RestPageParams()): Future[Either[RestError, Long]] = {
-    WS.url(enc(requestUrl, id, "count" + params.toString))
+    WS.url(enc(requestUrl, id, "count")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[Long](response)
     }

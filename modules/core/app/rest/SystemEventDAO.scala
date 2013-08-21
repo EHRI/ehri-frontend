@@ -18,8 +18,8 @@ case class SystemEventDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def history(id: String, params: RestPageParams): Future[Either[RestError, Page[SystemEvent]]] = {
     implicit val rd: RestReadable[SystemEvent] = SystemEvent.Converter
-    WS.url(enc(requestUrl, "for", id) + params.toString)
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(enc(requestUrl, "for", id)).withQueryString(params.toSeq: _*)
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[SystemEvent]](Page.pageReads(rd.restReads)).fold(
           valid = { page => page },
@@ -32,8 +32,8 @@ case class SystemEventDAO(userProfile: Option[UserProfile]) extends RestDAO {
   }
 
   def subjectsFor(id: String, params: RestPageParams): Future[Either[RestError, Page[AnyModel]]] = {
-    WS.url(enc(requestUrl, id, "subjects") + params.toString)
-      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    WS.url(enc(requestUrl, id, "subjects")).withQueryString(params.toSeq: _*)
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkError(response).right.map { r =>
         r.json.validate[Page[AnyModel]](Page.pageReads(AnyModel.Converter.restReads)).fold(
           valid = { page =>
