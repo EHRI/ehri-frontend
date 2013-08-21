@@ -22,8 +22,9 @@ class Annotations @Inject()(implicit val globalConfig: GlobalConfig) extends Ent
     Ok(views.html.annotation.show(item, annotations))
   }
 
-  def history(id: String) = historyAction(id) { item => page => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
+  def history(id: String) = historyAction(id) {
+      item => page => params => implicit userOpt => implicit request =>
+    Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt =>

@@ -11,6 +11,8 @@ import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
 import models.base.{AnyModel, MetaModel}
+import play.api.mvc.{AnyContent, Request}
+import play.api.data.Form
 
 /**
  * Class representing a page of data.
@@ -61,13 +63,25 @@ object Page {
 
 object RestPageParams {
   final val ACCESSOR_PARAM = "accessibleTo"
-  final val ORDER_PARAM = "sort"
-  final val FILTER_PARAM = "filter"
   final val OFFSET_PARAM = "offset"
   final val LIMIT_PARAM = "limit"
   final val PAGE_PARAM = "page"
 
   final val DEFAULT_LIST_LIMIT = 20
+
+  def fromRequest(request: Request[AnyContent], namespace: String = ""): RestPageParams = {
+    import play.api.data.Forms._
+
+    // NB: There *should* be no way for the binding
+    // of this form to fail, since we have no
+    // constraints.
+    Form(
+      mapping(
+        namespace + PAGE_PARAM -> optional(number),
+        namespace + LIMIT_PARAM -> optional(number)
+      )(RestPageParams.apply)(RestPageParams.unapply)
+    ).bindFromRequest(request.queryString).value.getOrElse(new RestPageParams())
+  }
 }
 
 /**

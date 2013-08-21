@@ -45,8 +45,8 @@ class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig) ext
     }
   }
 
-  def history(id: String) = historyAction(id) { item => page => implicit userOptOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, ListParams()))
+  def history(id: String) = historyAction(id) { item => page => params => implicit userOptOpt => implicit request =>
+    Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
   def list = listAction { page => params => implicit userOptOpt => implicit request =>
