@@ -6,7 +6,6 @@ import models._
 import controllers.base._
 import play.api.i18n.Messages
 import play.api.mvc.{Call, AnyContent, Action}
-import controllers.ListParams
 
 import com.google.inject._
 import global.GlobalConfig
@@ -17,7 +16,7 @@ class Links @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRea
   with EntityAnnotate[Link] {
 
   val entityType = EntityType.Link
-  val contentType = ContentType.Link
+  val contentType = ContentTypes.Link
 
   def get(id: String) = getAndRedirect(id, None)
 
@@ -44,15 +43,14 @@ class Links @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRea
 
   def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-      item, controllers.linking.routes.Links.deletePost(id, redirect), Call("GET", "/"))) // FIXME: routes.Application.get(id)))
+      item, controllers.linking.routes.Links.deletePost(id, redirect),
+        controllers.core.routes.Application.get(id)))
   }
 
   def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-//    Redirect(redirect.map(r => routes.Application.get(r)).getOrElse(routes.Search.search))
-//        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
-        // FIXME!
-        Redirect(redirect.map(r => "/").getOrElse("/"))
-            .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+    Redirect(redirect.map(r => controllers.core.routes.Application.get(r))
+        .getOrElse(globalConfig.routeRegistry.default))
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }

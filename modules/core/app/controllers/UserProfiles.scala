@@ -1,6 +1,5 @@
 package controllers.core
 
-import _root_.controllers.ListParams
 import forms.VisibilityForm
 import controllers.base._
 import models._
@@ -23,7 +22,7 @@ class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig) ext
   val DEFAULT_SORT = "name"
 
   val entityType = EntityType.UserProfile
-  val contentType = ContentType.UserProfile
+  val contentType = ContentTypes.UserProfile
 
   // Search params
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
@@ -82,12 +81,12 @@ class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig) ext
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
-  def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
+  def grantList(id: String) = grantListAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionGrantList(item, perms))
   }
 
-  def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
+  def permissions(id: String) = setGlobalPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.editGlobalPermissions(item, perms,
         controllers.core.routes.UserProfiles.permissionsPost(id)))

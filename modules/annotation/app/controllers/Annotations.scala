@@ -4,7 +4,6 @@ import defines._
 import models.Annotation
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.i18n.Messages
-import controllers.ListParams
 import controllers.base.{EntityRead, VisibilityController, EntityDelete, EntityAnnotate}
 
 import com.google.inject._
@@ -16,7 +15,7 @@ class Annotations @Inject()(implicit val globalConfig: GlobalConfig) extends Ent
   with EntityAnnotate[Annotation] {
 
   val entityType = EntityType.Annotation
-  val contentType = ContentType.Annotation
+  val contentType = ContentTypes.Annotation
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     Ok(views.html.annotation.show(item, annotations))

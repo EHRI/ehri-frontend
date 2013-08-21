@@ -4,7 +4,7 @@
 
 @actions(title: String, id: String, did: String) = {
     @userOpt.map { user =>
-        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Update)) {
+        @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
             <div class="btn-group pull-right">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                     @title

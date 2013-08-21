@@ -4,14 +4,13 @@ import defines._
 import models.SystemEvent
 import controllers.base.EntityRead
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.ListParams
 import com.google.inject._
 import global.GlobalConfig
 import rest.RestPageParams
 
 class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
   val entityType = EntityType.SystemEvent
-  val contentType = ContentType.SystemEvent
+  val contentType = ContentTypes.SystemEvent
 
   def get(id: String) = getAction(id) { 
       item => annotations => links => implicit userOpt => implicit request =>

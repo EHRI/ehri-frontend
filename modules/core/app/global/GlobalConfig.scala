@@ -1,6 +1,7 @@
 package global
 
 import controllers.base.LoginHandler
+import play.api.mvc.Call
 
 
 trait MenuConfig {

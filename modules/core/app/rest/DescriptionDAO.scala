@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json._
-import defines.{EntityType,ContentType}
+import defines.{EntityType,ContentTypes}
 import models.{UserProfile, Entity}
 import play.api.Play.current
 import play.api.cache.Cache

@@ -17,7 +17,7 @@
 } {
     @common.sidebarSection(None) {
         @userOpt.map { user =>
-            @if(user.hasPermission(ContentType.Vocabulary, PermissionType.Create)) {
+            @if(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Create)) {
                 <a class="btn btn-primary" href="@controllers.vocabs.routes.Vocabularies.create">@Messages("actions.createVocabulary")</a>
             }
         }

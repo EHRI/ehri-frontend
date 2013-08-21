@@ -1,14 +1,13 @@
 package controllers.core
 
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.ListParams
 import controllers.base._
 import forms.VisibilityForm
 import models._
 import models.base.Accessor
 import play.api._
 import play.api.i18n.Messages
-import defines.{ ContentType, EntityType, PermissionType }
+import defines.{ ContentTypes, EntityType, PermissionType }
 import global.GlobalConfig
 import com.google.inject._
 
@@ -17,7 +16,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig) extends Permissi
   with CRUD[GroupF, Group] {
 
   val entityType = EntityType.Group
-  val contentType = ContentType.Group
+  val contentType = ContentTypes.Group
 
   private val form = models.forms.GroupForm.form
   private val groupRoutes = controllers.core.routes.Groups
@@ -83,12 +82,12 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig) extends Permissi
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
-  def grantList(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = grantListAction(id, page, limit) {
+  def grantList(id: String) = grantListAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionGrantList(item, perms))
   }
 
-  def permissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = setGlobalPermissionsAction(id) {
+  def permissions(id: String) = setGlobalPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.editGlobalPermissions(item, perms,
           groupRoutes.permissionsPost(id)))
@@ -121,7 +120,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig) extends Permissi
    * Present a list of groups to which the current user can be added.
    */
   def membership(userType: String, userId: String) = {
-    withItemPermission[Accessor](userId, PermissionType.Grant, ContentType.withName(userType)) {
+    withItemPermission[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       Async {
         for {
@@ -151,7 +150,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig) extends Permissi
    * Confirm adding the given user to the specified group.
    */
   def addMember(id: String, userType: String, userId: String) = {
-    withItemPermission[Accessor](userId, PermissionType.Grant, ContentType.withName(userType)) {
+    withItemPermission[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -170,7 +169,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig) extends Permissi
    * Add the user to the group and redirect to the show view.
    */
   def addMemberPost(id: String, userType: String, userId: String) = {
-    withItemPermission[Accessor](userId, PermissionType.Grant, ContentType.withName(userType)) {
+    withItemPermission[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
         rest.PermissionDAO(userOpt).addGroup(id, userId).map { boolOrErr =>
@@ -187,7 +186,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig) extends Permissi
    * Confirm adding the given user to the specified group.
    */
   def removeMember(id: String, userType: String, userId: String) = {
-    withItemPermission[Accessor](userId, PermissionType.Grant, ContentType.withName(userType)) {
+    withItemPermission[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -206,7 +205,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig) extends Permissi
    * Add the user to the group and redirect to the show view.
    */
   def removeMemberPost(id: String, userType: String, userId: String) = {
-    withItemPermission[Accessor](userId, PermissionType.Grant, ContentType.withName(userType)) {
+    withItemPermission[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
         rest.PermissionDAO(userOpt).removeGroup(id, userId).map { boolOrErr =>

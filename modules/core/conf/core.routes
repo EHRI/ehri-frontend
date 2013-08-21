@@ -58,7 +58,7 @@ GET     /users/update/:id                       @controllers.core.UserProfiles.u
 POST    /users/update/:id                       @controllers.core.UserProfiles.updatePost(id: String)
 GET     /users/permissions/:id                  @controllers.core.UserProfiles.permissions(id: String)
 POST    /users/permissions/:id                  @controllers.core.UserProfiles.permissionsPost(id: String)
-GET     /users/permissions/:id/list             @controllers.core.UserProfiles.grantList(id: String, page: Int ?= 1, limit: Int ?= 20)
+GET     /users/permissions/:id/list             @controllers.core.UserProfiles.grantList(id: String)
 GET     /users/permissions/revoke/:id/:perm     @controllers.core.UserProfiles.revokePermission(id: String, perm: String)
 POST    /users/permissions/revoke/:id/:perm     @controllers.core.UserProfiles.revokePermissionPost(id: String, perm: String)
 
@@ -73,7 +73,7 @@ GET     /group/update/:id                       @controllers.core.Groups.update(
 POST    /group/update/:id                       @controllers.core.Groups.updatePost(id: String)
 GET     /group/permissions/:id                  @controllers.core.Groups.permissions(id: String)
 POST    /group/permissions/:id                  @controllers.core.Groups.permissionsPost(id: String)
-GET     /group/permissions/:id/list             @controllers.core.Groups.grantList(id: String, page: Int ?= 1, limit: Int ?= 20)
+GET     /group/permissions/:id/list             @controllers.core.Groups.grantList(id: String)
 GET     /group/permissions/revoke/:id/:perm     @controllers.core.Groups.revokePermission(id: String, perm: String)
 POST    /group/permissions/revoke/:id/:perm     @controllers.core.Groups.revokePermissionPost(id: String, perm: String)
 GET		/group/members/:userType/:userId	    @controllers.core.Groups.membership(userType: String, userId: String)

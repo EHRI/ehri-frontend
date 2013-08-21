@@ -9,7 +9,7 @@ import jp.t2v.lab.play20.auth.Auth
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.EntityType
 import defines.PermissionType
-import defines.ContentType
+import defines.ContentTypes
 
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
@@ -108,7 +108,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    *  their global perms and user profile, we don't wrap userProfileAction
    *  but duplicate a bunch of code instead ;(
    */
-  def itemPermissionAction[MT](contentType: ContentType.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
+  def itemPermissionAction[MT](contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
         implicit rd: RestReadable[MT]): Action[AnyContent] = {
     optionalUserAction { implicit maybeAccount =>
       implicit request =>
@@ -182,7 +182,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * and return an action with the user in scope.
    */
   def withItemPermission[MT](id: String,
-    perm: PermissionType.Value, contentType: ContentType.Value, permContentType: Option[ContentType.Value] = None)(
+    perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
       f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     itemPermissionAction[MT](contentType, id) { entity => implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>
@@ -197,7 +197,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * and return an action with the user in scope.
    */
   def withContentPermission(
-    perm: PermissionType.Value, contentType: ContentType.Value)(
+    perm: PermissionType.Value, contentType: ContentTypes.Value)(
       f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit maybeUser => implicit request =>
       maybeUser.flatMap { user =>

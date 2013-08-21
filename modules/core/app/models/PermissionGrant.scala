@@ -25,7 +25,7 @@ object PermissionGrantF {
 case class PermissionGrantF(
   isA: EntityType.Value = EntityType.PermissionGrant,
   id: Option[String],
-  timestamp: DateTime,
+  timestamp: Option[DateTime],
   permission: PermissionType.Value
 ) extends Model
 

@@ -1,6 +1,5 @@
 package controllers.authorities
 
-import _root_.controllers.ListParams
 import controllers.base._
 import forms.VisibilityForm
 import models._
@@ -8,9 +7,7 @@ import models.forms.LinkForm
 import play.api._
 import play.api.i18n.Messages
 import defines._
-import collection.immutable.ListMap
 import utils.search.{SearchParams, FacetSort}
-import utils.search.Dispatcher
 import com.google.inject._
 
 @Singleton
@@ -22,9 +19,11 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
   with EntitySearch {
 
   val entityType = EntityType.HistoricalAgent
-  val contentType = ContentType.HistoricalAgent
+  val contentType = ContentTypes.HistoricalAgent
 
   val form = models.forms.HistoricalAgentForm.form
+
+  private val histRoutes = controllers.authorities.routes.HistoricalAgents
 
   // Documentary unit facets
   import solr.facet._
@@ -50,7 +49,7 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
   def search = {
     searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
         page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.historicalAgent.search(page, params, facets, controllers.authorities.routes.HistoricalAgents.search))
+      Ok(views.html.historicalAgent.search(page, params, facets, histRoutes.search))
     }
   }
 
@@ -69,63 +68,63 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.edit(item, form.fill(item.model), controllers.authorities.routes.HistoricalAgents.updatePost(id)))
+    Ok(views.html.historicalAgent.edit(item, form.fill(item.model), histRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.historicalAgent.edit(item, errorForm, controllers.authorities.routes.HistoricalAgents.updatePost(id)))
-      case Right(item) => Redirect(controllers.authorities.routes.HistoricalAgents.get(item.id))
+        BadRequest(views.html.historicalAgent.edit(item, errorForm, histRoutes.updatePost(id)))
+      case Right(item) => Redirect(histRoutes.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
   }
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(item, controllers.authorities.routes.HistoricalAgents.deletePost(id),
-        controllers.authorities.routes.HistoricalAgents.get(id)))
+    Ok(views.html.delete(item, histRoutes.deletePost(id),
+        histRoutes.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(controllers.authorities.routes.HistoricalAgents.search())
+    Redirect(histRoutes.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
       VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, controllers.authorities.routes.HistoricalAgents.visibilityPost(id)))
+      users, groups, histRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(controllers.authorities.routes.HistoricalAgents.get(id))
+    Redirect(histRoutes.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
+  def managePermissions(id: String) = manageItemPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.managePermissions(item, perms,
-        controllers.authorities.routes.HistoricalAgents.addItemPermissions(id)))
+        histRoutes.addItemPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        controllers.authorities.routes.HistoricalAgents.setItemPermissions _))
+        histRoutes.setItemPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
-        controllers.authorities.routes.HistoricalAgents.setItemPermissionsPost(id, userType, userId)))
+        histRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
-    Redirect(controllers.authorities.routes.HistoricalAgents.managePermissions(id))
+    Redirect(histRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
@@ -137,14 +136,14 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
   def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
       item => page => params => facets => etype => implicit userOpt => implicit request =>
     Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
-        controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(id, toType),
-        controllers.authorities.routes.HistoricalAgents.linkAnnotate _))
+        histRoutes.linkAnnotateSelect(id, toType),
+        histRoutes.linkAnnotate _))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.link.link(target, source,
-        LinkForm.form, controllers.authorities.routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
+        LinkForm.form, histRoutes.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
@@ -152,10 +151,10 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
       formOrAnnotation match {
         case Left((target,source,errorForm)) => {
           BadRequest(views.html.link.link(target, source,
-            errorForm, controllers.authorities.routes.HistoricalAgents.linkAnnotatePost(id, toType, to)))
+            errorForm, histRoutes.linkAnnotatePost(id, toType, to)))
         }
         case Right(annotation) => {
-          Redirect(controllers.authorities.routes.HistoricalAgents.get(id))
+          Redirect(histRoutes.get(id))
             .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
         }
       }

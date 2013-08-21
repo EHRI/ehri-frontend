@@ -2,11 +2,11 @@ package controllers.base
 
 import models.base.AnyModel
 import play.api.mvc.{Request, AnyContent, Controller}
-import defines.{ContentType,EntityType}
+import defines.{ContentTypes,EntityType}
 
 trait EntityController extends Controller with AuthController with ControllerHelpers {
   val entityType: EntityType.Value
-  val contentType: ContentType.Value
+  val contentType: ContentTypes.Value
 
   final val LOG_MESSAGE_PARAM = "logMessage"
 

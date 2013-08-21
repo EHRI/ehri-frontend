@@ -1,6 +1,6 @@
 package controllers.base
 
-import defines.{EntityType, ContentType, PermissionType}
+import defines.{EntityType, ContentTypes, PermissionType}
 import acl.GlobalPermissionSet
 import models.base.Accessor
 import play.api.mvc._
@@ -8,6 +8,7 @@ import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.json.RestReadable
+import rest.RestPageParams
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.
@@ -19,18 +20,17 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
   /**
    * Display a list of permissions that have been granted to the given accessor.
    * @param id
-   * @param page
-   * @param limit
    * @return
    */
-  def grantListAction(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT)(
+  def grantListAction(id: String)(
       f: MT => rest.Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
+        val params = RestPageParams.fromRequest(request)
         for {
           // NB: to save having to wait we just fake the permission user here.
-          permsOrErr <- rest.PermissionDAO(userOpt).list(item, page, limit)
+          permsOrErr <- rest.PermissionDAO(userOpt).list(item, params)
         } yield {
           for { perms <- permsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
@@ -62,7 +62,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
-      val perms: Map[String, List[String]] = ContentType.values.toList.map { ct =>
+      val perms: Map[String, List[String]] = ContentTypes.values.toList.map { ct =>
         (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
       }.toMap
       AsyncRest {

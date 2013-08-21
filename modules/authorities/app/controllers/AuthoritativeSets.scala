@@ -1,15 +1,12 @@
 package controllers.authorities
 
-import _root_.controllers.ListParams
 import forms.VisibilityForm
 import controllers.base._
 import models._
 import play.api._
 import play.api.i18n.Messages
-import defines.{ContentType, EntityType}
-import scala.Some
+import defines.{ContentTypes, EntityType}
 import utils.search.{SearchOrder, SearchParams}
-import utils.search.Dispatcher
 import com.google.inject._
 
 @Singleton
@@ -20,10 +17,10 @@ class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig
   with EntityAnnotate[AuthoritativeSet]
   with EntitySearch {
 
-  val targetContentTypes = Seq(ContentType.HistoricalAgent)
+  val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
 
   val entityType = EntityType.AuthoritativeSet
-  val contentType = ContentType.AuthoritativeSet
+  val contentType = ContentTypes.AuthoritativeSet
 
   val form = models.forms.AuthoritativeSetForm.form
   val childForm = models.forms.HistoricalAgentForm.form
@@ -78,14 +75,14 @@ class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig
     }
   }
 
-  def createHistoricalAgent(id: String) = childCreateAction(id, ContentType.HistoricalAgent) {
+  def createHistoricalAgent(id: String) = childCreateAction(id, ContentTypes.HistoricalAgent) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.create(
       item, childForm, VisibilityForm.form, users, groups,
         controllers.authorities.routes.AuthoritativeSets.createHistoricalAgentPost(id)))
   }
 
-  def createHistoricalAgentPost(id: String) = childCreatePostAction(id, childForm, ContentType.HistoricalAgent) {
+  def createHistoricalAgentPost(id: String) = childCreatePostAction(id, childForm, ContentTypes.HistoricalAgent) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -119,8 +116,7 @@ class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
-    manageScopedPermissionsAction(id, page, spage, limit) {
+  def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         controllers.authorities.routes.AuthoritativeSets.addItemPermissions(id), controllers.authorities.routes.AuthoritativeSets.addScopedPermissions(id)))

@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
 import play.api.libs.json._
-import defines.{EntityType,ContentType}
+import defines.{EntityType,ContentTypes}
 import models.{UserProfile, Entity}
 import models.json.{ClientConvertable, RestReadable, RestConvertable}
 import play.api.Logger
@@ -192,7 +192,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def createInContext[T,TT](id: String, contentType: ContentType.Value, item: T, accessors: List[String] = Nil,
+  def createInContext[T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: List[String] = Nil,
       logMsg: Option[String] = None)(
         implicit wrt: RestConvertable[T], rd: RestReadable[TT]): Future[Either[RestError, TT]] = {
     val url = enc(requestUrl, id, contentType)

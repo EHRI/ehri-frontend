@@ -27,7 +27,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalC
                       }
 					}
 				</tr>
-				@ContentType.values.filterNot(_ == ContentType.SystemEvent).toList.sortBy(_.toString).map { entity =>
+				@ContentTypes.values.filterNot(_ == ContentTypes.SystemEvent).toList.sortBy(_.toString).map { entity =>
 				  	<tr>
 						<td>@Messages("contentTypes." + entity.toString)</td>
 						@PermissionType.values.toList.map { perm =>

@@ -17,12 +17,12 @@
         }
     }
 } {
-    @common.visibility(item, controllers.annotation.routes.Annotations.visibility(item.id), ContentType.Annotation)
+    @common.visibility(item, controllers.annotation.routes.Annotations.visibility(item.id), ContentTypes.Annotation)
     @common.latestAction(item, controllers.annotation.routes.Annotations.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
     @userOpt.map { user =>
-        @if(user.hasPermission(ContentType.Annotation, PermissionType.Delete)) {
+        @if(user.hasPermission(ContentTypes.Annotation, PermissionType.Delete)) {
             <li><a href="@controllers.annotation.routes.Annotations.delete(item.id)">@Messages("actions.deleteAnnotation")</a></li>
         }
 
