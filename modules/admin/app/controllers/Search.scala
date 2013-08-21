@@ -1,7 +1,7 @@
-package controllers
+package controllers.admin
 
 import play.api.mvc._
-import base.EntitySearch
+import controllers.base.EntitySearch
 import defines.EntityType
 import play.Play.application
 import rest.{RestPageParams, EntityDAO}
@@ -160,7 +160,8 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
           ))
           )
         }
-        case _ => Ok(views.html.search.search(page, params, facets, routes.Search.search))
+        case _ => Ok(views.html.search.search(page, params, facets,
+            controllers.admin.routes.Search.search))
       }
     }
   }
@@ -202,7 +203,8 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
    * @return
    */
   def updateIndex = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.search.updateIndex(form = updateIndexForm, action=routes.Search.updateIndexPost))
+    Ok(views.html.search.updateIndex(form = updateIndexForm,
+        action = controllers.admin.routes.Search.updateIndexPost))
   }
 
   /**

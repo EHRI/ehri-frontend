@@ -101,10 +101,16 @@ object ApplicationBuild extends Build {
     appName + "-portal", appVersion, appDependencies, path = file("modules/portal"),
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
   ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
-    .aggregate(core, annotation, linking, archdesc, authorities, vocabs)
+    .aggregate(core, archdesc, authorities, vocabs)
+
+  lazy val admin = play.Project(
+    appName + "-admin", appVersion, appDependencies, path = file("modules/admin"),
+    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
+    .aggregate(core, archdesc, authorities, vocabs)
 
   lazy val aaMain = play.Project(appName, appVersion, appDependencies ++ testDependencies,
     settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
-  ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs, portal)
-    .aggregate(core, annotation, linking, archdesc, authorities, vocabs, portal)
+  ).settings(otherSettings:_*).dependsOn(admin, portal)
+    .aggregate(admin, portal)
 }

@@ -51,7 +51,7 @@ package globalconfig {
 
     implicit lazy val menuConfig: MenuConfig = new MenuConfig {
       val mainSection: Iterable[(String, String)] = Seq(
-        ("pages.search",                  controllers.routes.Search.search.url),
+        ("pages.search",                  controllers.admin.routes.Search.search.url),
         ("contentTypes.documentaryUnit",  controllers.archdesc.routes.DocumentaryUnits.search.url),
         ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search.url),
         ("contentTypes.repository",       controllers.archdesc.routes.Repositories.search.url),
@@ -66,7 +66,7 @@ package globalconfig {
         ("s1", "-"),
         ("contentTypes.systemEvent",      controllers.core.routes.SystemEvents.list.url),
         ("s2", "-"),
-        ("search.updateIndex",            controllers.routes.Search.updateIndex.url)
+        ("search.updateIndex",            controllers.admin.routes.Search.updateIndex.url)
       )
     }
 

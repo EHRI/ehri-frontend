@@ -16,7 +16,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalC
             @Messages("visibility.restrictedVisibilityMessage")
             <ul>
                 @item.accessors.sortBy(_.isA).map { a =>
-                    <li><a href="@globalConfig.routeRegistry.urlFor(a)">@a</a></li>
+                    <li><a href="@globalConfig.routeRegistry.urlFor(a)">@a.toStringLang</a></li>
                 }
             </ul>
         </p>
