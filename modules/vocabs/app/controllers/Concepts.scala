@@ -1,6 +1,5 @@
 package controllers.vocabs
 
-import _root_.controllers.ListParams
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.base._
@@ -9,7 +8,6 @@ import models.forms.LinkForm
 import play.api._
 import play.api.i18n.Messages
 import defines.{ContentType, EntityType}
-import collection.immutable.ListMap
 import solr.facet.FieldFacetClass
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}

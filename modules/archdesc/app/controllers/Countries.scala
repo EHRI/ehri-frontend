@@ -1,6 +1,5 @@
 package controllers.archdesc
 
-import _root_.controllers.ListParams
 import play.api.mvc._
 import forms.VisibilityForm
 import controllers.base._

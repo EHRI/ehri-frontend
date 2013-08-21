@@ -1,15 +1,12 @@
 package controllers.authorities
 
-import _root_.controllers.ListParams
 import forms.VisibilityForm
 import controllers.base._
 import models._
 import play.api._
 import play.api.i18n.Messages
 import defines.{ContentType, EntityType}
-import scala.Some
 import utils.search.{SearchOrder, SearchParams}
-import utils.search.Dispatcher
 import com.google.inject._
 
 @Singleton

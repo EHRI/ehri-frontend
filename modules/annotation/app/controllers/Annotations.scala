@@ -4,7 +4,6 @@ import defines._
 import models.Annotation
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.i18n.Messages
-import controllers.ListParams
 import controllers.base.{EntityRead, VisibilityController, EntityDelete, EntityAnnotate}
 
 import com.google.inject._

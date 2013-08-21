@@ -1,6 +1,5 @@
 package controllers.vocabs
 
-import _root_.controllers.ListParams
 import forms.VisibilityForm
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
@@ -8,9 +7,7 @@ import play.api._
 import play.api.i18n.Messages
 import _root_.controllers.base._
 import defines.{ContentType, EntityType}
-import scala.Some
 import utils.search.SearchParams
-import utils.search.Dispatcher
 import com.google.inject._
 
 @Singleton

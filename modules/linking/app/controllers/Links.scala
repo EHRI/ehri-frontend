@@ -6,7 +6,6 @@ import models._
 import controllers.base._
 import play.api.i18n.Messages
 import play.api.mvc.{Call, AnyContent, Action}
-import controllers.ListParams
 
 import com.google.inject._
 import global.GlobalConfig

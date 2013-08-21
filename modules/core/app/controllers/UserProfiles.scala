@@ -1,6 +1,5 @@
 package controllers.core
 
-import _root_.controllers.ListParams
 import forms.VisibilityForm
 import controllers.base._
 import models._

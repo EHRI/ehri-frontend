@@ -4,7 +4,6 @@ import defines._
 import models.SystemEvent
 import controllers.base.EntityRead
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.ListParams
 import com.google.inject._
 import global.GlobalConfig
 import rest.RestPageParams

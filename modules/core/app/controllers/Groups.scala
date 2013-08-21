@@ -1,7 +1,6 @@
 package controllers.core
 
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.ListParams
 import controllers.base._
 import forms.VisibilityForm
 import models._

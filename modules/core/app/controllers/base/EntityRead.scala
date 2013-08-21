@@ -1,15 +1,11 @@
 package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.{Model, MetaModel}
 import play.api.mvc._
 import models._
 import rest.{Page, RestPageParams}
-import controllers.ListParams
 import models.json.{RestReadable, ClientConvertable}
-import play.api.libs.json.{Format, Json}
-import play.api.Logger
-import play.api.http.MimeTypes
+import play.api.libs.json.Json
 
 
 /**
