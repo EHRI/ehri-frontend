@@ -5,7 +5,6 @@ import models._
 import play.api.test.Helpers._
 import defines._
 import controllers.routes
-import controllers.ListParams
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.http.{MimeTypes, HeaderNames}
