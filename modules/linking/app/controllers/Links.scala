@@ -16,7 +16,7 @@ class Links @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRea
   with EntityAnnotate[Link] {
 
   val entityType = EntityType.Link
-  val contentType = ContentType.Link
+  val contentType = ContentTypes.Link
 
   def get(id: String) = getAndRedirect(id, None)
 

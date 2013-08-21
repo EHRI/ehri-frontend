@@ -3,7 +3,7 @@ package defines
 
 // FIXME: Remove this duplication with the
 // entity types enum
-object ContentType extends Enumeration() {
+object ContentTypes extends Enumeration() {
   type Type = Value
   val HistoricalAgent = Value("historicalAgent")
   val DocumentaryUnit = Value("documentaryUnit")

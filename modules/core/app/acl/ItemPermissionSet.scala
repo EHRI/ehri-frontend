@@ -33,7 +33,7 @@ object ItemPermissionSet {
   /**
    * Construct an item permission set from a JSON value.
    */
-  def apply[T <: Accessor](accessor: T, contentType: ContentType.Value, json: JsValue) = json.validate[List[Map[String, List[String]]]].fold(
+  def apply[T <: Accessor](accessor: T, contentType: ContentTypes.Value, json: JsValue) = json.validate[List[Map[String, List[String]]]].fold(
     valid = { pd => new ItemPermissionSet(accessor, contentType, extract(pd)) },
     invalid = { e => sys.error(e.toString) }
   )
@@ -42,7 +42,7 @@ object ItemPermissionSet {
 /**
  * Item-level permissions granted to either a UserProfileF or a GroupF.
  */
-case class ItemPermissionSet[+T <: Accessor](user: T, contentType: ContentType.Value, data: ItemPermissionSet.PermData)
+case class ItemPermissionSet[+T <: Accessor](user: T, contentType: ContentTypes.Value, data: ItemPermissionSet.PermData)
 	extends PermissionSet {
 
   /**

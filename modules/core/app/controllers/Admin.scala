@@ -5,7 +5,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 
 import play.api.data.Form
 import play.api.data.Forms._
-import defines.{EntityType, PermissionType, ContentType}
+import defines.{EntityType, PermissionType, ContentTypes}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
 import models.{UserProfile, UserProfileF}
@@ -68,7 +68,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    * admin only function and should be removed eventually.
    * @return
    */
-  def createUser = withContentPermission(PermissionType.Create, ContentType.UserProfile) {
+  def createUser = withContentPermission(PermissionType.Create, ContentTypes.UserProfile) {
       implicit userOpt => implicit request =>
     getGroups { groups =>
       Ok(views.html.admin.createUser(userPasswordForm, groupMembershipForm, groups,
@@ -80,7 +80,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    * Create a user. Currently this gets a bit gnarly.
    * @return
    */
-  def createUserPost = withContentPermission(PermissionType.Create, ContentType.UserProfile) {
+  def createUserPost = withContentPermission(PermissionType.Create, ContentTypes.UserProfile) {
       implicit userOpt => implicit request =>
 
     def createUserProfile(user: UserProfileF, groups: Seq[String])(f: UserProfile => Result): AsyncResult = {
@@ -94,7 +94,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
 
     def grantOwnerPerms(profile: UserProfile)(f: => Result): AsyncResult = {
       AsyncRest {
-        rest.PermissionDAO(userOpt).setItem(profile, ContentType.UserProfile,
+        rest.PermissionDAO(userOpt).setItem(profile, ContentTypes.UserProfile,
             profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>
           permsOrErr.right.map { _ =>
             f

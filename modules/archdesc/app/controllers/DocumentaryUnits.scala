@@ -58,10 +58,10 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
   )
 
 
-  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+  val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
   val entityType = EntityType.DocumentaryUnit
-  val contentType = ContentType.DocumentaryUnit
+  val contentType = ContentTypes.DocumentaryUnit
 
   val form = models.forms.DocumentaryUnitForm.form
   val childForm = models.forms.DocumentaryUnitForm.form
@@ -226,8 +226,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
-    manageScopedPermissionsAction(id, page, spage, limit) {
+  def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         docRoutes.addItemPermissions(id),

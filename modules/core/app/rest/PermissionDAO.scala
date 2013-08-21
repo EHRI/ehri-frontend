@@ -48,28 +48,19 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  // FIXME: Hard-coded limit
-  def list(user: T, page: Int, limit: Int): Future[Either[RestError, Page[PermissionGrant]]] =
-    listWithUrl(enc(requestUrl, "page/%s?offset=%d&limit=%d".format(user.id, (page-1)*limit, limit)))
+  def list(user: T, params: RestPageParams): Future[Either[RestError, Page[PermissionGrant]]] =
+    listWithUrl(enc(requestUrl, "page", user.id), params)
 
-  def listForItem(id: String, page: Int, limit: Int): Future[Either[RestError, Page[PermissionGrant]]] =
-    listWithUrl(enc(requestUrl, "pageForItem/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
+  def listForItem(id: String, params: RestPageParams): Future[Either[RestError, Page[PermissionGrant]]] =
+    listWithUrl(enc(requestUrl, "pageForItem", id), params)
 
-  def listForScope(id: String, page: Int, limit: Int): Future[Either[RestError, Page[PermissionGrant]]] =
-    listWithUrl(enc(requestUrl, "pageForScope/%s?offset=%d&limit=%d".format(id, (page-1)*limit, limit)))
+  def listForScope(id: String, params: RestPageParams): Future[Either[RestError, Page[PermissionGrant]]] =
+    listWithUrl(enc(requestUrl, "pageForScope", id), params)
 
-  private def listWithUrl(url: String): Future[Either[RestError, Page[PermissionGrant]]] = {
-    WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[Page[PermissionGrant]].fold(
-          valid = { page =>
-            page
-          },
-          invalid = { e =>
-            sys.error("Unable to decode paginated list result: %s\n%s".format(e, r.json))
-          }
-        )
-      }
+  private def listWithUrl(url: String, params: RestPageParams): Future[Either[RestError, Page[PermissionGrant]]] = {
+    WS.url(url).withQueryString(params.toSeq: _*)
+        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkErrorAndParse[Page[PermissionGrant]](response)
     }
   }
 
@@ -101,7 +92,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def getItem(contentType: ContentType.Value, id: String): Future[Either[RestError, ItemPermissionSet[UserProfile]]] = {
+  def getItem(contentType: ContentTypes.Value, id: String): Future[Either[RestError, ItemPermissionSet[UserProfile]]] = {
     userProfile.map { up =>
       val url = enc(requestUrl, up.id, id)
       val cached = Cache.getAs[ItemPermissionSet[UserProfile]](url)
@@ -122,7 +113,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def getItem(user: T, contentType: ContentType.Value, id: String): Future[Either[RestError, ItemPermissionSet[T]]] = {
+  def getItem(user: T, contentType: ContentTypes.Value, id: String): Future[Either[RestError, ItemPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id, id)
     val cached = Cache.getAs[ItemPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(Right(cached.get))
@@ -138,7 +129,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def setItem(user: T, contentType: ContentType.Value, id: String, data: List[String]): Future[Either[RestError, ItemPermissionSet[T]]] = {
+  def setItem(user: T, contentType: ContentTypes.Value, id: String, data: List[String]): Future[Either[RestError, ItemPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id, id)
     WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>

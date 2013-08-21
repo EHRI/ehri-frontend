@@ -6,6 +6,7 @@ import models.base._
 import defines._
 import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
+import rest.RestPageParams
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
@@ -14,15 +15,17 @@ import models.json.RestReadable
  */
 trait PermissionScopeController[MT] extends PermissionItemController[MT] {
 
-  val targetContentTypes: Seq[ContentType.Value]
+  val targetContentTypes: Seq[ContentTypes.Value]
 
-  def manageScopedPermissionsAction(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT)(
+  def manageScopedPermissionsAction(id: String)(
       f: MT => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      val itemParams = RestPageParams.fromRequest(request)
+      val scopeParams = RestPageParams.fromRequest(request, namespace = "s")
       AsyncRest {
         for {
-          permGrantsOrErr <- rest.PermissionDAO(userOpt).listForItem(id, math.max(page, 1), math.max(limit, 1))
-          scopeGrantsOrErr <- rest.PermissionDAO(userOpt).listForScope(id, math.max(spage, 1), math.max(limit, 1))
+          permGrantsOrErr <- rest.PermissionDAO(userOpt).listForItem(id, itemParams)
+          scopeGrantsOrErr <- rest.PermissionDAO(userOpt).listForScope(id, scopeParams)
         } yield {
           for { permGrants <- permGrantsOrErr.right ; scopeGrants <- scopeGrantsOrErr.right } yield {
             f(item)(permGrants)(scopeGrants)(userOpt)(request)
@@ -39,7 +42,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
         AsyncRest {
           for {
             userOrErr <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
-            // FIXME: Faking user for fetching perms to avoid blocking.
+            // NB: Faking user for fetching perms to avoid blocking.
             // This means that when we have both the perm set and the user
             // we need to re-assemble them so that the permission set has
             // access to a user's groups to understand inheritance.

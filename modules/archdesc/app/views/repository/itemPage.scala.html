@@ -4,20 +4,20 @@
     @html
 } {
     @common.latestAction(item, controllers.archdesc.routes.Repositories.history(item.id))
-    @common.visibility(item, controllers.archdesc.routes.Repositories.visibility(item.id), ContentType.Repository)
+    @common.visibility(item, controllers.archdesc.routes.Repositories.visibility(item.id), ContentTypes.Repository)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @userOpt.map { user =>
-        @if(user.hasPermission(ContentType.DocumentaryUnit, PermissionType.Create)) {
+        @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
             <li><a href="@controllers.archdesc.routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
             }
-        @if(user.hasPermission(ContentType.Repository, PermissionType.Update)) {
+        @if(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
             <li><a href="@controllers.archdesc.routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
-        @if(user.hasPermission(ContentType.Repository, PermissionType.Delete)) {
+        @if(user.hasPermission(ContentTypes.Repository, PermissionType.Delete)) {
             <li><a href="@controllers.archdesc.routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
-        @if(user.hasPermission(ContentType.Repository, PermissionType.Grant)) {
+        @if(user.hasPermission(ContentTypes.Repository, PermissionType.Grant)) {
             <li><a href="@controllers.archdesc.routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
         <li><a href="@controllers.archdesc.routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a></li>
@@ -25,6 +25,6 @@
     </ul>
 
     <ul class="item-actions nav nav-tabs nav-stacked">
-        <li><a href="@controllers.core.routes.ApiController.getItem(ContentType.Repository.toString, item.id)">@Messages("actions.exportJson")</a></li>
+        <li><a href="@controllers.core.routes.ApiController.getItem(ContentTypes.Repository.toString, item.id)">@Messages("actions.exportJson")</a></li>
     </ul>
 }

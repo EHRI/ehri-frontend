@@ -54,10 +54,10 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) ext
     )
   )
 
-  val targetContentTypes = Seq(ContentType.DocumentaryUnit)
+  val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
   val entityType = EntityType.Repository
-  val contentType = ContentType.Repository
+  val contentType = ContentTypes.Repository
 
   val form = models.forms.RepositoryForm.form
   val childForm = models.forms.DocumentaryUnitForm.form
@@ -108,13 +108,13 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) ext
     }
   }
 
-  def createDoc(id: String) = childCreateAction(id, ContentType.DocumentaryUnit) {
+  def createDoc(id: String) = childCreateAction(id, ContentTypes.DocumentaryUnit) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(item, childForm,
         VisibilityForm.form, users, groups, repositoryRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentType.DocumentaryUnit) {
+  def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentTypes.DocumentaryUnit) {
       item => formsOrItem => implicit userOpt => implicit request =>
     import play.filters.csrf._
     implicit val token: Option[Token] = CSRF.getToken(request)
@@ -151,7 +151,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) ext
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) = manageScopedPermissionsAction(id, page, spage, limit) {
+  def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         repositoryRoutes.addItemPermissions(id), repositoryRoutes.addScopedPermissions(id)))

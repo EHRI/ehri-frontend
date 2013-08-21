@@ -18,7 +18,7 @@ object PermissionGrantFormat {
   implicit val permissionGrantReads: Reads[PermissionGrantF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.PermissionGrant)) and
       (__ \ ID).readNullable[String] and
-      (__ \ DATA \ TIMESTAMP).read[String].map(new DateTime(_)) and
+      (__ \ DATA \ TIMESTAMP).readNullable[String].map(_.map(new DateTime(_))) and
       (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
     )(PermissionGrantF.apply _)
 

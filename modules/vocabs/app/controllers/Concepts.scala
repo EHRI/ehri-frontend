@@ -7,7 +7,7 @@ import models._
 import models.forms.LinkForm
 import play.api._
 import play.api.i18n.Messages
-import defines.{ContentType, EntityType}
+import defines.{ContentTypes, EntityType}
 import solr.facet.FieldFacetClass
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}
@@ -27,10 +27,10 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig) extends
   with EntitySearch
   with ApiBase[Concept] {
 
-  val targetContentTypes = Seq(ContentType.Concept)
+  val targetContentTypes = Seq(ContentTypes.Concept)
 
   val entityType = EntityType.Concept
-  val contentType = ContentType.Concept
+  val contentType = ContentTypes.Concept
 
   val form = models.forms.ConceptForm.form
   val childForm = models.forms.ConceptForm.form
@@ -90,13 +90,13 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig) extends
     }
   }
 
-  def createConcept(id: String) = childCreateAction(id, ContentType.Concept) {
+  def createConcept(id: String) = childCreateAction(id, ContentTypes.Concept) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.concept.create(
         item, childForm, VisibilityForm.form, users, groups, controllers.vocabs.routes.Concepts.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentType.Concept) {
+  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentTypes.Concept) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -132,8 +132,7 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig) extends
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
-    manageScopedPermissionsAction(id, page, spage, limit) {
+  def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         controllers.vocabs.routes.Concepts.addItemPermissions(id), controllers.vocabs.routes.Concepts.addScopedPermissions(id)))

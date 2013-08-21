@@ -65,21 +65,21 @@
     }
 } {
 
-    @common.visibility(item, controllers.vocabs.routes.Concepts.visibility(item.id), ContentType.Concept)
+    @common.visibility(item, controllers.vocabs.routes.Concepts.visibility(item.id), ContentTypes.Concept)
     @common.latestAction(item, controllers.vocabs.routes.Concepts.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @userOpt.map { user =>
-            @if(user.hasPermission(ContentType.Concept, PermissionType.Create)) {
+            @if(user.hasPermission(ContentTypes.Concept, PermissionType.Create)) {
                 <li><a href="@controllers.vocabs.routes.Concepts.createConcept(item.id)">@Messages("actions.createNarrowerConcept")</a></li>
             }
-            @if(user.hasPermission(ContentType.Concept, PermissionType.Update)) {
+            @if(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
                 <li><a href="@controllers.vocabs.routes.Concepts.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.Concept, PermissionType.Delete)) {
+            @if(user.hasPermission(ContentTypes.Concept, PermissionType.Delete)) {
                 <li><a href="@controllers.vocabs.routes.Concepts.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.Concept, PermissionType.Grant)) {
+            @if(user.hasPermission(ContentTypes.Concept, PermissionType.Grant)) {
                 <li><a href="@controllers.vocabs.routes.Concepts.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
             <li><a href="@controllers.vocabs.routes.Concepts.history(item.id)">@Messages("actions.showHistory")</a></li>

@@ -5,7 +5,7 @@ import play.api.test.Helpers._
 import rest._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{Repository, DocumentaryUnit, UserProfile, DocumentaryUnitF, UserProfileF}
-import defines.{EntityType, ContentType, PermissionType}
+import defines.{EntityType, ContentTypes, PermissionType}
 import rest.RestPageParams
 
 /**
@@ -30,7 +30,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     "create an item in (agent) context" in new FakeApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
       val r = await(EntityDAO[Repository](EntityType.Repository, Some(userProfile))
-          .createInContext[DocumentaryUnitF,DocumentaryUnit]("r1", ContentType.DocumentaryUnit, doc))
+          .createInContext[DocumentaryUnitF,DocumentaryUnit]("r1", ContentTypes.DocumentaryUnit, doc))
       r must beRight
       r.right.get.holder must beSome
       r.right.get.holder.get.id must equalTo("r1")
@@ -39,7 +39,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     "create an item in (doc) context" in new FakeApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
       val r = await(EntityDAO[DocumentaryUnit](EntityType.DocumentaryUnit, Some(userProfile))
-          .createInContext[DocumentaryUnitF,DocumentaryUnit]("c1", ContentType.DocumentaryUnit, doc))
+          .createInContext[DocumentaryUnitF,DocumentaryUnit]("c1", ContentTypes.DocumentaryUnit, doc))
       r must beRight
       r.right.get.parent must beSome
       r.right.get.parent.get.id must equalTo("c1")
@@ -97,40 +97,40 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     "be able to fetch user's own permissions" in new FakeApp {
       val perms = await(PermissionDAO[UserProfile](Some(userProfile)).get)
       perms must beRight
-      perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
+      perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
     }
 
     "be able to set a user's permissions" in new FakeApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       val data = Map(
-        ContentType.Repository.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString),
-        ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString)
+        ContentTypes.Repository.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString),
+        ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString)
       )
       val perms = await(PermissionDAO(Some(userProfile)).get(user))
-      perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
-      perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
-      perms.right.get.get(ContentType.Repository, PermissionType.Create) must beNone
-      perms.right.get.get(ContentType.Repository, PermissionType.Update) must beNone
+      perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
+      perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
+      perms.right.get.get(ContentTypes.Repository, PermissionType.Create) must beNone
+      perms.right.get.get(ContentTypes.Repository, PermissionType.Update) must beNone
       val permset = await(PermissionDAO(Some(userProfile)).set(user, data))
       permset must beRight
       val newperms = permset.right.get
-      newperms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
-      newperms.get(ContentType.DocumentaryUnit, PermissionType.Update) must beSome
-      newperms.get(ContentType.Repository, PermissionType.Create) must beSome
-      newperms.get(ContentType.Repository, PermissionType.Update) must beSome
+      newperms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      newperms.get(ContentTypes.DocumentaryUnit, PermissionType.Update) must beSome
+      newperms.get(ContentTypes.Repository, PermissionType.Create) must beSome
+      newperms.get(ContentTypes.Repository, PermissionType.Update) must beSome
     }
 
     "be able to set a user's permissions within a scope" in new FakeApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
-      val data = Map(ContentType.DocumentaryUnit.toString -> List("create", "update", "delete"))
+      val data = Map(ContentTypes.DocumentaryUnit.toString -> List("create", "update", "delete"))
       val perms = await(PermissionDAO(Some(userProfile)).get(user))
-      perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Create) must beNone
-      perms.right.get.get(ContentType.DocumentaryUnit, PermissionType.Update) must beNone
-      perms.right.get.get(ContentType.Repository, PermissionType.Create) must beNone
-      perms.right.get.get(ContentType.Repository, PermissionType.Update) must beNone
+      perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
+      perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
+      perms.right.get.get(ContentTypes.Repository, PermissionType.Create) must beNone
+      perms.right.get.get(ContentTypes.Repository, PermissionType.Update) must beNone
       await(PermissionDAO(Some(userProfile)).setScope(user, "r1", data))
       // Since c1 is held by r1, we should now have permissions to update and delete c1.
-      val permset = await(PermissionDAO(Some(userProfile)).getItem(user, ContentType.DocumentaryUnit, "c1"))
+      val permset = await(PermissionDAO(Some(userProfile)).getItem(user, ContentTypes.DocumentaryUnit, "c1"))
       permset must beRight
       val newItemPerms = permset.right.get
       newItemPerms.get(PermissionType.Create) must beSome
@@ -142,10 +142,10 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       // NB: Currently, there's already a test permission grant for Reto-create on c1...
       val data = List("update", "delete")
-      val perms = await(PermissionDAO(Some(userProfile)).getItem(user, ContentType.DocumentaryUnit, "c1"))
+      val perms = await(PermissionDAO(Some(userProfile)).getItem(user, ContentTypes.DocumentaryUnit, "c1"))
       perms.right.get.get(PermissionType.Update) must beNone
       perms.right.get.get(PermissionType.Delete) must beNone
-      val permReq = await(PermissionDAO(Some(userProfile)).setItem(user, ContentType.DocumentaryUnit, "c1", data))
+      val permReq = await(PermissionDAO(Some(userProfile)).setItem(user, ContentTypes.DocumentaryUnit, "c1", data))
       permReq must beRight
       val newItemPerms = permReq.right.get
       newItemPerms.get(PermissionType.Update) must beSome

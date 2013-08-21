@@ -10,7 +10,7 @@ import rest.RestPageParams
 
 class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
   val entityType = EntityType.SystemEvent
-  val contentType = ContentType.SystemEvent
+  val contentType = ContentTypes.SystemEvent
 
   def get(id: String) = getAction(id) { 
       item => annotations => links => implicit userOpt => implicit request =>

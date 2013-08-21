@@ -6,7 +6,7 @@ import controllers.base._
 import models._
 import play.api._
 import play.api.i18n.Messages
-import defines.{ContentType, EntityType}
+import defines.{ContentTypes, EntityType}
 import scala.Some
 import utils.search.SearchParams
 import utils.search.Dispatcher
@@ -28,10 +28,10 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
   /**
    * Content types that relate to this controller.
    */
-  val targetContentTypes = Seq(ContentType.Repository, ContentType.DocumentaryUnit)
+  val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
   val entityType = EntityType.Country
-  val contentType = ContentType.Country
+  val contentType = ContentTypes.Country
 
   val form = models.forms.CountryForm.form
   val childForm = models.forms.RepositoryForm.form
@@ -124,7 +124,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
     }
   }
 
-  def createRepository(id: String) = childCreateAction(id, ContentType.Repository) {
+  def createRepository(id: String) = childCreateAction(id, ContentTypes.Repository) {
       item => users => groups => implicit userOpt => implicit request =>
 
     // Beware! This is dubious because there could easily be contention
@@ -138,7 +138,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
     }
   }
 
-  def createRepositoryPost(id: String) = childCreatePostAction(id, childForm, ContentType.Repository) {
+  def createRepositoryPost(id: String) = childCreatePostAction(id, childForm, ContentTypes.Repository) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -172,8 +172,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def managePermissions(id: String, page: Int = 1, spage: Int = 1, limit: Int = DEFAULT_LIMIT) =
-    manageScopedPermissionsAction(id, page, spage, limit) {
+  def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
         controllers.archdesc.routes.Countries.addItemPermissions(id), controllers.archdesc.routes.Countries.addScopedPermissions(id)))

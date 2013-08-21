@@ -19,7 +19,7 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
   with EntitySearch {
 
   val entityType = EntityType.HistoricalAgent
-  val contentType = ContentType.HistoricalAgent
+  val contentType = ContentTypes.HistoricalAgent
 
   val form = models.forms.HistoricalAgentForm.form
 
@@ -104,7 +104,7 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def managePermissions(id: String, page: Int = 1, limit: Int = DEFAULT_LIMIT) = manageItemPermissionsAction(id, page, limit) {
+  def managePermissions(id: String) = manageItemPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.managePermissions(item, perms,
         histRoutes.addItemPermissions(id)))

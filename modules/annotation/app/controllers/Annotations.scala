@@ -15,7 +15,7 @@ class Annotations @Inject()(implicit val globalConfig: GlobalConfig) extends Ent
   with EntityAnnotate[Annotation] {
 
   val entityType = EntityType.Annotation
-  val contentType = ContentType.Annotation
+  val contentType = ContentTypes.Annotation
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     Ok(views.html.annotation.show(item, annotations))

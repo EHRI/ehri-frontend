@@ -1,6 +1,6 @@
 package models
 
-import defines.{PermissionType,ContentType}
+import defines.{PermissionType,ContentTypes}
 import acl._
 import models.base._
 
@@ -83,7 +83,7 @@ case class UserProfile(
 
   override def toStringLang(implicit lang: Lang) = model.name
 
-  def hasPermission(ct: ContentType.Value, p: PermissionType.Value): Boolean = {
+  def hasPermission(ct: ContentTypes.Value, p: PermissionType.Value): Boolean = {
     globalPermissions.map { gp =>
       if (gp.has(ct, p)) true
       else {

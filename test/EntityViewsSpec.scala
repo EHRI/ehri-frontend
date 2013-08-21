@@ -136,8 +136,8 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
     "reliably set permissions" in new FakeApp {
       val testData: Map[String, List[String]] = Map(
-        ContentType.Repository.toString -> List(PermissionType.Create.toString),
-        ContentType.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
+        ContentTypes.Repository.toString -> List(PermissionType.Create.toString),
+        ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.core.routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
@@ -147,10 +147,10 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       val permCall = await(PermissionDAO[UserProfile](Some(userProfile)).get(subjectUser))
       permCall must beRight
       val perms = permCall.right.get
-      perms.get(ContentType.Repository, PermissionType.Create) must beSome
-      perms.get(ContentType.Repository, PermissionType.Create).get.inheritedFrom must beNone
-      perms.get(ContentType.DocumentaryUnit, PermissionType.Create) must beSome
-      perms.get(ContentType.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
+      perms.get(ContentTypes.Repository, PermissionType.Create) must beSome
+      perms.get(ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
+      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
     }
 
     "link to other privileged actions when logged in" in new FakeApp {
