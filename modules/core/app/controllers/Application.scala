@@ -24,6 +24,14 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
   def logout = loginHandler.logout
 
   /**
+   * Temporarily redirect the /
+   * @return
+   */
+  def index = Action { request =>
+    Redirect(globalConfig.routeRegistry.default)
+  }
+
+  /**
    * Look up the 'show' page of a generic item id
    * @param id
    */

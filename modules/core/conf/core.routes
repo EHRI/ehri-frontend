@@ -1,5 +1,7 @@
 # Routes for core functionality
 
+GET     /                                       @controllers.core.Application.index
+
 # API
 GET     /api/:id                                @controllers.core.ApiController.getAny(id: String)
 GET     /api/:contentType/list                  @controllers.core.ApiController.listItems(contentType: String)

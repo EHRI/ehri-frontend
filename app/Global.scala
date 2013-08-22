@@ -88,7 +88,7 @@ package globalconfig {
       EntityType.AuthoritativeSet -> controllers.authorities.routes.AuthoritativeSets.get _,
       EntityType.Concept -> controllers.vocabs.routes.Concepts.get _,
       EntityType.Country -> controllers.archdesc.routes.Countries.get _
-    ), default = new Call("GET", "/"))
+    ), default = controllers.admin.routes.Home.index)
   }
 }
 
