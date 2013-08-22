@@ -23,8 +23,7 @@
         var otherColor = "rgb(255,232,76)";
 
         function plotBar(name, data) {
-            console.log("Plotting bar: ", data)
-            $.plot("#" + name), data, {
+            $.plot("#" + name).removeClass("loading"), data, {
                 series: {
                     bars: {
                         show: true
@@ -37,7 +36,7 @@
         }
 
         function plotPie(name, data) {
-            $.plot($("#" + name), data, {
+            $.plot($("#" + name).removeClass("loading"), data, {
                 series: {
                     pie: {
                         show: true
@@ -119,12 +118,12 @@
     <div class="row-fluid">
         <div class="span6 overview-box">
             <h4>@Messages("metrics.languageOfMaterial")</h4>
-            <div id="document-languages" class="overview-item">
+            <div id="document-languages" class="overview-item loading">
             </div>
         </div>
         <div class="span6 overview-box">
             <h4>@Messages("metrics.holdingRepository")</h4>
-            <div id="document-holders" class="overview-item">
+            <div id="document-holders" class="overview-item loading">
             </div>
         </div>
     </div>
@@ -132,12 +131,12 @@
     <div class="row-fluid">
         <div class="span6 overview-box">
             <h4>@Messages("metrics.repositoryCountries")</h4>
-            <div id="repository-countries" class="overview-item">
+            <div id="repository-countries" class="overview-item loading">
             </div>
         </div>
         <div class="span6 overview-box">
             <h4>@Messages("metrics.agentTypes")</h4>
-            <div id="agent-types" class="overview-item">
+            <div id="agent-types" class="overview-item loading">
             </div>
         </div>
     </div>
@@ -145,7 +144,7 @@
     <div class="row-fluid">
         <div class="span6 overview-box">
             <h4>@Messages("metrics.restrictedMaterial")</h4>
-            <div id="restricted-data" class="overview-item">
+            <div id="restricted-data" class="overview-item loading">
             </div>
         </div>
         <div class="span6 overview-box">
