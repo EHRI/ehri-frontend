@@ -6,7 +6,8 @@ import models.base._
 import defines._
 import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
-import rest.RestPageParams
+import utils.ListParams
+import utils.ListParams
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
@@ -20,8 +21,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
   def manageScopedPermissionsAction(id: String)(
       f: MT => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      val itemParams = RestPageParams.fromRequest(request)
-      val scopeParams = RestPageParams.fromRequest(request, namespace = "s")
+      val itemParams = ListParams.fromRequest(request)
+      val scopeParams = ListParams.fromRequest(request, namespace = "s")
       AsyncRest {
         for {
           permGrantsOrErr <- rest.PermissionDAO(userOpt).listForItem(id, itemParams)

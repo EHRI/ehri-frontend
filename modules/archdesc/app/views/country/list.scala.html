@@ -1,4 +1,4 @@
-@(page: rest.Page[Country], params: rest.RestPageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(page: rest.Page[Country], params: utils.ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(Messages("actions.listCountries")) {
 
