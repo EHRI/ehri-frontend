@@ -13,22 +13,17 @@ import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.{JsObject, Writes, Json}
 import solr._
-import solr.facet.FieldFacetClass
 import models.base.AnyModel
 import utils.search._
-import play.extras.iteratees.{Combinators, JsonIteratees, JsonEnumeratees, Encoding}
-import play.api.libs.ws.ResponseHeaders
+import play.extras.iteratees.Encoding
 import play.api.http.{HeaderNames, ContentTypes}
 
 import com.google.inject._
-import solr.SolrErrorResponse
-import play.api.libs.ws.ResponseHeaders
 import solr.facet.FieldFacetClass
 import scala.Some
 import solr.SolrErrorResponse
 import play.api.libs.ws.ResponseHeaders
 import play.api.libs.json.JsObject
-import utils.ListParams
 import utils.ListParams
 
 object Search {
@@ -70,6 +65,8 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   )
 
+  private val myWsUrl = "http://localhost:7474/ehri/cvocConcept/list?limit=1000000"
+
   // Fun fun fun, iteratees test
   def testIteratee = Action { implicit request =>
 
@@ -86,60 +83,45 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     val extractor: Enumeratee[Array[Char], JsObject] = jsArray(jsValues(jsSimpleObject))
 
     // Enumeratee that parses a JsObject into an item.  Uses a simple mapping Enumeratee.
-    def parseItem: Enumeratee[JsObject, Option[Item]] = Enumeratee.map {obj =>
-      for {
+    def parseItem: Enumeratee[JsObject, Either[JsObject, Item]] = Enumeratee.map { obj =>
+      (for {
         id <- (obj \ "id").asOpt[String]
         t <- (obj \ "type").asOpt[String]
-      } yield Item(id, t)
+      } yield Right(Item(id, t))) getOrElse(Left(obj))
     }
 
-    def printItem(chan: Concurrent.Channel[String]): Enumeratee[Option[Item], String] = Enumeratee.mapInput( _ match {
-      case Input.El(Some(obj)) => chan.push(obj.id + "\n"); Input.Empty
-      case Input.El(None) => Input.El("An error!")
+    // Dummy action - just pushes the ID into the channel
+    def printItem(chan: Concurrent.Channel[String]): Enumeratee[Either[JsObject, Item], String] = Enumeratee.mapInput( _ match {
+      case Input.El(Right(item)) => chan.push(item.id + "\n"); Input.Empty
+      case Input.El(Left(obj)) => Input.El("Error: item could not be parsed! " + Json.prettyPrint(obj))
       case other => other.map (_ => "")
     })
 
-    def printList: Enumeratee[List[Item], String] = Enumeratee.mapInput( _ match {
-      case Input.El(list) => list.foreach(obj => println(obj.id)); Input.Empty
-      case other => other.map (_ => "")
-    })
-
-    def buffer2(count: Int) = for {
-      chunk <- Enumeratee.take[Option[Item]](count)  &>> Iteratee.getChunks
-    } yield chunk.flatMap((i: Option[Item]) => i.toList)
-
-
-    def buffer(count: Int, list: List[Item] = Nil): Iteratee[Option[Item], List[Item]] = Cont {
-      case Input.El(Some(obj)) => if (list.size < count) buffer(count, list ::: List(obj))
-                            else buffer(count, List(obj))
-      case Input.El(None) => buffer(count, list)
-      case Input.Empty => buffer(count, list)
-      case in @ Input.EOF => Done(list, in)
+    // Close the output channel...
+    def close[E](chan: Concurrent.Channel[String]): Enumeratee[E, E] = Enumeratee.onEOF {
+      chan.eofAndEnd
     }
 
-    def extractAndPrint(chan: Concurrent.Channel[String]) = {
-      extractor ><> parseItem ><> printItem(chan)
+    // Extract, parse, and print the items from the stream...
+    def extractAndPrint(chan: Concurrent.Channel[String])
+        = extractor ><> parseItem ><> printItem(chan) ><> close(chan)
+
+    // Handler for the results of the GET WS call...
+    def handler(chan: Concurrent.Channel[String]) = { (rh: ResponseHeaders) =>
+      Encoding.decode()
+        .transform(
+            extractAndPrint(chan)
+              .transform(Iteratee.getChunks[String].map(errorList => (e: Errors) => Errors(e.id, errorList))))
     }
 
-    def getHandler(chan: Concurrent.Channel[String]) = {
-      val handler: (ResponseHeaders) => Iteratee[Array[Byte], Errors => Errors] = { rh =>
-        Encoding.decode()
-          .transform(
-              extractAndPrint(chan)
-                .transform(Iteratee.getChunks[String].map(errorList => (e: Errors) => Errors(e.id, errorList))))
-      }
-      handler
-    }
-
-    // .transform(Iteratee.fold[Errors => Errors, Errors](Errors())((e, f) => f(e)))
-
-    println("Running...")
     val channel = Concurrent.unicast[String] { chan =>
       play.api.libs.ws.WS
-          .url("http://localhost:7474/ehri/cvocVocabulary/list?limit=1000000")
-          .withHeaders(HeaderNames.ACCEPT -> ContentTypes.JSON).get(getHandler(chan)).map { r =>
+          .url(myWsUrl)
+          .withHeaders(HeaderNames.ACCEPT -> ContentTypes.JSON)
+          .get(handler(chan)).map { r =>
       }
     }
+
     Ok.stream(channel.andThen(Enumerator.eof))
   }
 
