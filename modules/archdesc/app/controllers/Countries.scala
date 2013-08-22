@@ -21,9 +21,9 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
   with EntitySearch {
 
   /**
-   * Since we generate IDs ourself, set the format.
+   * Since we generate repository IDs ourselves, set the format.
    */
-  final val idFormat = "%06d"
+  private final val repoIdFormat = "%06d"
 
   /**
    * Content types that relate to this controller.
@@ -39,6 +39,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
   // Search memebers
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
+  private final val countryRoutes = controllers.archdesc.routes.Countries
 
   /**
    * Search repositories inside this country.
@@ -48,7 +49,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
         page => params => facets => _ => _ =>
-      Ok(views.html.country.show(item, page, params, facets, controllers.archdesc.routes.Countries.get(id), annotations, links))
+      Ok(views.html.country.show(item, page, params, facets, countryRoutes.get(id), annotations, links))
     }.apply(request)
   }
 
@@ -62,33 +63,33 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
 
   def search = searchAction[Country](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.country.search(page, params, facets, controllers.archdesc.routes.Countries.search))
+    Ok(views.html.country.search(page, params, facets, countryRoutes.search))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.country.create(form, VisibilityForm.form, users, groups, controllers.archdesc.routes.Countries.createPost))
+    Ok(views.html.country.create(form, VisibilityForm.form, users, groups, countryRoutes.createPost))
   }
 
   def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.country.create(errorForm, accForm, users, groups, controllers.archdesc.routes.Countries.createPost))
+        BadRequest(views.html.country.create(errorForm, accForm, users, groups, countryRoutes.createPost))
       }
-      case Right(item) => Redirect(controllers.archdesc.routes.Countries.get(item.id))
+      case Right(item) => Redirect(countryRoutes.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
     }
   }
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.country.edit(item, form.fill(item.model),controllers.archdesc.routes.Countries.updatePost(id)))
+    Ok(views.html.country.edit(item, form.fill(item.model),countryRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.country.edit(
-          olditem, errorForm, controllers.archdesc.routes.Countries.updatePost(id)))
-      case Right(item) => Redirect(controllers.archdesc.routes.Countries.get(item.id))
+          olditem, errorForm, countryRoutes.updatePost(id)))
+      case Right(item) => Redirect(countryRoutes.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }
   }
@@ -118,7 +119,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
             rid.split("\\D+").filterNot(_ == "").headOption.flatMap(safeInt)
           }.padTo(1, 0).max + 1 // ensure we get '1' with an empty list
 
-          f(idFormat.format(id))
+          f(repoIdFormat.format(id))
         }
       }
     }
@@ -134,7 +135,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
     getNextRepositoryId { newid =>
       val form = childForm.bind(Map("identifier" -> newid))
       Ok(views.html.repository.create(
-        item, form, VisibilityForm.form, users, groups, controllers.archdesc.routes.Countries.createRepositoryPost(id)))
+        item, form, VisibilityForm.form, users, groups, countryRoutes.createRepositoryPost(id)))
     }
   }
 
@@ -143,7 +144,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.repository.create(item,
-          errorForm, accForm, users, groups, controllers.archdesc.routes.Countries.createRepositoryPost(id)))
+          errorForm, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
       }
       case Right(citem) => Redirect(controllers.archdesc.routes.Repositories.get(citem.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
@@ -152,65 +153,65 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig) extend
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        item, controllers.archdesc.routes.Countries.deletePost(id),
-        controllers.archdesc.routes.Countries.get(id)))
+        item, countryRoutes.deletePost(id),
+        countryRoutes.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(controllers.archdesc.routes.Countries.search())
+    Redirect(countryRoutes.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, controllers.archdesc.routes.Countries.visibilityPost(id)))
+        users, groups, countryRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(controllers.archdesc.routes.Countries.get(id))
+    Redirect(countryRoutes.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
-        controllers.archdesc.routes.Countries.addItemPermissions(id), controllers.archdesc.routes.Countries.addScopedPermissions(id)))
+        countryRoutes.addItemPermissions(id), countryRoutes.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        controllers.archdesc.routes.Countries.setItemPermissions _))
+        countryRoutes.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        controllers.archdesc.routes.Countries.setScopedPermissions _))
+        countryRoutes.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
-        controllers.archdesc.routes.Countries.setItemPermissionsPost(id, userType, userId)))
+        countryRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
-    Redirect(controllers.archdesc.routes.Countries.managePermissions(id))
+    Redirect(countryRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
-        controllers.archdesc.routes.Countries.setScopedPermissionsPost(id, userType, userId)))
+        countryRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
   def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
-    Redirect(controllers.archdesc.routes.Countries.managePermissions(id))
+    Redirect(countryRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 }
