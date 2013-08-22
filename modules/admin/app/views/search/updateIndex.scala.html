@@ -28,7 +28,9 @@
                 $elem.attr("disabled", true);
                 submitAndPoll($("#update-form").serialize(), function() {
                     $elem.attr("disabled", false);
-                })
+                });
+                e.preventDefault();
+                e.stopPropagation();
             });
 
             function appendProgressMessage(msg) {
