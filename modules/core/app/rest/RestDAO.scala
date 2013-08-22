@@ -105,19 +105,7 @@ case class ErrorSet(
 
 trait RestDAO {
 
-  /**
-   * Name of the header that passes that accessing user id to
-   * the server.
-   */
-  val AUTH_HEADER_NAME = "Authorization"
-  private final val LOG_MESSAGE_HEADER_NAME = "logMessage"
-
-  /**
-   * Time to cache rest requests for...
-   * @param msg
-   * @return
-   */
-  val cacheTime = 60 * 5 // 5 minutes
+  import Constants._
 
   def msgHeader(msg: Option[String]): Seq[(String,String)] = msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq[(String,String)]())
 

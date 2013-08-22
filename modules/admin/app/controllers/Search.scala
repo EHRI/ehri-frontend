@@ -4,7 +4,7 @@ import play.api.mvc._
 import controllers.base.EntitySearch
 import defines.EntityType
 import play.Play.application
-import rest.{RestPageParams, EntityDAO}
+import rest.{EntityDAO}
 import play.api.libs.iteratee.{Concurrent, Enumerator}
 import models.IsadG
 import play.api.Logger
@@ -28,6 +28,8 @@ import scala.Some
 import solr.SolrErrorResponse
 import play.api.libs.ws.ResponseHeaders
 import play.api.libs.json.JsObject
+import utils.ListParams
+import utils.ListParams
 
 object Search {
   /**
@@ -236,7 +238,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     /**
      * Update a single page of data
      */
-    def updatePage(entityType: EntityType.Value, params: RestPageParams, list: List[JsObject], chan: Concurrent.Channel[String]
+    def updatePage(entityType: EntityType.Value, params: ListParams, list: List[JsObject], chan: Concurrent.Channel[String]
                     ): Future[List[SolrResponse]] = {
       searchIndexer.updateItems(list.toStream, commit = false).map { jobs =>
         jobs.map { response =>
@@ -266,7 +268,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
      */
     def updateItemSet(entityType: EntityType.Value, pageNum: Int,
                       chan: Concurrent.Channel[String]): Future[List[SolrResponse]] = {
-      val params = RestPageParams(page=Some(pageNum), limit = Some(batchSize))
+      val params = ListParams(page=Some(pageNum), limit = Some(batchSize))
       val getData = EntityDAO[AnyModel](entityType, userOpt).listJson(params)
       getData.flatMap { listOrErr =>
         listOrErr match {
