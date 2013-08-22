@@ -64,9 +64,7 @@ object FacetClass {
       "param" -> Json.toJson(fc.param),
       "name" -> Json.toJson(fc.name),
       "key" -> Json.toJson(fc.key),
-      "facets" -> Json.arr(
-        fc.sorted.map(Json.toJson(_))
-      )
+      "facets" -> Json.toJson(fc.sorted)
     )
   }
 }

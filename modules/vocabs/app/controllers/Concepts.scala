@@ -36,7 +36,7 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig) extends
   val childForm = models.forms.ConceptForm.form
 
 
-  override val entityFacets = List(
+  private val entityFacets = List(
     FieldFacetClass(
       key="languageCode", // FIXME - define elsewhere
       name=Messages("concept.languageCode"),
@@ -55,16 +55,14 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig) extends
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
-  def get(id: String) = getWithChildrenAction[Concept](id) { item => page => params => annotations => links =>
-      implicit userOpt => implicit request =>
+  def get(id: String) = getWithChildrenAction[Concept](id) {
+      item => page => params => annotations => links => implicit userOpt => implicit request =>
     Ok(views.html.concept.show(item, page, params, annotations))
   }
 
-  def search = {
-    searchAction[Concept](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
-        page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.concept.search(page, params, facets, controllers.vocabs.routes.Concepts.search))
-    }
+  def search = searchAction[Concept](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(views.html.concept.search(page, params, facets, controllers.vocabs.routes.Concepts.search))
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>

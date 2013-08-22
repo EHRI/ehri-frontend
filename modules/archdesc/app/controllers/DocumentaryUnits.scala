@@ -30,7 +30,8 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
 
   // Documentary unit facets
   import solr.facet._
-  override val entityFacets = List(
+
+  private val entityFacets = List(
     FieldFacetClass(
       key=IsadG.LANG_CODE,
       name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
@@ -76,7 +77,8 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items...
     val filters = Map("depthOfDescription" -> 0)
-    searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+    searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
+        entityFacets = entityFacets) {
         page => params => facets => implicit userOpt => implicit request =>
       Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search))
     }
@@ -85,7 +87,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
   def searchChildren(id: String) = itemPermissionAction[DocumentaryUnit](contentType, id) {
       item => implicit userOpt => implicit request =>
 
-    searchAction[DocumentaryUnit](Map("parentId" -> item.id)) {
+    searchAction[DocumentaryUnit](Map("parentId" -> item.id), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
         Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search))
     }.apply(request)
@@ -100,7 +102,8 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction[DocumentaryUnit](Map("parentId" -> item.id, "depthOfDescription" -> (item.ancestors.size + 1).toString),
-          defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
+          defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+          entityFacets = entityFacets) {
         page => params => facets => _ => _ =>
       Ok(views.html.documentaryUnit.show(item, page, params, facets,
           docRoutes.get(id), annotations, links))

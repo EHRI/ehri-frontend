@@ -62,7 +62,7 @@ class OpenIDLoginHandler @Inject()(implicit val globalConfig: global.GlobalConfi
                   models.sql.OpenIDUser.create(email.toLowerCase, entity.id).map { user =>
                     user.addAssociation(info.id)
                     gotoLoginSucceeded(user.profile_id)
-                      .withSession("access_uri" -> controllers.core.routes.Application.index.url)
+                      .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
                         //.withSession("access_uri" -> routes.UserProfiles.update(user.profile_id).url)
                       // FIXME WHEN REFACTORED
                   }.getOrElse(BadRequest("Creation of user db failed!"))

@@ -194,7 +194,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
 
   def listJson(params: ListParams = ListParams()): Future[Either[RestError, List[JsObject]]] = {
     val url = enc(requestUrl, "list")
-    Logger.logger.debug("LIST: {}", url)
+    Logger.logger.debug("LIST: {}", (url, params.toSeq))
     WS.url(url).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[List[JsObject]](response)

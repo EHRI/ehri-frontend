@@ -21,12 +21,6 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
   val globalConfig: GlobalConfig
   implicit lazy val searchDispatcher: utils.search.Dispatcher = globalConfig.searchDispatcher
 
-  /**
-   * Inheriting controllers should override a list of facets that
-   * are available for the given entity type.
-   */
-  val entityFacets: FacetClassList = Nil
-
   def bindFacetsFromRequest(facetClasses: List[FacetClass[Facet]])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
     val qs = request.queryString
     facetClasses.flatMap { fc =>
@@ -67,7 +61,8 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @param f
    * @return
    */
-  def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
+  def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None,
+                        entityFacets: FacetClassList = Nil)(
       f: ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))

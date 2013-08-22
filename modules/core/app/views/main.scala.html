@@ -1,4 +1,5 @@
 @(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+
 <!DOCTYPE html>
 
 @import collection.JavaConverters._
@@ -18,6 +19,18 @@
         @styles
 
         <style>
+
+            /** Boxes used for overview facts on the index page */
+            .overview-box {
+                padding-right: 30px;
+                padding-top: 30px;
+            }
+
+            .overview-item {
+                border: 1px solid #F2F2F2;
+                padding: 2em;
+                height: 300px;
+            }
 
             /** National reports are HTML already, so munge their header sizes to fit elsewhere */
             .national-report h1 {

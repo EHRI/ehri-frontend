@@ -27,7 +27,7 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
 
   // Documentary unit facets
   import solr.facet._
-  override val entityFacets = List(
+  private val entityFacets = List(
     FieldFacetClass(
       key=models.Isaar.ENTITY_TYPE,
       name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
@@ -46,11 +46,9 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig)
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
 
 
-  def search = {
-    searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
-        page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.historicalAgent.search(page, params, facets, histRoutes.search))
-    }
+  def search = searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(views.html.historicalAgent.search(page, params, facets, histRoutes.search))
   }
 
   def get(id: String) = getAction(id) {

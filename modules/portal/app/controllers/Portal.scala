@@ -14,7 +14,7 @@ import play.api.libs.json.{Format, Writes, Json}
 
 
 @Singleton
-class Application @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with EntitySearch {
+class Portal @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with EntitySearch {
 
   /**
    * Full text search action that returns a complete page of item data.
@@ -62,10 +62,10 @@ class Application @Inject()(implicit val globalConfig: global.GlobalConfig) exte
 
     Ok(
       Routes.javascriptRouter("jsRoutes")(
-        controllers.portal.routes.javascript.Application.account,
-        controllers.portal.routes.javascript.Application.profile,
-        controllers.portal.routes.javascript.Application.search,
-        controllers.portal.routes.javascript.Application.filter,
+        controllers.portal.routes.javascript.Portal.account,
+        controllers.portal.routes.javascript.Portal.profile,
+        controllers.portal.routes.javascript.Portal.search,
+        controllers.portal.routes.javascript.Portal.filter,
         Application.getType,
         UserProfiles.list,
         UserProfiles.get,

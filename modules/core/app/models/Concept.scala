@@ -73,6 +73,7 @@ object Concept {
         ITEM_ID -> JsString(c.id),
         HOLDER_ID -> Json.toJson(c.vocabulary.map(_.id)),
         HOLDER_NAME -> Json.toJson(c.vocabulary.map(_.toStringLang)),
+        RESTRICTED_FIELD -> JsBoolean(if (c.accessors.isEmpty) false else true),
         ACCESSOR_FIELD -> c.accessors.map(_.id),
         LAST_MODIFIED -> c.latestEvent.map(_.model.datetime)
       )

@@ -122,8 +122,11 @@ object DocumentaryUnit {
         "parentId" -> Json.toJson(c.parent.map(_.id)),
         "depthOfDescription" -> JsNumber(c.ancestors.size),
         ITEM_ID -> JsString(c.id),
+        "repositoryId" -> Json.toJson(c.holder.map(_.id)),
+        "repositoryName" -> c.holder.map(_.toStringLang),
         HOLDER_ID -> Json.toJson(c.holder.map(_.id)),
         HOLDER_NAME -> c.holder.map(_.toStringLang),
+        RESTRICTED_FIELD -> JsBoolean(if (c.accessors.isEmpty) false else true),
         ACCESSOR_FIELD -> c.accessors.map(_.id),
         LAST_MODIFIED -> c.latestEvent.map(_.model.datetime)
       )

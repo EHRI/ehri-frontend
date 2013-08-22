@@ -126,9 +126,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
               Redirect(controllers.core.routes.Admin.adminActions)
             }
           }.getOrElse {
-            // FIXME: Handle this more appropriately?
-            // If it fails it'll probably die anyway...
-            BadRequest("creating user account failed!")
+            sys.error("Unable to create user profile on database. Probably a programming error...")
           }
         }
       }
@@ -208,7 +206,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
           hashedPw <- account.password if BCrypt.checkpw(current, hashedPw)
         } yield {
           account.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))
-          Redirect(controllers.core.routes.Application.index)
+          Redirect(globalConfig.routeRegistry.default)
             .flashing("success" -> Messages("login.passwordChanged"))
         }) getOrElse {
           Redirect(controllers.core.routes.Admin.changePassword)

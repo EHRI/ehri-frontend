@@ -13,6 +13,11 @@ object SolrConstants {
   final val ID = "id"
 
   /**
+   * Field denoting if material is restricted.
+   */
+  final val RESTRICTED_FIELD = "restricted"
+
+  /**
     * Field that holds a documents accessors.
     */
   final val ACCESSOR_FIELD = "accessibleTo"

@@ -12,6 +12,8 @@ import play.api.Play._
 import defines.EntityType
 import utils.search.Dispatcher
 import com.google.inject._
+import play.api.http.ContentTypes
+import java.util.Locale
 
 class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with LoginLogout with Authorizer with AuthController {
 
@@ -20,12 +22,6 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
   def login = loginHandler.login
   def loginPost = loginHandler.loginPost
   def logout = loginHandler.logout
-
-  def index = userProfileAction { implicit userOpt => implicit request =>
-    Secured {
-      Ok(views.html.index("Your new application is ready."))
-    }
-  }
 
   /**
    * Look up the 'show' page of a generic item id
@@ -72,6 +68,39 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
       globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
         .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
     }
+  }
+
+  def localeData(lang: String) = Action { request =>
+    implicit val locale = play.api.i18n.Lang(lang)
+
+    val js =
+      """
+        |var __languageData = {
+        |  %s
+        |};
+        |
+        |var __countryData = {
+        |  %s
+        |};
+        |
+        |var LocaleData = {
+        |  languageCodeToName: function(code) {
+        |    return __languageData[code] || code;
+        |  },
+        |  countryCodeToName: function(code) {
+        |    return __countryData[code] || code;
+        |  },
+        |}
+      """.stripMargin.format(
+        Locale.getISOLanguages.map{
+          l => l + ": \"" + views.Helpers.languageCodeToName(l) + "\""
+        }.mkString(",\n  "),
+        Locale.getISOCountries.map{ cn =>
+          cn.toLowerCase + ": \"" + views.Helpers.countryCodeToName(cn) + "\""
+        }.mkString(",\n  ")
+      )
+
+    Ok(js).as(ContentTypes.JAVASCRIPT)
   }
 }
 

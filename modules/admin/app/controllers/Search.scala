@@ -43,7 +43,7 @@ object Search {
 class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchIndexer: Indexer) extends EntitySearch {
 
   val searchEntities = List() // i.e. Everything
-  override val entityFacets = List(
+  private val entityFacets = List(
     FieldFacetClass(
       key=IsadG.LANG_CODE,
       name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
@@ -150,7 +150,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
   def search = searchAction[AnyModel](
-      defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score)))) {
+      defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Secured {
       render {
