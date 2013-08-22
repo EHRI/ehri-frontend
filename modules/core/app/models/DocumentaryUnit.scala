@@ -127,7 +127,7 @@ object DocumentaryUnit {
         HOLDER_ID -> Json.toJson(c.holder.map(_.id)),
         HOLDER_NAME -> c.holder.map(_.toStringLang),
         RESTRICTED_FIELD -> JsBoolean(if (c.accessors.isEmpty) false else true),
-        ACCESSOR_FIELD -> c.accessors.map(_.id),
+        ACCESSOR_FIELD -> (if (c.accessors.isEmpty) List(ACCESSOR_ALL_PLACEHOLDER) else c.accessors.map(_.id)),
         LAST_MODIFIED -> c.latestEvent.map(_.model.datetime)
       )
     }

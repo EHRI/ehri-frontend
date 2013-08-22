@@ -72,7 +72,7 @@ object HistoricalAgent {
         LANGUAGE_CODE -> JsString(desc.languageCode),
         ITEM_ID -> JsString(c.id),
         RESTRICTED_FIELD -> JsBoolean(if (c.accessors.isEmpty) false else true),
-        ACCESSOR_FIELD -> c.accessors.map(_.id),
+        ACCESSOR_FIELD -> (if (c.accessors.isEmpty) List(ACCESSOR_ALL_PLACEHOLDER) else c.accessors.map(_.id)),
         LAST_MODIFIED -> c.latestEvent.map(_.model.datetime),
         OTHER_NAMES -> Json.toJson(desc.otherFormsOfName.toList.flatten),
         PARALLEL_NAMES -> Json.toJson(desc.parallelFormsOfName.toList.flatten),
