@@ -13,6 +13,7 @@ import play.filters.csrf.CSRF.Token
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}
 import com.google.inject._
+import solr.SolrConstants
 
 @Singleton
 class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntityRead[Repository]
@@ -78,7 +79,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) ext
    * @return
    */
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[DocumentaryUnit](Map("holderId" -> item.id, "depthOfDescription" -> "0"),
+    searchAction[DocumentaryUnit](Map(SolrConstants.HOLDER_ID -> item.id, SolrConstants.TOP_LEVEL -> true),
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
         entityFacets = entityFacets) {
       page => params => facets => _ => _ =>

@@ -12,6 +12,7 @@ import defines._
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}
 import com.google.inject._
+import solr.SolrConstants
 
 
 @Singleton
@@ -76,7 +77,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
   def search = {
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items...
-    val filters = Map("depthOfDescription" -> 0)
+    val filters = Map(SolrConstants.TOP_LEVEL -> true)
     searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
         entityFacets = entityFacets) {
         page => params => facets => implicit userOpt => implicit request =>
@@ -101,7 +102,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
   }*/
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[DocumentaryUnit](Map("parentId" -> item.id, "depthOfDescription" -> (item.ancestors.size + 1).toString),
+    searchAction[DocumentaryUnit](Map("parentId" -> item.id),
           defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
           entityFacets = entityFacets) {
         page => params => facets => _ => _ =>

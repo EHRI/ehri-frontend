@@ -106,6 +106,9 @@ object SolrConstants {
    */
   final val HOLDER_NAME = "holderName"
 
-
+  /**
+   * Items that are are the top level of a hierarchy
+   */
+  final val TOP_LEVEL = "isTopLevel"
 
 }
