@@ -253,7 +253,7 @@ object SolrQueryBuilder {
     filters.map { case (key, value) =>
       val filter = value match {
         case s: String => "%s:\"%s\"".format(key, s)
-        case _: Int => "%s:%s".format(key, value)
+        case _ => "%s:%s".format(key, value)
       }
       req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(filter)))
     }

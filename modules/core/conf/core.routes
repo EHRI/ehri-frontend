@@ -10,6 +10,7 @@ GET     /api/*path                              @controllers.core.ApiController.
 
 # Change locale
 GET     /locale                                 @controllers.core.Application.changeLocale
+GET     /localeData                             @controllers.core.Application.localeData(lang: String ?= "en")
 
 # API Sparql queries - TESTING
 GET     /sparql                                 @controllers.core.ApiController.sparql
@@ -37,7 +38,7 @@ POST	/openid							        @controllers.core.OpenIDLoginHandler.loginPost
 POST	/persona						        @controllers.core.PersonaLoginHandler.loginPost
 
 # Admin routes
-GET     /admin                                  @controllers.core.Admin.adminActions
+GET     /admin/actions                          @controllers.core.Admin.adminActions
 GET     /admin/createUser                       @controllers.core.Admin.createUser
 POST    /admin/createUser                       @controllers.core.Admin.createUserPost
 GET     /admin/login                            @controllers.core.Admin.passwordLogin
@@ -45,8 +46,8 @@ POST    /admin/login                            @controllers.core.Admin.password
 GET     /admin/changePassword                   @controllers.core.Admin.changePassword
 POST    /admin/changePassword                   @controllers.core.Admin.changePasswordPost
 
-GET     /admin/action                           @controllers.core.SystemEvents.list
-GET     /admin/action/show/:id                  @controllers.core.SystemEvents.get(id: String)
+GET     /admin/events                           @controllers.core.SystemEvents.list
+GET     /admin/events/show/:id                  @controllers.core.SystemEvents.get(id: String)
 
 GET     /users                                  @controllers.core.UserProfiles.search
 GET     /users/list                             @controllers.core.UserProfiles.list

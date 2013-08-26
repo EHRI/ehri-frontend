@@ -191,8 +191,10 @@ case class SolrIndexer(typeRegistry: Map[EntityType.Value, JsObject => Seq[JsObj
       NAME_EXACT -> (item \ NAME_EXACT),
       LAST_MODIFIED -> (item \ Entity.RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO)
         .asOpt[List[JsObject]].flatMap(_.headOption.map(o => (o \ Entity.DATA \ Ontology.EVENT_TIMESTAMP))),
+      RESTRICTED_FIELD -> (item \ Entity.RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO)
+        .asOpt[List[JsObject]].map(l => if (l.isEmpty) false else true),
       ACCESSOR_FIELD -> (item \ Entity.RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO)
-              .asOpt[List[JsObject]].getOrElse(Nil).map(o => (o \ ID))
+              .asOpt[List[JsObject]].getOrElse(List(Json.obj(ID -> ACCESSOR_ALL_PLACEHOLDER))).map(o => (o \ ID))
     ))
   }
 

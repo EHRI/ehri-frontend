@@ -1157,3 +1157,10 @@ isadg.accessPoints.otherAccess=Other Access Points
 # isad(g) dates
 isadg.startDate=Start Date
 isadg.endDate=End Date
+
+# Metrics
+metrics.languageOfMaterial=Archival Descriptions - Language of Material
+metrics.holdingRepository=Archival Descriptions - Holding Repository
+metrics.repositoryCountries=Repositories by Country
+metrics.agentTypes=Authority Files by Entity Type
+metrics.restrictedMaterial=Restricted Material

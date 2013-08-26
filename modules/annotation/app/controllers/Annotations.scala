@@ -45,10 +45,10 @@ class Annotations @Inject()(implicit val globalConfig: GlobalConfig) extends Ent
         controllers.annotation.routes.Annotations.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) {
-    // TODO: Work out how to redirect to somewhere useful...
-    ok => implicit userOpt => implicit request =>
-      Redirect(controllers.core.routes.Application.index)
+  def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
+      ok => implicit userOpt => implicit request =>
+    Redirect(redirect.map(r => controllers.core.routes.Application.get(r))
+        .getOrElse(globalConfig.routeRegistry.default))
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }

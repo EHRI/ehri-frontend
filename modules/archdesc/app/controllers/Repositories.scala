@@ -13,6 +13,7 @@ import play.filters.csrf.CSRF.Token
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}
 import com.google.inject._
+import solr.SolrConstants
 
 @Singleton
 class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntityRead[Repository]
@@ -29,7 +30,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) ext
 
   // Documentary unit facets
   import solr.facet._
-  override val entityFacets = List(
+  private val entityFacets = List(
     FieldFacetClass(
       key="countryCode",
       name=Messages("isdiah.countryCode"),
@@ -67,7 +68,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) ext
   private val repositoryRoutes = controllers.archdesc.routes.Repositories
 
 
-  def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+  def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search))
   }
@@ -78,8 +79,9 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) ext
    * @return
    */
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[DocumentaryUnit](Map("holderId" -> item.id, "depthOfDescription" -> "0"),
-        defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit)))) {
+    searchAction[DocumentaryUnit](Map(SolrConstants.HOLDER_ID -> item.id, SolrConstants.TOP_LEVEL -> true),
+        defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+        entityFacets = entityFacets) {
       page => params => facets => _ => _ =>
         Ok(views.html.repository.show(item, page, params, facets, repositoryRoutes.get(id), annotations, links))
     }.apply(request)
