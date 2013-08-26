@@ -25,11 +25,11 @@ function AppCtrl ($scope, $rootScope, $http) {
 
   $rootScope.EntityTypes = EntityTypes;
 
-  $http.get(jsRoutes.controllers.portal.Application.account().url).success(function(data) {
+  $http.get(jsRoutes.controllers.portal.Portal.account().url).success(function(data) {
     $rootScope.account = data;
   });
 
-  $http.get(jsRoutes.controllers.portal.Application.profile().url).success(function(data) {
+  $http.get(jsRoutes.controllers.portal.Portal.profile().url).success(function(data) {
     $rootScope.profile = data;
   });
 }

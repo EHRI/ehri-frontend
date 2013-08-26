@@ -6,5 +6,6 @@ GET     /profile                            @controllers.portal.Portal.profile
 GET     /search                             @controllers.portal.Portal.search
 GET     /filter                             @controllers.portal.Portal.filter
 GET     /routes                             @controllers.portal.Portal.jsRoutes
+GET     /globalData                         @controllers.portal.Portal.globalData
 
 GET     /assets/*file                       controllers.portal.Assets.at(path="/public", file)

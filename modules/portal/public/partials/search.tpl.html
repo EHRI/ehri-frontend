@@ -48,14 +48,14 @@
                         <li ng-repeat="facet in facetclass.facets">
                             <span ng-switch on="facet.applied">
                                 <div ng-switch-when="true">
-                                    {{facet.value}}
+                                    {{renderFacet(facetclass, facet)}}
                                     ({{facet.count}})
                                     <a ng-click="removeFacet(facetclass, facet)" href="">x</a>
                                 </div>
                                 <a ng-switch-when="false" ng-click="addFacet(facetclass, facet)" href="">
                                     <span ng-switch on="facet.count > 0">
                                         <div ng-switch-when="true">
-                                            {{facet.value}}
+                                            {{renderFacet(facetclass, facet)}}
                                             ({{facet.count}})
                                         </div>
                                     </span>

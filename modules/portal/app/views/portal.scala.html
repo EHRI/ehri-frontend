@@ -74,8 +74,9 @@
             var ANGULAR_PARTIALS = "@controllers.portal.routes.Assets.at("partials")";
         </script>
 
-        <script type="text/javascript" src="@controllers.portal.routes.Application.globalData"></script>
-        <script type="text/javascript" src="@controllers.portal.routes.Application.jsRoutes"></script>
+        <script type="text/javascript" src="@controllers.core.routes.Application.localeData(lang.code)"></script>
+        <script type="text/javascript" src="@controllers.portal.routes.Portal.globalData"></script>
+        <script type="text/javascript" src="@controllers.portal.routes.Portal.jsRoutes"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.2/angular.min.js"></script>
 
         <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/services.js")"></script>

@@ -24,6 +24,14 @@ function SearchCtrl($scope, $rootScope, $search, $location, $http) {
     $scope.doSearch();
   }
 
+  $scope.renderFacet = function(facetClass, facet) {
+    console.log(facetClass)
+    if (facetClass.key == "languageCode") {
+      return LocaleData.languageCodeToName(facet.value)
+    }
+    return facet.value;
+  }
+
   $scope.removeFacet = function(facetClass, facet) {
     $scope.searchParams.facets = $scope.searchParams.facets.filter(function(i) {
       return i[0].param != facetClass && i[1].value != facet.value;
@@ -71,7 +79,7 @@ function SearchCtrl($scope, $rootScope, $search, $location, $http) {
 
 
   var getSearchUrl = function() {
-    var url = jsRoutes.controllers.portal.Application.search().url;
+    var url = jsRoutes.controllers.portal.Portal.search().url;
     url += "?q=" + $scope.searchParams.q.trim();
     if ($scope.searchParams.page > 1) {
       url += "&page=" + $scope.searchParams.page;

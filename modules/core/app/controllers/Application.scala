@@ -9,6 +9,7 @@ import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play20.auth.{LoginLogout, Auth}
 import play.api.Play._
+import play.api.libs.json.Json
 import defines.EntityType
 import utils.search.Dispatcher
 import com.google.inject._
@@ -67,7 +68,7 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
   def getGeneric(id: String) = userProfileAction {
     implicit userOpt => implicit request =>
       AsyncRest {
-        SearchDAO(userOpt).get[AnyModel](id)(AnyModel.Converter).map { itemOrErr =>
+        rest.SearchDAO(userOpt).get[AnyModel](id)(AnyModel.Converter).map { itemOrErr =>
           itemOrErr.right.map { item =>
             Ok(Json.toJson(item)(AnyModel.Converter.clientFormat))
           }
