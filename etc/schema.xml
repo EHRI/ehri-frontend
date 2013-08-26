@@ -90,6 +90,7 @@ also applies synonyms. -->
   <field name="type" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
   <field name="itemId" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
   <field name="parentId" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="isTopLevel" type="boolean" indexed="true" stored="false" multiValued="false"/>
   <field name="repositoryId" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="repositoryName" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="holderId" type="string" indexed="true" stored="true" multiValued="true"/>
