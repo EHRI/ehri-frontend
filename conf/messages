@@ -26,6 +26,9 @@ error.required=Required
 constraint.required=*
 format.boolean=On/Off
 
+# General messages
+error.unknownUser=Unknown user
+
 search.type=Item Type
 search.filterItems=Filter Items
 search.sortItems=Sort Items
