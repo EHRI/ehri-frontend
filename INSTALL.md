@@ -27,7 +27,7 @@ If that starts without spewing out any dodgy-looking stack traces all should be 
 
 Download and install Play 2.1:
 
-    export PLAY_VERSION=2.1.1
+    export PLAY_VERSION=2.1.3
     wget http://downloads.typesafe.com/play/${PLAY_VERSION}/play-${PLAY_VERSION}.zip
     unzip -d ~/apps play-${PLAY_VERSION}
 
@@ -47,6 +47,28 @@ Start the dependency download process (which usually takes a while):
     cd docview
     play clean compile
 
+### MySQL Docs
+
+Install MySQL via your favoured channel (Brew, Apt):
+
+    sudo apt-get install mysql-server
+
+Now we need to create an empty user and database for our application. The user and database will have the same name (docview) and we will use the default password (changeme). Start the MySQL admin console:
+
+    mysql -uroot
+
+Now, **at the MySQL shell**, type the following commands:
+
+    CREATE USER 'docview'@'localhost' WITH PASSWORD 'changeme';
+    CREATE DATABASE docview;
+    GRANT ALL PRIVILEGES ON DATABASE docview TO docview;
+
+There are some settings on the conf/application.conf file you can adjust if you change any of the defaults.
+
+===============================================================================
+
+### PostgreSQL - use this if you want a proper DB
+
 While this is running, we can set up the other database, used for authentication. This currently runs on Postgres:
 
     sudo apt-get install postgresql
@@ -62,6 +84,8 @@ Now, **in the psql shell**, type the following commands:
     GRANT ALL PRIVILEGES ON DATABASE docview TO docview;
 
 There are some settings on the conf/application.conf file you can adjust if you change any of the defaults.
+
+===============================================================================
 
 One setting you definitely should change is the value of the `solr.path` key, which needs to be changed to whatever the path to the Solr core is. Since the one we set up above used the default "collection1" name, adjust the setting to match this:
 
