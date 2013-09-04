@@ -49,7 +49,7 @@ Start the dependency download process (which usually takes a while):
 
 ### MySQL Docs
 
-Install MySQL via your favoured channel (Brew, Apt):
+While this is running, we can set up the other database, used for authentication. Install MySQL via your favoured channel (Brew, Apt):
 
     sudo apt-get install mysql-server
 
@@ -67,9 +67,11 @@ There are some settings on the conf/application.conf file you can adjust if you 
 
 ===============================================================================
 
-### PostgreSQL - use this if you want a proper DB
+### PostgreSQL - ALTERNATIVE DB instructions
 
-While this is running, we can set up the other database, used for authentication. This currently runs on Postgres:
+**NB: Postgres is not the default DB given here (for operational reasons). If you want to use it, rename the `conf/evolutions/default` directory to `conf/evolutions/mysql` and rename `conf/evolutions/postgres` to `conf/evolutions/default`.**
+
+Install via your favourite method. Note that on some OS X versions, Postgres can be a bit fiddly because the one installed by brew conflicts with the bundled default:
 
     sudo apt-get install postgresql
 
@@ -86,6 +88,8 @@ Now, **in the psql shell**, type the following commands (replacing the password 
 There are some settings on the conf/application.conf file you can adjust if you change any of the defaults.
 
 ===============================================================================
+
+## Back to Solr
 
 One setting you definitely should change is the value of the `solr.path` key, which needs to be changed to whatever the path to the Solr core is. Since the one we set up above used the default "collection1" name, adjust the setting to match this:
 
@@ -105,11 +109,11 @@ Next, we have a little problem because we need to create the login details of ou
 
 **Log in via OpenID**. The application with create you a default user id (like user00001), but by default your account will have no privileges. We need to change the default generated user ID to the one you earlier created in Neo4j.
 
-So open up the Postgres shell again:
+So open up the MySql console again:
 
-    sudo su postgres -c "psql docview"
+    mysql -udocview -p -hlocalhost docview # or for postgres: sudo su postgres -c "psql docview"
 
-First, **in the psql shell**, double check there is a user with an auto-generated profile id in the database:
+First, **in the DB shell**, double check there is a user with an auto-generated profile id in the database:
 
     SELECT * FROM users;
 
@@ -133,5 +137,4 @@ The first thing to do when logging in is to build the search index. This can be 
     http://localhost:9000/admin/updateIndex
 
 ... and checking all the boxes. With luck, or rather, assuming Solr is configured property, the search index should get populated from the Neo4j database.
-
 
