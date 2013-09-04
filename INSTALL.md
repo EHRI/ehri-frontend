@@ -53,15 +53,15 @@ Install MySQL via your favoured channel (Brew, Apt):
 
     sudo apt-get install mysql-server
 
-Now we need to create an empty user and database for our application. The user and database will have the same name (docview) and we will use the default password (changeme). Start the MySQL admin console:
+Now we need to create an empty user and database for our application. The user and database will have the same name (docview). Start the MySQL admin console:
 
     mysql -uroot
 
-Now, **at the MySQL shell**, type the following commands:
+Now, **at the MySQL shell**, type the following commands (replacing the password with your password):
 
-    CREATE USER 'docview'@'localhost' WITH PASSWORD 'changeme';
+    CREATE USER 'docview'@'localhost' IDENTIFIED BY PASSWORD '<PASSWORD>';
     CREATE DATABASE docview;
-    GRANT ALL PRIVILEGES ON DATABASE docview TO docview;
+    GRANT ALL PRIVILEGES ON docview.* TO 'docview'@'localhost';
 
 There are some settings on the conf/application.conf file you can adjust if you change any of the defaults.
 
@@ -73,13 +73,13 @@ While this is running, we can set up the other database, used for authentication
 
     sudo apt-get install postgresql
 
-Now we need to create an empty user and database for our application. The user and database will have the same name (docview) and we will use the default password (changeme). Start the Postgres shell (run as the postgres user):
+Now we need to create an empty user and database for our application. The user and database will have the same name (docview). Start the Postgres shell (run as the postgres user):
 
     sudo su postgres -c psql
 
-Now, **in the psql shell**, type the following commands:
+Now, **in the psql shell**, type the following commands (replacing the password with your password):
 
-    CREATE USER docview WITH PASSWORD 'changeme';
+    CREATE USER docview WITH PASSWORD '<PASSWORD>';
     CREATE DATABASE docview;
     GRANT ALL PRIVILEGES ON DATABASE docview TO docview;
 
