@@ -95,7 +95,7 @@ package globalconfig {
 
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
-  lazy val searchIndexer = new SolrIndexer(typeRegistry = Map(
+  lazy val searchIndexer: Indexer = new SolrIndexer(typeRegistry = Map(
     EntityType.Concept -> models.Concept.toSolr,
     EntityType.DocumentaryUnit -> models.DocumentaryUnit.toSolr,
     EntityType.Repository -> models.Repository.toSolr,
@@ -106,7 +106,7 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
   class ProdModule extends ScalaModule {
     def configure() {
       bind[GlobalConfig].toInstance(globalconfig.RunConfiguration)
-      bind[Indexer].toInstance(searchIndexer)
+      bind[utils.search.Indexer].toInstance(searchIndexer)
     }
   }
 
