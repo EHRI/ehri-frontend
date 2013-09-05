@@ -14,7 +14,7 @@ import play.api.Play.current
  */
 case class CmdlineIndexer() extends NewIndexer {
 
-  private val binary = "%s/bin/indexer.jar".format(System.getProperty("user.dir"))
+  private val binary = Seq("java", "-jar", "%s/bin/indexer.jar".format(System.getProperty("user.dir")))
 
   private val restUrl = (for {
     host <- current.configuration.getString("neo4j.server.host")
@@ -24,23 +24,78 @@ case class CmdlineIndexer() extends NewIndexer {
 
   private val solrUrl = current.configuration.getString("solr.path").getOrElse(sys.error("Unable to find solr service url"))
 
-  private val baseArgs = Seq(binary, "--index", "--solr", solrUrl, "--rest", restUrl, "--pretty")
+  private val idxArgs = binary ++ Seq(
+    "--index",
+    "--solr", solrUrl,
+    "--rest", restUrl,
+    "--verbose" // print one line of output per item
+  )
 
-  private def runCmdWithArgs(args: Seq[String]): Future[Stream[String]] = Future((baseArgs ++ args).lines)
+  private def runIndexWithArgs(args: Seq[String]): Stream[String]
+        = {
+    val cmd = idxArgs ++ args
+    play.api.Logger.logger.debug("Cmdline Indexer: " + cmd.mkString(" "))
+    cmd.lines
+  }
+
+  private def runIndexWithArgs(args: Seq[String], log: ProcessLogger): Stream[String]
+  = {
+    val cmd = idxArgs ++ args
+    play.api.Logger.logger.debug("Cmdline Indexer: " + cmd.mkString(" "))
+    cmd.lines(log)
+  }
+
+  private def runExpectingNoOutput(cmd: Seq[String]): Option[String] = {
+    val lines = cmd.lines
+    lines.length match {
+      case 0 => None
+      case _ => Some(lines.mkString("\n"))
+    }
+  }
+
+  // When all updates have finished, commit the results
+  case class Logger(cb: String => Unit) extends ProcessLogger {
+    var count = 0
+    def buffer[T](f: => T): T = f
+    def out(s: => String) {}
+    def err(s: => String) {
+      count += 1
+      cb.apply(s)
+    }
+  }
+
+
 
   /**
    * Index a single item by id
    * @param id
    * @return
    */
-  def indexId(id: String): Future[Option[Error]] = ???
+  def indexId(id: String): Future[Option[String]] = Future {
+    val lines = runIndexWithArgs(Seq("@" + id, "--pretty"))
+    /*lines.length match {
+      case 1 if lines.head.contains(id) => None // Okay!
+      case 0 => Some("Indexer gave no output - expecting one line matching item id.")
+      case _ => Some(lines.mkString("\n")) // Return the error
+    }*/
+    None
+  }
 
   /**
    * Index all items of a given type
-   * @param entityType
+   * @param entityTypes
    * @return
    */
-  def indexType(entityType: EntityType.Value): Future[Stream[String]] = ???
+  def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Stream[String]]
+        = Future(runIndexWithArgs(entityTypes.map(_.toString)))
+
+  /**
+   * Index all items of a given type
+   * @param entityTypes
+   * @return
+   */
+  def indexTypes(entityTypes: Seq[EntityType.Value], cb: String => Unit): Future[Stream[String]]
+        = Future(runIndexWithArgs(entityTypes.map(_.toString), Logger(cb)))
 
   /**
    * Index all children of a given item.
@@ -48,25 +103,37 @@ case class CmdlineIndexer() extends NewIndexer {
    * @param id
    * @return
    */
-  def indexChildren(entityType: EntityType.Value, id: String): Future[Stream[String]] = ???
+  def indexChildren(entityType: EntityType.Value, id: String): Future[Stream[String]]
+        = Future(runIndexWithArgs(Seq("%s|%s".format(entityType, id))))
+
+  /**
+   * Index all children of a given item.
+   * @param entityType
+   * @param id
+   * @return
+   */
+  def indexChildren(entityType: EntityType.Value, id: String, cb: String => Unit): Future[Stream[String]]
+        = Future(runIndexWithArgs(Seq("%s|%s".format(entityType, id)), Logger(cb)))
 
   /**
    * Clear the index of all items.
    * @return
    */
-  def clearAll: Future[Option[Error]] = ???
+  def clearAll: Future[Option[String]] = Future(runExpectingNoOutput(binary ++ Seq("--clear-all")))
 
   /**
    * Clear the index of all items of a given type.
-   * @param entityType
+   * @param entityTypes
    * @return
    */
-  def clearType(entityType: EntityType.Value): Future[Option[Error]] = ???
+  def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Option[String]]
+        = Future(runExpectingNoOutput(binary ++ entityTypes.flatMap(s => Seq("--clear-type", s.toString))))
 
   /**
    * Clear a given item from the index.
    * @param id
    * @return
    */
-  def clearId(id: String): Future[Option[Error]] = ???
+  def clearId(id: String): Future[Option[String]]
+        = Future(runExpectingNoOutput(binary ++ Seq("--clear-id", id)))
 }

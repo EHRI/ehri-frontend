@@ -8,6 +8,7 @@ import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
 import play.api.libs.json.JsObject
+import models.base.AnyModel
 
 
 /**
@@ -26,7 +27,7 @@ case class VisibilityDAO(userProfile: Option[UserProfile]) extends RestDAO {
         .withHeaders(authHeaders.toSeq: _*).post("").map { response =>
       checkErrorAndParse(response)(rd.restReads).right.map { r =>
         Cache.remove(id)
-        EntityDAO.handleUpdate(response.json.as[JsObject])
+        EntityDAO.handleUpdate(id)
         r
       }
     }

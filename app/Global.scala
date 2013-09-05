@@ -95,18 +95,13 @@ package globalconfig {
 
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
-  lazy val searchIndexer: Indexer = new SolrIndexer(typeRegistry = Map(
-    EntityType.Concept -> models.Concept.toSolr,
-    EntityType.DocumentaryUnit -> models.DocumentaryUnit.toSolr,
-    EntityType.Repository -> models.Repository.toSolr,
-    EntityType.HistoricalAgent -> models.HistoricalAgent.toSolr
-  ))
+  lazy val searchIndexer: indexing.NewIndexer = new indexing.CmdlineIndexer
 
 
   class ProdModule extends ScalaModule {
     def configure() {
       bind[GlobalConfig].toInstance(globalconfig.RunConfiguration)
-      bind[utils.search.Indexer].toInstance(searchIndexer)
+      bind[indexing.NewIndexer].toInstance(searchIndexer)
     }
   }
 
@@ -127,32 +122,11 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     // to the SolrIndexer update/delete handlers
     import play.api.libs.concurrent.Execution.Implicits._
 
-    EntityDAO.addCreateHandler { item =>
-      Logger.logger.info("Binding creation event to Solr create action")
-      searchIndexer.updateItem(item, commit = true).map { r => r match {
-          case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
-          case ok => ok
-        }
-      }
-    }
+    EntityDAO.addCreateHandler(searchIndexer.indexId)
 
-    EntityDAO.addUpdateHandler { item =>
-      Logger.logger.info("Binding update event to Solr update action")
-      searchIndexer.updateItem(item, commit = true).map { r => r match {
-          case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
-          case ok => ok
-        }
-      }
-    }
+    EntityDAO.addUpdateHandler(searchIndexer.indexId)
 
-    EntityDAO.addDeleteHandler { item =>
-      Logger.logger.info("Binding delete event to Solr delete action")
-      searchIndexer.deleteItemsById(Stream(item)).map { r => r match {
-          case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
-          case ok => ok
-        }
-      }
-    }
+    EntityDAO.addDeleteHandler(searchIndexer.clearId)
   }
 
   private def noAuthAction = Action { request =>

@@ -25,6 +25,8 @@ import solr.SolrErrorResponse
 import play.api.libs.ws.ResponseHeaders
 import play.api.libs.json.JsObject
 import utils.ListParams
+import scala.util.Try
+import scala.sys.process.ProcessLogger
 
 object Search {
   /**
@@ -35,7 +37,7 @@ object Search {
 }
 
 @Singleton
-class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchIndexer: Indexer) extends EntitySearch {
+class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchIndexer: indexing.NewIndexer) extends EntitySearch {
 
   val searchEntities = List() // i.e. Everything
   private val entityFacets = List(
@@ -212,55 +214,9 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     /**
      * Clear everything from the index...
      */
-    def optionallyClearIndex(doit: Boolean): Future[Option[IndexerResponse]] = {
+    def optionallyClearIndex(doit: Boolean): Future[Option[String]] = {
       if (!doit) Future.successful(None)
-      else searchIndexer.deleteAll().map(r => Some(r))
-    }
-
-    /**
-     * Update a single page of data
-     */
-    def updatePage(entityType: EntityType.Value, params: ListParams, list: List[JsObject], chan: Concurrent.Channel[String]
-                    ): Future[List[SolrResponse]] = {
-      searchIndexer.updateItems(list.toStream, commit = false).map { jobs =>
-        jobs.map { response =>
-          response match {
-            case r@SolrUpdateResponse(SolrHeader(code, time), Some(SolrError(msg, _))) => {
-              Logger.logger.error("Got an error: " + msg)
-              chan.push(wrapMsg(msg))
-              r
-            }
-            case r@SolrUpdateResponse(SolrHeader(code, time), None) => {
-              val msg = s"Batch complete: $entityType (${params.range}, time: ${time})"
-              Logger.logger.info(msg)
-              chan.push(wrapMsg(msg))
-              r
-            }
-            case e: SolrErrorResponse => {
-              Logger.logger.error(s"Unable to page page data for entity: $entityType, page: ${list}: {}", e.err)
-              e
-            }
-          }
-        }
-      }
-    }
-
-    /**
-     * Fetch a given page of data and update it.
-     */
-    def updateItemSet(entityType: EntityType.Value, pageNum: Int,
-                      chan: Concurrent.Channel[String]): Future[List[SolrResponse]] = {
-      val params = ListParams(page=Some(pageNum), limit = Some(batchSize))
-      val getData = EntityDAO[AnyModel](entityType, userOpt).listJson(params)
-      getData.flatMap { listOrErr =>
-        listOrErr match {
-          case Left(err) => {
-            Logger.logger.error(s"Unable to page page data for entity: $entityType, page: ${pageNum}: {}", err)
-            Future.successful(List(SolrErrorResponse(listOrErr.left.get.getMessage)))
-          }
-          case Right(page) => updatePage(entityType, params, page, chan)
-        }
-      }
+      else searchIndexer.clearAll
     }
 
     // Create an unicast channel in which to feed progress messages
@@ -270,74 +226,26 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
           chan.push(wrapMsg(s"deleted index: $r"))
         }
 
-        // Now get on with the real work...
-        chan.push(wrapMsg(s"Initiating update for entities: ${entities.mkString(", ")}"))
-        var all: List[Future[List[IndexerResponse]]] = entities.map { entity =>
-          EntityDAO(entity, userOpt).count().flatMap { countOrErr =>
-            if (countOrErr.isLeft) {
-              Logger.logger.error("Unable to fetch first page of data for $entity: " + countOrErr.left.get)
-              sys.error(s"Unable to fetch first page of data for $entity: " + countOrErr.left.get)
+        case class Counter(var i: Long = 0) {
+          def count(item: String) {
+            i += 1
+            if (i % 1000 == 0) {
+              chan.push(wrapMsg(" ... " + i))
             }
-            val count = countOrErr.right.get
-            chan.push(wrapMsg(s"Indexing: $entity (total count: $count)"))
-
-            val pageCount = (count / batchSize) + (count % batchSize).min(1)
-
-            // Clear all Entities from the index...
-            var allUpdateResponses: Future[List[IndexerResponse]] = searchIndexer.deleteItemsByType(entity, commit = false).flatMap { response =>
-              response match {
-                case e: SolrErrorResponse => {
-                  chan.push(wrapMsg(s"Error deleting items for entity: $entity: ${e.err}"))
-                  Future.successful(List(e))
-                }
-                case ok => {
-                  // Run each page in sequence...
-                  var pages: List[Future[List[IndexerResponse]]] = 1L.to(pageCount).map { p =>
-                    val page = updateItemSet(entity, p.toInt, chan)
-                    page onFailure {
-                      case e => chan.push(wrapMsg(e.getMessage))
-                    }
-                    page
-                  }.toList
-
-                  // Flatten the inner batch results into a single list
-                  val all = Future.sequence(pages).map(l => l.flatMap(i => i))
-                  all onFailure {
-                    case e => chan.push(wrapMsg(e.getMessage))
-                  }
-                  all
-                }
-              }
-            }
-            allUpdateResponses
           }
         }
-        // When all updates have finished, commit the results
-        Future.sequence(all).map { results =>
-          val totaltime = results.flatten.foldLeft(0) { case (total, result) =>
-            result match {
-              case SolrUpdateResponse(SolrHeader(code, time), None) => {
-                total + time
-              }
-              case SolrUpdateResponse(SolrHeader(code, time), Some(SolrError(msg, _))) => {
-                total
-              }
-              case e => total
+
+        // Now get on with the real work...
+        chan.push(wrapMsg(s"Initiating update for entities: ${entities.mkString(", ")}"))
+        val counter = new Counter()
+        searchIndexer.indexTypes(entityTypes = entities, counter.count).map { stream =>
+          (stream.map(Some(_)) #::: Stream[Option[String]](None)).foreach {
+            case Some(msg) =>
+            case None => {
+              chan.push(wrapMsg("Completed: " + counter.i))
+              chan.push(wrapMsg(Search.DONE_MESSAGE))
+              chan.eofAndEnd()
             }
-          }
-          chan.push(wrapMsg("Completed indexing in: " + totaltime + " - committing..."))
-          searchIndexer.commit.map { resOrErr =>
-            resOrErr match {
-              case e: SolrErrorResponse => {
-                chan.push(wrapMsg("Error committing Solr data: " + e.err))
-              }
-              case ok: SolrUpdateResponse => {
-                Logger.logger.info("Committing...")
-                chan.push(wrapMsg("Committed in " + ok.responseHeader.time))
-              }
-            }
-            chan.push(wrapMsg(Search.DONE_MESSAGE))
-            chan.eofAndEnd()
           }
         }
       }

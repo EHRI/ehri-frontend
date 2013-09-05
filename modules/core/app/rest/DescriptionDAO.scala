@@ -9,6 +9,7 @@ import models.{UserProfile, Entity}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.{RestReadable, RestConvertable}
+import models.base.AnyModel
 
 
 /**
@@ -30,7 +31,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         case Right(r) => {
           EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
-              EntityDAO.handleUpdate(item)
+              EntityDAO.handleUpdate(id)
               Cache.remove(id)
               Right(item.as[MT](rd.restReads))
             }
@@ -50,7 +51,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         case Right(r) => {
           EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
-              EntityDAO.handleUpdate(item)
+              EntityDAO.handleUpdate(id)
               println("HANDLING UPDATE: " + item)
               Cache.remove(id)
               Right(item.as[MT](rd.restReads))
@@ -68,7 +69,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         .delete.flatMap { response =>
       EntityDAO[MT](entityType, userProfile).getJson(id).map {
         case Right(updated) => {
-          EntityDAO.handleUpdate(updated)
+          EntityDAO.handleUpdate(id)
           Cache.remove(id)
           Right(true)
         }
@@ -88,7 +89,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         case Right(r) => {
           EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
-              EntityDAO.handleUpdate(item)
+              EntityDAO.handleUpdate(id)
               Cache.remove(id)
               Right((item.as[MT](rd.restReads), r.json.as[DT](fmt.restFormat)))
             }
@@ -99,13 +100,13 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
     }
   }
 
-  def deleteAccessPoint[MT](id: String, did: String, apid: String, logMsg: Option[String] = None)(
+  def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(
         implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .delete.flatMap { response =>
         EntityDAO[MT](entityType, userProfile).getJson(id).map {
           case Right(item) => {
-            EntityDAO.handleUpdate(item)
+            EntityDAO.handleUpdate(id)
             Cache.remove(id)
             Right(item.as[MT](rd.restReads))
           }
