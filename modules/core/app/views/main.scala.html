@@ -262,15 +262,19 @@
     <body data-spy="scroll" data-target="#form-nav-sidebar">
 
         @activeIfCurrent(url: String, text: String) = {
-            <li class="@{if(req.path.startsWith(url)) "active" else ""}"><a href="@url">@Messages(text)</a></li>
+            <li class="@{if(req.path.startsWith(url)) "active" else ""}"><a href="@url">@Html(text)</a></li>
         }
 
         <div id="wrap" class="page-container">
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
                     <ul class="nav">
+                        @* Bit hacky - add home link *@
+                        <li class="@{if(req.path.equalsIgnoreCase(globalConfig.routeRegistry.default.url)) "active" else ""}">
+                            <a href="@globalConfig.routeRegistry.default.url"><i class="icon-home icon-white"></i></a>
+                        </li>
                         @globalConfig.menuConfig.mainSection.map { case (key, url) =>
-                            @activeIfCurrent(url, key)
+                            @activeIfCurrent(url, Messages(key))
                         }
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -282,7 +286,7 @@
                                     @if(url == "-") {
                                         <li role="presentation" class="divider"></li>
                                     } else {
-                                        @activeIfCurrent(url, key)
+                                        @activeIfCurrent(url, Messages(key))
                                     }
                                 }
                             </ul>
