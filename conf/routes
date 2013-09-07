@@ -6,13 +6,13 @@
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)
 
 # Defer other routes to modules
--> /admin        core.Routes
--> /admin/auth   admin.Routes
--> /admin/link    linking.Routes
+-> /admin               core.Routes
+-> /admin               admin.Routes
+-> /admin/link          linking.Routes
 -> /admin/annotation    annotation.Routes
--> /admin/sets    authorities.Routes
--> /admin/arch    archdesc.Routes
--> /admin/voc     vocabs.Routes
+-> /admin/sets          authorities.Routes
+-> /admin/arch          archdesc.Routes
+-> /admin/voc           vocabs.Routes
 
 # Portal is special
 -> /  portal.Routes
