@@ -89,14 +89,15 @@ also applies synonyms. -->
   <field name="id" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
   <field name="type" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
   <field name="itemId" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+  <field name="gid" type="long" indexed="true" stored="true" multiValued="false" required="false"/>
   <field name="parentId" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="isTopLevel" type="boolean" indexed="true" stored="false" multiValued="false"/>
   <field name="repositoryId" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="repositoryName" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="holderId" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="holderName" type="string" indexed="true" stored="true" multiValued="true"/>
-  <field name="restricted" type="boolean" indexed="true" stored="false"/>
-  <field name="accessibleTo" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="restricted" type="boolean" indexed="true" stored="true" default="false" />
+  <field name="accessibleTo" type="string" indexed="true" stored="true" multiValued="true" default="ALLUSERS" />
   <field name="identifier" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="name" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="name_ngram" type="text_general_edge_ngram" indexed="true" stored="true" multiValued="true"/>

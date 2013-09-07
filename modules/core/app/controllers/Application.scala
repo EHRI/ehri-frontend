@@ -25,23 +25,6 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
   def logout = loginHandler.logout
 
   /**
-   * Temporarily redirect the /
-   * @return
-   */
-  def index = Action { request =>
-    Redirect(globalConfig.routeRegistry.default)
-  }
-
-  /**
-   * Look up the 'show' page of a generic item id
-   * @param id
-   */
-  def genericShow(id: String) = Action {
-    NotImplemented
-  }
-
-
-  /**
    * Action for redirecting to any item page, given a raw id.
    * TODO: Ultimately implement this in a better way, not
    * requiring two DB hits (including the redirect...)

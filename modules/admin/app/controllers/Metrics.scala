@@ -3,7 +3,7 @@ package controllers.admin
 import controllers.base.EntitySearch
 import models.{Isaar, IsadG}
 import models.base.AnyModel
-
+import play.api.Play.current
 import play.api._
 import play.api.mvc._
 import defines.EntityType
@@ -15,6 +15,7 @@ import solr.facet.FieldFacetClass
 
 import com.google.inject._
 import play.api.http.MimeTypes
+import play.api.cache.Cached
 
 
 @Singleton
@@ -39,12 +40,14 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def languageOfMaterial = searchAction[AnyModel](
-        defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
-        entityFacets = langCountFacets) {
+  def languageOfMaterial = Cached("pages:langMetric") {
+    searchAction[AnyModel](
+      defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
+      entityFacets = langCountFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    render {
-      case _ => UnsupportedMediaType
+        render {
+          case _ => UnsupportedMediaType
+        }
     }
   }
 
@@ -58,12 +61,14 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def holdingRepository = searchAction[AnyModel](
+  def holdingRepository = Cached("pages:repoMetric") {
+    searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
       entityFacets = holdingRepoFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    render {
-      case _ => UnsupportedMediaType
+        render {
+          case _ => UnsupportedMediaType
+        }
     }
   }
 
@@ -78,12 +83,14 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def repositoryCountries = searchAction[AnyModel](
+  def repositoryCountries = Cached("pages:repoCountryMetric") {
+    searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.Repository))),
       entityFacets = countryRepoFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    render {
-      case _ => UnsupportedMediaType
+        render {
+          case _ => UnsupportedMediaType
+        }
     }
   }
 
@@ -97,15 +104,17 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def restricted = searchAction[AnyModel](
-    defaultParams = Some(defaultParams.copy(
-      entities = List(EntityType.HistoricalAgent,
-        EntityType.DocumentaryUnit, EntityType.HistoricalAgent))),
-    entityFacets = restrictedFacets) {
-    page => params => facets => implicit userOpt => implicit request =>
-      render {
-        case _ => UnsupportedMediaType
-      }
+  def restricted = Cached("pages:restrictedMetric") {
+    searchAction[AnyModel](
+      defaultParams = Some(defaultParams.copy(
+        entities = List(EntityType.HistoricalAgent,
+          EntityType.DocumentaryUnit, EntityType.HistoricalAgent))),
+      entityFacets = restrictedFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+        render {
+          case _ => UnsupportedMediaType
+        }
+    }
   }
 
 
@@ -119,12 +128,14 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def agentTypes = searchAction[AnyModel](
-    defaultParams = Some(defaultParams.copy(entities = List(EntityType.HistoricalAgent))),
-    entityFacets = agentTypeFacets) {
-    page => params => facets => implicit userOpt => implicit request =>
-      render {
-        case _ => UnsupportedMediaType
-      }
+  def agentTypes = Cached("pages:agentTypeMetric") {
+    searchAction[AnyModel](
+      defaultParams = Some(defaultParams.copy(entities = List(EntityType.HistoricalAgent))),
+      entityFacets = agentTypeFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+        render {
+          case _ => UnsupportedMediaType
+        }
+    }
   }
 }

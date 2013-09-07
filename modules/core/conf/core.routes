@@ -1,7 +1,5 @@
 # Routes for core functionality
 
-GET     /                                       @controllers.core.Application.index
-
 # API
 GET     /api/:id                                @controllers.core.ApiController.getAny(id: String)
 GET     /api/:contentType/list                  @controllers.core.ApiController.listItems(contentType: String)
@@ -37,7 +35,7 @@ POST	/openid							        @controllers.core.OpenIDLoginHandler.loginPost
 # Mozilla Persona
 POST	/persona						        @controllers.core.PersonaLoginHandler.loginPost
 
-# Admin routes
+# Admin routes - FIXME: Move to admin controller when reverse-route dependencies are resolved
 GET     /admin/actions                          @controllers.core.Admin.adminActions
 GET     /admin/createUser                       @controllers.core.Admin.createUser
 POST    /admin/createUser                       @controllers.core.Admin.createUserPost
@@ -46,8 +44,8 @@ POST    /admin/login                            @controllers.core.Admin.password
 GET     /admin/changePassword                   @controllers.core.Admin.changePassword
 POST    /admin/changePassword                   @controllers.core.Admin.changePasswordPost
 
-GET     /admin/events                           @controllers.core.SystemEvents.list
-GET     /admin/events/show/:id                  @controllers.core.SystemEvents.get(id: String)
+GET     /events                                 @controllers.core.SystemEvents.list
+GET     /events/show/:id                        @controllers.core.SystemEvents.get(id: String)
 
 GET     /users                                  @controllers.core.UserProfiles.search
 GET     /users/list                             @controllers.core.UserProfiles.list

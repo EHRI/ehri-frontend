@@ -9,16 +9,16 @@
             <ul class="unstyled facet-list">
             @fc.sorted.filter(_.count > 0).map { f =>
                 @if(f.applied) {
-                    <li class="selected-filter">
-                        @{fc.pretty(f)}
+                    <li title="@fc.pretty(f)" class="selected-filter">
+                        @views.Helpers.ellipsize(fc.pretty(f), 25)
                         (@f.count)
                         <a class="remove-filter" href="@pathWithoutFacet(fc, f,
                             req.path, req.queryString.filterKeys(_!="page"))"><i class="icon-remove"></i></a>
                     </li>
                 } else {
-                    <li>
+                    <li title="@fc.pretty(f)">
                         <a href="@pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">
-                            @fc.pretty(f)
+                            @views.Helpers.ellipsize(fc.pretty(f), 25)
                             (@f.count)
                         </a>
                     </li>

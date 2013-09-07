@@ -27,7 +27,7 @@ If that starts without spewing out any dodgy-looking stack traces all should be 
 
 Download and install Play 2.1:
 
-    export PLAY_VERSION=2.1.1
+    export PLAY_VERSION=2.1.3
     wget http://downloads.typesafe.com/play/${PLAY_VERSION}/play-${PLAY_VERSION}.zip
     unzip -d ~/apps play-${PLAY_VERSION}
 
@@ -47,21 +47,49 @@ Start the dependency download process (which usually takes a while):
     cd docview
     play clean compile
 
-While this is running, we can set up the other database, used for authentication. This currently runs on Postgres:
+### MySQL Docs
+
+While this is running, we can set up the other database, used for authentication. Install MySQL via your favoured channel (Brew, Apt):
+
+    sudo apt-get install mysql-server
+
+Now we need to create an empty user and database for our application. The user and database will have the same name (docview). Start the MySQL admin console:
+
+    mysql -uroot
+
+Now, **at the MySQL shell**, type the following commands (replacing the password with your password):
+
+    CREATE USER 'docview'@'localhost' IDENTIFIED BY PASSWORD '<PASSWORD>';
+    CREATE DATABASE docview;
+    GRANT ALL PRIVILEGES ON docview.* TO 'docview'@'localhost';
+
+There are some settings on the conf/application.conf file you can adjust if you change any of the defaults.
+
+===============================================================================
+
+### PostgreSQL - ALTERNATIVE DB instructions
+
+**NB: Postgres is not the default DB given here (for operational reasons). If you want to use it, rename the `conf/evolutions/default` directory to `conf/evolutions/mysql` and rename `conf/evolutions/postgres` to `conf/evolutions/default`.**
+
+Install via your favourite method. Note that on some OS X versions, Postgres can be a bit fiddly because the one installed by brew conflicts with the bundled default:
 
     sudo apt-get install postgresql
 
-Now we need to create an empty user and database for our application. The user and database will have the same name (docview) and we will use the default password (changeme). Start the Postgres shell (run as the postgres user):
+Now we need to create an empty user and database for our application. The user and database will have the same name (docview). Start the Postgres shell (run as the postgres user):
 
     sudo su postgres -c psql
 
-Now, **in the psql shell**, type the following commands:
+Now, **in the psql shell**, type the following commands (replacing the password with your password):
 
-    CREATE USER docview WITH PASSWORD 'changeme';
+    CREATE USER docview WITH PASSWORD '<PASSWORD>';
     CREATE DATABASE docview;
     GRANT ALL PRIVILEGES ON DATABASE docview TO docview;
 
 There are some settings on the conf/application.conf file you can adjust if you change any of the defaults.
+
+===============================================================================
+
+## Back to Solr
 
 One setting you definitely should change is the value of the `solr.path` key, which needs to be changed to whatever the path to the Solr core is. Since the one we set up above used the default "collection1" name, adjust the setting to match this:
 
@@ -81,11 +109,11 @@ Next, we have a little problem because we need to create the login details of ou
 
 **Log in via OpenID**. The application with create you a default user id (like user00001), but by default your account will have no privileges. We need to change the default generated user ID to the one you earlier created in Neo4j.
 
-So open up the Postgres shell again:
+So open up the MySql console again:
 
-    sudo su postgres -c "psql docview"
+    mysql -udocview -p -hlocalhost docview # or for postgres: sudo su postgres -c "psql docview"
 
-First, **in the psql shell**, double check there is a user with an auto-generated profile id in the database:
+First, **in the DB shell**, double check there is a user with an auto-generated profile id in the database:
 
     SELECT * FROM users;
 
@@ -109,5 +137,4 @@ The first thing to do when logging in is to build the search index. This can be 
     http://localhost:9000/admin/updateIndex
 
 ... and checking all the boxes. With luck, or rather, assuming Solr is configured property, the search index should get populated from the Neo4j database.
-
 
