@@ -1,5 +1,6 @@
 package controllers.portal
 
+import play.api.Play.current
 import _root_.models.UserProfile
 import controllers.base.EntitySearch
 import models.base.AnyModel
@@ -11,6 +12,7 @@ import play.api.http.MimeTypes
 import com.google.inject._
 import utils.search.{SearchOrder, SearchParams}
 import play.api.libs.json.{Format, Writes, Json}
+import play.api.cache.Cached
 
 
 @Singleton
@@ -101,8 +103,10 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig) extends C
     Ok(views.html.portal())
   }
 
-  def placeholder = userProfileAction { implicit userOpt => implicit request =>
-    Ok(views.html.placeholder())
+  def placeholder = Cached("pages:portalPlaceholder") {
+    Action { implicit request =>
+      Ok(views.html.placeholder())
+    }
   }
 }
 
