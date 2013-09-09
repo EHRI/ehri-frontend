@@ -149,5 +149,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig) extends C
   def index = userProfileAction { implicit userOpt => implicit request =>
     Ok(views.html.portal())
   }
+
+  def placeholder = userProfileAction { implicit userOpt => implicit request =>
+    Ok(views.html.placeholder())
+  }
 }
 
