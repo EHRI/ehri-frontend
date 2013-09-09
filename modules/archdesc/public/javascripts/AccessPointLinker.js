@@ -1,6 +1,6 @@
 !(function() {
   var linker = angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead', 'ui.bootstrap.pagination' ], function($provide) {
-    $provide.factory('$search', function($http, $log) {
+    $provide.factory('$search', function($http, $log, $service) {
       var search = function(types, searchTerm, page) {
         var params = "?limit=10&q=" + (searchTerm || "");
         if (types && types.length > 0) {
@@ -9,7 +9,7 @@
         if (page) {
           params = params + "&page=" + page;
         }
-        return $http.get("/filter" + params);
+        return $http.get($service.filter().url + params);
       }
 
       return {
