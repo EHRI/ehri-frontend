@@ -1,6 +1,14 @@
 @(items: List[AnyModel] = Nil)(implicit lang: Lang, globalConfig: GlobalConfig)
 <div>
-<small><span class="alert alert-danger pull-right"><strong>Warning</strong>: Data is for test purposes only.</span></small>
+
+@if(globalConfig.isTestMode) {
+    <small>
+        <span class="alert alert-danger pull-right">
+            <strong>Warning</strong>: Data is for test purposes only.
+        </span>
+    </small>
+}
+
 <ul class="breadcrumb">
     @defining(if (!items.isEmpty) 200 / items.length else 300) { truncateLength =>
         @if(!items.isEmpty) {

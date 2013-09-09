@@ -10,11 +10,14 @@ import play.api.libs.concurrent.Execution.Implicits._
 import defines.EntityType
 import defines.PermissionType
 import defines.ContentTypes
+import global.GlobalConfig
 
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
  */
 trait AuthController extends Controller with ControllerHelpers with Auth with Authorizer {
+
+  implicit val globalConfig: GlobalConfig
 
   /**
    * Provide functionality for changing the current locale.
@@ -24,10 +27,9 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    */
   val localeForm = play.api.data.Form("locale" -> play.api.data.Forms.nonEmptyText)
   private val LANG = "lang"
-  protected val HOME_URL = "/"
 
   def changeLocale = Action { implicit request =>
-    val referrer = request.headers.get(REFERER).getOrElse(HOME_URL)
+    val referrer = request.headers.get(REFERER).getOrElse(globalConfig.routeRegistry.default.url)
     localeForm.bindFromRequest.fold(
       errors => {
         Logger.logger.debug("The locale can not be change to : " + errors.get)

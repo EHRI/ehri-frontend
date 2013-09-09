@@ -55,6 +55,7 @@ login.changePassword=Change Password
 login.adminLoginMessage=Note: only EHRI partners are given passwords.\
    To sign up normally, please use the ''Sign In'' link at the top of the page and login with your OpenID account.
 login.linkToPasswordLogin=Click here if you have been given a password.
+login.linkToOpenIDLogin=Click here to log in by OpenID.
 login.email=Email
 login.password=Password
 login.badUsernameOrPassword=Incorrect username or password
