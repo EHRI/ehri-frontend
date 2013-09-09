@@ -1,10 +1,13 @@
 # Routes for portal routes
 
-GET     /                                   @controllers.portal.Portal.index
-GET     /account                            @controllers.portal.Portal.account
-GET     /profile                            @controllers.portal.Portal.profile
-GET     /search                             @controllers.portal.Portal.search
-GET     /filter                             @controllers.portal.Portal.filter
-GET     /routes                             @controllers.portal.Portal.jsRoutes
+# Placeholder for / until site is more functional...
+GET     /                                   @controllers.portal.Portal.placeholder
+
+GET     /dev                                @controllers.portal.Portal.index
+GET     /dev/account                        @controllers.portal.Portal.account
+GET     /dev/profile                        @controllers.portal.Portal.profile
+GET     /dev/search                         @controllers.portal.Portal.search
+GET     /dev/filter                         @controllers.portal.Portal.filter
+GET     /dev/routes                         @controllers.portal.Portal.jsRoutes
 
 GET     /assets/*file                       controllers.portal.Assets.at(path="/public", file)

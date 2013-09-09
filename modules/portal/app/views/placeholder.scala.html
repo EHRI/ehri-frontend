@@ -1,0 +1,54 @@
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+<!DOCTYPE html>
+
+<html lang="@lang.code">
+    <head>
+        <meta charset="UTF-8">
+        <title>EHRI Portal</title>
+        <link href="@controllers.core.routes.Assets.at("stylesheets/bootstrap/css/bootstrap.css")" rel="stylesheet">
+        <style type="text/css">
+
+            body {
+                background-color: #F4F4F4;
+            }
+
+            #logo {
+                margin-top: 50px;
+                margin-bottom: 50px;
+            }
+
+            .main-block {
+                float: none;
+                width: 300px;
+                margin-right: auto;
+                margin-left: auto;
+            }
+
+            .center {
+                display: block;
+                float: none;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="span4 center offset4">
+                    <div class="main-block">
+                        <img id="logo" src="@controllers.portal.routes.Assets.at("img/logo.png")" class="img-polaroid center" />
+
+                        <p class="lead">
+                            The EHRI portal isn't ready just yet. Please keep an eye on the <a href="http://ehri-project.eu">main page</a> for EHRI-related news.
+                        </p>
+
+                        <p class="muted"> - The EHRI portal team</p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </body>
+</html>
