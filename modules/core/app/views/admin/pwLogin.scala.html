@@ -20,5 +20,9 @@
             <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
         </div>
     }
+
+    <p>
+        <a href="@controllers.core.routes.Application.login">@Messages("login.linkToOpenIDLogin")</a>
+    </p>
 }(None, request, globalConfig, flash, lang)
 

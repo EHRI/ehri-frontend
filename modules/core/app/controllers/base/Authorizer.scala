@@ -7,9 +7,8 @@ import play.api._
 import play.api.mvc._
 
 import scala.reflect.classTag
-
-
 import play.api.Play.current
+import global.GlobalConfig
 
 
 /*
@@ -18,6 +17,8 @@ import play.api.Play.current
  */
 
 trait Authorizer extends Results with AuthConfig {
+
+  val globalConfig: GlobalConfig
 
   /**
    * Dummy permission (which is not actually used.)
@@ -28,7 +29,6 @@ trait Authorizer extends Results with AuthConfig {
   lazy val userFinder: models.sql.UserDAO = current.plugin(classOf[models.sql.UserDAO]).get
   
   type Id = String
-
 
   override lazy val idContainer: IdContainer[Id] = new CookieIdContainer[Id]
 
@@ -77,7 +77,8 @@ trait Authorizer extends Results with AuthConfig {
    */
   def loginSucceeded(request: RequestHeader): PlainResult = {
     //val uri = request.session.get("access_uri").getOrElse(controllers.routes.Search.search.url)
-    val uri = request.session.get("access_uri").getOrElse("/")
+    // FIXME: Hard-coded reference to /admin...
+    val uri = request.session.get("access_uri").getOrElse(globalConfig.routeRegistry.default.url)
     request.session - "access_uri"
     Redirect(uri)
   }
@@ -85,7 +86,8 @@ trait Authorizer extends Results with AuthConfig {
   /**
    * A redirect target after a successful user logout.
    */
-  def logoutSucceeded(request: RequestHeader): PlainResult = Redirect("/")
+  def logoutSucceeded(request: RequestHeader): PlainResult
+        = Redirect(globalConfig.routeRegistry.default)
 
   /**
    * A redirect target after a failed authentication.
@@ -94,7 +96,8 @@ trait Authorizer extends Results with AuthConfig {
     if (ControllerHelpers.isAjax(request))
       Unauthorized("authentication failed")
     else
-      Redirect(controllers.core.routes.Application.login).withSession("access_uri" -> request.uri)
+      Redirect(globalConfig.routeRegistry.login.url)
+          .withSession("access_uri" -> request.uri)
   }
 
   /**
