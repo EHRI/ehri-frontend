@@ -6,6 +6,8 @@ import _root_.controllers.core.OpenIDLoginHandler
 import _root_.models.{HistoricalAgent, Repository, DocumentaryUnit, Concept}
 import defines.EntityType
 import global.{GlobalConfig, MenuConfig, RouteRegistry}
+import indexing.CmdlineIndexer
+import java.io.File
 import play.api._
 import play.api.mvc._
 
@@ -95,8 +97,7 @@ package globalconfig {
 
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
-  lazy val searchIndexer: indexing.NewIndexer = new indexing.CmdlineIndexer
-
+  private def searchIndexer: indexing.NewIndexer = new indexing.CmdlineIndexer
 
   class ProdModule extends ScalaModule {
     def configure() {
@@ -114,6 +115,11 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
   }
 
   override def onStart(app: Application) {
+
+    // Check the indexer is configured...
+    if (!new File(CmdlineIndexer.jar).exists()) {
+      sys.error("Unable to find jar for indexer: " + CmdlineIndexer.jar)
+    }
 
     // Hack for bug #845
     app.routes

@@ -5,6 +5,12 @@ import scala.sys.process._
 import scala.concurrent.Future
 import defines.EntityType
 import play.api.Play.current
+import java.io.File
+
+
+object CmdlineIndexer {
+  val jar = "%s/bin/indexer.jar".format(System.getProperty("user.dir"))
+}
 
 /**
  * User: mikebryant
@@ -14,7 +20,8 @@ import play.api.Play.current
  */
 case class CmdlineIndexer() extends NewIndexer {
 
-  private val binary = Seq("java", "-jar", "%s/bin/indexer.jar".format(System.getProperty("user.dir")))
+
+  private val binary = Seq("java", "-jar", CmdlineIndexer.jar)
 
   private val restUrl = (for {
     host <- current.configuration.getString("neo4j.server.host")
@@ -42,11 +49,17 @@ case class CmdlineIndexer() extends NewIndexer {
   = {
     val cmd = idxArgs ++ args
     play.api.Logger.logger.debug("Cmdline Indexer: " + cmd.mkString(" "))
-    cmd.lines(log)
+    val process: Process = cmd.run(log)
+    val ev: Int = process.exitValue()
+    if (ev != 0) {
+      sys.error("Process exited with bad value: " + ev)
+    }
+    println("Cmd exit value: " + ev)
+    Stream.empty[String] // FIXME
   }
 
   private def runExpectingNoOutput(cmd: Seq[String]): Option[String] = {
-    val lines = cmd.lines
+    val lines = cmd.lines_!
     lines.length match {
       case 0 => None
       case _ => Some(lines.mkString("\n"))
@@ -119,7 +132,13 @@ case class CmdlineIndexer() extends NewIndexer {
    * Clear the index of all items.
    * @return
    */
-  def clearAll: Future[Option[String]] = Future(runExpectingNoOutput(binary ++ Seq("--clear-all")))
+  def clearAll: Future[Option[String]] = {
+    val f = Future(runExpectingNoOutput(binary ++ Seq("--clear-all")))
+    f.onFailure {
+      case _ => println("Disaster!")
+    }
+    f
+  }
 
   /**
    * Clear the index of all items of a given type.

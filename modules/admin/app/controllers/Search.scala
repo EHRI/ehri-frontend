@@ -1,32 +1,22 @@
 package controllers.admin
 
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import controllers.base.EntitySearch
-import defines.EntityType
 import play.Play.application
-import rest.{EntityDAO}
 import play.api.libs.iteratee.{Concurrent, Enumerator}
 import models.IsadG
-import play.api.Logger
 import concurrent.Future
 import play.api.i18n.Messages
 import views.Helpers
-import play.api.libs.json.{JsObject, Writes, Json}
-import solr._
-import models.base.AnyModel
-import utils.search._
-import play.extras.iteratees.Encoding
-import play.api.http.{HeaderNames, ContentTypes}
+import play.api.libs.json.{Writes, Json}
 
 import com.google.inject._
 import solr.facet.FieldFacetClass
 import scala.Some
-import solr.SolrErrorResponse
-import play.api.libs.ws.ResponseHeaders
-import play.api.libs.json.JsObject
-import utils.ListParams
-import scala.util.Try
-import scala.sys.process.ProcessLogger
+import models.base.AnyModel
+import utils.search.{SearchParams, SearchOrder}
+
 
 object Search {
   /**
@@ -67,66 +57,6 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   )
 
-  private val myWsUrl = "http://localhost:7474/ehri/cvocConcept/list?limit=1000000"
-
-  // Fun fun fun, iteratees test
-  def testIteratee = Action { implicit request =>
-
-    import play.api.libs.concurrent.Execution.Implicits.defaultContext
-
-    import play.api.libs.json._
-    import play.api.libs.iteratee._
-    import play.extras.iteratees.JsonEnumeratees._
-    import play.extras.iteratees.JsonIteratees._
-
-    case class Item(id: String, `type`: String)
-    case class Errors(id: Int = 0, errors: List[String] = Nil)
-
-    val extractor: Enumeratee[Array[Char], JsObject] = jsArray(jsValues(jsSimpleObject))
-
-    // Enumeratee that parses a JsObject into an item.  Uses a simple mapping Enumeratee.
-    def parseItem: Enumeratee[JsObject, Either[JsObject, Item]] = Enumeratee.map { obj =>
-      (for {
-        id <- (obj \ "id").asOpt[String]
-        t <- (obj \ "type").asOpt[String]
-      } yield Right(Item(id, t))) getOrElse(Left(obj))
-    }
-
-    // Dummy action - just pushes the ID into the channel
-    def printItem(chan: Concurrent.Channel[String]): Enumeratee[Either[JsObject, Item], String] = Enumeratee.mapInput( _ match {
-      case Input.El(Right(item)) => chan.push(item.id + "\n"); Input.Empty
-      case Input.El(Left(obj)) => Input.El("Error: item could not be parsed! " + Json.prettyPrint(obj))
-      case other => other.map (_ => "")
-    })
-
-    // Close the output channel...
-    def close[E](chan: Concurrent.Channel[String]): Enumeratee[E, E] = Enumeratee.onEOF {
-      chan.eofAndEnd
-    }
-
-    // Extract, parse, and print the items from the stream...
-    def extractAndPrint(chan: Concurrent.Channel[String])
-        = extractor ><> parseItem ><> printItem(chan) ><> close(chan)
-
-    // Handler for the results of the GET WS call...
-    def handler(chan: Concurrent.Channel[String]) = { (rh: ResponseHeaders) =>
-      Encoding.decode()
-        .transform(
-            extractAndPrint(chan)
-              .transform(Iteratee.getChunks[String].map(errorList => (e: Errors) => Errors(e.id, errorList))))
-    }
-
-    val channel = Concurrent.unicast[String] { chan =>
-      play.api.libs.ws.WS
-          .url(myWsUrl)
-          .withHeaders(HeaderNames.ACCEPT -> ContentTypes.JSON)
-          .get(handler(chan)).map { r =>
-      }
-    }
-
-    Ok.stream(channel.andThen(Enumerator.eof))
-  }
-
   /**
    * Full text search action that returns a complete page of item data.
    * @return
@@ -134,7 +64,8 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
   def search = searchAction[AnyModel](
-      defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))), entityFacets = entityFacets) {
+    defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))),
+    entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Secured {
       render {
@@ -147,7 +78,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
           )
         }
         case _ => Ok(views.html.search.search(page, params, facets,
-            controllers.admin.routes.Search.search))
+          controllers.admin.routes.Search.search))
       }
     }
   }
@@ -208,8 +139,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
     def wrapMsg(m: String) = s"<message>$m</message>"
 
-    // Override default execution context
-    implicit val executionContext = solr.Contexts.searchIndexExecutionContext
+    println("Index update POST...")
 
     /**
      * Clear everything from the index...
@@ -221,10 +151,21 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
     // Create an unicast channel in which to feed progress messages
     val channel = Concurrent.unicast[String] { chan =>
-      optionallyClearIndex(deleteAll).flatMap { maybeResponse =>
-        maybeResponse.map { r =>
-          chan.push(wrapMsg(s"deleted index: $r"))
+
+      val clear = optionallyClearIndex(deleteAll)
+      clear.onFailure {
+        case err => chan.push("FAILED FAILED FAILED FAILED: " + err.getMessage)
+      }
+
+      println("Running clear job...")
+      clear.flatMap { maybeResponse =>
+        println("Clearing index...")
+        val msg = maybeResponse.map { r =>
+          s"Error deleting index: $r"
+        } getOrElse {
+          "Finished clearing index..."
         }
+        chan.push(wrapMsg(msg))
 
         case class Counter(var i: Long = 0) {
           def count(item: String) {
@@ -238,7 +179,11 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
         // Now get on with the real work...
         chan.push(wrapMsg(s"Initiating update for entities: ${entities.mkString(", ")}"))
         val counter = new Counter()
-        searchIndexer.indexTypes(entityTypes = entities, counter.count).map { stream =>
+        val job = searchIndexer.indexTypes(entityTypes = entities, counter.count)
+        job.onFailure {
+          case err => chan.push("FAILED FAILED FAILED FAILED: " + err.getMessage)
+        }
+        job.map { stream =>
           (stream.map(Some(_)) #::: Stream[Option[String]](None)).foreach {
             case Some(msg) =>
             case None => {
