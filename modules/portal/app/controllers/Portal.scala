@@ -104,7 +104,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig) extends C
   }
 
   def placeholder = Cached("pages:portalPlaceholder") {
-    userProfileAction { implicit userOpt => implicit request =>
+    Action { implicit request =>
       Ok(views.html.placeholder())
     }
   }
