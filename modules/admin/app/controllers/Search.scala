@@ -27,6 +27,7 @@ object Search {
    * as the search index update job.
    */
   val DONE_MESSAGE = "Done"
+  val ERR_MESSAGE = "Index Error"
 }
 
 @Singleton
@@ -115,7 +116,6 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   private val updateIndexForm = Form(
     tuple(
       "all" -> default(boolean, false),
-      "batchSize" -> default(number, defaultBatchSize),
       "type" -> list(enum(defines.EntityType))
     )
   )
@@ -142,7 +142,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   def updateIndexPost = adminAction {
     implicit userOpt => implicit request =>
 
-      val (deleteAll, batchSize, entities) = updateIndexForm.bindFromRequest.value.get
+      val (deleteAll, entities) = updateIndexForm.bindFromRequest.value.get
 
       def wrapMsg(m: String) = s"<message>$m</message>"
 
@@ -163,11 +163,10 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
           }
         }
 
-        val job = optionallyClearIndex.flatMap {
-          _ =>
-            concurrent.future {
-              searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
-            }
+        val job = optionallyClearIndex.flatMap { _ =>
+          concurrent.future {
+            searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
+          }
         }
 
         job.onComplete {
@@ -178,6 +177,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
           case Failure(t) => {
             Logger.logger.error(t.getMessage)
             chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
+            chan.push(wrapMsg(Search.ERR_MESSAGE))
             chan.eofAndEnd()
           }
         }

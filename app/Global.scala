@@ -118,11 +118,6 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
   override def onStart(app: Application) {
 
-    // Check the indexer is configured...
-    if (!new File(CmdlineIndexer.jar).exists()) {
-      sys.error("Unable to find jar for indexer: " + CmdlineIndexer.jar)
-    }
-
     // Hack for bug #845
     app.routes
 
