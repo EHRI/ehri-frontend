@@ -121,6 +121,7 @@ object DocumentaryUnit {
         "identifier" -> c.model.identifier,
         "parentId" -> Json.toJson(c.parent.map(_.id)),
         "depthOfDescription" -> JsNumber(c.ancestors.size),
+        TOP_LEVEL -> JsBoolean(c.ancestors.isEmpty),
         ITEM_ID -> JsString(c.id),
         "repositoryId" -> Json.toJson(c.holder.map(_.id)),
         "repositoryName" -> c.holder.map(_.toStringLang),

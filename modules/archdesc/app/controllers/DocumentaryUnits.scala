@@ -74,15 +74,16 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
 
 
-  def search = {
+  def search = Action { request =>
     // What filters we gonna use? How about, only list stuff here that
-    // has no parent items...
-    val filters = Map(SolrConstants.TOP_LEVEL -> true)
+    // has no parent items - UNLESS there's a query, in which case we're
+    // going to peer INSIDE items... dodgy logic, maybe...
+    val filters = Map(SolrConstants.TOP_LEVEL -> request.getQueryString(SearchParams.QUERY).isEmpty)
     searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
         entityFacets = entityFacets) {
         page => params => facets => implicit userOpt => implicit request =>
       Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search))
-    }
+    }.apply(request)
   }
 
   def searchChildren(id: String) = itemPermissionAction[DocumentaryUnit](contentType, id) {
