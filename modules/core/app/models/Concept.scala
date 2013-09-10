@@ -70,6 +70,7 @@ object Concept {
         NAME_EXACT -> JsString(desc.name),
         LANGUAGE_CODE -> JsString(desc.languageCode),
         "identifier" -> c.model.identifier,
+        TOP_LEVEL -> JsBoolean(c.broaderTerms.isEmpty),
         ITEM_ID -> JsString(c.id),
         HOLDER_ID -> Json.toJson(c.vocabulary.map(_.id)),
         HOLDER_NAME -> Json.toJson(c.vocabulary.map(_.toStringLang)),
