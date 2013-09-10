@@ -16,6 +16,7 @@ import org.apache.commons.codec.binary.Base64
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
 import rest.EntityDAO
+import scala.concurrent.Future
 import solr.{SolrErrorResponse, SolrIndexer}
 
 import com.tzavellas.sse.guice.ScalaModule
@@ -126,14 +127,20 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     app.routes
 
     // Bind the EntityDAO Create/Update/Delete actions
-    // to the SolrIndexer update/delete handlers
+    // to the SolrIndexer update/delete handlers. Do this
+    // asyncronously and log any failures...
     import play.api.libs.concurrent.Execution.Implicits._
+    def logFailure(id: String, func: String => Unit): Unit = {
+      Future {
+        func(id)
+      } onFailure {
+        case t => Logger.logger.error("Indexing error: " + t.getMessage)
+      }
+    }
 
-    EntityDAO.addCreateHandler(searchIndexer.indexId)
-
-    EntityDAO.addUpdateHandler(searchIndexer.indexId)
-
-    EntityDAO.addDeleteHandler(searchIndexer.clearId)
+    EntityDAO.addCreateHandler(id => logFailure(id, searchIndexer.indexId))
+    EntityDAO.addUpdateHandler(id => logFailure(id, searchIndexer.indexId))
+    EntityDAO.addDeleteHandler(id => logFailure(id, searchIndexer.clearId))
   }
 
   private def noAuthAction = Action { request =>

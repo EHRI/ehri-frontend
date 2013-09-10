@@ -16,6 +16,9 @@ import solr.facet.FieldFacetClass
 import scala.Some
 import models.base.AnyModel
 import utils.search.{SearchParams, SearchOrder}
+import scala.util.{Failure, Success}
+import indexing.CmdlineIndexer
+import play.api.Logger
 
 
 object Search {
@@ -29,31 +32,32 @@ object Search {
 @Singleton
 class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchIndexer: indexing.NewIndexer) extends EntitySearch {
 
-  val searchEntities = List() // i.e. Everything
+  val searchEntities = List()
+  // i.e. Everything
   private val entityFacets = List(
     FieldFacetClass(
-      key=IsadG.LANG_CODE,
-      name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
-      param="lang",
-      render=Helpers.languageCodeToName
+      key = IsadG.LANG_CODE,
+      name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+      param = "lang",
+      render = Helpers.languageCodeToName
     ),
     FieldFacetClass(
-      key="type",
-      name=Messages("search.type"),
-      param="type",
-      render=s => Messages("contentTypes." + s)
+      key = "type",
+      name = Messages("search.type"),
+      param = "type",
+      render = s => Messages("contentTypes." + s)
     ),
     FieldFacetClass(
-      key="copyrightStatus",
-      name=Messages("copyrightStatus.copyright"),
-      param="copyright",
-      render=s => Messages("copyrightStatus." + s)
+      key = "copyrightStatus",
+      name = Messages("copyrightStatus.copyright"),
+      param = "copyright",
+      render = s => Messages("copyrightStatus." + s)
     ),
     FieldFacetClass(
-      key="scope",
-      name=Messages("scope.scope"),
-      param="scope",
-      render=s => Messages("scope." + s)
+      key = "scope",
+      name = Messages("scope.scope"),
+      param = "scope",
+      render = s => Messages("scope." + s)
     )
   )
 
@@ -66,21 +70,21 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   def search = searchAction[AnyModel](
     defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))),
     entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-    Secured {
-      render {
-        case Accepts.Json() => {
-          Ok(Json.toJson(Json.obj(
-            "numPages" -> page.numPages,
-            "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
-            "facets" -> facets
-          ))
-          )
+    page => params => facets => implicit userOpt => implicit request =>
+      Secured {
+        render {
+          case Accepts.Json() => {
+            Ok(Json.toJson(Json.obj(
+              "numPages" -> page.numPages,
+              "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
+              "facets" -> facets
+            ))
+            )
+          }
+          case _ => Ok(views.html.search.search(page, params, facets,
+            controllers.admin.routes.Search.search))
         }
-        case _ => Ok(views.html.search.search(page, params, facets,
-          controllers.admin.routes.Search.search))
       }
-    }
   }
 
   /**
@@ -88,16 +92,17 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
    * only the name_ngram field and returns an id/name pair.
    * @return
    */
-  def filter = filterAction() { page => implicit userOpt => implicit request =>
-    Ok(Json.obj(
-      "numPages" -> page.numPages,
-      "page" -> page.page,
-      "items" -> page.items.map { case (id, name, t) =>
-        Json.arr(id, name, t.toString)
-      }
-    ))
+  def filter = filterAction() {
+    page => implicit userOpt => implicit request =>
+      Ok(Json.obj(
+        "numPages" -> page.numPages,
+        "page" -> page.page,
+        "items" -> page.items.map {
+          case (id, name, t) =>
+            Json.arr(id, name, t.toString)
+        }
+      ))
   }
-
 
 
   import play.api.data.Form
@@ -105,7 +110,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   import models.forms.enum
 
   private lazy val defaultBatchSize: Int
-      = application.configuration.getInt("solr.update.batchSize")
+  = application.configuration.getInt("solr.update.batchSize")
 
   private val updateIndexForm = Form(
     tuple(
@@ -119,8 +124,9 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
    * Render the update form
    * @return
    */
-  def updateIndex = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.search.updateIndex(form = updateIndexForm,
+  def updateIndex = adminAction {
+    implicit userOpt => implicit request =>
+      Ok(views.html.search.updateIndex(form = updateIndexForm,
         action = controllers.admin.routes.Search.updateIndexPost))
   }
 
@@ -133,69 +139,50 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
    *
    * @return
    */
-  def updateIndexPost = adminAction { implicit userOpt => implicit request =>
+  def updateIndexPost = adminAction {
+    implicit userOpt => implicit request =>
 
-    val (deleteAll, batchSize, entities) = updateIndexForm.bindFromRequest.value.get
+      val (deleteAll, batchSize, entities) = updateIndexForm.bindFromRequest.value.get
 
-    def wrapMsg(m: String) = s"<message>$m</message>"
+      def wrapMsg(m: String) = s"<message>$m</message>"
 
-    println("Index update POST...")
+      // Create an unicast channel in which to feed progress messages
+      val channel = Concurrent.unicast[String] { chan =>
 
-    /**
-     * Clear everything from the index...
-     */
-    def optionallyClearIndex(doit: Boolean): Future[Option[String]] = {
-      if (!doit) Future.successful(None)
-      else searchIndexer.clearAll
-    }
-
-    // Create an unicast channel in which to feed progress messages
-    val channel = Concurrent.unicast[String] { chan =>
-
-      val clear = optionallyClearIndex(deleteAll)
-      clear.onFailure {
-        case err => chan.push("FAILED FAILED FAILED FAILED: " + err.getMessage)
-      }
-
-      println("Running clear job...")
-      clear.flatMap { maybeResponse =>
-        println("Clearing index...")
-        val msg = maybeResponse.map { r =>
-          s"Error deleting index: $r"
-        } getOrElse {
-          "Finished clearing index..."
-        }
-        chan.push(wrapMsg(msg))
-
-        case class Counter(var i: Long = 0) {
-          def count(item: String) {
-            i += 1
-            if (i % 1000 == 0) {
-              chan.push(wrapMsg(" ... " + i))
+        /**
+        * Clear everything from the index...
+        */
+        def optionallyClearIndex: Future[Unit] = {
+          if (!deleteAll) Future.successful(Unit)
+          else {
+            val f = Future(searchIndexer.clearAll())
+            f.onSuccess {
+              case () => chan.push(wrapMsg("... finished clearing index"))
             }
+            f
           }
         }
 
-        // Now get on with the real work...
-        chan.push(wrapMsg(s"Initiating update for entities: ${entities.mkString(", ")}"))
-        val counter = new Counter()
-        val job = searchIndexer.indexTypes(entityTypes = entities, counter.count)
-        job.onFailure {
-          case err => chan.push("FAILED FAILED FAILED FAILED: " + err.getMessage)
-        }
-        job.map { stream =>
-          (stream.map(Some(_)) #::: Stream[Option[String]](None)).foreach {
-            case Some(msg) =>
-            case None => {
-              chan.push(wrapMsg("Completed: " + counter.i))
-              chan.push(wrapMsg(Search.DONE_MESSAGE))
-              chan.eofAndEnd()
+        val job = optionallyClearIndex.flatMap {
+          _ =>
+            concurrent.future {
+              searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
             }
+        }
+
+        job.onComplete {
+          case Success(()) => {
+            chan.push(wrapMsg(Search.DONE_MESSAGE))
+            chan.eofAndEnd()
+          }
+          case Failure(t) => {
+            Logger.logger.error(t.getMessage)
+            chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
+            chan.eofAndEnd()
           }
         }
       }
-    }
 
-    Ok.stream(channel.andThen(Enumerator.eof))
+      Ok.stream(channel.andThen(Enumerator.eof))
   }
 }

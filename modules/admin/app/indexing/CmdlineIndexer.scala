@@ -2,10 +2,9 @@ package indexing
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.sys.process._
-import scala.concurrent.Future
 import defines.EntityType
 import play.api.Play.current
-import java.io.File
+import play.api.libs.iteratee.Concurrent
 
 
 object CmdlineIndexer {
@@ -18,8 +17,33 @@ object CmdlineIndexer {
  * Indexer which uses the command-line tool in
  * bin to index items.
  */
-case class CmdlineIndexer() extends NewIndexer {
+case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, processFunc: String => String = identity[String]) extends NewIndexer {
 
+  override def withChannel(channel: Concurrent.Channel[String], formatter: String => String)
+      = copy(chan = Some(channel), processFunc = formatter)
+
+  /**
+   * Process logger which buffers output to `bufferCount` lines
+   */
+  private val logger = new ProcessLogger {
+    val bufferCount = 100 // number of lines to buffer...
+    var count = 0
+    val errBuffer = collection.mutable.ArrayBuffer.empty[String]
+
+    def buffer[T](f: => T): T = f
+    def out(s: => String) = report()
+    def err(s: => String) {
+      errBuffer += s
+      report()
+    }
+
+    private def report(): Unit = {
+      count += 1
+      if (count % bufferCount == 0) {
+        chan.map(_.push(processFunc("Items processed: " + count)))
+      }
+    }
+  }
 
   private val binary = Seq("java", "-jar", CmdlineIndexer.jar)
 
@@ -31,6 +55,10 @@ case class CmdlineIndexer() extends NewIndexer {
 
   private val solrUrl = current.configuration.getString("solr.path").getOrElse(sys.error("Unable to find solr service url"))
 
+  private val clearArgs = binary ++ Seq(
+    "--solr", solrUrl
+  )
+
   private val idxArgs = binary ++ Seq(
     "--index",
     "--solr", solrUrl,
@@ -38,121 +66,26 @@ case class CmdlineIndexer() extends NewIndexer {
     "--verbose" // print one line of output per item
   )
 
-  private def runIndexWithArgs(args: Seq[String]): Stream[String]
-        = {
-    val cmd = idxArgs ++ args
-    play.api.Logger.logger.debug("Cmdline Indexer: " + cmd.mkString(" "))
-    cmd.lines
-  }
-
-  private def runIndexWithArgs(args: Seq[String], log: ProcessLogger): Stream[String]
-  = {
-    val cmd = idxArgs ++ args
-    play.api.Logger.logger.debug("Cmdline Indexer: " + cmd.mkString(" "))
-    val process: Process = cmd.run(log)
-    val ev: Int = process.exitValue()
-    if (ev != 0) {
-      sys.error("Process exited with bad value: " + ev)
-    }
-    println("Cmd exit value: " + ev)
-    Stream.empty[String] // FIXME
-  }
-
-  private def runExpectingNoOutput(cmd: Seq[String]): Option[String] = {
-    val lines = cmd.lines_!
-    lines.length match {
-      case 0 => None
-      case _ => Some(lines.mkString("\n"))
+  private def runProcess(cmd: Seq[String]) {
+    play.api.Logger.logger.debug("Index: {}", cmd.mkString(" "))
+    val process: Process = cmd.run(logger)
+    if (process.exitValue() != 0) {
+      throw new IndexingError("Exit code was " + process.exitValue() + "\nLast output: " + logger.errBuffer.mkString("\n"))
     }
   }
 
-  // When all updates have finished, commit the results
-  case class Logger(cb: String => Unit) extends ProcessLogger {
-    var count = 0
-    def buffer[T](f: => T): T = f
-    def out(s: => String) {}
-    def err(s: => String) {
-      count += 1
-      cb.apply(s)
-    }
-  }
+  def indexId(id: String): Unit = runProcess(idxArgs ++ Seq("@" + id, "--pretty"))
 
+  def indexTypes(entityTypes: Seq[EntityType.Value]): Unit
+        = runProcess(idxArgs ++ entityTypes.map(_.toString))
 
+  def indexChildren(entityType: EntityType.Value, id: String): Unit
+      = runProcess(idxArgs ++ Seq("%s|%s".format(entityType, id)))
 
-  /**
-   * Index a single item by id
-   * @param id
-   * @return
-   */
-  def indexId(id: String): Future[Option[String]] = Future {
-    val lines = runIndexWithArgs(Seq("@" + id, "--pretty"))
-    /*lines.length match {
-      case 1 if lines.head.contains(id) => None // Okay!
-      case 0 => Some("Indexer gave no output - expecting one line matching item id.")
-      case _ => Some(lines.mkString("\n")) // Return the error
-    }*/
-    None
-  }
+  def clearAll(): Unit = runProcess(clearArgs ++ Seq("--clear-all"))
 
-  /**
-   * Index all items of a given type
-   * @param entityTypes
-   * @return
-   */
-  def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Stream[String]]
-        = Future(runIndexWithArgs(entityTypes.map(_.toString)))
+  def clearTypes(entityTypes: Seq[EntityType.Value]): Unit
+        = runProcess(clearArgs ++ entityTypes.flatMap(s => Seq("--clear-type", s.toString)))
 
-  /**
-   * Index all items of a given type
-   * @param entityTypes
-   * @return
-   */
-  def indexTypes(entityTypes: Seq[EntityType.Value], cb: String => Unit): Future[Stream[String]]
-        = Future(runIndexWithArgs(entityTypes.map(_.toString), Logger(cb)))
-
-  /**
-   * Index all children of a given item.
-   * @param entityType
-   * @param id
-   * @return
-   */
-  def indexChildren(entityType: EntityType.Value, id: String): Future[Stream[String]]
-        = Future(runIndexWithArgs(Seq("%s|%s".format(entityType, id))))
-
-  /**
-   * Index all children of a given item.
-   * @param entityType
-   * @param id
-   * @return
-   */
-  def indexChildren(entityType: EntityType.Value, id: String, cb: String => Unit): Future[Stream[String]]
-        = Future(runIndexWithArgs(Seq("%s|%s".format(entityType, id)), Logger(cb)))
-
-  /**
-   * Clear the index of all items.
-   * @return
-   */
-  def clearAll: Future[Option[String]] = {
-    val f = Future(runExpectingNoOutput(binary ++ Seq("--clear-all")))
-    f.onFailure {
-      case _ => println("Disaster!")
-    }
-    f
-  }
-
-  /**
-   * Clear the index of all items of a given type.
-   * @param entityTypes
-   * @return
-   */
-  def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Option[String]]
-        = Future(runExpectingNoOutput(binary ++ entityTypes.flatMap(s => Seq("--clear-type", s.toString))))
-
-  /**
-   * Clear a given item from the index.
-   * @param id
-   * @return
-   */
-  def clearId(id: String): Future[Option[String]]
-        = Future(runExpectingNoOutput(binary ++ Seq("--clear-id", id)))
+  def clearId(id: String): Unit = runProcess(clearArgs ++ Seq("--clear-id", id))
 }
