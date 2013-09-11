@@ -9,6 +9,7 @@ import models.{UserProfile, Entity}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.{RestReadable, RestConvertable}
+import models.base.AnyModel
 
 
 /**
@@ -16,7 +17,7 @@ import models.json.{RestReadable, RestConvertable}
  *
  * @param userProfile
  */
-case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
+case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfile] = None)(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
@@ -30,7 +31,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         case Right(r) => {
           EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
-              EntityDAO.handleUpdate(item)
+              eventHandler.handleUpdate(id)
               Cache.remove(id)
               Right(item.as[MT](rd.restReads))
             }
@@ -50,8 +51,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         case Right(r) => {
           EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
-              EntityDAO.handleUpdate(item)
-              println("HANDLING UPDATE: " + item)
+              eventHandler.handleUpdate(id)
               Cache.remove(id)
               Right(item.as[MT](rd.restReads))
             }
@@ -65,18 +65,10 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
   def deleteDescription(id: String, did: String, logMsg: Option[String] = None)(
         implicit rd: RestReadable[MT]): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-        .delete.flatMap { response =>
-      EntityDAO[MT](entityType, userProfile).getJson(id).map {
-        case Right(updated) => {
-          // NB: This should successfully remove the description
-          // because it handles both id AND itemID... but overall
-          // we still need to rationalise this properly somehow...
-          EntityDAO.handleDelete(did)
-          Cache.remove(id)
-          Right(true)
-        }
-        case Left(err) => Left(err)
-      }
+          .delete.map { response =>
+      eventHandler.handleDelete(did)
+      Cache.remove(id)
+      Right(true)
     }
   }
 
@@ -91,7 +83,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
         case Right(r) => {
           EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
-              EntityDAO.handleUpdate(item)
+              eventHandler.handleUpdate(id)
               Cache.remove(id)
               Right((item.as[MT](rd.restReads), r.json.as[DT](fmt.restFormat)))
             }
@@ -102,13 +94,13 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
     }
   }
 
-  def deleteAccessPoint[MT](id: String, did: String, apid: String, logMsg: Option[String] = None)(
+  def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(
         implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .delete.flatMap { response =>
         EntityDAO[MT](entityType, userProfile).getJson(id).map {
           case Right(item) => {
-            EntityDAO.handleUpdate(item)
+            eventHandler.handleUpdate(id)
             Cache.remove(id)
             Right(item.as[MT](rd.restReads))
           }

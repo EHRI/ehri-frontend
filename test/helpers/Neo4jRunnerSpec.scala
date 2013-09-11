@@ -9,6 +9,7 @@ import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import play.api.http.HeaderNames
 import play.api.test.WithApplication
+import rest.RestEventHandler
 
 /**
  * Abstract specification which initialises an instance of the

@@ -10,7 +10,7 @@ import views.html._
 import play.api.http.MimeTypes
 
 import com.google.inject._
-import utils.search.{SearchOrder, SearchParams}
+import utils.search.{Dispatcher, SearchOrder, SearchParams}
 import play.api.libs.json.{Format, Writes, Json}
 import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
@@ -19,7 +19,7 @@ import play.api.cache.Cached
 
 
 @Singleton
-class Portal @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with EntitySearch {
+class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends Controller with EntitySearch {
 
   val entityFacets = List(
     FieldFacetClass(
