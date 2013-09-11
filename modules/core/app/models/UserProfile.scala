@@ -73,7 +73,7 @@ case class UserProfile(
   groups: List[Group] = Nil,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
-  account: Option[models.sql.User] = None,
+  account: Option[Account] = None,
   globalPermissions: Option[GlobalPermissionSet[UserProfile]] = None,
   itemPermissions: Option[ItemPermissionSet[UserProfile]] = None
 ) extends AnyModel

@@ -8,7 +8,7 @@ import play.api.test.Helpers._
 import play.api.GlobalSettings
 import play.filters.csrf.{CSRFFilter, CSRF}
 import play.filters.csrf.CSRF.Token
-import models.sql.{User, OpenIDUser}
+import models.sql.{OpenIDAccount}
 import org.mindrot.jbcrypt.BCrypt
 import mocks.{MockSearchDispatcher, userFixtures, MockSearchIndexer}
 import global.GlobalConfig
@@ -18,6 +18,7 @@ import play.api.Play._
 import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
 import rest.RestEventHandler
+import models.Account
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -104,7 +105,7 @@ trait TestLoginHelper {
    * @param user
    * @return
    */
-  def getAuthCookies(user: User): String
+  def getAuthCookies(user: Account): String
 
   /**
    * Get a FakeRequest with authorization cookies for the given user
@@ -114,7 +115,7 @@ trait TestLoginHelper {
    * @param path
    * @return
    */
-  def fakeLoggedInRequest(user: User, rtype: String, path: String) = {
+  def fakeLoggedInRequest(user: Account, rtype: String, path: String) = {
     val fr = FakeRequest(rtype, path).withHeaders(HeaderNames.COOKIE -> getAuthCookies(user))
 
     // Since we use csrf in forms, even though it's disabled in
@@ -131,7 +132,7 @@ trait TestLoginHelper {
    * @param path
    * @return
    */
-  def fakeLoggedInHtmlRequest(user: User, rtype: String, path: String)
+  def fakeLoggedInHtmlRequest(user: Account, rtype: String, path: String)
         = fakeLoggedInRequest(user, rtype, path)
             .withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML, HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
 
@@ -143,7 +144,7 @@ trait TestLoginHelper {
    * @param path
    * @return
    */
-  def fakeLoggedInJsonRequest(user: User, rtype: String, path: String)
+  def fakeLoggedInJsonRequest(user: Account, rtype: String, path: String)
   = fakeLoggedInRequest(user, rtype, path).withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON)
 }
 
@@ -152,7 +153,7 @@ trait TestLoginHelper {
  */
 trait TestMockLoginHelper extends TestLoginHelper {
 
-  override def getPlugins = Seq("mocks.MockUserDAO")
+  override def getPlugins = Seq("mocks.MockAccountDAO")
 
   /**
    * Get a user auth cookie using the Mock login mechanism, which depends
@@ -160,7 +161,7 @@ trait TestMockLoginHelper extends TestLoginHelper {
    * @param user
    * @return
    */
-  def getAuthCookies(user: User): String = {
+  def getAuthCookies(user: Account): String = {
     header(HeaderNames.SET_COOKIE,
       route(play.api.test.FakeRequest(POST, controllers.core.routes.Application.login.url),
           Map("profile" -> Seq(user.profile_id))).get)
@@ -184,7 +185,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
 
       // Initialize user fixtures
       userFixtures.values.map { user =>
-        OpenIDUser.findByProfileId(user.profile_id) orElse OpenIDUser.create(user.email, user.profile_id).map { u =>
+        OpenIDAccount.findByProfileId(user.profile_id) orElse OpenIDAccount.create(user.email, user.profile_id).map { u =>
           u.setPassword(BCrypt.hashpw(testPassword, BCrypt.gensalt()))
         }
       }
@@ -198,7 +199,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
    * @param user
    * @return
    */
-  def getAuthCookies(user: User): String = {
+  def getAuthCookies(user: Account): String = {
     // Login and add the auth cookie to the session.
     val loginData = Map(
       "email" -> Seq(user.email),
