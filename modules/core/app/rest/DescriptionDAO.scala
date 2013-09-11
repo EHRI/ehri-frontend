@@ -52,7 +52,6 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
           EntityDAO[MT](entityType, userProfile).getJson(id).map {
             case Right(item) => {
               EntityDAO.handleUpdate(id)
-              println("HANDLING UPDATE: " + item)
               Cache.remove(id)
               Right(item.as[MT](rd.restReads))
             }
@@ -66,15 +65,10 @@ case class DescriptionDAO[MT](entityType: EntityType.Type, userProfile: Option[U
   def deleteDescription(id: String, did: String, logMsg: Option[String] = None)(
         implicit rd: RestReadable[MT]): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
-        .delete.flatMap { response =>
-      EntityDAO[MT](entityType, userProfile).getJson(id).map {
-        case Right(updated) => {
-          EntityDAO.handleUpdate(id)
-          Cache.remove(id)
-          Right(true)
-        }
-        case Left(err) => Left(err)
-      }
+          .delete.map { response =>
+      EntityDAO.handleDelete(did)
+      Cache.remove(id)
+      Right(true)
     }
   }
 
