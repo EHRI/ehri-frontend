@@ -5,6 +5,7 @@ import scala.sys.process._
 import defines.EntityType
 import play.api.Play.current
 import play.api.libs.iteratee.Concurrent
+import utils.search.{IndexingError, Indexer}
 
 
 object CmdlineIndexer {
@@ -17,7 +18,7 @@ object CmdlineIndexer {
  * Indexer which uses the command-line tool in
  * bin to index items.
  */
-case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, processFunc: String => String = identity[String]) extends NewIndexer {
+case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, processFunc: String => String = identity[String]) extends Indexer {
 
   override def withChannel(channel: Concurrent.Channel[String], formatter: String => String)
       = copy(chan = Some(channel), processFunc = formatter)

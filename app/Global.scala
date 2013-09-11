@@ -2,12 +2,9 @@
 // Global request object
 //
 
-import _root_.controllers.core.OpenIDLoginHandler
-import _root_.models.{HistoricalAgent, Repository, DocumentaryUnit, Concept}
+import controllers.base.LoginHandler
+import controllers.core.OpenIDLoginHandler
 import defines.EntityType
-import global.{GlobalConfig, MenuConfig, RouteRegistry}
-import indexing.CmdlineIndexer
-import java.io.File
 import play.api._
 import play.api.mvc._
 
@@ -15,9 +12,8 @@ import org.apache.commons.codec.binary.Base64
 
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
-import rest.EntityDAO
+import rest.RestEventHandler
 import scala.concurrent.Future
-import solr.{SolrErrorResponse, SolrIndexer}
 
 import com.tzavellas.sse.guice.ScalaModule
 import utils.search.{Indexer, Dispatcher}
@@ -44,11 +40,12 @@ class AjaxCSRFFilter extends EssentialFilter {
   }
 }
 
-package globalconfig {
+package globalConfig {
 
   import global.RouteRegistry
+  import global.MenuConfig
 
-  object RunConfiguration extends GlobalConfig {
+  trait BaseConfiguration extends GlobalConfig {
 
     val searchDispatcher: Dispatcher = solr.SolrDispatcher()
 
@@ -76,7 +73,7 @@ package globalconfig {
     // Implicit 'this' var so we can have a circular reference
     // to the current global inside the login handler.
     private implicit lazy val globalConfig = this
-    val loginHandler = new OpenIDLoginHandler
+    val loginHandler: LoginHandler = new OpenIDLoginHandler
 
     val routeRegistry = new RouteRegistry(Map(
       EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get _,
@@ -99,12 +96,34 @@ package globalconfig {
 
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
-  private def searchIndexer: indexing.NewIndexer = new indexing.CmdlineIndexer
+  private def searchIndexer: Indexer = new indexing.CmdlineIndexer
+
+  object RunConfiguration extends globalConfig.BaseConfiguration {
+    implicit val eventHandler: rest.RestEventHandler = new RestEventHandler {
+
+      // Bind the EntityDAO Create/Update/Delete actions
+      // to the SolrIndexer update/delete handlers. Do this
+      // asyncronously and log any failures...
+      import play.api.libs.concurrent.Execution.Implicits._
+      def logFailure(id: String, func: String => Unit): Unit = {
+        Future {
+          func(id)
+        } onFailure {
+          case t => Logger.logger.error("Indexing error: " + t.getMessage)
+        }
+      }
+
+      def handleCreate(id: String) = logFailure(id, searchIndexer.indexId)
+      def handleUpdate(id: String) = logFailure(id, searchIndexer.indexId)
+      def handleDelete(id: String) = logFailure(id, searchIndexer.clearId)
+    }
+  }
+
 
   class ProdModule extends ScalaModule {
     def configure() {
-      bind[GlobalConfig].toInstance(globalconfig.RunConfiguration)
-      bind[indexing.NewIndexer].toInstance(searchIndexer)
+      bind[GlobalConfig].toInstance(RunConfiguration)
+      bind[Indexer].toInstance(searchIndexer)
     }
   }
 
@@ -120,22 +139,6 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
     // Hack for bug #845
     app.routes
-
-    // Bind the EntityDAO Create/Update/Delete actions
-    // to the SolrIndexer update/delete handlers. Do this
-    // asyncronously and log any failures...
-    import play.api.libs.concurrent.Execution.Implicits._
-    def logFailure(id: String, func: String => Unit): Unit = {
-      Future {
-        func(id)
-      } onFailure {
-        case t => Logger.logger.error("Indexing error: " + t.getMessage)
-      }
-    }
-
-    EntityDAO.addCreateHandler(id => logFailure(id, searchIndexer.indexId))
-    EntityDAO.addUpdateHandler(id => logFailure(id, searchIndexer.indexId))
-    EntityDAO.addDeleteHandler(id => logFailure(id, searchIndexer.clearId))
   }
 
   private def noAuthAction = Action { request =>

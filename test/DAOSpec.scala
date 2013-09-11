@@ -34,6 +34,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       r must beRight
       r.right.get.holder must beSome
       r.right.get.holder.get.id must equalTo("r1")
+      mockIndexer.eventBuffer.last must equalTo("nl-r1-foobar")
     }
 
     "create an item in (doc) context" in new FakeApp {
@@ -90,6 +91,9 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       var r = await(EntityDAO(entityType, Some(userProfile)).count(ListParams()))
       r must beRight
       r.right.get mustEqual 5L
+    }
+
+    "emit appropriate signals" in new FakeApp {
     }
   }
 

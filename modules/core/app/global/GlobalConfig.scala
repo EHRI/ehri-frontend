@@ -3,6 +3,7 @@ package global
 import controllers.base.LoginHandler
 
 import play.api.Play.current
+import rest.RestEventHandler
 
 
 trait MenuConfig {
@@ -15,6 +16,7 @@ trait GlobalConfig {
   val loginHandler: LoginHandler
   val searchDispatcher: utils.search.Dispatcher
   val routeRegistry: RouteRegistry
+  implicit val eventHandler: RestEventHandler
 
   /**
    * Flag to indicate whether we're running a testing config or not.

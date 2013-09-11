@@ -62,25 +62,10 @@ object Page {
       = Format(pageReads(r), pageWrites(w))
 }
 
-
-object EntityDAO {
-
-
-  /**
-   * Global listeners for CUD events
-   */
-  import scala.collection.mutable.ListBuffer
-  private val onCreate: ListBuffer[String => Unit] = ListBuffer.empty
-  private val onUpdate: ListBuffer[String => Unit] = ListBuffer.empty
-  private val onDelete: ListBuffer[String => Unit] = ListBuffer.empty
-
-  def addCreateHandler(f: String => Unit): Unit = onCreate += f
-  def addUpdateHandler(f: String => Unit): Unit = onUpdate += f
-  def addDeleteHandler(f: String => Unit): Unit = onDelete += f
-
-  def handleCreate(id: String): Unit = onCreate.foreach(f => f(id))
-  def handleUpdate(id: String): Unit = onUpdate.foreach(f => f(id))
-  def handleDelete(id: String): Unit = onDelete.foreach(f => f(id))
+trait RestEventHandler {
+  def handleCreate(id: String): Unit
+  def handleUpdate(id: String): Unit
+  def handleDelete(id: String): Unit
 }
 
 /**
@@ -89,7 +74,7 @@ object EntityDAO {
  * @param entityType
  * @param userProfile
  */
-case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
+case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfile] = None)(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
   import play.api.http.Status._
@@ -139,7 +124,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
       .post(Json.toJson(item)(wrt.restFormat)).map { response =>
         checkErrorAndParse(response)(rd.restReads).right.map { created =>
           created match {
-            case item: AnyModel => EntityDAO.handleCreate(item.id)
+            case item: AnyModel => eventHandler.handleCreate(item.id)
             case _ =>
           }
           created
@@ -158,7 +143,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
         .post(Json.toJson(item)(wrt.restFormat)).map { response =>
       checkErrorAndParse(response)(rd.restReads).right.map { created =>
         created match {
-          case item: AnyModel => EntityDAO.handleCreate(item.id)
+          case item: AnyModel => eventHandler.handleCreate(item.id)
           case _ =>
         }
         created
@@ -173,7 +158,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
       checkErrorAndParse(response)(rd.restReads).right.map { item =>
-        EntityDAO.handleUpdate(id)
+        eventHandler.handleUpdate(id)
         item
       }
     }
@@ -185,7 +170,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
-        EntityDAO.handleDelete(id)
+        eventHandler.handleDelete(id)
         Cache.remove(id)
         r.status == OK
       })

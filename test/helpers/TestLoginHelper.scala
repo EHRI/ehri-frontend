@@ -1,6 +1,5 @@
 package helpers
 
-import globalconfig.RunConfiguration
 import play.api.http.{MimeTypes, HeaderNames}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.POST
@@ -11,16 +10,14 @@ import play.filters.csrf.{CSRFFilter, CSRF}
 import play.filters.csrf.CSRF.Token
 import models.sql.{User, OpenIDUser}
 import org.mindrot.jbcrypt.BCrypt
-import mocks.userFixtures
-import models.json.Utils
-import global.{MenuConfig, GlobalConfig}
+import mocks.{MockSearchDispatcher, userFixtures, MockSearchIndexer}
+import global.GlobalConfig
 import controllers.base.LoginHandler
 import utils.search.{Indexer, Dispatcher}
 import play.api.Play._
-import scala.Some
-import mocks.MockSearchIndexer
 import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
+import rest.RestEventHandler
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -31,14 +28,22 @@ trait TestLoginHelper {
   val fakeCsrfString = "fake-csrf-token"
   val testPassword = "testpass"
 
-  object TestConfig extends GlobalConfig {
-    val searchIndexer: Indexer = mocks.MockSearchIndexer()
-    val searchDispatcher: Dispatcher = mocks.MockSearchDispatcher()
-    val menuConfig: MenuConfig = RunConfiguration.menuConfig
-    val routeRegistry = RunConfiguration.routeRegistry
+  val mockIndexer: MockSearchIndexer = new MockSearchIndexer()
+
+  // More or less the same as run config but synchronous (so
+  // we can validate the actions)
+  implicit object RestEventCollector extends RestEventHandler {
+    def handleCreate(id: String) = mockIndexer.indexId(id)
+    def handleUpdate(id: String) = mockIndexer.indexId(id)
+    def handleDelete(id: String) = mockIndexer.clearId(id)
+  }
+
+  object TestConfig extends globalConfig.BaseConfiguration {
+    override val searchDispatcher: MockSearchDispatcher = mocks.MockSearchDispatcher()
+    val eventHandler = RestEventCollector
 
     private implicit lazy val globalConfig = this
-    val loginHandler: LoginHandler = new mocks.MockLoginHandler
+    override val loginHandler: LoginHandler = new mocks.MockLoginHandler
   }
 
   /**
@@ -49,7 +54,7 @@ trait TestLoginHelper {
       class TestModule extends ScalaModule {
         def configure() {
           bind[GlobalConfig].toInstance(TestConfig)
-          bind[Indexer].toInstance(MockSearchIndexer())
+          bind[Indexer].toInstance(mockIndexer)
         }
       }
 

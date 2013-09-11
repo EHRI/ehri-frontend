@@ -15,7 +15,7 @@ import models.base.AnyModel
  * Set visibility on items.
  * @param userProfile
  */
-case class VisibilityDAO(userProfile: Option[UserProfile]) extends RestDAO {
+case class VisibilityDAO(userProfile: Option[UserProfile])(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
 
@@ -27,7 +27,7 @@ case class VisibilityDAO(userProfile: Option[UserProfile]) extends RestDAO {
         .withHeaders(authHeaders.toSeq: _*).post("").map { response =>
       checkErrorAndParse(response)(rd.restReads).right.map { r =>
         Cache.remove(id)
-        EntityDAO.handleUpdate(id)
+        eventHandler.handleUpdate(id)
         r
       }
     }
