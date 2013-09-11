@@ -7,7 +7,7 @@ GET     /api/:contentType/:id                   @controllers.core.ApiController.
 GET     /api/*path                              @controllers.core.ApiController.get(path: String)
 
 # Change locale
-GET     /locale                                 @controllers.core.Application.changeLocale
+GET     /locale/:lang                           @controllers.core.Application.changeLocale(lang: String)
 GET     /localeData                             @controllers.core.Application.localeData(lang: String ?= "en")
 
 # API Sparql queries - TESTING
