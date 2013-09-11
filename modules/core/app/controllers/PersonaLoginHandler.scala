@@ -37,13 +37,13 @@ case class PersonaLoginHandler(implicit globalConfig: global.GlobalConfig) exten
           case js @ JsString("okay") => {
             val email: String = (response.json \ "email").as[String]
 
-            models.sql.PersonaUser.findByEmail(email) match {
+            models.sql.PersonaAccount.findByEmail(email) match {
               case Some(user) => gotoLoginSucceeded(email)
               case None => {
                 Async {
                   rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                     case Right(up) => {
-                      models.sql.PersonaUser.create(up.model.identifier, email).map { user =>
+                      models.sql.PersonaAccount.create(up.model.identifier, email).map { user =>
                         gotoLoginSucceeded(user.profile_id)
                       }.getOrElse(BadRequest("Creation of user db failed!"))
                     }

@@ -7,7 +7,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import defines._
 import rest.EntityDAO
-import mocks.MockUser
+import mocks.MockAccount
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -148,7 +148,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val headArchivistProfile = haFetchProfile.right.get
 
       // Add their account to the mocks
-      val haAccount = MockUser("head-archivist@example.com", headArchivistUserId)
+      val haAccount = MockAccount("head-archivist@example.com", headArchivistUserId)
       mocks.userFixtures.put(haAccount.profile_id, haAccount)
 
 
@@ -180,7 +180,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val archivistProfile = aFetchProfile.right.get
 
       // Add the archivists group to the account mocks
-      val aAccount = MockUser("archivist1@example.com", archivistUserId)
+      val aAccount = MockAccount("archivist1@example.com", archivistUserId)
       mocks.userFixtures.put(aAccount.profile_id, aAccount)
 
 

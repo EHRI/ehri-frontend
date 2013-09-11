@@ -56,7 +56,7 @@ case class OpenIDLoginHandler(implicit globalConfig: global.GlobalConfig) extend
             Async {
               rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                 case Right(entity) => {
-                  models.sql.OpenIDUser.create(email.toLowerCase, entity.id).map { user =>
+                  models.sql.OpenIDAccount.create(email.toLowerCase, entity.id).map { user =>
                     user.addAssociation(info.id)
                     gotoLoginSucceeded(user.profile_id)
                       .withSession("access_uri" -> globalConfig.routeRegistry.default.url)

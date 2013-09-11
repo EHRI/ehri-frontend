@@ -1,15 +1,17 @@
 package models.sql
 
+import language.postfixOps
 import play.api.db._
 import play.api.Play.current
 
 import anorm._
 import anorm.SqlParser._
+import models.{Account,AccountDAO}
 
 
 // -- Users
 
-case class OpenIDUser(id: Long, email: String, profile_id: String) extends User {
+case class OpenIDAccount(id: Long, email: String, profile_id: String) extends Account {
 
   lazy val associations: Seq[OpenIDAssociation] = DB.withConnection { implicit connection =>
     SQL(
@@ -21,7 +23,7 @@ case class OpenIDUser(id: Long, email: String, profile_id: String) extends User 
     ).on('id -> id).as(OpenIDAssociation.withUser *)
   }
 
-  def addAssociation(assoc: String): OpenIDUser = DB.withConnection { implicit connection =>
+  def addAssociation(assoc: String): OpenIDAccount = DB.withConnection { implicit connection =>
     val res = SQL(
       """
         INSERT INTO openid_association (id, user_id, openid_url) VALUES (DEFAULT, {user_id},{url})
@@ -37,7 +39,7 @@ case class OpenIDUser(id: Long, email: String, profile_id: String) extends User 
 
   }
 
-  def setPassword(data: String): OpenIDUser = DB.withConnection{ implicit connection =>
+  def setPassword(data: String): OpenIDAccount = DB.withConnection{ implicit connection =>
     val res = SQL(
       """
         INSERT INTO user_auth (id, data) VALUES ({id},{data})
@@ -46,7 +48,7 @@ case class OpenIDUser(id: Long, email: String, profile_id: String) extends User 
     this
   }
 
-  def updatePassword(data: String): OpenIDUser = DB.withConnection{ implicit connection =>
+  def updatePassword(data: String): OpenIDAccount = DB.withConnection{ implicit connection =>
     val res = SQL(
       """
         UPDATE user_auth SET data={data} WHERE id={id}
@@ -64,20 +66,20 @@ case class OpenIDUser(id: Long, email: String, profile_id: String) extends User 
   def isStaff = false // STUB
 }
 
-object OpenIDUser extends UserDAO {
+object OpenIDAccount extends AccountDAO {
 
   val simple = {
     get[Long]("users.id") ~
       get[String]("users.email") ~
       get[String]("users.profile_id") map {
-        case id ~ email ~ profile_id => OpenIDUser(id, email, profile_id)
+        case id ~ email ~ profile_id => OpenIDAccount(id, email, profile_id)
       }
   }
 
-  def findAll: Seq[OpenIDUser] = DB.withConnection { implicit connection =>
+  def findAll: Seq[OpenIDAccount] = DB.withConnection { implicit connection =>
     SQL(
       """select * from users"""
-    ).as(OpenIDUser.simple *)
+    ).as(OpenIDAccount.simple *)
   }
 
   /**
@@ -86,14 +88,14 @@ object OpenIDUser extends UserDAO {
    * @param url
    * @return
    */
-  def authenticate(url: String): Option[OpenIDUser] = DB.withConnection { implicit connection =>
+  def authenticate(url: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
     SQL(
       """
         SELECT * FROM users
           JOIN openid_association ON openid_association.user_id = users.id
           WHERE openid_association.openid_url = {url}
       """
-    ).on('url -> url).as(OpenIDUser.simple.singleOpt)
+    ).on('url -> url).as(OpenIDAccount.simple.singleOpt)
   }
 
   /**
@@ -110,34 +112,34 @@ object OpenIDUser extends UserDAO {
           JOIN user_auth ON user_auth.id = users.id
           WHERE users.email = {email} AND user_auth.data = {data}
       """
-    ).on('email -> email, 'data -> data).as(OpenIDUser.simple.singleOpt)
+    ).on('email -> email, 'data -> data).as(OpenIDAccount.simple.singleOpt)
   }
 
-  def findById(id: Long): Option[User] = DB.withConnection { implicit connection =>
+  def findById(id: Long): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from users where id = {id}
       """
-    ).on('id -> id).as(OpenIDUser.simple.singleOpt)
+    ).on('id -> id).as(OpenIDAccount.simple.singleOpt)
   }
 
-  def findByEmail(email: String): Option[User] = DB.withConnection { implicit connection =>
+  def findByEmail(email: String): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from users where email = {email}
       """
-    ).on('email -> email).as(OpenIDUser.simple.singleOpt)
+    ).on('email -> email).as(OpenIDAccount.simple.singleOpt)
   }
 
-  def findByProfileId(id: String): Option[User] = DB.withConnection { implicit connection =>
+  def findByProfileId(id: String): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from users where profile_id = {id}
       """
-    ).on('id -> id).as(OpenIDUser.simple.singleOpt)
+    ).on('id -> id).as(OpenIDAccount.simple.singleOpt)
   }
 
-  def create(email: String, profile_id: String): Option[OpenIDUser] = DB.withConnection { implicit connection =>
+  def create(email: String, profile_id: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
     println("Inserting new user: " + email)
     SQL(
       """INSERT INTO users (id, email, profile_id) VALUES (DEFAULT,{email},{profile_id})"""
@@ -147,28 +149,28 @@ object OpenIDUser extends UserDAO {
     if (connection.getMetaData.getURL.contains("mysql")) {
       SQL(
         """SELECT * FROM users WHERE id = LAST_INSERT_ID()"""
-      ).as(OpenIDUser.simple.singleOpt)
+      ).as(OpenIDAccount.simple.singleOpt)
     } else {
       // Assuming POSTGRES
       SQL(
         """SELECT * FROM users WHERE id = currval('users_id_seq')"""
-      ).as(OpenIDUser.simple.singleOpt)
+      ).as(OpenIDAccount.simple.singleOpt)
     }
   }
 }
 
 // -- Associations
 
-case class OpenIDAssociation(id: Long, userid: Long, url: String, user: Option[OpenIDUser] = None) {
+case class OpenIDAssociation(id: Long, userid: Long, url: String, user: Option[OpenIDAccount] = None) {
 
-  lazy val users: Seq[User] = DB.withConnection { implicit connection =>
+  lazy val users: Seq[Account] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from users
         join openid_association on openid_association.user_id = users.id
         where openid_association.id = {id}
       """
-    ).on('id -> id).as(OpenIDUser.simple *)
+    ).on('id -> id).as(OpenIDAccount.simple *)
   }
 }
 
@@ -183,7 +185,7 @@ object OpenIDAssociation {
   }
 
   val withUser = {
-    simple ~ OpenIDUser.simple map {
+    simple ~ OpenIDAccount.simple map {
       case association ~ user => association.copy(user = Some(user))
     }
   }
@@ -207,9 +209,9 @@ object OpenIDAssociation {
   }
 }
 
-class OpenIDUserDAOPlugin(app: play.api.Application) extends UserDAO {
-  def findByProfileId(profile_id: String) = OpenIDUser.findByProfileId(profile_id)
-  def findByEmail(email: String) = OpenIDUser.findByEmail(email)
-  def create(email: String, profile_id: String) = OpenIDUser.create(email, profile_id)
+class OpenIDAccountDAOPlugin(app: play.api.Application) extends AccountDAO {
+  def findByProfileId(profile_id: String) = OpenIDAccount.findByProfileId(profile_id)
+  def findByEmail(email: String) = OpenIDAccount.findByEmail(email)
+  def create(email: String, profile_id: String) = OpenIDAccount.create(email, profile_id)
 }
 

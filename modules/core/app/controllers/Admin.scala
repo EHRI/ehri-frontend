@@ -8,7 +8,7 @@ import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentTypes}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
-import models.{UserProfile, UserProfileF}
+import models.{AccountDAO, UserProfile, UserProfileF}
 import controllers.base.{ControllerHelpers, AuthController}
 
 import com.google.inject._
@@ -22,7 +22,7 @@ import jp.t2v.lab.play20.auth.LoginLogout
  */
 class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with ControllerHelpers with LoginLogout {
 
-  private lazy val userDAO: models.sql.UserDAO = play.api.Play.current.plugin(classOf[models.sql.UserDAO]).get
+  private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   private val userPasswordForm = Form(
     tuple(

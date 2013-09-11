@@ -26,7 +26,7 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
   /**
    * Process logger which buffers output to `bufferCount` lines
    */
-  private val logger = new ProcessLogger {
+  object logger extends ProcessLogger {
     val bufferCount = 100 // number of lines to buffer...
     var count = 0
     val errBuffer = collection.mutable.ArrayBuffer.empty[String]

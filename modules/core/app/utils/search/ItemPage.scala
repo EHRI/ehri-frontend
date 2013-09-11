@@ -1,5 +1,6 @@
 package utils.search
 
+import language.postfixOps
 import models.json.ClientConvertable
 
 /**
