@@ -78,7 +78,9 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig)
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
-    val filters = Map(SolrConstants.TOP_LEVEL -> request.getQueryString(SearchParams.QUERY).isEmpty)
+    val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
+      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+
     searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
         entityFacets = entityFacets) {
         page => params => facets => implicit userOpt => implicit request =>
