@@ -25,20 +25,11 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * This is borrowed from:
    * https://github.com/julienrf/chooze/blob/master/app/controllers/CookieLang.scala
    */
-  val localeForm = play.api.data.Form("locale" -> play.api.data.Forms.nonEmptyText)
   private val LANG = "lang"
 
-  def changeLocale = Action { implicit request =>
+  def changeLocale(lang: String) = Action { implicit request =>
     val referrer = request.headers.get(REFERER).getOrElse(globalConfig.routeRegistry.default.url)
-    localeForm.bindFromRequest.fold(
-      errors => {
-        Logger.logger.debug("The locale can not be change to : " + errors.get)
-        BadRequest(referrer)
-      },
-      locale => {
-        Logger.logger.debug("Change user lang to : " + locale)
-        Redirect(referrer).withCookies(Cookie(LANG, locale))
-      })
+    Redirect(referrer).withCookies(Cookie(LANG, lang))
   }
 
   override implicit def lang(implicit request: RequestHeader) = {
