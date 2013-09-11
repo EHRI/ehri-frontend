@@ -8,8 +8,14 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsString
 
 
-
-class PersonaLoginHandler(implicit val globalConfig: global.GlobalConfig) extends LoginHandler {
+/**
+ * Handler for Mozilla Persona-based login.
+ *
+ * NOTE: Not tested for some time...
+ *
+ * @param globalConfig
+ */
+case class PersonaLoginHandler(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"

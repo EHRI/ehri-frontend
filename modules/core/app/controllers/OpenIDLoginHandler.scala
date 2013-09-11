@@ -10,13 +10,10 @@ import play.api.mvc._
 import concurrent.Future
 import play.api.i18n.Messages
 
-import com.google.inject._
-
 /**
  * OpenID login handler implementation.
  */
-@Singleton
-class OpenIDLoginHandler @Inject()(implicit val globalConfig: global.GlobalConfig) extends LoginHandler {
+case class OpenIDLoginHandler(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
 
   import models.sql._
 
@@ -63,7 +60,7 @@ class OpenIDLoginHandler @Inject()(implicit val globalConfig: global.GlobalConfi
                     user.addAssociation(info.id)
                     gotoLoginSucceeded(user.profile_id)
                       .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
-                        //.withSession("access_uri" -> routes.UserProfiles.update(user.profile_id).url)
+                      //.withSession("access_uri" -> controllers.core.routes.UserProfiles.update(user.profile_id).url)
                       // FIXME WHEN REFACTORED
                   }.getOrElse(BadRequest("Creation of user db failed!"))
                 }

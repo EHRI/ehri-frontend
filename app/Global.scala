@@ -68,10 +68,7 @@ package globalConfig {
       )
     }
 
-    // Implicit 'this' var so we can have a circular reference
-    // to the current global inside the login handler.
-    private implicit lazy val globalConfig = this
-    val loginHandler: LoginHandler = new OpenIDLoginHandler
+    val loginHandler: LoginHandler = new OpenIDLoginHandler()(this)
 
     val routeRegistry = new RouteRegistry(Map(
       EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get _,
