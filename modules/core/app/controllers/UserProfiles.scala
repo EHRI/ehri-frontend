@@ -13,7 +13,7 @@ import utils.search.Dispatcher
 import com.google.inject._
 
 @Singleton
-class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig) extends PermissionHolderController[UserProfile]
+class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends PermissionHolderController[UserProfile]
   with EntityRead[UserProfile]
   with EntityUpdate[UserProfileF,UserProfile]
   with EntityDelete[UserProfile]

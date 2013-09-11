@@ -7,11 +7,11 @@ import play.api._
 import play.api.i18n.Messages
 import _root_.controllers.base._
 import defines.{ContentTypes, EntityType}
-import utils.search.SearchParams
+import utils.search.{Dispatcher, SearchParams}
 import com.google.inject._
 
 @Singleton
-class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig) extends CRUD[VocabularyF,Vocabulary]
+class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CRUD[VocabularyF,Vocabulary]
   with CreationContext[ConceptF, Concept, Vocabulary]
   with VisibilityController[Vocabulary]
   with PermissionScopeController[Vocabulary]

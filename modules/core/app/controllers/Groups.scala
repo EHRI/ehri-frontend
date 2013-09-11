@@ -10,8 +10,9 @@ import play.api.i18n.Messages
 import defines.{ ContentTypes, EntityType, PermissionType }
 import global.GlobalConfig
 import com.google.inject._
+import utils.search.Dispatcher
 
-class Groups @Inject()(implicit val globalConfig: GlobalConfig) extends PermissionHolderController[Group]
+class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispatcher: Dispatcher) extends PermissionHolderController[Group]
   with VisibilityController[Group]
   with CRUD[GroupF, Group] {
 

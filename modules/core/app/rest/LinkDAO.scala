@@ -14,7 +14,7 @@ import play.api.Logger
  *
  * @param userProfile
  */
-case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
+case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   import EntityDAO._
 
@@ -62,7 +62,7 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
     Logger.logger.debug(s"DELETE LINK: $url")
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       checkError(response).right.map { r =>
-        EntityDAO.handleDelete(linkId)
+        eventHandler.handleDelete(linkId)
         true
       }
     }
@@ -79,7 +79,7 @@ case class LinkDAO(userProfile: Option[UserProfile] = None) extends RestDAO {
     Logger.logger.debug(s"DELETE ACCESS POINT $url")
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       checkError(response).right.map { r =>
-        EntityDAO.handleDelete(id)
+        eventHandler.handleDelete(id)
         true
       }
     }

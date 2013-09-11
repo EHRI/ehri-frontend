@@ -8,13 +8,14 @@ import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
 import play.api.libs.json.JsObject
+import models.base.AnyModel
 
 
 /**
  * Set visibility on items.
  * @param userProfile
  */
-case class VisibilityDAO(userProfile: Option[UserProfile]) extends RestDAO {
+case class VisibilityDAO(userProfile: Option[UserProfile])(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
 
@@ -26,7 +27,7 @@ case class VisibilityDAO(userProfile: Option[UserProfile]) extends RestDAO {
         .withHeaders(authHeaders.toSeq: _*).post("").map { response =>
       checkErrorAndParse(response)(rd.restReads).right.map { r =>
         Cache.remove(id)
-        EntityDAO.handleUpdate(response.json.as[JsObject])
+        eventHandler.handleUpdate(id)
         r
       }
     }

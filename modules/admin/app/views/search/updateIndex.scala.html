@@ -1,4 +1,4 @@
-@(form: Form[(Boolean,Int,List[EntityType.Value])], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(form: Form[(Boolean,List[EntityType.Value])], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 @import defines.EntityType
 
@@ -18,6 +18,9 @@
 @extraScript = {
     <script type="application/javascript">
         jQuery(function($) {
+
+            var doneMsg = "<message>@controllers.admin.Search.DONE_MESSAGE</message>";
+            var errMsg = "<message>@controllers.admin.Search.ERR_MESSAGE</message>";
 
             $("#select-all").change(function(event) {
                 $("input[name='type[]']").prop("checked", $(this).prop("checked"));
@@ -67,7 +70,7 @@
                             var anUpdate = unprocessed.substring(0, endOfFirstMessageIndex);
                             appendProgressMessage(anUpdate);
                             nextReadPos += endOfFirstMessageIndex;
-                            if (anUpdate == "<message>@controllers.admin.Search.DONE_MESSAGE</message>") {
+                            if (anUpdate.indexOf(doneMsg) != -1 || anUpdate.indexOf(errMsg) != -1) {
                                 doneFunc();
                                 clearInterval(pollTimer);
                             }
@@ -85,7 +88,6 @@
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
         @helper.checkbox(form("all"), '_label -> Messages("search.clearEntireIndex"))
-        @helper.inputText(form("batchSize"), '_label -> Messages("search.batchSize"))
 
         <div class="control-group">
             <label class="control-label">@Messages("search.selectAllTypes")</label>

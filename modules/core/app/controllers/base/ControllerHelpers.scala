@@ -24,6 +24,11 @@ trait ControllerHelpers {
 
   implicit val globalConfig: GlobalConfig
 
+  /**
+   * Object that handles event hooks
+   */
+  implicit val eventHandler = globalConfig.eventHandler
+
 
   /**
    * Ensure that an action is performed by a logged-in user. This can be globally

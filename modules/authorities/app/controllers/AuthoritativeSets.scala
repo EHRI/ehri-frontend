@@ -6,11 +6,11 @@ import models._
 import play.api._
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
-import utils.search.{SearchOrder, SearchParams}
+import utils.search.{Dispatcher, SearchOrder, SearchParams}
 import com.google.inject._
 
 @Singleton
-class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with CreationContext[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with VisibilityController[AuthoritativeSet]
   with PermissionScopeController[AuthoritativeSet]
