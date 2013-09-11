@@ -18,7 +18,7 @@ import play.api.http.MimeTypes
 
 
 @Singleton
-class Home @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntitySearch {
+class Home @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntitySearch {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

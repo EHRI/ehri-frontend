@@ -60,7 +60,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.DocumentaryUnits.search.url)).get
       status(search) must equalTo(OK)
-      TestConfig.searchDispatcher.paramBuffer
+      mockDispatcher.paramBuffer
           .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(Some(true))
     }
 
@@ -68,7 +68,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.DocumentaryUnits.search.url + "?q=foo")).get
       status(search) must equalTo(OK)
-      TestConfig.searchDispatcher.paramBuffer
+      mockDispatcher.paramBuffer
           .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
     }
 

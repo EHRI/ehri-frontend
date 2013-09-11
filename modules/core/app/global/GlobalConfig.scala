@@ -14,9 +14,8 @@ trait MenuConfig {
 trait GlobalConfig {
   val menuConfig: MenuConfig
   val loginHandler: LoginHandler
-  val searchDispatcher: utils.search.Dispatcher
   val routeRegistry: RouteRegistry
-  implicit val eventHandler: RestEventHandler
+  val eventHandler: RestEventHandler
 
   /**
    * Flag to indicate whether we're running a testing config or not.

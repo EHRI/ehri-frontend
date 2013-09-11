@@ -47,8 +47,6 @@ package globalConfig {
 
   trait BaseConfiguration extends GlobalConfig {
 
-    val searchDispatcher: Dispatcher = solr.SolrDispatcher()
-
     implicit lazy val menuConfig: MenuConfig = new MenuConfig {
       val mainSection: Iterable[(String, String)] = Seq(
         ("pages.search",                  controllers.admin.routes.Search.search.url),
@@ -96,6 +94,7 @@ package globalConfig {
 
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
+  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher()
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
 
   object RunConfiguration extends globalConfig.BaseConfiguration {
@@ -124,6 +123,7 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     def configure() {
       bind[GlobalConfig].toInstance(RunConfiguration)
       bind[Indexer].toInstance(searchIndexer)
+      bind[Dispatcher].toInstance(searchDispatcher)
     }
   }
 

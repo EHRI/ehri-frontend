@@ -19,7 +19,7 @@ import play.api.cache.Cached
 
 
 @Singleton
-class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntitySearch {
+class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntitySearch {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

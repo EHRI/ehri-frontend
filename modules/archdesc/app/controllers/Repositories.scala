@@ -11,12 +11,12 @@ import i18n.Messages
 import defines._
 import play.filters.csrf.CSRF.Token
 import views.Helpers
-import utils.search.{SearchParams, FacetSort}
+import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 
 @Singleton
-class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntityRead[Repository]
+class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntityRead[Repository]
   with EntityUpdate[RepositoryF, Repository]
   with EntityDelete[Repository]
   with CreationContext[DocumentaryUnitF,DocumentaryUnit, Repository]

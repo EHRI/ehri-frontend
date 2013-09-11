@@ -15,7 +15,7 @@ import com.google.inject._
 import solr.facet.FieldFacetClass
 import scala.Some
 import models.base.AnyModel
-import utils.search.{Indexer, SearchParams, SearchOrder}
+import utils.search.{Dispatcher, Indexer, SearchParams, SearchOrder}
 import scala.util.{Failure, Success}
 import indexing.CmdlineIndexer
 import play.api.Logger
@@ -31,7 +31,7 @@ object Search {
 }
 
 @Singleton
-class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchIndexer: Indexer) extends EntitySearch {
+class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val searchIndexer: Indexer) extends EntitySearch {
 
   val searchEntities = List()
   // i.e. Everything

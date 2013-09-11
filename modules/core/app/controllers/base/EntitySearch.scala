@@ -18,8 +18,7 @@ import play.api.Logger
  */
 trait EntitySearch extends Controller with AuthController with ControllerHelpers {
 
-  val globalConfig: GlobalConfig
-  implicit lazy val searchDispatcher: utils.search.Dispatcher = globalConfig.searchDispatcher
+  def searchDispatcher: utils.search.Dispatcher
 
   def bindFacetsFromRequest(facetClasses: List[FacetClass[Facet]])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
     val qs = request.queryString

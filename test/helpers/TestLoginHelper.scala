@@ -29,9 +29,12 @@ trait TestLoginHelper {
   val testPassword = "testpass"
 
   val mockIndexer: MockSearchIndexer = new MockSearchIndexer()
+  val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher()
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
+  // Note: this is defined as an implicit object here so it
+  // can be used by the DAO classes directly.
   implicit object RestEventCollector extends RestEventHandler {
     def handleCreate(id: String) = mockIndexer.indexId(id)
     def handleUpdate(id: String) = mockIndexer.indexId(id)
@@ -39,7 +42,6 @@ trait TestLoginHelper {
   }
 
   object TestConfig extends globalConfig.BaseConfiguration {
-    override val searchDispatcher: MockSearchDispatcher = mocks.MockSearchDispatcher()
     val eventHandler = RestEventCollector
 
     private implicit lazy val globalConfig = this
@@ -55,6 +57,7 @@ trait TestLoginHelper {
         def configure() {
           bind[GlobalConfig].toInstance(TestConfig)
           bind[Indexer].toInstance(mockIndexer)
+          bind[Dispatcher].toInstance(mockDispatcher)
         }
       }
 
