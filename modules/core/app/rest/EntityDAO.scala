@@ -5,14 +5,12 @@ import scala.concurrent.Future
 import play.api.libs.ws.WS
 import play.api.libs.json._
 import defines.{EntityType,ContentTypes}
-import models.{UserProfile, Entity}
+import models.UserProfile
 import models.json.{ClientConvertable, RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
-import models.base.{AnyModel, MetaModel}
-import play.api.mvc.{AnyContent, Request}
-import play.api.data.Form
+import models.base.AnyModel
 import utils.ListParams
 
 /**
@@ -85,17 +83,18 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
   def get(id: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
-    //val cached = Cache.getAs[MT](id)
-    //if (cached.isDefined) Future.successful(Right(cached.get))
-    //else {
+    val cached = Cache.getAs[JsValue](id)
+    if (cached.isDefined) {
+      Future.successful(jsonReadToRestError(cached.get, rd.restReads))
+    } else {
       Logger.logger.debug("GET {} ", enc(requestUrl, id))
       WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkErrorAndParse(response)(rd.restReads).right.map { entity =>
-          //Cache.set(id, entity, cacheTime)
+          Cache.set(id, response.json, cacheTime)
           entity
         }
       }
-    //}
+    }
   }
 
   def getJson(id: String): Future[Either[RestError, JsObject]] = {
@@ -159,6 +158,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
       checkErrorAndParse(response)(rd.restReads).right.map { item =>
         eventHandler.handleUpdate(id)
+        Cache.remove(id)
         item
       }
     }

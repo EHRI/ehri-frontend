@@ -44,8 +44,8 @@ trait TestLoginHelper {
   object TestConfig extends globalConfig.BaseConfiguration {
     val eventHandler = RestEventCollector
 
-    private implicit lazy val globalConfig = this
-    override val loginHandler: LoginHandler = new mocks.MockLoginHandler
+    //private implicit lazy val globalConfig = this
+    override val loginHandler: LoginHandler = new mocks.MockLoginHandler()(this)
   }
 
   /**
