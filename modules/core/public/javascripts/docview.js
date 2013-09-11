@@ -5,6 +5,15 @@ jQuery(function($) {
    * of item descriptions so only the selected one is present
    * at any time.
    */
+
+  // HACK! If there's a description viewport, disable jumping
+  // to the element on page load... this is soooo horrible.
+  setTimeout(function() {
+      if (location.hash && location.hash.match(/desc-/)) {
+          window.scrollTo(0, 0);
+      }
+  }, 1);
+
   $(window).hashchange(function() {
     var hash = location.hash;
 
