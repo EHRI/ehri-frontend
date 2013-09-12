@@ -35,13 +35,13 @@ POST	/openid							        @controllers.core.OpenIDLoginHandler.loginPost
 POST	/persona						        @controllers.core.PersonaLoginHandler.loginPost
 
 # Admin routes - FIXME: Move to admin controller when reverse-route dependencies are resolved
-GET     /admin/actions                          @controllers.core.Admin.adminActions
-GET     /admin/createUser                       @controllers.core.Admin.createUser
-POST    /admin/createUser                       @controllers.core.Admin.createUserPost
-GET     /admin/login                            @controllers.core.Admin.passwordLogin
-POST    /admin/login                            @controllers.core.Admin.passwordLoginPost
-GET     /admin/changePassword                   @controllers.core.Admin.changePassword
-POST    /admin/changePassword                   @controllers.core.Admin.changePasswordPost
+GET     /actions                          @controllers.core.Admin.adminActions
+GET     /createUser                       @controllers.core.Admin.createUser
+POST    /createUser                       @controllers.core.Admin.createUserPost
+GET     /staffLogin                            @controllers.core.Admin.passwordLogin
+POST    /staffLogin                            @controllers.core.Admin.passwordLoginPost
+GET     /changePassword                   @controllers.core.Admin.changePassword
+POST    /changePassword                   @controllers.core.Admin.changePasswordPost
 
 GET     /events                                 @controllers.core.SystemEvents.list
 GET     /events/show/:id                        @controllers.core.SystemEvents.get(id: String)

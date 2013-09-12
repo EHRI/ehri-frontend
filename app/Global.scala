@@ -66,6 +66,10 @@ package globalConfig {
         ("s2", "-"),
         ("search.updateIndex",            controllers.admin.routes.Search.updateIndex.url)
       )
+      val authSection: Iterable[(String,String)] = Seq(
+        ("actions.viewProfile", controllers.admin.routes.Home.profile.url),
+        ("login.changePassword", controllers.core.routes.Admin.changePassword.url)
+      )
     }
 
     val loginHandler: LoginHandler = new OpenIDLoginHandler()(this)

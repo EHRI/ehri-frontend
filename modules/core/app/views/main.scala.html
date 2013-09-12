@@ -305,8 +305,9 @@
                                     <b class="caret"></b>
                                 </a>
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.UserProfiles.get(account.profile_id)">@Messages("actions.viewProfile")</a> </li>
-                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.Admin.changePassword">@Messages("login.changePassword")</a></li>
+                                    @globalConfig.menuConfig.authSection.map { case (key, url) =>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="@url">@Messages(key)</a> </li>
+                                    }
                                     <li role="presentation" class="divider"></li>
                                     <li>
                                         <a href="@globalConfig.routeRegistry.logout" id="signout">
@@ -317,7 +318,7 @@
                                 </ul>
                             </li>
                         }.getOrElse {
-                            <li><a href="@controllers.core.routes.Admin.passwordLogin" id="signin">@Messages("banner.signin")</a></li>
+                            <li><a href="@globalConfig.routeRegistry.login" id="signin">@Messages("banner.signin")</a></li>
                         }
                     </ul>
                 </div>

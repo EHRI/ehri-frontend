@@ -66,6 +66,16 @@ class Home @Inject()(implicit val globalConfig: global.GlobalConfig, val searchD
     }
   }
 
+  def profile = userProfileAction { implicit userOpt => implicit request =>
+    Secured {
+      userOpt.map { user =>
+        Ok(views.html.profile(user))
+      } getOrElse {
+        authenticationFailed(request)
+      }
+    }
+  }
+
   /**
    * Full text search action that returns a complete page of item data.
    * @return
