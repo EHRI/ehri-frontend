@@ -7,6 +7,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import play.api.mvc.{AsyncResult, ChunkedResult}
 import scala.concurrent.Future
+import solr.SolrConstants
 
 /**
  * Spec to test various page views operate as expected.
@@ -22,6 +23,22 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
 
 
   "Search views" should {
+
+    "search for hierarchical items with no query should apply a top-level filter" in new FakeApp {
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.archdesc.routes.DocumentaryUnits.search.url)).get
+      status(search) must equalTo(OK)
+      mockDispatcher.paramBuffer
+        .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(Some(true))
+    }
+
+    "search for hierarchical item with a query should not apply a top-level filter" in new FakeApp {
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.archdesc.routes.DocumentaryUnits.search.url + "?q=foo")).get
+      status(search) must equalTo(OK)
+      mockDispatcher.paramBuffer
+        .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
+    }
 
     "perform indexing correctly" in new FakeApp {
 
