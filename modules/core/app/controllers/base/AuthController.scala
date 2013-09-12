@@ -40,22 +40,6 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
   }
 
   /**
-   * WARNING: Remove this function (it's named funnily as a reminder.)
-   * It provides a way to override the logged-in user's account and thus
-   * do anything as anyone, provided they know the target user profile
-   * id. Obviously, this is a big (albeit deliberate) security hole.
-   */
-  def USER_BACKDOOR__(account: models.sql.User, request: Request[AnyContent]): String = {
-    if (request.method == "GET") {
-      request.getQueryString("asUser").map { name =>
-        println("CURRENT USER: " + name)
-        println("WARNING: Running with user override backdoor for testing on: ?as=name")
-        name
-      }.getOrElse(account.profile_id)
-    } else account.profile_id
-  }
-  
-  /**
    * SystemEvent composition that adds extra context to regular requests. Namely,
    * the profile of the user requesting the page, and her permissions.
    */
@@ -63,8 +47,6 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
     optionalUserAction { implicit maybeAccount => implicit request =>
       maybeAccount.map { account =>
 
-        // FIXME: This is a DELIBERATE BACKDOOR
-        val currentUser = USER_BACKDOOR__(account, request)
         val fakeProfile = UserProfile(UserProfileF(id=Some(account.profile_id), identifier="", name=""))
         implicit val maybeUser = Some(fakeProfile)
 
@@ -75,7 +57,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
           // available initially, and we don't want to block for it to become
           // available, we should probably add the account to the permissions when
           // we have both items from the server.
-          val getProf = rest.EntityDAO[UserProfile](EntityType.UserProfile, maybeUser).get(currentUser)
+          val getProf = rest.EntityDAO[UserProfile](EntityType.UserProfile, maybeUser).get(account.profile_id)
           val getGlobalPerms = rest.PermissionDAO(maybeUser).get
           // These requests should execute in parallel...
           for { r1 <- getProf; r2 <- getGlobalPerms } yield {
@@ -109,15 +91,12 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
       val entityType = EntityType.withName(contentType.toString)
       maybeAccount.map { account =>
 
-        // FIXME: This is a DELIBERATE BACKDOOR
-        val currentUser = USER_BACKDOOR__(account, request)
-
         val fakeProfile = UserProfile(UserProfileF(id=Some(account.profile_id), identifier="", name=""))
         implicit val maybeUser = Some(fakeProfile)
 
         AsyncRest {
           val getProf = rest.EntityDAO[UserProfile](
-            EntityType.UserProfile, Some(fakeProfile)).get(currentUser)
+            EntityType.UserProfile, Some(fakeProfile)).get(account.profile_id)
           // NB: Instead of getting *just* global perms here we also fetch
           // everything in scope for the given item
           val getGlobalPerms = rest.PermissionDAO(maybeUser).getScope(id)

@@ -5,14 +5,12 @@ import scala.concurrent.Future
 import play.api.libs.ws.WS
 import play.api.libs.json._
 import defines.{EntityType,ContentTypes}
-import models.{UserProfile, Entity}
+import models.UserProfile
 import models.json.{ClientConvertable, RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
-import models.base.{AnyModel, MetaModel}
-import play.api.mvc.{AnyContent, Request}
-import play.api.data.Form
+import models.base.AnyModel
 import utils.ListParams
 
 /**
@@ -62,31 +60,10 @@ object Page {
       = Format(pageReads(r), pageWrites(w))
 }
 
-
-object EntityDAO {
-
-
-  /**
-   * Global listeners for CUD events
-   */
-  import scala.collection.mutable.ListBuffer
-  private val onCreate: ListBuffer[JsObject => Unit] = ListBuffer.empty
-  private val onUpdate: ListBuffer[JsObject => Unit] = ListBuffer.empty
-  private val onDelete: ListBuffer[String => Unit] = ListBuffer.empty
-
-  def addCreateHandler(f: JsObject => Unit): Unit = onCreate += f
-  def addUpdateHandler(f: JsObject => Unit): Unit = onUpdate += f
-  def addDeleteHandler(f: String => Unit): Unit = onDelete += f
-
-  def handleCreate(e: JsObject): JsObject = {
-    onCreate.foreach(f => f(e))
-    e
-  }
-  def handleUpdate(e: JsObject): JsObject = {
-    onUpdate.foreach(f => f(e))
-    e
-  }
-  def handleDelete(id: String): Unit = onDelete.foreach(f => f(id))
+trait RestEventHandler {
+  def handleCreate(id: String): Unit
+  def handleUpdate(id: String): Unit
+  def handleDelete(id: String): Unit
 }
 
 /**
@@ -95,7 +72,7 @@ object EntityDAO {
  * @param entityType
  * @param userProfile
  */
-case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfile] = None) extends RestDAO {
+case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfile] = None)(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
   import play.api.http.Status._
@@ -106,17 +83,18 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
   def get(id: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
-    //val cached = Cache.getAs[MT](id)
-    //if (cached.isDefined) Future.successful(Right(cached.get))
-    //else {
+    val cached = Cache.getAs[JsValue](id)
+    if (cached.isDefined) {
+      Future.successful(jsonReadToRestError(cached.get, rd.restReads))
+    } else {
       Logger.logger.debug("GET {} ", enc(requestUrl, id))
       WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         checkErrorAndParse(response)(rd.restReads).right.map { entity =>
-          //Cache.set(id, entity, cacheTime)
+          Cache.set(id, response.json, cacheTime)
           entity
         }
       }
-    //}
+    }
   }
 
   def getJson(id: String): Future[Either[RestError, JsObject]] = {
@@ -143,9 +121,12 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
         .withQueryString(unpack(params):_*)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-        checkErrorAndParse(response)(rd.restReads).right.map { item =>
-          EntityDAO.handleCreate(response.json.as[JsObject])
-          item
+        checkErrorAndParse(response)(rd.restReads).right.map { created =>
+          created match {
+            case item: AnyModel => eventHandler.handleCreate(item.id)
+            case _ =>
+          }
+          created
         }
     }
   }
@@ -159,9 +140,12 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-      checkErrorAndParse(response)(rd.restReads).right.map { item =>
-        EntityDAO.handleCreate(response.json.as[JsObject])
-        item
+      checkErrorAndParse(response)(rd.restReads).right.map { created =>
+        created match {
+          case item: AnyModel => eventHandler.handleCreate(item.id)
+          case _ =>
+        }
+        created
       }
     }
   }
@@ -173,7 +157,8 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
       checkErrorAndParse(response)(rd.restReads).right.map { item =>
-        EntityDAO.handleUpdate(response.json.as[JsObject])
+        eventHandler.handleUpdate(id)
+        Cache.remove(id)
         item
       }
     }
@@ -185,7 +170,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
       checkError(response).right.map(r => {
-        EntityDAO.handleDelete(id)
+        eventHandler.handleDelete(id)
         Cache.remove(id)
         r.status == OK
       })

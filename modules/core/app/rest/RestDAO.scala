@@ -203,15 +203,17 @@ trait RestDAO {
     }
   }
 
-  protected def checkErrorAndParse[T](response: Response)(implicit reader: Reads[T]): Either[RestError, T] = {
+  private[rest] def checkErrorAndParse[T](response: Response)(implicit reader: Reads[T]): Either[RestError, T] = {
     checkError(response) match {
+      case Right(r) => jsonReadToRestError(r.json, reader)
       case Left(err) => Left(err)
-      case Right(r) => {
-        r.json.validate(reader).asEither match {
-          case Left(err) => Left(BadJson(err))
-          case Right(item) => Right(item)
-        }
-      }
+    }
+  }
+
+  private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T]): Either[RestError, T] = {
+    json.validate(reader).asEither match {
+      case Left(err) => Left(BadJson(err))
+      case Right(ok) => Right(ok)
     }
   }
 }

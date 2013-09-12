@@ -7,8 +7,6 @@ GET     /overview                           @controllers.admin.Home.overview
 # Js Routes
 GET     /routes                             @controllers.admin.Home.jsRoutes
 
-POST    /iteratee                           @controllers.admin.Search.testIteratee
-
 GET     /updateIndex                        @controllers.admin.Search.updateIndex
 POST    /updateIndex                        @controllers.admin.Search.updateIndexPost
 

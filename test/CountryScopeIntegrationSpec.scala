@@ -7,7 +7,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import defines._
 import rest.EntityDAO
-import mocks.MockUser
+import mocks.MockAccount
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -107,7 +107,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // TESTING MAGIC!!! We have to create an account for subsequent logins...
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
-      val fakeAccount = MockUser("test-user@example.com", userId)
+      val fakeAccount = MockAccount("test-user@example.com", userId)
       mocks.userFixtures.put(fakeAccount.profile_id, fakeAccount)
 
       // Check the user can read their profile as themselves...

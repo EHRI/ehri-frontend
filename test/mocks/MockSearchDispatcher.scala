@@ -14,6 +14,13 @@ import utils.search._
  */
 case class MockSearchDispatcher() extends Dispatcher {
 
+  /** Class to aid in debugging the last submitted request - gross...
+    */
+  case class ParamLog(params: SearchParams, facets: List[AppliedFacet],
+    allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)
+
+  val paramBuffer = collection.mutable.ArrayBuffer.empty[ParamLog]
+
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String, EntityType.Value)]]] = {
     val docs = List(("c1", "Collection 1", EntityType.DocumentaryUnit), ("c2", "Collection 2", EntityType.DocumentaryUnit))
@@ -33,6 +40,7 @@ case class MockSearchDispatcher() extends Dispatcher {
 
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+    paramBuffer += ParamLog(params, facets, allFacets, filters)
     val items = params.entities.foldLeft(List[SearchDescription]()) { case (listOfItems, et) =>
       et match {
         case EntityType.DocumentaryUnit => listOfItems ++ List(

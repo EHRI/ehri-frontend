@@ -7,11 +7,11 @@ import models.forms.LinkForm
 import play.api._
 import play.api.i18n.Messages
 import defines._
-import utils.search.{SearchParams, FacetSort}
+import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 
 @Singleton
-class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig) extends CRUD[HistoricalAgentF,HistoricalAgent]
+class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with VisibilityController[HistoricalAgent]
   with PermissionItemController[HistoricalAgent]
   with EntityLink[HistoricalAgent]

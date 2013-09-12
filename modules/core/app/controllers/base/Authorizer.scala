@@ -26,7 +26,7 @@ trait Authorizer extends Results with AuthConfig {
   sealed trait Permission
 
   // Specific type of user-finder loaded via a plugin
-  lazy val userFinder: models.sql.UserDAO = current.plugin(classOf[models.sql.UserDAO]).get
+  lazy val userFinder: models.AccountDAO = current.plugin(classOf[models.AccountDAO]).get
   
   type Id = String
 
@@ -43,7 +43,7 @@ trait Authorizer extends Results with AuthConfig {
    * A type that represents a user in your application.
    * `User`, `Account` and so on.
    */
-  type User = models.sql.User
+  type User = models.Account
 
   /**
    * A type that is defined by every action for authorization.
