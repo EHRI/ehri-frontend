@@ -9,11 +9,13 @@ import play.api._
 import play.api.mvc._
 import concurrent.Future
 import play.api.i18n.Messages
+import com.google.inject._
 
 /**
  * OpenID login handler implementation.
  */
-case class OpenIDLoginHandler(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
+@Singleton
+case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
 
   import models.sql._
 
