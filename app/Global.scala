@@ -91,7 +91,7 @@ package globalConfig {
 
 object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
-  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher()
+  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
 
   object RunConfiguration extends globalConfig.BaseConfiguration {
