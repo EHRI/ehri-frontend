@@ -92,7 +92,7 @@ trait TestLoginHelper {
     )
   }
 
-  def getConfig = Map()
+  def getConfig = Map.empty[String,Any]
 
   /**
    * Get a set of plugins necessary to enable to desired login method.

@@ -5,27 +5,56 @@ import play.api.test._
 import play.api.test.Helpers._
 
 import play.api.GlobalSettings
+import helpers.{TestMockLoginHelper, TestLoginHelper}
 
 /**
  * Add your spec here.
  * You can mock out a whole application including requests, plugins etc.
  * For more information, consult the wiki.
  */
-class ApplicationSpec extends Specification {
+class ApplicationSpec extends Specification with TestMockLoginHelper {
   sequential
-  object SimpleFakeGlobal extends GlobalSettings
+
+  // Settings specific to this spec...
+  override def getConfig = super.getConfig ++ Map[String,Any]("ehri.secured" -> true)
+
   "Application" should {
     "send 404 on a bad request" in {
-      running(FakeApplication(withGlobal = Some(SimpleFakeGlobal))) {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
         route(FakeRequest(GET, "/boum")) must beNone
       }
     }
 
-    "redirect to login page when called afresh" in {
-      running(FakeApplication(withGlobal = Some(SimpleFakeGlobal))) {
+    "render something at root url" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(FakeRequest(GET, "/")).get
+        status(home) must equalTo(OK)
+      }
+    }
 
+    "redirect to login at admin home when secured" in {
+      running(FakeApplication(withGlobal = Some(getGlobal),
+          additionalConfiguration = Map("ehri.secured" -> true))) {
+        val home = route(FakeRequest(GET,
+          controllers.admin.routes.Home.index.url)).get
         status(home) must equalTo(SEE_OTHER)
+      }
+    }
+
+    "not redirect to login at admin home when unsecured" in {
+      running(FakeApplication(withGlobal = Some(getGlobal),
+        additionalConfiguration = Map("ehri.secured" -> false))) {
+        val home = route(FakeRequest(GET,
+          controllers.admin.routes.Home.index.url)).get
+        status(home) must equalTo(OK)
+      }
+    }
+
+    "allow access to the openid callback url" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val home = route(FakeRequest(GET,
+          controllers.core.routes.OpenIDLoginHandler.openIDCallback.url)).get
+        status(home) must equalTo(OK)
       }
     }
   }
