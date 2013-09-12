@@ -84,7 +84,8 @@ package globalConfig {
       EntityType.Concept -> controllers.vocabs.routes.Concepts.get _,
       EntityType.Country -> controllers.archdesc.routes.Countries.get _
     ), default = controllers.admin.routes.Home.index,
-      login = controllers.core.routes.Admin.passwordLogin)
+      login = controllers.core.routes.Admin.passwordLogin,
+      logout = controllers.core.routes.Application.logout)
   }
 }
 

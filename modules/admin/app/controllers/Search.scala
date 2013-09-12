@@ -13,11 +13,9 @@ import play.api.libs.json.{Writes, Json}
 
 import com.google.inject._
 import solr.facet.FieldFacetClass
-import scala.Some
 import models.base.AnyModel
 import utils.search.{Dispatcher, Indexer, SearchParams, SearchOrder}
 import scala.util.{Failure, Success}
-import indexing.CmdlineIndexer
 import play.api.Logger
 
 
