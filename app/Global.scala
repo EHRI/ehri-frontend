@@ -67,7 +67,7 @@ package globalConfig {
         ("search.updateIndex",            controllers.admin.routes.Search.updateIndex.url)
       )
       val authSection: Iterable[(String,String)] = Seq(
-        ("actions.viewProfile", controllers.admin.routes.Home.profile.url),
+        ("actions.viewProfile", controllers.admin.routes.Profile.profile.url),
         ("login.changePassword", controllers.core.routes.Admin.changePassword.url)
       )
     }

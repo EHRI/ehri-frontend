@@ -361,6 +361,7 @@ permissions.itemPermissionsForItem=Item-level Permissions for {0}
 permissions.scopedPermissionsForItem=Scoped Permissions for {0}
 permissions.inheritedFrom=Inherited From: {0}
 
+confirmations.profileUpdated=Profile successfully updated
 confirmations.itemWasCreated=Item successfully created
 confirmations.itemWasUpdated=Item successfully updated
 confirmations.itemWasDeleted=Item successfully deleted
@@ -380,7 +381,7 @@ profile.identifier=Identifier
 profile.identifier.description=Your user name
 profile.name=Name
 profile.name.description=Your full name
-profile.about=About
+profile.about=About You
 profile.about.description=
 profile.languages=Languages
 profile.languages.description=Languages you speak.
@@ -389,6 +390,9 @@ profile.location.description=
 profile.noLocationGiven=No location given
 profile.noLanguagesGiven=No languages given
 profile.noBioGiven=No biography given
+profile.groupsBelongedTo=Groups
+profile.notInAnyGroups=None
+profile.notSupplied=Not supplied
 
 #
 # Documentary Units

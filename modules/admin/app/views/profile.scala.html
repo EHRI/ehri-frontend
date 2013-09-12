@@ -2,37 +2,59 @@
 
 @import UserProfileF._
 
-@userProfile.itemPage(item) {
-
-    @defining(FIELD_PREFIX) { implicit fieldPrefix =>
-        @item.model.location.map { loc =>
-            <strong>@Messages("profile.location"): </strong>
-            @loc
+@profileSection(key: String, value: Option[String]) = {
+    <div class="profile-section">
+        <h4>@Messages(key)</h4>
+        @value.map { text =>
+            <div class="profile-section-text">
+                @Html(views.Helpers.renderMarkdown(text))
+            </div>
+        }.getOrElse {
+            <i>@Messages("profile.notSupplied")</i>
         }
+    </div>
+}
 
-        @if(!item.model.languages.isEmpty) {
-            <div>
-                <strong>@Messages("profile.languages"):</strong>
+@rightSidebarLayout(item.toStringLang) {
+    <div class="pull-right">
+        <a class="btn btn-mini" href="@controllers.admin.routes.Profile.updateProfile">
+            <i class="icon icon-wrench"></i>
+            @Messages("actions.edit")
+        </a>
+    </div>
+    @defining(FIELD_PREFIX) { implicit fieldPrefix =>
+        @profileSection("profile.location", item.model.location)
+
+        <div class="profile-section">
+            <h4>@Messages("profile.languages")</h4>
+            @if(!item.model.languages.isEmpty) {
                 <ul class="inline inline-separator">
                     @item.model.languages.map { lang =>
                         <li>@views.Helpers.languageCodeToName(lang)</li>
                     }
                 </ul>
-            </div>
-        }
-
-        <div class="about">
-            @item.model.about
+            } else {
+                <i>@Messages("profile.notSupplied")</i>
+            }
         </div>
+
+        @profileSection("profile.about", item.model.about)
     }
 
     <hr />
-    @if(item.groups.isEmpty) {
-        <i>@Messages("accessor.notInAnyGroups")</i>
-    } else {
-        <strong>Groups: </strong>&nbsp;
-        @item.groups.map { group =>
-            <a class="badge" href="@controllers.core.routes.Groups.get(group.id)">@group.toStringLang</a>
+} {
+    <div class="well well-small">
+        <h4>@Messages("profile.groupsBelongedTo")</h4>
+        @if(item.groups.isEmpty) {
+            <i>@Messages("profile.notInAnyGroups")</i>
+        } else {
+            <ul class="unstyled">
+                @item.groups.map { group =>
+                    <li></li><a class="badge" href="@controllers.core.routes.Groups.get(group.id)">@group.toStringLang</a></li>
+                }
+            </ul>
         }
-    }
+
+    </div>
+
 }

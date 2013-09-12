@@ -25,21 +25,42 @@ trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
     }
   }
 
-  def updatePostAction(id: String, form: Form[F])(f: MT => Either[Form[F],MT] => Option[UserProfile] => Request[AnyContent] => Result)(
+  /**
+   *
+   * @param id        The item's id
+   * @param form      The form yielding an item when bound
+   * @param transform A function that can be used to transform the item
+   *                  prior to being saved in the database (i.e. to reset
+   *                  some values.)
+   * @param f         A callback to run with the result of the action
+   * @param fmt
+   * @param rd
+   * @return
+   */
+  def updatePostAction(id: String, form: Form[F], transform: F => F = identity)(
+        f: MT => Either[Form[F],MT] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
-    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Update, contentType) {
+        item => implicit userOpt => implicit request =>
+      updateAction(item, form, transform)(f)
+    }
+  }
 
-      form.bindFromRequest.fold(
-        errorForm => {
-          Logger.logger.debug("Form errors: {}", errorForm.errors)
-          f(item)(Left(errorForm))(userOpt)(request)
-        },
-        success = doc => {
-          AsyncRest {
-            rest.EntityDAO(entityType, userOpt).update(id, doc, logMsg = getLogMessage).map { itemOrErr =>
-              // If we have an error, check if it's a validation error.
-              // If so, we need to merge those errors back into the form
-              // and redisplay it...
+  def updateAction(item: MT, form: Form[F], transform: F => F)(
+        f: MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Result)(
+      implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[F], rd: RestReadable[MT]) = {
+    form.bindFromRequest.fold(
+      errorForm => {
+        Logger.logger.debug("Form errors: {}", errorForm.errors)
+        f(item)(Left(errorForm))(userOpt)(request)
+      },
+      success = doc => {
+        AsyncRest {
+          rest.EntityDAO(entityType, userOpt).update(item.id, transform(doc), logMsg = getLogMessage).map {
+            itemOrErr =>
+            // If we have an error, check if it's a validation error.
+            // If so, we need to merge those errors back into the form
+            // and redisplay it...
               itemOrErr.fold(
                 err => err match {
                   case err: rest.ValidationError => {
@@ -51,10 +72,9 @@ trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
                 },
                 item => Right(f(item)(Right(item))(userOpt)(request))
               )
-            }
           }
         }
-      )
-    }
+      }
+    )
   }
 }
