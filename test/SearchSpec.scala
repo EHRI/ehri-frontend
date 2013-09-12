@@ -5,6 +5,8 @@ import models.{GroupF, Group, UserProfileF, UserProfile}
 import defines.EntityType
 import play.api.test._
 import play.api.test.Helpers._
+import play.api.mvc.{AsyncResult, ChunkedResult}
+import scala.concurrent.Future
 
 /**
  * Spec to test various page views operate as expected.

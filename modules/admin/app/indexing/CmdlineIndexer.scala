@@ -6,6 +6,7 @@ import defines.EntityType
 import play.api.Play.current
 import play.api.libs.iteratee.Concurrent
 import utils.search.{IndexingError, Indexer}
+import scala.concurrent.Future
 
 
 object CmdlineIndexer {
@@ -67,7 +68,7 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
     "--verbose" // print one line of output per item
   )
 
-  private def runProcess(cmd: Seq[String]) {
+  private def runProcess(cmd: Seq[String]) = Future {
     play.api.Logger.logger.debug("Index: {}", cmd.mkString(" "))
     val process: Process = cmd.run(logger)
     if (process.exitValue() != 0) {
@@ -75,18 +76,18 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
     }
   }
 
-  def indexId(id: String): Unit = runProcess(idxArgs ++ Seq("@" + id, "--pretty"))
+  def indexId(id: String): Future[Unit] = runProcess(idxArgs ++ Seq("@" + id, "--pretty"))
 
-  def indexTypes(entityTypes: Seq[EntityType.Value]): Unit
+  def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
         = runProcess(idxArgs ++ entityTypes.map(_.toString))
 
-  def indexChildren(entityType: EntityType.Value, id: String): Unit
+  def indexChildren(entityType: EntityType.Value, id: String): Future[Unit]
       = runProcess(idxArgs ++ Seq("%s|%s".format(entityType, id)))
 
-  def clearAll(): Unit = runProcess(clearArgs ++ Seq("--clear-all"))
+  def clearAll(): Future[Unit] = runProcess(clearArgs ++ Seq("--clear-all"))
 
-  def clearTypes(entityTypes: Seq[EntityType.Value]): Unit
+  def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
         = runProcess(clearArgs ++ entityTypes.flatMap(s => Seq("--clear-type", s.toString)))
 
-  def clearId(id: String): Unit = runProcess(clearArgs ++ Seq("--clear-id", id))
+  def clearId(id: String): Future[Unit] = runProcess(clearArgs ++ Seq("--clear-id", id))
 }

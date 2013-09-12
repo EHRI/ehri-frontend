@@ -3,6 +3,7 @@ package mocks
 import defines.EntityType
 import utils.search._
 import play.api.Logger
+import scala.concurrent.Future
 
 /**
  * User: michaelb
@@ -12,27 +13,27 @@ import play.api.Logger
  */
 case class MockSearchIndexer() extends Indexer {
   val eventBuffer = collection.mutable.ArrayBuffer.empty[String]
-  def indexId(id: String) {
+  def indexId(id: String) = Future.successful {
     eventBuffer += id
     Logger.logger.info("Indexing: " + id)
   }
-  def indexTypes(entityTypes: Seq[EntityType.Value]) {
+  def indexTypes(entityTypes: Seq[EntityType.Value]) = Future.successful {
     eventBuffer += entityTypes.toString
     Logger.logger.info("Indexing: " + entityTypes)
   }
-  def indexChildren(entityType: EntityType.Value, id: String) {
+  def indexChildren(entityType: EntityType.Value, id: String) = Future.successful {
     eventBuffer += id
     Logger.logger.info("Indexing children: " + entityType + " -> " + id)
   }
-  def clearAll() {
+  def clearAll() = Future.successful {
     eventBuffer += "clear-all"
     Logger.logger.info("Clearing entire index...")
   }
-  def clearTypes(entityTypes: Seq[EntityType.Value]) {
+  def clearTypes(entityTypes: Seq[EntityType.Value]) = Future.successful {
     eventBuffer += "clear-types:" + entityTypes.toString
     Logger.logger.info("Clearing entity types: " + entityTypes)
   }
-  def clearId(id: String) {
+  def clearId(id: String) = Future.successful {
     eventBuffer += id
     Logger.logger.info("Clearing id: " + id)
   }

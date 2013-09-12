@@ -151,7 +151,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       def optionallyClearIndex: Future[Unit] = {
         if (!deleteAll) Future.successful(Unit)
         else {
-          val f = Future(searchIndexer.clearAll())
+          val f = searchIndexer.clearAll()
           f.onSuccess {
             case () => chan.push(wrapMsg("... finished clearing index"))
           }
@@ -160,9 +160,7 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       }
 
       val job = optionallyClearIndex.flatMap { _ =>
-        concurrent.future {
-          searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
-        }
+        searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
       }
 
       job.onComplete {

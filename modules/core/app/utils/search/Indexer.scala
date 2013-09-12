@@ -22,14 +22,14 @@ trait Indexer {
    * @param id
    * @return
    */
-  def indexId(id: String): Unit
+  def indexId(id: String): Future[Unit]
 
   /**
    * Index all items of a given set of types.
    * @param entityTypes
    * @return
    */
-  def indexTypes(entityTypes: Seq[EntityType.Value]): Unit
+  def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
 
   /**
    * Index all children of a given item.
@@ -37,25 +37,25 @@ trait Indexer {
    * @param id
    * @return
    */
-  def indexChildren(entityType: EntityType.Value, id: String): Unit
+  def indexChildren(entityType: EntityType.Value, id: String): Future[Unit]
 
   /**
    * Clear the index of all items.
    * @return
    */
-  def clearAll(): Unit
+  def clearAll(): Future[Unit]
 
   /**
    * Clear the index of all items of a given type.
    * @param entityTypes
    * @return
    */
-  def clearTypes(entityTypes: Seq[EntityType.Value]): Unit
+  def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
 
   /**
    * Clear a given item from the index.
    * @param id
    * @return
    */
-  def clearId(id: String): Unit
+  def clearId(id: String): Future[Unit]
 }

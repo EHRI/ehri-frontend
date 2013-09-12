@@ -101,10 +101,8 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
       // to the SolrIndexer update/delete handlers. Do this
       // asyncronously and log any failures...
       import play.api.libs.concurrent.Execution.Implicits._
-      def logFailure(id: String, func: String => Unit): Unit = {
-        Future {
-          func(id)
-        } onFailure {
+      def logFailure(id: String, func: String => Future[Unit]): Unit = {
+        func(id) onFailure {
           case t => Logger.logger.error("Indexing error: " + t.getMessage)
         }
       }
