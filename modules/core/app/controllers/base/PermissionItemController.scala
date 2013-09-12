@@ -16,8 +16,6 @@ import utils.ListParams
  */
 trait PermissionItemController[MT] extends EntityRead[MT] {
 
-  implicit val accessorConverter = Accessor.Converter
-
   def manageItemPermissionsAction(id: String)(
       f: MT => rest.Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {

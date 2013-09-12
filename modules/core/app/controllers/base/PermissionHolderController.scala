@@ -18,6 +18,8 @@ import utils.ListParams
  */
 trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
 
+  type GlobalPermissionCallback = MT => GlobalPermissionSet[MT] => Option[UserProfile] => Request[AnyContent] => Result
+
   /**
    * Display a list of permissions that have been granted to the given accessor.
    * @param id
@@ -42,9 +44,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
   }
 
 
-  def setGlobalPermissionsAction(id: String)(
-      f: MT => GlobalPermissionSet[MT] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: RestReadable[MT]) = {
+  def setGlobalPermissionsAction(id: String)(f: GlobalPermissionCallback)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
@@ -58,9 +58,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     }
   }
 
-  def setGlobalPermissionsPostAction(id: String)(
-      f: MT => GlobalPermissionSet[MT] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: RestReadable[MT]) = {
+  def setGlobalPermissionsPostAction(id: String)(f: GlobalPermissionCallback)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = ContentTypes.values.toList.map { ct =>
