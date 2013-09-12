@@ -4,8 +4,8 @@ import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
 
-import play.api.GlobalSettings
-import helpers.{TestMockLoginHelper, TestLoginHelper}
+import helpers.TestMockLoginHelper
+import play.api.i18n.Messages
 
 /**
  * Add your spec here.
@@ -50,11 +50,14 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
       }
     }
 
-    "allow access to the openid callback url" in {
+    "allow access to the openid callback url, and redirect with flash error" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(FakeRequest(GET,
           controllers.core.routes.OpenIDLoginHandler.openIDCallback.url)).get
-        status(home) must equalTo(OK)
+        status(home) must equalTo(SEE_OTHER)
+        val err = flash(home).get("error")
+        err must beSome
+        err.get must equalTo(Messages("openid.openIdError", null))
       }
     }
   }
