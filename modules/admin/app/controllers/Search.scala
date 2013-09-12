@@ -139,50 +139,44 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
    *
    * @return
    */
-  def updateIndexPost = adminAction {
-    implicit userOpt => implicit request =>
+  def updateIndexPost = adminAction { implicit userOpt => implicit request =>
 
-      val (deleteAll, entities) = updateIndexForm.bindFromRequest.value.get
+    val (deleteAll, entities) = updateIndexForm.bindFromRequest.value.get
 
-      def wrapMsg(m: String) = s"<message>$m</message>"
+    def wrapMsg(m: String) = s"<message>$m</message>"
 
-      // Create an unicast channel in which to feed progress messages
-      val channel = Concurrent.unicast[String] { chan =>
+    // Create an unicast channel in which to feed progress messages
+    val channel = Concurrent.unicast[String] { chan =>
 
-        /**
-        * Clear everything from the index...
-        */
-        def optionallyClearIndex: Future[Unit] = {
-          if (!deleteAll) Future.successful(Unit)
-          else {
-            val f = Future(searchIndexer.clearAll())
-            f.onSuccess {
-              case () => chan.push(wrapMsg("... finished clearing index"))
-            }
-            f
+      def optionallyClearIndex: Future[Unit] = {
+        if (!deleteAll) Future.successful(Unit)
+        else {
+          val f = searchIndexer.clearAll()
+          f.onSuccess {
+            case () => chan.push(wrapMsg("... finished clearing index"))
           }
-        }
-
-        val job = optionallyClearIndex.flatMap { _ =>
-          concurrent.future {
-            searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
-          }
-        }
-
-        job.onComplete {
-          case Success(()) => {
-            chan.push(wrapMsg(Search.DONE_MESSAGE))
-            chan.eofAndEnd()
-          }
-          case Failure(t) => {
-            Logger.logger.error(t.getMessage)
-            chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
-            chan.push(wrapMsg(Search.ERR_MESSAGE))
-            chan.eofAndEnd()
-          }
+          f
         }
       }
 
-      Ok.stream(channel.andThen(Enumerator.eof))
+      val job = optionallyClearIndex.flatMap { _ =>
+        searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
+      }
+
+      job.onComplete {
+        case Success(()) => {
+          chan.push(wrapMsg(Search.DONE_MESSAGE))
+          chan.eofAndEnd()
+        }
+        case Failure(t) => {
+          Logger.logger.error(t.getMessage)
+          chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
+          chan.push(wrapMsg(Search.ERR_MESSAGE))
+          chan.eofAndEnd()
+        }
+      }
+    }
+
+    Ok.stream(channel.andThen(Enumerator.eof))
   }
 }
