@@ -1,6 +1,7 @@
 package mocks
 
 import models.{Account,AccountDAO}
+import java.util.UUID
 
 case class MockAccount(email: String, profile_id: String) extends Account {
   def updatePassword(hashed: String): Account = this
@@ -27,4 +28,8 @@ class MockAccountDAO(app: play.api.Application) extends AccountDAO {
     mocks.userFixtures.put(profile_id, user)
     Some(user)
   }
+
+  def findByResetToken(token: String) = ???
+  def createResetToken(token: UUID, profileId: String) = ???
+  def expireToken(token: String) = ???
 }

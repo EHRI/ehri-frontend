@@ -3,18 +3,22 @@ package controllers.core
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 
-import play.api.data.Form
+import play.api.data.{Forms, Form, FormError}
 import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentTypes}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
-import models.{AccountDAO, UserProfile, UserProfileF}
+import models.{Account, AccountDAO, UserProfile, UserProfileF}
 import controllers.base.{ControllerHelpers, AuthController}
 
 import com.google.inject._
-import play.api.data.FormError
 import play.api.mvc.AsyncResult
 import jp.t2v.lab.play20.auth.LoginLogout
+import java.util.UUID
+import play.api.Play.current
+import scala.concurrent.Future
+import play.api.libs.ws.WS
+import play.api.Logger
 
 /**
  * Controller for handling user admin actions.
@@ -214,5 +218,118 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
         }
       }
     )
+  }
+
+  private val forgotPasswordForm = Form(Forms.single("email" -> email))
+
+  private def sendResetEmail(email: String, uuid: UUID) {
+    import com.typesafe.plugin._
+    use[MailerPlugin].email
+      .setSubject("EHRI Password Reset")
+      .addRecipient(email)
+      .addFrom("EHRI Password Reset <noreply@ehri-project.eu>")
+      .send( "text", s"<html>$uuid</html>")
+  }
+
+  def forgotPassword = Action { implicit request =>
+    val recaptchaKey = play.api.Play.configuration.getString("recaptcha.key.public").getOrElse("fakekey")
+    Ok(views.html.admin.forgotPassword(forgotPasswordForm,
+      recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
+  }
+
+  def forgotPasswordPost = Action { implicit request =>
+    val recaptchaKey = play.api.Play.configuration.getString("recaptcha.key.public").getOrElse("fakekey")
+
+    Async {
+      checkRecapture.map { ok =>
+        if (!ok) {
+          val form = forgotPasswordForm.withGlobalError("error.badRecapture")
+          BadRequest(views.html.admin.forgotPassword(form,
+            recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
+        } else {
+          forgotPasswordForm.bindFromRequest.fold({ errForm =>
+            BadRequest(views.html.admin.forgotPassword(errForm,
+              recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
+          }, { email =>
+            userDAO.findByEmail(email).map { account =>
+              val uuid = UUID.randomUUID()
+              userDAO.createResetToken(uuid, account.profile_id)
+              sendResetEmail(account.email, uuid)
+              Redirect(controllers.core.routes.Admin.passwordReminderSent)
+            }.getOrElse {
+              val form = forgotPasswordForm.withError("email", "errors.emailNotFound")
+              BadRequest(views.html.admin.forgotPassword(form,
+                recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
+            }
+          })
+        }
+      }
+    }
+  }
+
+  def passwordReminderSent = Action { implicit request =>
+    Ok(views.html.admin.passwordReminderSent())
+  }
+
+  private val resetPasswordForm = Form(
+    tuple(
+      "password" -> nonEmptyText(minLength = 6),
+      "confirm" -> nonEmptyText(minLength = 6)
+    ) verifying("login.passwordsDoNotMatch", f => f match {
+      case (pw, pwc) => pw == pwc
+    })
+  )
+
+  def resetPassword(token: String) = Action { implicit request =>
+    userDAO.findByResetToken(token).map { account =>
+      Ok(views.html.admin.resetPassword(resetPasswordForm,
+          controllers.core.routes.Admin.resetPasswordPost(token)))
+    }.getOrElse {
+      Redirect(controllers.core.routes.Admin.forgotPassword)
+        .flashing("error" -> "login.expiredOrInvalidResetToken")
+    }
+  }
+
+  def resetPasswordPost(token: String) = Action { implicit request =>
+    resetPasswordForm.bindFromRequest.fold({ errForm =>
+      BadRequest(views.html.admin.resetPassword(errForm,
+        controllers.core.routes.Admin.resetPasswordPost(token)))
+    }, { case (pw, _) =>
+      userDAO.findByResetToken(token).map { account =>
+        account.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))
+        userDAO.expireToken(token)
+        Redirect(controllers.core.routes.Admin.passwordLogin())
+      }.getOrElse {
+        Redirect(controllers.core.routes.Admin.forgotPassword)
+          .flashing("error" -> "login.expiredOrInvalidResetToken")
+      }
+    })
+  }
+
+  def checkRecapture(implicit request: Request[AnyContent]): Future[Boolean] = {
+    // https://developers.google.com/recaptcha/docs/verify
+    val recaptchaForm = Form(
+      tuple(
+        "recaptcha_challenge_field" -> nonEmptyText,
+        "recaptcha_response_field" -> nonEmptyText
+      )
+    )
+
+    recaptchaForm.bindFromRequest.fold({ badCapture =>
+      Future.successful(false)
+    }, { case (challenge, response) =>
+      WS.url("http://www.google.com/recaptcha/api/verify")
+        .withQueryString(
+        "remoteip" -> request.headers.get("REMOTE_ADDR").getOrElse(""),
+        "challenge" -> challenge, "response" -> response,
+        "privatekey" -> current.configuration.getString("recaptcha.key.private").getOrElse("")
+      ).post("").map { response =>
+        response.body.split("\n").headOption match {
+          case Some("true") => true
+          case Some("false") => Logger.logger.error(response.body); false
+          case _ => sys.error("Unexpected captcha result: " + response.body)
+        }
+      }
+    })
   }
 }

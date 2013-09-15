@@ -2,6 +2,7 @@ package models
 
 import play.api.libs.json.{Json, JsValue, Writes}
 import play.api.Plugin
+import java.util.UUID
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -28,5 +29,7 @@ trait AccountDAO extends Plugin {
 	def findByProfileId(id: String): Option[Account]
   def findByEmail(email: String): Option[Account]
   def create(email: String, profile_id: String): Option[Account]
-
+  def findByResetToken(token: String): Option[Account]
+  def createResetToken(token: UUID, profileId: String): Unit
+  def expireToken(token: String): Unit
 }

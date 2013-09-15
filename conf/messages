@@ -64,6 +64,11 @@ login.existingPassword=Current Password
 login.confirmPassword=Confirm New Password
 login.passwordsDoNotMatch=Password and confirmation do not match!
 login.passwordChanged=Password Changed!
+login.expiredOrInvalidResetToken=URL given for password reset was invalid or expired. \
+  Note: password reset links can only be used once.
+login.sendPasswordResetLink=Send Reset Email
+error.badRecapture=The ''Recapture'' widget (intended to prevent automated spamming) didn''t \
+  get the right answer.
 
 openid.openIdError=There was a problem logging you in with OpenID.\
   This may because your provider does not support attribute exchange. The error messages was: {0}

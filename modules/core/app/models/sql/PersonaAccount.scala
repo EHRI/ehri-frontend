@@ -7,6 +7,7 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 import models.{Account,AccountDAO}
+import java.util.UUID
 
 
 // -- Users
@@ -54,16 +55,32 @@ object PersonaAccount extends AccountDAO {
     ).on('email -> email).as(PersonaAccount.simple.singleOpt)
   } 
 
-  def create(email: String, profile_id: String): Option[Account] = DB.withConnection { implicit connection =>
+  def create(email: String, profileId: String): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
       """INSERT INTO users (profile_id, email) VALUES ({profile_id},{email})"""
-    ).on('profile_id -> profile_id, 'email -> email).executeUpdate
-    findByProfileId(profile_id)
+    ).on('profile_id -> profileId, 'email -> email).executeUpdate
+    findByProfileId(profileId)
+  }
+
+  def findByResetToken(token: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
+    ???
+  }
+
+  def expireToken(token: String): Unit = DB.withConnection { implicit connection =>
+    ???
+  }
+
+  def createResetToken(token: UUID, profileId: String): Unit = DB.withConnection { implicit connection =>
+    SQL("""INSERT INTO token (profile_id, token) VAlUES({profile_id},{token}""")
+      .on('profile_id -> profileId, 'token -> token)
   }
 }
 
 class PersonaAccountDAOPlugin(app: play.api.Application) extends AccountDAO {
   def findByProfileId(profile_id: String) = PersonaAccount.findByProfileId(profile_id)
   def findByEmail(email: String) = PersonaAccount.findByEmail(email)
+  def findByResetToken(token: String) = PersonaAccount.findByResetToken(token)
+  def createResetToken(token: UUID, profileId: String) = PersonaAccount.createResetToken(token, profileId)
+  def expireToken(token: String) = PersonaAccount.expireToken(token)
   def create(email: String, profile_id: String) = PersonaAccount.create(email, profile_id)
 }

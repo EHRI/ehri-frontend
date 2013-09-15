@@ -7,6 +7,7 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 import models.{Account,AccountDAO}
+import java.util.UUID
 
 
 // -- Users
@@ -157,6 +158,21 @@ object OpenIDAccount extends AccountDAO {
       ).as(OpenIDAccount.simple.singleOpt)
     }
   }
+
+  def findByResetToken(token: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
+    SQL(
+      """SELECT u.*, t.token FROM users u, token t WHERE u.profile_id = t.profile_id AND t.token = {token}"""
+    ).on('token -> token).as(OpenIDAccount.simple.singleOpt)
+  }
+
+  def expireToken(token: String): Unit = DB.withConnection { implicit connection =>
+    SQL("""DELETE FROM token WHERE token = {token}""").on('token -> token).executeUpdate
+  }
+
+  def createResetToken(token: UUID, profileId: String): Unit = DB.withConnection { implicit connection =>
+    SQL("""INSERT INTO token (profile_id, token) VAlUES ({profile_id}, {token})""")
+      .on('profile_id -> profileId, 'token -> token.toString).executeInsert()
+  }
 }
 
 // -- Associations
@@ -212,6 +228,9 @@ object OpenIDAssociation {
 class OpenIDAccountDAOPlugin(app: play.api.Application) extends AccountDAO {
   def findByProfileId(profile_id: String) = OpenIDAccount.findByProfileId(profile_id)
   def findByEmail(email: String) = OpenIDAccount.findByEmail(email)
+  def findByResetToken(token: String) = OpenIDAccount.findByResetToken(token)
+  def createResetToken(token: UUID, profileId: String) = OpenIDAccount.createResetToken(token, profileId)
+  def expireToken(token: String) = OpenIDAccount.expireToken(token)
   def create(email: String, profile_id: String) = OpenIDAccount.create(email, profile_id)
 }
 
