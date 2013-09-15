@@ -299,6 +299,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
         account.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))
         userDAO.expireToken(token)
         Redirect(controllers.core.routes.Admin.passwordLogin())
+          .flashing("warning" -> "login.passwordResetNowLogin")
       }.getOrElse {
         Redirect(controllers.core.routes.Admin.forgotPassword)
           .flashing("error" -> "login.expiredOrInvalidResetToken")
