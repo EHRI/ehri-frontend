@@ -42,6 +42,10 @@ object ApplicationBuild extends Build {
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",
+
+    // Mailer...
+    "com.typesafe" %% "play-plugins-mailer" % "2.1.0",
+
     // Solr stuff
     "com.github.seratch" %% "scalikesolr" % "4.0.0",
     // Time formatting library
