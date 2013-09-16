@@ -394,6 +394,7 @@ visibility.chooseGroups=Choose Groups
 #
 # User Profile Field definitions
 #
+profile.account=Account
 profile.identifier=Identifier
 profile.identifier.description=Your user name
 profile.name=Name

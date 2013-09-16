@@ -44,6 +44,13 @@
     <hr />
 } {
     <div class="well well-small">
+        <h4>@Messages("profile.account")</h4>
+        @item.account.map { acc =>
+            @acc.email
+        }
+
+        <hr />
+
         <h4>@Messages("profile.groupsBelongedTo")</h4>
         @if(item.groups.isEmpty) {
             <i>@Messages("profile.notInAnyGroups")</i>
@@ -56,5 +63,4 @@
         }
 
     </div>
-
 }

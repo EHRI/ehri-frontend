@@ -44,7 +44,7 @@ class Profile @Inject()(implicit val globalConfig: global.GlobalConfig) extends 
 
   def updateProfile = userProfileAction { implicit userOpt => implicit request =>
     userOpt.map { user =>
-      Ok(views.html.userProfile.edit(
+      Ok(views.html.editProfile(
         user, form.fill(user.model), controllers.admin.routes.Profile.updateProfilePost))
     } getOrElse {
       Unauthorized
@@ -63,7 +63,7 @@ class Profile @Inject()(implicit val globalConfig: global.GlobalConfig) extends 
       updateAction(user, form, transform) { item => formOrItem => up => r =>
         formOrItem match {
           case Left(errorForm) =>
-            BadRequest(views.html.userProfile.edit(
+            BadRequest(views.html.editProfile(
               user, errorForm, controllers.admin.routes.Profile.updateProfilePost))
           case Right(item) => Redirect(controllers.admin.routes.Profile.profile)
             .flashing("success" -> Messages("confirmations.profileUpdated"))
