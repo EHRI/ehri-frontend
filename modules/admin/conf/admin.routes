@@ -25,5 +25,6 @@ GET     /metrics/holdingRepository          @controllers.admin.Metrics.holdingRe
 GET     /metrics/repositoryCountries        @controllers.admin.Metrics.repositoryCountries
 GET     /metrics/agentTypes                 @controllers.admin.Metrics.agentTypes
 GET     /metrics/restricted                 @controllers.admin.Metrics.restricted
+GET     /metrics/_clear                     @controllers.admin.Metrics.clearCached
 
 GET     /assets/*file                       controllers.admin.Assets.at(path="/public", file)
