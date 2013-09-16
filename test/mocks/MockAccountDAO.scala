@@ -10,6 +10,17 @@ case class MockAccount(email: String, profile_id: String) extends Account {
     userFixtures.remove(profile_id)
     true
   }
+  def createResetToken(token: UUID) = MockAccountDAO.tokens += token.toString -> profile_id
+  def expireTokens() = {  // Bit gross this, dealing with Mutable state...
+    val indicesToDelete = for {
+      (t, i) <- MockAccountDAO.tokens.zipWithIndex if t._2 == profile_id
+    } yield i
+    for (i <- (MockAccountDAO.tokens.size -1) to 0 by -1) if (indicesToDelete contains i) MockAccountDAO.tokens remove i
+  }
+}
+
+object MockAccountDAO {
+  val tokens = collection.mutable.ListBuffer.empty[(String,String)]
 }
 
 /**
@@ -17,8 +28,6 @@ case class MockAccount(email: String, profile_id: String) extends Account {
  * @param app
  */
 class MockAccountDAO(app: play.api.Application) extends AccountDAO {
-
-  val tokens = collection.mutable.ListBuffer.empty[(String,String)]
 
   def findByProfileId(profile_id: String): Option[Account]
         = mocks.userFixtures.get(profile_id)
@@ -32,9 +41,7 @@ class MockAccountDAO(app: play.api.Application) extends AccountDAO {
     Some(user)
   }
 
-  def findByResetToken(token: String): Option[Account] = tokens.find(_._1 == token).flatMap { case (t, p) =>
+  def findByResetToken(token: String): Option[Account] = MockAccountDAO.tokens.find(_._1 == token).flatMap { case (t, p) =>
     findByProfileId(p)
   }
-  def createResetToken(token: UUID, profileId: String) = tokens += token.toString -> profileId
-  def expireToken(token: String) = tokens.remove(tokens.indexWhere(_._1 == token))
 }

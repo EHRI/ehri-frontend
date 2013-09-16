@@ -25,7 +25,8 @@ CREATE TABLE user_auth (
 # Password reset tokens...
 CREATE TABLE token (
   profile_id  VARCHAR(255) NOT NULL,
-  token       VARCHAR(255) NOT NULL PRIMARY KEY ,
+  token       VARCHAR(255) NOT NULL PRIMARY KEY,
+  expires     TIMESTAMP NOT NULL,
   CONSTRAINT FOREIGN KEY (profile_id) REFERENCES users (profile_id) ON DELETE CASCADE
 );
 

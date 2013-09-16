@@ -14,6 +14,8 @@ trait Account {
   def updatePassword(hashed: String): Account
   def setPassword(data: String): Account
   def delete(): Boolean
+  def createResetToken(uuid: UUID): Unit
+  def expireTokens(): Unit
 }
 
 object Account {
@@ -30,6 +32,4 @@ trait AccountDAO extends Plugin {
   def findByEmail(email: String): Option[Account]
   def create(email: String, profile_id: String): Option[Account]
   def findByResetToken(token: String): Option[Account]
-  def createResetToken(token: UUID, profileId: String): Unit
-  def expireToken(token: String): Unit
 }

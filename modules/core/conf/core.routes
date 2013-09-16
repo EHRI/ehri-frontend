@@ -42,11 +42,11 @@ GET     /staffLogin                             @controllers.core.Admin.password
 POST    /staffLogin                             @controllers.core.Admin.passwordLoginPost
 GET     /changePassword                         @controllers.core.Admin.changePassword
 POST    /changePassword                         @controllers.core.Admin.changePasswordPost
-GET     /forgotPassword                         @controllers.core.Admin.forgotPassword
-POST    /forgotPassword                         @controllers.core.Admin.forgotPasswordPost
-GET     /passwordReminderSend                   @controllers.core.Admin.passwordReminderSent
-GET     /resetPassword/:token                   @controllers.core.Admin.resetPassword(token: String)
-POST    /resetPassword/:token                   @controllers.core.Admin.resetPasswordPost(token: String)
+GET     /forgot                                 @controllers.core.Admin.forgotPassword
+POST    /forgot                                 @controllers.core.Admin.forgotPasswordPost
+GET     /prs                                    @controllers.core.Admin.passwordReminderSent
+GET     /rstp/:token                            @controllers.core.Admin.resetPassword(token: String)
+POST    /rstp/:token                            @controllers.core.Admin.resetPasswordPost(token: String)
 
 GET     /events                                 @controllers.core.SystemEvents.list
 GET     /events/show/:id                        @controllers.core.SystemEvents.get(id: String)

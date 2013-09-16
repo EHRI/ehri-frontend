@@ -48,8 +48,8 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
               // and redisplay it...
               if (itemOrErr.isLeft) {
                 itemOrErr.left.get match {
-                  case err: rest.ValidationError => {
-                    val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
+                  case rest.ValidationError(errorSet) => {
+                    val serverErrors: Seq[FormError] = doc.errorsToForm(errorSet)
                     val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
                     Right(f(Left((filledForm, VisibilityForm.form)))(userOpt)(request))
                   }

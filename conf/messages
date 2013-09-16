@@ -70,6 +70,8 @@ login.passwordReset=Password Reset
 login.sentPasswordResetLink=We''ve sent you an email containing a link that can be used to reset your password.\
   This link can only be used once.
 login.sendPasswordResetLink=Submit
+login.submitPasswordReset=Submit
+login.forgotPasswordLink=Click here if you have a password account but have forgotten or lost your password.
 login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
 error.emailNotFound=That email was not found on our system.
 error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\

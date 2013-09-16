@@ -486,15 +486,14 @@
 <tr>
     <td id="header" class="w640" width="640" align="center" bgcolor="#694f80">
 
-        <div align="left" style="text-align: left">
+        <div align="right" style="text-align: right; float: right">
             <a href="http://portal.ehri-project.eu">
-                <img id="ehri-logo" label="EHRI Logo" width="212"
-                     src="http://portal.ehri-project.eu/assets/img/logo.png" class="w640"
+                <img id="ehri-logo" label="EHRI Logo" width="106"
+                     src="@controllers.core.routes.Assets.at("images/logo_small.png").absoluteURL(false)" class="w125"
                      border="0" align="top" style="display: inline">
             </a>
         </div>
-
-
+        <p align="left" class="article-title">@title</p>
     </td>
 </tr>
 
@@ -508,7 +507,6 @@
             <tr>
                 <td class="w30" width="30"></td>
                 <td class="w580" width="580">
-                    <p align="left" class="article-title">@title</p>
 
                     <div align="left" class="article-content">
                         @content

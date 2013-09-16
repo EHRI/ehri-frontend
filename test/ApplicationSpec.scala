@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 import helpers.TestMockLoginHelper
 import play.api.i18n.Messages
 import play.filters.csrf.CSRF
-import mocks.MockBufferedMailer
+import mocks.{MockAccountDAO, MockBufferedMailer}
 
 /**
  * Add your spec here.
@@ -108,6 +108,48 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
         status(forgot) must equalTo(SEE_OTHER)
         MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
         MockBufferedMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
+      }
+    }
+
+    "check password reset token works (but only once)" in {
+      running(FakeApplication(withGlobal = Some(getGlobal),
+        additionalConfiguration = Map("recaptcha.skip" -> true),
+        additionalPlugins = getPlugins)) {
+        val numSentMails = MockBufferedMailer.mailBuffer.size
+        val data: Map[String,Seq[String]] = Map(
+          "email" -> Seq(mocks.unprivilegedUser.email),
+          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+        )
+        val forgot = route(FakeRequest(POST,
+          controllers.core.routes.Admin.forgotPasswordPost().url)
+          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), data).get
+        status(forgot) must equalTo(SEE_OTHER)
+        MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
+        MockBufferedMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
+
+        val token = MockAccountDAO.tokens.last._1
+        val resetForm = route(FakeRequest(GET,
+          controllers.core.routes.Admin.resetPassword(token).url)
+          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)).get
+        status(resetForm) must equalTo(OK)
+
+        val rstData: Map[String,Seq[String]] = Map(
+          "password" -> Seq("hellokitty"),
+          "confirm"  -> Seq("hellokitty"),
+          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+        )
+        val resetPost = route(FakeRequest(POST,
+          controllers.core.routes.Admin.resetPassword(token).url)
+          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), rstData).get
+        status(resetPost) must equalTo(SEE_OTHER)
+
+        val expired = route(FakeRequest(GET,
+          controllers.core.routes.Admin.resetPassword(token).url)
+          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)).get
+        status(expired) must equalTo(SEE_OTHER)
+        val err = flash(expired).get("error")
+        err must beSome
+        err.get must equalTo(Messages("login.expiredOrInvalidResetToken"))
       }
     }
   }

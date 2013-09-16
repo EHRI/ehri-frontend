@@ -19,6 +19,8 @@ import play.api.Play.current
 import scala.concurrent.Future
 import play.api.libs.ws.WS
 import play.api.Logger
+import rest.ValidationError
+import play.api.libs.json.Json
 
 /**
  * Controller for handling user admin actions.
@@ -91,7 +93,15 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
       AsyncRest {
         rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
             .create[UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
-          itemOrErr.right.map(f)
+          if (itemOrErr.isLeft) {
+            itemOrErr.left.get match {
+              // FIXME: Handle validation error properly!
+              case v@ValidationError(errorSet) => Left(v)
+              case e => Left(e)
+            }
+          } else {
+            itemOrErr.right.map(f)
+          }
         }
       }
     }
@@ -254,7 +264,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
           }, { email =>
             userDAO.findByEmail(email).map { account =>
               val uuid = UUID.randomUUID()
-              userDAO.createResetToken(uuid, account.profile_id)
+              account.createResetToken(uuid)
               sendResetEmail(account.email, uuid)
               Redirect(controllers.core.routes.Admin.passwordReminderSent)
             }.getOrElse {
@@ -287,7 +297,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
           controllers.core.routes.Admin.resetPasswordPost(token)))
     }.getOrElse {
       Redirect(controllers.core.routes.Admin.forgotPassword)
-        .flashing("error" -> "login.expiredOrInvalidResetToken")
+        .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
     }
   }
 
@@ -298,12 +308,12 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
     }, { case (pw, _) =>
       userDAO.findByResetToken(token).map { account =>
         account.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))
-        userDAO.expireToken(token)
+        account.expireTokens()
         Redirect(controllers.core.routes.Admin.passwordLogin())
           .flashing("warning" -> "login.passwordResetNowLogin")
       }.getOrElse {
         Redirect(controllers.core.routes.Admin.forgotPassword)
-          .flashing("error" -> "login.expiredOrInvalidResetToken")
+          .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
       }
     })
   }
