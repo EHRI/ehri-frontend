@@ -13,7 +13,8 @@ trait TokenManager {
 
 
   def expireTokens(): Unit = DB.withConnection { implicit connection =>
-    SQL("""DELETE FROM token WHERE profile_id = {profile_id}""").executeUpdate
+    SQL("""DELETE FROM token WHERE profile_id = {profile_id}""")
+      .on('profile_id -> profile_id).executeUpdate
   }
 
   def createResetToken(token: UUID): Unit = DB.withConnection { implicit connection =>
