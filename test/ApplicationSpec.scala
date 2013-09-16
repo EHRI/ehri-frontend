@@ -6,6 +6,8 @@ import play.api.test.Helpers._
 
 import helpers.TestMockLoginHelper
 import play.api.i18n.Messages
+import play.filters.csrf.CSRF
+import mocks.MockBufferedMailer
 
 /**
  * Add your spec here.
@@ -58,6 +60,54 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
         val err = flash(home).get("error")
         err must beSome
         err.get must equalTo(Messages("openid.openIdError", null))
+      }
+    }
+    
+    "give a capture error submitting a forgot password form" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val data: Map[String,Seq[String]] = Map(
+          "email" -> Seq("test@example.com"),
+          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+        )
+        val forgot = route(FakeRequest(POST,
+          controllers.core.routes.Admin.forgotPasswordPost().url)
+          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), data).get
+        status(forgot) must equalTo(BAD_REQUEST)
+        contentAsString(forgot) must contain(Messages("error.badRecaptcha"))
+      }
+    }
+
+    "give an error submitting a forgot password form with the right capcha but the wrong email" in {
+      running(FakeApplication(withGlobal = Some(getGlobal),
+          additionalConfiguration = Map("recaptcha.skip" -> true),
+          additionalPlugins = getPlugins)) {
+        val data: Map[String,Seq[String]] = Map(
+          "email" -> Seq("test@example.com"),
+          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+        )
+        val forgot = route(FakeRequest(POST,
+          controllers.core.routes.Admin.forgotPasswordPost().url)
+          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), data).get
+        status(forgot) must equalTo(BAD_REQUEST)
+        contentAsString(forgot) must contain(Messages("error.emailNotFound"))
+      }
+    }
+
+    "create a reset token on password reset with correct email" in {
+      running(FakeApplication(withGlobal = Some(getGlobal),
+        additionalConfiguration = Map("recaptcha.skip" -> true),
+        additionalPlugins = getPlugins)) {
+        val numSentMails = MockBufferedMailer.mailBuffer.size
+        val data: Map[String,Seq[String]] = Map(
+          "email" -> Seq(mocks.unprivilegedUser.email),
+          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+        )
+        val forgot = route(FakeRequest(POST,
+          controllers.core.routes.Admin.forgotPasswordPost().url)
+          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), data).get
+        status(forgot) must equalTo(SEE_OTHER)
+        MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
+        MockBufferedMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
       }
     }
   }

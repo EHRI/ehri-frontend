@@ -71,11 +71,17 @@ login.sentPasswordResetLink=We''ve sent you an email containing a link that can 
   This link can only be used once.
 login.sendPasswordResetLink=Submit
 login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
-error.badRecapture=The ''Recapture'' widget (intended to prevent automated spamming) didn''t \
-  get the right answer.
-
+error.emailNotFound=That email was not found on our system.
+error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
+    get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
 openid.openIdError=There was a problem logging you in with OpenID.\
   This may because your provider does not support attribute exchange. The error messages was: {0}
+
+# Mail stuff
+mail.forgotPasswordMailHeading=EHRI Password Reset
+mail.forgotPasswordMessage=To reset your password, please follow the link below. Note: this link can only be used \
+  to reset your password once.
+mail.forgotPasswordFooter=
 
 # Friendly names for content types
 contentTypes.group=Groups

@@ -98,7 +98,7 @@ trait TestLoginHelper {
    * Get a set of plugins necessary to enable to desired login method.
    * @return
    */
-  def getPlugins: Seq[String] = Seq()
+  def getPlugins: Seq[String] = Seq("mocks.MockBufferedMailerPlugin")
 
   /**
    * Override this to cookies obtained via a specific method.
@@ -153,7 +153,7 @@ trait TestLoginHelper {
  */
 trait TestMockLoginHelper extends TestLoginHelper {
 
-  override def getPlugins = Seq("mocks.MockAccountDAO")
+  override def getPlugins = super.getPlugins ++ Seq("mocks.MockAccountDAO")
 
   /**
    * Get a user auth cookie using the Mock login mechanism, which depends
