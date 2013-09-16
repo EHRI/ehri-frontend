@@ -15,11 +15,13 @@ import solr.facet.FieldFacetClass
 
 import com.google.inject._
 import play.api.http.MimeTypes
-import play.api.cache.Cached
+import play.api.cache.{Cache, Cached}
 
 
 @Singleton
 class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntitySearch {
+
+  private val metricCacheTime = 60 * 60 // 1 hour
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,
@@ -40,7 +42,7 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def languageOfMaterial = Cached("pages:langMetric") {
+  def languageOfMaterial = Cached("pages:langMetric", metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
       entityFacets = langCountFacets) {
@@ -61,7 +63,7 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def holdingRepository = Cached("pages:repoMetric") {
+  def holdingRepository = Cached("pages:repoMetric", metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
       entityFacets = holdingRepoFacets) {
@@ -83,7 +85,7 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def repositoryCountries = Cached("pages:repoCountryMetric") {
+  def repositoryCountries = Cached("pages:repoCountryMetric", metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.Repository))),
       entityFacets = countryRepoFacets) {
@@ -104,7 +106,7 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def restricted = Cached("pages:restrictedMetric") {
+  def restricted = Cached("pages:restrictedMetric", metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(
         entities = List(EntityType.HistoricalAgent,
@@ -128,7 +130,7 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     )
   )
 
-  def agentTypes = Cached("pages:agentTypeMetric") {
+  def agentTypes = Cached("pages:agentTypeMetric", metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.HistoricalAgent))),
       entityFacets = agentTypeFacets) {
@@ -137,5 +139,15 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
           case _ => UnsupportedMediaType
         }
     }
+  }
+
+  def clearCached = adminAction { implicit  userOpt => implicit request =>
+    // Hack around lack of manual expiry
+    Cache.remove("pages:agentTypeMetric")
+    Cache.remove("pages:restrictedMetric")
+    Cache.remove("pages:repoCountryMetric")
+    Cache.remove("pages:repoMetric")
+    Cache.remove("pages:langMetric")
+    Redirect(globalConfig.routeRegistry.default)
   }
 }
