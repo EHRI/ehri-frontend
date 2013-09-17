@@ -8,7 +8,7 @@ import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentTypes}
 import play.api.i18n.Messages
 import org.mindrot.jbcrypt.BCrypt
-import models.{Account, AccountDAO, UserProfile, UserProfileF}
+import models.{AccountDAO, UserProfile, UserProfileF}
 import controllers.base.{ControllerHelpers, AuthController}
 
 import com.google.inject._
@@ -20,7 +20,7 @@ import scala.concurrent.Future
 import play.api.libs.ws.WS
 import play.api.Logger
 import rest.ValidationError
-import play.api.libs.json.Json
+
 
 /**
  * Controller for handling user admin actions.
@@ -319,7 +319,6 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   }
 
   def checkRecapture(implicit request: Request[AnyContent]): Future[Boolean] = {
-
     // https://developers.google.com/recaptcha/docs/verify
     val recaptchaForm = Form(
       tuple(
@@ -349,5 +348,5 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
         }
       })
     }
- }
+  }
 }
