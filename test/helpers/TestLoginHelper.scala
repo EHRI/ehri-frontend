@@ -153,7 +153,7 @@ trait TestLoginHelper {
  */
 trait TestMockLoginHelper extends TestLoginHelper {
 
-  override def getPlugins = super.getPlugins ++ Seq("mocks.MockAccountDAO")
+  override def getPlugins = super.getPlugins ++ Seq("models.sql.MockAccountDAO")
 
   /**
    * Get a user auth cookie using the Mock login mechanism, which depends
