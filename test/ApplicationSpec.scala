@@ -7,7 +7,8 @@ import play.api.test.Helpers._
 import helpers.TestMockLoginHelper
 import play.api.i18n.Messages
 import play.filters.csrf.CSRF
-import mocks.{MockAccountDAO, MockBufferedMailer}
+import mocks.MockBufferedMailer
+import models.sql.MockAccountDAO
 
 /**
  * Add your spec here.

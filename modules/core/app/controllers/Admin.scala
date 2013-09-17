@@ -7,8 +7,7 @@ import play.api.data.{Forms, Form, FormError}
 import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentTypes}
 import play.api.i18n.Messages
-import org.mindrot.jbcrypt.BCrypt
-import models.{AccountDAO, UserProfile, UserProfileF}
+import models.{Account, AccountDAO, UserProfile, UserProfileF}
 import controllers.base.{ControllerHelpers, AuthController}
 
 import com.google.inject._
@@ -134,7 +133,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
 
         createUserProfile(user, groups) { profile =>
           userDAO.create(email.toLowerCase, profile.id).map { account =>
-            account.setPassword(BCrypt.hashpw(pw, BCrypt.gensalt))
+            account.setPassword(Account.hashPassword(pw))
             // Final step, grant user permissions on their own account
             grantOwnerPerms(profile) {
               Redirect(controllers.core.routes.Admin.adminActions)
@@ -183,7 +182,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
 
         (for {
           account <- userDAO.findByEmail(email.toLowerCase)
-          hashedPw <- account.password if BCrypt.checkpw(pw, hashedPw)
+          hashedPw <- account.password if Account.checkPassword(pw, hashedPw)
         } yield gotoLoginSucceeded(account.profile_id)) getOrElse {
           Redirect(controllers.core.routes.Admin.passwordLogin)
             .flashing("error" -> Messages("login.badUsernameOrPassword"))
@@ -212,14 +211,14 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
           controllers.core.routes.Admin.changePasswordPost))
       },
       data => {
-        val (current, pw, _) = data
+        val (current, newPw, _) = data
 
         (for {
           user <- userOpt
           account <- user.account
-          hashedPw <- account.password if BCrypt.checkpw(current, hashedPw)
+          hashedPw <- account.password if Account.checkPassword(current, hashedPw)
         } yield {
-          account.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))
+          account.updatePassword(Account.hashPassword(newPw))
           Redirect(globalConfig.routeRegistry.default)
             .flashing("success" -> Messages("login.passwordChanged"))
         }) getOrElse {
@@ -307,7 +306,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
         controllers.core.routes.Admin.resetPasswordPost(token)))
     }, { case (pw, _) =>
       userDAO.findByResetToken(token).map { account =>
-        account.updatePassword(BCrypt.hashpw(pw, BCrypt.gensalt))
+        account.updatePassword(Account.hashPassword(pw))
         account.expireTokens()
         Redirect(controllers.core.routes.Admin.passwordLogin())
           .flashing("warning" -> "login.passwordResetNowLogin")

@@ -1,4 +1,5 @@
 import models.Account
+import models.sql.MockAccount
 import play.api.Play.current
 
 package object mocks {

@@ -21,6 +21,13 @@ CREATE TABLE user_auth (
     data       VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE token (
+  profile_id  VARCHAR(255) NOT NULL REFERENCES users (profile_id) ON DELETE CASCADE,
+  token       VARCHAR(255) NOT NULL PRIMARY KEY,
+  expires     TIMESTAMP NOT NULL
+);
+
+
 # --- !Downs
 
 DROP TABLE IF EXISTS users;

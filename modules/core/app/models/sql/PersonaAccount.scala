@@ -6,7 +6,7 @@ import play.api.Play.current
 
 import anorm._
 import anorm.SqlParser._
-import models.{Account,AccountDAO}
+import models.{HashedPassword, Account, AccountDAO}
 
 
 // -- Users
@@ -19,8 +19,8 @@ case class PersonaAccount(profile_id: String, email: String) extends Account wit
   }
 
   // Unsupported operations
-  def setPassword(data: String) = ???
-  def updatePassword(data: String) = ???
+  def setPassword(data: HashedPassword) = ???
+  def updatePassword(data: HashedPassword) = ???
 }
 
 object PersonaAccount extends AccountDAO {

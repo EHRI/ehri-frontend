@@ -7,7 +7,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import defines._
 import rest.EntityDAO
-import mocks.MockAccount
+import models.sql.MockAccount
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.

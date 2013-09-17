@@ -6,7 +6,7 @@ import play.api.Play.current
 
 import anorm._
 import anorm.SqlParser._
-import models.{Account,AccountDAO}
+import models.{HashedPassword, Account, AccountDAO}
 
 
 // -- Users
@@ -32,28 +32,28 @@ case class OpenIDAccount(id: Long, email: String, profile_id: String) extends Ac
     this
   }
 
-  override def password: Option[String] = DB.withConnection { implicit connection =>
+  override def password: Option[HashedPassword] = DB.withConnection { implicit connection =>
     SQL(
       """SELECT data FROM user_auth WHERE user_auth.id = {id} LIMIT 1"""
-    ).on('id -> id).as(str("data").singleOpt)
+    ).on('id -> id).as(str("data").singleOpt).map(HashedPassword.fromHashed)
 
   }
 
-  def setPassword(data: String): OpenIDAccount = DB.withConnection{ implicit connection =>
+  def setPassword(data: HashedPassword): OpenIDAccount = DB.withConnection{ implicit connection =>
     val res = SQL(
       """
         INSERT INTO user_auth (id, data) VALUES ({id},{data})
       """
-    ).on('id -> id, 'data -> data).executeInsert()
+    ).on('id -> id, 'data -> data.toString).executeInsert()
     this
   }
 
-  def updatePassword(data: String): OpenIDAccount = DB.withConnection{ implicit connection =>
+  def updatePassword(data: HashedPassword): OpenIDAccount = DB.withConnection{ implicit connection =>
     val res = SQL(
       """
         UPDATE user_auth SET data={data} WHERE id={id}
       """
-    ).on('id -> id, 'data -> data).executeUpdate()
+    ).on('id -> id, 'data -> data.toString).executeUpdate()
     this
   }
 
@@ -146,7 +146,7 @@ object OpenIDAccount extends AccountDAO {
     ).on('email -> email, 'profile_id -> profile_id).executeUpdate
 
     // Nasty hack around DB types...
-    if (connection.getMetaData.getURL.contains("mysql")) {
+    if (!connection.getMetaData.getURL.contains("postgresql")) {
       SQL(
         """SELECT * FROM users WHERE id = LAST_INSERT_ID()"""
       ).as(OpenIDAccount.simple.singleOpt)

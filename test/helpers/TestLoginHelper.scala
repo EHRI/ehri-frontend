@@ -8,8 +8,7 @@ import play.api.test.Helpers._
 import play.api.GlobalSettings
 import play.filters.csrf.{CSRFFilter, CSRF}
 import play.filters.csrf.CSRF.Token
-import models.sql.{OpenIDAccount}
-import org.mindrot.jbcrypt.BCrypt
+import models.sql.OpenIDAccount
 import mocks.{MockSearchDispatcher, userFixtures, MockSearchIndexer}
 import global.GlobalConfig
 import controllers.base.LoginHandler
@@ -19,6 +18,7 @@ import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
 import rest.RestEventHandler
 import models.Account
+import play.api.db.evolutions.{Evolution, OfflineEvolutions}
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -186,7 +186,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
       // Initialize user fixtures
       userFixtures.values.map { user =>
         OpenIDAccount.findByProfileId(user.profile_id) orElse OpenIDAccount.create(user.email, user.profile_id).map { u =>
-          u.setPassword(BCrypt.hashpw(testPassword, BCrypt.gensalt()))
+          u.setPassword(Account.hashPassword(testPassword))
         }
       }
     }

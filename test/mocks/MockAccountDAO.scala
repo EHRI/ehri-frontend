@@ -1,13 +1,13 @@
-package mocks
+package models.sql
 
-import models.{Account,AccountDAO}
+import models.{Account,AccountDAO,HashedPassword}
 import java.util.UUID
 
 case class MockAccount(email: String, profile_id: String) extends Account {
-  def updatePassword(hashed: String): Account = this
-  def setPassword(data: String): Account = this
+  def updatePassword(hashed: HashedPassword): Account = this
+  def setPassword(data: HashedPassword): Account = this
   def delete(): Boolean = {
-    userFixtures.remove(profile_id)
+    mocks.userFixtures.remove(profile_id)
     true
   }
   def createResetToken(token: UUID) = MockAccountDAO.tokens += token.toString -> profile_id

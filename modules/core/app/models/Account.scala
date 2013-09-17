@@ -3,6 +3,17 @@ package models
 import play.api.libs.json.{Json, JsValue, Writes}
 import play.api.Plugin
 import java.util.UUID
+import org.mindrot.jbcrypt.BCrypt
+
+
+private [models] object HashedPassword {
+  def fromPlain(plain: String) = new HashedPassword(BCrypt.hashpw(plain.toString, BCrypt.gensalt()))
+  def fromHashed(hashed: String) = new HashedPassword(hashed)
+}
+
+private[models] case class HashedPassword private(s: String) {
+  override def toString = s
+}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -10,9 +21,9 @@ import java.util.UUID
 trait Account {
 	def email: String
 	def profile_id: String
-  def password: Option[String] = None
-  def updatePassword(hashed: String): Account
-  def setPassword(data: String): Account
+  def password: Option[HashedPassword] = None
+  def updatePassword(hashed: HashedPassword): Account
+  def setPassword(hashed: HashedPassword): Account
   def delete(): Boolean
   def createResetToken(uuid: UUID): Unit
   def expireTokens(): Unit
@@ -25,6 +36,9 @@ object Account {
       "profile_id" -> user.profile_id
     )
   }
+
+  def checkPassword(p: String, h: HashedPassword) = BCrypt.checkpw(p, h.toString)
+  def hashPassword(p: String): HashedPassword = HashedPassword.fromPlain(p)
 }
 
 trait AccountDAO extends Plugin {
