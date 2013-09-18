@@ -1,6 +1,6 @@
 @(desc: Field, label: String)(implicit fieldPrefix: String, lang: Lang)
 
-<div class="inline-formset control-group clearfix">
+<div class="inline-formset control-group clearfix" data-prefix="@label">
     <!-- Template for adding inline date forms via JS -->
     <label class="control-label">
         @Messages(fieldPrefix + "." + label)
