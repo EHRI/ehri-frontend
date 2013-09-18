@@ -54,6 +54,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
         "descriptions[0].descriptionArea.history" -> Seq("Some history"),
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("Some content"),
         "descriptions[0].addressArea[0].addressName" -> Seq("An Address"),
+        "descriptions[0].addressArea[0].email[0]" -> Seq("foo@example.com"),
         "descriptions[0].addressArea[0].telephone[0]" -> Seq("12345 546395"),
         "descriptions[0].controlArea[0].sources[0]" -> Seq("ClaimsCon"),
         "descriptions[0].controlArea[0].sources[1]" -> Seq("YV"),
