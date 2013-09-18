@@ -7,6 +7,7 @@ import anorm._
 import anorm.SqlParser._
 import helpers.WithFixures
 import models.{Account, AccountDAO}
+import models.sql.{OpenIDAccount, OpenIDAccountDAOPlugin}
 
 
 /**
@@ -18,6 +19,14 @@ class AccountSpec extends Specification {
     "load fixtures with the right number of accounts" in new WithFixures {
       DB.withConnection { implicit connection =>
         SQL("select count(*) from users").as(scalar[Long].single) must equalTo(2L)
+      }
+    }
+
+    "find accounts by id and email" in new WithFixures {
+      DB.withConnection { implicit connection =>
+        val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
+        userDAO.findByProfileId(mocks.privilegedUser.id) must beSome
+        userDAO.findByEmail(mocks.privilegedUser.email) must beSome
       }
     }
 
@@ -35,6 +44,12 @@ class AccountSpec extends Specification {
           """).on('pw -> hashedPw.toString)
           .as(scalar[Long].single) must equalTo(1L)
       }
+    }
+  }
+
+  "openid dao" should {
+    "find accounts by openid_url" in new WithFixures {
+      OpenIDAccount.authenticate(mocks.privilegedUser.id + "-openid-test-url") must beSome
     }
   }
 }

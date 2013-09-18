@@ -11,22 +11,18 @@ import models.{HashedPassword, Account, AccountDAO}
 
 // -- Users
 
-case class PersonaAccount(profile_id: String, email: String) extends Account with TokenManager {
+case class PersonaAccount(id: String, email: String) extends Account with PasswordManager with TokenManager {
   def delete(): Boolean = DB.withConnection { implicit connection =>
     val res: Int = SQL(
-      """DELETE FROM users WHERE profile_id = {profile_id}""").on('profile_id -> profile_id).executeUpdate()
+      """DELETE FROM users WHERE id = {id}""").on('id -> id).executeUpdate()
     res == 1
   }
-
-  // Unsupported operations
-  def setPassword(data: HashedPassword) = ???
-  def updatePassword(data: HashedPassword) = ???
 }
 
 object PersonaAccount extends AccountDAO {
 
   val simple = {
-     get[String]("users.profile_id") ~ 
+     get[String]("users.id") ~
      get[String]("users.email") map {
        case profile_id ~ email => PersonaAccount(profile_id, email)
      }
@@ -38,12 +34,12 @@ object PersonaAccount extends AccountDAO {
     ).as(PersonaAccount.simple *)
   }
 
-  def findByProfileId(profile_id: String): Option[Account] = DB.withConnection { implicit connection =>
+  def findByProfileId(id: String): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
       """
-        SELECT * FROM users WHERE profile_id = {profile_id}
+        SELECT * FROM users WHERE id = {id}
       """
-    ).on('profile_id -> profile_id).as(PersonaAccount.simple.singleOpt)
+    ).on('id -> id).as(PersonaAccount.simple.singleOpt)
   }
   
   def findByEmail(email: String): Option[PersonaAccount] = DB.withConnection { implicit connection =>
@@ -54,11 +50,11 @@ object PersonaAccount extends AccountDAO {
     ).on('email -> email).as(PersonaAccount.simple.singleOpt)
   } 
 
-  def create(email: String, profileId: String): Option[Account] = DB.withConnection { implicit connection =>
+  def create(id: String, email: String): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
-      """INSERT INTO users (profile_id, email) VALUES ({profile_id},{email})"""
-    ).on('profile_id -> profileId, 'email -> email).executeUpdate
-    findByProfileId(profileId)
+      """INSERT INTO users (id, email) VALUES ({id},{email})"""
+    ).on('id -> id, 'email -> email).executeUpdate
+    findByProfileId(id)
   }
 
   def findByResetToken(token: String): Option[Account] = DB.withConnection { implicit connection =>
@@ -67,8 +63,8 @@ object PersonaAccount extends AccountDAO {
 }
 
 class PersonaAccountDAOPlugin(app: play.api.Application) extends AccountDAO {
-  def findByProfileId(profile_id: String) = PersonaAccount.findByProfileId(profile_id)
+  def findByProfileId(id: String) = PersonaAccount.findByProfileId(id)
   def findByEmail(email: String) = PersonaAccount.findByEmail(email)
   def findByResetToken(token: String) = PersonaAccount.findByResetToken(token)
-  def create(email: String, profile_id: String) = PersonaAccount.create(email, profile_id)
+  def create(id: String, email: String) = PersonaAccount.create(id, email)
 }

@@ -164,7 +164,7 @@ trait TestMockLoginHelper extends TestLoginHelper {
   def getAuthCookies(user: Account): String = {
     header(HeaderNames.SET_COOKIE,
       route(play.api.test.FakeRequest(POST, controllers.core.routes.Application.login.url),
-          Map("profile" -> Seq(user.profile_id))).get)
+          Map("profile" -> Seq(user.id))).get)
       .getOrElse(sys.error("No Authorization cookie found"))
   }
 }
@@ -185,7 +185,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
 
       // Initialize user fixtures
       userFixtures.values.map { user =>
-        OpenIDAccount.findByProfileId(user.profile_id) orElse OpenIDAccount.create(user.email, user.profile_id).map { u =>
+        OpenIDAccount.findByProfileId(user.id) orElse OpenIDAccount.create(user.email, user.id).map { u =>
           u.setPassword(Account.hashPassword(testPassword))
         }
       }

@@ -120,7 +120,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
       // check if the email is already registered...
       userDAO.findByEmail(email.toLowerCase).map { account =>
         val errForm = userPasswordForm.bindFromRequest
-          .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.profile_id)))
+          .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.id)))
         getGroups { groups =>
             BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
               groups, controllers.core.routes.Admin.createUserPost))
@@ -132,7 +132,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
         val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
 
         createUserProfile(user, groups) { profile =>
-          userDAO.create(email.toLowerCase, profile.id).map { account =>
+          userDAO.create(profile.id, email.toLowerCase).map { account =>
             account.setPassword(Account.hashPassword(pw))
             // Final step, grant user permissions on their own account
             grantOwnerPerms(profile) {
@@ -183,7 +183,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
         (for {
           account <- userDAO.findByEmail(email.toLowerCase)
           hashedPw <- account.password if Account.checkPassword(pw, hashedPw)
-        } yield gotoLoginSucceeded(account.profile_id)) getOrElse {
+        } yield gotoLoginSucceeded(account.id)) getOrElse {
           Redirect(controllers.core.routes.Admin.passwordLogin)
             .flashing("error" -> Messages("login.badUsernameOrPassword"))
         }

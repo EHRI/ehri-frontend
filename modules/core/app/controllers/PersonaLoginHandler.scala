@@ -39,13 +39,13 @@ case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalCon
             val email: String = (response.json \ "email").as[String]
 
             models.sql.PersonaAccount.findByEmail(email) match {
-              case Some(user) => gotoLoginSucceeded(email)
+              case Some(account) => gotoLoginSucceeded(email)
               case None => {
                 Async {
                   rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                     case Right(up) => {
-                      models.sql.PersonaAccount.create(up.model.identifier, email).map { user =>
-                        gotoLoginSucceeded(user.profile_id)
+                      models.sql.PersonaAccount.create(up.id, email).map { acc =>
+                        gotoLoginSucceeded(acc.id)
                       }.getOrElse(BadRequest("Creation of user db failed!"))
                     }
                     case Left(err) => {

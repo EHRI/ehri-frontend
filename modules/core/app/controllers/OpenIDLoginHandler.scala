@@ -2,7 +2,7 @@ package controllers.core
 
 import controllers.base.LoginHandler
 import forms.OpenIDForm
-import models.sql.OpenIDAssociation
+import _root_.models.sql.{OpenIDAccount, OpenIDAssociation}
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
@@ -52,26 +52,31 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
         OpenIDAssociation.findByUrl(info.id) match {
           // FIXME: Handle case where user exists in auth DB but not
           // on the server.	
-          case Some(assoc) => gotoLoginSucceeded(assoc.user.get.profile_id)
-          case None =>
+          case Some(assoc) => gotoLoginSucceeded(assoc.user.get.id)
+          case None => {
             val email = extractEmail(info.attributes).getOrElse(sys.error("No openid email"))
-            Async {
-              rest.AdminDAO(userProfile = None).createNewUserProfile.map {
-                case Right(entity) => {
-                  models.sql.OpenIDAccount.create(email.toLowerCase, entity.id).map { user =>
-                    user.addAssociation(info.id)
-                    gotoLoginSucceeded(user.profile_id)
-                      .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
-                      //.withSession("access_uri" -> controllers.core.routes.UserProfiles.update(user.profile_id).url)
-                      // FIXME WHEN REFACTORED
-                  }.getOrElse(BadRequest("Creation of user db failed!"))
-                }
-                case Left(err) => {
-                  BadRequest("Unexpected REST error: " + err)
+            OpenIDAccount.findByEmail(email).map { account =>
+                account.addAssociation(info.id)
+                gotoLoginSucceeded(account.id)
+                  .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
+            } getOrElse {
+              Async {
+                rest.AdminDAO(userProfile = None).createNewUserProfile.map { 
+                  case Right(entity) => {
+                    models.sql.OpenIDAccount.create(entity.id, email.toLowerCase).map { account =>
+                      account.addAssociation(info.id)
+                      // TODO: Redirect to profile?
+                      gotoLoginSucceeded(account.id)
+                        .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
+                    }.getOrElse(BadRequest("Creation of user db failed!"))
+                  }
+                  case Left(err) => {
+                    BadRequest("Unexpected REST error: " + err)
+                  }
                 }
               }
             }
-          // TODO: Check error condition?
+          }
         }
       } recoverWith {
         case e: Throwable => Future.successful {

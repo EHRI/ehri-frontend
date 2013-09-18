@@ -47,7 +47,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
     optionalUserAction { implicit maybeAccount => implicit request =>
       maybeAccount.map { account =>
 
-        val fakeProfile = UserProfile(UserProfileF(id=Some(account.profile_id), identifier="", name=""))
+        val fakeProfile = UserProfile(UserProfileF(id=Some(account.id), identifier="", name=""))
         implicit val maybeUser = Some(fakeProfile)
 
         AsyncRest {
@@ -57,7 +57,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
           // available initially, and we don't want to block for it to become
           // available, we should probably add the account to the permissions when
           // we have both items from the server.
-          val getProf = rest.EntityDAO[UserProfile](EntityType.UserProfile, maybeUser).get(account.profile_id)
+          val getProf = rest.EntityDAO[UserProfile](EntityType.UserProfile, maybeUser).get(account.id)
           val getGlobalPerms = rest.PermissionDAO(maybeUser).get
           // These requests should execute in parallel...
           for { r1 <- getProf; r2 <- getGlobalPerms } yield {
@@ -91,12 +91,12 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
       val entityType = EntityType.withName(contentType.toString)
       maybeAccount.map { account =>
 
-        val fakeProfile = UserProfile(UserProfileF(id=Some(account.profile_id), identifier="", name=""))
+        val fakeProfile = UserProfile(UserProfileF(id=Some(account.id), identifier="", name=""))
         implicit val maybeUser = Some(fakeProfile)
 
         AsyncRest {
           val getProf = rest.EntityDAO[UserProfile](
-            EntityType.UserProfile, Some(fakeProfile)).get(account.profile_id)
+            EntityType.UserProfile, Some(fakeProfile)).get(account.id)
           // NB: Instead of getting *just* global perms here we also fetch
           // everything in scope for the given item
           val getGlobalPerms = rest.PermissionDAO(maybeUser).getScope(id)

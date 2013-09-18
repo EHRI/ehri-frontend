@@ -11,7 +11,7 @@ import models.{HashedPassword, Account, AccountDAO}
 
 // -- Users
 
-case class OpenIDAccount(id: Long, email: String, profile_id: String) extends Account with TokenManager {
+case class OpenIDAccount(id: String, email: String) extends Account with PasswordManager with TokenManager {
 
   lazy val associations: Seq[OpenIDAssociation] = DB.withConnection { implicit connection =>
     SQL(
@@ -26,34 +26,9 @@ case class OpenIDAccount(id: Long, email: String, profile_id: String) extends Ac
   def addAssociation(assoc: String): OpenIDAccount = DB.withConnection { implicit connection =>
     val res = SQL(
       """
-        INSERT INTO openid_association (id, user_id, openid_url) VALUES (DEFAULT, {user_id},{url})
+        INSERT INTO openid_association (id, openid_url) VALUES ({id},{url})
       """
-    ).on('user_id -> id, 'url -> assoc).executeInsert()
-    this
-  }
-
-  override def password: Option[HashedPassword] = DB.withConnection { implicit connection =>
-    SQL(
-      """SELECT data FROM user_auth WHERE user_auth.id = {id} LIMIT 1"""
-    ).on('id -> id).as(str("data").singleOpt).map(HashedPassword.fromHashed)
-
-  }
-
-  def setPassword(data: HashedPassword): OpenIDAccount = DB.withConnection{ implicit connection =>
-    val res = SQL(
-      """
-        INSERT INTO user_auth (id, data) VALUES ({id},{data})
-      """
-    ).on('id -> id, 'data -> data.toString).executeInsert()
-    this
-  }
-
-  def updatePassword(data: HashedPassword): OpenIDAccount = DB.withConnection{ implicit connection =>
-    val res = SQL(
-      """
-        UPDATE user_auth SET data={data} WHERE id={id}
-      """
-    ).on('id -> id, 'data -> data.toString).executeUpdate()
+    ).on('id -> id, 'url -> assoc).executeInsert()
     this
   }
 
@@ -69,17 +44,14 @@ case class OpenIDAccount(id: Long, email: String, profile_id: String) extends Ac
 object OpenIDAccount extends AccountDAO {
 
   val simple = {
-    get[Long]("users.id") ~
-      get[String]("users.email") ~
-      get[String]("users.profile_id") map {
-        case id ~ email ~ profile_id => OpenIDAccount(id, email, profile_id)
-      }
+    get[String]("users.id") ~
+    get[String]("users.email") map {
+      case id ~ email => OpenIDAccount(id, email)
+    }
   }
 
   def findAll: Seq[OpenIDAccount] = DB.withConnection { implicit connection =>
-    SQL(
-      """select * from users"""
-    ).as(OpenIDAccount.simple *)
+    SQL("select * from users").as(OpenIDAccount.simple *)
   }
 
   /**
@@ -92,7 +64,7 @@ object OpenIDAccount extends AccountDAO {
     SQL(
       """
         SELECT * FROM users
-          JOIN openid_association ON openid_association.user_id = users.id
+          JOIN openid_association ON openid_association.id = users.id
           WHERE openid_association.openid_url = {url}
       """
     ).on('url -> url).as(OpenIDAccount.simple.singleOpt)
@@ -108,22 +80,14 @@ object OpenIDAccount extends AccountDAO {
   def authenticate(email: String, data: String) = DB.withConnection{ implicit connection =>
     SQL(
       """
-        SELECT * FROM users
+        SELECT * FROM user
           JOIN user_auth ON user_auth.id = users.id
           WHERE users.email = {email} AND user_auth.data = {data}
       """
     ).on('email -> email, 'data -> data).as(OpenIDAccount.simple.singleOpt)
   }
 
-  def findById(id: Long): Option[Account] = DB.withConnection { implicit connection =>
-    SQL(
-      """
-        select * from users where id = {id}
-      """
-    ).on('id -> id).as(OpenIDAccount.simple.singleOpt)
-  }
-
-  def findByEmail(email: String): Option[Account] = DB.withConnection { implicit connection =>
+  def findByEmail(email: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from users where email = {email}
@@ -131,37 +95,22 @@ object OpenIDAccount extends AccountDAO {
     ).on('email -> email).as(OpenIDAccount.simple.singleOpt)
   }
 
-  def findByProfileId(id: String): Option[Account] = DB.withConnection { implicit connection =>
-    SQL(
-      """
-        select * from users where profile_id = {id}
-      """
-    ).on('id -> id).as(OpenIDAccount.simple.singleOpt)
+  def findByProfileId(id: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
+    SQL("select * from users where id = {id}")
+      .on('id -> id).as(OpenIDAccount.simple.singleOpt)
   }
 
-  def create(email: String, profile_id: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
-    println("Inserting new user: " + email)
+  def create(id: String, email: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
     SQL(
-      """INSERT INTO users (id, email, profile_id) VALUES (DEFAULT,{email},{profile_id})"""
-    ).on('email -> email, 'profile_id -> profile_id).executeUpdate
-
-    // Nasty hack around DB types...
-    if (!connection.getMetaData.getURL.contains("postgresql")) {
-      SQL(
-        """SELECT * FROM users WHERE id = LAST_INSERT_ID()"""
-      ).as(OpenIDAccount.simple.singleOpt)
-    } else {
-      // Assuming POSTGRES
-      SQL(
-        """SELECT * FROM users WHERE id = currval('users_id_seq')"""
-      ).as(OpenIDAccount.simple.singleOpt)
-    }
+      """INSERT INTO users (id, email) VALUES ({id},{email})"""
+    ).on('id -> id, 'email -> email).executeUpdate
+    findByProfileId(id)
   }
 
-  def findByResetToken(token: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
+  def findByResetToken(token: String): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
       """SELECT u.*, t.token FROM users u, token t
-         WHERE u.profile_id = t.profile_id AND t.token = {token}
+         WHERE u.id = t.id AND t.token = {token}
           AND t.expires > NOW()"""
     ).on('token -> token).as(OpenIDAccount.simple.singleOpt)
   }
@@ -169,13 +118,13 @@ object OpenIDAccount extends AccountDAO {
 
 // -- Associations
 
-case class OpenIDAssociation(id: Long, userid: Long, url: String, user: Option[OpenIDAccount] = None) {
+case class OpenIDAssociation(id: String, url: String, user: Option[OpenIDAccount] = None) {
 
   lazy val users: Seq[Account] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from users
-        join openid_association on openid_association.user_id = users.id
+        join openid_association on openid_association.id = users.id
         where openid_association.id = {id}
       """
     ).on('id -> id).as(OpenIDAccount.simple *)
@@ -185,11 +134,10 @@ case class OpenIDAssociation(id: Long, userid: Long, url: String, user: Option[O
 object OpenIDAssociation {
 
   val simple = {
-    get[Long]("openid_association.id") ~
-      get[Long]("openid_association.user_id") ~
-      get[String]("openid_association.openid_url") map {
-        case id ~ userid ~ url => OpenIDAssociation(id, userid, url, None)
-      }
+    get[String]("openid_association.id") ~
+    get[String]("openid_association.openid_url") map {
+      case id ~ url => OpenIDAssociation(id, url, None)
+    }
   }
 
   val withUser = {
@@ -201,7 +149,7 @@ object OpenIDAssociation {
   def findAll: Seq[OpenIDAssociation] = DB.withConnection { implicit connection =>
     SQL(
       """
-        select * from openid_association join users on openid_association.user_id =  users.id
+        select * from openid_association join users on openid_association.id =  users.id
       """
     ).as(OpenIDAssociation.withUser *)
   }
@@ -210,7 +158,7 @@ object OpenIDAssociation {
     SQL(
       """
         select * from openid_association
-          join users on openid_association.user_id =  users.id where
+          join users on openid_association.id =  users.id where
         openid_association.openid_url = {url} LIMIT 1
       """
     ).on('url -> url).as(OpenIDAssociation.withUser.singleOpt)
@@ -218,9 +166,9 @@ object OpenIDAssociation {
 }
 
 class OpenIDAccountDAOPlugin(app: play.api.Application) extends AccountDAO {
-  def findByProfileId(profile_id: String) = OpenIDAccount.findByProfileId(profile_id)
+  def findByProfileId(id: String) = OpenIDAccount.findByProfileId(id)
   def findByEmail(email: String) = OpenIDAccount.findByEmail(email)
   def findByResetToken(token: String) = OpenIDAccount.findByResetToken(token)
-  def create(email: String, profile_id: String) = OpenIDAccount.create(email, profile_id)
+  def create(id: String, email: String) = OpenIDAccount.create(id, email)
 }
 

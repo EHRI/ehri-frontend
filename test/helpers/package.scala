@@ -1,4 +1,5 @@
 import models.AccountDAO
+import models.sql.OpenIDAccountDAOPlugin
 import org.specs2.execute.{Result, AsResult}
 import org.specs2.mutable.Around
 import org.specs2.specification.Scope
@@ -24,9 +25,11 @@ package object helpers {
    * @return
    */
   def loadFixtures(implicit app: play.api.Application) = {
-    val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
+    val userDAO: OpenIDAccountDAOPlugin = new OpenIDAccountDAOPlugin(app)
     mocks.userFixtures.map { case (profile, account) =>
-      userDAO.create(account.email, account.profile_id)
+      userDAO.create(account.id, account.email).map { acc =>
+        acc.addAssociation(acc.id + "-openid-test-url")
+      }
     }
   }
 

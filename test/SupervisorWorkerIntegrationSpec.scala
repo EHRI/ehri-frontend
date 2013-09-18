@@ -24,7 +24,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
   import mocks.{privilegedUser,unprivilegedUser}
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -149,7 +149,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
 
       // Add their account to the mocks
       val haAccount = MockAccount("head-archivist@example.com", headArchivistUserId)
-      mocks.userFixtures.put(haAccount.profile_id, haAccount)
+      mocks.userFixtures.put(haAccount.id, haAccount)
 
 
       // Now create a new user and add them to the archivists group. Do this
@@ -181,7 +181,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
 
       // Add the archivists group to the account mocks
       val aAccount = MockAccount("archivist1@example.com", archivistUserId)
-      mocks.userFixtures.put(aAccount.profile_id, aAccount)
+      mocks.userFixtures.put(aAccount.id, aAccount)
 
 
       // Check each user can read their profile as themselves...

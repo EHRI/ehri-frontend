@@ -20,7 +20,7 @@ private[models] case class HashedPassword private(s: String) {
  */
 trait Account {
 	def email: String
-	def profile_id: String
+	def id: String
   def password: Option[HashedPassword] = None
   def updatePassword(hashed: HashedPassword): Account
   def setPassword(hashed: HashedPassword): Account
@@ -33,7 +33,7 @@ object Account {
   implicit val userWrites: Writes[Account] = new Writes[Account] {
     def writes(user: Account): JsValue = Json.obj(
       "email" -> user.email,
-      "profile_id" -> user.profile_id
+      "profile_id" -> user.id
     )
   }
 
@@ -44,6 +44,6 @@ object Account {
 trait AccountDAO extends Plugin {
 	def findByProfileId(id: String): Option[Account]
   def findByEmail(email: String): Option[Account]
-  def create(email: String, profile_id: String): Option[Account]
+  def create(id: String, email: String): Option[Account]
   def findByResetToken(token: String): Option[Account]
 }

@@ -24,7 +24,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
   import mocks.{privilegedUser,unprivilegedUser}
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -106,7 +106,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
       val fakeAccount = MockAccount("test-user@example.com", userId)
-      mocks.userFixtures.put(fakeAccount.profile_id, fakeAccount)
+      mocks.userFixtures.put(fakeAccount.id, fakeAccount)
 
       // Check the user can read their profile as themselves...
       // Check we can read the user's page
