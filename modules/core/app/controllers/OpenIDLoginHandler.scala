@@ -22,17 +22,17 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
   val openidError = """
     |There was an error connecting to your OpenID provider.""".stripMargin
 
-  def login = optionalUserAction { implicit maybeUser =>
+  def openIDLogin = optionalUserAction { implicit maybeUser =>
     implicit request =>
-      Ok(views.html.login(OpenIDForm.openid, action = routes.OpenIDLoginHandler.loginPost))
+      Ok(views.html.openIDLogin(OpenIDForm.openid, action = routes.OpenIDLoginHandler.openIDLoginPost))
   }
 
-  def loginPost = optionalUserAction { implicit maybeUser =>
+  def openIDLoginPost = optionalUserAction { implicit maybeUser =>
     implicit request =>
       OpenIDForm.openid.bindFromRequest.fold(
         error => {
           Logger.info("bad request " + error.toString)
-          BadRequest(views.html.login(error, action = routes.OpenIDLoginHandler.loginPost))
+          BadRequest(views.html.openIDLogin(error, action = routes.OpenIDLoginHandler.openIDLoginPost))
         },
         {
           case (openid) => AsyncResult(
@@ -80,7 +80,7 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
         }
       } recoverWith {
         case e: Throwable => Future.successful {
-          Redirect(routes.Application.login())
+          Redirect(controllers.core.routes.OpenIDLoginHandler.openIDLogin)
             .flashing("error" -> Messages("openid.openIdError", e.getMessage))
         }
       }

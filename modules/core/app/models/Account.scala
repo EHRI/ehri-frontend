@@ -42,6 +42,10 @@ object Account {
 }
 
 trait AccountDAO extends Plugin {
+  def authenticate(email: String, pw: String): Option[Account] = for {
+      acc <- findByEmail(email)
+      hashed <- acc.password if (Account.checkPassword(pw, hashed))
+  } yield acc
 	def findByProfileId(id: String): Option[Account]
   def findByEmail(email: String): Option[Account]
   def create(id: String, email: String): Option[Account]

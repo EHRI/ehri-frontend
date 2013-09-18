@@ -72,8 +72,6 @@ package globalConfig {
       )
     }
 
-    val loginHandler: LoginHandler = new OpenIDLoginHandler()(this)
-
     val routeRegistry = new RouteRegistry(Map(
       EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get _,
       EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get _,
@@ -88,8 +86,8 @@ package globalConfig {
       EntityType.Concept -> controllers.vocabs.routes.Concepts.get _,
       EntityType.Country -> controllers.archdesc.routes.Countries.get _
     ), default = controllers.admin.routes.Home.index,
-      login = controllers.core.routes.Admin.passwordLogin,
-      logout = controllers.core.routes.Application.logout)
+      login = controllers.core.routes.Admin.login,
+      logout = controllers.core.routes.Admin.logout)
   }
 }
 

@@ -7,9 +7,6 @@ trait LoginHandler extends Controller with Auth with LoginLogout with Authorizer
 
   implicit val globalConfig: global.GlobalConfig
 
-  def login: Action[play.api.mvc.AnyContent]
-  def loginPost: Action[play.api.mvc.AnyContent]
-
   def logout = optionalUserAction { implicit maybeUser =>
     implicit request =>
       gotoLogoutSucceeded

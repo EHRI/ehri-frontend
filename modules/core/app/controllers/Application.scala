@@ -1,5 +1,6 @@
 package controllers.core
 
+import _root_.models.{AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{LoginHandler, AuthController, Authorizer}
 import models.base.AnyModel
@@ -14,14 +15,11 @@ import utils.search.Dispatcher
 import com.google.inject._
 import play.api.http.ContentTypes
 import java.util.Locale
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.i18n.Messages
 
-class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with LoginLogout with Authorizer with AuthController {
-
-  lazy val loginHandler: LoginHandler = globalConfig.loginHandler
-
-  def login = loginHandler.login
-  def loginPost = loginHandler.loginPost
-  def logout = loginHandler.logout
+class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with Authorizer with AuthController {
 
   /**
    * Action for redirecting to any item page, given a raw id.
@@ -39,7 +37,8 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
             list match {
               case Nil => NotFound(views.html.errors.itemNotFound())
               case mm :: _ =>
-                globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
+                globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id)
+                  .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
             }
           }
         }

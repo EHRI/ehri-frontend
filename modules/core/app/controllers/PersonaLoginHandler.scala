@@ -21,12 +21,12 @@ case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalCon
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
 
-  def login = Action {
+  def personaLogin = Action {
     // TODO: Implement a login action for Persona...
     Ok("Mozilla Persona should handle this view...")
   }
   
-  def loginPost = Action { implicit request =>
+  def personaLoginPost = Action { implicit request =>
     val assertion: String = request.body.asFormUrlEncoded.map(
       _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("")
 

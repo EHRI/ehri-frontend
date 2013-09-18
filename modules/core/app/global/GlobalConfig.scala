@@ -14,7 +14,6 @@ trait MenuConfig {
 
 trait GlobalConfig {
   val menuConfig: MenuConfig
-  val loginHandler: LoginHandler
   val routeRegistry: RouteRegistry
   val eventHandler: RestEventHandler
 

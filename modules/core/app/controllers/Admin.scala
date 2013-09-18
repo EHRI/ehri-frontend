@@ -25,9 +25,51 @@ import rest.ValidationError
  * Controller for handling user admin actions.
  * @param globalConfig
  */
-class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with ControllerHelpers with LoginLogout {
+class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with LoginLogout with ControllerHelpers {
 
   private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
+
+  private val passwordLoginForm = Form(
+    tuple(
+      "email" -> email,
+      "password" -> nonEmptyText
+    )
+  )
+
+  /**
+   * Login via a password...
+   * @return
+   */
+  def login = Action { implicit request =>
+    Ok(views.html.admin.pwLogin(passwordLoginForm,
+      controllers.core.routes.Admin.loginPost))
+  }
+
+  /**
+   * Check password and store credentials.
+   * @return
+   */
+  def loginPost = Action { implicit request =>
+    val action = controllers.core.routes.Admin.loginPost
+    passwordLoginForm.bindFromRequest.fold(
+      errorForm => {
+        BadRequest(views.html.admin.pwLogin(errorForm, action))
+      },
+      data => {
+        val (email, pw) = data
+        userDAO.authenticate(email, pw).map { account =>
+          gotoLoginSucceeded(account.id)
+        } getOrElse {
+          Redirect(controllers.core.routes.Admin.login)
+            .flashing("error" -> Messages("login.badUsernameOrPassword"))
+        }
+      }
+    )
+  }
+
+  def logout = optionalUserAction { implicit maybeUser => implicit request =>
+    gotoLogoutSucceeded
+  }
 
   private val userPasswordForm = Form(
     tuple(
@@ -49,13 +91,6 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
     ) verifying("login.passwordsDoNotMatch", f => f match {
       case (_, pw, pwc) => pw == pwc
     })
-  )
-
-  private val passwordLoginForm = Form(
-    tuple(
-      "email" -> email,
-      "password" -> nonEmptyText
-    )
   )
 
   private val groupMembershipForm = Form(single("group" -> list(nonEmptyText)))
@@ -155,38 +190,6 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
       values => {
         val (email, username, name, pw, _) = values
         saveUser(email, username, name, pw)
-      }
-    )
-  }
-
-  /**
-   * Login via a password...
-   * @return
-   */
-  def passwordLogin = Action { implicit request =>
-    Ok(views.html.admin.pwLogin(passwordLoginForm, controllers.core.routes.Admin.passwordLoginPost))
-  }
-
-  /**
-   * Check password and store credentials.
-   * @return
-   */
-  def passwordLoginPost = Action { implicit request =>
-    val action = controllers.core.routes.Admin.passwordLoginPost
-    passwordLoginForm.bindFromRequest.fold(
-      errorForm => {
-        BadRequest(views.html.admin.pwLogin(errorForm, action))
-      },
-      data => {
-        val (email, pw) = data
-
-        (for {
-          account <- userDAO.findByEmail(email.toLowerCase)
-          hashedPw <- account.password if Account.checkPassword(pw, hashedPw)
-        } yield gotoLoginSucceeded(account.id)) getOrElse {
-          Redirect(controllers.core.routes.Admin.passwordLogin)
-            .flashing("error" -> Messages("login.badUsernameOrPassword"))
-        }
       }
     )
   }
@@ -308,7 +311,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
       userDAO.findByResetToken(token).map { account =>
         account.updatePassword(Account.hashPassword(pw))
         account.expireTokens()
-        Redirect(controllers.core.routes.Admin.passwordLogin())
+        Redirect(globalConfig.routeRegistry.login)
           .flashing("warning" -> "login.passwordResetNowLogin")
       }.getOrElse {
         Redirect(controllers.core.routes.Admin.forgotPassword)

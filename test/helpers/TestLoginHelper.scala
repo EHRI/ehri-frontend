@@ -44,9 +44,6 @@ trait TestLoginHelper {
 
   object TestConfig extends globalConfig.BaseConfiguration {
     val eventHandler = RestEventCollector
-
-    //private implicit lazy val globalConfig = this
-    override val loginHandler: LoginHandler = new mocks.MockLoginHandler()(this)
   }
 
   /**
@@ -163,8 +160,9 @@ trait TestMockLoginHelper extends TestLoginHelper {
    */
   def getAuthCookies(user: Account): String = {
     header(HeaderNames.SET_COOKIE,
-      route(play.api.test.FakeRequest(POST, controllers.core.routes.Application.login.url),
-          Map("profile" -> Seq(user.id))).get)
+      route(play.api.test.FakeRequest(POST, controllers.core.routes.Admin.loginPost.url),
+          Map("email" -> Seq(user.email), "password" -> Seq("idontmatter"),
+            CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString))).get)
       .getOrElse(sys.error("No Authorization cookie found"))
   }
 }
@@ -206,7 +204,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
       "password" -> Seq(testPassword)
     )
     header(HeaderNames.SET_COOKIE,
-      route(play.api.test.FakeRequest(POST, controllers.core.routes.Admin.passwordLoginPost.url), loginData).get)
+      route(play.api.test.FakeRequest(POST, controllers.core.routes.Admin.loginPost.url), loginData).get)
         .getOrElse(sys.error("No Authorization cookie found"))
   }
 }

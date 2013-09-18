@@ -29,6 +29,9 @@ object MockAccountDAO {
  */
 class MockAccountDAO(app: play.api.Application) extends AccountDAO {
 
+  // Mock authentication
+  override def authenticate(email: String, pw: String) = mocks.userFixtures.find(_._2.email == email).map(_._2)
+
   def findByProfileId(id: String): Option[Account]
         = mocks.userFixtures.get(id)
 

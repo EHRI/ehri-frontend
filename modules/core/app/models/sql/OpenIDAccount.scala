@@ -70,23 +70,6 @@ object OpenIDAccount extends AccountDAO {
     ).on('url -> url).as(OpenIDAccount.simple.singleOpt)
   }
 
-  /**
-   * Authenticate a user via an email and a password stored in the user_auth table.
-   *
-   * @param email
-   * @param data
-   * @return
-   */
-  def authenticate(email: String, data: String) = DB.withConnection{ implicit connection =>
-    SQL(
-      """
-        SELECT * FROM user
-          JOIN user_auth ON user_auth.id = users.id
-          WHERE users.email = {email} AND user_auth.data = {data}
-      """
-    ).on('email -> email, 'data -> data).as(OpenIDAccount.simple.singleOpt)
-  }
-
   def findByEmail(email: String): Option[OpenIDAccount] = DB.withConnection { implicit connection =>
     SQL(
       """
