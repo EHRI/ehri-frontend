@@ -107,30 +107,31 @@ Now, visit http://localhost:9000 in your browser. The app should show a screen s
 
 Next, we have a little problem because we need to create the login details of our administrative user in the authorisation database. Unfortunately there is no way at present to do this without mucking with the database directly.
 
-**Log in via OpenID**. The application with create you a default user id (like user00001), but by default your account will have no privileges. We need to change the default generated user ID to the one you earlier created in Neo4j.
+Basically, we need to create a database entry that links the default username you created in Neo4j to an email address (the email address is a key that identifies a user.)
 
 So open up the MySql console again:
 
     mysql -udocview -p -hlocalhost docview # or for postgres: sudo su postgres -c "psql docview"
 
-First, **in the DB shell**, double check there is a user with an auto-generated profile id in the database:
+First, **in the DB shell**, double check there is no existing user and/or email:
 
     SELECT * FROM users;
 
 ```SQL
-docview=# select * from users;
- id |        email        | profile_id
-----+---------------------+------------
-  1 | myemail@gmail.com | user000002
-(1 row)
-
+mysql> select * from users;
+ Empty Set
 ```
 
-Now, **CHANGING `$USER` BELOW TO WHATEVER YOUR USER ACTUALLY IS**, run the update command:
+Now add one corresponding to your user + email:
 
-    UPDATE users SET profile_id = '$USER' WHERE id = 1;
+```SQL
+mysql> INSERT INTO users (id, email) VALUES ('example', 'example@example.com');
+Query OK, 1 row affected (0.00 sec)
+```
 
-Now, re-log in to the app and you should have full admin privileges.
+**Now log in via OpenID for the email you just created**. The application will notice that there is already a corresponding email in the database and, if the OpenID auth succeeds, add an OpenID associate to the account.
+
+Once logged in to the app you should have full admin privileges. You can try using an OpenID email account that has not been _pre set up_ and the application will create you a default account with no privileges.
 
 The first thing to do when logging in is to build the search index. This can be done by going to:
 
