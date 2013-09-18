@@ -8,17 +8,15 @@ import play.api.test.Helpers._
 import play.api.GlobalSettings
 import play.filters.csrf.{CSRFFilter, CSRF}
 import play.filters.csrf.CSRF.Token
-import models.sql.OpenIDAccount
+import models.sql.SqlAccount
 import mocks.{MockSearchDispatcher, userFixtures, MockSearchIndexer}
 import global.GlobalConfig
-import controllers.base.LoginHandler
 import utils.search.{Indexer, Dispatcher}
 import play.api.Play._
 import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
 import rest.RestEventHandler
 import models.Account
-import play.api.db.evolutions.{Evolution, OfflineEvolutions}
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -183,7 +181,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
 
       // Initialize user fixtures
       userFixtures.values.map { user =>
-        OpenIDAccount.findByProfileId(user.id) orElse OpenIDAccount.create(user.email, user.id).map { u =>
+        SqlAccount.findByProfileId(user.id) orElse SqlAccount.create(user.email, user.id).map { u =>
           u.setPassword(Account.hashPassword(testPassword))
         }
       }

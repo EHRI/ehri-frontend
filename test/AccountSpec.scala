@@ -1,13 +1,13 @@
 package test
 
 import play.api.test.Helpers._
-import org.specs2.mutable.{Around, Specification}
+import org.specs2.mutable.Specification
 import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
 import helpers.WithFixures
 import models.{Account, AccountDAO}
-import models.sql.{OpenIDAccount, OpenIDAccountDAOPlugin}
+import models.sql.OpenIDAssociation
 
 
 /**
@@ -49,7 +49,10 @@ class AccountSpec extends Specification {
 
   "openid dao" should {
     "find accounts by openid_url" in new WithFixures {
-      OpenIDAccount.authenticate(mocks.privilegedUser.id + "-openid-test-url") must beSome
+      val assoc = OpenIDAssociation.findByUrl(mocks.privilegedUser.id + "-openid-test-url")
+      assoc must beSome
+      assoc.get.user must beSome
+      assoc.get.user.get.email must beEqualTo(mocks.privilegedUser.email)
     }
   }
 }

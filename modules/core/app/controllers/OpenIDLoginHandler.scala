@@ -1,8 +1,9 @@
 package controllers.core
 
+import _root_.models.AccountDAO
 import controllers.base.LoginHandler
 import forms.OpenIDForm
-import _root_.models.sql.{OpenIDAccount, OpenIDAssociation}
+import models.sql.OpenIDAssociation
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
@@ -18,6 +19,8 @@ import com.google.inject._
 case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
 
   import models.sql._
+
+  private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   val openidError = """
     |There was an error connecting to your OpenID provider.""".stripMargin
@@ -55,16 +58,16 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
           case Some(assoc) => gotoLoginSucceeded(assoc.user.get.id)
           case None => {
             val email = extractEmail(info.attributes).getOrElse(sys.error("No openid email"))
-            OpenIDAccount.findByEmail(email).map { account =>
-                account.addAssociation(info.id)
-                gotoLoginSucceeded(account.id)
-                  .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
+            userDAO.findByEmail(email).map { acc =>
+              OpenIDAssociation.addAssociation(acc, info.id)
+              gotoLoginSucceeded(acc.id)
+                .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
             } getOrElse {
               Async {
                 rest.AdminDAO(userProfile = None).createNewUserProfile.map { 
                   case Right(entity) => {
-                    models.sql.OpenIDAccount.create(entity.id, email.toLowerCase).map { account =>
-                      account.addAssociation(info.id)
+                    userDAO.create(entity.id, email.toLowerCase).map { account =>
+                      OpenIDAssociation.addAssociation(account, info.id)
                       // TODO: Redirect to profile?
                       gotoLoginSucceeded(account.id)
                         .withSession("access_uri" -> globalConfig.routeRegistry.default.url)

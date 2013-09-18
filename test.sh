@@ -11,7 +11,7 @@ play "test-only test.DAOSpec"          && \
 play "test-only test.APISpec"          && \
 play "test-only test.json.JsonFormatSpec" && \
 play "test-only test.CountryScopeIntegrationSpec" && \
-play "test-only test.SupervisorWorkerIntegrationSpec"
+play "test-only test.SupervisorWorkerIntegrationSpec" && \
 play "test-only test.json.JsonFormatSpec" && \
 play "test-only test.AccountSpec" && \
 play "test-only test.SearchSpec" && \

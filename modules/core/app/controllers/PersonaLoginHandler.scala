@@ -1,6 +1,7 @@
 package controllers.core
 
-import _root_.controllers.base.LoginHandler
+import controllers.base.LoginHandler
+import models.AccountDAO
 import play.api._
 import play.api.mvc._
 import play.api.libs.ws.WS
@@ -17,6 +18,8 @@ import com.google.inject._
  */
 @Singleton
 case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
+
+  private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
@@ -38,19 +41,17 @@ case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalCon
           case js @ JsString("okay") => {
             val email: String = (response.json \ "email").as[String]
 
-            models.sql.PersonaAccount.findByEmail(email) match {
+            userDAO.findByEmail(email) match {
               case Some(account) => gotoLoginSucceeded(email)
               case None => {
                 Async {
                   rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                     case Right(up) => {
-                      models.sql.PersonaAccount.create(up.id, email).map { acc =>
+                      userDAO.create(up.id, email).map { acc =>
                         gotoLoginSucceeded(acc.id)
                       }.getOrElse(BadRequest("Creation of user db failed!"))
                     }
-                    case Left(err) => {
-                      BadRequest("Unexpected REST error: " + err)
-                    }
+                    case Left(err) => BadRequest("Unexpected REST error: " + err)
                   }
                 }
               }

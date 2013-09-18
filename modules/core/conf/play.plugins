@@ -1,2 +1,2 @@
 1500:com.typesafe.plugin.CommonsMailerPlugin
-5000:models.sql.OpenIDAccountDAOPlugin
+5000:models.sql.SqlAccountDAOPlugin
