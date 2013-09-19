@@ -5,14 +5,16 @@
 CREATE TABLE users (
     id    VARCHAR(255) NOT NULL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
-    staff BOOLEAN NOT NULL
+    staff BOOLEAN NOT NULL,
+    created TIMESTAMP NOT NULL
 );
 
 CREATE INDEX users_email ON users (email);
 
 CREATE TABLE openid_association (
     id          VARCHAR(255) NOT NULL PRIMARY KEY,
-    openid_url  VARCHAR(4096) NOT NULL
+    openid_url  VARCHAR(4096) NOT NULL,
+    created     TIMESTAMP NOT NULL
 );
 
 ALTER TABLE openid_association ADD CONSTRAINT openid_association_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
