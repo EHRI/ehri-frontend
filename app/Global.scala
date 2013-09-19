@@ -5,6 +5,7 @@
 import controllers.base.LoginHandler
 import controllers.core.OpenIDLoginHandler
 import defines.EntityType
+import java.util.concurrent.TimeUnit
 import play.api._
 import play.api.mvc._
 
@@ -13,6 +14,7 @@ import org.apache.commons.codec.binary.Base64
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
 import rest.RestEventHandler
+import scala.concurrent.duration.Duration
 import scala.concurrent.Future
 
 import com.tzavellas.sse.guice.ScalaModule
@@ -112,7 +114,12 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
       def handleCreate(id: String) = logFailure(id, searchIndexer.indexId)
       def handleUpdate(id: String) = logFailure(id, searchIndexer.indexId)
-      def handleDelete(id: String) = logFailure(id, searchIndexer.clearId)
+
+      // Special case - block when deleting because otherwise we get ItemNotFounds
+      // after redirects
+      def handleDelete(id: String) = logFailure(id, id => Future.successful[Unit] {
+        concurrent.Await.result(searchIndexer.clearId(id), Duration(1, TimeUnit.MINUTES))
+      })
     }
   }
 
