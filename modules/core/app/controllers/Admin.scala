@@ -170,7 +170,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
         val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
 
         createUserProfile(user, groups) { profile =>
-          userDAO.create(profile.id, email.toLowerCase).map { account =>
+          userDAO.create(profile.id, email.toLowerCase, staff = true).map { account =>
             account.setPassword(Account.hashPassword(pw))
             // Final step, grant user permissions on their own account
             grantOwnerPerms(profile) {
