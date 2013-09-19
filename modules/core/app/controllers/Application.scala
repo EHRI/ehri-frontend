@@ -29,17 +29,15 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    * @return
    */
   def get(id: String) = userProfileAction { implicit userOpt => implicit request =>
-    Secured {
-      AsyncRest {
-        implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
-        rest.SearchDAO(userOpt).list(List(id)).map { listOrErr =>
-          listOrErr.right.map{ list =>
-            list match {
-              case Nil => NotFound(views.html.errors.itemNotFound())
-              case mm :: _ =>
-                globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id)
-                  .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
-            }
+    AsyncRest {
+      implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
+      rest.SearchDAO(userOpt).list(List(id)).map { listOrErr =>
+        listOrErr.right.map{ list =>
+          list match {
+            case Nil => NotFound(views.html.errors.itemNotFound())
+            case mm :: _ =>
+              globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id)
+                .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
           }
         }
       }
@@ -54,10 +52,8 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    * @return
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
-    Secured {
       globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
         .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
-    }
   }
 
   def localeData(lang: String) = Action { request =>

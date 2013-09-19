@@ -33,12 +33,10 @@ class Profile @Inject()(implicit val globalConfig: global.GlobalConfig) extends 
    * @return
    */
   def profile = userProfileAction { implicit userOpt => implicit request =>
-    Secured {
-      userOpt.map { user =>
-        Ok(views.html.profile(user))
-      } getOrElse {
-        authenticationFailed(request)
-      }
+    userOpt.map { user =>
+      Ok(views.html.profile(user))
+    } getOrElse {
+      authenticationFailed(request)
     }
   }
 

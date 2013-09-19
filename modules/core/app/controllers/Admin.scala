@@ -27,6 +27,9 @@ import rest.ValidationError
  */
 class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with LoginLogout with ControllerHelpers {
 
+  // Login functions are unrestricted
+  override val staffOnly = false
+
   private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   private val passwordLoginForm = Form(

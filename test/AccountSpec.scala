@@ -18,7 +18,7 @@ class AccountSpec extends Specification {
   "account db" should {
     "load fixtures with the right number of accounts" in new WithFixures {
       DB.withConnection { implicit connection =>
-        SQL("select count(*) from users").as(scalar[Long].single) must equalTo(2L)
+        SQL("select count(*) from users").as(scalar[Long].single) must equalTo(3L)
       }
     }
 

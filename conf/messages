@@ -121,6 +121,8 @@ create.heading=Create New Item
 #
 # Custom page error reporting
 #
+errors.staffOnly=Restricted
+errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
 errors.itemNotFound=Item Not Found
 errors.itemNotFoundExplanation=That item couldn't be found on the system
 errors.genericProblem=We're very sorry, but there's a problem loading that page

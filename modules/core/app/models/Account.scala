@@ -21,6 +21,7 @@ private[models] case class HashedPassword private(s: String) {
 trait Account {
 	def email: String
 	def id: String
+  val staff: Boolean
   def password: Option[HashedPassword] = None
   def updatePassword(hashed: HashedPassword): Account
   def setPassword(hashed: HashedPassword): Account
@@ -48,6 +49,6 @@ trait AccountDAO extends Plugin {
   } yield acc
 	def findByProfileId(id: String): Option[Account]
   def findByEmail(email: String): Option[Account]
-  def create(id: String, email: String): Option[Account]
+  def create(id: String, email: String, staff: Boolean = false): Option[Account]
   def findByResetToken(token: String): Option[Account]
 }

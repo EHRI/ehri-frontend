@@ -29,22 +29,6 @@ trait ControllerHelpers {
    */
   implicit val eventHandler = globalConfig.eventHandler
 
-
-  /**
-   * Ensure that an action is performed by a logged-in user. This can be globally
-   * disabled by setting ehri.secured = false in the application.conf.
-   * @param res
-   * @param userOpt
-   * @param request
-   * @return
-   */
-  def Secured(res: Result)(implicit userOpt: Option[models.UserProfile], request: RequestHeader): Result = {
-    if (current.configuration.getBoolean("ehri.secured").getOrElse(true))
-      if (userOpt.isDefined) res else authenticationFailed(request)
-    else
-      res
-  }
-
   /**
    * Get a complete list of possible groups
    * @param f

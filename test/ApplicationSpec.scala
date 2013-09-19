@@ -35,12 +35,17 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
       }
     }
 
-    "redirect to login at admin home when secured" in {
-      running(FakeApplication(withGlobal = Some(getGlobal),
-          additionalConfiguration = Map("ehri.secured" -> true))) {
-        val home = route(FakeRequest(GET,
+    "deny non-staff users access to admin areas" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
           controllers.admin.routes.Home.index.url)).get
-        status(home) must equalTo(SEE_OTHER)
+        status(home) must equalTo(UNAUTHORIZED)
+        val login = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
+          controllers.core.routes.Admin.login.url)).get
+        status(login) must equalTo(OK)
+        val openid = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
+          controllers.core.routes.OpenIDLoginHandler.openIDLogin.url)).get
+        status(openid) must equalTo(OK)
       }
     }
 
@@ -56,7 +61,8 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
     "allow access to the openid callback url, and redirect with flash error" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(FakeRequest(GET,
-          controllers.core.routes.OpenIDLoginHandler.openIDCallback.url)).get
+          controllers.core.routes.OpenIDLoginHandler.openIDCallback.url)
+          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)).get
         status(home) must equalTo(SEE_OTHER)
         val err = flash(home).get("error")
         err must beSome

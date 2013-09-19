@@ -11,7 +11,7 @@ import java.util.UUID
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SqlAccount(id: String, email: String) extends Account {
+case class SqlAccount(id: String, email: String, staff: Boolean = false) extends Account {
 
   def delete(): Boolean = DB.withConnection { implicit connection =>
     val res: Int = SQL(
@@ -56,8 +56,9 @@ object SqlAccount extends AccountDAO {
 
   val simple = {
     get[String]("users.id") ~
-      get[String]("users.email") map {
-      case id ~ email => SqlAccount(id, email)
+      get[String]("users.email") ~
+      get[Boolean]("users.staff") map {
+      case id ~ email ~ staff => SqlAccount(id, email, staff)
     }
   }
 
@@ -78,10 +79,10 @@ object SqlAccount extends AccountDAO {
       .on('id -> id).as(SqlAccount.simple.singleOpt)
   }
 
-  def create(id: String, email: String): Option[Account] = DB.withConnection { implicit connection =>
+  def create(id: String, email: String, staff: Boolean = false): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
-      """INSERT INTO users (id, email) VALUES ({id},{email})"""
-    ).on('id -> id, 'email -> email).executeUpdate
+      """INSERT INTO users (id, email, staff) VALUES ({id}, {email}, {staff})"""
+    ).on('id -> id, 'email -> email, 'staff -> staff).executeUpdate
     findByProfileId(id)
   }
 
@@ -98,6 +99,6 @@ class SqlAccountDAOPlugin(app: play.api.Application) extends AccountDAO {
   def findByProfileId(id: String) = SqlAccount.findByProfileId(id)
   def findByEmail(email: String) = SqlAccount.findByEmail(email)
   def findByResetToken(token: String) = SqlAccount.findByResetToken(token)
-  def create(id: String, email: String) = SqlAccount.create(id, email)
+  def create(id: String, email: String, staff: Boolean = false) = SqlAccount.create(id, email, staff)
 }
 

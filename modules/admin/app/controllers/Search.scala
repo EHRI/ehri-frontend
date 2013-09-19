@@ -66,23 +66,21 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
   def search = searchAction[AnyModel](
-    defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))),
-    entityFacets = entityFacets) {
-    page => params => facets => implicit userOpt => implicit request =>
-      Secured {
-        render {
-          case Accepts.Json() => {
-            Ok(Json.toJson(Json.obj(
-              "numPages" -> page.numPages,
-              "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
-              "facets" -> facets
-            ))
-            )
-          }
-          case _ => Ok(views.html.search.search(page, params, facets,
-            controllers.admin.routes.Search.search))
-        }
+      defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))),
+      entityFacets = entityFacets) {
+        page => params => facets => implicit userOpt => implicit request =>
+    render {
+      case Accepts.Json() => {
+        Ok(Json.toJson(Json.obj(
+          "numPages" -> page.numPages,
+          "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
+          "facets" -> facets
+        ))
+        )
       }
+      case _ => Ok(views.html.search.search(page, params, facets,
+        controllers.admin.routes.Search.search))
+    }
   }
 
   /**

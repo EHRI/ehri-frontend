@@ -148,7 +148,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val headArchivistProfile = haFetchProfile.right.get
 
       // Add their account to the mocks
-      val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com")
+      val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com", staff = true)
       mocks.userFixtures.put(haAccount.id, haAccount)
 
 
@@ -180,7 +180,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val archivistProfile = aFetchProfile.right.get
 
       // Add the archivists group to the account mocks
-      val aAccount = MockAccount(archivistUserId, "archivist1@example.com")
+      val aAccount = MockAccount(archivistUserId, "archivist1@example.com", staff = true)
       mocks.userFixtures.put(aAccount.id, aAccount)
 
 

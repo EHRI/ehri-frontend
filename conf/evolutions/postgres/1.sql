@@ -2,7 +2,8 @@
 
 CREATE TABLE users (
     id          VARCHAR(255) NOT NULL PRIMARY KEY,
-    email       VARCHAR(255) NOT NULL
+    email       VARCHAR(255) NOT NULL,
+    staff       BOOLEAN NOT NULL
 );
 
 

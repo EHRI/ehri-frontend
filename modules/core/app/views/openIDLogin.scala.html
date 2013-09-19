@@ -3,6 +3,8 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @openIdJquery = {
+    <script src="@controllers.core.routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+    <script src="@controllers.core.routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
     <script type="application/javascript">
         jQuery(function($) {
         // Openid
@@ -11,7 +13,11 @@
     </script>
 }
 
-@noSidebarLayout(Messages("login.login"), scripts=openIdJquery) {
+@openIdStyles = {
+    <link href="@controllers.core.routes.Assets.at("jquery-openid/openid.css")" rel="stylesheet">
+}
+
+@basicLayout(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
 
 
             @helper.form(action = action, 'class -> "openid login-form form-horizontal") {

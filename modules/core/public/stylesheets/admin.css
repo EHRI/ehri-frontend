@@ -1,0 +1,245 @@
+
+/* Sticky footer styles
+-------------------------------------------------- */
+
+html,
+body {
+    height: 100%;
+    /* The html and body elements cannot have any padding or margin. */
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    /* Negative indent footer by it's height */
+    margin: 0 auto -100px;
+}
+
+/* Set the fixed height of the footer here */
+#push,
+#footer {
+    height: 99px;
+}
+
+#footer .container {
+    margin-top: 20px;
+}
+
+#footer {
+    background-color: #f5f5f5;
+}
+
+#footer {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/** Experimental! Collapse username under 900px */
+.navbar-inner {
+    min-width: 800px;
+}
+
+@
+
+@media (max-width: 900px) {
+    .nav-collapse.collapse {
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+}
+
+/**
+    Item CSS
+*/
+
+/** Boxes used for overview facts on the index page */
+.overview-box {
+    padding-right: 30px;
+    padding-top: 30px;
+}
+
+.overview-item {
+    border: 1px solid #F2F2F2;
+    padding: 2em;
+    height: 300px;
+}
+
+.overview-item.loading {
+    background-image: url('../images/ajax-loader.gif');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/** National reports are HTML already, so munge their header sizes to fit elsewhere */
+.national-report h1 {
+    font-size: 1.2em;
+}
+
+.national-report h2 {
+    font-size: 1.1em;
+}
+
+/** Cut off text in description switch without wrap... */
+.description-switch {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 0.8em;
+}
+
+/** Add spacing for description header */
+.header-actions {
+    margin-bottom: 1em;
+}
+
+.facet-list li a {
+    color: #666;
+    font-weight: bold;
+}
+
+.facet-list li.selected-filter {
+    font-weight: bolder;
+    text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+}
+
+.entity-form fieldset legend {
+    padding-top: 80px;
+}
+
+/** Template fields for inline formset items should be display: none;
+    This will prevent them being submitted like normal values. */
+.form-template {
+    display: none;
+}
+
+/** Required inputs */
+.required-input {
+    color: #FF0000;
+}
+
+/* Highlight the current search sort */
+.current-search-sort {
+    text-decoration: underline;
+    text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+}
+
+/** Facet list */
+.facet-list li {
+    margin-bottom: 0.2em;
+}
+
+.facet-list li:before {
+    /** Why doesn't this render properly???
+
+    content: '\u2022';
+
+    */
+
+    color: #bbb;
+}
+
+/** Prevent scrolling when a Bootstrap modal is open */
+.modal-body {
+    max-height: 800px;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Prettification for unknown-data-section collapsable trigger */
+.unknown-data-toggle:after {
+    content: '\u25BC';
+}
+
+.unknown-data-toggle.collapsed:after {
+    font-size: 0.9em;
+    content: '\u25B6';
+}
+
+/** 'Sticky' footers which pin themselves to the
+    botton of the viewport when initially outside it. */
+.sticky {
+    -webkit-box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
+    box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
+}
+
+/** Search items */
+.search-item {
+    padding-bottom: 0.5em;
+    border-bottom: 1px dashed #EBEBEB;
+    margin-bottom: 1.5em;
+}
+
+.search-item-heading {
+    font-size: 1.0em;
+    font-weight: bolder;
+    margin-bottom: 0.2em;
+}
+
+/** Inline lists - Bootstrap doesn't actually do this by itself */
+ul.inline li {
+    display: inline;
+    padding-left: 0em;
+}
+
+/** Put a separator between the bars of inline lists */
+ul.inline-separator li:after {
+    content: " | ";
+}
+
+ul.inline-separator li:last-child:after {
+    content: "";
+}
+
+/** Alternative link color - just bolded */
+a.alt {
+    color: #000;
+    font-weight: bolder;
+}
+
+.search-item h4 {
+    margin-bottom: 0.2em;
+}
+
+/** Turn of link styling on badges... */
+.badge a {
+    color: inherit;
+    font-weight: inherit;
+}
+
+#signin, #signout {
+    color: #999999;
+}
+
+#signin:hover, #signout:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.page-content {
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+#form-nav-sidebar {
+    top: 80px;
+}
+
+#head-signin {
+    padding: 10px 15px 10px;
+    color: #f5f5f5;
+}
+
+#footer {
+    text-align: center;
+    /*   padding: 20px 20px;*/
+    border-top: 1px solid #e5e5e5;
+    background-color: #f5f5f5;
+}
+
+.remove-inline-element {
+    margin-left: 0.5em;
+}

@@ -18,6 +18,9 @@ import play.api.cache.Cached
 @Singleton
 class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends Controller with EntitySearch {
 
+  // This is a publically-accessible site
+  override val staffOnly = false
+
   /**
    * Full text search action that returns a complete page of item data.
    * @return

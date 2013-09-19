@@ -19,6 +19,12 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
 
   implicit val globalConfig: GlobalConfig
 
+  // Override this to allow non-staff to view a page
+  val staffOnly = true
+
+  // Turning secured off will override staffOnly
+  lazy val secured = play.api.Play.current.configuration.getBoolean("ehri.secured").getOrElse(true)
+
   /**
    * Provide functionality for changing the current locale.
    *
@@ -47,28 +53,36 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
     optionalUserAction { implicit maybeAccount => implicit request =>
       maybeAccount.map { account =>
 
-        val fakeProfile = UserProfile(UserProfileF(id=Some(account.id), identifier="", name=""))
-        implicit val maybeUser = Some(fakeProfile)
+        if (staffOnly && secured && !account.staff) {
+          Unauthorized(views.html.errors.staffOnly())
+        } else {
+          val fakeProfile = UserProfile(UserProfileF(id=Some(account.id), identifier="", name=""))
+          implicit val maybeUser = Some(fakeProfile)
 
-        AsyncRest {
-          // TODO: For the permissions to be properly initialized they must
-          // recieve a completely-constructed instance of the UserProfile
-          // object, complete with the groups it belongs to. Since this isn't
-          // available initially, and we don't want to block for it to become
-          // available, we should probably add the account to the permissions when
-          // we have both items from the server.
-          val getProf = rest.EntityDAO[UserProfile](EntityType.UserProfile, maybeUser).get(account.id)
-          val getGlobalPerms = rest.PermissionDAO(maybeUser).get
-          // These requests should execute in parallel...
-          for { r1 <- getProf; r2 <- getGlobalPerms } yield {
-            for { entity <- r1.right; gperms <- r2.right } yield {
-              val up = entity.copy(account = Some(account), globalPermissions = Some(gperms))
-              f(Some(up))(request)
+          AsyncRest {
+            // TODO: For the permissions to be properly initialized they must
+            // recieve a completely-constructed instance of the UserProfile
+            // object, complete with the groups it belongs to. Since this isn't
+            // available initially, and we don't want to block for it to become
+            // available, we should probably add the account to the permissions when
+            // we have both items from the server.
+            val getProf = rest.EntityDAO[UserProfile](EntityType.UserProfile, maybeUser).get(account.id)
+            val getGlobalPerms = rest.PermissionDAO(maybeUser).get
+            // These requests should execute in parallel...
+            for { r1 <- getProf; r2 <- getGlobalPerms } yield {
+              for { entity <- r1.right; gperms <- r2.right } yield {
+                val up = entity.copy(account = Some(account), globalPermissions = Some(gperms))
+                f(Some(up))(request)
+              }
             }
           }
         }
       }.getOrElse {
-        f(None)(request)
+        if (staffOnly && secured) {
+          Unauthorized(views.html.errors.staffOnly())
+        } else {
+          f(None)(request)
+        }
       }
     }
   }

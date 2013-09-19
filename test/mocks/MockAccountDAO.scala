@@ -3,7 +3,7 @@ package models.sql
 import models.{Account,AccountDAO,HashedPassword}
 import java.util.UUID
 
-case class MockAccount(id: String, email: String) extends Account {
+case class MockAccount(id: String, email: String, staff: Boolean = false) extends Account {
   def updatePassword(hashed: HashedPassword): Account = this
   def setPassword(data: HashedPassword): Account = this
   def delete(): Boolean = {
@@ -38,8 +38,8 @@ class MockAccountDAO(app: play.api.Application) extends AccountDAO {
   def findByEmail(email: String): Option[Account]
   = mocks.userFixtures.values.find(_.email == email)
 
-  def create(id: String, email: String): Option[Account] = {
-    val user = MockAccount(id, email)
+  def create(id: String, email: String, staff: Boolean = false): Option[Account] = {
+    val user = MockAccount(id, email, staff)
     mocks.userFixtures.put(id, user)
     Some(user)
   }
