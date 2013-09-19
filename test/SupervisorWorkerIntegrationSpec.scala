@@ -124,7 +124,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       // in one go using the groups parameter
       val headArchivistUserId = "head-archivist-user"
       val haUserData = Map(
-        "username" -> Seq(headArchivistUserId),
+        "identifier" -> Seq(headArchivistUserId),
         "name" -> Seq("Bob Important"),
         "email" -> Seq("head-archivist@example.com"),
         "password" -> Seq("changeme"),
@@ -156,7 +156,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       // in one go using the groups parameter
       val archivistUserId = "archivist-user1"
       val aUserData = Map(
-        "username" -> Seq(archivistUserId),
+        "identifier" -> Seq(archivistUserId),
         "name" -> Seq("Jim Nobody"),
         "email" -> Seq("archivist1@example.com"),
         "password" -> Seq("changeme"),

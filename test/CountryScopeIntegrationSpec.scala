@@ -79,7 +79,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // in one go using the groups parameter
       val userId = "test-user"
       val newUserData = Map(
-        "username" -> Seq(userId),
+        "identifier" -> Seq(userId),
         "name" -> Seq("Test User"),
         "email" -> Seq("test-user@example.com"),
         "password" -> Seq("changeme"),
