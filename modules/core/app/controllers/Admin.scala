@@ -15,10 +15,12 @@ import play.api.mvc.AsyncResult
 import jp.t2v.lab.play20.auth.LoginLogout
 import java.util.UUID
 import play.api.Play.current
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import play.api.libs.ws.WS
 import play.api.Logger
 import rest.ValidationError
+import scala.concurrent.duration.Duration
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -77,7 +79,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   private val userPasswordForm = Form(
     tuple(
       "email" -> email,
-      "username" -> nonEmptyText,
+      "identifier" -> nonEmptyText,
       "name" -> nonEmptyText,
       "password" -> nonEmptyText(minLength = 6),
       "confirm" -> nonEmptyText(minLength = 6)
@@ -109,7 +111,6 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   /**
    * Create a user's account for them with a pre-set password. This is an
    * admin only function and should be removed eventually.
-   * @return
    */
   def createUser = withContentPermission(PermissionType.Create, ContentTypes.UserProfile) {
       implicit userOpt => implicit request =>
@@ -120,79 +121,39 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   }
 
   /**
-   * Create a user. Currently this gets a bit gnarly.
+   * Create a user. Currently this gets a bit gnarly. I'd like
+   * to apologise to the world for the state of this code.
+   *
+   * We basically have to nit together a bunch of Rest operations
+   * with an account db operation, and handle various different
+   * types of validation:
+   *
+   *  - bind the form, if it's okay manually construct a user object
+   *  - try and save the user object - if server validation fails,
+   *    i.e. username already exists, redisplay the form with the
+   *    appropriate error.
+   *  - we also need a list of all possible groups the user
+   *    could be added to
+   *  - we also need to tweak permissions on the user's own
+   *    account so they can edit it... all in all not nice.
+   *
    * @return
    */
   def createUserPost = withContentPermission(PermissionType.Create, ContentTypes.UserProfile) {
       implicit userOpt => implicit request =>
 
-    def createUserProfile(user: UserProfileF, groups: Seq[String])(f: UserProfile => Result): AsyncResult = {
-      AsyncRest {
-        rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
-            .create[UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
-          if (itemOrErr.isLeft) {
-            itemOrErr.left.get match {
-              // FIXME: Handle validation error properly!
-              case v@ValidationError(errorSet) => Left(v)
-              case e => Left(e)
-            }
-          } else {
-            itemOrErr.right.map(f)
-          }
-        }
-      }
-    }
-
-    def grantOwnerPerms(profile: UserProfile)(f: => Result): AsyncResult = {
-      AsyncRest {
-        rest.PermissionDAO(userOpt).setItem(profile, ContentTypes.UserProfile,
-            profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>
-          permsOrErr.right.map { _ =>
-            f
-          }
-        }
-      }
-    }
-
-    def saveUser(email: String, username: String, name: String, pw: String): AsyncResult = {
-      // check if the email is already registered...
-      userDAO.findByEmail(email.toLowerCase).map { account =>
-        val errForm = userPasswordForm.bindFromRequest
-          .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.id)))
-        getGroups { groups =>
-            BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
-              groups, controllers.core.routes.Admin.createUserPost))
-        }
-      } getOrElse {
-        // It's not registered, so create the account...
-        val user = UserProfileF(id = None, identifier = username, name = name,
-          location = None, about = None, languages = Nil)
-        val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
-
-        createUserProfile(user, groups) { profile =>
-          userDAO.create(profile.id, email.toLowerCase, staff = true).map { account =>
-            account.setPassword(Account.hashPassword(pw))
-            // Final step, grant user permissions on their own account
-            grantOwnerPerms(profile) {
-              Redirect(controllers.core.routes.Admin.adminActions)
-            }
-          }.getOrElse {
-            sys.error("Unable to create user profile on database. Probably a programming error...")
-          }
-        }
-      }
-    }
+    // Blocking! This helps simplify the nest of callbacks.
+    val allGroups: List[(String, String)] = Await.result(
+      rest.RestHelpers.getGroupList, Duration(1, TimeUnit.MINUTES))
 
     userPasswordForm.bindFromRequest.fold(
       errorForm => {
-        getGroups { groups =>
           Ok(views.html.admin.createUser(errorForm, groupMembershipForm.bindFromRequest,
-              groups, controllers.core.routes.Admin.createUserPost))
-        }
+              allGroups, controllers.core.routes.Admin.createUserPost))
       },
-      values => {
-        val (email, username, name, pw, _) = values
-        saveUser(email, username, name, pw)
+      {
+        case (email, username, name, pw, _) =>
+          saveUser(email, username, name, pw, allGroups)
       }
     )
   }
@@ -323,7 +284,81 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
     })
   }
 
-  def checkRecapture(implicit request: Request[AnyContent]): Future[Boolean] = {
+  /**
+   *  Grant a user permissions on their own account.
+   */
+  private def grantOwnerPerms[T](profile: UserProfile)(f: => Result)(
+    implicit request: Request[T], userOpt: Option[UserProfile]): AsyncResult = {
+    AsyncRest {
+      rest.PermissionDAO(userOpt).setItem(profile, ContentTypes.UserProfile,
+        profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>
+        permsOrErr.right.map { _ =>
+          f
+        }
+      }
+    }
+  }
+
+  /**
+   * Create a user's profile on the ReSt interface.
+   */
+  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Result)(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Result = {
+    AsyncRest {
+      rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
+        .create[UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
+        if (itemOrErr.isLeft) {
+          itemOrErr.left.get match {
+            case v@ValidationError(errorSet) => {
+              val serverErrors: Seq[FormError] = user.errorsToForm(errorSet)
+              val form = userPasswordForm.bindFromRequest
+              val errForm = form.copy(errors = form.errors ++ serverErrors)
+              Right {
+                BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
+                  allGroups, controllers.core.routes.Admin.createUserPost))
+              }
+            }
+            case e => Left(e)
+          }
+        } else {
+          itemOrErr.right.map(f)
+        }
+      }
+    }
+  }
+
+  /**
+   * Save a user, creating both an account and a profile.
+   */
+  private def saveUser[T](email: String, username: String, name: String, pw: String, allGroups: List[(String, String)])(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Result = {
+    // check if the email is already registered...
+    userDAO.findByEmail(email.toLowerCase).map { account =>
+      val errForm = userPasswordForm.bindFromRequest
+        .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.id)))
+      BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
+        allGroups, controllers.core.routes.Admin.createUserPost))
+    } getOrElse {
+      // It's not registered, so create the account...
+      val user = UserProfileF(id = None, identifier = username, name = name,
+        location = None, about = None, languages = Nil)
+      val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
+
+      createUserProfile(user, groups, allGroups) { profile =>
+        userDAO.create(profile.id, email.toLowerCase, staff = true).map { account =>
+          account.setPassword(Account.hashPassword(pw))
+          // Final step, grant user permissions on their own account
+          grantOwnerPerms(profile) {
+            Redirect(controllers.core.routes.UserProfiles.search)
+          }
+        }.getOrElse {
+          sys.error("Unable to create user profile on database. Probably a programming error...")
+        }
+      }
+    }
+  }
+
+  private def checkRecapture(implicit request: Request[AnyContent]): Future[Boolean] = {
     // https://developers.google.com/recaptcha/docs/verify
     val recaptchaForm = Form(
       tuple(
