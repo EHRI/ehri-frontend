@@ -27,4 +27,7 @@ GET     /metrics/agentTypes                 @controllers.admin.Metrics.agentType
 GET     /metrics/restricted                 @controllers.admin.Metrics.restricted
 GET     /metrics/_clear                     @controllers.admin.Metrics.clearCached
 
+# Monitoring
+GET     /monitor/_check                     @controllers.admin.Utils.checkDb
+
 GET     /assets/*file                       controllers.admin.Assets.at(path="/public", file)
