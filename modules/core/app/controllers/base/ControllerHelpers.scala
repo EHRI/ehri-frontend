@@ -63,7 +63,7 @@ trait ControllerHelpers {
    * or a throwable. If the throwable exists it is handled in
    * an appropriate manner and returned as a AsyncResult
    */
-  def AsyncRest(promise: Future[Either[Throwable, Result]])(implicit maybeUser: Option[UserProfile], request: RequestHeader): AsyncResult = {
+  def AsyncRest(promise: Future[Either[Throwable, Result]])(implicit maybeUser: Option[UserProfile] = None, request: RequestHeader): AsyncResult = {
     Async {
       promise.map { respOrErr =>
         respOrErr.fold(
