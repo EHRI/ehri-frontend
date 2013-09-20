@@ -4,8 +4,11 @@ object EventType extends Enumeration() {
   type Type = Value
   val
     creation,
+    createDependent,
     modification,
+    modifyDependent,
     deletion,
+    deleteDependent,
     link,
     annotation,
     setGlobalPermissions,
