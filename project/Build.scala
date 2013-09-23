@@ -35,7 +35,8 @@ object ApplicationBuild extends Build {
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
 
-    "jp.t2v" %% "play21.auth" % "0.6",
+    "jp.t2v" %% "play2.auth" % "0.10.1",
+    "jp.t2v" %% "play2.auth.test" % "0.10.1" % "test",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "mysql" % "mysql-connector-java" % "5.1.25",
     "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4",
