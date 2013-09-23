@@ -8,7 +8,7 @@ import models.json.RestReadable
 import global.GlobalConfig
 import play.api._
 import play.api.mvc._
-import jp.t2v.lab.play20.auth.{LoginLogout, Auth}
+import jp.t2v.lab.play2.auth.{LoginLogout, Auth}
 import play.api.Play._
 import defines.EntityType
 import utils.search.Dispatcher

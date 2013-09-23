@@ -36,7 +36,7 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
     }
 
     "deny non-staff users access to admin areas" in {
-      running(FakeApplication(withGlobal = Some(getGlobal))) {
+      running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
           controllers.admin.routes.Home.index.url)).get
         status(home) must equalTo(UNAUTHORIZED)

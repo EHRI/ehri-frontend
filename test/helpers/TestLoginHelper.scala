@@ -159,7 +159,7 @@ trait TestMockLoginHelper extends TestLoginHelper {
   def getAuthCookies(user: Account): String = {
     header(HeaderNames.SET_COOKIE,
       route(play.api.test.FakeRequest(POST, controllers.core.routes.Admin.loginPost.url),
-          Map("email" -> Seq(user.email), "password" -> Seq("idontmatter"),
+          Map("email" -> Seq(user.email), "password" -> Seq(testPassword),
             CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString))).get)
       .getOrElse(sys.error("No Authorization cookie found"))
   }

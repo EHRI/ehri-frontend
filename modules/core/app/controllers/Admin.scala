@@ -12,7 +12,7 @@ import controllers.base.{ControllerHelpers, AuthController}
 
 import com.google.inject._
 import play.api.mvc.AsyncResult
-import jp.t2v.lab.play20.auth.LoginLogout
+import jp.t2v.lab.play2.auth.LoginLogout
 import java.util.UUID
 import play.api.Play.current
 import scala.concurrent.{Await, Future}
