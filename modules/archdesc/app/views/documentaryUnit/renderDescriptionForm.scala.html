@@ -9,6 +9,7 @@
 
 <div class="description-form" id="@desc("form").id">
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
+    @lineInput(desc, REF)
 
     @descriptionFormSection(IDENTITY_AREA) {
         @hiddenInput(desc(Entity.ID))
