@@ -979,6 +979,11 @@ isadg.materialsArea=Materials Area
 isadg.notesArea=Notes Area
 isadg.controlArea=Control Area
 
+isadg.ref=Web Source
+isadg.ref.description=If this description is sourced from an online resource \
+  enter the URL of that resource here. Note: web page URLs are not necessarily stable \
+  identifiers so this should not be considered a replacement for the identifier field. \
+  (3.1.1 - extended)
 isadg.name=Title
 isadg.name.description=To name the unit of description.\n\n\
 Provide either a formal title or a concise supplied title in accordance with the rules of\
