@@ -69,7 +69,8 @@ object ApplicationBuild extends Build {
 
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
-    resolvers += "Codahale" at "http://repo.codahale.com"
+    resolvers += "Codahale" at "http://repo.codahale.com",
+    resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
   )
 
   lazy val core = play.Project(
