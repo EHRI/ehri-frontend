@@ -100,13 +100,6 @@ body.modal-open {
     content: '\u25B6';
 }
 
-/** 'Sticky' footers which pin themselves to the
-    botton of the viewport when initially outside it. */
-.sticky {
-    -webkit-box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
-    box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
-}
-
 /** Search items */
 .search-item {
     padding-bottom: 0.5em;
@@ -192,6 +185,13 @@ body {
     /* The html and body elements cannot have any padding or margin. */
 }
 
+/** 'Sticky' footers which pin themselves to the
+    botton of the viewport when initially outside it. */
+.sticky {
+    -webkit-box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
+    box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
+}
+
 /* Wrapper for page content to push down footer */
 #wrap {
     min-height: 100%;
@@ -222,7 +222,8 @@ body {
 .navbar-inner {
     min-width: 800px;
 }
-@@media (max-width: 900px) {
+
+@media (max-width: 900px) {
     .nav-collapse.collapse{
         height:0 !important;
         overflow:hidden !important;

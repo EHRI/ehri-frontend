@@ -25,7 +25,6 @@ function SearchCtrl($scope, $rootScope, $search, $location, $http) {
   }
 
   $scope.renderFacet = function(facetClass, facet) {
-    console.log(facetClass)
     if (facetClass.key == "languageCode") {
       return LocaleData.languageCodeToName(facet.value)
     }

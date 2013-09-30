@@ -5,75 +5,60 @@
     <head>
         <meta charset="UTF-8">
         <title>EHRI Portal</title>
-        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap.min.css" rel="stylesheet">
-        <link href="@controllers.portal.routes.Assets.at("css/portal.css")" rel="stylesheet">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+
         <style type="text/css">
+            body {
+                padding-top: 70px;
+
+            }
+
+            /* Sticky footer styles
+                -------------------------------------------------- */
+
+            html,
+            body {
+                height: 100%;
+                /* The html and body elements cannot have any padding or margin. */
+            }
+
+            .maincontent, .sidebar {
+                background-color: #FFF;
+            }
+
+            /* Wrapper for page content to push down footer */
+            #wrap {
+                min-height: 100%;
+                height: auto !important;
+                height: 100%;
+                /* Negative indent footer by it's height */
+                margin: 0 auto -100px;
+            }
+
+            /* Set the fixed height of the footer here */
+            #push, footer {
+                height: 99px;
+            }
+
+            footer {
+                background-color: #f5f5f5;
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            footer .container {
+                padding-top: 20px;
+            }
         </style>
-    </head>
-    <body ng-controller="AppCtrl">
-
-        <div id="wrap" class="page-container">
-            <div class="navbar navbar-inverse navbar-fixed-top">
-                <div class="navbar-inner">
-                    <ul class="nav">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                @Messages("pages.more")
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul class="nav pull-right">
-                        @userOpt.flatMap(_.account).map { account =>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                        <span class="nav-collapse collapse responsive-collapse">
-                                            @account.email
-                                            @if(userOpt.map(_.isAdmin).getOrElse(false)) {
-                                                [@Messages("group.admin")]
-                                            }
-                                        </span>
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.UserProfiles.get(account.id)">@Messages("actions.viewProfile")</a> </li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.Admin.changePassword">@Messages("login.changePassword")</a></li>
-                                <li role="presentation" class="divider"></li>
-                                <li>
-                                    <a href="@globalConfig.routeRegistry.logout" id="signout">
-                                        @Messages("banner.signout")
-                                        <i class="icon icon-off"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        }.getOrElse {
-                        <li><a href="@globalConfig.routeRegistry.login" id="signin">@Messages("banner.signin")</a></li>
-                        }
-                    </ul>
-                </div>
-            </div>
-            <div class="page-content">
-                <ng-view></ng-view>
-                <div id="push"></div>
-            </div>
-        </div>
-        <div id="footer">
-            <div class="container">
-                <p class="muted">@Messages("footer.footerText")</p>
-                @layout.versionInfo()
-            </div>
-        </div>
-
         <!-- JavaScript Includes, at the bottom... -->
 
         <script>
             var ANGULAR_PARTIALS = "@controllers.portal.routes.Assets.at("partials")";
         </script>
 
+        <script src="//code.jquery.com/jquery.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="@controllers.core.routes.Application.localeData(lang.code)"></script>
         <script type="text/javascript" src="@controllers.portal.routes.Portal.globalData"></script>
         <script type="text/javascript" src="@controllers.portal.routes.Portal.jsRoutes"></script>
@@ -82,5 +67,38 @@
         <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/services.js")"></script>
         <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/controllers.js")"></script>
         <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/app.js")"></script>
+        <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/directives.js")"></script>
+    </head>
+    <body ng-controller="AppCtrl">
+
+        <header>
+            <nav class="navbar navbar-fixed-top" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <img src="@controllers.portal.routes.Assets.at("img/logo-tiny.png")" class="img-thumbnail">
+                    </div>
+                    <div class="collapse navbar-collapse navbar-ex1-collapse">
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a href="#">Search</a></li>
+                            <li class="active"><a href="#">Browse</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="container" id="wrap">
+            <div class="page-content">
+                <ng-view></ng-view>
+                <div id="push"></div>
+            </div>
+        </div>
+        <footer class="footer sticky">
+            <div class="container">
+                <p class="muted">@Messages("footer.footerText")</p>
+                @layout.versionInfo()
+            </div>
+        </footer>
+
     </body>
 </html>
