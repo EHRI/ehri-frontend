@@ -6,12 +6,11 @@
     @if(page.total > 0) {
         <h3>@Messages(paginationKey, page.offset + 1, page.offset + page.items.size, page.total)</h3>
     } else {
-        <h3>@Messages("search.noItemsFound")</h3>
+        <h3>@Messages(paginationKey, 1, 0, 0)</h3>
     }
 
     @if(page.total > 0) {
         @listBody
         @common.pagination(page)
     }
-
 </div>
