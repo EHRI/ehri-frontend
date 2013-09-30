@@ -90,8 +90,13 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
     )
   }
 
-  private def extractEmail(attrs: Map[String, String]): Option[String] = {
-    println("ATTRS: " + attrs)
-    attrs.get("email").orElse(attrs.get("axemail"))
-  }
+  /**
+   * Pick up the email from OpenID info. This may be stored in different
+   * attributes depending on the provider.
+   * @param attrs
+   * @return
+   */
+  private def extractEmail(attrs: Map[String, String]): Option[String]
+      = attrs.get("email").orElse(attrs.get("axemail"))
+
 }
