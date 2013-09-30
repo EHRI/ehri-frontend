@@ -15,7 +15,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   import mocks.{privilegedUser,unprivilegedUser}
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 

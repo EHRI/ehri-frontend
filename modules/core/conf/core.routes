@@ -15,9 +15,9 @@ GET     /sparql                                 @controllers.core.ApiController.
 GET     /sparqlQuery                            @controllers.core.ApiController.sparqlQuery
 
 # OpenID
-GET     /login                                  @controllers.core.Application.login
-POST	/login							        @controllers.core.Application.loginPost
-GET     /logout                                 @controllers.core.Application.logout
+GET     /login                                  @controllers.core.Admin.login
+POST	/login							        @controllers.core.Admin.loginPost
+GET     /logout                                 @controllers.core.Admin.logout
 
 # Generic item redirection
 GET /item/:id                                   @controllers.core.Application.get(id: String)
@@ -30,19 +30,24 @@ GET /filter                                     @controllers.core.SearchFilter.f
 # Plugin-handled login
 # OpenID
 GET     /openid                                 @controllers.core.OpenIDLoginHandler.openIDCallback
-POST	/openid							        @controllers.core.OpenIDLoginHandler.loginPost
+GET 	/openidLogin  					        @controllers.core.OpenIDLoginHandler.openIDLogin
+POST	/openidLogin   					        @controllers.core.OpenIDLoginHandler.openIDLoginPost
 
 # Mozilla Persona
-POST	/persona						        @controllers.core.PersonaLoginHandler.loginPost
+GET	    /persona						        @controllers.core.PersonaLoginHandler.personaLogin
+POST	/persona						        @controllers.core.PersonaLoginHandler.personaLoginPost
 
 # Admin routes - FIXME: Move to admin controller when reverse-route dependencies are resolved
-GET     /admin/actions                          @controllers.core.Admin.adminActions
-GET     /admin/createUser                       @controllers.core.Admin.createUser
-POST    /admin/createUser                       @controllers.core.Admin.createUserPost
-GET     /admin/login                            @controllers.core.Admin.passwordLogin
-POST    /admin/login                            @controllers.core.Admin.passwordLoginPost
-GET     /admin/changePassword                   @controllers.core.Admin.changePassword
-POST    /admin/changePassword                   @controllers.core.Admin.changePasswordPost
+GET     /actions                                @controllers.core.Admin.adminActions
+GET     /createUser                             @controllers.core.Admin.createUser
+POST    /createUser                             @controllers.core.Admin.createUserPost
+GET     /changePassword                         @controllers.core.Admin.changePassword
+POST    /changePassword                         @controllers.core.Admin.changePasswordPost
+GET     /forgot                                 @controllers.core.Admin.forgotPassword
+POST    /forgot                                 @controllers.core.Admin.forgotPasswordPost
+GET     /prs                                    @controllers.core.Admin.passwordReminderSent
+GET     /rstp/:token                            @controllers.core.Admin.resetPassword(token: String)
+POST    /rstp/:token                            @controllers.core.Admin.resetPasswordPost(token: String)
 
 GET     /events                                 @controllers.core.SystemEvents.list
 GET     /events/show/:id                        @controllers.core.SystemEvents.get(id: String)

@@ -1,6 +1,6 @@
 @(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, lang: Lang)
 
-<div class="inline-formset control-group clearfix">
+<div class="inline-formset control-group clearfix" data-prefix="@name">
     <label class="control-label">
         @Messages(fieldPrefix + "." + name)
         <a href="#"
@@ -11,11 +11,12 @@
     </label>
 
     <div class="inline-element-template form-template">
+        @println("Rendering IDX: " + field(name + "[IDX]").name)
         @formHelpers.inlineName(field(name + "[IDX]"))
     </div>
     <div class="inline-element-list">
-        @helper.repeat(field(name), min = 0) { field =>
-            @formHelpers.inlineName(field)
+        @helper.repeat(field(name), min = 0) { f =>
+            @formHelpers.inlineName(f)
         }
     </div>
 </div>

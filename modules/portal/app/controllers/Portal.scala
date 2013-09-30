@@ -48,6 +48,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   )
 
+  // This is a publically-accessible site
+  override val staffOnly = false
+
   /**
    * Full text search action that returns a complete page of item data.
    * @return

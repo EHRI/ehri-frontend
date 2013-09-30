@@ -2,7 +2,7 @@ package controllers.base
 
 import play.api._
 import play.api.mvc._
-import jp.t2v.lab.play20.auth._
+import jp.t2v.lab.play2.auth._
 import play.api._
 import play.api.mvc._
 
@@ -26,7 +26,7 @@ trait Authorizer extends Results with AuthConfig {
   sealed trait Permission
 
   // Specific type of user-finder loaded via a plugin
-  lazy val userFinder: models.AccountDAO = current.plugin(classOf[models.AccountDAO]).get
+  def userFinder: models.AccountDAO = current.plugin(classOf[models.AccountDAO]).get
   
   type Id = String
 
@@ -59,7 +59,7 @@ trait Authorizer extends Results with AuthConfig {
    * A `ClassManifest` is used to get an id from the Cache API.
    * Basically use the same setting as the following.
    */
-  val idManifest = classTag[Id]
+  val idTag = classTag[Id]
 
   /**
    * A duration of the session timeout in seconds

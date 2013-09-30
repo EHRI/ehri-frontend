@@ -64,9 +64,26 @@ login.existingPassword=Current Password
 login.confirmPassword=Confirm New Password
 login.passwordsDoNotMatch=Password and confirmation do not match!
 login.passwordChanged=Password Changed!
-
+login.expiredOrInvalidResetToken=URL given for password reset was invalid or expired. \
+  Note: password reset links can only be used once.
+login.passwordReset=Password Reset
+login.sentPasswordResetLink=We''ve sent you an email containing a link that can be used to reset your password.\
+  This link can only be used once.
+login.sendPasswordResetLink=Submit
+login.submitPasswordReset=Submit
+login.forgotPasswordLink=Click here if you have a password account but have forgotten or lost your password.
+login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
+error.emailNotFound=That email was not found on our system.
+error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
+    get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
 openid.openIdError=There was a problem logging you in with OpenID.\
   This may because your provider does not support attribute exchange. The error messages was: {0}
+
+# Mail stuff
+mail.forgotPasswordMailHeading=EHRI Password Reset
+mail.forgotPasswordMessage=To reset your password, please follow the link below. Note: this link can only be used \
+  to reset your password once.
+mail.forgotPasswordFooter=
 
 # Friendly names for content types
 contentTypes.group=Groups
@@ -104,6 +121,8 @@ create.heading=Create New Item
 #
 # Custom page error reporting
 #
+errors.staffOnly=Restricted
+errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
 errors.itemNotFound=Item Not Found
 errors.itemNotFoundExplanation=That item couldn't be found on the system
 errors.genericProblem=We're very sorry, but there's a problem loading that page
@@ -211,8 +230,11 @@ group.description=Group Description
 systemEvents.itemAtTime=Action at {0}
 systemEvents.lastUpdated=Updated {0}
 systemEvents.creation=Item created
+systemEvents.createDependent=Description added
 systemEvents.modification=Item modified
+systemEvents.modifyDependent=Description modified
 systemEvents.deletion=Item deleted
+systemEvents.deleteDependent=Description deleted
 systemEvents.link=Link created
 systemEvents.annotation=Annotation created
 systemEvents.setGlobalPermissions=Global permissions modified
@@ -361,6 +383,7 @@ permissions.itemPermissionsForItem=Item-level Permissions for {0}
 permissions.scopedPermissionsForItem=Scoped Permissions for {0}
 permissions.inheritedFrom=Inherited From: {0}
 
+confirmations.profileUpdated=Profile successfully updated
 confirmations.itemWasCreated=Item successfully created
 confirmations.itemWasUpdated=Item successfully updated
 confirmations.itemWasDeleted=Item successfully deleted
@@ -376,11 +399,12 @@ visibility.chooseGroups=Choose Groups
 #
 # User Profile Field definitions
 #
+profile.account=Account
 profile.identifier=Identifier
 profile.identifier.description=Your user name
 profile.name=Name
 profile.name.description=Your full name
-profile.about=About
+profile.about=About You
 profile.about.description=
 profile.languages=Languages
 profile.languages.description=Languages you speak.
@@ -389,6 +413,9 @@ profile.location.description=
 profile.noLocationGiven=No location given
 profile.noLanguagesGiven=No languages given
 profile.noBioGiven=No biography given
+profile.groupsBelongedTo=Groups
+profile.notInAnyGroups=None
+profile.notSupplied=Not supplied
 
 #
 # Documentary Units
@@ -955,6 +982,11 @@ isadg.materialsArea=Materials Area
 isadg.notesArea=Notes Area
 isadg.controlArea=Control Area
 
+isadg.ref=Web Source
+isadg.ref.description=If this description is sourced from an online resource \
+  enter the URL of that resource here. Note: web page URLs are not necessarily stable \
+  identifiers so this should not be considered a replacement for the identifier field. \
+  (3.1.1 - extended)
 isadg.name=Title
 isadg.name.description=To name the unit of description.\n\n\
 Provide either a formal title or a concise supplied title in accordance with the rules of\

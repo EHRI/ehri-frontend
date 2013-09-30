@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@noSidebarLayout(Messages("login.login")) {
+@basicLayout(Messages("login.login")) {
 
     <div class="alert alert-info">
         @Messages("login.adminLoginMessage")
@@ -22,7 +22,10 @@
     }
 
     <p>
-        <a href="@controllers.core.routes.Application.login">@Messages("login.linkToOpenIDLogin")</a>
+        <a href="@controllers.core.routes.Admin.forgotPassword">@Messages("login.forgotPasswordLink")</a>
+    </p>
+    <p>
+        <a href="@controllers.core.routes.OpenIDLoginHandler.openIDLogin">@Messages("login.linkToOpenIDLogin")</a>
     </p>
 }(None, request, globalConfig, flash, lang)
 

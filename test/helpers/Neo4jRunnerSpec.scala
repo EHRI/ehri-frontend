@@ -2,14 +2,10 @@ package helpers
 
 import org.specs2.mutable._
 import org.specs2.specification.BeforeExample
-import defines.EntityType
-import play.api.{Application, GlobalSettings}
 import eu.ehri.extension.test.utils.ServerRunner
 import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import eu.ehri.extension.AbstractAccessibleEntityResource
-import play.api.http.HeaderNames
 import play.api.test.WithApplication
-import rest.RestEventHandler
 
 /**
  * Abstract specification which initialises an instance of the

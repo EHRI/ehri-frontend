@@ -5,6 +5,7 @@
 import controllers.base.LoginHandler
 import controllers.core.OpenIDLoginHandler
 import defines.EntityType
+import java.util.concurrent.TimeUnit
 import play.api._
 import play.api.mvc._
 
@@ -13,6 +14,7 @@ import org.apache.commons.codec.binary.Base64
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
 import rest.RestEventHandler
+import scala.concurrent.duration.Duration
 import scala.concurrent.Future
 
 import com.tzavellas.sse.guice.ScalaModule
@@ -66,9 +68,11 @@ package globalConfig {
         ("s2", "-"),
         ("search.updateIndex",            controllers.admin.routes.Search.updateIndex.url)
       )
+      val authSection: Iterable[(String,String)] = Seq(
+        ("actions.viewProfile", controllers.admin.routes.Profile.profile.url),
+        ("login.changePassword", controllers.core.routes.Admin.changePassword.url)
+      )
     }
-
-    val loginHandler: LoginHandler = new OpenIDLoginHandler()(this)
 
     val routeRegistry = new RouteRegistry(Map(
       EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get _,
@@ -84,7 +88,8 @@ package globalConfig {
       EntityType.Concept -> controllers.vocabs.routes.Concepts.get _,
       EntityType.Country -> controllers.archdesc.routes.Countries.get _
     ), default = controllers.admin.routes.Home.index,
-      login = controllers.core.routes.Admin.passwordLogin)
+      login = controllers.core.routes.Admin.login,
+      logout = controllers.core.routes.Admin.logout)
   }
 }
 
@@ -109,7 +114,12 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
       def handleCreate(id: String) = logFailure(id, searchIndexer.indexId)
       def handleUpdate(id: String) = logFailure(id, searchIndexer.indexId)
-      def handleDelete(id: String) = logFailure(id, searchIndexer.clearId)
+
+      // Special case - block when deleting because otherwise we get ItemNotFounds
+      // after redirects
+      def handleDelete(id: String) = logFailure(id, id => Future.successful[Unit] {
+        concurrent.Await.result(searchIndexer.clearId(id), Duration(1, TimeUnit.MINUTES))
+      })
     }
   }
 

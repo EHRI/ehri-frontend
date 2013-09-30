@@ -1,5 +1,6 @@
 package controllers.core
 
+import _root_.models.{AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{LoginHandler, AuthController, Authorizer}
 import models.base.AnyModel
@@ -7,7 +8,7 @@ import models.json.RestReadable
 import global.GlobalConfig
 import play.api._
 import play.api.mvc._
-import jp.t2v.lab.play20.auth.{LoginLogout, Auth}
+import jp.t2v.lab.play2.auth.{LoginLogout, Auth}
 import play.api.Play._
 import play.api.libs.json.Json
 import defines.EntityType
@@ -15,14 +16,11 @@ import utils.search.Dispatcher
 import com.google.inject._
 import play.api.http.ContentTypes
 import java.util.Locale
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.i18n.Messages
 
-class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with LoginLogout with Authorizer with AuthController {
-
-  lazy val loginHandler: LoginHandler = globalConfig.loginHandler
-
-  def login = loginHandler.login
-  def loginPost = loginHandler.loginPost
-  def logout = loginHandler.logout
+class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with Authorizer with AuthController {
 
   /**
    * Action for redirecting to any item page, given a raw id.
@@ -32,16 +30,15 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    * @return
    */
   def get(id: String) = userProfileAction { implicit userOpt => implicit request =>
-    Secured {
-      AsyncRest {
-        implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
-        rest.SearchDAO(userOpt).list(List(id)).map { listOrErr =>
-          listOrErr.right.map{ list =>
-            list match {
-              case Nil => NotFound(views.html.errors.itemNotFound())
-              case mm :: _ =>
-                globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id).map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
-            }
+    AsyncRest {
+      implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
+      rest.SearchDAO(userOpt).list(List(id)).map { listOrErr =>
+        listOrErr.right.map{ list =>
+          list match {
+            case Nil => NotFound(views.html.errors.itemNotFound())
+            case mm :: _ =>
+              globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id)
+                .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
           }
         }
       }
@@ -67,15 +64,8 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    * @return
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
-    Secured {
-      // TODO: Redirect with content negotiation does NOT work...
-      globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id).map { call =>
-        request match {
-          case Accepts.Json() => Redirect(call).as(ContentTypes.JSON)
-          case _ => Redirect(call)
-        }
-      } getOrElse NotFound(views.html.errors.itemNotFound())
-    }
+    globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
+      .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
   }
 
   def localeData(lang: String) = Action { request =>

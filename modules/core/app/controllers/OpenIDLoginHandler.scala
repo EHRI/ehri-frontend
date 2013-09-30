@@ -1,5 +1,6 @@
 package controllers.core
 
+import _root_.models.AccountDAO
 import controllers.base.LoginHandler
 import forms.OpenIDForm
 import models.sql.OpenIDAssociation
@@ -9,28 +10,32 @@ import play.api._
 import play.api.mvc._
 import concurrent.Future
 import play.api.i18n.Messages
+import com.google.inject._
 
 /**
  * OpenID login handler implementation.
  */
-case class OpenIDLoginHandler(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
+@Singleton
+case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
 
   import models.sql._
+
+  private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   val openidError = """
     |There was an error connecting to your OpenID provider.""".stripMargin
 
-  def login = optionalUserAction { implicit maybeUser =>
+  def openIDLogin = optionalUserAction { implicit maybeUser =>
     implicit request =>
-      Ok(views.html.login(OpenIDForm.openid, action = routes.OpenIDLoginHandler.loginPost))
+      Ok(views.html.openIDLogin(OpenIDForm.openid, action = routes.OpenIDLoginHandler.openIDLoginPost))
   }
 
-  def loginPost = optionalUserAction { implicit maybeUser =>
+  def openIDLoginPost = optionalUserAction { implicit maybeUser =>
     implicit request =>
       OpenIDForm.openid.bindFromRequest.fold(
         error => {
           Logger.info("bad request " + error.toString)
-          BadRequest(views.html.login(error, action = routes.OpenIDLoginHandler.loginPost))
+          BadRequest(views.html.openIDLogin(error, action = routes.OpenIDLoginHandler.openIDLoginPost))
         },
         {
           case (openid) => AsyncResult(
@@ -50,30 +55,35 @@ case class OpenIDLoginHandler(implicit globalConfig: global.GlobalConfig) extend
         OpenIDAssociation.findByUrl(info.id) match {
           // FIXME: Handle case where user exists in auth DB but not
           // on the server.	
-          case Some(assoc) => gotoLoginSucceeded(assoc.user.get.profile_id)
-          case None =>
+          case Some(assoc) => gotoLoginSucceeded(assoc.user.get.id)
+          case None => {
             val email = extractEmail(info.attributes).getOrElse(sys.error("No openid email"))
-            Async {
-              rest.AdminDAO(userProfile = None).createNewUserProfile.map {
-                case Right(entity) => {
-                  models.sql.OpenIDAccount.create(email.toLowerCase, entity.id).map { user =>
-                    user.addAssociation(info.id)
-                    gotoLoginSucceeded(user.profile_id)
-                      .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
-                      //.withSession("access_uri" -> controllers.core.routes.UserProfiles.update(user.profile_id).url)
-                      // FIXME WHEN REFACTORED
-                  }.getOrElse(BadRequest("Creation of user db failed!"))
-                }
-                case Left(err) => {
-                  BadRequest("Unexpected REST error: " + err)
+            userDAO.findByEmail(email).map { acc =>
+              OpenIDAssociation.addAssociation(acc, info.id)
+              gotoLoginSucceeded(acc.id)
+                .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
+            } getOrElse {
+              Async {
+                rest.AdminDAO(userProfile = None).createNewUserProfile.map { 
+                  case Right(entity) => {
+                    userDAO.create(entity.id, email.toLowerCase).map { account =>
+                      OpenIDAssociation.addAssociation(account, info.id)
+                      // TODO: Redirect to profile?
+                      gotoLoginSucceeded(account.id)
+                        .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
+                    }.getOrElse(BadRequest("Creation of user db failed!"))
+                  }
+                  case Left(err) => {
+                    BadRequest("Unexpected REST error: " + err)
+                  }
                 }
               }
             }
-          // TODO: Check error condition?
+          }
         }
       } recoverWith {
         case e: Throwable => Future.successful {
-          Redirect(routes.Application.login())
+          Redirect(controllers.core.routes.OpenIDLoginHandler.openIDLogin)
             .flashing("error" -> Messages("openid.openIdError", e.getMessage))
         }
       }

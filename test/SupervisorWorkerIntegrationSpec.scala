@@ -7,7 +7,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import defines._
 import rest.EntityDAO
-import mocks.MockAccount
+import models.sql.MockAccount
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -24,7 +24,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
   import mocks.{privilegedUser,unprivilegedUser}
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -124,7 +124,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       // in one go using the groups parameter
       val headArchivistUserId = "head-archivist-user"
       val haUserData = Map(
-        "username" -> Seq(headArchivistUserId),
+        "identifier" -> Seq(headArchivistUserId),
         "name" -> Seq("Bob Important"),
         "email" -> Seq("head-archivist@example.com"),
         "password" -> Seq("changeme"),
@@ -148,15 +148,15 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val headArchivistProfile = haFetchProfile.right.get
 
       // Add their account to the mocks
-      val haAccount = MockAccount("head-archivist@example.com", headArchivistUserId)
-      mocks.userFixtures.put(haAccount.profile_id, haAccount)
+      val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com", staff = true)
+      mocks.userFixtures.put(haAccount.id, haAccount)
 
 
       // Now create a new user and add them to the archivists group. Do this
       // in one go using the groups parameter
       val archivistUserId = "archivist-user1"
       val aUserData = Map(
-        "username" -> Seq(archivistUserId),
+        "identifier" -> Seq(archivistUserId),
         "name" -> Seq("Jim Nobody"),
         "email" -> Seq("archivist1@example.com"),
         "password" -> Seq("changeme"),
@@ -180,8 +180,8 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val archivistProfile = aFetchProfile.right.get
 
       // Add the archivists group to the account mocks
-      val aAccount = MockAccount("archivist1@example.com", archivistUserId)
-      mocks.userFixtures.put(aAccount.profile_id, aAccount)
+      val aAccount = MockAccount(archivistUserId, "archivist1@example.com", staff = true)
+      mocks.userFixtures.put(aAccount.id, aAccount)
 
 
       // Check each user can read their profile as themselves...

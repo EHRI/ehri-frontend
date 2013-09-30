@@ -1,12 +1,13 @@
 package controllers.core
 
-import _root_.controllers.base.LoginHandler
+import controllers.base.LoginHandler
+import models.AccountDAO
 import play.api._
 import play.api.mvc._
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsString
-
+import com.google.inject._
 
 /**
  * Handler for Mozilla Persona-based login.
@@ -15,17 +16,20 @@ import play.api.libs.json.JsString
  *
  * @param globalConfig
  */
-case class PersonaLoginHandler(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
+@Singleton
+case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
+
+  private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
 
-  def login = Action {
+  def personaLogin = Action {
     // TODO: Implement a login action for Persona...
     Ok("Mozilla Persona should handle this view...")
   }
   
-  def loginPost = Action { implicit request =>
+  def personaLoginPost = Action { implicit request =>
     val assertion: String = request.body.asFormUrlEncoded.map(
       _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("")
 
@@ -37,19 +41,17 @@ case class PersonaLoginHandler(implicit globalConfig: global.GlobalConfig) exten
           case js @ JsString("okay") => {
             val email: String = (response.json \ "email").as[String]
 
-            models.sql.PersonaAccount.findByEmail(email) match {
-              case Some(user) => gotoLoginSucceeded(email)
+            userDAO.findByEmail(email) match {
+              case Some(account) => gotoLoginSucceeded(email)
               case None => {
                 Async {
                   rest.AdminDAO(userProfile = None).createNewUserProfile.map {
                     case Right(up) => {
-                      models.sql.PersonaAccount.create(up.model.identifier, email).map { user =>
-                        gotoLoginSucceeded(user.profile_id)
+                      userDAO.create(up.id, email).map { acc =>
+                        gotoLoginSucceeded(acc.id)
                       }.getOrElse(BadRequest("Creation of user db failed!"))
                     }
-                    case Left(err) => {
-                      BadRequest("Unexpected REST error: " + err)
-                    }
+                    case Left(err) => BadRequest("Unexpected REST error: " + err)
                   }
                 }
               }

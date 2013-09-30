@@ -11,7 +11,7 @@ class IntegrationSpec extends Specification {
   "Application" should {
 
     val app = FakeApplication(
-      additionalPlugins = Seq("mocks.MockUserDAO", "mocks.MockLoginHandler")
+      additionalPlugins = Seq("mocks.MockUserDAO")
     )
 
     // Cannot get this working property, still says url is on about:blank...

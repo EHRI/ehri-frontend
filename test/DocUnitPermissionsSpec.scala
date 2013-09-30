@@ -11,7 +11,7 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsS
   import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -41,7 +41,7 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsS
         DocumentaryUnit.toString -> List("create", "update", "delete")
       )
       val permReq = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.setScopedPermissionsPost(testRepo, ContentTypes.UserProfile, unprivilegedUser.profile_id).url)
+        controllers.archdesc.routes.Repositories.setScopedPermissionsPost(testRepo, ContentTypes.UserProfile, unprivilegedUser.id).url)
         .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
       status(permReq) must equalTo(SEE_OTHER)
       // Now try again and create the item... it should succeed.
@@ -77,7 +77,7 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsS
         DocumentaryUnit.toString -> List("update")
       )
       val permReq = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.setItemPermissionsPost(testItem, ContentTypes.UserProfile, unprivilegedUser.profile_id).url)
+        controllers.archdesc.routes.DocumentaryUnits.setItemPermissionsPost(testItem, ContentTypes.UserProfile, unprivilegedUser.id).url)
         .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
       status(permReq) must equalTo(SEE_OTHER)
       // Now try again to update the item, which should succeed

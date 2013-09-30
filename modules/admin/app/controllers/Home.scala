@@ -61,8 +61,14 @@ class Home @Inject()(implicit val globalConfig: global.GlobalConfig, val searchD
 
 
   def index = userProfileAction { implicit userOpt => implicit request =>
-    Secured {
-      Ok(views.html.index(Messages("pages.home.title")))
+    Ok(views.html.index(Messages("pages.home.title")))
+  }
+
+  def profile = userProfileAction { implicit userOpt => implicit request =>
+    userOpt.map { user =>
+      Ok(views.html.profile(user))
+    } getOrElse {
+      authenticationFailed(request)
     }
   }
 

@@ -35,13 +35,18 @@ object ApplicationBuild extends Build {
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
 
-    "jp.t2v" %% "play21.auth" % "0.6",
+    "jp.t2v" %% "play2.auth" % "0.10.1",
+    "jp.t2v" %% "play2.auth.test" % "0.10.1" % "test",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "mysql" % "mysql-connector-java" % "5.1.25",
     "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4",
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",
+
+    // Mailer...
+    "com.typesafe" %% "play-plugins-mailer" % "2.1.0",
+
     // Solr stuff
     "com.github.seratch" %% "scalikesolr" % "4.0.0",
     // Time formatting library
@@ -64,7 +69,8 @@ object ApplicationBuild extends Build {
 
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
-    resolvers += "Codahale" at "http://repo.codahale.com"
+    resolvers += "Codahale" at "http://repo.codahale.com",
+    resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
   )
 
   lazy val core = play.Project(

@@ -2,12 +2,10 @@ package test
 
 import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}
-import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
 import defines._
-import rest.EntityDAO
-import mocks.MockAccount
+import models.sql.MockAccount
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -26,7 +24,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
   import mocks.{privilegedUser,unprivilegedUser}
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -81,7 +79,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // in one go using the groups parameter
       val userId = "test-user"
       val newUserData = Map(
-        "username" -> Seq(userId),
+        "identifier" -> Seq(userId),
         "name" -> Seq("Test User"),
         "email" -> Seq("test-user@example.com"),
         "password" -> Seq("changeme"),
@@ -107,8 +105,8 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // TESTING MAGIC!!! We have to create an account for subsequent logins...
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
-      val fakeAccount = MockAccount("test-user@example.com", userId)
-      mocks.userFixtures.put(fakeAccount.profile_id, fakeAccount)
+      val fakeAccount = MockAccount(userId, "test-user@example.com", staff = true)
+      mocks.userFixtures.put(fakeAccount.id, fakeAccount)
 
       // Check the user can read their profile as themselves...
       // Check we can read the user's page

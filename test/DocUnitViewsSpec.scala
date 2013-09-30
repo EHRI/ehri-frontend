@@ -15,7 +15,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
   import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -54,22 +54,6 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(search) must contain("c2")
       contentAsString(search) must contain("c3")
       contentAsString(search) must contain("c4")
-    }
-
-    "search with no query should apply a top-level filter" in new FakeApp {
-      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.DocumentaryUnits.search.url)).get
-      status(search) must equalTo(OK)
-      mockDispatcher.paramBuffer
-          .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(Some(true))
-    }
-
-    "search with a query should not apply a top-level filter" in new FakeApp {
-      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.DocumentaryUnits.search.url + "?q=foo")).get
-      status(search) must equalTo(OK)
-      mockDispatcher.paramBuffer
-          .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
     }
 
     "link to other privileged actions when logged in" in new FakeApp {

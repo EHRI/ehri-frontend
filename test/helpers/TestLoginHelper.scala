@@ -8,11 +8,9 @@ import play.api.test.Helpers._
 import play.api.GlobalSettings
 import play.filters.csrf.{CSRFFilter, CSRF}
 import play.filters.csrf.CSRF.Token
-import models.sql.{OpenIDAccount}
-import org.mindrot.jbcrypt.BCrypt
+import models.sql.SqlAccount
 import mocks.{MockSearchDispatcher, userFixtures, MockSearchIndexer}
 import global.GlobalConfig
-import controllers.base.LoginHandler
 import utils.search.{Indexer, Dispatcher}
 import play.api.Play._
 import play.api.test.FakeApplication
@@ -44,9 +42,6 @@ trait TestLoginHelper {
 
   object TestConfig extends globalConfig.BaseConfiguration {
     val eventHandler = RestEventCollector
-
-    //private implicit lazy val globalConfig = this
-    override val loginHandler: LoginHandler = new mocks.MockLoginHandler()(this)
   }
 
   /**
@@ -92,13 +87,13 @@ trait TestLoginHelper {
     )
   }
 
-  def getConfig = Map()
+  def getConfig = Map.empty[String,Any]
 
   /**
    * Get a set of plugins necessary to enable to desired login method.
    * @return
    */
-  def getPlugins: Seq[String] = Seq()
+  def getPlugins: Seq[String] = Seq("mocks.MockBufferedMailerPlugin")
 
   /**
    * Override this to cookies obtained via a specific method.
@@ -153,7 +148,7 @@ trait TestLoginHelper {
  */
 trait TestMockLoginHelper extends TestLoginHelper {
 
-  override def getPlugins = Seq("mocks.MockAccountDAO")
+  override def getPlugins = super.getPlugins ++ Seq("models.sql.MockAccountDAO")
 
   /**
    * Get a user auth cookie using the Mock login mechanism, which depends
@@ -163,8 +158,9 @@ trait TestMockLoginHelper extends TestLoginHelper {
    */
   def getAuthCookies(user: Account): String = {
     header(HeaderNames.SET_COOKIE,
-      route(play.api.test.FakeRequest(POST, controllers.core.routes.Application.login.url),
-          Map("profile" -> Seq(user.profile_id))).get)
+      route(play.api.test.FakeRequest(POST, controllers.core.routes.Admin.loginPost.url),
+          Map("email" -> Seq(user.email), "password" -> Seq(testPassword),
+            CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString))).get)
       .getOrElse(sys.error("No Authorization cookie found"))
   }
 }
@@ -185,8 +181,8 @@ trait TestRealLoginHelper extends TestLoginHelper {
 
       // Initialize user fixtures
       userFixtures.values.map { user =>
-        OpenIDAccount.findByProfileId(user.profile_id) orElse OpenIDAccount.create(user.email, user.profile_id).map { u =>
-          u.setPassword(BCrypt.hashpw(testPassword, BCrypt.gensalt()))
+        SqlAccount.findByProfileId(user.id) orElse SqlAccount.create(user.email, user.id).map { u =>
+          u.setPassword(Account.hashPassword(testPassword))
         }
       }
     }
@@ -206,7 +202,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
       "password" -> Seq(testPassword)
     )
     header(HeaderNames.SET_COOKIE,
-      route(play.api.test.FakeRequest(POST, controllers.core.routes.Admin.passwordLoginPost.url), loginData).get)
+      route(play.api.test.FakeRequest(POST, controllers.core.routes.Admin.loginPost.url), loginData).get)
         .getOrElse(sys.error("No Authorization cookie found"))
   }
 }

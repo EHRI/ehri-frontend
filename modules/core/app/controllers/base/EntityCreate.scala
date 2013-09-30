@@ -17,6 +17,8 @@ import models.json.{RestReadable, RestConvertable}
  */
 trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
 
+  type CreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Result
+
   /**
    * Create an item. Because the item must have an initial visibility we need
    * to collect the users and group lists at the point of creation
@@ -32,8 +34,7 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
     }
   }
 
-  def createPostAction(form: Form[F])(f: Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
+  def createPostAction(form: Form[F])(f: CreateCallback)(implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
     withContentPermission(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),
@@ -47,8 +48,8 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
               // and redisplay it...
               if (itemOrErr.isLeft) {
                 itemOrErr.left.get match {
-                  case err: rest.ValidationError => {
-                    val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
+                  case rest.ValidationError(errorSet) => {
+                    val serverErrors: Seq[FormError] = doc.errorsToForm(errorSet)
                     val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
                     Right(f(Left((filledForm, VisibilityForm.form)))(userOpt)(request))
                   }

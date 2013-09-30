@@ -13,11 +13,9 @@ import play.api.libs.json.{Writes, Json}
 
 import com.google.inject._
 import solr.facet.FieldFacetClass
-import scala.Some
 import models.base.AnyModel
 import utils.search.{Dispatcher, Indexer, SearchParams, SearchOrder}
 import scala.util.{Failure, Success}
-import indexing.CmdlineIndexer
 import play.api.Logger
 
 
@@ -33,7 +31,6 @@ object Search {
 @Singleton
 class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val searchIndexer: Indexer) extends EntitySearch {
 
-  val searchEntities = List()
   // i.e. Everything
   private val entityFacets = List(
     FieldFacetClass(
@@ -69,23 +66,21 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
   def search = searchAction[AnyModel](
-    defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))),
-    entityFacets = entityFacets) {
-    page => params => facets => implicit userOpt => implicit request =>
-      Secured {
-        render {
-          case Accepts.Json() => {
-            Ok(Json.toJson(Json.obj(
-              "numPages" -> page.numPages,
-              "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
-              "facets" -> facets
-            ))
-            )
-          }
-          case _ => Ok(views.html.search.search(page, params, facets,
-            controllers.admin.routes.Search.search))
-        }
+      defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))),
+      entityFacets = entityFacets) {
+        page => params => facets => implicit userOpt => implicit request =>
+    render {
+      case Accepts.Json() => {
+        Ok(Json.toJson(Json.obj(
+          "numPages" -> page.numPages,
+          "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
+          "facets" -> facets
+        ))
+        )
       }
+      case _ => Ok(views.html.search.search(page, params, facets,
+        controllers.admin.routes.Search.search))
+    }
   }
 
   /**
@@ -110,8 +105,6 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   import play.api.data.Forms._
   import models.forms.enum
 
-  private lazy val defaultBatchSize: Int
-  = application.configuration.getInt("solr.update.batchSize")
 
   private val updateIndexForm = Form(
     tuple(
@@ -131,11 +124,8 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   }
 
   /**
-   * Perform the actual update, returning a streaming response as the batch
-   * jobs complete.
-   *
-   * FIXME: In order to comprehend the flow of this stuff error handling has
-   * been thrown out the window, but we should fix this at some point.
+   * Perform the actual update, piping progress through a channel
+   * and returning a chunked result.
    *
    * @return
    */

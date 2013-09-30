@@ -5,6 +5,7 @@
         @item.actioner.map { accessor =>
             - <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>
         }
+        - @item.toStringLang
     </h5>
     <p>@item.model.logMessage</p>
 </li>
