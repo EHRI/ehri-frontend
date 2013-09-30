@@ -10,9 +10,9 @@
 @rightSidebarLayout(title(item), breadcrumbs = common.breadcrumbs(List(item))) {
 
     <p>
-    @item.actioner.map { accessor =>
-        <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>:
-    }
+        @item.actioner.map { accessor =>
+            <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>:
+        }
         <time>@item.time</time>
         (@views.Helpers.prettyDate(item.model.timestamp))
     </p>
