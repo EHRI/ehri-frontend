@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@()(implicit userOpt: Option[UserProfile], globalConfig: GlobalConfig, req: RequestHeader, lang: Lang)
 <!DOCTYPE html>
 
 <html lang="@lang.code" ng-app="Portal">
@@ -39,11 +39,11 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.UserProfiles.get(account.profile_id)">@Messages("actions.viewProfile")</a> </li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.UserProfiles.get(account.id)">@Messages("actions.viewProfile")</a> </li>
                                 <li role="presentation"><a role="menuitem" tabindex="-1" href="@controllers.core.routes.Admin.changePassword">@Messages("login.changePassword")</a></li>
                                 <li role="presentation" class="divider"></li>
                                 <li>
-                                    <a href="@controllers.core.routes.Application.logout" id="signout">
+                                    <a href="@globalConfig.routeRegistry.logout" id="signout">
                                         @Messages("banner.signout")
                                         <i class="icon icon-off"></i>
                                     </a>
@@ -51,7 +51,7 @@
                             </ul>
                         </li>
                         }.getOrElse {
-                        <li><a href="@controllers.core.routes.Application.login" id="signin">@Messages("banner.signin")</a></li>
+                        <li><a href="@globalConfig.routeRegistry.login" id="signin">@Messages("banner.signin")</a></li>
                         }
                     </ul>
                 </div>
