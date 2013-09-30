@@ -22,9 +22,9 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   private val form = models.forms.GroupForm.form
   private val groupRoutes = controllers.core.routes.Groups
 
-  def get(id: String) = getAction(id) {
-      item => annotations => links => implicit maybeUser => implicit request =>
-    Ok(views.html.group.show(item, annotations))
+  def get(id: String) = getWithChildrenAction[Accessor](id) {
+      item => page => params => annotations => links => implicit maybeUser => implicit request =>
+    Ok(views.html.group.show(item, page, params, annotations))
   }
 
   def history(id: String) = historyAction(id) {

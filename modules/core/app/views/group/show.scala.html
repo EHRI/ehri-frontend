@@ -1,4 +1,4 @@
-@(item: Group, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: Group, page: rest.Page[Accessor], params: utils.ListParams, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
@@ -12,6 +12,19 @@
         @item.groups.map { group =>
             <a href="@controllers.core.routes.Groups.get(group.id)">@group</a>
         }
+    }
+
+    @common.filterableList("group.membersPageHeader", page, params) {
+        <ul>
+            @page.items.map {
+                case u: UserProfile => {
+                    @userProfile.listItem(u)
+                }
+                case g: Group => {
+                    @group.listItem(g)
+                }
+            }
+        </ul>
     }
 } {
     @common.latestAction(item, controllers.core.routes.Groups.history(item.id))
