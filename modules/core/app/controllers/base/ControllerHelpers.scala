@@ -30,6 +30,13 @@ trait ControllerHelpers {
   implicit val eventHandler = globalConfig.eventHandler
 
   /**
+   * Issue a warning about database maintenance when a "dbmaintenance"
+   * file is present in the app root and the DB is offline.
+   * @return
+   */
+  def dbMaintenance: Boolean = new java.io.File("dbmaintenance").exists()
+
+  /**
    * Get a complete list of possible groups
    * @param f
    * @param userOpt
@@ -86,13 +93,13 @@ trait ControllerHelpers {
               }
             }
             case e: ValidationError => BadRequest(err.toString())
-            case e: ServerError => InternalServerError(views.html.errors.serverTimeout())
+            case e: ServerError => InternalServerError(views.html.errors.serverTimeout(dbMaintenance))
             case e => BadRequest(e.toString())
           },
           resp => resp
         )
       } recover {
-        case e: ConnectException => InternalServerError(views.html.errors.serverTimeout())
+        case e: ConnectException => InternalServerError(views.html.errors.serverTimeout(dbMaintenance))
       }
     }
   }

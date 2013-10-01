@@ -129,6 +129,9 @@ errors.genericProblem=We're very sorry, but there's a problem loading that page
 errors.databaseError=Database Error
 errors.databaseErrorExplanation=I''m afraid it looks like our database server has gone down.     \
   There's not much we can do without it, so please try again later.
+errors.databaseMaintenance=Database Temporarily Offline
+errors.databaseMaintenanceExplanation=The EHRI database is currently offline for routine maintenance. \
+  It should be back soon so please try again shortly.
 errors.permissionDenied=Permission Denied
 errors.permissionDeniedExplanation=It looks like you can''t do whatever it is you were attempted \
   to do. This is probably an error on our part. We'll try and fix that ASAP.
