@@ -21,8 +21,11 @@ case class SearchDAO(userProfile: Option[UserProfile]) extends RestDAO {
   def list[MT](ids: Seq[String])(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
     // NB: Using POST here because the list of IDs can
     // potentially overflow the GET param length...
-    WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(ids)).map { response =>
-      checkErrorAndParse(response)(Reads.list(rd.restReads))
+    if (ids.isEmpty) Future.successful(Right(List.empty[MT]))
+    else {
+      WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(ids)).map { response =>
+        checkErrorAndParse(response)(Reads.list(rd.restReads))
+      }
     }
   }
 }
