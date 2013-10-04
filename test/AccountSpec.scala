@@ -48,11 +48,19 @@ class AccountSpec extends Specification {
   }
 
   "openid dao" should {
-    "find accounts by openid_url" in new WithFixures {
+    "find accounts by openid_url and allow adding another" in new WithFixures {
       val assoc = OpenIDAssociation.findByUrl(mocks.privilegedUser.id + "-openid-test-url")
       assoc must beSome
       assoc.get.user must beSome
       assoc.get.user.get.email must beEqualTo(mocks.privilegedUser.email)
+
+      val user = assoc.get.user.get
+
+      OpenIDAssociation.addAssociation(user, "another-test-url")
+      val assoc2 = OpenIDAssociation.findByUrl("another-test-url")
+      assoc2 must beSome
+      assoc2.get.user must beSome
+      assoc2.get.user.get must equalTo(user)
     }
   }
 }

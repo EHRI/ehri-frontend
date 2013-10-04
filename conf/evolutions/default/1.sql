@@ -3,7 +3,7 @@
 /* NB: Syntax slightly mangled to be H2 compatible */
 
 CREATE TABLE users (
-    id    VARCHAR(255) NOT NULL PRIMARY KEY,
+    id    VARCHAR(50) NOT NULL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     staff BOOLEAN NOT NULL,
     created TIMESTAMP NOT NULL
@@ -12,22 +12,23 @@ CREATE TABLE users (
 CREATE INDEX users_email ON users (email);
 
 CREATE TABLE openid_association (
-    id          VARCHAR(255) NOT NULL PRIMARY KEY,
-    openid_url  VARCHAR(4096) NOT NULL,
-    created     TIMESTAMP NOT NULL
+    id          VARCHAR(50) NOT NULL,
+    openid_url  VARCHAR(255) NOT NULL,
+    created     TIMESTAMP NOT NULL,
+    PRIMARY KEY (id, openid_url)
 );
 
 ALTER TABLE openid_association ADD CONSTRAINT openid_association_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
 CREATE TABLE user_auth (
-    id          VARCHAR(255) NOT NULL PRIMARY KEY,
+    id          VARCHAR(50) NOT NULL PRIMARY KEY,
     `data`     VARCHAR(255) NOT NULL
 );
 
 ALTER TABLE user_auth ADD CONSTRAINT user_auth_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
 CREATE TABLE token (
-  id          VARCHAR(255) NOT NULL,
+  id          VARCHAR(50) NOT NULL,
   token       VARCHAR(255) NOT NULL PRIMARY KEY,
   expires     TIMESTAMP NOT NULL
 );

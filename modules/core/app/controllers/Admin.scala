@@ -79,7 +79,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   private val userPasswordForm = Form(
     tuple(
       "email" -> email,
-      "identifier" -> nonEmptyText,
+      "identifier" -> nonEmptyText(minLength= 3, maxLength = 20),
       "name" -> nonEmptyText,
       "password" -> nonEmptyText(minLength = 6),
       "confirm" -> nonEmptyText(minLength = 6)
