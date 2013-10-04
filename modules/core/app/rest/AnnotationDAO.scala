@@ -7,6 +7,7 @@ import play.api.libs.json.{Reads, Json}
 import defines.EntityType
 import models._
 import models.json.{AnnotationFormat, RestReadable, RestConvertable}
+import play.api.Logger
 
 
 /**
@@ -19,7 +20,9 @@ case class AnnotationDAO(userProfile: Option[UserProfile] = None) extends RestDA
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
 
   def getFor(id: String): Future[Either[RestError, Map[String,List[Annotation]]]] = {
-    WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
+    val url = enc(requestUrl, "for/%s?limit=1000".format(id))
+    Logger.logger.debug("GET ANNOTATIONS {}", url)
+    WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.mapReads(Reads.list(AnnotationFormat.metaReads)))
     }
