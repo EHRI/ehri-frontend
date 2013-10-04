@@ -16,6 +16,9 @@ import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
 import views.Helpers
 import play.api.cache.Cached
+import solr.facet.FieldFacetClass
+import play.api.i18n.Messages
+import views.Helpers
 
 
 @Singleton
@@ -51,6 +54,35 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   // This is a publically-accessible site
   override val staffOnly = false
 
+  // i.e. Everything
+  private val entityFacets = List(
+    FieldFacetClass(
+      key = IsadG.LANG_CODE,
+      name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+      param = "lang",
+      render = Helpers.languageCodeToName
+    ),
+    FieldFacetClass(
+      key = "type",
+      name = Messages("search.type"),
+      param = "type",
+      render = s => Messages("contentTypes." + s)
+    ),
+    FieldFacetClass(
+      key = "copyrightStatus",
+      name = Messages("copyrightStatus.copyright"),
+      param = "copyright",
+      render = s => Messages("copyrightStatus." + s)
+    ),
+    FieldFacetClass(
+      key = "scope",
+      name = Messages("scope.scope"),
+      param = "scope",
+      render = s => Messages("scope." + s)
+    )
+  )
+
+
   /**
    * Full text search action that returns a complete page of item data.
    * @return
@@ -60,13 +92,21 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   def search = searchAction[AnyModel](
     defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))),
     entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-    Ok(Json.toJson(Json.obj(
-      "numPages" -> Json.toJson(page.numPages),
-      "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
-      "facets" -> Json.toJson(facets)
-    )))
+    page => params => facets => implicit userOpt => implicit request =>
+      render {
+        case Accepts.Json() => {
+          Ok(Json.toJson(Json.obj(
+            "numPages" -> page.numPages,
+            "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
+            "facets" -> facets
+          ))
+          )
+        }
+        case _ => Ok(views.html.search.search(page, params, facets,
+          controllers.portal.routes.Portal.search))
+      }
   }
+
 
   /**
    * Quick filter action that searches applies a 'q' string filter to

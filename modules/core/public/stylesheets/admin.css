@@ -41,8 +41,6 @@ body {
     min-width: 800px;
 }
 
-@
-
 @media (max-width: 900px) {
     .nav-collapse.collapse {
         height: 0 !important;

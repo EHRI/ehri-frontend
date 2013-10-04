@@ -1,0 +1,10 @@
+@(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@rightSidebarLayout(Messages("forms.search")) {
+    @searchForm(result, params, action) {
+        @searchItemList(result)
+    }
+} {
+    @common.facetList(result.facets, action)
+}
