@@ -1,0 +1,18 @@
+@(page: utils.search.ItemPage[_])(implicit req: RequestHeader, lang: Lang)
+
+@import utils.search._
+
+<p class="selected-facets muted">
+    @page.facets.map{ fclass =>
+        @fclass.sorted.map{ facet =>
+            @if(facet.applied) {
+                <input type="hidden" name="@fclass.param" value="@facet.value" />
+                <span class="label label-info">
+                    @fclass.name: @fclass.pretty(facet) <a class="remove-filter"
+                        href="@pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
+                    <span class="glyphicon glyphicon-remove"></span></a>
+                </span>
+            }
+        }
+    }
+</p>

@@ -24,33 +24,6 @@ import views.Helpers
 @Singleton
 class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends Controller with EntitySearch {
 
-  val entityFacets = List(
-    FieldFacetClass(
-      key=IsadG.LANG_CODE,
-      name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
-      param="lang",
-      render=Helpers.languageCodeToName
-    ),
-    FieldFacetClass(
-      key="type",
-      name=Messages("search.type"),
-      param="type",
-      render=s => Messages("contentTypes." + s)
-    ),
-    FieldFacetClass(
-      key="copyrightStatus",
-      name=Messages("copyrightStatus.copyright"),
-      param="copyright",
-      render=s => Messages("copyrightStatus." + s)
-    ),
-    FieldFacetClass(
-      key="scope",
-      name=Messages("scope.scope"),
-      param="scope",
-      render=s => Messages("scope." + s)
-    )
-  )
-
   // This is a publically-accessible site
   override val staffOnly = false
 
@@ -102,7 +75,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
           ))
           )
         }
-        case _ => Ok(views.html.search.search(page, params, facets,
+        case _ => Ok(views.html.portal.search(page, params, facets,
           controllers.portal.routes.Portal.search))
       }
   }
@@ -192,7 +165,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   }
 
   def index = userProfileAction { implicit userOpt => implicit request =>
-    Ok(views.html.portal())
+    Ok(views.html.portal.portal())
   }
 
   def placeholder = Cached("pages:portalPlaceholder") {
