@@ -168,6 +168,18 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(views.html.portal.portal())
   }
 
+  def browseCountries = TODO
+
+  def browseCountry(id: String) = TODO
+
+  def browseRepository(id: String) = TODO
+
+  def browseDocument(id: String) = TODO
+
+  def browseAuthority(id: String) = TODO
+
+  def activity = TODO
+
   def placeholder = Cached("pages:portalPlaceholder") {
     Action { implicit request =>
       Ok(views.html.placeholder())

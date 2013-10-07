@@ -2,19 +2,23 @@
 
 @import utils.search.{SearchParams,SearchOrder}
 
-@helper.form(action = action, 'role -> "form") {
+@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal") {
 
-    <div class="row top-row">
+    <div class="row container">
         <div class="col-md-3"><h3>Search</h3></div>
         <div class="col-md-9">
-            <div class="form-group form-inline">
-                <input type="search"
-                       placeholder="@Messages("search.queryPlaceholder")"
-                class="input-block-level span15" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
-                <button class="btn">
-                    <i class="icon-search"></i>
-                    @Messages("forms.search")
-                </button>
+            <div class="form-group form-inline search-box">
+                <div class="input-group">
+                    <input type="search" class="form-control"
+                           placeholder="@Messages("search.queryPlaceholder")"
+                            name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default">
+                            <span class="glyphicon glyphicon-search"></span>
+                            @Messages("forms.search")
+                        </button>
+                    </span>
+                </div>
             </div>
 
             @*

@@ -1,104 +1,31 @@
-@()(implicit userOpt: Option[UserProfile], globalConfig: GlobalConfig, req: RequestHeader, lang: Lang)
-<!DOCTYPE html>
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
-<html lang="@lang.code" ng-app="Portal">
-    <head>
-        <meta charset="UTF-8">
-        <title>EHRI Portal</title>
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+@import utils.search.SearchParams
 
-        <style type="text/css">
-            body {
-                padding-top: 70px;
+@layout.portalLayout(Messages("forms.search")) {
 
-            }
+    @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
+        <div class="row">
 
-            /* Sticky footer styles
-                -------------------------------------------------- */
-
-            html,
-            body {
-                height: 100%;
-                /* The html and body elements cannot have any padding or margin. */
-            }
-
-            .maincontent, .sidebar {
-                background-color: #FFF;
-            }
-
-            /* Wrapper for page content to push down footer */
-            #wrap {
-                min-height: 100%;
-                height: auto !important;
-                height: 100%;
-                /* Negative indent footer by it's height */
-                margin: 0 auto -100px;
-            }
-
-            /* Set the fixed height of the footer here */
-            #push, footer {
-                height: 99px;
-            }
-
-            footer {
-                background-color: #f5f5f5;
-                padding-left: 20px;
-                padding-right: 20px;
-            }
-
-            footer .container {
-                padding-top: 20px;
-            }
-        </style>
-        <!-- JavaScript Includes, at the bottom... -->
-
-        <script>
-            var ANGULAR_PARTIALS = "@controllers.portal.routes.Assets.at("partials")";
-        </script>
-
-        <script src="//code.jquery.com/jquery.js"></script>
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="@controllers.core.routes.Application.localeData(lang.code)"></script>
-        <script type="text/javascript" src="@controllers.portal.routes.Portal.globalData"></script>
-        <script type="text/javascript" src="@controllers.portal.routes.Portal.jsRoutes"></script>
-        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.2/angular.min.js"></script>
-
-        <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/services.js")"></script>
-        <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/controllers.js")"></script>
-        <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/app.js")"></script>
-        <script type="text/javascript" src="@controllers.portal.routes.Assets.at("js/directives.js")"></script>
-    </head>
-    <body ng-controller="AppCtrl">
-
-        <header>
-            <nav class="navbar navbar-fixed-top" role="navigation">
-                <div class="container">
-                    <div class="navbar-header">
-                        <img src="@controllers.portal.routes.Assets.at("img/logo-tiny.png")" class="img-thumbnail">
-                    </div>
-                    <div class="collapse navbar-collapse navbar-ex1-collapse">
-                        <ul class="nav navbar-nav">
-                            <li class="active"><a href="#">Search</a></li>
-                            <li class="active"><a href="#">Browse</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </header>
-
-        <div class="container" id="wrap">
-            <div class="page-content">
-                <ng-view></ng-view>
-                <div id="push"></div>
+            <div class="col-md-12 container text-center">
+                <h1>@Messages("portal.welcome")</h1>
             </div>
         </div>
-        <footer class="footer sticky">
-            <div class="container">
-                <p class="muted">@Messages("footer.footerText")</p>
-                @layout.versionInfo()
+        <div class="row main-content">
+            <div class="col-lg-3"></div>
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <input type="search"
+                           placeholder="@Messages("search.queryPlaceholder")" class="form-control" name="@SearchParams.QUERY" value="" autofocus />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default">
+                            <span class="glyphicon glyphicon-search"></span>
+                            @Messages("forms.search")
+                        </button>
+                    </span>
+                </div>
             </div>
-        </footer>
-
-    </body>
-</html>
+            <div class="col-lg-3"></div>
+        </div>
+    }
+}

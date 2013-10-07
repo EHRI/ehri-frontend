@@ -20,13 +20,11 @@
             html,
             body {
                 height: 100%;
-                background-color: #F4F4F4;
                 /* The html and body elements cannot have any padding or margin. */
             }
 
-            .top-row {
-                background-color: #474747;
-                padding: 15px;
+            .search-box {
+                margin-top: 15px;
             }
 
             .sidebar {
@@ -68,17 +66,25 @@
     </head>
     <body>
 
+    @maybeActive(url: String) = {
+        @(if(req.path.equals(url)) "active" else "")
+    }
+
     <header>
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container">
-                <div class="navbar-header">
-                    EHRI
-                </div>
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
                     <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Search</a></li>
-                        <li class="active"><a href="#">Browse</a></li>
-                        <li class="active"><a href="#">Activity</a></li>
+                        <li class="@maybeActive(controllers.portal.routes.Portal.index.url)">
+                            <a href="@controllers.portal.routes.Portal.index">
+                                <span class="glyphicon glyphicon-home"></span>
+                            </a>
+                        </li>
+                        <li class="@maybeActive(controllers.portal.routes.Portal.search.url)">
+                            <a href="@controllers.portal.routes.Portal.search">@Messages("portal.search")</a>
+                        </li>
+                        <li><a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browseCountries")</a></li>
+                        <li><a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a></li>
                     </ul>
                 </div>
             </div>
@@ -91,10 +97,9 @@
             <div id="push"></div>
         </div>
     </div>
-    <footer class="footer sticky">
+    <footer class="footer sticky text-center">
         <div class="container">
-            <p class="muted">@Messages("footer.footerText")</p>
-            @layout.versionInfo()
+            <p class="text-muted">@Messages("portal.footerText")</p>
         </div>
     </footer>
 
