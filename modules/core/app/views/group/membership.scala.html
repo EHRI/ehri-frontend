@@ -7,7 +7,7 @@
 	@if(!item.groups.isEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;
 	  @item.groups.map { group =>
-	    <a href="@controllers.core.routes.Groups.get(group.id)">@group</a>
+	    <a href="@controllers.core.routes.Groups.get(group.id)">@group.toStringLang</a>
         (<a href="@controllers.core.routes.Groups.removeMember(group.id, item.isA.toString, item.id)">@Messages("accessor.removeGroup")</a>)
 	  }	  
 	}

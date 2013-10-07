@@ -1,24 +1,25 @@
 # --- !Ups
 
 CREATE TABLE users (
-    id          VARCHAR(255) NOT NULL PRIMARY KEY,
+    id          VARCHAR(50) NOT NULL PRIMARY KEY,
     email       VARCHAR(255) NOT NULL,
     staff       BOOLEAN NOT NULL
 );
 
 
 CREATE TABLE openid_association (
-    id           VARCHAR(255) NOT NULL PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
-    openid_url   TEXT NOT NULL
+    id           VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    openid_url   VARCHAR(255) NOT NULL,
+    PRIMARY KEY(id, openid_url)
 );
 
 CREATE TABLE user_auth (
-    id         VARCHAR(255) NOT NULL PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
+    id         VARCHAR(50) NOT NULL PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
     data       VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE token (
-  id          VARCHAR(255) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  id          VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   token       VARCHAR(255) NOT NULL PRIMARY KEY,
   expires     TIMESTAMP NOT NULL
 );
