@@ -11,6 +11,7 @@ GET     /dev/browse/r/:id                   @controllers.portal.Portal.browseRep
 GET     /dev/browse/d/:id                   @controllers.portal.Portal.browseDocument(id: String)
 GET     /dev/browse/a/:id                   @controllers.portal.Portal.browseAuthority(id: String)
 GET     /dev/activity                       @controllers.portal.Portal.activity
+GET     /dev/newsFeed                       @controllers.portal.Portal.newsFeed
 
 GET     /dev/account                        @controllers.portal.Portal.account
 GET     /dev/profile                        @controllers.portal.Portal.profile

@@ -1,9 +1,11 @@
 package controllers.portal
 
+import _root_.models.json.{ClientConvertable, RestReadable}
 import play.api.Play.current
-import _root_.models.{IsadG, UserProfile}
+import _root_.models._
 import controllers.base.EntitySearch
 import models.base.AnyModel
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import views.html._
@@ -19,6 +21,12 @@ import play.api.cache.Cached
 import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
 import views.Helpers
+import defines.EntityType
+import utils.ListParams
+import solr.facet.FieldFacetClass
+import scala.Some
+import play.api.libs.ws.WS
+import play.api.templates.Html
 
 
 @Singleton
@@ -56,6 +64,32 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   )
 
 
+  def getWithChildrenAction[CT, MT](entityType: EntityType.Value, id: String)(
+    f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
+                                 implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
+    itemAction[MT](entityType, id) { item => implicit userOpt => implicit request =>
+      render {
+        case Accepts.Json() => Ok(Json.toJson(item)(cfmt.clientFormat))
+        case _ => {
+          AsyncRest {
+            // NB: Effectively disable paging here by using a high limit
+            val params = ListParams.fromRequest(request)
+            val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
+            val linkReq = rest.LinkDAO(userOpt).getFor(id)
+            val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
+            for { annOrErr <- annsReq ; cOrErr <- cReq ; linkOrErr <- linkReq } yield {
+              for { anns <- annOrErr.right ; children <- cOrErr.right ; links <- linkOrErr.right } yield {
+                f(item)(children)(params)(anns)(links)(userOpt)(request)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+
   /**
    * Full text search action that returns a complete page of item data.
    * @return
@@ -63,7 +97,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
   def search = searchAction[AnyModel](
-    defaultParams = Some(SearchParams(sort = Some(SearchOrder.Score))),
+    defaultParams = Some(SearchParams(
+      entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.Country),
+      sort = Some(SearchOrder.Score))),
     entityFacets = entityFacets) {
     page => params => facets => implicit userOpt => implicit request =>
       render {
@@ -170,11 +206,22 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
   def browseCountries = TODO
 
-  def browseCountry(id: String) = TODO
+  def browseCountry(id: String) = getWithChildrenAction[Repository, Country](EntityType.Country, id) {
+      ct => repos => params => anns => links => implicit userOpt => implicit request =>
+    Ok(ct.toStringLang)
+  }
 
-  def browseRepository(id: String) = TODO
+  def browseRepository(id: String) = getWithChildrenAction[DocumentaryUnit, Repository](EntityType.Repository, id) {
+    repo => docs => params => anns => links => implicit userOpt => implicit request =>
+      Ok(repo.toStringLang)
+  }
 
-  def browseDocument(id: String) = TODO
+  def browseDocument(id: String) = getWithChildrenAction[DocumentaryUnit, DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+    doc => children => params => anns => links => implicit userOpt => implicit request =>
+      Ok(portal.documentaryUnit.show(doc, children, anns, links))
+  }
+
+  def browseAuthorities = TODO
 
   def browseAuthority(id: String) = TODO
 
@@ -183,6 +230,30 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   def placeholder = Cached("pages:portalPlaceholder") {
     Action { implicit request =>
       Ok(views.html.placeholder())
+    }
+  }
+
+
+  case class NewsItem(title: String, link: String, description: Html)
+
+  object NewsItem {
+    def fromRss(feed: String): Seq[NewsItem] = {
+      (xml.XML.loadString(feed) \\ "item").map { item =>
+        new NewsItem(
+          (item \ "title").text,
+          (item \ "link").text,
+          Html((item \ "description").text))
+      }
+    }
+  }
+
+  def newsFeed = Cached("pages.newsFeed", 3600) {
+    Action { request =>
+      Async {
+        WS.url("http://www.ehri-project.eu/rss.xml").get.map { r =>
+          Ok(portal.newsFeed(NewsItem.fromRss(r.body)))
+        }
+      }
     }
   }
 }

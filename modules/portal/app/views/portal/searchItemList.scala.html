@@ -14,23 +14,8 @@
                     case d: Repository => {
                         @repository.listItem(d)
                     }
-                    case d: Concept => {
-                        @concept.listItem(d)
-                    }
                     case d: Country => {
-                        @country.searchItem(d)
-                    }
-                    case d: UserProfile => {
-                        @userProfile.listItem(d)
-                    }
-                    case d: Group => {
-                        @group.listItem(d)
-                    }
-                    case d: AuthoritativeSet => {
-                        @authoritativeSet.listItem(d)
-                    }
-                    case d: Vocabulary => {
-                        @vocabulary.listItem(d)
+                        @country.listItem(d)
                     }
                     case _ => {
                         @common.searchItem(item)
