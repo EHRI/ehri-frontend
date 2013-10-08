@@ -61,5 +61,6 @@ case class Link(
   latestEvent: Option[SystemEvent] = None
 ) extends AnyModel
   with MetaModel[LinkF] with Accessible {
-  def opposingTarget(item: AnyModel): Option[AnyModel] = targets.find(_.id != item.id)
+  def opposingTarget(item: AnyModel): Option[AnyModel] = opposingTarget(item.id)
+  def opposingTarget(itemId: String): Option[AnyModel] = targets.find(_.id != itemId)
 }
