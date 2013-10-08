@@ -63,25 +63,38 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   )
 
+  /**
+   * Fetch a given item, along with its links and annotations.
+   */
+  def getAction[MT](entityType: EntityType.Value, id: String)(
+    f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
+                                     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
+    itemAction[MT](entityType, id) { item => implicit userOpt => implicit request =>
+      AsyncRest {
+        val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
+        val linkReq = rest.LinkDAO(userOpt).getFor(id)
+        for { annOrErr <- annsReq ; linkOrErr <- linkReq } yield {
+          for { anns <- annOrErr.right ; links <- linkOrErr.right } yield {
+            f(item)(anns)(links)(userOpt)(request)
+          }
+        }
+      }
+    }
+  }
 
+  /**
+   * Fetch a given item with links, annotations, and a page of child items.
+   */
   def getWithChildrenAction[CT, MT](entityType: EntityType.Value, id: String)(
     f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
                                  implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
-    itemAction[MT](entityType, id) { item => implicit userOpt => implicit request =>
-      render {
-        case Accepts.Json() => Ok(Json.toJson(item)(cfmt.clientFormat))
-        case _ => {
-          AsyncRest {
-            // NB: Effectively disable paging here by using a high limit
-            val params = ListParams.fromRequest(request)
-            val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
-            val linkReq = rest.LinkDAO(userOpt).getFor(id)
-            val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
-            for { annOrErr <- annsReq ; cOrErr <- cReq ; linkOrErr <- linkReq } yield {
-              for { anns <- annOrErr.right ; children <- cOrErr.right ; links <- linkOrErr.right } yield {
-                f(item)(children)(params)(anns)(links)(userOpt)(request)
-              }
-            }
+    getAction[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
+      AsyncRest {
+        val params = ListParams.fromRequest(request)
+        val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
+        for { cOrErr <- cReq  } yield {
+          for { children <- cOrErr.right } yield {
+            f(item)(children)(params)(anns)(links)(userOpt)(request)
           }
         }
       }
@@ -98,7 +111,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
   def search = searchAction[AnyModel](
     defaultParams = Some(SearchParams(
-      entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.Country),
+      entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent),
       sort = Some(SearchOrder.Score))),
     entityFacets = entityFacets) {
     page => params => facets => implicit userOpt => implicit request =>
@@ -212,18 +225,21 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   }
 
   def browseRepository(id: String) = getWithChildrenAction[DocumentaryUnit, Repository](EntityType.Repository, id) {
-    repo => docs => params => anns => links => implicit userOpt => implicit request =>
-      Ok(repo.toStringLang)
+      repo => docs => params => anns => links => implicit userOpt => implicit request =>
+    Ok(portal.repository.show(repo, docs, anns, links))
   }
 
   def browseDocument(id: String) = getWithChildrenAction[DocumentaryUnit, DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-    doc => children => params => anns => links => implicit userOpt => implicit request =>
-      Ok(portal.documentaryUnit.show(doc, children, anns, links))
+      doc => children => params => anns => links => implicit userOpt => implicit request =>
+    Ok(portal.documentaryUnit.show(doc, children, anns, links))
   }
 
-  def browseAuthorities = TODO
+  def browseHistoricalAgents = TODO
 
-  def browseAuthority(id: String) = TODO
+  def browseHistoricalAgent(id: String) = getAction[HistoricalAgent](EntityType.HistoricalAgent, id) {
+      doc => anns => links => implicit userOpt => implicit request =>
+    Ok(portal.historicalAgent.show(doc, anns, links))
+  }
 
   def activity = TODO
 
