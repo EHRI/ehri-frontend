@@ -69,8 +69,9 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
                     userDAO.create(entity.id, email.toLowerCase).map { account =>
                       OpenIDAssociation.addAssociation(account, info.id)
                       // TODO: Redirect to profile?
-                      gotoLoginSucceeded(account.id)
-                        .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
+                      gotoLoginSucceeded(account.id).map { r =>
+                        r.withSession("access_uri" -> globalConfig.routeRegistry.default.url)
+                      }
                     }.getOrElse(BadRequest("Creation of user db failed!"))
                   }
                   case Left(err) => {

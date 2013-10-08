@@ -26,6 +26,7 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     jdbc,
     anorm,
+    cache,
     filters,
 
     // Ontology
@@ -35,8 +36,9 @@ object ApplicationBuild extends Build {
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
 
-    "jp.t2v" %% "play2.auth" % "0.10.1",
-    "jp.t2v" %% "play2.auth.test" % "0.10.1" % "test",
+    "jp.t2v" %% "play2-auth" % "0.11.0-SNAPSHOT",
+    "jp.t2v" %% "play2-auth-test" % "0.11.0-SNAPSHOT" % "test",
+
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "mysql" % "mysql-connector-java" % "5.1.25",
     "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4",
@@ -74,49 +76,42 @@ object ApplicationBuild extends Build {
   )
 
   lazy val core = play.Project(
-    appName + "-core", appVersion, appDependencies, path = file("modules/core"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-core", appVersion, appDependencies, path = file("modules/core")
   ).settings(otherSettings:_*)
 
   lazy val annotation = play.Project(
-    appName + "-annotation", appVersion, appDependencies, path = file("modules/annotation"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-annotation", appVersion, appDependencies, path = file("modules/annotation")
   ).settings(otherSettings:_*).dependsOn(core)
 
   lazy val linking = play.Project(
-    appName + "-linking", appVersion, appDependencies, path = file("modules/linking"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-linking", appVersion, appDependencies, path = file("modules/linking")
   ).settings(otherSettings:_*).dependsOn(core, annotation)
 
   lazy val archdesc = play.Project(
-    appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc")
   ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val authorities = play.Project(
-    appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities")
   ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val vocabs = play.Project(
-    appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs")
   ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val portal = play.Project(
-    appName + "-portal", appVersion, appDependencies, path = file("modules/portal"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-portal", appVersion, appDependencies, path = file("modules/portal")
   ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
     .aggregate(core, archdesc, authorities, vocabs)
 
   lazy val admin = play.Project(
-    appName + "-admin", appVersion, appDependencies, path = file("modules/admin"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-admin", appVersion, appDependencies, path = file("modules/admin")
   ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
     .aggregate(core, archdesc, authorities, vocabs)
 
-  lazy val aaMain = play.Project(appName, appVersion, appDependencies ++ testDependencies,
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  lazy val main = play.Project(appName, appVersion, appDependencies ++ testDependencies
   ).settings(otherSettings:_*).dependsOn(admin, portal)
     .aggregate(admin, portal)
+
+  override def rootProject = Some(main)
 }

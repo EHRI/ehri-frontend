@@ -43,7 +43,7 @@ case class DatePeriodF(
       try {
         new DateTime(dateString).getYear
       } catch {
-        case _ => dateString
+        case _: Throwable => dateString
       }
     }.distinct.mkString("-")
   }
