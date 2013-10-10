@@ -54,6 +54,7 @@ object IsdiahFormat {
         RELATIONSHIPS -> Json.obj(
           ENTITY_HAS_ADDRESS -> Json.toJson(d.addresses.map(Json.toJson(_)).toSeq),
           HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
+          HAS_MAINTENANCE_EVENT -> Json.toJson(d.maintenanceEvents.map(Json.toJson(_)).toSeq),
           HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
         )
       )
@@ -108,6 +109,8 @@ object IsdiahFormat {
         )(IsdiahControl.apply _)) and
         (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT)
             .lazyReadNullable(Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
+        (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT)
+            .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity])) and
         (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY)
             .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
     )(RepositoryDescriptionF.apply _)

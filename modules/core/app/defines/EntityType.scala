@@ -25,6 +25,7 @@ object EntityType extends Enumeration() {
   val Link = Value("link")
   val Country = Value("country")
   val UnknownProperty = Value("property")
+  val MaintenanceEvent = Value("maintenanceEvent")
 
   implicit val format = defines.EnumUtils.enumFormat(this)
 }
