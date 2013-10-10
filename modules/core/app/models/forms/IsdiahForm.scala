@@ -55,6 +55,7 @@ object IsdiahForm {
         MAINTENANCE_NOTES -> optional(text)
       )(IsdiahControl.apply)(IsdiahControl.unapply),
       ACCESS_POINTS -> list(AccessPointForm.form.mapping),
+      MAINTENANCE_EVENTS -> list(entity),
       UNKNOWN_DATA -> list(entity)
     )(RepositoryDescriptionF.apply)(RepositoryDescriptionF.unapply)
   )

@@ -5,6 +5,21 @@
     @common.annotated(item, annotations) {
         @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
             @item.model.identifier
+            @item.model.priority.map { p =>
+                <span class="badge priority@p">
+                @Messages("priority"):
+                @p match {
+                    case p if p == 0 =>  { @Messages("priority.zero") }
+                    case p if p == 1 =>  { @Messages("priority.one") }
+                    case p if p == 2 =>  { @Messages("priority.two") }
+                    case p if p == 3 =>  { @Messages("priority.three") }
+                    case p if p == 4 =>  { @Messages("priority.four") }
+                    case p if p == 5 =>  { @Messages("priority.five") }
+                    case p if p == -1 => { @Messages("priority.reject") }
+                }
+                </span>
+            }
+
             @if(!item.model.descriptions.isEmpty) {
                 @item.model.descriptions.map { desc =>
                     @repository.renderDescription(item, desc, links)
