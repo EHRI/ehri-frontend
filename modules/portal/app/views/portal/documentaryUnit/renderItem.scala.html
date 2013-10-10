@@ -1,0 +1,32 @@
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+
+<div class="row">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4 col-md-4 col-lg-4 container">
+                @item.holder.map { repo =>
+                <p>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>@Messages("documentaryUnit.heldBy")</strong>
+                    </div>
+                    <div class="panel-body">
+                        @repo.model.descriptions.flatMap(_.addresses).headOption.map { address =>
+                            @views.html.portal.repository.renderAddress(repo, address)
+                        }
+                    </div>
+                </div>
+                </p>
+                }
+            </div>
+            <div class="col-sm-8 col-md-8 col-lg-8">
+                @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+                    @renderDescription(item, desc, links)
+                }
+
+                @link.externalLinks(item, links)
+                @link.annotationLinks(item, links)
+            </div>
+        </div>
+    </div>
+</div>

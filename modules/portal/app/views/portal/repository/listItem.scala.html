@@ -2,7 +2,7 @@
 
 @import Isdiah._
 
-@common.searchItemOutline(item.id) {
+@layout.searchItemOutline(item.id) {
     <a href="@controllers.portal.routes.Portal.browseRepository(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription.map { desc =>

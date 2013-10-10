@@ -5,52 +5,60 @@
 @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal") {
 
     <div class="row top-bar">
-        <div class="col-sm-3 col-md-3 col-lg-3">
-            <h3>@Messages("portal.search")</h3>
+        <div class="col-sm-4 col-md-4 col-lg-4">
+            <div class="container">
+                <h3>@Messages("portal.search")</h3>
+            </div>
         </div>
         <div class="col-sm-6 col-md-6 col-lg-6">
-            <div class="form-group form-inline search-box">
-                <div class="input-group">
-                    <input type="search" class="form-control"
-                           placeholder="@Messages("search.queryPlaceholder")"
-                            name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
+            <div class="container">
+                <div class="form-group form-inline search-box">
+                    <div class="input-group">
+                        <input type="search" class="form-control"
+                               placeholder="@Messages("search.queryPlaceholder")"
+                        name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
                     <span class="input-group-btn">
                         <button class="btn btn-default">
                             <span class="glyphicon glyphicon-search"></span>
                             @Messages("forms.search")
                         </button>
                     </span>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-3 col-md-3 col-lg-3">
+        <div class="col-sm-2 col-md-2 col-lg-2">
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-3 col-md-3 col-lg-3 sidebar">
-            @facets
+        <div class="col-sm-4 col-md-4 col-lg-4 sidebar">
+            <div class="container">
+                @facets
+            </div>
         </div>
-        <div class="col-sm-9 col-md-9 col-lg-9 main-content">
-            <h4>
-                @Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)
+        <div class="col-sm-8 col-md-8 col-lg-8 main-content">
+            <div class="container">
+                <h4>
+                    @Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)
 
-                @result.spellcheck.map { case (actual, corrected) =>
-                @defining(params.query.map(_.toLowerCase.replace(actual.toLowerCase, corrected))) { suggestion =>
-                (@Messages("search.spellingSuggestion")
-                <i>
-                    <strong>
-                        <a href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.QUERY, suggestion.toSeq))">@suggestion</a>
-                    </strong>
-                </i>?)
-                }
-                }
-            </h4>
-            <p>
-                @selectedFacets(result)
-            </p>
+                    @result.spellcheck.map { case (actual, corrected) =>
+                    @defining(params.query.map(_.toLowerCase.replace(actual.toLowerCase, corrected))) { suggestion =>
+                    (@Messages("search.spellingSuggestion")
+                    <i>
+                        <strong>
+                            <a href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.QUERY, suggestion.toSeq))">@suggestion</a>
+                        </strong>
+                    </i>?)
+                    }
+                    }
+                </h4>
+                <p>
+                    @selectedFacets(result)
+                </p>
 
-            @html
-            @pagination(result)
+                @html
+                @pagination(result)
+            </div>
         </div>
     </div>
 }

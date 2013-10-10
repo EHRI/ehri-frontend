@@ -2,11 +2,8 @@
 
 @import org.apache.commons.lang3.StringUtils
 
-@common.searchItemOutline(item.id) {
-    @* include an anchor to the selected description *@
-    @defining(descriptionId.map(did => "#desc-" + did).getOrElse("")) { anchor =>
-        <a href="@{controllers.portal.routes.Portal.browseDocument(item.id) + anchor}">@item.toStringLang</a>
-    }
+@layout.searchItemOutline(item.id) {
+    <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription(descriptionId).map { desc =>
 
@@ -24,7 +21,7 @@
         <small>
             <ul class="list-unstyled text-muted list-inline inline-separator">
                 @item.holder.map { holder =>
-                <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>
+                    <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>
                 }
                 <li><span class="text-muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
 

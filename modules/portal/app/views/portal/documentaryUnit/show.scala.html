@@ -1,38 +1,34 @@
 @(item: DocumentaryUnit, result: utils.AbstractPage[DocumentaryUnit], annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
-@import models.IsadG._
-
-
 @layout.portalLayout(item.toStringLang) {
-    @common.annotated(item, annotations) {
 
-        <div class="header-actions clearfix">
-            @item.holder.map { holder =>
-            <h4>@Messages("documentaryUnit.heldBy"): <a href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
-            }
 
-            @item.parent.map { parent =>
-            <h4>@Messages("documentaryUnit.parentItem"): <a href="@controllers.archdesc.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
-            }
+    <div class="row top-bar">
+        <div class="container">
+            <ol class="breadcrumb">
+                @item.holder.flatMap(_.country).map { country =>
+                    <li>
+                        <a href="@controllers.portal.routes.Portal.browseCountry(country.id)">@country.toStringLang</a>
+                    </li>
+                }
+                @item.holder.map { repo =>
+                    <li>
+                        <a href="@controllers.portal.routes.Portal.browseRepository(repo.id)">@repo.toStringLang</a>
+                    </li>
+                }
+                @item.ancestors.map { ann =>
+                <li>@ann.toStringLang</li>
+                }
+                <li><strong>@item.toStringLang</strong></li>
+            </ol>
         </div>
+    </div>
 
-        @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
-            @if(!item.model.descriptions.isEmpty) {
-                <div class="description-viewport">
-                    @item.descriptions.zipWithIndex.map { case (desc,i) =>
-                        <div class="description-holder" id="desc-@desc.id">
-                            @documentaryUnit.renderDescription(item, desc, links)
-                        </div>
-                    }
-                </div>
-            } else {
-                <p class="muted">@Messages("documentaryUnit.noDescriptions")</p>
-                <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
-            }
-        }
-
-        @link.externalLinks(item, links)
-
-        @link.annotationLinks(item, links)
+    @item.model.primaryDescription.map { desc =>
+        @renderItem(item, desc, links)
+    }.getOrElse {
+        <p class="alert-error">
+            No descriptions found
+        </p>
     }
 }
