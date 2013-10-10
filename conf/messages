@@ -456,6 +456,7 @@ priority.two=Two
 priority.one=One
 priority.zero=Zero
 priority.reject=Reject
+priority.unknown=-
 
 identifier=Identifier
 name=Name
