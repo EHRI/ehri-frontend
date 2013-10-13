@@ -236,6 +236,11 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
   def browseHistoricalAgents = TODO
 
+  def browseAuthoritativeSet(id: String) = getAction[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
+    set => anns => links => implicit userOpt => implicit request =>
+      TODO(request)
+  }
+
   def browseHistoricalAgent(id: String) = getAction[HistoricalAgent](EntityType.HistoricalAgent, id) {
       doc => anns => links => implicit userOpt => implicit request =>
     Ok(portal.historicalAgent.show(doc, anns, links))

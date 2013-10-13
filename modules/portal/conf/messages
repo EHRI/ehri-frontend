@@ -12,3 +12,4 @@ portal.repository.email=Email
 portal.repository.fax=Fax
 portal.repository.url=Web
 portal.item.details=Details
+portal.historicalAgent.set=Authority

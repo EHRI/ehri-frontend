@@ -1,6 +1,6 @@
-@(item: Repository, desc: RepositoryDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, fieldPrefix: String)
+@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, fieldPrefix: String)
 
-@import Isdiah._
+@import Isaar._
 @import common.descriptionSection
 
 @otherNameList(list: Option[List[String]]) = {
@@ -18,32 +18,22 @@
 }
 
 @common.descriptionOutline(desc, desc.languageCode) {
-
     <h2>@desc.name</h2>
     @otherNameList(desc.parallelFormsOfName)
     @otherNameList(desc.otherFormsOfName)
 
+    @common.renderDates(desc, DATES_OF_EXISTENCE)
+    @common.stringValue(Some(desc.entityType.toString), ENTITY_TYPE)
+
     @descriptionSection(DESCRIPTION_AREA) {
+        @common.stringValue(desc.details.datesOfExistence, DATES_OF_EXISTENCE)
         @common.stringValue(desc.details.history, HISTORY)
-        @common.stringValue(desc.details.generalContext, GEOCULTURAL_CONTEXT)
+        @common.stringValue(desc.details.places, PLACES)
+        @common.stringValue(desc.details.legalStatus, LEGAL_STATUS)
+        @common.stringValue(desc.details.functions, FUNCTIONS)
         @common.stringValue(desc.details.mandates, MANDATES)
-        @common.stringValue(desc.details.administrativeStructure, ADMINISTRATIVE_STRUCTURE)
-        @common.stringValue(desc.details.records, RECORDS)
-        @common.stringValue(desc.details.buildings, BUILDINGS)
-        @common.stringValue(desc.details.holdings, HOLDINGS)
-        @common.stringValue(desc.details.findingAids, FINDING_AIDS)
-    }
-
-    @descriptionSection(ACCESS_AREA) {
-        @common.stringValue(desc.access.openingTimes, OPENING_TIMES)
-        @common.stringValue(desc.access.conditions, CONDITIONS)
-        @common.stringValue(desc.access.accessibility, ACCESSIBILITY)
-    }
-
-    @descriptionSection(SERVICES_AREA) {
-        @common.stringValue(desc.services.researchServices, RESEARCH_SERVICES)
-        @common.stringValue(desc.services.reproductionServices, REPROD_SERVICES)
-        @common.stringValue(desc.services.publicAreas, PUBLIC_AREAS)
+        @common.stringValue(desc.details.internalStructure, INTERNAL_STRUCTURE)
+        @common.stringValue(desc.details.generalContext, GENERAL_CONTEXT)
     }
 
     @descriptionSection(CONTROL_AREA) {

@@ -10,6 +10,7 @@ GET     /dev/browse/c/:id                   @controllers.portal.Portal.browseCou
 GET     /dev/browse/r/:id                   @controllers.portal.Portal.browseRepository(id: String)
 GET     /dev/browse/d/:id                   @controllers.portal.Portal.browseDocument(id: String)
 GET     /dev/browse/a/:id                   @controllers.portal.Portal.browseHistoricalAgent(id: String)
+GET     /dev/browse/s/:id                   @controllers.portal.Portal.browseAuthoritativeSet(id: String)
 GET     /dev/activity                       @controllers.portal.Portal.activity
 GET     /dev/newsFeed                       @controllers.portal.Portal.newsFeed
 
