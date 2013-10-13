@@ -6,6 +6,7 @@
         case d: DocumentaryUnit => { @controllers.portal.routes.Portal.browseDocument(d.id).url }
         case r: Repository => { @controllers.portal.routes.Portal.browseRepository(r.id).url }
         case a: HistoricalAgent => { @controllers.portal.routes.Portal.browseHistoricalAgent(a.id).url }
+        case a: AuthoritativeSet => { @controllers.portal.routes.Portal.browseAuthoritativeSet(a.id).url }
         case _ => { "#" }
     }
 }

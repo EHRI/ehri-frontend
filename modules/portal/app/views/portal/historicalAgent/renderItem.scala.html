@@ -11,7 +11,7 @@
                     </div>
                     <div class="panel-body">
                         @item.set.map { s =>
-                            @s.toStringLang
+                            @helpers.linkTo(s)
                         }
                     </div>
                 </div>
