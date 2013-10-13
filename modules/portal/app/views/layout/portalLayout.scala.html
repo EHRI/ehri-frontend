@@ -108,6 +108,28 @@
                 content: "";
             }
 
+            /** Inline lists with a comma separator */
+            ul.comma-sep {
+                display: inline;
+                margin: 0;
+                padding: 0;
+            }
+
+            ul.comma-sep li {
+                display: inline;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            ul.comma-sep li:after {
+                content: ", ";
+                color: #aaa;
+            }
+
+            ul.comma-sep li:last-child:after {
+                content: "";
+            }
 
         </style>
 

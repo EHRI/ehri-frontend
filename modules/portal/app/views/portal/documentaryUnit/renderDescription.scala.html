@@ -9,9 +9,7 @@
 
     @descriptionSection(IDENTITY_AREA) {
         @common.stringValue(desc.`abstract`, ABSTRACT)
-        @common.renderDates(desc, DATES)
         @common.stringValue(desc.levelOfDescription, LEVEL_OF_DESCRIPTION)
-        @common.stringValue(desc.extentAndMedium, EXTENT_MEDIUM)
     }
     @descriptionSection(CONTEXT_AREA) {
         @common.stringValue(desc.context.biographicalHistory, ADMIN_BIOG)
@@ -29,9 +27,6 @@
     @descriptionSection(CONDITIONS_AREA) {
         @common.stringValue(desc.conditions.conditionsOfAccess, ACCESS_COND)
         @common.stringValue(desc.conditions.conditionsOfReproduction, REPROD_COND)
-
-        @common.listValue(desc.conditions.languageOfMaterials, LANG_MATERIALS, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-        @common.listValue(desc.conditions.scriptOfMaterials, SCRIPT_MATERIALS, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
         @common.stringValue(desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
         @common.stringValue(desc.conditions.findingAids, FINDING_AIDS)
     }
