@@ -12,7 +12,7 @@ import solr.facet._
 
 import defines.EntityType
 import models.UserProfile
-import utils.search.{AppliedFacet, FacetClassList, SearchParams}
+import utils.search.{SearchMode, AppliedFacet, FacetClassList, SearchParams}
 import play.api.Logger
 
 
@@ -188,14 +188,20 @@ object SolrQueryBuilder {
    * @param params
    * @return
    */
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty,
+              mode: SearchMode.Value = SearchMode.DefaultAll)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 
     val searchFilters = params.filters.toList.flatten.filter(_.contains(":")).map(f => " +" + f).mkString
 
-    val queryString = params.query.getOrElse("*").trim + excludeIds + searchFilters
+    val defaultQuery = mode match {
+      case SearchMode.DefaultAll => "*"
+      case _ => "PLACEHOLDER_QUERY_RETURNS_NO_RESULTS" // FIXME! This sucks
+    }
+
+    val queryString = params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
 

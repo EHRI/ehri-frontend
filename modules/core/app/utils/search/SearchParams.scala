@@ -73,6 +73,14 @@ object SearchType extends Enumeration {
   implicit val format = defines.EnumUtils.enumFormat(SearchType)
 }
 
+object SearchMode extends Enumeration {
+  type Type = Value
+  val DefaultAll = Value("all")
+  val DefaultNone = Value("none")
+
+  implicit val format = defines.EnumUtils.enumFormat(SearchMode)
+}
+
 object SearchParams {
   final val DEFAULT_LIMIT = 20
   final val REVERSE = "desc"
