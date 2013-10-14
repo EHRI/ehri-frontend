@@ -1,0 +1,18 @@
+@(page: rest.Page[Country], params: utils.ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@layout.portalLayout(Messages("actions.listCountries")) {
+
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+
+	<ul class="unstyled">
+	@page.items.map { item =>
+	  	<div class="list-item">
+			<h5>
+				@helpers.linkTo(item)
+			</h5>
+		</div>
+	}
+	</ul>
+
+    @helpers.pagination(page)
+}

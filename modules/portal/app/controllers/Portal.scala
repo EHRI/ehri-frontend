@@ -12,7 +12,7 @@ import views.html._
 import play.api.http.MimeTypes
 
 import com.google.inject._
-import utils.search.{Dispatcher, SearchOrder, SearchParams}
+import utils.search.{SearchMode, Dispatcher, SearchOrder, SearchParams}
 import play.api.libs.json.{Format, Writes, Json}
 import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
@@ -27,6 +27,8 @@ import solr.facet.FieldFacetClass
 import scala.Some
 import play.api.libs.ws.WS
 import play.api.templates.Html
+import rest.EntityDAO
+import solr.SolrConstants
 
 
 @Singleton
@@ -34,6 +36,8 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
   // This is a publically-accessible site
   override val staffOnly = false
+
+  private val portalRoutes = controllers.portal.routes.Portal
 
   // i.e. Everything
   private val entityFacets = List(
@@ -62,6 +66,20 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       render = s => Messages("scope." + s)
     )
   )
+  
+  def listAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT]) = {
+    userProfileAction { implicit userOpt => implicit request =>
+      AsyncRest {
+        val params = ListParams.fromRequest(request)
+        EntityDAO(entityType, userOpt).page(params).map { pageOrErr =>
+          pageOrErr.right.map { list =>
+            f(list)(params)(userOpt)(request)
+          }
+        }
+      }      
+    }
+  }
 
   /**
    * Fetch a given item, along with its links and annotations.
@@ -108,13 +126,12 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
    * @return
    */
   private implicit val anyModelReads = AnyModel.Converter.restReads
+  private val defaultSearchTypes = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent)
+  private val defaultSearchParams = SearchParams(entities = defaultSearchTypes, sort = Some(SearchOrder.Score))
 
-  def search = searchAction[AnyModel](
-    defaultParams = Some(SearchParams(
-      entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent),
-      sort = Some(SearchOrder.Score))),
-    entityFacets = entityFacets) {
-    page => params => facets => implicit userOpt => implicit request =>
+
+  def search = searchAction[AnyModel](defaultParams = Some(defaultSearchParams), entityFacets = entityFacets, mode = SearchMode.DefaultNone) {
+        page => params => facets => implicit userOpt => implicit request =>
       render {
         case Accepts.Json() => {
           Ok(Json.toJson(Json.obj(
@@ -124,8 +141,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
           ))
           )
         }
-        case _ => Ok(views.html.portal.search(page, params, facets,
-          controllers.portal.routes.Portal.search))
+        case _ => Ok(views.html.portal.search(page, params, facets, portalRoutes.search))
       }
   }
 
@@ -217,16 +233,31 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(views.html.portal.portal())
   }
 
-  def browseCountries = TODO
-
-  def browseCountry(id: String) = getWithChildrenAction[Repository, Country](EntityType.Country, id) {
-      ct => repos => params => anns => links => implicit userOpt => implicit request =>
-    Ok(ct.toStringLang)
+  def browseCountries = listAction[Country](EntityType.Country) {
+      page => params => implicit userOpt => implicit request =>
+    Ok(portal.country.list(page, params))
   }
 
-  def browseRepository(id: String) = getWithChildrenAction[DocumentaryUnit, Repository](EntityType.Repository, id) {
-      repo => docs => params => anns => links => implicit userOpt => implicit request =>
-    Ok(portal.repository.show(repo, docs, anns, links))
+  def browseCountry(id: String) = getAction[Country](EntityType.Country, id) {
+      item => annotations => links => implicit userOpt => implicit request =>
+    searchAction[Repository](Map("countryCode" -> item.id),
+        defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
+      page => params => facets => _ => _ =>
+        Ok(portal.country.show(item, page, params, facets, portalRoutes.browseCountry(id), annotations, links))
+    }.apply(request)
+  }
+
+  def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
+      item => annotations => links => implicit userOpt => implicit request =>
+    val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
+      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
+    searchAction[DocumentaryUnit](filters,
+        defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+        entityFacets = entityFacets) {
+      page => params => facets => _ => _ =>
+        Ok(portal.repository.show(item, page, params, facets,
+          portalRoutes.browseRepository(id), annotations, links))
+    }.apply(request)
   }
 
   def browseDocument(id: String) = getWithChildrenAction[DocumentaryUnit, DocumentaryUnit](EntityType.DocumentaryUnit, id) {
@@ -237,8 +268,15 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   def browseHistoricalAgents = TODO
 
   def browseAuthoritativeSet(id: String) = getAction[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
-    set => anns => links => implicit userOpt => implicit request =>
-      TODO(request)
+    item => annotations => links => implicit userOpt => implicit request =>
+      val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
+        Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
+      searchAction[HistoricalAgent](filters,
+          defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+          entityFacets = entityFacets) {
+        page => params => facets => _ => _ =>
+          TODO(request)
+      }.apply(request)
   }
 
   def browseHistoricalAgent(id: String) = getAction[HistoricalAgent](EntityType.HistoricalAgent, id) {

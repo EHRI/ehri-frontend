@@ -1,4 +1,4 @@
-@(item: Repository, result: utils.AbstractPage[DocumentaryUnit], annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: Repository, result: utils.search.ItemPage[(DocumentaryUnit,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.portalLayout(item.toStringLang) {
 

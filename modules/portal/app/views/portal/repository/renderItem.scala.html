@@ -1,30 +1,21 @@
 @(item: Repository, desc: RepositoryDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
 
-<div class="row">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-4 col-md-4 col-lg-4 container">
-                <p>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <strong>@Messages("portal.repository.contact")</strong>
-                        </div>
-                        <div class="panel-body">
-                            @desc.addresses.headOption.map { address =>
-                                @renderAddress(item, address)
-                            }
-                        </div>
-                    </div>
-                </p>
+@defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
+    @layout.renderItemLayout {
+        <p />
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>@Messages("portal.repository.contact")</strong>
             </div>
-            <div class="col-sm-8 col-md-8 col-lg-8">
-                @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
-                    @renderDescription(item, desc, links)
+            <div class="panel-body">
+                @desc.addresses.headOption.map { address =>
+                    @renderAddress(item, address)
                 }
-
-                @link.externalLinks(item, links)
-                @link.annotationLinks(item, links)
             </div>
         </div>
-    </div>
-</div>
+    } {
+        @renderDescription(item, desc, links)
+        @link.externalLinks(item, links)
+        @link.annotationLinks(item, links)
+    }
+}

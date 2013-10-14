@@ -1,15 +1,8 @@
-@(item: Country, result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(
-        implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: Country, result: utils.search.ItemPage[(Repository,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.portalLayout(item.toStringLang) {
 
-    @common.annotated(item, annotations) {
-        @item.model.report.map { report =>
-            <div class="national-report">
-                @Html(report)
-            </div>
-        }
-    }
+    <h2>@item.toStringLang</h2>
 
     @views.html.search.searchSection(Messages("country.searchInside", item.toStringAbbr)) {
         @views.html.search.searchForm(result, params, action, autofocus = false) {

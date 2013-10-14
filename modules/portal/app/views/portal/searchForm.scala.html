@@ -5,7 +5,7 @@
 @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal") {
 
     <div class="row top-bar">
-        <div class="col-sm-4 col-md-4 col-lg-4">
+        <div class="col-sm-3 col-md-3 col-lg-3">
             <div class="container">
                 <h3>@Messages("portal.search")</h3>
             </div>
@@ -27,16 +27,16 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-2 col-md-2 col-lg-2">
+        <div class="col-sm-3 col-md-3 col-lg-3">
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-4 col-md-4 col-lg-4 sidebar">
+        <div class="col-sm-3 col-md-3 col-lg-3 sidebar">
             <div class="container">
                 @facets
             </div>
         </div>
-        <div class="col-sm-8 col-md-8 col-lg-8 main-content">
+        <div class="col-sm-9 col-md-9 col-lg-9 main-content">
             <div class="container">
                 <h4>
                     @Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)
@@ -57,7 +57,7 @@
                 </p>
 
                 @html
-                @pagination(result)
+                @helpers.pagination(result)
             </div>
         </div>
     </div>
