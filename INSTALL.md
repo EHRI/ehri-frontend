@@ -27,7 +27,7 @@ If that starts without spewing out any dodgy-looking stack traces all should be 
 
 Download and install Play 2.1:
 
-    export PLAY_VERSION=2.1.3
+    export PLAY_VERSION=2.1.5
     wget http://downloads.typesafe.com/play/${PLAY_VERSION}/play-${PLAY_VERSION}.zip
     unzip -d ~/apps play-${PLAY_VERSION}
 
