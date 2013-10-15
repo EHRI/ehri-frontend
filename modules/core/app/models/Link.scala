@@ -5,6 +5,7 @@ import defines.EntityType
 import play.api.libs.json._
 import models.json._
 import play.api.libs.functional.syntax._
+import play.api.i18n.Lang
 
 
 object LinkF {
@@ -65,4 +66,6 @@ case class Link(
   with MetaModel[LinkF] with Accessible {
   def opposingTarget(item: AnyModel): Option[AnyModel] = opposingTarget(item.id)
   def opposingTarget(itemId: String): Option[AnyModel] = targets.find(_.id != itemId)
+
+  override def toStringLang(implicit lang: Lang) = "Link: (" + id + ")"
 }

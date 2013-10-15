@@ -6,6 +6,7 @@ import defines.EntityType
 import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.i18n.Lang
 
 
 object AccessPointF {
@@ -80,4 +81,7 @@ object AccessPoint {
 case class AccessPoint(
   model: AccessPointF,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel with MetaModel[AccessPointF]
+) extends AnyModel with MetaModel[AccessPointF] {
+
+  override def toStringLang(implicit lang: Lang) = "Access Point: (" + id + ")"
+}

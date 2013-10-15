@@ -250,6 +250,7 @@ systemEvents.removeGroup=Member removed from group
 systemEvents.ingest=Items imported
 systemEvents.unknown=Unknown action
 systemEvents.scope=Scope
+systemEvents.subjects={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
 
 # Actions
 actions.edit=Edit

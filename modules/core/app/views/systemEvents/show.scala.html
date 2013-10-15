@@ -25,14 +25,15 @@
         @Messages("systemEvents.scope"):  <a href="@globalConfig.routeRegistry.urlFor(scope)">@scope.toStringLang</a>
     }
 
-    <h4>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)}</h4>
-    @common.pagination(page)
-    <ul class="unstyled">
-    @page.items.map { item =>
-        <li><a href="@globalConfig.routeRegistry.urlFor(item)">@item.toStringLang</a></li>
-    }
-    </ul>
-
+    <div id="subjects">
+        <h4>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)}</h4>
+        @common.pagination(page)
+        <ul class="unstyled">
+            @page.items.map { item =>
+            <li><a href="@globalConfig.routeRegistry.urlFor(item)">@item.toStringLang</a></li>
+            }
+        </ul>
+    </div>
 } {
 
 }

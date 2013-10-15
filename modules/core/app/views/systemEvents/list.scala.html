@@ -24,6 +24,9 @@
                 </ul>
             </small>
             <small>
+            @item.firstSubject.map { s =>
+                <a href="@controllers.core.routes.SystemEvents.get(item.id)#subjects">@Messages("systemEvents.subjects", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))</a>
+            }
             @item.model.logMessage.map { lm =>
                 <p>@lm</p>
             }
