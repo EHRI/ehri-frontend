@@ -38,7 +38,8 @@ case class MockSearchDispatcher() extends Dispatcher {
     }
   }
 
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
+             filters: Map[String,Any] = Map.empty, mode: SearchMode.Value = SearchMode.DefaultAll)(
       implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     paramBuffer += ParamLog(params, facets, allFacets, filters)
     val items = params.entities.foldLeft(List[SearchDescription]()) { case (listOfItems, et) =>
