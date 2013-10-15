@@ -88,6 +88,7 @@ trait Accessible extends AnyModel {
  */
 trait MetaModel[+T <: Model] extends AnyModel {
   val model: T
+  val meta: JsObject
 
   // Convenience helpers
   val id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
@@ -136,9 +137,28 @@ trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T
       = links.filter(link => link.bodies.isEmpty)
 }
 
+trait Holder[+T] extends AnyModel {
+  self: MetaModel[_] =>
+
+  /**
+   * Convenience cache of items 'below' this one. Not to
+   * be relied on since it's just a volatile cache value.
+   */
+  def childCount: Option[Int]
+  = meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int])
+}
+
 trait Hierarchical[+T] extends AnyModel {
+  self: MetaModel[_] =>
+
+  /**
+   * The parent item of this item.
+   */
   val parent: Option[Hierarchical[T]]
 
+  /**
+   * List of ancestor items 'above' this one, including the parent.
+   */
   def ancestors: List[Hierarchical[T]]
       = (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
 }

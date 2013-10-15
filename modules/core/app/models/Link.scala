@@ -47,7 +47,8 @@ object Link {
         (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
         nullableListFormat(__ \ "accessPoints")(AccessPointF.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+        (__ \ "meta").format[JsObject]
     )(Link.apply _, unlift(Link.unapply _))
   }
 }
@@ -58,7 +59,8 @@ case class Link(
   user: Option[UserProfile] = None,
   bodies: List[AccessPointF] = Nil,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent] = None
+  latestEvent: Option[SystemEvent] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[LinkF] with Accessible {
   def opposingTarget(item: AnyModel): Option[AnyModel] = opposingTarget(item.id)

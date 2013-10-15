@@ -35,9 +35,10 @@ object Country {
 
     val clientFormat: Format[Country] = (
       __.format[CountryF](CountryF.Converter.clientFormat) and
-        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
-      )(Country.apply _, unlift(Country.unapply _))
+      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Country.apply _, unlift(Country.unapply _))
   }
 }
 
@@ -46,10 +47,12 @@ object Country {
 case class Country(
   model: CountryF,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent] = None
+  latestEvent: Option[SystemEvent] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[CountryF]
-  with Accessible {
+  with Accessible
+  with Holder[Repository] {
 
   override def toStringLang(implicit lang: Lang) = views.Helpers.countryCodeToName(id)
 }

@@ -91,7 +91,8 @@ object DocumentaryUnit {
         (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
         (__ \ "parent").lazyFormatNullable[DocumentaryUnit](clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+        (__ \ "meta").format[JsObject]
       )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply _))
   }
 }
@@ -101,9 +102,12 @@ case class DocumentaryUnit(
   holder: Option[Repository] = None,
   parent: Option[DocumentaryUnit] = None,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent] = None
+  latestEvent: Option[SystemEvent] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[DocumentaryUnitF]
   with DescribedMeta[DocumentaryUnitDescriptionF, DocumentaryUnitF]
   with Hierarchical[DocumentaryUnit]
-  with Accessible
+  with Holder[DocumentaryUnit]
+  with Accessible {
+}

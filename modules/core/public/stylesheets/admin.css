@@ -139,6 +139,15 @@ body {
     color: #FF0000;
 }
 
+/** child items */
+/* Highlight the current search sort */
+.child-count a {
+    color: #000000;
+    font-weight: lighter;
+    text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+}
+
+
 /* Highlight the current search sort */
 .current-search-sort {
     text-decoration: underline;

@@ -78,5 +78,6 @@ object AccessPoint {
 
 
 case class AccessPoint(
-  model: AccessPointF
+  model: AccessPointF,
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel with MetaModel[AccessPointF]

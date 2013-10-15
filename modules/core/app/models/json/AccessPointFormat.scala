@@ -41,7 +41,8 @@ object AccessPointFormat {
   implicit val restFormat: Format[AccessPointF] = Format(accessPointReads,accessPointWrites)
 
   implicit val metaReads: Reads[AccessPoint] = (
-    __.read[AccessPointF].map { l => AccessPoint(l)}
-  )
+    __.read[AccessPointF] and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(AccessPoint.apply _)
 
 }

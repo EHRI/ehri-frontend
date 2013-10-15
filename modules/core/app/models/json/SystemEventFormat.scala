@@ -47,6 +47,7 @@ object SystemEventFormat {
     (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
       Reads.list(AnyModel.Converter.restReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadNullable[List[Accessor]](
-      Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption))
+      Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
   )(SystemEvent.apply _)
 }

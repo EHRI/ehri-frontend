@@ -34,7 +34,13 @@
                     </li>
                 }
             </ul>
+            @item.childCount.map { count =>
+                <div class="child-count">
+                    <a href="@controllers.archdesc.routes.Repositories.get(item.id)#search-items">@Messages("repository.childCount", count)</a>
+                </div>
+            }
         </small>
+
         @desc.details.generalContext.map { gc =>
             <p>@gc</p>
         }

@@ -433,6 +433,7 @@ documentaryUnit.search=Search Top-level Descriptions
 documentaryUnit.searchInside=Child Items
 documentaryUnit.hasChildItems=Contains other items
 documentaryUnit.noChildItems=Single level
+documentaryUnit.childCount={0,choice,0#No child items|1#1 child item|1<{0,number,integer} child items}
 
 #
 # Repositories
@@ -442,6 +443,7 @@ repository.searchInside=Search items held by {0}
 repository.itemsHeldOnline=Items on EHRI
 repository.hasChildItems=Yes
 repository.noChildItems=No
+repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
 
 #
 # Historical Agents

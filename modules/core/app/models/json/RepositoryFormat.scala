@@ -59,7 +59,8 @@ object RepositoryFormat {
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
         Reads.list(Accessor.Converter.restReads)).map(_.toList.flatten) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list(SystemEventFormat.metaReads)).map(_.flatMap(_.headOption))
-    )(Repository.apply _)
+        Reads.list(SystemEventFormat.metaReads)).map(_.flatMap(_.headOption)) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(Repository.apply _)
 
 }

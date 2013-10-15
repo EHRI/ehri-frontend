@@ -41,7 +41,8 @@ object SystemEvent {
     implicit val clientFormat: Format[SystemEvent] = (
       __.format[SystemEventF](SystemEventF.Converter.clientFormat) and
       (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "user").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat)
+      (__ \ "user").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
     )(SystemEvent.apply _, unlift(SystemEvent.unapply _))
   }
 }
@@ -49,7 +50,8 @@ object SystemEvent {
 case class SystemEvent(
   model: SystemEventF,
   scope: Option[AnyModel] = None,
-  actioner: Option[Accessor] = None
+  actioner: Option[Accessor] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[SystemEventF] {
 

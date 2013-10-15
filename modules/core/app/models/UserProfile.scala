@@ -53,7 +53,8 @@ object UserProfile {
       __.format[UserProfileF](UserProfileF.Converter.clientFormat) and
       nullableListFormat(__ \ "groups")(Group.Converter.clientFormat) and
       lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
     )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply _))
   }
 
@@ -62,9 +63,10 @@ object UserProfile {
      model: UserProfileF,
      groups: List[Group] = Nil,
      accessors: List[Accessor] = Nil,
-     latestEvent: Option[SystemEvent]) = new UserProfile(model, groups, accessors, latestEvent)
+     latestEvent: Option[SystemEvent],
+     meta: JsObject) = new UserProfile(model, groups, accessors, latestEvent, meta)
 
-  def quickUnapply(up: UserProfile) = Some((up.model, up.groups, up.accessors, up.latestEvent))
+  def quickUnapply(up: UserProfile) = Some((up.model, up.groups, up.accessors, up.latestEvent, up.meta))
 }
 
 
@@ -73,6 +75,7 @@ case class UserProfile(
   groups: List[Group] = Nil,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
+  meta: JsObject = JsObject(Seq()),
   account: Option[Account] = None,
   globalPermissions: Option[GlobalPermissionSet[UserProfile]] = None,
   itemPermissions: Option[ItemPermissionSet[UserProfile]] = None
