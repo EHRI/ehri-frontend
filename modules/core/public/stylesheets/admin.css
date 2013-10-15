@@ -208,6 +208,14 @@ body.modal-open {
     margin-bottom: 0.2em;
 }
 
+/** List items */
+.list-item {
+    padding-bottom: 0.5em;
+    border-bottom: 1px dashed #EBEBEB;
+    margin-bottom: 1.5em;
+}
+
+
 /** Inline lists - Bootstrap doesn't actually do this by itself */
 ul.inline li {
     display: inline;
