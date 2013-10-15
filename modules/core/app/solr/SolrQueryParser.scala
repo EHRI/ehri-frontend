@@ -95,7 +95,7 @@ case class SolrQueryParser(response: Elem) {
         val nameNode = (c \ "@name")
         if (nameNode.length == 0) Nil
         else
-           List(solr.facet.SolrFacet(
+           List(solr.facet.SolrFieldFacet(
               nameNode.text, nameNode.text, None,
               c.text.toInt, applied.contains(nameNode.text)))
       }
@@ -110,12 +110,11 @@ case class SolrQueryParser(response: Elem) {
   private def extractQueryFacet(fc: solr.facet.QueryFacetClass, appliedFacets: List[AppliedFacet]): solr.facet.QueryFacetClass = {
     val applied: List[String] = appliedFacets.filter(_.name == fc.key).headOption.map(_.values).getOrElse(List[String]())
     val facets = fc.facets.flatMap(f => {
-      var nameval = "%s:%s".format(fc.key, f.solr)
+      var nameval = "%s:%s".format(fc.key, f.solrValue)
       response.descendant.filter(n => (n \\ "@name").text == nameval).text match {
         case "" => Nil
         case v => List(
-          solr.facet.SolrFacet(f.solr, f.value, f.name, v.toInt,
-            applied.contains(f.value))
+          f.copy(count = v.toInt, applied = applied.contains(f.value))
         )
       }
     })

@@ -431,12 +431,17 @@ documentaryUnit.availableDescriptions=Available Descriptions
 documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD(G) description info.
 documentaryUnit.search=Search Top-level Descriptions
 documentaryUnit.searchInside=Child Items
+documentaryUnit.hasChildItems=Contains other items
+documentaryUnit.noChildItems=Single level
 
 #
 # Repositories
 #
 repository.search=Search Repositories
 repository.searchInside=Search items held by {0}
+repository.itemsHeldOnline=Items on EHRI
+repository.hasChildItems=Yes
+repository.noChildItems=No
 
 #
 # Historical Agents

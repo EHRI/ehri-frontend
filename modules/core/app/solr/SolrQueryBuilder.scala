@@ -71,7 +71,7 @@ object SolrQueryBuilder {
           case fc: QueryFacetClass => {
             fc.facets.flatMap(facet => {
               if (paramVals.contains(facet.value)) {
-                List(s"${fc.key}:${facet.solr}")
+                List(s"${fc.key}:${facet.solrValue}")
               } else Nil
             })
           }

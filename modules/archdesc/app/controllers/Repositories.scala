@@ -31,6 +31,16 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
   // Documentary unit facets
   import solr.facet._
   private val entityFacets = List(
+    QueryFacetClass(
+      key="childCount",
+      name=Messages("repository.itemsHeldOnline"),
+      param="childCount",
+      render=s => Messages("repository." + s),
+      facets=List(
+        SolrQueryFacet(value = "0", name = Some("noChildItems")),
+        SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+      )
+    ),
     FieldFacetClass(
       key="countryCode",
       name=Messages("isdiah.countryCode"),
