@@ -14,16 +14,14 @@ import play.api.http.MimeTypes
 import com.google.inject._
 import utils.search.{SearchMode, Dispatcher, SearchOrder, SearchParams}
 import play.api.libs.json.{Format, Writes, Json}
-import solr.facet.FieldFacetClass
+import solr.facet.{SolrQueryFacet, QueryFacetClass, FieldFacetClass}
 import play.api.i18n.Messages
 import views.Helpers
 import play.api.cache.Cached
-import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
 import views.Helpers
 import defines.EntityType
 import utils.ListParams
-import solr.facet.FieldFacetClass
 import scala.Some
 import play.api.libs.ws.WS
 import play.api.templates.Html
@@ -52,18 +50,6 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       name = Messages("search.type"),
       param = "type",
       render = s => Messages("contentTypes." + s)
-    ),
-    FieldFacetClass(
-      key = "copyrightStatus",
-      name = Messages("copyrightStatus.copyright"),
-      param = "copyright",
-      render = s => Messages("copyrightStatus." + s)
-    ),
-    FieldFacetClass(
-      key = "scope",
-      name = Messages("scope.scope"),
-      param = "scope",
-      render = s => Messages("scope." + s)
     )
   )
   
@@ -233,19 +219,53 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(views.html.portal.portal())
   }
 
-  def browseCountries = listAction[Country](EntityType.Country) {
-      page => params => implicit userOpt => implicit request =>
-    Ok(portal.country.list(page, params))
+  private val repositorySearchFacets = List(
+    QueryFacetClass(
+      key="childCount",
+      name=Messages("repository.itemsHeldOnline"),
+      param="childCount",
+      render=s => Messages("repository." + s),
+      facets=List(
+        SolrQueryFacet(value = "0", name = Some("noChildItems")),
+        SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+      )
+    )
+  )
+
+  def browseCountries = searchAction[Country](defaultParams = Some(SearchParams(entities = List(EntityType.Country))),
+      entityFacets = entityFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(portal.country.list(page, params, facets, portalRoutes.browseCountries))
   }
 
   def browseCountry(id: String) = getAction[Country](EntityType.Country, id) {
       item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[Repository](Map("countryCode" -> item.id),
+    searchAction[Repository](Map("countryCode" -> item.id), entityFacets = repositorySearchFacets,
         defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
       page => params => facets => _ => _ =>
-        Ok(portal.country.show(item, page, params, facets, portalRoutes.browseCountry(id), annotations, links))
+        Ok(portal.country.show(item, page, params, facets,
+          portalRoutes.browseCountry(id), annotations, links))
     }.apply(request)
   }
+
+  private val docSearchFacets = List(
+    FieldFacetClass(
+      key = IsadG.LANG_CODE,
+      name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+      param = "lang",
+      render = Helpers.languageCodeToName
+    ),
+    QueryFacetClass(
+      key="childCount",
+      name=Messages("documentaryUnit.searchInside"),
+      param="childCount",
+      render=s => Messages("documentaryUnit." + s),
+      facets=List(
+        SolrQueryFacet(value = "0", name = Some("noChildItems")),
+        SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+      )
+    )
+  )
 
   def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
       item => annotations => links => implicit userOpt => implicit request =>
@@ -253,7 +273,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
     searchAction[DocumentaryUnit](filters,
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-        entityFacets = entityFacets) {
+        entityFacets = docSearchFacets) {
       page => params => facets => _ => _ =>
         Ok(portal.repository.show(item, page, params, facets,
           portalRoutes.browseRepository(id), annotations, links))

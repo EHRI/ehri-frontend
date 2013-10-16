@@ -232,7 +232,7 @@ object SolrQueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", s"$NAME_MATCH^2.0 $OTHER_NAMES^3.0 $PARALLEL_NAMES^3.0 $NAME_SORT^2.0 $TEXT")
+      req.set("qf", s"$NAME_EXACT^4.0 $NAME_MATCH^4.0 $OTHER_NAMES^3.0 $PARALLEL_NAMES^3.0 $NAME_SORT^2.0 $TEXT")
     }
 
     // Mmmn, speckcheck
