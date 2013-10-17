@@ -31,6 +31,11 @@ object SolrConstants {
   final val ACCESSOR_ALL_PLACEHOLDER = "ALLUSERS"
 
   /**
+   * Items contained by a 'holder' item
+   */
+  final val CHILD_COUNT = "childCount"
+
+  /**
    * The canonical "item name"
    */
   final val NAME_EXACT = "name"
