@@ -26,7 +26,7 @@ object TestJson {
  */
 trait ApiBase[TM] extends EntityController {
 
-  def getClientJson(id: String)(implicit rr: RestReadable[TM], cw: ClientConvertable[TM]) = userProfileAction {
+  def getClientJson(id: String)(implicit rr: RestReadable[TM], cw: ClientConvertable[TM]) = userProfileAction.async {
       implicit maybeUser => implicit request =>
     AsyncRest {
       rest.EntityDAO(entityType, maybeUser).get(id).map { res =>

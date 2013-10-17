@@ -2,7 +2,7 @@ package controllers.base
 
 import scala.concurrent.Future
 import play.api.mvc.RequestHeader
-import play.api.mvc.Result
+import play.api.mvc.SimpleResult
 import play.api.libs.concurrent.Execution.Implicits._
 import rest._
 import play.api.mvc.Controller
@@ -43,14 +43,11 @@ trait ControllerHelpers {
    * @param request
    * @return
    */
-  def getGroups(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
-    // TODO: Handle REST errors
-    Async {
-      for {
-        groups <- rest.RestHelpers.getGroupList
-      } yield {
-        f(groups)
-      }
+  def getGroups(f: Seq[(String,String)] => Future[SimpleResult])(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+    for {
+      groups <- rest.RestHelpers.getGroupList
+    } yield {
+      f(groups)
     }
   }
 
@@ -70,8 +67,8 @@ trait ControllerHelpers {
    * or a throwable. If the throwable exists it is handled in
    * an appropriate manner and returned as a AsyncResult
    */
-  def AsyncRest(promise: Future[Either[Throwable, Result]])(implicit maybeUser: Option[UserProfile] = None, request: RequestHeader): AsyncResult = {
-    Async {
+  object AsyncRest{
+    def apply(promise: Future[Either[Throwable, SimpleResult]])(implicit maybeUser: Option[UserProfile] = None, request: RequestHeader): Future[SimpleResult] = {
       promise.map { respOrErr =>
         respOrErr.fold(
           err => err match {
@@ -100,6 +97,15 @@ trait ControllerHelpers {
         )
       } recover {
         case e: ConnectException => InternalServerError(views.html.errors.serverTimeout(dbMaintenance))
+      }
+    }
+
+    def async(promise: Future[Either[Throwable, Future[SimpleResult]]])(implicit maybeUser: Option[UserProfile] = None, request: RequestHeader): Future[SimpleResult] = {
+      promise.flatMap { respOrErr =>
+        respOrErr.fold(
+          err => Future.successful(InternalServerError(err)),
+          resp => resp
+        )
       }
     }
   }

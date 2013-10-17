@@ -22,6 +22,8 @@ import rest.ValidationError
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 
 /**
  * Controller for handling user admin actions.
@@ -46,33 +48,32 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    * @return
    */
   def login = Action { implicit request =>
-    Ok(views.html.admin.pwLogin(passwordLoginForm,
-      controllers.core.routes.Admin.loginPost))
+    Ok(views.html.admin.pwLogin(passwordLoginForm, controllers.core.routes.Admin.loginPost))
   }
 
   /**
    * Check password and store credentials.
    * @return
    */
-  def loginPost = Action { implicit request =>
+  def loginPost = Action.async { implicit request =>
     val action = controllers.core.routes.Admin.loginPost
     passwordLoginForm.bindFromRequest.fold(
       errorForm => {
-        BadRequest(views.html.admin.pwLogin(errorForm, action))
+        immediate(BadRequest(views.html.admin.pwLogin(errorForm, action)))
       },
       data => {
         val (email, pw) = data
         userDAO.authenticate(email, pw).map { account =>
           gotoLoginSucceeded(account.id)
         } getOrElse {
-          Redirect(controllers.core.routes.Admin.login)
-            .flashing("error" -> Messages("login.badUsernameOrPassword"))
+          immediate(Redirect(controllers.core.routes.Admin.login)
+            .flashing("error" -> Messages("login.badUsernameOrPassword")))
         }
       }
     )
   }
 
-  def logout = optionalUserAction { implicit maybeUser => implicit request =>
+  def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
     gotoLogoutSucceeded
   }
 
@@ -105,7 +106,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    * @return
    */
   def adminActions = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.admin.actions())
+    immediate(Ok(views.html.admin.actions()))
   }
 
   /**

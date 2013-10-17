@@ -9,7 +9,8 @@ import play.api.mvc._
 import scala.reflect.classTag
 import play.api.Play.current
 import global.GlobalConfig
-
+import scala.concurrent.{ExecutionContext,Future}
+import scala.concurrent.Future.{successful => immediate}
 
 /*
  * Implementation of play2-auth
@@ -70,50 +71,51 @@ trait Authorizer extends Results with AuthConfig {
    * A function that returns a `User` object from an `Id`.
    * Describe the procedure according to your application.
    */
-  def resolveUser(id: Id): Option[User] = userFinder.findByProfileId(id)
+  def resolveUser(id: Id)(implicit context: ExecutionContext): Future[Option[User]] = immediate(userFinder.findByProfileId(id))
 
   /**
    * A redirect target after a successful user login.
    */
-  def loginSucceeded(request: RequestHeader): PlainResult = {
+  def loginSucceeded(request: RequestHeader): Future[SimpleResult] = {
     //val uri = request.session.get("access_uri").getOrElse(controllers.routes.Search.search.url)
     // FIXME: Hard-coded reference to /admin...
     val uri = request.session.get("access_uri").getOrElse(globalConfig.routeRegistry.default.url)
     request.session - "access_uri"
-    Redirect(uri)
+    immediate(Redirect(uri))
   }
 
   /**
    * A redirect target after a successful user logout.
    */
-  def logoutSucceeded(request: RequestHeader): PlainResult
-        = Redirect(globalConfig.routeRegistry.default)
+  def logoutSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult]
+        = immediate(Redirect(globalConfig.routeRegistry.default))
 
   /**
    * A redirect target after a failed authentication.
    */
-  def authenticationFailed(request: RequestHeader): PlainResult = {
+  def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
     if (ControllerHelpers.isAjax(request))
-      Unauthorized("authentication failed")
+      immediate(Unauthorized("authentication failed"))
     else
-      Redirect(globalConfig.routeRegistry.login.url)
-          .withSession("access_uri" -> request.uri)
+      immediate(Redirect(globalConfig.routeRegistry.login.url)
+          .withSession("access_uri" -> request.uri))
   }
 
   /**
    * A redirect target after a failed authorization.
    */
-  def authorizationFailed(request: RequestHeader): PlainResult = Forbidden("no permission")
+  def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult]
+      = immediate(Forbidden("no permission"))
 
   /**
    * A function that authorizes a user by `Authority`.
    * Describe the procedure according to your application.
    */
-  def authorize(user: User, authority: Authority): Boolean = {
+  def authorize(user: User, authority: Authority)(implicit context: ExecutionContext): Future[Boolean] = {
     // FIXME: Need to use ACL for this, but the play20-auth scheme might not fit perfectly
     // with ours because of the split between a User account (sql) and a UserProfile. For
     // the time being we do authorization ourselves and don't worry about implementing
     // this function properly.
-    true
+    immediate(true)
   }
 }
