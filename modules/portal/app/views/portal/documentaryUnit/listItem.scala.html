@@ -2,7 +2,7 @@
 
 @import org.apache.commons.lang3.StringUtils
 
-@layout.searchItemOutline(item.id) {
+@layout.searchItemOutline(item) {
     <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription(descriptionId).map { desc =>
@@ -11,8 +11,8 @@
         <small>
             <ul class="list-unstyled text-muted list-inline inline-separator">
                 @item.ancestors.reverse.map { parent =>
-                <li>
-                    <a href="@controllers.archdesc.routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
+                <li class="type-highlight @item.isA">
+                    <a href="@controllers.portal.routes.Portal.browseDocument(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
                 </li>
                 }
             </ul>
@@ -33,7 +33,9 @@
                 }
                 @item.latestEvent.map { event =>
                 <li title="@common.eventTitle(event)">
-                    <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))</time>
+                    <time datetime="@event.model.timestamp">
+                        @Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))
+                    </time>
                 </li>
                 }
             </ul>

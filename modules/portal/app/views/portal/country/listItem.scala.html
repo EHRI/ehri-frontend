@@ -1,6 +1,6 @@
 @(item: Country)(implicit req: RequestHeader, lang: Lang)
 
-@common.searchItemOutline(item.id) {
+@layout.searchItemOutline(item) {
     <a href="@controllers.portal.routes.Portal.browseCountry(item.id)">@item.toStringLang</a>
 } {
     @item.model.abs.map { abs =>

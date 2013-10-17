@@ -153,40 +153,10 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   def jsRoutes = Action { implicit request =>
 
     import controllers.core.routes.javascript._
-    import controllers.archdesc.routes.javascript.DocumentaryUnits
-    import controllers.archdesc.routes.javascript.Countries
-    import controllers.archdesc.routes.javascript.Repositories
-    import controllers.vocabs.routes.javascript.Vocabularies
-    import controllers.vocabs.routes.javascript.Concepts
-    import controllers.authorities.routes.javascript.AuthoritativeSets
-    import controllers.authorities.routes.javascript.HistoricalAgents
 
     Ok(
       Routes.javascriptRouter("jsRoutes")(
-        controllers.portal.routes.javascript.Portal.account,
-        controllers.portal.routes.javascript.Portal.profile,
-        controllers.portal.routes.javascript.Portal.search,
-        controllers.portal.routes.javascript.Portal.filter,
-        Application.getType,
-        Application.getGeneric,
-        UserProfiles.list,
-        UserProfiles.get,
-        Groups.list,
-        Groups.get,
-        DocumentaryUnits.search,
-        DocumentaryUnits.get,
-        Countries.search,
-        Countries.get,
-        Repositories.search,
-        Repositories.get,
-        Vocabularies.list,
-        Vocabularies.get,
-        Concepts.search,
-        Concepts.get,
-        AuthoritativeSets.list,
-        AuthoritativeSets.get,
-        HistoricalAgents.search,
-        HistoricalAgents.get
+      // TODO as necessary
       )
     ).as(MimeTypes.JAVASCRIPT)
   }

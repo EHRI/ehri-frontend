@@ -5,6 +5,7 @@
 <html lang="@lang.code">
     <head>
         <title>@title</title>
+        <!--<link rel="stylesheet" href="@controllers.portal.routes.Assets.at("bootstrap3/css/bootstrap.min.css")">-->
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
 
@@ -23,6 +24,32 @@
                 /* The html and body elements cannot have any padding or margin. */
             }
 
+            /** Type highlights */
+            .type-highlight {
+
+            }
+
+            .documentaryUnit a {
+                color: rgb(93, 73, 168);
+            }
+
+            .country a {
+                color: rgb(146, 183, 65);
+            }
+
+            .repository a {
+                color: rgb(174, 62, 130);
+            }
+
+            .historicalAgent a {
+                color: rgb(187, 185, 98);
+            }
+
+            a.alt {
+                color: #000;
+                font-weight: bolder;
+            }
+
             .search-box {
                 margin-top: 15px;
             }
@@ -32,6 +59,20 @@
 
             .top-bar {
                 background-color: #f5f5f5;
+                border-top: 1px solid #f0f0f0;
+                border-bottom: 1px solid #fff;
+            }
+
+            .search-bar {
+                background-color: #f5f5f5;
+                border-top: 1px solid #f0f0f0;
+                border-bottom: 1px solid #fff;
+            }
+
+            .info-bar {
+                background-color: #f5f5f5;
+                border-top: 1px solid #f0f0f0;
+                border-bottom: 1px solid #fff;
             }
 
             .main-content {
@@ -136,7 +177,7 @@
         @styles
 
         <script src="//code.jquery.com/jquery.js"></script>
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+        <script src="@controllers.portal.routes.Assets.at("bootstrap3/js/bootstrap.min.js")"></script>
 
         @scripts
     </head>
@@ -161,6 +202,11 @@
                         </li>
                         <li><a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browseCountries")</a></li>
                         <li><a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a></li>
+                        @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "navbar-form navbar-right", 'role -> "search") {
+                            <div class="form-group">
+                                <input type="text" name="q" class="form-control" placeholder="@Messages("portal.search")" />
+                            </div>
+                        }
                     </ul>
                 </div>
             </div>

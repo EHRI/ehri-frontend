@@ -16,7 +16,7 @@
                             req.path, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
                     </li>
                 } else {
-                    <li title="@fc.pretty(f)">
+                    <li class="type-highlight @f.value" title="@fc.pretty(f)">
                         <a href="@pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">
                             @views.Helpers.ellipsize(fc.pretty(f), 25)
                             (@f.count)
