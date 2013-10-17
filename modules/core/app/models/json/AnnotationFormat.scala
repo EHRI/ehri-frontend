@@ -59,6 +59,7 @@ object AnnotationFormat {
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-      Reads.list[SystemEvent]).map(_.flatMap(_.headOption))
-    )(Annotation.apply _)
+      Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(Annotation.apply _)
 }

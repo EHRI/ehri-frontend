@@ -1,0 +1,21 @@
+@(item: Repository, desc: RepositoryDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+
+@defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
+    @layout.renderItemLayout {
+        <p />
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>@Messages("portal.repository.contact")</strong>
+            </div>
+            <div class="panel-body">
+                @desc.addresses.headOption.map { address =>
+                    @renderAddress(item, address)
+                }
+            </div>
+        </div>
+    } {
+        @renderDescription(item, desc, links)
+        @link.externalLinks(item, links)
+        @link.annotationLinks(item, links)
+    }
+}

@@ -35,6 +35,7 @@ object PermissionGrantFormat {
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
       Reads.list[AnyModel]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).lazyReadNullable[List[UserProfile]](
-      Reads.list[UserProfile]).map(_.flatMap(_.headOption))
+      Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
   )(PermissionGrant.apply _)
 }

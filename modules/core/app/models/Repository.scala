@@ -50,7 +50,8 @@ object Repository {
       __.format[RepositoryF](RepositoryF.Converter.clientFormat) and
       (__ \ "country").formatNullable[Country](Country.Converter.clientFormat) and
       nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
     )(Repository.apply _, unlift(Repository.unapply _))
   }
 }
@@ -59,8 +60,10 @@ case class Repository(
   model: RepositoryF,
   country: Option[Country] = None,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent] = None
+  latestEvent: Option[SystemEvent] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[RepositoryF]
   with DescribedMeta[RepositoryDescriptionF,RepositoryF]
   with Accessible
+  with Holder[DocumentaryUnit]

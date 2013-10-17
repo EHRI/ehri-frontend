@@ -4,10 +4,20 @@
 GET     /                                   @controllers.portal.Portal.placeholder
 
 GET     /dev                                @controllers.portal.Portal.index
+GET     /dev/search                         @controllers.portal.Portal.search
+GET     /dev/browse                         @controllers.portal.Portal.browseCountries
+GET     /dev/browse/c/:id                   @controllers.portal.Portal.browseCountry(id: String)
+GET     /dev/browse/r/:id                   @controllers.portal.Portal.browseRepository(id: String)
+GET     /dev/browse/d/:id                   @controllers.portal.Portal.browseDocument(id: String)
+GET     /dev/browse/a/:id                   @controllers.portal.Portal.browseHistoricalAgent(id: String)
+GET     /dev/browse/s/:id                   @controllers.portal.Portal.browseAuthoritativeSet(id: String)
+GET     /dev/activity                       @controllers.portal.Portal.activity
+GET     /dev/newsFeed                       @controllers.portal.Portal.newsFeed
+
 GET     /dev/account                        @controllers.portal.Portal.account
 GET     /dev/profile                        @controllers.portal.Portal.profile
-GET     /dev/search                         @controllers.portal.Portal.search
 GET     /dev/filter                         @controllers.portal.Portal.filter
 GET     /dev/routes                         @controllers.portal.Portal.jsRoutes
+GET     /globalData                         @controllers.portal.Portal.globalData
 
 GET     /assets/*file                       controllers.portal.Assets.at(path="/public", file)

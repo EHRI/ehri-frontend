@@ -52,6 +52,28 @@ body {
     Item CSS
 */
 
+.priority0 {
+    background-color: #FFB2B2;
+}
+.priority1 {
+    background-color: #FF8080;
+}
+.priority2 {
+    background-color: #FF4D4D;
+}
+.priority3 {
+    background-color: #FF1919;
+}
+.priority4 {
+    background-color: #E60000;
+}
+.priority5 {
+    background-color: #B70000;
+}
+.priority-1 {
+    background-color: #E0E0EB;
+}
+
 /** Boxes used for overview facts on the index page */
 .overview-box {
     padding-right: 30px;
@@ -117,6 +139,15 @@ body {
     color: #FF0000;
 }
 
+/** child items */
+/* Highlight the current search sort */
+.child-count a {
+    color: #000000;
+    font-weight: lighter;
+    text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+}
+
+
 /* Highlight the current search sort */
 .current-search-sort {
     text-decoration: underline;
@@ -176,6 +207,14 @@ body.modal-open {
     font-weight: bolder;
     margin-bottom: 0.2em;
 }
+
+/** List items */
+.list-item {
+    padding-bottom: 0.5em;
+    border-bottom: 1px dashed #EBEBEB;
+    margin-bottom: 1.5em;
+}
+
 
 /** Inline lists - Bootstrap doesn't actually do this by itself */
 ul.inline li {

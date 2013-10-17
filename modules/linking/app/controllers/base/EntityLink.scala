@@ -209,31 +209,40 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
   }
 
   /**
+   * Fetch links for a given item.
+   */
+  def getLinksAction(id: String)(f: List[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    userProfileAction { implicit  userOpt => implicit request =>
+      AsyncRest {
+        val linkReq = rest.LinkDAO(userOpt).getFor(id)
+        for (linksOrErr <- linkReq) yield {
+          for { links <- linksOrErr.right } yield {
+            f(links)(userOpt)(request)
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Get the link, if any, for a document and an access point.
    * @param id
    * @param apid
    * @return
    */
-  def getLink(id: String, apid: String)(implicit rd: RestReadable[MT]) = withItemPermission[MT](id, PermissionType.Annotate, contentType) {
-      item => implicit userOpt => implicit request =>
-    AsyncRest {
-      LinkDAO(userOpt).getFor(id).map { linksOrErr =>
-        linksOrErr.right.map { linkList =>
-          val linkOpt = linkList.find(link => link.bodies.exists(b => b.id == Some(apid))) // TODO: We should get an AccessPointMeta instead!
-          val res = for {
-            link <- linkOpt
-            target <- link.opposingTarget(item)
-          } yield {
-            new AccessPointLink(
-              target = target.id,
-              `type` = None, // TODO: Add
-              description = link.model.description
-            )
-          }
-          Ok(Json.toJson(res))
-        }
-      }
+  def getLink(id: String, apid: String) = getLinksAction(id) { linkList => implicit userOpt => implicit request =>
+    val linkOpt = linkList.find(link => link.bodies.exists(b => b.id == Some(apid)))
+    val res = for {
+      link <- linkOpt
+      target <- link.opposingTarget(id)
+    } yield {
+      new AccessPointLink(
+        target = target.id,
+        `type` = None, // TODO: Add
+        description = link.model.description
+      )
     }
+    Ok(Json.toJson(res))
   }
 
   /**

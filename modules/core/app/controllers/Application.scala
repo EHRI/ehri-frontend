@@ -10,6 +10,7 @@ import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play2.auth.{LoginLogout, Auth}
 import play.api.Play._
+import play.api.libs.json.Json
 import defines.EntityType
 import utils.search.Dispatcher
 import com.google.inject._
@@ -44,6 +45,17 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
     }
   }
 
+  def getGeneric(id: String) = userProfileAction {
+    implicit userOpt => implicit request =>
+      AsyncRest {
+        rest.SearchDAO(userOpt).get[AnyModel](id)(AnyModel.Converter).map { itemOrErr =>
+          itemOrErr.right.map { item =>
+            Ok(Json.toJson(item)(AnyModel.Converter.clientFormat))
+          }
+        }
+      }
+  }
+
   /**
    * Action for redirecting to any item page, given a raw id.
    * TODO: Ultimately implement this in a better way, not
@@ -52,8 +64,8 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    * @return
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
-      globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
-        .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
+    globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
+      .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
   }
 
   def localeData(lang: String) = Action { request =>

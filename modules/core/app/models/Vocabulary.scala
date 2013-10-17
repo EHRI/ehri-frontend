@@ -43,7 +43,8 @@ object Vocabulary {
     val clientFormat: Format[Vocabulary] = (
       __.format[VocabularyF](VocabularyF.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+        (__ \ "meta").format[JsObject]
       )(Vocabulary.apply _, unlift(Vocabulary.unapply _))
 
 
@@ -54,10 +55,12 @@ object Vocabulary {
 case class Vocabulary(
   model: VocabularyF,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent]
+  latestEvent: Option[SystemEvent],
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[VocabularyF]
-  with Accessible {
+  with Accessible
+  with Holder[Concept] {
 
   override def toStringLang(implicit lang: Lang): String = model.name.getOrElse(id)
 }

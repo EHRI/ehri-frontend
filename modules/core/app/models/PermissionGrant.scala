@@ -39,7 +39,8 @@ object PermissionGrant {
         (__ \ "accessor").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
         json.nullableListFormat((__ \ "targets"))(AnyModel.Converter.clientFormat) and
         (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-        (__ \ "grantedBy").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat)
+        (__ \ "grantedBy").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
+        (__ \ "meta").format[JsObject]
       )(PermissionGrant.apply _, unlift(PermissionGrant.unapply _))
 
 
@@ -51,6 +52,7 @@ case class PermissionGrant(
   accessor: Option[Accessor] = None,
   targets: List[AnyModel] = Nil,
   scope: Option[AnyModel] = None,
-  grantee: Option[UserProfile] = None
+  grantee: Option[UserProfile] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[PermissionGrantF]

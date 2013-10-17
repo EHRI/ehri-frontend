@@ -100,9 +100,9 @@ object ApplicationBuild extends Build {
   ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val portal = play.Project(
-    appName + "-portal", appVersion, appDependencies, path = file("modules/portal")
-  ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
-    .aggregate(core, archdesc, authorities, vocabs)
+    appName + "-portal", appVersion, appDependencies, path = file("modules/portal"))
+    .settings(otherSettings:_*).dependsOn(core, annotation, linking)
+    .aggregate(core, annotation, linking)
 
   lazy val admin = play.Project(
     appName + "-admin", appVersion, appDependencies, path = file("modules/admin")

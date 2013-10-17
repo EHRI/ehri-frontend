@@ -50,7 +50,8 @@ object Concept {
         (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
         lazyNullableListFormat(__ \ "broaderTerms")(clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+        (__ \ "meta").format[JsObject]
       )(Concept.apply _, unlift(Concept.unapply _))
   }
 }
@@ -62,9 +63,11 @@ case class Concept(
   parent: Option[Concept] = None,
   broaderTerms: List[Concept] = Nil,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent]
+  latestEvent: Option[SystemEvent],
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[ConceptF]
   with DescribedMeta[ConceptDescriptionF, ConceptF]
   with Hierarchical[Concept]
   with Accessible
+  with Holder[Concept]

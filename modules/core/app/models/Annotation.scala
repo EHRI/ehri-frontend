@@ -48,12 +48,13 @@ object Annotation {
 
     val clientFormat: Format[Annotation] = (
       __.format[AnnotationF](AnnotationF.Converter.clientFormat) and
-        lazyNullableListFormat(__ \ "annotations")(clientFormat) and
-        (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
-        (__ \ "source").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
-      )(Annotation.apply _, unlift(Annotation.unapply _))
+      lazyNullableListFormat(__ \ "annotations")(clientFormat) and
+      (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
+      (__ \ "source").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
+      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Annotation.apply _, unlift(Annotation.unapply _))
   }
 }
 
@@ -63,7 +64,8 @@ case class Annotation(
   user: Option[UserProfile] = None,
   source: Option[AnyModel] = None,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent] = None
+  latestEvent: Option[SystemEvent] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends MetaModel[AnnotationF] with Accessible {
   def formatted: String = {
     "%s%s".format(

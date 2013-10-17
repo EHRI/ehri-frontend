@@ -1,0 +1,70 @@
+<form name="search-form">
+<div class="row search-params">
+    <div class="col-md-8">
+        <div class="form-inline">
+            <input type="text" class="span8" ng-model="searchParams.q" ng-change="updateUrl()" />
+            <button ng-click="doSearch()">Search</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8 search-results maincontent">
+        <ul class="search-results list-unstyled">
+            <li class="search-result" ng-repeat="result in results.page.items">
+                <search-item type="result.isA" item="result"></search-item>
+            </li>
+        </ul>
+
+        <div class="search-pagination">
+            <a ng-click="prevPage()" href="">Prev</a>
+            <a ng-click="nextPage()" href="">Next</a>
+        </div>
+    </div>
+    <div class="col-md-4 sidebar search-filters">
+        <div class="search-facet" ng-repeat="facetclass in results.page.facetClasses">
+
+            <div ng-switch on="facetclass.param">
+                <div ng-switch-when="type">
+                    <h4>{{facetclass.name}}</h4>
+                    <ul class="list-unstyled">
+                        <li ng-repeat="facet in facetclass.facets | orderBy:predicate = 'value'">
+                            <span ng-switch on="isSelectedType(facet.value)">
+                                <div ng-switch-when="true">
+                                    {{facet.value}}
+                                    ({{facet.count}})
+                                    <a ng-click="removeTypeFilter(facet.value)" href="">x</a>
+                                </div>
+                                <a ng-switch-when="false" ng-click="addTypeFilter(facet.value)" href="">
+                                    {{facet.value}}
+                                </a>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div ng-switch-default>
+                    <h4>{{facetclass.param}}</h4>
+                    <ul class="list-unstyled">
+                        <li ng-repeat="facet in facetclass.facets">
+                            <span ng-switch on="facet.applied">
+                                <div ng-switch-when="true">
+                                    {{renderFacet(facetclass, facet)}}
+                                    ({{facet.count}})
+                                    <a ng-click="removeFacet(facetclass, facet)" href="">x</a>
+                                </div>
+                                <a ng-switch-when="false" ng-click="addFacet(facetclass, facet)" href="">
+                                    <span ng-switch on="facet.count > 0">
+                                        <div ng-switch-when="true">
+                                            {{renderFacet(facetclass, facet)}}
+                                            ({{facet.count}})
+                                        </div>
+                                    </span>
+                                </a>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</form>

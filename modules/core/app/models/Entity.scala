@@ -13,6 +13,8 @@ object Entity {
   val DATA = "data"
   val TYPE = "type"
   val RELATIONSHIPS = "relationships"
+  val META = "meta"
+  val CHILD_COUNT = "childCount"
 
   def fromString(s: String, t: EntityType.Value) = {
     new Entity(s, t, Map(IDENTIFIER -> JsString(s)), Map())

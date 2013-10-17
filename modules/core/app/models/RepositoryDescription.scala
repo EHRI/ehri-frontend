@@ -72,6 +72,7 @@ case class RepositoryDescriptionF(
   services: IsdiahServices,
   control: IsdiahControl,
   accessPoints: List[AccessPointF] = Nil,
+  maintenanceEvents: List[Entity] = Nil,
   unknownProperties: List[Entity] = Nil
 ) extends Model with Persistable with Description
 

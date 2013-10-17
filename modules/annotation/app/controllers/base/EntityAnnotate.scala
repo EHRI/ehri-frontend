@@ -48,26 +48,34 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
     }
   }
 
+  /**
+   * Fetch annotations for a given item.
+   */
+  def getAnnotationsAction(id: String)(
+      f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    userProfileAction { implicit  userOpt => implicit request =>
+      AsyncRest {
+        val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
+        for (annOrErr <- annsReq) yield {
+          for { anns <- annOrErr.right } yield {
+            f(anns)(userOpt)(request)
+          }
+        }
+      }
+    }
+  }
+
   //
   // JSON endpoints
   //
 
   import EntityAnnotate._
 
-  def getAnnotationJson(id: String) = userProfileAction { implicit userOpt => implicit request =>
-    AsyncRest {
-      AnnotationDAO(userOpt).getFor(id).map { annsOrErr =>
-        annsOrErr.left.map {
-          case e@BadJson(msg) => println(Json.prettyPrint(JsError.toFlatJson(msg))); e
-          case e => println("Unexpected type: " + e); e
-        }
-        annsOrErr.right.map { anns =>
-          Ok(Json.toJson(anns.map{ case (itemId, anns) =>
-            itemId -> anns.map(_.model)
-          }))
-        }
-      }
-    }
+  def getAnnotationJson(id: String) = getAnnotationsAction(id) {
+      anns => implicit userOpt => implicit request =>
+    Ok(Json.toJson(anns.map{ case (itemId, anns) =>
+      itemId -> anns.map(_.model)
+    }))
   }
 
   /**

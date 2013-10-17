@@ -37,7 +37,8 @@ object AuthoritativeSet {
     val clientFormat: Format[AuthoritativeSet] = (
       __.format[AuthoritativeSetF](AuthoritativeSetF.Converter.clientFormat) and
       nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
     )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply _))
   }
 }
@@ -46,10 +47,12 @@ object AuthoritativeSet {
 case class AuthoritativeSet(
   model: AuthoritativeSetF,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent]
+  latestEvent: Option[SystemEvent],
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[AuthoritativeSetF]
-  with Accessible {
+  with Accessible
+  with Holder[HistoricalAgent] {
 
   override def toStringLang(implicit lang: Lang): String = model.name.getOrElse(id)
 }

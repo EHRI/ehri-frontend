@@ -177,6 +177,8 @@ vocabulary.search=Search Vocabularies
 country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
 country.search=Search Countries
 country.searchInside=Search Repositories
+country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
+
 
 #
 # Authority set
@@ -250,6 +252,7 @@ systemEvents.removeGroup=Member removed from group
 systemEvents.ingest=Items imported
 systemEvents.unknown=Unknown action
 systemEvents.scope=Scope
+systemEvents.subjects={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
 
 # Actions
 actions.edit=Edit
@@ -431,12 +434,19 @@ documentaryUnit.availableDescriptions=Available Descriptions
 documentaryUnit.noDescriptions=This item has not yet been provided with any ISAD(G) description info.
 documentaryUnit.search=Search Top-level Descriptions
 documentaryUnit.searchInside=Child Items
+documentaryUnit.hasChildItems=Contains other items
+documentaryUnit.noChildItems=Single level
+documentaryUnit.childCount={0,choice,0#No child items|1#1 child item|1<{0,number,integer} child items}
 
 #
 # Repositories
 #
 repository.search=Search Repositories
 repository.searchInside=Search items held by {0}
+repository.itemsHeldOnline=Items on EHRI
+repository.hasChildItems=Yes
+repository.noChildItems=No
+repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
 
 #
 # Historical Agents
@@ -456,6 +466,7 @@ priority.two=Two
 priority.one=One
 priority.zero=Zero
 priority.reject=Reject
+priority.unknown=-
 
 identifier=Identifier
 name=Name

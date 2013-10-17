@@ -1,0 +1,9 @@
+@(html: Html = Html(""))(implicit userOpt: Option[UserProfile], globalGonfig: global.GlobalConfig, req: RequestHeader, lang: Lang)
+
+<div class="row top-bar">
+    <div class="container">
+        <ol class="breadcrumb">
+            @html
+        </ol>
+    </div>
+</div>

@@ -61,7 +61,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
    * @return
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None,
-                        entityFacets: FacetClassList = Nil)(
+                        entityFacets: FacetClassList = Nil, mode: SearchMode.Value = SearchMode.DefaultAll)(
       f: ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
@@ -73,7 +73,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
 
       val facets: List[AppliedFacet] = bindFacetsFromRequest(entityFacets)
       AsyncRest {
-        searchDispatcher.search(sp, facets, entityFacets, filters).map { resOrErr =>
+        searchDispatcher.search(sp, facets, entityFacets, filters, mode).map { resOrErr =>
           resOrErr.right.map { res =>
             val ids = res.items.map(_.id)
             val itemIds = res.items.map(_.itemId)
@@ -86,14 +86,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
                       (ids, list))
                   }
                   val page = res.copy(items = list.zip(ids))
-                  render {
-                    case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
-                      "page" -> Json.toJson(res.copy(items = list))(ItemPage.itemPageWrites),
-                      "params" -> Json.toJson(sp)(SearchParams.Converter.clientFormat),
-                      "appliedFacets" -> Json.toJson(facets)
-                    )).as(play.api.http.ContentTypes.JSON)
-                    case _ => f(page)(sp)(facets)(userOpt)(request)
-                  }
+                  f(page)(sp)(facets)(userOpt)(request)
                 }
               }
             }

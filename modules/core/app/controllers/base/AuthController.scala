@@ -87,6 +87,33 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
   }
 
   /**
+   * Given an item ID fetch the item.
+   */
+  def itemAction[MT](entityType: EntityType.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
+    implicit rd: RestReadable[MT]): Action[AnyContent] = {
+    userProfileAction { implicit userOpt => implicit request =>
+      userOpt.map { user =>
+        AsyncRest {
+          val getEntity = rest.EntityDAO[MT](entityType, userOpt).get(id)
+          for { entity <- getEntity } yield {
+            for { item <- entity.right } yield {
+              f(item)(Some(user))(request)
+            }
+          }
+        }
+      } getOrElse {
+        AsyncRest {
+          rest.EntityDAO(entityType, None).get(id).map { itemOrErr =>
+            itemOrErr.right.map { item =>
+              f(item)(None)(request)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Given an item ID and a user, fetch:
    * 	- the user's profile
    *    - the user's global permissions within that item's scope

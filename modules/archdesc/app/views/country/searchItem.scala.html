@@ -3,7 +3,15 @@
 @common.searchItemOutline(item.id) {
     <a href="@controllers.archdesc.routes.Countries.get(item.id)">@item.toStringLang</a>
 } {
+    <small>
+        @item.childCount.map { count =>
+            <div class="child-count">
+                <a href="@controllers.archdesc.routes.Countries.get(item.id)#search-items">@Messages("country.childCount", count)</a>
+            </div>
+        }
+    </small>
     @item.model.abs.map { abs =>
         <div class="national-report">@Html(abs)</div>
     }
+
 }

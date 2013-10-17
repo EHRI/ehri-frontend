@@ -48,7 +48,8 @@ object HistoricalAgent {
       __.format[HistoricalAgentF](HistoricalAgentF.Converter.clientFormat) and
         (__ \ "set").formatNullable[AuthoritativeSet](AuthoritativeSet.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+        (__ \ "meta").format[JsObject]
       )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply _))
 
   }
@@ -59,7 +60,8 @@ case class HistoricalAgent(
   model: HistoricalAgentF,
   set: Option[AuthoritativeSet],
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent]
+  latestEvent: Option[SystemEvent],
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[HistoricalAgentF]
   with DescribedMeta[HistoricalAgentDescriptionF,HistoricalAgentF]

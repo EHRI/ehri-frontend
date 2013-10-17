@@ -67,11 +67,13 @@ case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
    * @param userOpt
    * @return a set of SearchDescriptions for matching results.
    */
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass[Facet]], filters: Map[String,Any] = Map.empty)(implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass[Facet]],
+             filters: Map[String,Any] = Map.empty, mode: SearchMode.Value = SearchMode.DefaultAll)(
+      implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = SolrQueryBuilder.search(params, facets, allFacets, filters)(userOpt)
+    val queryRequest = SolrQueryBuilder.search(params, facets, allFacets, filters, mode)(userOpt)
     Logger.logger.debug(queryRequest.queryString())
 
     WS.url(buildSearchUrl(queryRequest)).get.map { response =>

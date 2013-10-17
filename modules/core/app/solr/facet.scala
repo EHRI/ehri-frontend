@@ -4,47 +4,47 @@ import com.github.seratch.scalikesolr.request.query.facet.{FacetParam, Param, Va
 import play.api.libs.json.{JsNumber, Json, Writes}
 import utils.search.{FacetClass, FacetSort}
 
+trait SolrFacet extends utils.search.Facet {
+  def solrValue: String
+}
 
 /**
  * Encapsulates a single facet.
  *
  * @param solr   the value of this facet to Solr
- * @param param  the value as a web parameter
+ * @param value  the value as a web parameter
  * @param name  the human-readable value
  * @param count     the number of objects to which this facet applies
  * @param applied   whether or not this facet is activated in the response
  */
-case class SolrFacet(
+case class SolrFieldFacet(
   solr: String,
-  param: String,
+  value: String,
   name: Option[String] = None,
   count: Int = 0,
   applied: Boolean = false
-) extends utils.search.Facet {
-  def sort = name.getOrElse(param)
+) extends SolrFacet {
+  def sort = name.getOrElse(value)
+  def solrValue = solr
 }
 
-object SolrFacet {
-  implicit val facetWrites = Json.writes[SolrFacet]
+object SolrFieldFacet {
+  implicit val facetWrites = Json.writes[SolrFieldFacet]
+}
+
+case class SolrQueryFacet(
+  count: Int = 0,
+  applied: Boolean = false,
+  name: Option[String] = None,
+  value: String
+) extends SolrFacet {
+  def sort = name.getOrElse(value)
+  override def solrValue = value
 }
 
 
-trait SolrFacetClass extends FacetClass[SolrFacet] {
+trait SolrFacetClass[+T <: SolrFacet] extends FacetClass[T] {
   def asParams: List[FacetParam]
-}
-
-object SolrFacetClass {
-  implicit def facetClassWrites: Writes[SolrFacetClass] = new Writes[SolrFacetClass] {
-    def writes(fc: SolrFacetClass) = Json.obj(
-      "count" -> JsNumber(fc.count),
-      "param" -> Json.toJson(fc.param),
-      "name" -> Json.toJson(fc.name),
-      "key" -> Json.toJson(fc.key),
-      "facets" -> Json.arr(
-        fc.sorted.map(Json.toJson(_))
-      )
-    )
-  }
 }
 
 
@@ -64,9 +64,9 @@ case class FieldFacetClass(
   name: String,
   param: String,
   render: (String) => String = s=>s,
-  facets: List[SolrFacet] = Nil,
+  facets: List[SolrFieldFacet] = Nil,
   sort: FacetSort.Value = FacetSort.Count
-) extends SolrFacetClass {
+) extends SolrFacetClass[SolrFieldFacet] {
   val fieldType: String = "facet.field"
 
   def asParams: List[FacetParam] = {
@@ -82,16 +82,16 @@ case class QueryFacetClass(
   name: String,
   param: String,
   render: (String) => String = s=>s,
-  facets: List[SolrFacet] = Nil,
+  override val facets: List[SolrQueryFacet],
   sort: FacetSort.Value = FacetSort.Name
-) extends SolrFacetClass {
+) extends SolrFacetClass[SolrQueryFacet] {
   val fieldType: String = "facet.query"
 
   def asParams: List[FacetParam] = {
     facets.map(p =>
       new FacetParam(
         Param(fieldType),
-        Value("%s:%s".format(key, p.solr))
+        Value("%s:%s".format(key, p.solrValue))
       )
     )
   }

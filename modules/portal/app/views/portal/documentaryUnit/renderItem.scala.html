@@ -1,0 +1,57 @@
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+
+@detailEntry(s: Option[String], key: String)(implicit fieldPrefix: String) = {
+    @s.map { v =>
+        <li>@v</li>
+    }
+}
+
+@detailListEntry(list: Option[List[String]], f: String => String) = {
+    @list.map { lopt =>
+        @if(!lopt.isEmpty) {
+            <li>
+                <ul class="list-unstyled comma-sep">
+                @lopt.map { l =>
+                    <li>@f(l)</li>
+                }
+                </ul>
+            </li>
+        }
+    }
+}
+
+
+@defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+    @layout.renderItemLayout {
+        @item.holder.map { repo =>
+        <p />
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>@Messages("portal.item.details")</strong>
+            </div>
+            <div class="panel-body">
+                <strong><a href="@controllers.portal.routes.Portal.browseRepository(repo.id)">@repo.toStringLang</a></strong>
+                @repo.model.descriptions.flatMap(_.addresses).headOption.map { address =>
+                @views.html.portal.repository.renderAddress(repo, address)
+                }
+                <hr />
+
+                <ul class="list-unstyled">
+                    @desc.dates.headOption.map { dp =>
+                        <dd id="@dp.id">@dp.years.trim</dd>
+                    }
+                    @detailEntry(desc.levelOfDescription, IsadG.LEVEL_OF_DESCRIPTION)
+                    @detailEntry(desc.extentAndMedium, IsadG.EXTENT_MEDIUM)
+                    @detailListEntry(desc.conditions.languageOfMaterials, views.Helpers.languageCodeToName)
+                    @detailListEntry(desc.conditions.scriptOfMaterials, views.Helpers.scriptCodeToName)
+                </ul>
+            </div>
+        </div>
+        }
+    } {
+        @renderDescription(item, desc, links)
+
+        @link.externalLinks(item, links)
+        @link.annotationLinks(item, links)
+    }
+}

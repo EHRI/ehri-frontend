@@ -1,0 +1,67 @@
+@(item: Repository, desc: RepositoryDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, fieldPrefix: String)
+
+@import Isdiah._
+@import common.descriptionSection
+
+@otherNameList(list: Option[List[String]]) = {
+    @defining(list.toList.flatten) { pfn =>
+        @if(!pfn.isEmpty) {
+            <small class="text-muted">
+                <ul class="list-unstyled list-inline comma-sep other-name-list">
+                    @pfn.map { p =>
+                        <li>@p</li>
+                    }
+                </ul>
+            </small>
+        }
+    }
+}
+
+@common.descriptionOutline(desc, desc.languageCode) {
+
+    <h2>@desc.name</h2>
+    @otherNameList(desc.parallelFormsOfName)
+    @otherNameList(desc.otherFormsOfName)
+
+    @descriptionSection(DESCRIPTION_AREA) {
+        @common.stringValue(desc.details.history, HISTORY)
+        @common.stringValue(desc.details.generalContext, GEOCULTURAL_CONTEXT)
+        @common.stringValue(desc.details.mandates, MANDATES)
+        @common.stringValue(desc.details.administrativeStructure, ADMINISTRATIVE_STRUCTURE)
+        @common.stringValue(desc.details.records, RECORDS)
+        @common.stringValue(desc.details.buildings, BUILDINGS)
+        @common.stringValue(desc.details.holdings, HOLDINGS)
+        @common.stringValue(desc.details.findingAids, FINDING_AIDS)
+    }
+
+    @descriptionSection(ACCESS_AREA) {
+        @common.stringValue(desc.access.openingTimes, OPENING_TIMES)
+        @common.stringValue(desc.access.conditions, CONDITIONS)
+        @common.stringValue(desc.access.accessibility, ACCESSIBILITY)
+    }
+
+    @descriptionSection(SERVICES_AREA) {
+        @common.stringValue(desc.services.researchServices, RESEARCH_SERVICES)
+        @common.stringValue(desc.services.reproductionServices, REPROD_SERVICES)
+        @common.stringValue(desc.services.publicAreas, PUBLIC_AREAS)
+    }
+
+    @descriptionSection(CONTROL_AREA) {
+        @common.stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
+        @common.stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
+        @common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
+        @common.stringValue(desc.control.status, STATUS)
+        @common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
+        @common.stringValue(desc.control.datesCDR, DATES_CVD)
+        @common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+        @common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+        @common.listValue(desc.control.sources, SOURCES)
+        @common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+    }
+
+    @link.relatedLinks(item, desc, links)
+
+    @desc.unknownProperties.map { e =>
+        @common.unknownData(e)
+    }
+}

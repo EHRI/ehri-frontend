@@ -1,0 +1,30 @@
+@(item: DocumentaryUnit, result: utils.AbstractPage[DocumentaryUnit], annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@layout.portalLayout(item.toStringLang) {
+    @layout.breadcrumbs {
+        @item.holder.flatMap(_.country).map { country =>
+            <li>
+                <a href="@controllers.portal.routes.Portal.browseCountry(country.id)">@country.toStringLang</a>
+            </li>
+        }
+        @item.holder.map { repo =>
+            <li>
+                <a href="@controllers.portal.routes.Portal.browseRepository(repo.id)">@repo.toStringLang</a>
+            </li>
+        }
+        @item.ancestors.map { ann =>
+            <li>@ann.toStringLang</li>
+        }
+        <li><strong>@item.toStringLang</strong></li>
+    }
+
+    @infobar(item)
+
+    @item.model.primaryDescription.map { desc =>
+        @renderItem(item, desc, links)
+    }.getOrElse {
+        <p class="alert-error">
+            No descriptions found
+        </p>
+    }
+}
