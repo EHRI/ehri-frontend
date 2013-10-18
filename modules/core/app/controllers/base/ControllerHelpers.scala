@@ -43,7 +43,7 @@ trait ControllerHelpers {
    * @param request
    * @return
    */
-  def getGroups(f: Seq[(String,String)] => Future[SimpleResult])(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+  def getGroups(f: Seq[(String,String)] => SimpleResult)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
     for {
       groups <- rest.RestHelpers.getGroupList
     } yield {
@@ -80,7 +80,7 @@ trait ControllerHelpers {
             } getOrElse {
               render {
                 case Accepts.Json() => println(e); Unauthorized(Json.toJson(e))
-                case _ => authenticationFailed(request)
+                case _ => Unauthorized("no can do") // authenticationFailed(request)
               }
             }
             case e: ItemNotFound => {

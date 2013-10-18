@@ -29,7 +29,7 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    * @param id
    * @return
    */
-  def get(id: String) = userProfileAction { implicit userOpt => implicit request =>
+  def get(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
     AsyncRest {
       implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
       rest.SearchDAO(userOpt).list(List(id)).map { listOrErr =>
@@ -45,7 +45,7 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
     }
   }
 
-  def getGeneric(id: String) = userProfileAction {
+  def getGeneric(id: String) = userProfileAction.async {
     implicit userOpt => implicit request =>
       AsyncRest {
         rest.SearchDAO(userOpt).get[AnyModel](id)(AnyModel.Converter).map { itemOrErr =>

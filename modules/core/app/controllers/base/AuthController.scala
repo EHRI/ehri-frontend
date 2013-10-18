@@ -208,7 +208,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Wrap itemPermissionAction to ensure a given permission is present,
    * and return an action with the user in scope.
    */
-  def withItemPermission {
+  object withItemPermission {
     def async[MT](id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
         f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(implicit rd: RestReadable[MT]): Action[AnyContent] = {
       itemPermissionAction.async[MT](contentType, id) { entity => implicit maybeUser => implicit request =>
@@ -245,7 +245,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     }
 
     def apply(perm: PermissionType.Value, contentType: ContentTypes.Value)(
-        f: Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+        f: Option[UserProfile] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
       async(perm, contentType)(f.andThen(_.andThen(t => Future.successful(t))))
     }
   }

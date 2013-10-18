@@ -13,7 +13,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
   val entityType = EntityType.SystemEvent
   val contentType = ContentTypes.SystemEvent
 
-  def get(id: String) = getAction(id) { 
+  def get(id: String) = getAction.async(id) {
       item => annotations => links => implicit userOpt => implicit request =>
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     AsyncRest {

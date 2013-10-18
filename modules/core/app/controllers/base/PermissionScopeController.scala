@@ -8,6 +8,9 @@ import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
 import utils.ListParams
 import utils.ListParams
+import scala.concurrent.Await
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.Duration
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
@@ -19,8 +22,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
   val targetContentTypes: Seq[ContentTypes.Value]
 
   def manageScopedPermissionsAction(id: String)(
-      f: MT => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
-    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      f: MT => rest.Page[PermissionGrant] => rest.Page[PermissionGrant]=> Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val itemParams = ListParams.fromRequest(request)
       val scopeParams = ListParams.fromRequest(request, namespace = "s")
       AsyncRest {
@@ -37,8 +40,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
   }
 
   def setScopedPermissionsAction(id: String, userType: String, userId: String)(
-      f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
-    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt =>
+      f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt =>
       implicit request =>
         AsyncRest {
           for {
@@ -58,25 +61,37 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
   }
 
   def setScopedPermissionsPostAction(id: String, userType: String, userId: String)(
-      f: acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
-    withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      f: acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = targetContentTypes.map { ct =>
         (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
       }.toMap
 
+//      AsyncRest {
+//        for {
+//          accessorOrErr <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
+//        } yield {
+//          for { accessor <- accessorOrErr.right} yield {
+//            AsyncRest {
+//              rest.PermissionDAO(userOpt).setScope(accessor, id, perms).map { permsOrErr =>
+//                permsOrErr.right.map { perms =>
+//                  f(perms)(userOpt)(request)
+//                }
+//              }
+//            }
+//          }
+//        }
+//      }
+
+      // FIXME: Temporary hack!
+      val accessor
+        = Await.result(rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId), Duration(1, TimeUnit.MINUTES)).right.get
+
       AsyncRest {
-        for {
-          accessorOrErr <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
-        } yield {
-          for { accessor <- accessorOrErr.right} yield {
-            AsyncRest {
-              rest.PermissionDAO(userOpt).setScope(accessor, id, perms).map { permsOrErr =>
-                permsOrErr.right.map { perms =>
-                  f(perms)(userOpt)(request)
-                }
-              }
-            }
+        rest.PermissionDAO(userOpt).setScope(accessor, id, perms).map { permsOrErr =>
+          permsOrErr.right.map { perms =>
+            f(perms)(userOpt)(request)
           }
         }
       }

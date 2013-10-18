@@ -113,7 +113,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    * Create a user's account for them with a pre-set password. This is an
    * admin only function and should be removed eventually.
    */
-  def createUser = withContentPermission(PermissionType.Create, ContentTypes.UserProfile) {
+  def createUser = withContentPermission.async(PermissionType.Create, ContentTypes.UserProfile) {
       implicit userOpt => implicit request =>
     getGroups { groups =>
       Ok(views.html.admin.createUser(userPasswordForm, groupMembershipForm, groups,
@@ -140,7 +140,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    *
    * @return
    */
-  def createUserPost = withContentPermission(PermissionType.Create, ContentTypes.UserProfile) {
+  def createUserPost = withContentPermission.async(PermissionType.Create, ContentTypes.UserProfile) {
       implicit userOpt => implicit request =>
 
     // Blocking! This helps simplify the nest of callbacks.
@@ -149,8 +149,8 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
 
     userPasswordForm.bindFromRequest.fold(
       errorForm => {
-          Ok(views.html.admin.createUser(errorForm, groupMembershipForm.bindFromRequest,
-              allGroups, controllers.core.routes.Admin.createUserPost))
+          immediate(Ok(views.html.admin.createUser(errorForm, groupMembershipForm.bindFromRequest,
+              allGroups, controllers.core.routes.Admin.createUserPost)))
       },
       {
         case (email, username, name, pw, _) =>
@@ -215,32 +215,30 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
       recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
   }
 
-  def forgotPasswordPost = Action { implicit request =>
+  def forgotPasswordPost = Action.async { implicit request =>
     val recaptchaKey = play.api.Play.configuration.getString("recaptcha.key.public").getOrElse("fakekey")
 
-    Async {
-      checkRecapture.map { ok =>
-        if (!ok) {
-          val form = forgotPasswordForm.withGlobalError("error.badRecaptcha")
-          BadRequest(views.html.admin.forgotPassword(form,
+    checkRecapture.map { ok =>
+      if (!ok) {
+        val form = forgotPasswordForm.withGlobalError("error.badRecaptcha")
+        BadRequest(views.html.admin.forgotPassword(form,
+          recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
+      } else {
+        forgotPasswordForm.bindFromRequest.fold({ errForm =>
+          BadRequest(views.html.admin.forgotPassword(errForm,
             recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
-        } else {
-          forgotPasswordForm.bindFromRequest.fold({ errForm =>
-            BadRequest(views.html.admin.forgotPassword(errForm,
+        }, { email =>
+          userDAO.findByEmail(email).map { account =>
+            val uuid = UUID.randomUUID()
+            account.createResetToken(uuid)
+            sendResetEmail(account.email, uuid)
+            Redirect(controllers.core.routes.Admin.passwordReminderSent)
+          }.getOrElse {
+            val form = forgotPasswordForm.withError("email", "error.emailNotFound")
+            BadRequest(views.html.admin.forgotPassword(form,
               recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
-          }, { email =>
-            userDAO.findByEmail(email).map { account =>
-              val uuid = UUID.randomUUID()
-              account.createResetToken(uuid)
-              sendResetEmail(account.email, uuid)
-              Redirect(controllers.core.routes.Admin.passwordReminderSent)
-            }.getOrElse {
-              val form = forgotPasswordForm.withError("email", "error.emailNotFound")
-              BadRequest(views.html.admin.forgotPassword(form,
-                recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
-            }
-          })
-        }
+          }
+        })
       }
     }
   }
@@ -288,8 +286,8 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   /**
    *  Grant a user permissions on their own account.
    */
-  private def grantOwnerPerms[T](profile: UserProfile)(f: => Result)(
-    implicit request: Request[T], userOpt: Option[UserProfile]): AsyncResult = {
+  private def grantOwnerPerms[T](profile: UserProfile)(f: => SimpleResult)(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
     AsyncRest {
       rest.PermissionDAO(userOpt).setItem(profile, ContentTypes.UserProfile,
         profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>
@@ -303,11 +301,11 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   /**
    * Create a user's profile on the ReSt interface.
    */
-  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Result)(
-    implicit request: Request[T], userOpt: Option[UserProfile]): Result = {
+  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Future[SimpleResult])(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
     AsyncRest {
       rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
-        .create[UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
+        .create[UserProfileF](user, params = Map("group" -> groups)).flatMap { itemOrErr =>
         if (itemOrErr.isLeft) {
           itemOrErr.left.get match {
             case v@ValidationError(errorSet) => {
@@ -315,8 +313,8 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
               val form = userPasswordForm.bindFromRequest
               val errForm = form.copy(errors = form.errors ++ serverErrors)
               Right {
-                BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
-                  allGroups, controllers.core.routes.Admin.createUserPost))
+                immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
+                  allGroups, controllers.core.routes.Admin.createUserPost)))
               }
             }
             case e => Left(e)
@@ -332,13 +330,13 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    * Save a user, creating both an account and a profile.
    */
   private def saveUser[T](email: String, username: String, name: String, pw: String, allGroups: List[(String, String)])(
-    implicit request: Request[T], userOpt: Option[UserProfile]): Result = {
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
     // check if the email is already registered...
     userDAO.findByEmail(email.toLowerCase).map { account =>
       val errForm = userPasswordForm.bindFromRequest
         .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.id)))
-      BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
-        allGroups, controllers.core.routes.Admin.createUserPost))
+      immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
+        allGroups, controllers.core.routes.Admin.createUserPost)))
     } getOrElse {
       // It's not registered, so create the account...
       val user = UserProfileF(id = None, identifier = username, name = name,

@@ -9,6 +9,7 @@ import models.UserProfile
 import play.api.Logger
 import models.json.{RestReadable, RestConvertable}
 import play.api.data.FormError
+import scala.concurrent.Future.{successful => immediate}
 
 /**
  * Controller trait which updates an AccessibleEntity.
@@ -18,9 +19,9 @@ import play.api.data.FormError
  */
 trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
 
-  type UpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Result
+  type UpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => SimpleResult
 
-  def updateAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
+  def updateAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
     implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
@@ -43,7 +44,7 @@ trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
    */
   def updatePostAction(id: String, form: Form[F], transform: F => F = identity)(f: UpdateCallback)(
       implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
-    withItemPermission[MT](id, PermissionType.Update, contentType) {
+    withItemPermission.async[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       updateAction(item, form, transform)(f)
     }
@@ -65,7 +66,7 @@ trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
     form.bindFromRequest.fold(
       errorForm => {
         Logger.logger.debug("Form errors: {}", errorForm.errors)
-        f(item)(Left(errorForm))(userOpt)(request)
+        immediate(f(item)(Left(errorForm))(userOpt)(request))
       },
       success = doc => {
         AsyncRest {

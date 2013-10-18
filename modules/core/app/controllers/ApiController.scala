@@ -11,28 +11,26 @@ import global.GlobalConfig
 
 class ApiController @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with AuthController with ControllerHelpers {
 
-  def listItems(contentType: String) = Action { implicit request =>
+  def listItems(contentType: String) = Action.async { implicit request =>
     get(s"$contentType/list")(request)
   }
 
-  def getItem(contentType: String, id: String) = Action { implicit request =>
+  def getItem(contentType: String, id: String) = Action.async { implicit request =>
     get(s"$contentType/$id")(request)
   }
 
-  def getAny(id: String) = Action { implicit request =>
+  def getAny(id: String) = Action.async { implicit request =>
     get(s"entities?id=$id")(request)
   }
 
-  def get(urlpart: String) = userProfileAction { implicit maybeUser =>
+  def get(urlpart: String) = userProfileAction.async { implicit maybeUser =>
     implicit request =>
-      Async {
-        val url = urlpart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
-        rest.ApiDAO(maybeUser)
-          .get(url, request.headers).map { r =>
-            Status(r.status)
-              .stream(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
-              .as(r.ahcResponse.getContentType)
-          }
+    val url = urlpart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
+    rest.ApiDAO(maybeUser)
+      .get(url, request.headers).map { r =>
+        Status(r.status)
+          .stream(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
+          .as(r.ahcResponse.getContentType)
       }
   }
 
@@ -67,13 +65,11 @@ class ApiController @Inject()(implicit val globalConfig: GlobalConfig) extends C
         controllers.core.routes.ApiController.sparqlQuery))
   }
 
-  def sparqlQuery = userProfileAction { implicit userOpt => implicit request =>
-    Async {
-      rest.ApiDAO(userOpt).get("sparql", request.queryString, request.headers).map { r =>
-        Status(r.status)
-          .stream(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
-          .as(r.ahcResponse.getContentType)
-      }
+  def sparqlQuery = userProfileAction.async { implicit userOpt => implicit request =>
+    rest.ApiDAO(userOpt).get("sparql", request.queryString, request.headers).map { r =>
+      Status(r.status)
+        .stream(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
+        .as(r.ahcResponse.getContentType)
     }
   }
 }

@@ -15,15 +15,15 @@ import models.json.RestReadable
  */
 trait EntityDelete[MT] extends EntityRead[MT] {
 
-  def deleteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
+  def deleteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }
 
-  def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
-    withItemPermission[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
+  def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         rest.EntityDAO(entityType, userOpt).delete(id, logMsg = getLogMessage).map { boolOrErr =>
           boolOrErr.right.map { ok =>
