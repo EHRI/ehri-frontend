@@ -213,6 +213,10 @@
         @(if(req.path.equals(url)) "active" else "")
     }
 
+    @maybeActivePath(url: String) = {
+        @(if(req.path.startsWith(url)) "active" else "")
+    }
+
     <header>
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container">
@@ -223,11 +227,29 @@
                                 <span class="glyphicon glyphicon-home"></span>
                             </a>
                         </li>
-                        <li class="@maybeActive(controllers.portal.routes.Portal.search.url)">
-                            <a href="@controllers.portal.routes.Portal.search">@Messages("portal.search")</a>
+                        <li class="@maybeActivePath(controllers.portal.routes.Portal.browse.url)">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                @Messages("portal.browse")
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browseCountries")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browseRepositories")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browseDocuments")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browseHistoricalAgents")</a>
+                                </li>
+                            </ul>
                         </li>
-                        <li><a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browseCountries")</a></li>
-                        <li><a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a></li>
+                        <li class="@maybeActive(controllers.portal.routes.Portal.activity.url)">
+                            <a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a>
+                        </li>
                         @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "navbar-form navbar-right", 'role -> "search") {
                             <div class="form-group">
                                 <input type="text" name="q" class="form-control" placeholder="@Messages("portal.search")" />

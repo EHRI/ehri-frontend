@@ -7,7 +7,7 @@
                 <a href="@controllers.portal.routes.Portal.browseCountry(country.id)">@country.toStringLang</a>
             </li>
         }
-        <li>@item.toStringLang</li>
+        <li>@views.Helpers.ellipsize(item.toStringLang, 50)</li>
     }
 
     @infobar(item)

@@ -1,0 +1,13 @@
+@(page: utils.search.ItemPage[(DocumentaryUnit,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@layout.portalLayout(Messages("actions.listDocumentaryUnits")) {
+    @layout.breadcrumbs(defines.EntityType.DocumentaryUnit.toString) {
+        @* TODO: Add content *@
+        <li>&nbsp;</li>
+    }
+    @views.html.portal.searchForm(page, params, action, autofocus = false) {
+        @views.html.portal.searchItemList(page)
+    } {
+        @views.html.portal.facetList(page.facets, action)
+    }
+}

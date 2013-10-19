@@ -1,6 +1,10 @@
 @(page: utils.search.ItemPage[(Country,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.portalLayout(Messages("actions.listCountries")) {
+    @layout.breadcrumbs(defines.EntityType.Country.toString) {
+        @* TODO: Add content *@
+        <li>&nbsp;</li>
+    }
     @views.html.portal.searchForm(page, params, action, autofocus = false) {
         @views.html.portal.searchItemList(page)
     } {

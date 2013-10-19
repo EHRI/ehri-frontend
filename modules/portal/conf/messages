@@ -1,6 +1,10 @@
 portal.welcome=Welcome to EHRI
 portal.footerText=This is a development version of the EHRI portal interface.
-portal.browseCountries=Browse
+portal.browse=Browse
+portal.browseCountries=By Country
+portal.browseRepositories=All Institutions
+portal.browseDocuments=All Archival Descriptions
+portal.browseHistoricalAgents=All Authorities
 portal.activity=Activity
 portal.search=Search
 portal.newsFeed=Latest News

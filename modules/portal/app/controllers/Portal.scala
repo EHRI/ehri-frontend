@@ -202,6 +202,10 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   )
 
+  def browse = userProfileAction { implicit userOpt => implicit request =>
+    Ok(portal.browse())
+  }
+
   def browseCountries = searchAction[Country](defaultParams = Some(SearchParams(entities = List(EntityType.Country))),
       entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
@@ -212,8 +216,8 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       item => annotations => links => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), entityFacets = repositorySearchFacets,
         defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
-      page => params => facets => _ => _ =>
-        Ok(portal.country.show(item, page, params, facets,
+        page => params => facets => _ => _ =>
+      Ok(portal.country.show(item, page, params, facets,
           portalRoutes.browseCountry(id), annotations, links))
     }.apply(request)
   }
@@ -237,6 +241,12 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   )
 
+  def browseRepositories = searchAction[Repository](defaultParams = Some(SearchParams(entities = List(EntityType.Repository))),
+    entityFacets = entityFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(portal.repository.list(page, params, facets, portalRoutes.browseRepositories))
+  }
+
   def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
       item => annotations => links => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
@@ -244,10 +254,16 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     searchAction[DocumentaryUnit](filters,
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
         entityFacets = docSearchFacets) {
-      page => params => facets => _ => _ =>
-        Ok(portal.repository.show(item, page, params, facets,
+        page => params => facets => _ => _ =>
+      Ok(portal.repository.show(item, page, params, facets,
           portalRoutes.browseRepository(id), annotations, links))
     }.apply(request)
+  }
+
+  def browseDocuments = searchAction[DocumentaryUnit](defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+    entityFacets = entityFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(portal.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments))
   }
 
   def browseDocument(id: String) = getWithChildrenAction[DocumentaryUnit, DocumentaryUnit](EntityType.DocumentaryUnit, id) {
@@ -255,7 +271,12 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(portal.documentaryUnit.show(doc, children, anns, links))
   }
 
-  def browseHistoricalAgents = TODO
+  def browseHistoricalAgents = searchAction[HistoricalAgent](defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent))),
+    entityFacets = entityFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(portal.historicalAgent.list(page, params, facets, portalRoutes.browseHistoricalAgents))
+  }
+
 
   def browseAuthoritativeSet(id: String) = getAction[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
     item => annotations => links => implicit userOpt => implicit request =>
