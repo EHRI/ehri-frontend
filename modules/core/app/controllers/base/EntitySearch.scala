@@ -86,7 +86,14 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
                       (ids, list))
                   }
                   val page = res.copy(items = list.zip(ids))
-                  f(page)(sp)(facets)(userOpt)(request)
+                  render {
+                    case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
+                      "page" -> Json.toJson(res.copy(items = list))(ItemPage.itemPageWrites),
+                      "params" -> Json.toJson(sp)(SearchParams.Converter.clientFormat),
+                      "appliedFacets" -> Json.toJson(facets)
+                    )).as(play.api.http.ContentTypes.JSON)
+                    case _ => f(page)(sp)(facets)(userOpt)(request)
+                  }
                 }
               }
             }
