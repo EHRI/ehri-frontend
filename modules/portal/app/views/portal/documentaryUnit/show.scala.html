@@ -9,13 +9,13 @@
         }
         @item.holder.map { repo =>
             <li>
-                <a href="@controllers.portal.routes.Portal.browseRepository(repo.id)">@repo.toStringLang</a>
+                <a href="@controllers.portal.routes.Portal.browseRepository(repo.id)">@views.Helpers.ellipsize(repo.toStringLang, 30)</a>
             </li>
         }
         @item.ancestors.map { ann =>
             <li>@ann.toStringLang</li>
         }
-        <li><strong>@item.toStringLang</strong></li>
+        <li><strong>@views.Helpers.ellipsize(item.toStringLang, 50)</strong></li>
     }
 
     @infobar(item)
