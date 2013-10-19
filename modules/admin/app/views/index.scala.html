@@ -51,11 +51,10 @@
         function convertData(facetData, maxSeries, labelRenderer) {
             var data = [];
             var renderer = labelRenderer || function(code) {return code};
-
             for (var i = 0; i < facetData.length; i++) {
                 if (i < maxSeries) {
                     data[i] = {
-                        label: renderer(facetData[i].param),
+                        label: renderer(facetData[i].value),
                         data: facetData[i].count,
                         color: colors[i]
                     }
