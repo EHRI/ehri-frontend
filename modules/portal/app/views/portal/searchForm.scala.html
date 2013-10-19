@@ -1,4 +1,4 @@
-@(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, action: Call, key: String = "portal.search", autofocus: Boolean = true)(html: Html)(facets: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(result: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, action: Call, key: String = "portal.search", headerKey: String = "pagination.displayingItems", autofocus: Boolean = true)(html: Html)(facets: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @import utils.search.{SearchParams,SearchOrder}
 
@@ -39,7 +39,7 @@
         <div class="col-sm-9 col-md-9 col-lg-9 main-content">
             <div class="container">
                 <h4>
-                    @Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)
+                    @Messages(headerKey, result.offset + 1, result.offset + result.items.size, result.total)
 
                     @result.spellcheck.map { case (actual, corrected) =>
                     @defining(params.query.map(_.toLowerCase.replace(actual.toLowerCase, corrected))) { suggestion =>

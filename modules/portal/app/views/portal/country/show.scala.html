@@ -7,7 +7,7 @@
 
     @infobar(item)
 
-    @views.html.portal.searchForm(result, params, action, key = "", autofocus = false) {
+    @views.html.portal.searchForm(result, params, action, headerKey = "country.repositoriesPageHeader", key = "", autofocus = false) {
         @views.html.portal.searchItemList(result)
     } {
         @views.html.portal.facetList(result.facets, action)
