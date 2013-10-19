@@ -1,6 +1,6 @@
-@(html: Html = Html(""))(implicit userOpt: Option[UserProfile], globalGonfig: global.GlobalConfig, req: RequestHeader, lang: Lang)
+@(typeClass: String = "")(html: Html = Html(""))(implicit userOpt: Option[UserProfile], globalGonfig: global.GlobalConfig, req: RequestHeader, lang: Lang)
 
-<div class="row top-bar">
+<div class="row top-bar @typeClass">
     <div class="container">
         <ol class="breadcrumb">
             @html

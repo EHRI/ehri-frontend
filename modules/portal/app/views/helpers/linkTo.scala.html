@@ -10,4 +10,4 @@
         case _ => { "#" }
     }
 }
-<a href="@url(item)" @attributes.map(a => s"${a._1}='${a._2}'").mkString(" ") >@item.toStringLang</a>
+<a href="@url(item)" class="@("type-highlight " + item.isA)" @attributes.map(a => s"${a._1}='${a._2}'").mkString(" ") >@item.toStringLang</a>

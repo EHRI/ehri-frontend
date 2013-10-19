@@ -1,7 +1,7 @@
 @(item: Country, result: utils.search.ItemPage[(Repository,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.portalLayout(item.toStringLang) {
-    @layout.breadcrumbs {
+    @layout.breadcrumbs(item.isA.toString) {
         <li><strong>@item.toStringLang</strong></li>
     }
 

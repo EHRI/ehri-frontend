@@ -29,20 +29,36 @@
 
             }
 
-            .documentaryUnit a {
+            .documentaryUnit a, a.documentaryUnit {
                 color: rgb(93, 73, 168);
             }
 
-            .country a {
+            .top-bar.documentaryUnit {
+                background-color: rgb(93, 73, 168);
+            }
+
+            .country a, a.country {
                 color: rgb(146, 183, 65);
             }
 
-            .repository a {
+            .top-bar.country {
+                background-color: rgb(146, 183, 65);
+            }
+
+            .repository a, a.repository {
                 color: rgb(174, 62, 130);
             }
 
-            .historicalAgent a {
+            .top-bar.repository {
+                background-color: rgb(174, 62, 130);
+            }
+
+            .historicalAgent a, a.historicalAgent {
                 color: rgb(187, 185, 98);
+            }
+
+            .top-bar.historicalAgent {
+                background-color: rgb(187, 185, 98);
             }
 
             a.alt {
@@ -58,14 +74,18 @@
             }
 
             .top-bar {
-                background-color: #645e97;
+                background-color: #6c003b;
+                -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.1);
+                box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.1);
+                color: #FBFBFB;
+                font-size: 1.1em;
             }
 
             .breadcrumb {
                 background-color: inherit;
-                color: #FDFDFD;
-                font-weight: bold;
-                font-size: 1.1em;
+                color: inherit;
+                font-size: inherit;
+                margin-bottom: 0px;
             }
 
             .breadcrumb a {

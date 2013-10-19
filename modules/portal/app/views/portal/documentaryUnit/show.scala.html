@@ -1,7 +1,7 @@
 @(item: DocumentaryUnit, result: utils.AbstractPage[DocumentaryUnit], annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.portalLayout(item.toStringLang) {
-    @layout.breadcrumbs {
+    @layout.breadcrumbs(item.isA.toString) {
         @item.holder.flatMap(_.country).map { country =>
             <li>
                 <a href="@controllers.portal.routes.Portal.browseCountry(country.id)">@country.toStringLang</a>
@@ -15,7 +15,7 @@
         @item.ancestors.map { ann =>
             <li>@ann.toStringLang</li>
         }
-        <li><strong>@views.Helpers.ellipsize(item.toStringLang, 50)</strong></li>
+        <li>@views.Helpers.ellipsize(item.toStringLang, 50)</li>
     }
 
     @infobar(item)
