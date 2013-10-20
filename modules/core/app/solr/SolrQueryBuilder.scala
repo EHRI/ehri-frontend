@@ -7,6 +7,7 @@ import com.github.seratch.scalikesolr.request.query.FieldsToReturn
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetParam,Param,Value}
+import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupField,GroupFormat,WithNumberOfGroups}
 
 import solr.facet._
 
@@ -26,16 +27,11 @@ object SolrQueryBuilder {
 
   /**
    * Convert a page value to an offset, given a particular limit.
-   * @param page
-   * @param limit
-   * @return
    */
   private def page2offset(page: Int, limit: Int) = (Math.max(page, 1) - 1) * limit
 
   /**
    * Set a list of facets on a request.
-   * @param request
-   * @param flist
    */
   private def setRequestFacets(request: QueryRequest, flist: FacetClassList): Unit = {
     request.setFacet(new FacetParams(
@@ -53,10 +49,6 @@ object SolrQueryBuilder {
 
   /**
    * Apply filters to the request based on a set of applied facets.
-   *
-   * @param request
-   * @param facetClasses
-   * @param appliedFacets
    */
   private def setRequestFilters(request: QueryRequest, facetClasses: FacetClassList,
                                 appliedFacets: List[AppliedFacet]): Unit = {
@@ -87,9 +79,6 @@ object SolrQueryBuilder {
 
   /**
    * Constrain a search request with the given facets.
-   * @param request
-   * @param appliedFacets
-   * @param allFacets
    */
   private def constrain(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: FacetClassList): Unit = {
     setRequestFacets(request, allFacets)
@@ -99,8 +88,6 @@ object SolrQueryBuilder {
   /**
    * Constrain the search to entities of a given type, applying an fq
    * parameter to the "type" field.
-   * @param request
-   * @param entities
    */
   private def constrainEntities(request: QueryRequest, entities: List[EntityType.Value]): Unit = {
     if (!entities.isEmpty) {
@@ -114,9 +101,7 @@ object SolrQueryBuilder {
    * Filter docs based on access. If the user is empty, only allow
    * through those which have accessibleTo:ALLUSERS.
    * If we have a user and they're not admin, add a filter against
-   * all their groups
-   * @param request
-   * @param userOpt
+   * all their groups.
    */
   private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfile]): Unit = {
     if (userOpt.isEmpty) {
@@ -136,26 +121,25 @@ object SolrQueryBuilder {
   }
 
   /**
-   * Group results by item id (as opposed to description id)
-   * @param request
+   * Group results by item id (as opposed to description id). Facet counts
+   * are also set to reflect grouping as opposed to the number of individual
+   * items.
    */
   private def setGrouping(request: QueryRequest): Unit = {
-    request.set("group", true)
-    request.set("group.field", ITEM_ID)
+    request.setGroup(GroupParams(
+      enabled=true,
+      field=GroupField(ITEM_ID),
+      format=GroupFormat("simple"),
+      ngroups=WithNumberOfGroups(true)
+    ))
+
+    // Not yet supported by scalikesolr
     request.set("group.facet", true)
-    request.set("group.format", "simple")
-    request.set("group.ngroups", true)
-    //req.set("group.truncate", true)
   }
 
   /**
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
-   * @param params
-   * @param filters
-   * @param alphabetical
-   * @param userOpt
-   * @return
    */
   def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
@@ -185,8 +169,6 @@ object SolrQueryBuilder {
 
   /**
    * Build a query given a set of search parameters.
-   * @param params
-   * @return
    */
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty,
               mode: SearchMode.Value = SearchMode.DefaultAll)(
