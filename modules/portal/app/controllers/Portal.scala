@@ -204,6 +204,13 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
         SolrQueryFacet(value = "0", name = Some("noChildItems")),
         SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
       )
+    ),
+    FieldFacetClass(
+      key="countryCode",
+      name=Messages("isdiah.countryCode"),
+      param="country",
+      render=Helpers.countryCodeToName,
+      sort = FacetSort.Name
     )
   )
 
@@ -257,6 +264,13 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
         SolrQueryFacet(value = "0", name = Some("noChildItems")),
         SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
       )
+    ),
+    FieldFacetClass(
+      key="countryCode",
+      name=Messages("portal.facet.location"),
+      param="country",
+      render=Helpers.countryCodeToName,
+      sort = FacetSort.Name
     )
   )
 
@@ -290,6 +304,13 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       key="holderName",
       name=Messages("documentaryUnit.heldBy"),
       param="holder",
+      sort = FacetSort.Name
+    ),
+    FieldFacetClass(
+      key="countryCode",
+      name=Messages("portal.facet.location"),
+      param="country",
+      render= Helpers.countryCodeToName,
       sort = FacetSort.Name
     )
   )
