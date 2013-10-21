@@ -2,7 +2,7 @@
 
 @layout.portalLayout(Messages("actions.listDocumentaryUnits")) {
     @layout.breadcrumbs(defines.EntityType.DocumentaryUnit.toString) {
-        <li><strong>@Messages("portal.browseDocuments")</strong></li>
+        <li><strong>@Messages("portal.browse.documents")</strong></li>
     }
     @views.html.portal.searchForm(page, params, action, autofocus = false) {
         @views.html.portal.searchItemList(page)

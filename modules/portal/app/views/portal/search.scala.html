@@ -3,8 +3,7 @@
 
 @layout.portalLayout(Messages("forms.search")) {
     @layout.breadcrumbs() {
-        @* TODO: Add content *@
-        <li>&nbsp;</li>
+        <li><strong>@Messages("portal.search")</strong></li>
     }
 
     @searchForm(result, params, action) {

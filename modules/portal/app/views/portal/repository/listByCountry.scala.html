@@ -31,7 +31,7 @@
 
 @layout.portalLayout(Messages("actions.listRepositories")) {
     @layout.breadcrumbs(defines.EntityType.Repository.toString) {
-        <li><strong>@Messages("portal.browseCountries")</strong></li>
+        <li><strong>@Messages("portal.browse.countries")</strong></li>
     }
 
     @views.html.portal.searchForm(page, params, action, autofocus = false) {

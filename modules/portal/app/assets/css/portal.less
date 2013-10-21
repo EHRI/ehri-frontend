@@ -1,11 +1,13 @@
 
 // Variables
+@primary-highlight: #6C003B;
+
 
 @pale-gray: #F5F5F5;
 @dark-gray: #cccccc;
 @almost-black: #333;
 
-@doc-color: #6C003B;
+@doc-color: @primary-highlight; // main 'content' shares primary color?
 @repo-color: #034153;
 @country-color: #864300;
 @agent-color: #517C00;
@@ -25,6 +27,13 @@
 @search-item-spacing: 1.5em;
 @menu-height: 50px;
 
+// Margins
+@small-margin: 5px;
+@medium-margin: 10px;
+
+// Padding
+@small-padding: 5px;
+@medium-padding: 5px;
 
 body {
   padding-top: @menu-height;
@@ -40,8 +49,14 @@ body {
   /* The html and body elements cannot have any padding or margin. */
 }
 
+
+// nav menu color fixes
 .nav .caret, .nav a:hover .caret {
   border-top-color: #fff;
+}
+
+.dropdown-menu>li > a:hover, .dropdown-menu > li > a:focus {
+  background-color: @dark-gray;
 }
 
 /** Type highlights */
@@ -51,6 +66,10 @@ body {
 
 .documentaryUnit a, a.documentaryUnit {
   color: @doc-color;
+}
+
+.top-bar {
+  background-color: @primary-highlight;
 }
 
 .top-bar.documentaryUnit {
@@ -92,7 +111,12 @@ a.alt {
 }
 
 .search-box {
-  margin-top: 15px;
+  margin-top: 10 + 5px;
+}
+
+.selected-facet {
+  margin-right: @small-margin;
+  padding: @small-padding;
 }
 
 .sidebar {

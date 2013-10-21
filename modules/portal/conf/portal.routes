@@ -8,6 +8,7 @@ GET     /dev/search                         @controllers.portal.Portal.search
 GET     /dev/browse                         @controllers.portal.Portal.browse
 GET     /dev/browse/c                       @controllers.portal.Portal.browseCountries
 GET     /dev/browse/c/:id                   @controllers.portal.Portal.browseCountry(id: String)
+GET     /dev/browse/r/d                     @controllers.portal.Portal.browseDocumentsByRepository
 GET     /dev/browse/r                       @controllers.portal.Portal.browseRepositories
 GET     /dev/browse/r/:id                   @controllers.portal.Portal.browseRepository(id: String)
 GET     /dev/browse/d                       @controllers.portal.Portal.browseDocuments

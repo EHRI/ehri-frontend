@@ -60,6 +60,7 @@ object SearchOrder extends Enumeration {
   val Name = Value("name_sort.asc")
   val DateNewest = Value("lastUpdated.desc")
   val Country = Value("countryCode.asc")
+  val Holder = Value("repositoryName.asc")
 
   implicit val format = defines.EnumUtils.enumFormat(SearchOrder)
 }

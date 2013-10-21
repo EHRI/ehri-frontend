@@ -280,9 +280,24 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   }
 
   def browseDocuments = searchAction[DocumentaryUnit](defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-    entityFacets = entityFacets) {
+    entityFacets = docSearchFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(portal.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments))
+  }
+
+  private val docSearchRepositoryFacets = docSearchFacets ++ List(
+    FieldFacetClass(
+      key="holderName",
+      name=Messages("documentaryUnit.heldBy"),
+      param="holder",
+      sort = FacetSort.Name
+    )
+  )
+
+  def browseDocumentsByRepository = searchAction[DocumentaryUnit](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Holder), entities = List(EntityType.DocumentaryUnit))),
+    entityFacets = docSearchRepositoryFacets) {
+    page => params => facets => implicit userOpt => implicit request =>
+      Ok(portal.documentaryUnit.listByRepository(page, params, facets, portalRoutes.browseDocumentsByRepository))
   }
 
   def browseDocument(id: String) = getWithChildrenAction[DocumentaryUnit, DocumentaryUnit](EntityType.DocumentaryUnit, id) {

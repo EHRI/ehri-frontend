@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: DocumentaryUnit, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @import org.apache.commons.lang3.StringUtils
 
@@ -20,8 +20,10 @@
         }
         <small>
             <ul class="list-unstyled text-muted list-inline inline-separator">
-                @item.holder.map { holder =>
-                    <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>
+                @if(showRepository) {
+                    @item.holder.map { holder =>
+                        <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>
+                    }
                 }
                 <li><span class="text-muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
 
