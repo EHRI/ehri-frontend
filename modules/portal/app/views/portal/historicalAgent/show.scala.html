@@ -2,11 +2,7 @@
 
 @layout.portalLayout(item.toStringLang) {
     @layout.breadcrumbs(item.isA.toString) {
-        @item.set.map { set =>
-            <li>
-                <a href="@controllers.portal.routes.Portal.browseAuthoritativeSet(set.id)">@set.toStringLang</a>
-            </li>
-        }
+        <li><a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browseHistoricalAgents")</a></li>
         <li>@item.toStringLang</li>
     }
 

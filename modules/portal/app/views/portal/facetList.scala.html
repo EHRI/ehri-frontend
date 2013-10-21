@@ -3,28 +3,30 @@
 @import utils.search._
 
 @facets.map { fc =>
-    @if(fc.count > 0) {
-        <small>
-            <h4>@Messages(fc.name)</h4>
-            <ul class="list-unstyled facet-list">
-            @fc.sorted.filter(_.count > 0).map { f =>
-                @if(f.applied) {
-                    <li title="@fc.pretty(f)" class="selected-filter">
-                        @views.Helpers.ellipsize(fc.pretty(f), 25)
-                        (@f.count)
-                        <a class="remove-filter" href="@pathWithoutFacet(fc, f,
-                            req.path, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
-                    </li>
-                } else {
-                    <li class="type-highlight @f.value" title="@fc.pretty(f)">
-                        <a href="@pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">
+    @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
+        @if(sortedActive.size > 0) {
+            <small>
+                <h4>@Messages(fc.name)</h4>
+                <ul class="list-unstyled facet-list">
+                @sortedActive.map { f =>
+                    @if(f.applied) {
+                        <li title="@fc.pretty(f)" class="selected-filter">
                             @views.Helpers.ellipsize(fc.pretty(f), 25)
                             (@f.count)
-                        </a>
-                    </li>
+                            <a class="remove-filter alt" href="@pathWithoutFacet(fc, f,
+                                req.path, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
+                        </li>
+                    } else {
+                        <li class="type-highlight @f.value" title="@fc.pretty(f)">
+                            <a class="alt" href="@pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">
+                                @views.Helpers.ellipsize(fc.pretty(f), 25)
+                                (@f.count)
+                            </a>
+                        </li>
+                    }
                 }
-            }
-            </ul>
-        </small>
+                </ul>
+            </small>
+        }
     }
 }

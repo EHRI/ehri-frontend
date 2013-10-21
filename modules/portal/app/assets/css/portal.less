@@ -1,0 +1,225 @@
+
+// Variables
+
+@pale-gray: #F5F5F5;
+@dark-gray: #cccccc;
+@almost-black: #333;
+
+@doc-color: #6C003B;
+@repo-color: #034153;
+@country-color: #864300;
+@agent-color: #517C00;
+
+@shadow-depth: 5px;
+@shadow-blur: 5px;
+@shadow-color: @dark-gray;
+@shadow-opacity: 0.7;
+
+
+.downward-shadow (@height: @shadow-depth, @blur: @shadow-blur) {
+  box-shadow: 0px @height @height @blur @shadow-color;
+}
+
+
+// Spacings
+@search-item-spacing: 1.5em;
+@menu-height: 50px;
+
+
+body {
+  padding-top: @menu-height;
+
+}
+
+/* Sticky footer styles
+    -------------------------------------------------- */
+
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+}
+
+.nav .caret, .nav a:hover .caret {
+  border-top-color: #fff;
+}
+
+/** Type highlights */
+.type-highlight {
+
+}
+
+.documentaryUnit a, a.documentaryUnit {
+  color: @doc-color;
+}
+
+.top-bar.documentaryUnit {
+  background-color: @doc-color;
+}
+
+.country a, a.country {
+  color: @country-color;
+}
+
+.top-bar.country {
+  background-color: @country-color;
+}
+
+.repository a, a.repository {
+  color: @repo-color;
+}
+
+.top-bar.repository {
+  background-color: @repo-color;
+}
+
+.historicalAgent a, a.historicalAgent {
+  color: @agent-color;
+}
+
+.top-bar.historicalAgent {
+  background-color: @agent-color;
+}
+
+/** Heading which divides a set of search results */
+.search-group-heading {
+  margin-bottom: 30px;
+}
+
+a.alt {
+  color: @almost-black;
+  font-weight: bolder;
+}
+
+.search-box {
+  margin-top: 15px;
+}
+
+.sidebar {
+}
+
+.top-bar {
+  .downward-shadow();
+  color: #FBFBFB;
+  font-size: 1.1em;
+}
+
+.breadcrumb {
+  background-color: inherit;
+  color: inherit;
+  font-size: inherit;
+  margin-bottom: 0px;
+}
+
+.breadcrumb a {
+  text-decoration: underline;
+  color: #FDFDFD;
+}
+
+.search-bar {
+  border-top: solid 1px @dark-gray;
+  border-bottom: solid 1px @pale-gray;
+  background-color: white;
+  margin-bottom: 10px;
+}
+
+.info-bar {
+  background-color: @pale-gray;
+}
+
+.main-content {
+}
+
+.tertiary-content {
+  margin-top: @menu-height;
+}
+
+.front-page-panel-content {
+  padding: 10px;
+  font-size: 0.9em;
+  height: 300px;
+  overflow: auto;
+}
+
+#news-feed {
+}
+
+#news-feed img {
+  display: none;
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  /* Negative indent footer by it's height */
+  margin: 0 auto -100px;
+}
+
+/* Set the fixed height of the footer here */
+#push, footer {
+  height: 99px;
+}
+
+footer {
+  background-color: @pale-gray;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+footer .container {
+  padding-top: 20px;
+}
+
+/** Search items */
+.search-item {
+  padding-bottom: 0.5em;
+  border-bottom: 1px dashed #EBEBEB;
+  margin-bottom: @search-item-spacing;
+}
+
+.search-item-heading {
+  font-size: 1.0em;
+  font-weight: bolder;
+  margin-bottom: 0.2em;
+}
+
+/** Inline lists - Bootstrap doesn't actually do this by itself */
+ul.inline li {
+  display: inline;
+  padding-left: 0em;
+}
+
+/** Put a separator between the bars of inline lists */
+ul.inline-separator li:after {
+  content: " | ";
+}
+
+ul.inline-separator li:last-child:after {
+  content: "";
+}
+
+/** Inline lists with a comma separator */
+ul.comma-sep {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+ul.comma-sep li {
+  display: inline;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.comma-sep li:after {
+  content: ", ";
+  color: #aaa;
+}
+
+ul.comma-sep li:last-child:after {
+  content: "";
+}
+

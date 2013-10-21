@@ -2,8 +2,7 @@
 
 @layout.portalLayout(Messages("actions.listHistoricalAgents")) {
     @layout.breadcrumbs(defines.EntityType.HistoricalAgent.toString) {
-        @* TODO: Add content *@
-        <li>&nbsp;</li>
+        <li><strong>@Messages("portal.browseHistoricalAgents")</strong></li>
     }
     @views.html.portal.searchForm(page, params, action, autofocus = false) {
         @views.html.portal.searchItemList(page)

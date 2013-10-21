@@ -5,205 +5,21 @@
 <html lang="@lang.code">
     <head>
         <title>@title</title>
-        <!--<link rel="stylesheet" href="@controllers.portal.routes.Assets.at("bootstrap3/css/bootstrap.min.css")">-->
+        <!-- CND Bootstrap...
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css"> -->
+
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("bootstrap-custom/css/bootstrap.min.css")">
+
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("css/portal.css")">
 
         <style type="text/css">
-            body {
-                padding-top: 50px;
-
-            }
-
-                /* Sticky footer styles
-                    -------------------------------------------------- */
-
-            html,
-            body {
-                height: 100%;
-                /* The html and body elements cannot have any padding or margin. */
-            }
-
-            /** Type highlights */
-            .type-highlight {
-
-            }
-
-            .documentaryUnit a, a.documentaryUnit {
-                color: rgb(93, 73, 168);
-            }
-
-            .top-bar.documentaryUnit {
-                background-color: rgb(93, 73, 168);
-            }
-
-            .country a, a.country {
-                color: rgb(146, 183, 65);
-            }
-
-            .top-bar.country {
-                background-color: rgb(146, 183, 65);
-            }
-
-            .repository a, a.repository {
-                color: rgb(174, 62, 130);
-            }
-
-            .top-bar.repository {
-                background-color: rgb(174, 62, 130);
-            }
-
-            .historicalAgent a, a.historicalAgent {
-                color: rgb(187, 185, 98);
-            }
-
-            .top-bar.historicalAgent {
-                background-color: rgb(187, 185, 98);
-            }
-
-            a.alt {
-                color: #000;
-                font-weight: bolder;
-            }
-
-            .search-box {
-                margin-top: 15px;
-            }
-
-            .sidebar {
-            }
-
-            .top-bar {
-                background-color: #6c003b;
-                -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.1);
-                box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.1);
-                color: #FBFBFB;
-                font-size: 1.1em;
-            }
-
-            .breadcrumb {
-                background-color: inherit;
-                color: inherit;
-                font-size: inherit;
-                margin-bottom: 0px;
-            }
-
-            .breadcrumb a {
-                text-decoration: underline;
-                color: #FDFDFD;
-            }
-
-            .search-bar {
-                background-color: #f5f5f5;
-            }
-
-            .info-bar {
-                background-color: #f5f5f5;
-            }
-
-            .main-content {
-                background-color: #FFFFFF;
-            }
-
-            .tertiary-content {
-                margin-top: 50px;
-            }
-
-            .front-page-panel-content {
-                padding: 10px;
-                font-size: 0.9em;
-                height: 300px;
-                overflow: auto;
-            }
-
-            #news-feed {
-            }
-
-            #news-feed img {
-                display: none;
-            }
-
-                /* Wrapper for page content to push down footer */
-            #wrap {
-                min-height: 100%;
-                height: auto !important;
-                height: 100%;
-                /* Negative indent footer by it's height */
-                margin: 0 auto -100px;
-            }
-
-                /* Set the fixed height of the footer here */
-            #push, footer {
-                height: 99px;
-            }
-
-            footer {
-                background-color: #f5f5f5;
-                padding-left: 20px;
-                padding-right: 20px;
-            }
-
-            footer .container {
-                padding-top: 20px;
-            }
-
-                /** Search items */
-            .search-item {
-                padding-bottom: 0.5em;
-                border-bottom: 1px dashed #EBEBEB;
-                margin-bottom: 1.5em;
-            }
-
-            .search-item-heading {
-                font-size: 1.0em;
-                font-weight: bolder;
-                margin-bottom: 0.2em;
-            }
-
-                /** Inline lists - Bootstrap doesn't actually do this by itself */
-            ul.inline li {
-                display: inline;
-                padding-left: 0em;
-            }
-
-                /** Put a separator between the bars of inline lists */
-            ul.inline-separator li:after {
-                content: " | ";
-            }
-
-            ul.inline-separator li:last-child:after {
-                content: "";
-            }
-
-            /** Inline lists with a comma separator */
-            ul.comma-sep {
-                display: inline;
-                margin: 0;
-                padding: 0;
-            }
-
-            ul.comma-sep li {
-                display: inline;
-                list-style: none;
-                margin: 0;
-                padding: 0;
-            }
-
-            ul.comma-sep li:after {
-                content: ", ";
-                color: #aaa;
-            }
-
-            ul.comma-sep li:last-child:after {
-                content: "";
-            }
-
         </style>
 
         @styles
 
         <script src="//code.jquery.com/jquery.js"></script>
-        <script src="@controllers.portal.routes.Assets.at("bootstrap3/js/bootstrap.min.js")"></script>
+        <script src="@controllers.portal.routes.Assets.at("bootstrap-custom/js/bootstrap.min.js")"></script>
 
         @scripts
     </head>
@@ -221,12 +37,8 @@
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container">
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
+
                     <ul class="nav navbar-nav">
-                        <li class="@maybeActive(controllers.portal.routes.Portal.index.url)">
-                            <a href="@controllers.portal.routes.Portal.index">
-                                <span class="glyphicon glyphicon-home"></span>
-                            </a>
-                        </li>
                         <li class="@maybeActivePath(controllers.portal.routes.Portal.browse.url)">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                 @Messages("portal.browse")
@@ -234,10 +46,10 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browseCountries")</a>
+                                    <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browseRepositories")</a>
                                 </li>
                                 <li>
-                                    <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browseRepositories")</a>
+                                    <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browseRepositoriesByCountry")</a>
                                 </li>
                                 <li>
                                     <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browseDocuments")</a>
@@ -270,6 +82,19 @@
     <footer class="footer sticky text-center">
         <div class="container">
             <p class="text-muted">@Messages("portal.footerText")</p>
+            <small>
+                <ul class="text-muted lang-switcher pull-right list-inline list-unstyled">
+                @List("en", "fr", "de", "he").map { changeLang =>
+                <li>
+                            @if(lang.toString.toLowerCase.contains(changeLang)) {
+                    @changeLang
+                    } else {
+                    <a href="@controllers.core.routes.Application.changeLocale(changeLang)">@changeLang</a>
+                    }
+                </li>
+                }
+                </ul>
+            </small>
         </div>
     </footer>
 

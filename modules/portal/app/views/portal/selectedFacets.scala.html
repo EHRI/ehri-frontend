@@ -2,15 +2,16 @@
 
 @import utils.search._
 
-<p class="selected-facets muted">
+<p class="selected-facets text-muted">
     @page.facets.map{ fclass =>
         @fclass.sorted.map{ facet =>
             @if(facet.applied) {
-                <input type="hidden" name="@fclass.param" value="@facet.value" />
-                <span class="label label-info">
-                    @fclass.name: @fclass.pretty(facet) <a class="remove-filter"
-                        href="@pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
-                    <span class="glyphicon glyphicon-remove"></span></a>
+                <span class="selected-facet label label-default">
+                    <input type="hidden" name="@fclass.param" value="@facet.value" />
+                    @fclass.name: @fclass.pretty(facet)
+                    <a class="remove-filter alt" href="@pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </a>
                 </span>
             }
         }

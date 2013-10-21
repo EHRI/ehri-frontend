@@ -12,7 +12,7 @@ import views.html._
 import play.api.http.MimeTypes
 
 import com.google.inject._
-import utils.search.{SearchMode, Dispatcher, SearchOrder, SearchParams}
+import utils.search._
 import play.api.libs.json.{Format, Writes, Json}
 import solr.facet.{SolrQueryFacet, QueryFacetClass, FieldFacetClass}
 import play.api.i18n.Messages
@@ -27,6 +27,11 @@ import play.api.libs.ws.WS
 import play.api.templates.Html
 import rest.EntityDAO
 import solr.SolrConstants
+import solr.facet.FieldFacetClass
+import scala.Some
+import rest.EntityDAO
+import solr.facet.SolrQueryFacet
+import solr.facet.QueryFacetClass
 
 
 @Singleton
@@ -206,10 +211,24 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(portal.browse())
   }
 
-  def browseCountries = searchAction[Country](defaultParams = Some(SearchParams(entities = List(EntityType.Country))),
-      entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-    Ok(portal.country.list(page, params, facets, portalRoutes.browseCountries))
+  private def repositoriesByCountrySearchFacets(implicit request: RequestHeader) = List(
+    FieldFacetClass(
+      key="countryCode",
+      name=Messages("isdiah.countryCode"),
+      param="country",
+      render= (s: String) => {
+        Helpers.countryCodeToName(s)(lang)
+      },
+      sort = FacetSort.Name
+    )
+  )
+
+  def browseCountries = Action { implicit request =>
+    searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country), entities = List(EntityType.Repository))),
+      entityFacets = repositoriesByCountrySearchFacets(request)) {
+      page => params => facets => implicit userOpt => _ =>
+        Ok(portal.repository.listByCountry(page, params, facets, portalRoutes.browseCountries))
+    }.apply(request)
   }
 
   def browseCountry(id: String) = getAction[Country](EntityType.Country, id) {
