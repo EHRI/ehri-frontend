@@ -10,6 +10,7 @@ import models.json.{ClientConvertable, RestReadable}
 import play.api.libs.json.Json
 import utils.search._
 import play.api.Logger
+import play.api.i18n.Lang
 
 
 /**
@@ -20,7 +21,10 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
 
   def searchDispatcher: utils.search.Dispatcher
 
-  def bindFacetsFromRequest(facetClasses: List[FacetClass[Facet]])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
+  type FacetBuilder = Lang => FacetClassList
+  private val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]] }
+
+  def bindFacetsFromRequest(facetClasses: FacetClassList)(implicit request: Request[AnyContent]): List[AppliedFacet] = {
     val qs = request.queryString
     facetClasses.flatMap { fc =>
       qs.get(fc.param).map { values =>
@@ -45,23 +49,19 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
   }
 
 
-  /**
-   * Short cut search action without the ability to provide default filters
-   * @param f
-   * @return
-   */
-  def searchAction[MT](f: ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
-    searchAction[MT](Map.empty[String,Any])(f)
-  }
+//  /**
+//   * Short cut search action without the ability to provide default filters
+//   */
+//  def searchAction[MT](f: ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+//    searchAction[MT](filters = Map.empty[String,Any], entityFacets = emptyFacets)(f)
+//  }
 
   /**
    * Action that restricts the search to the inherited entity type
-   * and applies
-   * @param f
-   * @return
+   * and applies.
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None,
-                        entityFacets: FacetClassList = Nil, mode: SearchMode.Value = SearchMode.DefaultAll)(
+                        entityFacets: FacetBuilder = emptyFacets, mode: SearchMode.Value = SearchMode.DefaultAll)(
       f: ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction { implicit userOpt => implicit request =>
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
@@ -71,9 +71,10 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
           .value.getOrElse(SearchParams())
           .setDefault(params)
 
-      val facets: List[AppliedFacet] = bindFacetsFromRequest(entityFacets)
+      val allFacets = entityFacets(lang)
+      val facets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)
       AsyncRest {
-        searchDispatcher.search(sp, facets, entityFacets, filters, mode).map { resOrErr =>
+        searchDispatcher.search(sp, facets, allFacets, filters, mode).map { resOrErr =>
           resOrErr.right.map { res =>
             val ids = res.items.map(_.id)
             val itemIds = res.items.map(_.itemId)

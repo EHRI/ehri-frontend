@@ -7,7 +7,7 @@ import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
-import i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import defines._
 import play.filters.csrf.CSRF.Token
 import views.Helpers
@@ -30,40 +30,42 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
 
   // Documentary unit facets
   import solr.facet._
-  private val entityFacets = List(
-    QueryFacetClass(
-      key="childCount",
-      name=Messages("repository.itemsHeldOnline"),
-      param="childCount",
-      render=s => Messages("repository." + s),
-      facets=List(
-        SolrQueryFacet(value = "0", name = Some("noChildItems")),
-        SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+  private val repositoryFacets: FacetBuilder = { implicit lang =>
+    List(
+      QueryFacetClass(
+        key="childCount",
+        name=Messages("repository.itemsHeldOnline"),
+        param="childCount",
+        render=s => Messages("repository." + s),
+        facets=List(
+          SolrQueryFacet(value = "0", name = Some("noChildItems")),
+          SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+        )
+      ),
+      FieldFacetClass(
+        key="countryCode",
+        name=Messages("isdiah.countryCode"),
+        param="country",
+        render=Helpers.countryCodeToName,
+        sort = FacetSort.Name
+      ),
+      FieldFacetClass(
+        key="priority",
+        name=Messages("priority"),
+        param="priority",
+        render=s => s match {
+          case s if s == "0" => Messages("priority.zero")
+          case s if s == "1" => Messages("priority.one")
+          case s if s == "2" => Messages("priority.two")
+          case s if s == "3" => Messages("priority.three")
+          case s if s == "4" => Messages("priority.four")
+          case s if s == "5" => Messages("priority.five")
+          case s if s == "-1" => Messages("priority.reject")
+          case _ => Messages("priority.unknown")
+        }
       )
-    ),
-    FieldFacetClass(
-      key="countryCode",
-      name=Messages("isdiah.countryCode"),
-      param="country",
-      render=Helpers.countryCodeToName,
-      sort = FacetSort.Name
-    ),
-    FieldFacetClass(
-      key="priority",
-      name=Messages("priority"),
-      param="priority",
-      render=s => s match {
-        case s if s == "0" => Messages("priority.zero")
-        case s if s == "1" => Messages("priority.one")
-        case s if s == "2" => Messages("priority.two")
-        case s if s == "3" => Messages("priority.three")
-        case s if s == "4" => Messages("priority.four")
-        case s if s == "5" => Messages("priority.five")
-        case s if s == "-1" => Messages("priority.reject")
-        case _ => Messages("priority.unknown")
-      }
     )
-  )
+  }
 
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
@@ -78,7 +80,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
   private val repositoryRoutes = controllers.archdesc.routes.Repositories
 
 
-  def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
+  def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = repositoryFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search))
   }
@@ -95,7 +97,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
 
     searchAction[DocumentaryUnit](filters,
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-        entityFacets = entityFacets) {
+        entityFacets = repositoryFacets) {
       page => params => facets => _ => _ =>
         Ok(views.html.repository.show(item, page, params, facets, repositoryRoutes.get(id), annotations, links))
     }.apply(request)

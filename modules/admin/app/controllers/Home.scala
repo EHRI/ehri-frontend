@@ -26,38 +26,40 @@ class Home @Inject()(implicit val globalConfig: global.GlobalConfig, val searchD
     EntityType.HistoricalAgent
   )
 
-  private val entityFacets = List(
+  private val entityFacets: FacetBuilder = { implicit lang =>
+    List(
 
-    FieldFacetClass(
-      key=IsadG.LANG_CODE,
-      name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
-      param="lang",
-      render=Helpers.languageCodeToName
-    ),
+      FieldFacetClass(
+        key=IsadG.LANG_CODE,
+        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        param="lang",
+        render= (s: String) => Helpers.languageCodeToName(s)
+      ),
 
-    // Holding repository
-    FieldFacetClass(
-      key="repositoryName",
-      name=Messages("documentaryUnit.heldBy"),
-      param="holder"
-    ),
+      // Holding repository
+      FieldFacetClass(
+        key="repositoryName",
+        name=Messages("documentaryUnit.heldBy"),
+        param="holder"
+      ),
 
-    // Repositories by country
-    FieldFacetClass(
-      key="countryCode",
-      name=Messages("isdiah.countryCode"),
-      param="country",
-      render=Helpers.countryCodeToName
-    ),
+      // Repositories by country
+      FieldFacetClass(
+        key="countryCode",
+        name=Messages("isdiah.countryCode"),
+        param="country",
+        render= (s: String) => Helpers.countryCodeToName(s)
+      ),
 
-    // Historical agent type
-    FieldFacetClass(
-      key=models.Isaar.ENTITY_TYPE,
-      name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
-      param="cpf",
-      render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+      // Historical agent type
+      FieldFacetClass(
+        key=models.Isaar.ENTITY_TYPE,
+        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        param="cpf",
+        render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+      )
     )
-  )
+  }
 
 
   def index = userProfileAction { implicit userOpt => implicit request =>
