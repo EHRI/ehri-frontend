@@ -305,13 +305,6 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       name=Messages("documentaryUnit.heldBy"),
       param="holder",
       sort = FacetSort.Name
-    ),
-    FieldFacetClass(
-      key="countryCode",
-      name=Messages("portal.facet.location"),
-      param="country",
-      render= Helpers.countryCodeToName,
-      sort = FacetSort.Name
     )
   )
 
