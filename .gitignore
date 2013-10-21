@@ -14,7 +14,7 @@ dist
 
 # Intellij stuff
 *.iml
-fonts
+^fonts
 .fonts
 .idea
 .idea_modules
