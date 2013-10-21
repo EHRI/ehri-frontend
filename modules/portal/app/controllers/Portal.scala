@@ -271,8 +271,17 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(portal.documentaryUnit.show(doc, children, anns, links))
   }
 
+  private val historicalAgentFacets = List(
+    FieldFacetClass(
+      key=models.Isaar.ENTITY_TYPE,
+      name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+      param="cpf",
+      render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+    )
+  )
+
   def browseHistoricalAgents = searchAction[HistoricalAgent](defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent))),
-    entityFacets = entityFacets) {
+    entityFacets = historicalAgentFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(portal.historicalAgent.list(page, params, facets, portalRoutes.browseHistoricalAgents))
   }
