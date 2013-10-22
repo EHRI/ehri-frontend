@@ -15,7 +15,7 @@
         @item.ancestors.map { ann =>
             <li>@ann.toStringLang</li>
         }
-        <li>@views.Helpers.ellipsize(item.toStringLang, 50)</li>
+        @helpers.breadcrumbCurrent(views.Helpers.ellipsize(item.toStringLang, 50))
     }
 
     @infobar(item)

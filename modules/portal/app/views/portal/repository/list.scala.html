@@ -2,7 +2,7 @@
 
 @layout.portalLayout(Messages("actions.listRepositories")) {
     @layout.breadcrumbs(defines.EntityType.Repository.toString) {
-        <li><strong>@Messages("portal.browse.repositories")</strong></li>
+        @helpers.breadcrumbCurrent(Messages("portal.browse.repositories"))
     }
     @views.html.portal.searchForm(page, params, action, autofocus = false) {
         @views.html.portal.searchItemList(page)

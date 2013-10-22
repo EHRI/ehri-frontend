@@ -2,7 +2,7 @@
 
 @layout.portalLayout(item.toStringLang) {
     @layout.breadcrumbs(item.isA.toString) {
-        <li><strong>@item.toStringLang</strong></li>
+        @helpers.breadcrumbCurrent(item.toStringLang)
     }
 
     @infobar(item)
