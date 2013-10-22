@@ -209,9 +209,11 @@ object SolrQueryBuilder {
       case _ => "PLACEHOLDER_QUERY_RETURNS_NO_RESULTS" // FIXME! This sucks
     }
 
-    // Use childCount to boost results
-    val queryString = (s"{!boost b=$CHILD_COUNT}"
-        + params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters)
+    // Child count to boost results seems to have an odd affect in making the
+    // query only work on the default field - disabled for now...
+    val queryString = (
+        //s"{!boost b=$CHILD_COUNT}" +
+        params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters)
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
 
