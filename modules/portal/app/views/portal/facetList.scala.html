@@ -10,15 +10,16 @@
                 <ul class="list-unstyled facet-list">
                 @sortedActive.map { f =>
                     @if(f.applied) {
+                        <input type="hidden" name="@fc.param" value="@f.value" />
                         <li title="@fc.pretty(f)" class="selected-filter">
                             @views.Helpers.ellipsize(fc.pretty(f), 25)
                             (@f.count)
                             <a class="remove-filter alt" href="@pathWithoutFacet(fc, f,
-                                req.path, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
+                                call.url, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
                         </li>
                     } else {
                         <li class="type-highlight @f.value" title="@fc.pretty(f)">
-                            <a class="alt" href="@pathWithFacet(fc, f, call.toString, req.queryString.filterKeys(_!="page"))">
+                            <a class="alt" href="@pathWithFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
                                 @views.Helpers.ellipsize(fc.pretty(f), 25)
                                 (@f.count)
                             </a>

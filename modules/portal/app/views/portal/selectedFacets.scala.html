@@ -7,7 +7,6 @@
         @fclass.sorted.map{ facet =>
             @if(facet.applied) {
                 <span class="selected-facet label label-default">
-                    <input type="hidden" name="@fclass.param" value="@facet.value" />
                     @fclass.name: @fclass.pretty(facet)
                     <a class="remove-filter alt" href="@pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
                         <span class="glyphicon glyphicon-remove"></span>
