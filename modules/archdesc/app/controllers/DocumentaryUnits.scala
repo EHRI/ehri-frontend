@@ -37,11 +37,11 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig,
       QueryFacetClass(
         key="childCount",
         name=Messages("documentaryUnit.searchInside"),
-        param="childCount",
+        param="items",
         render=s => Messages("documentaryUnit." + s),
         facets=List(
-          SolrQueryFacet(value = "0", name = Some("noChildItems")),
-          SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+          SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
+          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         )
       ),
       FieldFacetClass(

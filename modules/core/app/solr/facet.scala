@@ -36,10 +36,10 @@ case class SolrQueryFacet(
   count: Int = 0,
   applied: Boolean = false,
   name: Option[String] = None,
-  value: String
+  value: String,
+  solrValue: String
 ) extends SolrFacet {
   def sort = name.getOrElse(value)
-  override def solrValue = value
 }
 
 

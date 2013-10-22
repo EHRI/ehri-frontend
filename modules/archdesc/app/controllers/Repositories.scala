@@ -36,11 +36,11 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
       QueryFacetClass(
         key="childCount",
         name=Messages("repository.itemsHeldOnline"),
-        param="childCount",
+        param="items",
         render=s => Messages("repository." + s),
         facets=List(
-          SolrQueryFacet(value = "0", name = Some("noChildItems")),
-          SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+          SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
+          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         )
       ),
       FieldFacetClass(

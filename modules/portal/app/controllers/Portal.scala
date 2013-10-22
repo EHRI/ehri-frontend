@@ -202,10 +202,10 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       QueryFacetClass(
         key="childCount",
         name=Messages("portal.facet.itemsHeldOnline"),
-        param="childCount",
+        param="docs",
         render=s => Messages("portal.facet.itemsHeldOnline." + s),
         facets=List(
-          SolrQueryFacet(value = "[1 TO *]", name = Some("yes"))
+          SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -268,10 +268,10 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       QueryFacetClass(
         key="childCount",
         name=Messages("portal.facet.container"),
-        param="childCount",
+        param="items",
         render=s => Messages("portal.facet.container." + s),
         facets=List(
-          SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         ),
         display = FacetDisplay.Boolean
       ),
