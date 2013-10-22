@@ -30,6 +30,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
 
   // Documentary unit facets
   import solr.facet._
+
   private val repositoryFacets: FacetBuilder = { implicit lang =>
     List(
       QueryFacetClass(
@@ -85,11 +86,6 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
     Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search))
   }
 
-  /**
-   * Search documents inside repository.
-   * @param id
-   * @return
-   */
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
 
     val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)

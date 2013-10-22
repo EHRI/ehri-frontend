@@ -13,8 +13,14 @@ import solr.facet._
 
 import defines.EntityType
 import models.UserProfile
-import utils.search.{SearchMode, AppliedFacet, FacetClassList, SearchParams}
+import utils.search._
 import play.api.Logger
+import solr.facet.FieldFacetClass
+import com.github.seratch.scalikesolr.request.query.facet.Value
+import com.github.seratch.scalikesolr.request.QueryRequest
+import com.github.seratch.scalikesolr.request.query.facet.Param
+import com.github.seratch.scalikesolr.request.query.facet.FacetParam
+import solr.facet.QueryFacetClass
 
 
 /**
@@ -34,11 +40,15 @@ object SolrQueryBuilder {
    * Set a list of facets on a request.
    */
   private def setRequestFacets(request: QueryRequest, flist: FacetClassList): Unit = {
+
+    // Need to tag and exclude all 'choice' facet classes because we want
+    // the counts even if they're excluded...
+    val tags = flist.filter(_.tagExclude).map(_.key)
     request.setFacet(new FacetParams(
       enabled=true,
       params=flist.flatMap {
-        case qf: QueryFacetClass => List(qf.asParams)
-        case ff: FieldFacetClass => List(ff.asParams)
+        case qf: QueryFacetClass => List(qf.asParams(tags))
+        case ff: FieldFacetClass => List(ff.asParams(tags))
         case e => {
           Logger.logger.warn("Unknown facet class type: {}", e)
           Nil
@@ -56,14 +66,29 @@ object SolrQueryBuilder {
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
     // apparently only have one. So instead of adding multiple
     // fq clauses, we need to join them all with '+'
+
     val fqstrings = facetClasses.flatMap(fclass => {
-      appliedFacets.filter(_.name == fclass.key).map(_.values).map( paramVals =>
+      appliedFacets.filter(_.name == fclass.key).map(_.values).map { paramVals =>
+        // If we get several field parameters for the same facet class we
+        // need to OR them together...
         fclass match {
-          case fc: FieldFacetClass => paramVals.map(v => fc.key + ":\"" + v + "\"") // Grr, interpolation...
+          case fc: FieldFacetClass => {
+            paramVals match {
+              case Nil => Nil
+              case _ => {
+                // Choice facets need a tag in front of the parameter so they can be
+                // excluded from count-limiting filters
+                // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
+                val query = "(" + paramVals.map(v => fc.key + ":\"" + v + "\"").mkString(" OR ") + ")"
+                if (fc.tagExclude) List("{!tag=" + fc.key + "}" + query)
+                else List(query)
+              }
+            }
+          } // Grr, interpolation...
           case fc: QueryFacetClass => {
             fc.facets.flatMap(facet => {
               if (paramVals.contains(facet.value)) {
-                List(s"${fc.key}:${facet.solrValue}")
+                List(s"{!tag=${fc.key}}${fc.key}:${facet.solrValue}")
               } else Nil
             })
           }
@@ -72,9 +97,10 @@ object SolrQueryBuilder {
             Nil
           }
         }
-      )
+      }
     }).flatten
     request.setFilterQuery(FilterQuery(multiple = fqstrings))
+    request.set("facet.mincount", 1)
   }
 
   /**

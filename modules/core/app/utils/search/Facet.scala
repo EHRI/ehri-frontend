@@ -16,6 +16,13 @@ case object FacetSort extends Enumeration {
   val Fixed = Value("fixed")
 }
 
+case object FacetDisplay extends Enumeration {
+  val Choice = Value("choice")
+  val List = Value("list")
+  val DropDown = Value("dropdown")
+  val Boolean = Value("boolean")
+}
+
 
 trait Facet {
   val value: String
@@ -42,6 +49,7 @@ trait FacetClass[+T <: Facet] {
   val param: String
   val facets: List[T]
   val sort: FacetSort.Value
+  val display: FacetDisplay.Value
   val fieldType: String
 
   def count: Int = facets.length
@@ -55,6 +63,11 @@ trait FacetClass[+T <: Facet] {
   def render: String => String
 
   def pretty[U <: Facet](f: U): String = f.name.map(render).getOrElse(render(f.value))
+
+  /**
+   * Facets that do not trigger filtering on item counts in the same class.
+   */
+  def tagExclude: Boolean = display == FacetDisplay.Choice
 }
 
 object FacetClass {

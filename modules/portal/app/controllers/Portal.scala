@@ -48,13 +48,15 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
         key = IsadG.LANG_CODE,
         name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
         param = "lang",
-        render = (s: String) => Helpers.languageCodeToName(s)
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key = "type",
         name = Messages("search.type"),
         param = "type",
-        render = s => Messages("contentTypes." + s)
+        render = s => Messages("contentTypes." + s),
+        display = FacetDisplay.Choice
       )
     )
   }
@@ -199,20 +201,21 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     List(
       QueryFacetClass(
         key="childCount",
-        name=Messages("repository.itemsHeldOnline"),
+        name=Messages("portal.facet.itemsHeldOnline"),
         param="childCount",
-        render=s => Messages("repository." + s),
+        render=s => Messages("portal.facet.itemsHeldOnline." + s),
         facets=List(
-          SolrQueryFacet(value = "0", name = Some("noChildItems")),
-          SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
-        )
+          SolrQueryFacet(value = "[1 TO *]", name = Some("yes"))
+        ),
+        display = FacetDisplay.Boolean
       ),
       FieldFacetClass(
         key="countryCode",
         name=Messages("isdiah.countryCode"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s),
-        sort = FacetSort.Name
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
       )
     )
   }
@@ -228,7 +231,8 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
         name=Messages("isdiah.countryCode"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s),
-        sort = FacetSort.Name
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
       )
     )
   }
@@ -257,30 +261,33 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
         key = IsadG.LANG_CODE,
         name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
         param = "lang",
-        render = (s: String) => Helpers.languageCodeToName(s)
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.Choice,
+        sort = FacetSort.Name
       ),
       QueryFacetClass(
         key="childCount",
-        name=Messages("documentaryUnit.searchInside"),
+        name=Messages("portal.facet.container"),
         param="childCount",
-        render=s => Messages("documentaryUnit." + s),
+        render=s => Messages("portal.facet.container." + s),
         facets=List(
-          SolrQueryFacet(value = "0", name = Some("noChildItems")),
           SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
-        )
+        ),
+        display = FacetDisplay.Boolean
       ),
       FieldFacetClass(
         key="countryCode",
         name=Messages("portal.facet.location"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s),
-        sort = FacetSort.Name
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
       )
     )
   }
 
   def browseRepositories = searchAction[Repository](defaultParams = Some(SearchParams(entities = List(EntityType.Repository))),
-    entityFacets = entityFacets) {
+    entityFacets = repositorySearchFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(portal.repository.list(page, params, facets, portalRoutes.browseRepositories))
   }
@@ -310,7 +317,8 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
         key="holderName",
         name=Messages("documentaryUnit.heldBy"),
         param="holder",
-        sort = FacetSort.Name
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
       )
     )
   }
@@ -332,7 +340,8 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
         key=models.Isaar.ENTITY_TYPE,
         name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+        render=s => Messages(Isaar.FIELD_PREFIX + "." + s),
+        display = FacetDisplay.Choice
       )
     )
   }

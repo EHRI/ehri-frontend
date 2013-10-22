@@ -1,11 +1,9 @@
 package controllers.base
 
-import global.GlobalConfig
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import defines.EntityType
-import play.api.Play._
 import models.json.{ClientConvertable, RestReadable}
 import play.api.libs.json.Json
 import utils.search._
@@ -24,10 +22,17 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
   type FacetBuilder = Lang => FacetClassList
   private val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]] }
 
+  case class SearchConfiguration(
+    defaultParams: Option[SearchParams] = None,
+    facetBuilder: FacetBuilder = emptyFacets,
+    searchMode: SearchMode.Value = SearchMode.DefaultAll,
+    filters: Map[String,Any] = Map.empty
+  )
+
   def bindFacetsFromRequest(facetClasses: FacetClassList)(implicit request: Request[AnyContent]): List[AppliedFacet] = {
     val qs = request.queryString
     facetClasses.flatMap { fc =>
-      qs.get(fc.param).map { values =>
+      qs.get(fc.param).map(_.filterNot(_.trim.isEmpty)).map { values =>
         AppliedFacet(fc.key, values.toList)
       }
     }
@@ -48,13 +53,6 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
     }
   }
 
-
-//  /**
-//   * Short cut search action without the ability to provide default filters
-//   */
-//  def searchAction[MT](f: ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
-//    searchAction[MT](filters = Map.empty[String,Any], entityFacets = emptyFacets)(f)
-//  }
 
   /**
    * Action that restricts the search to the inherited entity type

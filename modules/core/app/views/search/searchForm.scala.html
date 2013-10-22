@@ -17,7 +17,7 @@
 
     <div class="controls-row">
         <div class="btn-group pull-right" style="margin-top: 10px">
-        @SearchOrder.values.map { sortKey =>
+        @List(SearchOrder.Score, SearchOrder.Name, SearchOrder.DateNewest).map { sortKey =>
             @if(params.sort.equals(Some(sortKey))) {
                 <a class="btn btn-mini current-search-sort" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
                     @Messages("search." + sortKey)

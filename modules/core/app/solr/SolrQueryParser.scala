@@ -3,7 +3,7 @@ package solr
 import solr.facet.{QueryFacetClass, FieldFacetClass}
 import scala.xml.{Node, Elem}
 import defines.EntityType
-import utils.search.{AppliedFacet, SearchDescription, FacetClassList}
+import utils.search.{FacetDisplay, AppliedFacet, SearchDescription, FacetClassList}
 import play.api.Logger
 
 /**
@@ -63,15 +63,20 @@ case class SolrQueryParser(response: Elem) {
    * @return
    */
   def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: FacetClassList): FacetClassList = {
-    //allFacets.map(_.populateFromSolr(response, appliedFacets))
+    val tags = allFacets.filter(_.tagExclude).map(_.key)
     allFacets.flatMap { fc => fc match {
-      case ffc: FieldFacetClass => List(extractFieldFacet(ffc, appliedFacets))
-      case qfc: QueryFacetClass => List(extractQueryFacet(qfc, appliedFacets))
+      case ffc: FieldFacetClass => List(extractFieldFacet(ffc, appliedFacets, tags))
+      case qfc: QueryFacetClass => List(extractQueryFacet(qfc, appliedFacets, tags))
       case e => {
         Logger.logger.warn("Unknown facet class type: {}", e)
         Nil
       }
     }}
+  }
+
+  private def tagFunc(tags: List[String]): String = tags match {
+    case Nil => ""
+    case _ => "{!ex=" + tags.mkString(",") + "}"
   }
 
   /**
@@ -86,7 +91,7 @@ case class SolrQueryParser(response: Elem) {
    *       <int name="nl">1</int>
    *   ...
    */
-  private def extractFieldFacet(fc: solr.facet.FieldFacetClass, appliedFacets: List[AppliedFacet]): solr.facet.FieldFacetClass = {
+  private def extractFieldFacet(fc: solr.facet.FieldFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): solr.facet.FieldFacetClass = {
     val applied: List[String] = appliedFacets.filter(_.name == fc.key).headOption.map(_.values).getOrElse(List[String]())
     val nodeOpt = response.descendant.filter(n => (n \ "@name").text == "facet_fields").headOption
     val facets = nodeOpt.toList.flatMap { node =>
@@ -107,17 +112,18 @@ case class SolrQueryParser(response: Elem) {
   /**
    * Extract query facets from Solr XML response.
    */
-  private def extractQueryFacet(fc: solr.facet.QueryFacetClass, appliedFacets: List[AppliedFacet]): solr.facet.QueryFacetClass = {
+  private def extractQueryFacet(fc: solr.facet.QueryFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): solr.facet.QueryFacetClass = {
     val applied: List[String] = appliedFacets.filter(_.name == fc.key).headOption.map(_.values).getOrElse(List[String]())
-    val facets = fc.facets.flatMap(f => {
-      var nameval = "%s:%s".format(fc.key, f.solrValue)
+    val facets = fc.facets.flatMap{ f =>
+      var nameval = "%s%s:%s".format(tagFunc(tags), fc.key, f.solrValue)
       response.descendant.filter(n => (n \\ "@name").text == nameval).text match {
         case "" => Nil
         case v => List(
           f.copy(count = v.toInt, applied = applied.contains(f.value))
         )
       }
-    })
+    }
+
     fc.copy(facets = facets)
   }
 
