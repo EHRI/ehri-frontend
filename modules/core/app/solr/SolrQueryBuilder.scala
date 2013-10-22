@@ -225,9 +225,9 @@ object SolrQueryBuilder {
     req.setQueryParserType(QueryParserType("edismax"))
 
     // Highlight, which will at some point be implemented...
-    req.setHighlighting(HighlightingParams(
-        enabled=true,
-        isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
+//    req.setHighlighting(HighlightingParams(
+//        enabled=true,
+//        isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
 
     // Set result ordering, defaulting to the solr default 'score asc'
     // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
