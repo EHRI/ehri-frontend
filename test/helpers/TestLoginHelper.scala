@@ -8,6 +8,7 @@ import play.api.test.Helpers._
 import play.api.GlobalSettings
 import play.filters.csrf.{CSRFFilter, CSRF}
 import play.filters.csrf.CSRF.Token
+import play.filters.csrf.CSRFConf
 import models.sql.SqlAccount
 import mocks.{MockSearchDispatcher, userFixtures, MockSearchIndexer}
 import global.GlobalConfig
@@ -67,7 +68,7 @@ trait TestLoginHelper {
         injector.getInstance(clazz)
       }
 
-      //override def doFilter(action:EssentialAction) = new CSRFFilter(fakeCsrfString).apply(next = action)
+      override def doFilter(action:EssentialAction) = new CSRFFilter(tokenName = fakeCsrfString).apply(next = action)
 
       override def onStart(app: play.api.Application) {
         // Workaround for issue #845
