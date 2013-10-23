@@ -106,7 +106,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    * @return
    */
   def adminActions = adminAction { implicit userOpt => implicit request =>
-    immediate(Ok(views.html.admin.actions()))
+    Ok(views.html.admin.actions())
   }
 
   /**

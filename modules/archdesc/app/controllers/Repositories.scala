@@ -14,6 +14,7 @@ import views.Helpers
 import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
+import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntityRead[Repository]
@@ -88,7 +89,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
    * @param id
    * @return
    */
-  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
 
     val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
@@ -130,7 +131,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
         VisibilityForm.form, users, groups, repositoryRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction(id, childForm, ContentTypes.DocumentaryUnit) {
+  def createDocPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.DocumentaryUnit) {
       item => formsOrItem => implicit userOpt => implicit request =>
     import play.filters.csrf._
     implicit val token: Option[Token] = CSRF.getToken(request)
@@ -139,8 +140,8 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
         BadRequest(views.html.documentaryUnit.create(item,
           errorForm, accForm, users, groups, repositoryRoutes.createDocPost(id)))
       }
-      case Right(citem) => Redirect(controllers.archdesc.routes.DocumentaryUnits.get(citem.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
+      case Right(citem) => immediate(Redirect(controllers.archdesc.routes.DocumentaryUnits.get(citem.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
     }
   }
 

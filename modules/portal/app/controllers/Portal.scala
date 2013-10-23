@@ -15,8 +15,6 @@ import com.google.inject._
 import utils.search.{SearchMode, Dispatcher, SearchOrder, SearchParams}
 import play.api.libs.json.{Format, Writes, Json}
 import solr.facet.{SolrQueryFacet, QueryFacetClass, FieldFacetClass}
-import play.api.i18n.Messages
-import views.Helpers
 import play.api.cache.Cached
 import play.api.i18n.Messages
 import views.Helpers
@@ -27,6 +25,7 @@ import play.api.libs.ws.WS
 import play.api.templates.Html
 import rest.EntityDAO
 import solr.SolrConstants
+import scala.concurrent.Future
 
 
 @Singleton
@@ -53,9 +52,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   )
   
-  def listAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
+  def listAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
-    userProfileAction { implicit userOpt => implicit request =>
+    userProfileAction.async { implicit userOpt => implicit request =>
       AsyncRest {
         val params = ListParams.fromRequest(request)
         EntityDAO(entityType, userOpt).page(params).map { pageOrErr =>
@@ -70,38 +69,54 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   /**
    * Fetch a given item, along with its links and annotations.
    */
-  def getAction[MT](entityType: EntityType.Value, id: String)(
-    f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
-                                     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
-    itemAction[MT](entityType, id) { item => implicit userOpt => implicit request =>
-      AsyncRest {
-        val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
-        val linkReq = rest.LinkDAO(userOpt).getFor(id)
-        for { annOrErr <- annsReq ; linkOrErr <- linkReq } yield {
-          for { anns <- annOrErr.right ; links <- linkOrErr.right } yield {
-            f(item)(anns)(links)(userOpt)(request)
+  object getAction {
+    def async[MT](entityType: EntityType.Value, id: String)(
+      f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+                                       implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+      itemAction.async[MT](entityType, id) { item => implicit userOpt => implicit request =>
+        AsyncRest.async {
+          val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
+          val linkReq = rest.LinkDAO(userOpt).getFor(id)
+          for { annOrErr <- annsReq ; linkOrErr <- linkReq } yield {
+            for { anns <- annOrErr.right ; links <- linkOrErr.right } yield {
+              f(item)(anns)(links)(userOpt)(request)
+            }
           }
         }
       }
+    }
+
+    def apply[MT](entityType: EntityType.Value, id: String)(
+      f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
+      async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))
     }
   }
 
   /**
    * Fetch a given item with links, annotations, and a page of child items.
    */
-  def getWithChildrenAction[CT, MT](entityType: EntityType.Value, id: String)(
-    f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
-                                 implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
-    getAction[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
-      AsyncRest {
-        val params = ListParams.fromRequest(request)
-        val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
-        for { cOrErr <- cReq  } yield {
-          for { children <- cOrErr.right } yield {
-            f(item)(children)(params)(anns)(links)(userOpt)(request)
+  object getWithChildrenAction {
+    def async[CT, MT](entityType: EntityType.Value, id: String)(
+      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+                                   implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
+      getAction.async[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
+        AsyncRest.async {
+          val params = ListParams.fromRequest(request)
+          val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
+          for { cOrErr <- cReq  } yield {
+            for { children <- cOrErr.right } yield {
+              f(item)(children)(params)(anns)(links)(userOpt)(request)
+            }
           }
         }
       }
+    }
+
+    def apply[CT, MT](entityType: EntityType.Value, id: String)(
+      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
+      async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))))
     }
   }
 
@@ -208,7 +223,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(portal.country.list(page, params, facets, portalRoutes.browseCountries))
   }
 
-  def browseCountry(id: String) = getAction[Country](EntityType.Country, id) {
+  def browseCountry(id: String) = getAction.async[Country](EntityType.Country, id) {
       item => annotations => links => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), entityFacets = repositorySearchFacets,
         defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
@@ -237,7 +252,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   )
 
-  def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
+  def browseRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
       item => annotations => links => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
@@ -257,7 +272,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
   def browseHistoricalAgents = TODO
 
-  def browseAuthoritativeSet(id: String) = getAction[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
+  def browseAuthoritativeSet(id: String) = getAction.async[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
     item => annotations => links => implicit userOpt => implicit request =>
       val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
         Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
@@ -265,7 +280,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
           defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
           entityFacets = entityFacets) {
         page => params => facets => _ => _ =>
-          TODO(request)
+          Ok("TODO")
       }.apply(request)
   }
 
@@ -297,11 +312,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   }
 
   def newsFeed = Cached("pages.newsFeed", 3600) {
-    Action { request =>
-      Async {
-        WS.url("http://www.ehri-project.eu/rss.xml").get.map { r =>
-          Ok(portal.newsFeed(NewsItem.fromRss(r.body)))
-        }
+    Action.async { request =>
+      WS.url("http://www.ehri-project.eu/rss.xml").get.map { r =>
+        Ok(portal.newsFeed(NewsItem.fromRss(r.body)))
       }
     }
   }

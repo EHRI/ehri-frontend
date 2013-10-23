@@ -11,6 +11,8 @@ import scala.Some
 import utils.search.SearchParams
 import utils.search.Dispatcher
 import com.google.inject._
+import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.Future
 
 @Singleton
 class Countries @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CRUD[CountryF,Country]
@@ -46,7 +48,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig, val se
    * @param id
    * @return
    */
-  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
         page => params => facets => _ => _ =>
       Ok(views.html.country.show(item, page, params, facets, countryRoutes.get(id), annotations, links))
@@ -70,13 +72,13 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig, val se
     Ok(views.html.country.create(form, VisibilityForm.form, users, groups, countryRoutes.createPost))
   }
 
-  def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
+  def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.country.create(errorForm, accForm, users, groups, countryRoutes.createPost))
       }
-      case Right(item) => Redirect(countryRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+      case Right(item) => immediate(Redirect(countryRoutes.get(item.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
     }
   }
 
@@ -98,7 +100,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig, val se
    * Fetch the existing set of repository ids. Remove the non-numeric (country code)
    * prefix, and increment to form a new id.
    */
-  private def getNextRepositoryId(f: String => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
+  private def getNextRepositoryId(f: String => SimpleResult)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
     import play.api.libs.concurrent.Execution.Implicits._
     import play.api.libs.json.Json
     import play.api.libs.json.JsValue
@@ -125,7 +127,7 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig, val se
     }
   }
 
-  def createRepository(id: String) = childCreateAction(id, ContentTypes.Repository) {
+  def createRepository(id: String) = childCreateAction.async(id, ContentTypes.Repository) {
       item => users => groups => implicit userOpt => implicit request =>
 
     // Beware! This is dubious because there could easily be contention
@@ -139,15 +141,15 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig, val se
     }
   }
 
-  def createRepositoryPost(id: String) = childCreatePostAction(id, childForm, ContentTypes.Repository) {
+  def createRepositoryPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.Repository) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.repository.create(item,
           errorForm, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
       }
-      case Right(citem) => Redirect(controllers.archdesc.routes.Repositories.get(citem.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
+      case Right(citem) => immediate(Redirect(controllers.archdesc.routes.Repositories.get(citem.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
     }
   }
 

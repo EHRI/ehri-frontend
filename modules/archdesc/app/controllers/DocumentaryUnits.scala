@@ -13,7 +13,7 @@ import views.Helpers
 import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
-
+import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntityRead[DocumentaryUnit]
@@ -84,7 +84,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig,
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
 
 
-  def search = Action { request =>
+  def search = Action.async { request =>
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
@@ -99,7 +99,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig,
     }.apply(request)
   }
 
-  def searchChildren(id: String) = itemPermissionAction[DocumentaryUnit](contentType, id) {
+  def searchChildren(id: String) = itemPermissionAction.async[DocumentaryUnit](contentType, id) {
       item => implicit userOpt => implicit request =>
 
     searchAction[DocumentaryUnit](Map("parentId" -> item.id), entityFacets = entityFacets) {
@@ -115,7 +115,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig,
       item, page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
   }*/
 
-  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction[DocumentaryUnit](Map("parentId" -> item.id),
           defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
           entityFacets = entityFacets) {
@@ -154,7 +154,7 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig,
       docRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction(id, childForm, contentType) {
+  def createDocPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -162,8 +162,8 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig,
           errorForm, accForm, users, groups,
           docRoutes.createDocPost(id)))
       }
-      case Right(item) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+      case Right(item) => immediate(Redirect(docRoutes.get(item.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
     }
   }
 

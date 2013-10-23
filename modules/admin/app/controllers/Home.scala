@@ -1,5 +1,6 @@
 package controllers.admin
 
+import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.EntitySearch
 import models.{Isaar, IsadG}
 import models.base.AnyModel
@@ -15,7 +16,7 @@ import solr.facet.FieldFacetClass
 
 import com.google.inject._
 import play.api.http.MimeTypes
-
+import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 class Home @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntitySearch {
@@ -64,9 +65,9 @@ class Home @Inject()(implicit val globalConfig: global.GlobalConfig, val searchD
     Ok(views.html.index(Messages("pages.home.title")))
   }
 
-  def profile = userProfileAction { implicit userOpt => implicit request =>
+  def profile = userProfileAction.async { implicit userOpt => implicit request =>
     userOpt.map { user =>
-      Ok(views.html.profile(user))
+      immediate(Ok(views.html.profile(user)))
     } getOrElse {
       authenticationFailed(request)
     }

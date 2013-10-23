@@ -23,28 +23,41 @@ trait CreationContext[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: 
    * Callback signature.
    */
   type CreationContextCallback = MT => Either[(Form[CF],Form[List[String]]),CMT] => Option[UserProfile] => Request[AnyContent] => SimpleResult
+  type AsyncCreationContextCallback = MT => Either[(Form[CF],Form[List[String]]),CMT] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]
 
-  def childCreateAction(id: String, ct: ContentTypes.Value)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
-      getUsersAndGroups { users => groups =>
-        f(item)(users)(groups)(userOpt)(request)
+  object childCreateAction {
+    def async(id: String, ct: ContentTypes.Value)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(implicit rd: RestReadable[MT]) = {
+      withItemPermission.async[MT](id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
+        getUsersAndGroups.async { users => groups =>
+          f(item)(users)(groups)(userOpt)(request)
+        }
       }
     }
-  }
-
-  def childCreatePostAction(id: String, form: Form[CF], ct: ContentTypes.Value)(f: CreationContextCallback)(
-              implicit fmt: RestConvertable[CF], crd: RestReadable[CMT], rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
-      createChildPostAction(item, form, ct)(f)
+    def apply(id: String, ct: ContentTypes.Value)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      async(id, ct)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t)))))))
     }
   }
 
-  def createChildPostAction(item: MT, form: Form[CF], ct: ContentTypes.Value)(f: CreationContextCallback)(
+  object childCreatePostAction {
+    def async(id: String, form: Form[CF], ct: ContentTypes.Value)(f: AsyncCreationContextCallback)(
+                implicit fmt: RestConvertable[CF], crd: RestReadable[CMT], rd: RestReadable[MT]) = {
+      withItemPermission.async[MT](id, PermissionType.Create, contentType, Some(ct)) { item => implicit userOpt => implicit request =>
+        createChildPostAction(item, form, ct)(f)
+      }
+    }
+
+    def apply(id: String, form: Form[CF], ct: ContentTypes.Value)(f: CreationContextCallback)(
+      implicit fmt: RestConvertable[CF], crd: RestReadable[CMT], rd: RestReadable[MT]) = {
+      async(id, form, ct)(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
+    }
+  }
+
+  def createChildPostAction(item: MT, form: Form[CF], ct: ContentTypes.Value)(f: AsyncCreationContextCallback)(
       implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[CF], crd: RestReadable[CMT], rd: RestReadable[MT]): Future[SimpleResult] = {
     form.bindFromRequest.fold(
-      errorForm => immediate(f(item)(Left((errorForm, VisibilityForm.form)))(userOpt)(request)),
+      errorForm => f(item)(Left((errorForm, VisibilityForm.form)))(userOpt)(request),
       citem => {
-        AsyncRest {
+        AsyncRest.async {
           val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
           rest.EntityDAO(entityType, userOpt)
             .createInContext[CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).map {

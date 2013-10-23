@@ -8,6 +8,7 @@ import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import utils.search.{Dispatcher, SearchOrder, SearchParams}
 import com.google.inject._
+import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
@@ -29,7 +30,7 @@ class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig
   val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))
 
 
-  def get(id: String) = getAction(id) {
+  def get(id: String) = getAction.async(id) {
       item => annotations => links => implicit userOpt => implicit request =>
     searchAction[HistoricalAgent](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
         page => params => facets => _ => _ =>
@@ -50,13 +51,13 @@ class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig
     Ok(views.html.authoritativeSet.create(form, VisibilityForm.form, users, groups, controllers.authorities.routes.AuthoritativeSets.createPost))
   }
 
-  def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
+  def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.authoritativeSet.create(errorForm, accForm, users, groups, controllers.authorities.routes.AuthoritativeSets.createPost))
       }
-      case Right(item) => Redirect(controllers.authorities.routes.AuthoritativeSets.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+      case Right(item) => immediate(Redirect(controllers.authorities.routes.AuthoritativeSets.get(item.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
     }
   }
 
@@ -82,15 +83,15 @@ class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig
         controllers.authorities.routes.AuthoritativeSets.createHistoricalAgentPost(id)))
   }
 
-  def createHistoricalAgentPost(id: String) = childCreatePostAction(id, childForm, ContentTypes.HistoricalAgent) {
+  def createHistoricalAgentPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.HistoricalAgent) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.historicalAgent.create(item,
           errorForm, accForm, users, groups, controllers.authorities.routes.AuthoritativeSets.createHistoricalAgentPost(id)))
       }
-      case Right(citem) => Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
+      case Right(citem) => immediate(Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
     }
   }
 

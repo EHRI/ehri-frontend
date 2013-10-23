@@ -191,15 +191,20 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Wrap itemPermissionAction to ensure a given permission is present,
    * and return an action with the user in scope.
    */
-  def adminAction(
-    f: Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
-    userProfileAction.async { implicit  maybeUser => implicit request =>
-      maybeUser.flatMap { user =>
-        if (user.isAdmin) Some(f(maybeUser)(request))
-        else None
-      } getOrElse {
-        immediate(Unauthorized(views.html.errors.permissionDenied()))
+  object adminAction {
+    def async(f: Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+      userProfileAction.async { implicit  maybeUser => implicit request =>
+        maybeUser.flatMap { user =>
+          if (user.isAdmin) Some(f(maybeUser)(request))
+          else None
+        } getOrElse {
+          immediate(Unauthorized(views.html.errors.permissionDenied()))
+        }
       }
+    }
+
+    def apply(f: Option[UserProfile] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+      async(f.andThen(_.andThen(t => immediate(t))))
     }
   }
 

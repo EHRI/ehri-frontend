@@ -1,21 +1,15 @@
 package controllers.admin
 
-import _root_.controllers.base.{EntityUpdate, EntitySearch}
-import _root_.models.{UserProfileF, UserProfile, Isaar, IsadG}
-import models.base.AnyModel
+import controllers.base.EntityUpdate
+import models.{UserProfileF, UserProfile}
 
 import play.api._
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
 import play.api.i18n.Messages
-import views.Helpers
-import play.api.libs.json.Json
-import utils.search._
-import solr.facet.FieldFacetClass
-
 import com.google.inject._
-import play.api.http.MimeTypes
-
+import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.Future.{successful => immediate}
 
 /**
  * Controller for a user managing their own profile.
@@ -32,24 +26,24 @@ class Profile @Inject()(implicit val globalConfig: global.GlobalConfig) extends 
    * Render a user's profile.
    * @return
    */
-  def profile = userProfileAction { implicit userOpt => implicit request =>
+  def profile = userProfileAction.async { implicit userOpt => implicit request =>
     userOpt.map { user =>
-      Ok(views.html.profile(user))
+      immediate(Ok(views.html.profile(user)))
     } getOrElse {
       authenticationFailed(request)
     }
   }
 
-  def updateProfile = userProfileAction { implicit userOpt => implicit request =>
+  def updateProfile = userProfileAction.async { implicit userOpt => implicit request =>
     userOpt.map { user =>
-      Ok(views.html.editProfile(
-        user, form.fill(user.model), controllers.admin.routes.Profile.updateProfilePost))
+      immediate(Ok(views.html.editProfile(
+        user, form.fill(user.model), controllers.admin.routes.Profile.updateProfilePost)))
     } getOrElse {
-      Unauthorized
+      authenticationFailed(request)
     }
   }
 
-  def updateProfilePost = userProfileAction { implicit userOpt => implicit request =>
+  def updateProfilePost = userProfileAction.async { implicit userOpt => implicit request =>
     userOpt.map { user =>
 
       // This action is more-or-less the same as in UserProfiles update, except
@@ -68,7 +62,7 @@ class Profile @Inject()(implicit val globalConfig: global.GlobalConfig) extends 
         }
       }
     } getOrElse {
-      Unauthorized
+      authenticationFailed(request)
     }
   }
 

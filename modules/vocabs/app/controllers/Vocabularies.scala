@@ -9,6 +9,7 @@ import _root_.controllers.base._
 import defines.{ContentTypes, EntityType}
 import utils.search.{Dispatcher, SearchParams}
 import com.google.inject._
+import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CRUD[VocabularyF,Vocabulary]
@@ -26,7 +27,7 @@ class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val
   val form = models.forms.VocabularyForm.form
   val childForm = models.forms.ConceptForm.form
 
-  def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction[Concept](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
       page => params => facets => _ => _ =>
         Ok(views.html.vocabulary.show(
@@ -46,13 +47,13 @@ class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val
     Ok(views.html.vocabulary.create(form, VisibilityForm.form, users, groups, controllers.vocabs.routes.Vocabularies.createPost))
   }
 
-  def createPost = createPostAction(form) { formsOrItem => implicit userOpt => implicit request =>
+  def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, controllers.vocabs.routes.Vocabularies.createPost))
       }
-      case Right(item) => Redirect(controllers.vocabs.routes.Vocabularies.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+      case Right(item) => immediate(Redirect(controllers.vocabs.routes.Vocabularies.get(item.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
     }
   }
 
@@ -77,15 +78,15 @@ class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val
       item, childForm, VisibilityForm.form, users, groups, controllers.vocabs.routes.Vocabularies.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentTypes.Concept) {
+  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.Concept) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.concept.create(item,
           errorForm, accForm, users, groups, controllers.vocabs.routes.Vocabularies.createConceptPost(id)))
       }
-      case Right(citem) => Redirect(controllers.vocabs.routes.Vocabularies.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
+      case Right(citem) => immediate(Redirect(controllers.vocabs.routes.Vocabularies.get(id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
     }
   }
 

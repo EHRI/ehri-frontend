@@ -39,12 +39,18 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def getEntity[T](otherType: defines.EntityType.Type, id: String)(f: T => SimpleResult)(
-      implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]): Future[SimpleResult] = {
-    AsyncRest {
-      rest.EntityDAO[T](otherType, userOpt).get(id).map { itemOrErr =>
-        itemOrErr.right.map(f)
+  object getEntityT {
+    def async[T](otherType: defines.EntityType.Type, id: String)(f: T => Future[SimpleResult])(
+        implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]): Future[SimpleResult] = {
+      AsyncRest.async {
+        rest.EntityDAO[T](otherType, userOpt).get(id).map { itemOrErr =>
+          itemOrErr.right.map(f)
+        }
       }
+    }
+    def apply[T](otherType: defines.EntityType.Type, id: String)(f: T => SimpleResult)(
+      implicit rd: RestReadable[T], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+      async(otherType, id)(f.andThen(t => Future.successful(t)))
     }
   }
 

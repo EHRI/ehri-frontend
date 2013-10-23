@@ -62,7 +62,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
 
-      getEntity[AnyModel](EntityType.withName(toType), to) { srcitem =>
+      getEntityT[AnyModel](EntityType.withName(toType), to) { srcitem =>
         f(item)(srcitem)(userOpt)(request)
       }
     }
@@ -77,7 +77,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
         item => implicit userOpt => implicit request =>
       LinkForm.form.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
-          getEntity[AnyModel](EntityType.withName(toType), to) { srcitem =>
+          getEntityT[AnyModel](EntityType.withName(toType), to) { srcitem =>
             f(Left((item,srcitem,errorForm)))(userOpt)(request)
           }
         },

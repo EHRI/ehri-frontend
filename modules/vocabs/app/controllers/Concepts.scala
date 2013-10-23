@@ -14,6 +14,7 @@ import utils.search.{SearchParams, FacetSort}
 
 import utils.search.Dispatcher
 import com.google.inject._
+import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CreationContext[ConceptF, Concept, Concept]
@@ -94,15 +95,15 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig, val sea
         item, childForm, VisibilityForm.form, users, groups, controllers.vocabs.routes.Concepts.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction(id, childForm, ContentTypes.Concept) {
+  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.Concept) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.concept.create(item,
           errorForm, accForm, users, groups, controllers.vocabs.routes.Concepts.createConceptPost(id)))
       }
-      case Right(citem) => Redirect(controllers.vocabs.routes.Concepts.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id))
+      case Right(citem) => immediate(Redirect(controllers.vocabs.routes.Concepts.get(id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
     }
   }
 

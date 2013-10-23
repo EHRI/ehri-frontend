@@ -29,7 +29,7 @@ class ApiController @Inject()(implicit val globalConfig: GlobalConfig) extends C
     rest.ApiDAO(maybeUser)
       .get(url, request.headers).map { r =>
         Status(r.status)
-          .stream(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
+          .chunked(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
           .as(r.ahcResponse.getContentType)
       }
   }
@@ -68,7 +68,7 @@ class ApiController @Inject()(implicit val globalConfig: GlobalConfig) extends C
   def sparqlQuery = userProfileAction.async { implicit userOpt => implicit request =>
     rest.ApiDAO(userOpt).get("sparql", request.queryString, request.headers).map { r =>
       Status(r.status)
-        .stream(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
+        .chunked(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
         .as(r.ahcResponse.getContentType)
     }
   }

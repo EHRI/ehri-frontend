@@ -167,6 +167,6 @@ class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       }
     }
 
-    Ok.stream(channel.andThen(Enumerator.eof))
+    Ok.chunked(channel.andThen(Enumerator.eof))
   }
 }
