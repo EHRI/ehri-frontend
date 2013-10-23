@@ -1,13 +1,10 @@
 package controllers.base
 
-import global.GlobalConfig
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import defines.EntityType
-import play.api.Play._
 import models.json.{ClientConvertable, RestReadable}
-import play.api.libs.json.Json
 import utils.search._
 import play.api.Logger
 

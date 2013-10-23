@@ -10,6 +10,7 @@ import rest.{BadJson, AnnotationDAO}
 import models.forms.AnnotationForm
 import play.api.libs.json.{Format, Json, JsError}
 import models.json.RestReadable
+import scala.concurrent.Future.{successful => immediate}
 
 
 object EntityAnnotate {
@@ -25,16 +26,16 @@ object EntityAnnotate {
  */
 trait EntityAnnotate[MT] extends EntityRead[MT] {
 
-  def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+  def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       f(item)(AnnotationForm.form.bindFromRequest)(userOpt)(request)
     }
   }
 
-  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
-    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       AnnotationForm.form.bindFromRequest.fold(
-        errorForm => f(Left(errorForm))(userOpt)(request),
+        errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
         ann => {
           AsyncRest {
             rest.AnnotationDAO(userOpt).create(id, ann).map { annOrErr =>
@@ -52,8 +53,8 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
    * Fetch annotations for a given item.
    */
   def getAnnotationsAction(id: String)(
-      f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    userProfileAction { implicit  userOpt => implicit request =>
+      f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
+    userProfileAction.async { implicit  userOpt => implicit request =>
       AsyncRest {
         val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
         for (annOrErr <- annsReq) yield {
@@ -84,15 +85,15 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
    * @param id The item's id
    * @return
    */
-  def createAnnotationJsonPost(id: String) = Action(parse.json) { request =>
+  def createAnnotationJsonPost(id: String) = Action.async(parse.json) { request =>
     request.body.validate[AnnotationF](clientAnnotationFormat).fold(
       errors => { // oh dear, we have an error...
-        BadRequest(JsError.toFlatJson(errors))
+        immediate(BadRequest(JsError.toFlatJson(errors)))
       },
       ap => {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
-        userProfileAction { implicit userOpt => implicit request =>
+        userProfileAction.async { implicit userOpt => implicit request =>
           AsyncRest {
             rest.AnnotationDAO(userOpt).create(id, ap).map { annOrErr =>
               annOrErr.right.map { ann =>
