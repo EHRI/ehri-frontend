@@ -62,7 +62,7 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(FakeRequest(GET,
           controllers.core.routes.OpenIDLoginHandler.openIDCallback.url)
-          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)).get
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
         status(home) must equalTo(SEE_OTHER)
         val err = flash(home).get("error")
         err must beSome
@@ -74,11 +74,11 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq("test@example.com"),
-          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+          CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val forgot = route(FakeRequest(POST,
           controllers.core.routes.Admin.forgotPasswordPost().url)
-          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), data).get
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(BAD_REQUEST)
         contentAsString(forgot) must contain(Messages("error.badRecaptcha"))
       }
@@ -90,11 +90,11 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
           additionalPlugins = getPlugins)) {
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq("test@example.com"),
-          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+          CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val forgot = route(FakeRequest(POST,
           controllers.core.routes.Admin.forgotPasswordPost().url)
-          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), data).get
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(BAD_REQUEST)
         contentAsString(forgot) must contain(Messages("error.emailNotFound"))
       }
@@ -107,11 +107,11 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
         val numSentMails = MockBufferedMailer.mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
-          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+          CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val forgot = route(FakeRequest(POST,
           controllers.core.routes.Admin.forgotPasswordPost().url)
-          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), data).get
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(SEE_OTHER)
         MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
         MockBufferedMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
@@ -125,11 +125,11 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
         val numSentMails = MockBufferedMailer.mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
-          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+          CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val forgot = route(FakeRequest(POST,
           controllers.core.routes.Admin.forgotPasswordPost().url)
-          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), data).get
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(SEE_OTHER)
         MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
         MockBufferedMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
@@ -137,22 +137,22 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
         val token = MockAccountDAO.tokens.last._1
         val resetForm = route(FakeRequest(GET,
           controllers.core.routes.Admin.resetPassword(token).url)
-          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)).get
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
         status(resetForm) must equalTo(OK)
 
         val rstData: Map[String,Seq[String]] = Map(
           "password" -> Seq("hellokitty"),
           "confirm"  -> Seq("hellokitty"),
-          CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString)
+          CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val resetPost = route(FakeRequest(POST,
           controllers.core.routes.Admin.resetPassword(token).url)
-          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString), rstData).get
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), rstData).get
         status(resetPost) must equalTo(SEE_OTHER)
 
         val expired = route(FakeRequest(GET,
           controllers.core.routes.Admin.resetPassword(token).url)
-          .withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)).get
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
         status(expired) must equalTo(SEE_OTHER)
         val err = flash(expired).get("error")
         err must beSome

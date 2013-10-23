@@ -17,6 +17,7 @@ import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
 import rest.RestEventHandler
 import models.Account
+import play.api.mvc.{EssentialAction, WithFilters}
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -24,6 +25,7 @@ import models.Account
  */
 trait TestLoginHelper {
 
+  val CSRF_TOKEN_NAME = "csrfToken"
   val fakeCsrfString = "fake-csrf-token"
   val testPassword = "testpass"
 
@@ -48,7 +50,7 @@ trait TestLoginHelper {
    * A Global object that loads fixtures on application start.
    */
   def getGlobal: GlobalSettings = {
-    new CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings {
+    new GlobalSettings {
       class TestModule extends ScalaModule {
         def configure() {
           bind[GlobalConfig].toInstance(TestConfig)
@@ -64,6 +66,8 @@ trait TestLoginHelper {
       override def getControllerInstance[A](clazz: Class[A]) = {
         injector.getInstance(clazz)
       }
+
+      //override def doFilter(action:EssentialAction) = new CSRFFilter(fakeCsrfString).apply(next = action)
 
       override def onStart(app: play.api.Application) {
         // Workaround for issue #845
@@ -116,7 +120,7 @@ trait TestLoginHelper {
     // Since we use csrf in forms, even though it's disabled in
     // tests we still need to add a fake token to the session so
     // the token is there when the form tries to render it.
-    fr.withSession(CSRF.Conf.TOKEN_NAME -> fakeCsrfString)
+    fr.withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
   }
 
   /**
@@ -160,7 +164,7 @@ trait TestMockLoginHelper extends TestLoginHelper {
     header(HeaderNames.SET_COOKIE,
       route(play.api.test.FakeRequest(POST, controllers.core.routes.Admin.loginPost.url),
           Map("email" -> Seq(user.email), "password" -> Seq(testPassword),
-            CSRF.Conf.TOKEN_NAME -> Seq(fakeCsrfString))).get)
+            CSRF_TOKEN_NAME -> Seq(fakeCsrfString))).get)
       .getOrElse(sys.error("No Authorization cookie found"))
   }
 }
@@ -174,7 +178,7 @@ trait TestRealLoginHelper extends TestLoginHelper {
   /**
    * Global which loads fixtures on start
    */
-  object FakeGlobal extends CSRFFilter(() => Token(fakeCsrfString)) with GlobalSettings {
+  object FakeGlobal extends WithFilters(CSRFFilter(fakeCsrfString)) with GlobalSettings {
     override def onStart(app: play.api.Application) = {
       // Initialize routes to fix #845
       app.routes

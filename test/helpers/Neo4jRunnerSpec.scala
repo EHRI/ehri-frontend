@@ -5,14 +5,14 @@ import org.specs2.specification.BeforeExample
 import eu.ehri.extension.test.utils.ServerRunner
 import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import eu.ehri.extension.AbstractAccessibleEntityResource
-import play.api.test.WithApplication
+import play.api.test.{PlaySpecification, WithApplication}
 
 /**
  * Abstract specification which initialises an instance of the
  * Neo4j server with the EHRI endpoint and cleans/sets-up the
  * test data before and after every test.
  */
-abstract class Neo4jRunnerSpec(cls: Class[_]) extends Specification with BeforeExample with TestMockLoginHelper {
+abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with BeforeExample with TestMockLoginHelper {
   sequential
 
   val testPort = 7575

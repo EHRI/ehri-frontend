@@ -2,17 +2,13 @@
 // Global request object
 //
 
-import controllers.base.LoginHandler
-import controllers.core.OpenIDLoginHandler
 import defines.EntityType
 import java.util.concurrent.TimeUnit
 import play.api._
 import play.api.mvc._
 
-import org.apache.commons.codec.binary.Base64
-
 import play.api.Play.current
-import play.filters.csrf.CSRFFilter
+import play.filters.csrf._
 import rest.RestEventHandler
 import scala.concurrent.duration.Duration
 import scala.concurrent.Future
@@ -93,8 +89,12 @@ package globalConfig {
   }
 }
 
+// FIXME: using WithFilters(new AjaxCSRFFilter) breaks things here...
 
-object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
+object Global extends GlobalSettings {
+
+  // This is a workaround for the 'There is no started application error...
+  override def doFilter(action:EssentialAction) = new AjaxCSRFFilter().apply(next = action)
 
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
@@ -144,33 +144,5 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
 
     // Hack for bug #845
     app.routes
-  }
-
-  private def noAuthAction = Action { request =>
-    play.api.mvc.Results.Unauthorized("This application required authentication")
-      .withHeaders("WWW-Authenticate" -> "Basic")
-  }
-
-  override def onRouteRequest(request: RequestHeader): Option[Handler] = {
-
-    val usernameOpt = current.configuration.getString("auth.basic.username")
-    val passwordOpt = current.configuration.getString("auth.basic.password")
-    if (usernameOpt.isDefined && passwordOpt.isDefined) {
-      for {
-        username <- usernameOpt
-        password <- passwordOpt
-        authstr <- request.headers.get("Authorization")
-        base64 <- authstr.split(" ").drop(1).headOption
-        authvals = new String(Base64.decodeBase64(base64.getBytes))
-      } yield {
-        authvals.split(":").toList match {
-          case u :: p :: Nil if u == username && p == password => super.onRouteRequest(request)
-          case _ => Some(noAuthAction)
-        }
-      }.getOrElse(noAuthAction)
-
-    } else {
-      super.onRouteRequest(request)
-    }
   }
 }
