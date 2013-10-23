@@ -5,6 +5,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import defines.EntityType
 import models.json.{ClientConvertable, RestReadable}
+import play.api.libs.json.Json
 import utils.search._
 import play.api.Logger
 import play.api.i18n.Lang
@@ -54,10 +55,10 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
 
   /**
    * Action that restricts the search to the inherited entity type
-   * and applies
+   * and applies.
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None,
-                        entityFacets: FacetClassList = Nil, mode: SearchMode.Value = SearchMode.DefaultAll)(
+                        entityFacets: FacetBuilder = emptyFacets, mode: SearchMode.Value = SearchMode.DefaultAll)(
       f: ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
@@ -67,9 +68,10 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
           .value.getOrElse(SearchParams())
           .setDefault(params)
 
-      val facets: List[AppliedFacet] = bindFacetsFromRequest(entityFacets)
+      val allFacets = entityFacets(lang)
+      val facets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)
 
-      searchDispatcher.search(sp, facets, entityFacets, filters, mode).flatMap { resOrErr =>
+      searchDispatcher.search(sp, facets, allFacets, filters, mode).flatMap { resOrErr =>
       // FIXME: REFACTOR - error handling removed!
         val res = resOrErr.right.get
         val ids = res.items.map(_.id)

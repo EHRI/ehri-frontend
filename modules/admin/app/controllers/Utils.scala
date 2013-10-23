@@ -26,18 +26,16 @@ class Utils @Inject()(implicit val globalConfig: global.GlobalConfig,
   /**
    * Check the database is up by trying to load the admin account.
    */
-  val checkDb = Action { implicit request =>
-    Async {
-      // Not using the EntityDAO directly here to avoid caching
-      // TODO: Make caching configurable...
-      WS.url(EntityDAO(EntityType.Group).requestUrl + "/admin").get.map { r =>
-        r.json.validate[Group](Group.Converter.restReads).fold(
-          _ => ServiceUnavailable("ko\nbad json"),
-          _ => Ok("ok")
-        )
-      } recover {
-        case err => ServiceUnavailable("ko\n" + err.getClass.getName)
-      }
+  val checkDb = Action.async { implicit request =>
+    // Not using the EntityDAO directly here to avoid caching
+    // TODO: Make caching configurable...
+    WS.url(EntityDAO(EntityType.Group).requestUrl + "/admin").get.map { r =>
+      r.json.validate[Group](Group.Converter.restReads).fold(
+        _ => ServiceUnavailable("ko\nbad json"),
+        _ => Ok("ok")
+      )
+    } recover {
+      case err => ServiceUnavailable("ko\n" + err.getClass.getName)
     }
   }
 }

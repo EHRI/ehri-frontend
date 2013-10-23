@@ -253,7 +253,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   }
 
-  def browseCountries = Action { implicit request =>
+  def browseCountries = Action.async { implicit request =>
     searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country), entities = List(EntityType.Repository))),
       entityFacets = repositoriesByCountrySearchFacets) {
       page => params => facets => implicit userOpt => _ =>
