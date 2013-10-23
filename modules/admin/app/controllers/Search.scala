@@ -7,7 +7,7 @@ import play.Play.application
 import play.api.libs.iteratee.{Concurrent, Enumerator}
 import models.IsadG
 import concurrent.Future
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import views.Helpers
 import play.api.libs.json.{Writes, Json}
 
@@ -32,32 +32,34 @@ object Search {
 class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val searchIndexer: Indexer) extends EntitySearch {
 
   // i.e. Everything
-  private val entityFacets = List(
-    FieldFacetClass(
-      key = IsadG.LANG_CODE,
-      name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
-      param = "lang",
-      render = Helpers.languageCodeToName
-    ),
-    FieldFacetClass(
-      key = "type",
-      name = Messages("search.type"),
-      param = "type",
-      render = s => Messages("contentTypes." + s)
-    ),
-    FieldFacetClass(
-      key = "copyrightStatus",
-      name = Messages("copyrightStatus.copyright"),
-      param = "copyright",
-      render = s => Messages("copyrightStatus." + s)
-    ),
-    FieldFacetClass(
-      key = "scope",
-      name = Messages("scope.scope"),
-      param = "scope",
-      render = s => Messages("scope." + s)
+  private val entityFacets: FacetBuilder = { implicit lang =>
+    List(
+      FieldFacetClass(
+        key = IsadG.LANG_CODE,
+        name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        param = "lang",
+        render = (s: String) => Helpers.languageCodeToName(s)
+      ),
+      FieldFacetClass(
+        key = "type",
+        name = Messages("search.type"),
+        param = "type",
+        render = s => Messages("contentTypes." + s)
+      ),
+      FieldFacetClass(
+        key = "copyrightStatus",
+        name = Messages("copyrightStatus.copyright"),
+        param = "copyright",
+        render = s => Messages("copyrightStatus." + s)
+      ),
+      FieldFacetClass(
+        key = "scope",
+        name = Messages("scope.scope"),
+        param = "scope",
+        render = s => Messages("scope." + s)
+      )
     )
-  )
+  }
 
   /**
    * Full text search action that returns a complete page of item data.

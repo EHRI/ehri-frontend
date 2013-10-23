@@ -50,7 +50,7 @@ object ApplicationBuild extends Build {
     "com.typesafe" %% "play-plugins-mailer" % "2.1.0",
 
     // Solr stuff
-    "com.github.seratch" %% "scalikesolr" % "4.0.0",
+    "com.github.seratch" %% "scalikesolr" % "[4.3,)",
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
   )

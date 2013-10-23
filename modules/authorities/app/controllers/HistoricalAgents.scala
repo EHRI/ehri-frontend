@@ -5,7 +5,7 @@ import forms.VisibilityForm
 import models._
 import models.forms.LinkForm
 import play.api._
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import defines._
 import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
@@ -27,20 +27,22 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig,
 
   // Documentary unit facets
   import solr.facet._
-  private val entityFacets = List(
-    FieldFacetClass(
-      key=models.Isaar.ENTITY_TYPE,
-      name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
-      param="cpf",
-      render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
-    ),
-    FieldFacetClass(
-      key="holderName",
-      name=Messages(s"$entityType.authoritativeSet"),
-      param="set",
-      sort = FacetSort.Name
+  private val entityFacets: FacetBuilder = { implicit lang =>
+    List(
+      FieldFacetClass(
+        key=models.Isaar.ENTITY_TYPE,
+        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        param="cpf",
+        render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+      ),
+      FieldFacetClass(
+        key="holderName",
+        name=Messages(s"$entityType.authoritativeSet"),
+        param="set",
+        sort = FacetSort.Name
+      )
     )
-  )
+  }
 
   // Search params
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))

@@ -33,14 +33,16 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
   // so set the result limit to be zero.
   private val defaultParams = SearchParams(limit=Some(0))
 
-  private val langCountFacets = List(
-    FieldFacetClass(
-      key=IsadG.LANG_CODE,
-      name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
-      param="lang",
-      render=Helpers.languageCodeToName
+  private val langCountFacets: FacetBuilder = { implicit lang =>
+    List(
+      FieldFacetClass(
+        key=IsadG.LANG_CODE,
+        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        param="lang",
+        render= (s: String) => Helpers.languageCodeToName(s)
+      )
     )
-  )
+  }
 
   def languageOfMaterial = Cached("pages:langMetric", metricCacheTime) {
     searchAction[AnyModel](
@@ -54,14 +56,16 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
   }
 
 
-  private val holdingRepoFacets = List(
-    // Holding repository
-    FieldFacetClass(
-      key="repositoryName",
-      name=Messages("documentaryUnit.heldBy"),
-      param="holder"
+  private val holdingRepoFacets: FacetBuilder = { implicit lang =>
+    List(
+      // Holding repository
+      FieldFacetClass(
+        key="repositoryName",
+        name=Messages("documentaryUnit.heldBy"),
+        param="holder"
+      )
     )
-  )
+  }
 
   def holdingRepository = Cached("pages:repoMetric", metricCacheTime) {
     searchAction[AnyModel](
@@ -74,16 +78,18 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     }
   }
 
-  private val countryRepoFacets = List(
+  private val countryRepoFacets: FacetBuilder = { implicit lang =>
+    List(
 
-    // Repositories by country
-    FieldFacetClass(
-      key="countryCode",
-      name=Messages("isdiah.countryCode"),
-      param="country",
-      render=Helpers.countryCodeToName
+      // Repositories by country
+      FieldFacetClass(
+        key="countryCode",
+        name=Messages("isdiah.countryCode"),
+        param="country",
+        render=Helpers.countryCodeToName
+      )
     )
-  )
+  }
 
   def repositoryCountries = Cached("pages:repoCountryMetric", metricCacheTime) {
     searchAction[AnyModel](
@@ -96,15 +102,17 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
     }
   }
 
-  private val restrictedFacets = List(
-    // Historical agent type
-    FieldFacetClass(
-      key=solr.SolrConstants.RESTRICTED_FIELD,
-      name=Messages("search.isRestricted"),
-      param="restricted",
-      render=s => Messages("restricted" + "." + s)
+  private val restrictedFacets: FacetBuilder = { implicit lang =>
+    List(
+      // Historical agent type
+      FieldFacetClass(
+        key=solr.SolrConstants.RESTRICTED_FIELD,
+        name=Messages("search.isRestricted"),
+        param="restricted",
+        render=s => Messages("restricted" + "." + s)
+      )
     )
-  )
+  }
 
   def restricted = Cached("pages:restrictedMetric", metricCacheTime) {
     searchAction[AnyModel](
@@ -120,15 +128,17 @@ class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val sear
   }
 
 
-  private val agentTypeFacets = List(
-    // Historical agent type
-    FieldFacetClass(
-      key=models.Isaar.ENTITY_TYPE,
-      name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
-      param="cpf",
-      render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+  private val agentTypeFacets: FacetBuilder = { implicit lang =>
+    List(
+      // Historical agent type
+      FieldFacetClass(
+        key=models.Isaar.ENTITY_TYPE,
+        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        param="cpf",
+        render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+      )
     )
-  )
+  }
 
   def agentTypes = Cached("pages:agentTypeMetric", metricCacheTime) {
     searchAction[AnyModel](

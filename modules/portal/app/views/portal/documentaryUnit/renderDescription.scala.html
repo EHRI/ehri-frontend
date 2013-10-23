@@ -5,12 +5,9 @@
 @import views.html.common.descriptionSection
 
 @common.descriptionOutline(desc, desc.languageCode) {
-    <h2>@desc.name</h2>
 
-    @descriptionSection(IDENTITY_AREA) {
-        @common.stringValue(desc.`abstract`, ABSTRACT)
-        @common.stringValue(desc.levelOfDescription, LEVEL_OF_DESCRIPTION)
-    }
+    @common.stringValue(desc.`abstract`, ABSTRACT)
+
     @descriptionSection(CONTEXT_AREA) {
         @common.stringValue(desc.context.biographicalHistory, ADMIN_BIOG)
         @common.stringValue(desc.context.archivalHistory, ARCH_HIST)

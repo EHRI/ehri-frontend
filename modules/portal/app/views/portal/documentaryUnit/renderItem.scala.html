@@ -24,13 +24,13 @@
 @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
     @layout.renderItemLayout {
         @item.holder.map { repo =>
-        <p />
+        <p>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>@Messages("portal.item.details")</strong>
             </div>
             <div class="panel-body">
-                <strong><a href="@controllers.portal.routes.Portal.browseRepository(repo.id)">@repo.toStringLang</a></strong>
+                <strong>@helpers.linkTo(repo)</strong>
                 @repo.model.descriptions.flatMap(_.addresses).headOption.map { address =>
                 @views.html.portal.repository.renderAddress(repo, address)
                 }

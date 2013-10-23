@@ -57,6 +57,14 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
     }
   }
 
+  "Search metrics" should {
+    "response to JSON" in new FakeApp {
+      val repoMetrics = route(fakeLoggedInJsonRequest(privilegedUser, GET,
+        controllers.admin.routes.Metrics.repositoryCountries.url)).get
+      status(repoMetrics) must equalTo(OK)
+    }
+  }
+
   step {
     runner.stop()
   }

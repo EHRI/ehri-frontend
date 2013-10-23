@@ -1,13 +1,13 @@
 @(item: Repository, result: utils.search.ItemPage[(DocumentaryUnit,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.portalLayout(item.toStringLang) {
-    @layout.breadcrumbs {
+    @layout.breadcrumbs(item.isA.toString) {
         @item.country.map { country =>
             <li>
                 <a href="@controllers.portal.routes.Portal.browseCountry(country.id)">@country.toStringLang</a>
             </li>
         }
-        <li><strong>@item.toStringLang</strong></li>
+        @helpers.breadcrumbCurrent(views.Helpers.ellipsize(item.toStringLang, 50))
     }
 
     @infobar(item)

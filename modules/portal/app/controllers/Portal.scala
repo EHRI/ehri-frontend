@@ -12,20 +12,25 @@ import views.html._
 import play.api.http.MimeTypes
 
 import com.google.inject._
-import utils.search.{SearchMode, Dispatcher, SearchOrder, SearchParams}
+import utils.search._
 import play.api.libs.json.{Format, Writes, Json}
 import solr.facet.{SolrQueryFacet, QueryFacetClass, FieldFacetClass}
+import play.api.i18n.{Lang, Messages}
+import views.Helpers
 import play.api.cache.Cached
-import play.api.i18n.Messages
 import views.Helpers
 import defines.EntityType
 import utils.ListParams
-import scala.Some
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import rest.EntityDAO
 import solr.SolrConstants
 import scala.concurrent.Future
+import solr.facet.FieldFacetClass
+import scala.Some
+import rest.EntityDAO
+import solr.facet.SolrQueryFacet
+import solr.facet.QueryFacetClass
 
 
 @Singleton
@@ -37,20 +42,24 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   private val portalRoutes = controllers.portal.routes.Portal
 
   // i.e. Everything
-  private val entityFacets = List(
-    FieldFacetClass(
-      key = IsadG.LANG_CODE,
-      name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
-      param = "lang",
-      render = Helpers.languageCodeToName
-    ),
-    FieldFacetClass(
-      key = "type",
-      name = Messages("search.type"),
-      param = "type",
-      render = s => Messages("contentTypes." + s)
+  private val entityFacets: FacetBuilder = { implicit lang =>
+    List(
+      FieldFacetClass(
+        key = IsadG.LANG_CODE,
+        name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        param = "lang",
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.List
+      ),
+      FieldFacetClass(
+        key = "type",
+        name = Messages("search.type"),
+        param = "type",
+        render = s => Messages("contentTypes." + s),
+        display = FacetDisplay.Choice
+      )
     )
-  )
+  }
   
   def listAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
@@ -204,53 +213,100 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(views.html.portal.portal())
   }
 
-  private val repositorySearchFacets = List(
-    QueryFacetClass(
-      key="childCount",
-      name=Messages("repository.itemsHeldOnline"),
-      param="childCount",
-      render=s => Messages("repository." + s),
-      facets=List(
-        SolrQueryFacet(value = "0", name = Some("noChildItems")),
-        SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+  private val repositorySearchFacets: FacetBuilder = { implicit lang =>
+    List(
+      QueryFacetClass(
+        key="childCount",
+        name=Messages("portal.facet.itemsHeldOnline"),
+        param="docs",
+        render=s => Messages("portal.facet.itemsHeldOnline." + s),
+        facets=List(
+          SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
+        ),
+        display = FacetDisplay.Boolean
+      ),
+      FieldFacetClass(
+        key="countryCode",
+        name=Messages("isdiah.countryCode"),
+        param="country",
+        render= (s: String) => Helpers.countryCodeToName(s),
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
       )
     )
-  )
+  }
 
-  def browseCountries = searchAction[Country](defaultParams = Some(SearchParams(entities = List(EntityType.Country))),
-      entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-    Ok(portal.country.list(page, params, facets, portalRoutes.browseCountries))
+  def browse = userProfileAction { implicit userOpt => implicit request =>
+    Ok(portal.browse())
+  }
+
+  private val repositoriesByCountrySearchFacets: FacetBuilder = { implicit lang =>
+    List(
+      FieldFacetClass(
+        key="countryCode",
+        name=Messages("isdiah.countryCode"),
+        param="country",
+        render= (s: String) => Helpers.countryCodeToName(s),
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
+      )
+    )
+  }
+
+  def browseCountries = Action { implicit request =>
+    searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country), entities = List(EntityType.Repository))),
+      entityFacets = repositoriesByCountrySearchFacets) {
+      page => params => facets => implicit userOpt => _ =>
+        Ok(portal.repository.listByCountry(page, params, facets, portalRoutes.browseCountries))
+    }.apply(request)
   }
 
   def browseCountry(id: String) = getAction.async[Country](EntityType.Country, id) {
       item => annotations => links => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), entityFacets = repositorySearchFacets,
         defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
-      page => params => facets => _ => _ =>
-        Ok(portal.country.show(item, page, params, facets,
+        page => params => facets => _ => _ =>
+      Ok(portal.country.show(item, page, params, facets,
           portalRoutes.browseCountry(id), annotations, links))
     }.apply(request)
   }
 
-  private val docSearchFacets = List(
-    FieldFacetClass(
-      key = IsadG.LANG_CODE,
-      name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
-      param = "lang",
-      render = Helpers.languageCodeToName
-    ),
-    QueryFacetClass(
-      key="childCount",
-      name=Messages("documentaryUnit.searchInside"),
-      param="childCount",
-      render=s => Messages("documentaryUnit." + s),
-      facets=List(
-        SolrQueryFacet(value = "0", name = Some("noChildItems")),
-        SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+  private val docSearchFacets: FacetBuilder = { implicit lang =>
+    List(
+      FieldFacetClass(
+        key = IsadG.LANG_CODE,
+        name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        param = "lang",
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.Choice,
+        sort = FacetSort.Name
+      ),
+      QueryFacetClass(
+        key="childCount",
+        name=Messages("portal.facet.container"),
+        param="items",
+        render=s => Messages("portal.facet.container." + s),
+        facets=List(
+          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
+        ),
+        display = FacetDisplay.Boolean
+      ),
+      FieldFacetClass(
+        key="countryCode",
+        name=Messages("portal.facet.location"),
+        param="country",
+        render= (s: String) => Helpers.countryCodeToName(s),
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
       )
     )
-  )
+  }
+
+  def browseRepositories = searchAction[Repository](defaultParams = Some(SearchParams(entities = List(EntityType.Repository))),
+    entityFacets = repositorySearchFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(portal.repository.list(page, params, facets, portalRoutes.browseRepositories))
+  }
 
   def browseRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
       item => annotations => links => implicit userOpt => implicit request =>
@@ -259,10 +315,34 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     searchAction[DocumentaryUnit](filters,
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
         entityFacets = docSearchFacets) {
-      page => params => facets => _ => _ =>
-        Ok(portal.repository.show(item, page, params, facets,
+        page => params => facets => _ => _ =>
+      Ok(portal.repository.show(item, page, params, facets,
           portalRoutes.browseRepository(id), annotations, links))
     }.apply(request)
+  }
+
+  def browseDocuments = searchAction[DocumentaryUnit](defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+    entityFacets = docSearchFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(portal.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments))
+  }
+
+  private val docSearchRepositoryFacets: FacetBuilder = { implicit lang =>
+    docSearchFacets(lang) ++ List(
+      FieldFacetClass(
+        key="holderName",
+        name=Messages("documentaryUnit.heldBy"),
+        param="holder",
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
+      )
+    )
+  }
+
+  def browseDocumentsByRepository = searchAction[DocumentaryUnit](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Holder), entities = List(EntityType.DocumentaryUnit))),
+    entityFacets = docSearchRepositoryFacets) {
+    page => params => facets => implicit userOpt => implicit request =>
+      Ok(portal.documentaryUnit.listByRepository(page, params, facets, portalRoutes.browseDocumentsByRepository))
   }
 
   def browseDocument(id: String) = getWithChildrenAction[DocumentaryUnit, DocumentaryUnit](EntityType.DocumentaryUnit, id) {
@@ -270,7 +350,24 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(portal.documentaryUnit.show(doc, children, anns, links))
   }
 
-  def browseHistoricalAgents = TODO
+  private val historicalAgentFacets: FacetBuilder = { implicit lang =>
+    List(
+      FieldFacetClass(
+        key=models.Isaar.ENTITY_TYPE,
+        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        param="cpf",
+        render=s => Messages(Isaar.FIELD_PREFIX + "." + s),
+        display = FacetDisplay.Choice
+      )
+    )
+  }
+
+  def browseHistoricalAgents = searchAction[HistoricalAgent](defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent))),
+    entityFacets = historicalAgentFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+    Ok(portal.historicalAgent.list(page, params, facets, portalRoutes.browseHistoricalAgents))
+  }
+
 
   def browseAuthoritativeSet(id: String) = getAction.async[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
     item => annotations => links => implicit userOpt => implicit request =>

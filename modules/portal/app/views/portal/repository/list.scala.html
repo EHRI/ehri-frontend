@@ -1,0 +1,12 @@
+@(page: utils.search.ItemPage[(Repository,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@layout.portalLayout(Messages("actions.listRepositories")) {
+    @layout.breadcrumbs(defines.EntityType.Repository.toString) {
+        @helpers.breadcrumbCurrent(Messages("portal.browse.repositories"))
+    }
+    @views.html.portal.searchForm(page, params, action, autofocus = false) {
+        @views.html.portal.searchItemList(page)
+    } {
+        @views.html.portal.facetList(page.facets, action)
+    }
+}

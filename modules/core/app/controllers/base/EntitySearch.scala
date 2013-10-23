@@ -7,6 +7,7 @@ import defines.EntityType
 import models.json.{ClientConvertable, RestReadable}
 import utils.search._
 import play.api.Logger
+import play.api.i18n.Lang
 
 
 /**
@@ -17,10 +18,20 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
 
   def searchDispatcher: utils.search.Dispatcher
 
-  def bindFacetsFromRequest(facetClasses: List[FacetClass[Facet]])(implicit request: Request[AnyContent]): List[AppliedFacet] = {
+  type FacetBuilder = Lang => FacetClassList
+  private val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]] }
+
+  case class SearchConfiguration(
+    defaultParams: Option[SearchParams] = None,
+    facetBuilder: FacetBuilder = emptyFacets,
+    searchMode: SearchMode.Value = SearchMode.DefaultAll,
+    filters: Map[String,Any] = Map.empty
+  )
+
+  def bindFacetsFromRequest(facetClasses: FacetClassList)(implicit request: Request[AnyContent]): List[AppliedFacet] = {
     val qs = request.queryString
     facetClasses.flatMap { fc =>
-      qs.get(fc.param).map { values =>
+      qs.get(fc.param).map(_.filterNot(_.trim.isEmpty)).map { values =>
         AppliedFacet(fc.key, values.toList)
       }
     }
@@ -70,7 +81,14 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
               (ids, list))
           }
           val page = res.copy(items = list.zip(ids))
-          f(page)(sp)(facets)(userOpt)(request)
+          render {
+            case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
+              "page" -> Json.toJson(res.copy(items = list))(ItemPage.itemPageWrites),
+              "params" -> Json.toJson(sp)(SearchParams.Converter.clientFormat),
+              "appliedFacets" -> Json.toJson(facets)
+            )).as(play.api.http.ContentTypes.JSON)
+            case _ => f(page)(sp)(facets)(userOpt)(request)
+          }
         }
       }
     }

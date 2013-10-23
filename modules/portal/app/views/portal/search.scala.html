@@ -2,6 +2,9 @@
     implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.portalLayout(Messages("forms.search")) {
+    @layout.breadcrumbs() {
+        <li><strong>@Messages("portal.search")</strong></li>
+    }
 
     @searchForm(result, params, action) {
         @searchItemList(result)

@@ -6,7 +6,7 @@ import controllers.base._
 import models._
 import models.forms.LinkForm
 import play.api._
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import defines.{ContentTypes, EntityType}
 import solr.facet.FieldFacetClass
 import views.Helpers
@@ -37,20 +37,22 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig, val sea
   val childForm = models.forms.ConceptForm.form
 
 
-  private val entityFacets = List(
-    FieldFacetClass(
-      key="languageCode", // FIXME - define elsewhere
-      name=Messages("concept.languageCode"),
-      param="lang",
-      render=Helpers.languageCodeToName
-    ),
-    FieldFacetClass(
-      key="holderName",
-      name=Messages("concept.inVocabulary"),
-      param="set",
-      sort = FacetSort.Name
+  private def entityFacets: FacetBuilder = { implicit lang =>
+    List(
+      FieldFacetClass(
+        key="languageCode", // FIXME - define elsewhere
+        name=Messages("concept.languageCode"),
+        param="lang",
+        render=(s: String) => Helpers.languageCodeToName(s)(lang)
+      ),
+      FieldFacetClass(
+        key="holderName",
+        name=Messages("concept.inVocabulary"),
+        param="set",
+        sort = FacetSort.Name
+      )
     )
-  )
+  }
 
   // Search params
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))

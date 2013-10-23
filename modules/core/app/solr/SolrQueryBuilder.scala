@@ -7,13 +7,20 @@ import com.github.seratch.scalikesolr.request.query.FieldsToReturn
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetParam,Param,Value}
+import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupField,GroupFormat,WithNumberOfGroups}
 
 import solr.facet._
 
 import defines.EntityType
 import models.UserProfile
-import utils.search.{SearchMode, AppliedFacet, FacetClassList, SearchParams}
+import utils.search._
 import play.api.Logger
+import solr.facet.FieldFacetClass
+import com.github.seratch.scalikesolr.request.query.facet.Value
+import com.github.seratch.scalikesolr.request.QueryRequest
+import com.github.seratch.scalikesolr.request.query.facet.Param
+import com.github.seratch.scalikesolr.request.query.facet.FacetParam
+import solr.facet.QueryFacetClass
 
 
 /**
@@ -26,23 +33,22 @@ object SolrQueryBuilder {
 
   /**
    * Convert a page value to an offset, given a particular limit.
-   * @param page
-   * @param limit
-   * @return
    */
   private def page2offset(page: Int, limit: Int) = (Math.max(page, 1) - 1) * limit
 
   /**
    * Set a list of facets on a request.
-   * @param request
-   * @param flist
    */
   private def setRequestFacets(request: QueryRequest, flist: FacetClassList): Unit = {
+
+    // Need to tag and exclude all 'choice' facet classes because we want
+    // the counts even if they're excluded...
+    val tags = flist.filter(_.tagExclude).map(_.key)
     request.setFacet(new FacetParams(
       enabled=true,
       params=flist.flatMap {
-        case qf: QueryFacetClass => List(qf.asParams)
-        case ff: FieldFacetClass => List(ff.asParams)
+        case qf: QueryFacetClass => List(qf.asParams(tags))
+        case ff: FieldFacetClass => List(ff.asParams(tags))
         case e => {
           Logger.logger.warn("Unknown facet class type: {}", e)
           Nil
@@ -53,10 +59,6 @@ object SolrQueryBuilder {
 
   /**
    * Apply filters to the request based on a set of applied facets.
-   *
-   * @param request
-   * @param facetClasses
-   * @param appliedFacets
    */
   private def setRequestFilters(request: QueryRequest, facetClasses: FacetClassList,
                                 appliedFacets: List[AppliedFacet]): Unit = {
@@ -64,14 +66,29 @@ object SolrQueryBuilder {
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
     // apparently only have one. So instead of adding multiple
     // fq clauses, we need to join them all with '+'
+
     val fqstrings = facetClasses.flatMap(fclass => {
-      appliedFacets.filter(_.name == fclass.key).map(_.values).map( paramVals =>
+      appliedFacets.filter(_.name == fclass.key).map(_.values).map { paramVals =>
+        // If we get several field parameters for the same facet class we
+        // need to OR them together...
         fclass match {
-          case fc: FieldFacetClass => paramVals.map(v => fc.key + ":\"" + v + "\"") // Grr, interpolation...
+          case fc: FieldFacetClass => {
+            paramVals match {
+              case Nil => Nil
+              case _ => {
+                // Choice facets need a tag in front of the parameter so they can be
+                // excluded from count-limiting filters
+                // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
+                val query = "(" + paramVals.map(v => fc.key + ":\"" + v + "\"").mkString(" OR ") + ")"
+                if (fc.tagExclude) List("{!tag=" + fc.key + "}" + query)
+                else List(query)
+              }
+            }
+          } // Grr, interpolation...
           case fc: QueryFacetClass => {
             fc.facets.flatMap(facet => {
               if (paramVals.contains(facet.value)) {
-                List(s"${fc.key}:${facet.solrValue}")
+                List(s"{!tag=${fc.key}}${fc.key}:${facet.solrValue}")
               } else Nil
             })
           }
@@ -80,16 +97,14 @@ object SolrQueryBuilder {
             Nil
           }
         }
-      )
+      }
     }).flatten
     request.setFilterQuery(FilterQuery(multiple = fqstrings))
+    request.set("facet.mincount", 1)
   }
 
   /**
    * Constrain a search request with the given facets.
-   * @param request
-   * @param appliedFacets
-   * @param allFacets
    */
   private def constrain(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: FacetClassList): Unit = {
     setRequestFacets(request, allFacets)
@@ -99,8 +114,6 @@ object SolrQueryBuilder {
   /**
    * Constrain the search to entities of a given type, applying an fq
    * parameter to the "type" field.
-   * @param request
-   * @param entities
    */
   private def constrainEntities(request: QueryRequest, entities: List[EntityType.Value]): Unit = {
     if (!entities.isEmpty) {
@@ -114,9 +127,7 @@ object SolrQueryBuilder {
    * Filter docs based on access. If the user is empty, only allow
    * through those which have accessibleTo:ALLUSERS.
    * If we have a user and they're not admin, add a filter against
-   * all their groups
-   * @param request
-   * @param userOpt
+   * all their groups.
    */
   private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfile]): Unit = {
     if (userOpt.isEmpty) {
@@ -136,26 +147,25 @@ object SolrQueryBuilder {
   }
 
   /**
-   * Group results by item id (as opposed to description id)
-   * @param request
+   * Group results by item id (as opposed to description id). Facet counts
+   * are also set to reflect grouping as opposed to the number of individual
+   * items.
    */
   private def setGrouping(request: QueryRequest): Unit = {
-    request.set("group", true)
-    request.set("group.field", ITEM_ID)
+    request.setGroup(GroupParams(
+      enabled=true,
+      field=GroupField(ITEM_ID),
+      format=GroupFormat("simple"),
+      ngroups=WithNumberOfGroups(true)
+    ))
+
+    // Not yet supported by scalikesolr
     request.set("group.facet", true)
-    request.set("group.format", "simple")
-    request.set("group.ngroups", true)
-    //req.set("group.truncate", true)
   }
 
   /**
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
-   * @param params
-   * @param filters
-   * @param alphabetical
-   * @param userOpt
-   * @return
    */
   def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
@@ -185,8 +195,6 @@ object SolrQueryBuilder {
 
   /**
    * Build a query given a set of search parameters.
-   * @param params
-   * @return
    */
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty,
               mode: SearchMode.Value = SearchMode.DefaultAll)(
@@ -201,9 +209,11 @@ object SolrQueryBuilder {
       case _ => "PLACEHOLDER_QUERY_RETURNS_NO_RESULTS" // FIXME! This sucks
     }
 
-    // Use childCount to boost results
-    val queryString = (s"{!boost b=$CHILD_COUNT}"
-        + params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters)
+    // Child count to boost results seems to have an odd affect in making the
+    // query only work on the default field - disabled for now...
+    val queryString = (
+        //s"{!boost b=$CHILD_COUNT}" +
+        params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters)
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
 
@@ -217,9 +227,9 @@ object SolrQueryBuilder {
     req.setQueryParserType(QueryParserType("edismax"))
 
     // Highlight, which will at some point be implemented...
-    req.setHighlighting(HighlightingParams(
-        enabled=true,
-        isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
+//    req.setHighlighting(HighlightingParams(
+//        enabled=true,
+//        isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
 
     // Set result ordering, defaulting to the solr default 'score asc'
     // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)

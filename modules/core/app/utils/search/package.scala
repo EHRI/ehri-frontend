@@ -13,8 +13,6 @@ package object search {
    * A facet that has been "applied", i.e. a name of the field
    * and the set of values that should be used to constrain
    * a particular search.
-   * @param name
-   * @param values
    */
   case class AppliedFacet(name: String, values: List[String])
 
@@ -54,5 +52,4 @@ package object search {
     } else qs.updated(fc.param, Seq(f.value))
     )
   }
-
 }

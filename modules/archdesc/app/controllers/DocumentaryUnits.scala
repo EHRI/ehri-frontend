@@ -7,7 +7,7 @@ import models.forms.LinkForm
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import defines._
 import views.Helpers
 import utils.search.{Dispatcher, SearchParams, FacetSort}
@@ -32,42 +32,44 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig,
   // Documentary unit facets
   import solr.facet._
 
-  private val entityFacets = List(
-    QueryFacetClass(
-      key="childCount",
-      name=Messages("documentaryUnit.searchInside"),
-      param="childCount",
-      render=s => Messages("documentaryUnit." + s),
-      facets=List(
-        SolrQueryFacet(value = "0", name = Some("noChildItems")),
-        SolrQueryFacet(value = "[1 TO *]", name = Some("hasChildItems"))
+  private val entityFacets: FacetBuilder = { implicit lang =>
+    List(
+      QueryFacetClass(
+        key="childCount",
+        name=Messages("documentaryUnit.searchInside"),
+        param="items",
+        render=s => Messages("documentaryUnit." + s),
+        facets=List(
+          SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
+          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
+        )
+      ),
+      FieldFacetClass(
+        key=IsadG.LANG_CODE,
+        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        param="lang",
+        render=Helpers.languageCodeToName
+      ),
+      FieldFacetClass(
+        key="holderName",
+        name=Messages("documentaryUnit.heldBy"),
+        param="holder",
+        sort = FacetSort.Name
+      ),
+      FieldFacetClass(
+        key="copyrightStatus",
+        name=Messages("copyrightStatus.copyright"),
+        param="copyright",
+        render=s => Messages("copyrightStatus." + s)
+      ),
+      FieldFacetClass(
+        key="scope",
+        name=Messages("scope.scope"),
+        param="scope",
+        render=s => Messages("scope." + s)
       )
-    ),
-    FieldFacetClass(
-      key=IsadG.LANG_CODE,
-      name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
-      param="lang",
-      render=Helpers.languageCodeToName
-    ),
-    FieldFacetClass(
-      key="holderName",
-      name=Messages("documentaryUnit.heldBy"),
-      param="holder",
-      sort = FacetSort.Name
-    ),
-    FieldFacetClass(
-      key="copyrightStatus",
-      name=Messages("copyrightStatus.copyright"),
-      param="copyright",
-      render=s => Messages("copyrightStatus." + s)
-    ),
-    FieldFacetClass(
-      key="scope",
-      name=Messages("scope.scope"),
-      param="scope",
-      render=s => Messages("scope." + s)
     )
-  )
+  }
 
 
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)

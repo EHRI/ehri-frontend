@@ -1,13 +1,9 @@
 @(item: HistoricalAgent, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.portalLayout(item.toStringLang) {
-    @layout.breadcrumbs {
-        @item.set.map { set =>
-            <li>
-                <a href="@controllers.portal.routes.Portal.browseAuthoritativeSet(set.id)">@set.toStringLang</a>
-            </li>
-        }
-        <li><strong>@item.toStringLang</strong></li>
+    @layout.breadcrumbs(item.isA.toString) {
+        <li><a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a></li>
+        @helpers.breadcrumbCurrent(item.toStringLang)
     }
 
     @infobar(item)

@@ -1,13 +1,13 @@
 @(item: Country, result: utils.search.ItemPage[(Repository,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.portalLayout(item.toStringLang) {
-    @layout.breadcrumbs {
-        <li><strong>@item.toStringLang</strong></li>
+    @layout.breadcrumbs(item.isA.toString) {
+        @helpers.breadcrumbCurrent(item.toStringLang)
     }
 
     @infobar(item)
 
-    @views.html.portal.searchForm(result, params, action, key = "", autofocus = false) {
+    @views.html.portal.searchForm(result, params, action, headerKey = "country.repositoriesPageHeader", key = "", autofocus = false) {
         @views.html.portal.searchItemList(result)
     } {
         @views.html.portal.facetList(result.facets, action)

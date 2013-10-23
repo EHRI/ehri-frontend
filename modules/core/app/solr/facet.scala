@@ -2,7 +2,7 @@ package solr.facet
 
 import com.github.seratch.scalikesolr.request.query.facet.{FacetParam, Param, Value}
 import play.api.libs.json.{JsNumber, Json, Writes}
-import utils.search.{FacetClass, FacetSort}
+import utils.search.{FacetDisplay, FacetClass, FacetSort}
 
 trait SolrFacet extends utils.search.Facet {
   def solrValue: String
@@ -36,15 +36,20 @@ case class SolrQueryFacet(
   count: Int = 0,
   applied: Boolean = false,
   name: Option[String] = None,
-  value: String
+  value: String,
+  solrValue: String
 ) extends SolrFacet {
   def sort = name.getOrElse(value)
-  override def solrValue = value
 }
 
 
 trait SolrFacetClass[+T <: SolrFacet] extends FacetClass[T] {
-  def asParams: List[FacetParam]
+  def asParams(tags: List[String] = Nil): List[FacetParam]
+
+  protected def tagFunc(tags: List[String]): String = tags match {
+    case Nil => ""
+    case _ => "{!ex=" + tags.mkString(",") + "}"
+  }
 }
 
 
@@ -65,14 +70,15 @@ case class FieldFacetClass(
   param: String,
   render: (String) => String = s=>s,
   facets: List[SolrFieldFacet] = Nil,
+  display: FacetDisplay.Value = FacetDisplay.List,
   sort: FacetSort.Value = FacetSort.Count
 ) extends SolrFacetClass[SolrFieldFacet] {
   val fieldType: String = "facet.field"
 
-  def asParams: List[FacetParam] = {
+  def asParams(tags: List[String] = Nil): List[FacetParam] = {
     List(new FacetParam(
       Param(fieldType),
-      Value(key)
+      Value(tagFunc(tags) + key)
     ))
   }
 }
@@ -83,15 +89,16 @@ case class QueryFacetClass(
   param: String,
   render: (String) => String = s=>s,
   override val facets: List[SolrQueryFacet],
+  display: FacetDisplay.Value = FacetDisplay.List,
   sort: FacetSort.Value = FacetSort.Name
 ) extends SolrFacetClass[SolrQueryFacet] {
   val fieldType: String = "facet.query"
 
-  def asParams: List[FacetParam] = {
+  def asParams(tags: List[String] = Nil): List[FacetParam] = {
     facets.map(p =>
       new FacetParam(
         Param(fieldType),
-        Value("%s:%s".format(key, p.solrValue))
+        Value("%s%s:%s".format(tagFunc(tags), key, p.solrValue))
       )
     )
   }

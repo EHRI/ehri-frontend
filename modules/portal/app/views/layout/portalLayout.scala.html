@@ -5,179 +5,27 @@
 <html lang="@lang.code">
     <head>
         <title>@title</title>
-        <!--<link rel="stylesheet" href="@controllers.portal.routes.Assets.at("bootstrap3/css/bootstrap.min.css")">-->
+        <!-- CND Bootstrap...
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css"> -->
+
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("bootstrap-custom/css/bootstrap.min.css")">
+
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("css/portal.css")">
 
         <style type="text/css">
-            body {
-                padding-top: 50px;
-
-            }
-
-                /* Sticky footer styles
-                    -------------------------------------------------- */
-
-            html,
-            body {
-                height: 100%;
-                /* The html and body elements cannot have any padding or margin. */
-            }
-
-            /** Type highlights */
-            .type-highlight {
-
-            }
-
-            .documentaryUnit a {
-                color: rgb(93, 73, 168);
-            }
-
-            .country a {
-                color: rgb(146, 183, 65);
-            }
-
-            .repository a {
-                color: rgb(174, 62, 130);
-            }
-
-            .historicalAgent a {
-                color: rgb(187, 185, 98);
-            }
-
-            a.alt {
-                color: #000;
-                font-weight: bolder;
-            }
-
-            .search-box {
-                margin-top: 15px;
-            }
-
-            .sidebar {
-            }
-
-            .top-bar {
-                background-color: #f5f5f5;
-                border-top: 1px solid #f0f0f0;
-                border-bottom: 1px solid #fff;
-            }
-
-            .search-bar {
-                background-color: #f5f5f5;
-                border-top: 1px solid #f0f0f0;
-                border-bottom: 1px solid #fff;
-            }
-
-            .info-bar {
-                background-color: #f5f5f5;
-                border-top: 1px solid #f0f0f0;
-                border-bottom: 1px solid #fff;
-            }
-
-            .main-content {
-                background-color: #FFFFFF;
-            }
-
-            .tertiary-content {
-                margin-top: 50px;
-            }
-
-            .front-page-panel-content {
-                padding: 10px;
-                font-size: 0.9em;
-                height: 300px;
-                overflow: auto;
-            }
-
-            #news-feed {
-            }
-
-            #news-feed img {
-                display: none;
-            }
-
-                /* Wrapper for page content to push down footer */
-            #wrap {
-                min-height: 100%;
-                height: auto !important;
-                height: 100%;
-                /* Negative indent footer by it's height */
-                margin: 0 auto -100px;
-            }
-
-                /* Set the fixed height of the footer here */
-            #push, footer {
-                height: 99px;
-            }
-
-            footer {
-                background-color: #f5f5f5;
-                padding-left: 20px;
-                padding-right: 20px;
-            }
-
-            footer .container {
-                padding-top: 20px;
-            }
-
-                /** Search items */
-            .search-item {
-                padding-bottom: 0.5em;
-                border-bottom: 1px dashed #EBEBEB;
-                margin-bottom: 1.5em;
-            }
-
-            .search-item-heading {
-                font-size: 1.0em;
-                font-weight: bolder;
-                margin-bottom: 0.2em;
-            }
-
-                /** Inline lists - Bootstrap doesn't actually do this by itself */
-            ul.inline li {
-                display: inline;
-                padding-left: 0em;
-            }
-
-                /** Put a separator between the bars of inline lists */
-            ul.inline-separator li:after {
-                content: " | ";
-            }
-
-            ul.inline-separator li:last-child:after {
-                content: "";
-            }
-
-            /** Inline lists with a comma separator */
-            ul.comma-sep {
-                display: inline;
-                margin: 0;
-                padding: 0;
-            }
-
-            ul.comma-sep li {
-                display: inline;
-                list-style: none;
-                margin: 0;
-                padding: 0;
-            }
-
-            ul.comma-sep li:after {
-                content: ", ";
-                color: #aaa;
-            }
-
-            ul.comma-sep li:last-child:after {
-                content: "";
-            }
-
         </style>
 
         @styles
 
         <script src="//code.jquery.com/jquery.js"></script>
-        <script src="@controllers.portal.routes.Assets.at("bootstrap3/js/bootstrap.min.js")"></script>
+        <script src="@controllers.portal.routes.Assets.at("bootstrap-custom/js/bootstrap.min.js")"></script>
+
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("select2/select2.css")" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("select2/select2-bootstrap.css")" rel="stylesheet" type="text/css" />
+        <script src="@controllers.portal.routes.Assets.at("select2/select2.js")"></script>
+
+        <script src="@controllers.portal.routes.Assets.at("js/portal.min.js")"></script>
 
         @scripts
     </head>
@@ -187,21 +35,42 @@
         @(if(req.path.equals(url)) "active" else "")
     }
 
+    @maybeActivePath(url: String) = {
+        @(if(req.path.startsWith(url)) "active" else "")
+    }
+
     <header>
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container">
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
+
                     <ul class="nav navbar-nav">
-                        <li class="@maybeActive(controllers.portal.routes.Portal.index.url)">
-                            <a href="@controllers.portal.routes.Portal.index">
-                                <span class="glyphicon glyphicon-home"></span>
+                        <li class="@maybeActivePath(controllers.portal.routes.Portal.browse.url)">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                @Messages("portal.browse")
+                                <b class="caret"></b>
                             </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.repositoriesByCountry")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseDocumentsByRepository">@Messages("portal.browse.documentsByRepository")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="@maybeActive(controllers.portal.routes.Portal.search.url)">
-                            <a href="@controllers.portal.routes.Portal.search">@Messages("portal.search")</a>
+                        <li class="@maybeActive(controllers.portal.routes.Portal.activity.url)">
+                            <a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a>
                         </li>
-                        <li><a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browseCountries")</a></li>
-                        <li><a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a></li>
                         @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "navbar-form navbar-right", 'role -> "search") {
                             <div class="form-group">
                                 <input type="text" name="q" class="form-control" placeholder="@Messages("portal.search")" />
@@ -222,6 +91,19 @@
     <footer class="footer sticky text-center">
         <div class="container">
             <p class="text-muted">@Messages("portal.footerText")</p>
+            <small>
+                <ul class="text-muted lang-switcher pull-right list-inline list-unstyled">
+                @List("en", "fr", "de", "he").map { changeLang =>
+                <li>
+                            @if(lang.toString.toLowerCase.contains(changeLang)) {
+                    @changeLang
+                    } else {
+                    <a href="@controllers.core.routes.Application.changeLocale(changeLang)">@changeLang</a>
+                    }
+                </li>
+                }
+                </ul>
+            </small>
         </div>
     </footer>
 

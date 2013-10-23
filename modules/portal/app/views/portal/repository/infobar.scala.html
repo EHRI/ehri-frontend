@@ -3,5 +3,15 @@
 <div class="row info-bar">
     <div class="container">
         <h1>@item.toStringLang</h1>
+
+        @item.model.primaryDescription.map { desc =>
+            @alternateNames(item, desc)
+        }
+
+        <small>
+            @item.model.primaryDescription.map { desc =>
+                @conciseAddress(item, desc, includeCountry = true)
+            }
+        </small>
     </div>
 </div>
