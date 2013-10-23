@@ -76,7 +76,7 @@ trait Authorizer extends Results with AuthConfig {
   /**
    * A redirect target after a successful user login.
    */
-  def loginSucceeded(request: RequestHeader): Future[SimpleResult] = {
+  def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
     //val uri = request.session.get("access_uri").getOrElse(controllers.routes.Search.search.url)
     // FIXME: Hard-coded reference to /admin...
     val uri = request.session.get("access_uri").getOrElse(globalConfig.routeRegistry.default.url)

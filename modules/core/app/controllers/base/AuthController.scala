@@ -5,7 +5,6 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.{UserProfileF, UserProfile}
 import models.json.RestReadable
-import play.api._
 import play.api.mvc._
 import play.api.i18n.Lang
 import jp.t2v.lab.play2.auth.AsyncAuth
@@ -54,7 +53,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    */
   object userProfileAction {
     def async(f: Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
-      optionalUserAction.async { implicit maybeAccount => implicit request =>
+      optionalUserAction.async[AnyContent](BodyParsers.parse.anyContent) { implicit maybeAccount => implicit request =>
         maybeAccount.map { account =>
           if (staffOnly && secured && !account.staff) {
             immediate(Unauthorized(views.html.errors.staffOnly()))

@@ -103,7 +103,8 @@ trait ControllerHelpers {
     def async(promise: Future[Either[Throwable, Future[SimpleResult]]])(implicit maybeUser: Option[UserProfile] = None, request: RequestHeader): Future[SimpleResult] = {
       promise.flatMap { respOrErr =>
         respOrErr.fold(
-          err => Future.successful(InternalServerError(err)),
+          // FIXME: REFACTOR
+          err => Future.successful(InternalServerError(err.toString)),
           resp => resp
         )
       }

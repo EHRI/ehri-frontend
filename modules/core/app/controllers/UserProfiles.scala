@@ -33,7 +33,7 @@ class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig, val
   // parameters we use the companion object apply method here.
 
   def get(id: String) = getAction(id) {
-      item => annotations => links => implicit userOptOpt => implicit request =>
+      item => annotations => links => implicit userOpt => implicit request =>
     Ok(views.html.userProfile.show(item, annotations))
   }
 

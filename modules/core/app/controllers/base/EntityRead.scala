@@ -23,12 +23,19 @@ trait EntityRead[MT] extends EntityController {
   val defaultChildPage: ListParams = new ListParams()
 
 
-  def getEntity(id: String, user: Option[UserProfile])(f: MT => SimpleResult)(
-      implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
-    AsyncRest {
-      rest.EntityDAO(entityType, userOpt).get(id).map { itemOrErr =>
-        itemOrErr.right.map(f)
+  object getEntity {
+    def async(id: String, user: Option[UserProfile])(f: MT => Future[SimpleResult])(
+        implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+      AsyncRest.async {
+        rest.EntityDAO(entityType, userOpt).get(id).map { itemOrErr =>
+          itemOrErr.right.map(f)
+        }
       }
+    }
+
+    def apply(id: String, user: Option[UserProfile])(f: MT => SimpleResult)(
+        implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+      async(id, user)(f.andThen(t => Future.successful(t)))
     }
   }
 
@@ -41,22 +48,29 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def getUsersAndGroups(f: Seq[(String,String)] => Seq[(String,String)] => SimpleResult)(
+  object getUsersAndGroups {
+    def async(f: Seq[(String,String)] => Seq[(String,String)] => Future[SimpleResult])(
         implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
     // TODO: Handle REST errors
+
       for {
         users <- rest.RestHelpers.getUserList
         groups <- rest.RestHelpers.getGroupList
-      } yield {
-        f(users)(groups)
-      }
+        r <- f(users)(groups)
+      } yield r
+    }
+
+    def apply(f: Seq[(String,String)] => Seq[(String,String)] => SimpleResult)(
+        implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+      async(f.andThen(_.andThen(t => Future.successful(t))))
+    }
   }
 
   object getAction {
-    def async[MT](id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+    def async(id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
         implicit rd: RestReadable[MT], crd: ClientConvertable[MT]) = {
       itemPermissionAction.async[MT](contentType, id) { item => implicit maybeUser => implicit request =>
-        AsyncRest {
+        AsyncRest.async {
           // NB: Effectively disable paging here by using a high limit
           val annsReq = rest.AnnotationDAO(maybeUser).getFor(id)
           val linkReq = rest.LinkDAO(maybeUser).getFor(id)
@@ -69,9 +83,9 @@ trait EntityRead[MT] extends EntityController {
       }
     }
 
-    def apply[MT](id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+    def apply(id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT], crd: ClientConvertable[MT]) = {
-      async(id)(f.andThen(_.andThen(t => Future.successful(t))))
+      async(id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))
     }
   }
 

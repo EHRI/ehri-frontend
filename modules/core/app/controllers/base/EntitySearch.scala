@@ -44,26 +44,14 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
     }
   }
 
-
-  /**
-   * Short cut search action without the ability to provide default filters
-   * @param f
-   * @return
-   */
-  def searchAction[MT](f: ItemPage[(MT,String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
-    searchAction[MT](Map.empty[String,Any])(f)
-  }
-
   /**
    * Action that restricts the search to the inherited entity type
    * and applies
-   * @param f
-   * @return
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None,
                         entityFacets: FacetClassList = Nil, mode: SearchMode.Value = SearchMode.DefaultAll)(
       f: ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
-    userProfileAction { implicit userOpt => implicit request =>
+    userProfileAction.async { implicit userOpt => implicit request =>
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
 
       // Override the entity type with the controller entity type
@@ -72,25 +60,20 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
           .setDefault(params)
 
       val facets: List[AppliedFacet] = bindFacetsFromRequest(entityFacets)
-      AsyncRest {
-        searchDispatcher.search(sp, facets, entityFacets, filters, mode).flatMap { resOrErr =>
-          resOrErr.right.map { res =>
-            val ids = res.items.map(_.id)
-            val itemIds = res.items.map(_.itemId)
-            AsyncRest {
-              rest.SearchDAO(userOpt).list[MT](itemIds).map { listOrErr =>
-                listOrErr.right.map { list =>
-                  // Sanity check!
-                  if (list.size != ids.size) {
-                    Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
-                      (ids, list))
-                  }
-                  val page = res.copy(items = list.zip(ids))
-                  f(page)(sp)(facets)(userOpt)(request)
-                }
-              }
-            }
+
+      searchDispatcher.search(sp, facets, entityFacets, filters, mode).flatMap { resOrErr =>
+      // FIXME: REFACTOR - error handling removed!
+        val res = resOrErr.right.get
+        val ids = res.items.map(_.id)
+        val itemIds = res.items.map(_.itemId)
+        rest.SearchDAO(userOpt).list[MT](itemIds).map { listOrErr =>
+          val list = listOrErr.right.get
+          if (list.size != ids.size) {
+            Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
+              (ids, list))
           }
+          val page = res.copy(items = list.zip(ids))
+          f(page)(sp)(facets)(userOpt)(request)
         }
       }
     }
@@ -98,7 +81,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
 
   def filterAction(filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
         f: ItemPage[(String,String,EntityType.Value)] => Option[UserProfile] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
-    userProfileAction { implicit userOpt => implicit request =>
+    userProfileAction.async { implicit userOpt => implicit request =>
 
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
       // Override the entity type with the controller entity type

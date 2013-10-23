@@ -8,7 +8,7 @@ import models.json.RestReadable
 import global.GlobalConfig
 import play.api._
 import play.api.mvc._
-import jp.t2v.lab.play2.auth.{LoginLogout, Auth}
+import jp.t2v.lab.play2.auth.{AsyncAuth, LoginLogout, Auth}
 import play.api.Play._
 import play.api.libs.json.Json
 import defines.EntityType
@@ -20,7 +20,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 
-class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with Authorizer with AuthController {
+class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with AsyncAuth with Authorizer with AuthController {
 
   /**
    * Action for redirecting to any item page, given a raw id.

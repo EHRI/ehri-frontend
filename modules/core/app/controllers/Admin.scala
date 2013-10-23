@@ -303,19 +303,19 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    */
   private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Future[SimpleResult])(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
-    AsyncRest {
+    AsyncRest.async {
       rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
-        .create[UserProfileF](user, params = Map("group" -> groups)).flatMap { itemOrErr =>
+        .create[UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
         if (itemOrErr.isLeft) {
           itemOrErr.left.get match {
             case v@ValidationError(errorSet) => {
               val serverErrors: Seq[FormError] = user.errorsToForm(errorSet)
               val form = userPasswordForm.bindFromRequest
               val errForm = form.copy(errors = form.errors ++ serverErrors)
-              Right {
+              Right(
                 immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
                   allGroups, controllers.core.routes.Admin.createUserPost)))
-              }
+              )
             }
             case e => Left(e)
           }

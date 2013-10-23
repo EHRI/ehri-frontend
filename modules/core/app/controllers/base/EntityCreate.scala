@@ -8,14 +8,11 @@ import defines.PermissionType
 import models.UserProfile
 import forms.VisibilityForm
 import models.json.{RestReadable, RestConvertable}
-import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.Future
 
 /**
  * Controller trait for creating AccessibleEntities.
- *
- * @tparam F the Entity's formable representation
- * @tparam MT the Entity's meta representation
  */
 trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
 
@@ -43,7 +40,7 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
         form.bindFromRequest.fold(
           errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),
           doc => {
-            AsyncRest {
+            AsyncRest.async {
               val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
               rest.EntityDAO(entityType, userOpt)
                   .create(doc, accessors, logMsg = getLogMessage).map { itemOrErr =>
@@ -70,7 +67,7 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
     }
 
     def apply(form: Form[F])(f: CreateCallback)(implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
-      async(form)(f.andThen(_.andThen(t => immediate(t))))
+      async(form)(f.andThen(_.andThen(_.andThen(t => immediate(t)))))
     }
   }
 }
