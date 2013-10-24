@@ -142,10 +142,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val haFetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(headArchivistUserId))
-
-      haFetchProfile must beRight
-      val headArchivistProfile = haFetchProfile.right.get
+      val headArchivistProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(headArchivistUserId))
 
       // Add their account to the mocks
       val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com", staff = true)
@@ -174,10 +171,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val aFetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(archivistUserId))
-
-      aFetchProfile must beRight
-      val archivistProfile = aFetchProfile.right.get
+      val archivistProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(archivistUserId))
 
       // Add the archivists group to the account mocks
       val aAccount = MockAccount(archivistUserId, "archivist1@example.com", staff = true)

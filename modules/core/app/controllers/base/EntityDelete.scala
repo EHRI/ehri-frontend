@@ -24,14 +24,10 @@ trait EntityDelete[MT] extends EntityRead[MT] {
 
   def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
-      AsyncRest {
-        rest.EntityDAO(entityType, userOpt).delete(id, logMsg = getLogMessage).map { boolOrErr =>
-          boolOrErr.right.map { ok =>
-            request match {
-              case Accepts.Html() => f(ok)(userOpt)(request)
-              case Accepts.Json() => Ok(Json.toJson(ok))
-            }
-          }
+      rest.EntityDAO(entityType, userOpt).delete(id, logMsg = getLogMessage).map { ok =>
+        request match {
+          case Accepts.Html() => f(ok)(userOpt)(request)
+          case Accepts.Json() => Ok(Json.toJson(ok))
         }
       }
     }

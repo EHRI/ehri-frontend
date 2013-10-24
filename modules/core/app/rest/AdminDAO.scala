@@ -10,7 +10,7 @@ case class AdminDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/admin".format(host, port, mount)
 
-  def createNewUserProfile: Future[Either[RestError, UserProfile]] = {
+  def createNewUserProfile: Future[UserProfile] = {
     WS.url(enc(requestUrl, "createDefaultUserProfile")).withHeaders(headers.toSeq: _*).post("").map { response =>
         checkErrorAndParse(response)(UserProfile.Converter.restReads)
       }

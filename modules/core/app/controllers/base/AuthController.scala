@@ -61,23 +61,21 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             val fakeProfile = UserProfile(UserProfileF(id=Some(account.id), identifier="", name=""))
             implicit val maybeUser = Some(fakeProfile)
 
-            AsyncRest.async {
-              // TODO: For the permissions to be properly initialized they must
-              // recieve a completely-constructed instance of the UserProfile
-              // object, complete with the groups it belongs to. Since this isn't
-              // available initially, and we don't want to block for it to become
-              // available, we should probably add the account to the permissions when
-              // we have both items from the server.
-              val getProf = rest.EntityDAO[UserProfile](EntityType.UserProfile, maybeUser).get(account.id)
-              val getGlobalPerms = rest.PermissionDAO(maybeUser).get
-              // These requests should execute in parallel...
-              for { r1 <- getProf; r2 <- getGlobalPerms } yield {
-                for { entity <- r1.right; gperms <- r2.right } yield {
-                  val up = entity.copy(account = Some(account), globalPermissions = Some(gperms))
-                  f(Some(up))(request)
-                }
-              }
-            }
+            // TODO: For the permissions to be properly initialized they must
+            // recieve a completely-constructed instance of the UserProfile
+            // object, complete with the groups it belongs to. Since this isn't
+            // available initially, and we don't want to block for it to become
+            // available, we should probably add the account to the permissions when
+            // we have both items from the server.
+            val getProf = rest.EntityDAO[UserProfile](EntityType.UserProfile, maybeUser).get(account.id)
+            val getGlobalPerms = rest.PermissionDAO(maybeUser).get
+            // These requests should execute in parallel...
+            for {
+              entity <- getProf
+              gperms <- getGlobalPerms
+              up = entity.copy(account = Some(account), globalPermissions = Some(gperms))
+              r <- f(Some(up))(request)
+            } yield r
           }
         } getOrElse {
           if (staffOnly && secured) {
@@ -100,23 +98,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     def async[MT](entityType: EntityType.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
         implicit rd: RestReadable[MT]): Action[AnyContent] = {
       userProfileAction.async { implicit userOpt => implicit request =>
-        userOpt.map { user =>
-          AsyncRest.async {
-            val getEntity = rest.EntityDAO[MT](entityType, userOpt).get(id)
-            for { entity <- getEntity } yield {
-              for { item <- entity.right } yield {
-                f(item)(Some(user))(request)
-              }
-            }
-          }
-        } getOrElse {
-          AsyncRest.async {
-            rest.EntityDAO(entityType, None).get(id).map { itemOrErr =>
-              itemOrErr.right.map { item =>
-                f(item)(None)(request)
-              }
-            }
-          }
+        rest.EntityDAO[MT](entityType, userOpt).get(id).flatMap { item =>
+          f(item)(userOpt)(request)
         }
       }
     }
@@ -140,28 +123,23 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
         val entityType = EntityType.withName(contentType.toString)
         userOpt.map { user =>
 
-          AsyncRest.async {
-            // NB: We have to re-fetch the global perms here because they need to be
-            // within the scope of the particular item. This could be optimised, but
-            // it would involve some duplication of code.
-            val getGlobalPerms = rest.PermissionDAO(userOpt).getScope(id)
-            val getItemPerms = rest.PermissionDAO(userOpt).getItem(contentType, id)
-            val getEntity = rest.EntityDAO[MT](entityType, userOpt).get(id)
-            // These requests should execute in parallel...
-            for { gp <- getGlobalPerms; ip <- getItemPerms ; entity <- getEntity } yield {
-              for { gperms <- gp.right; iperms <- ip.right ; item <- entity.right } yield {
-                val up = user.copy(globalPermissions = Some(gperms), itemPermissions = Some(iperms))
-                f(item)(Some(up))(request)
-              }
-            }
-          }
+          // NB: We have to re-fetch the global perms here because they need to be
+          // within the scope of the particular item. This could be optimised, but
+          // it would involve some duplication of code.
+          val getGlobalPerms = rest.PermissionDAO(userOpt).getScope(id)
+          val getItemPerms = rest.PermissionDAO(userOpt).getItem(contentType, id)
+          val getEntity = rest.EntityDAO[MT](entityType, userOpt).get(id)
+          // These requests should execute in parallel...
+          for {
+            gperms <- getGlobalPerms
+            iperms <- getItemPerms
+            item <- getEntity
+            up = user.copy(globalPermissions = Some(gperms), itemPermissions = Some(iperms))
+            r <- f(item)(Some(up))(request)
+          } yield r
         } getOrElse {
-          AsyncRest.async {
-            rest.EntityDAO(entityType, None).get(id).map { itemOrErr =>
-              itemOrErr.right.map { item =>
-                f(item)(None)(request)
-              }
-            }
+          rest.EntityDAO(entityType, None).get(id).flatMap { item =>
+            f(item)(None)(request)
           }
         }
       }

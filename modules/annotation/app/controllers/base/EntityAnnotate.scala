@@ -36,14 +36,8 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       AnnotationForm.form.bindFromRequest.fold(
         errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
-        ann => {
-          AsyncRest {
-            rest.AnnotationDAO(userOpt).create(id, ann).map { annOrErr =>
-              annOrErr.right.map { ann =>
-                f(Right(ann))(userOpt)(request)
-              }
-            }
-          }
+        ann => rest.AnnotationDAO(userOpt).create(id, ann).map { ann =>
+          f(Right(ann))(userOpt)(request)
         }
       )
     }
@@ -55,13 +49,8 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
   def getAnnotationsAction(id: String)(
       f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
-      AsyncRest {
-        val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
-        for (annOrErr <- annsReq) yield {
-          for { anns <- annOrErr.right } yield {
-            f(anns)(userOpt)(request)
-          }
-        }
+      rest.AnnotationDAO(userOpt).getFor(id).map { anns =>
+        f(anns)(userOpt)(request)
       }
     }
   }
@@ -87,19 +76,13 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
    */
   def createAnnotationJsonPost(id: String) = Action.async(parse.json) { request =>
     request.body.validate[AnnotationF](clientAnnotationFormat).fold(
-      errors => { // oh dear, we have an error...
-        immediate(BadRequest(JsError.toFlatJson(errors)))
-      },
+      errors => immediate(BadRequest(JsError.toFlatJson(errors))),
       ap => {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
         userProfileAction.async { implicit userOpt => implicit request =>
-          AsyncRest {
-            rest.AnnotationDAO(userOpt).create(id, ap).map { annOrErr =>
-              annOrErr.right.map { ann =>
-                Created(Json.toJson(ann.model)(clientAnnotationFormat))
-              }
-            }
+          rest.AnnotationDAO(userOpt).create(id, ap).map { ann =>
+            Created(Json.toJson(ann.model)(clientAnnotationFormat))
           }
         }(request.map(js => AnyContentAsEmpty))
       }

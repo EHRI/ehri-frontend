@@ -21,15 +21,14 @@ case class VisibilityDAO(userProfile: Option[UserProfile])(implicit eventHandler
 
   def requestUrl = "http://%s:%d/%s/access".format(host, port, mount)
 
-  def set[MT](id: String, data: List[String])(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+  def set[MT](id: String, data: List[String])(implicit rd: RestReadable[MT]): Future[MT] = {
     WS.url(enc(requestUrl, id))
         .withQueryString(data.map(ACCESSOR_PARAM -> _): _*)
         .withHeaders(authHeaders.toSeq: _*).post("").map { response =>
-      checkErrorAndParse(response)(rd.restReads).right.map { r =>
-        Cache.remove(id)
-        eventHandler.handleUpdate(id)
-        r
-      }
+      val r = checkErrorAndParse(response)(rd.restReads)
+      Cache.remove(id)
+      eventHandler.handleUpdate(id)
+      r
     }
   }
 }

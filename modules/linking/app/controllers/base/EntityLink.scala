@@ -81,14 +81,8 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
             f(Left((item,srcitem,errorForm)))(userOpt)(request)
           }
         },
-        ann => {
-          AsyncRest {
-            rest.LinkDAO(userOpt).link(id, to, ann).map { annOrErr =>
-              annOrErr.right.map { ann =>
-                f(Right(ann))(userOpt)(request)
-              }
-            }
-          }
+        ann => rest.LinkDAO(userOpt).link(id, to, ann).map { ann =>
+          f(Right(ann))(userOpt)(request)
         }
       )
     }
@@ -108,12 +102,8 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
       val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => immediate(f(Left((item,errorForm)))(userOpt)(request)),
-        links => AsyncRest {
-          rest.LinkDAO(userOpt).linkMultiple(id, links).map { linksOrErr =>
-            linksOrErr.right.map { outLinks =>
-              f(Right(outLinks))(userOpt)(request)
-            }
-          }
+        links => rest.LinkDAO(userOpt).linkMultiple(id, links).map { outLinks =>
+          f(Right(outLinks))(userOpt)(request)
         }
       )
     }
@@ -132,16 +122,12 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
       ann => {
         withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
             item => implicit userOpt => implicit request =>
-          AsyncRest {
-            val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
-            rest.LinkDAO(userOpt).link(id, ann.target, link, Some(apid)).map { annOrErr =>
-              annOrErr.right.map { ann =>
-                Cache.remove(id)
-                Created(Json.toJson(ann)(Link.Converter.clientFormat))
-              }
-            }
+          val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
+          rest.LinkDAO(userOpt).link(id, ann.target, link, Some(apid)).map { ann =>
+            Cache.remove(id)
+            Created(Json.toJson(ann)(Link.Converter.clientFormat))
           }
-          // TODO: Fix AuthController so we can use the
+        // TODO: Fix AuthController so we can use the
           // various auth action composers with body parsers
           // other than AnyContent
         }.apply(request.map(js => AnyContentAsEmpty))
@@ -162,16 +148,12 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
       anns => {
         withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
             item => implicit userOpt => implicit request =>
-          AsyncRest {
-            val links = anns.map(ann =>
-              (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
-            )
-            rest.LinkDAO(userOpt).linkMultiple(id, links).map { linksOrErr =>
-              linksOrErr.right.map { newlinks =>
-                Cache.remove(id)
-                Created(Json.toJson(newlinks)(Writes.list(Link.Converter.clientFormat)))
-              }
-            }
+          val links = anns.map(ann =>
+            (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
+          )
+          rest.LinkDAO(userOpt).linkMultiple(id, links).map { newLinks =>
+            Cache.remove(id)
+            Created(Json.toJson(newLinks)(Writes.list(Link.Converter.clientFormat)))
           }
         }.apply(request.map(js => AnyContentAsEmpty))
       }
@@ -190,12 +172,8 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
       },
       ap => {
         withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-          AsyncRest {
-            rest.DescriptionDAO(entityType, userOpt).createAccessPoint(id, did, ap).map { apOrErr =>
-              apOrErr.right.map { case (item, ann) =>
-                Created(Json.toJson(ann)(AccessPointF.Converter.clientFormat  ))
-              }
-            }
+          rest.DescriptionDAO(entityType, userOpt).createAccessPoint(id, did, ap).map { case (item, ann) =>
+            Created(Json.toJson(ann)(AccessPointF.Converter.clientFormat  ))
           }
           // TODO: Fix AuthController so we can use the
           // various auth action composers with body parsers
@@ -210,13 +188,8 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
    */
   def getLinksAction(id: String)(f: List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
-      AsyncRest {
-        val linkReq = rest.LinkDAO(userOpt).getFor(id)
-        for (linksOrErr <- linkReq) yield {
-          for { links <- linksOrErr.right } yield {
-            f(links)(userOpt)(request)
-          }
-        }
+      rest.LinkDAO(userOpt).getFor(id).map { links =>
+        f(links)(userOpt)(request)
       }
     }
   }
@@ -249,13 +222,9 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
    */
   def deleteAccessPointAction(id: String, accessPointId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Update, contentType) {
       bool => implicit userOpt => implicit request =>
-    AsyncRest {
-      LinkDAO(userOpt).deleteAccessPoint(accessPointId).map { boolOrErr =>
-        boolOrErr.right.map { ok =>
-          Cache.remove(id)
-          Ok(Json.toJson(ok))
-        }
-      }
+    LinkDAO(userOpt).deleteAccessPoint(accessPointId).map { ok =>
+    Cache.remove(id)
+    Ok(Json.toJson(ok))
     }
   }
 
@@ -266,15 +235,10 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
    */
   def deleteLink(id: String, linkId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
       bool => implicit userOpt => implicit request =>
-    AsyncRest {
-      LinkDAO(userOpt).deleteLink(id, linkId).map { boolOrErr =>
-        boolOrErr.right.map { ok =>
-          Cache.remove(id)
-          Ok(Json.toJson(ok))
-        }
-      }
+    LinkDAO(userOpt).deleteLink(id, linkId).map { ok =>
+      Cache.remove(id)
+      Ok(Json.toJson(ok))
     }
   }
-
 }
 

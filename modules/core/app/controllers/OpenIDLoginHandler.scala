@@ -60,18 +60,15 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
             gotoLoginSucceeded(acc.id)
               .map(_.withSession("access_uri" -> globalConfig.routeRegistry.default.url))
           } getOrElse {
-            rest.AdminDAO(userProfile = None).createNewUserProfile.flatMap {
-              case Right(entity) => {
-                userDAO.create(entity.id, email.toLowerCase).map { account =>
-                  OpenIDAssociation.addAssociation(account, info.id)
-                  // TODO: Redirect to profile?
-                  gotoLoginSucceeded(account.id).map { r =>
-                    r.withSession("access_uri" -> globalConfig.routeRegistry.default.url)
-                  }
-                }.getOrElse(immediate(BadRequest("Creation of user db failed!")))
-              }
-              case Left(err) => {
-                immediate(BadRequest("Unexpected REST error: " + err))
+            rest.AdminDAO(userProfile = None).createNewUserProfile.flatMap { up =>
+              userDAO.create(up.id, email.toLowerCase).map { account =>
+                OpenIDAssociation.addAssociation(account, info.id)
+                // TODO: Redirect to profile?
+                gotoLoginSucceeded(account.id).map { r =>
+                  r.withSession("access_uri" -> globalConfig.routeRegistry.default.url)
+                }
+              } getOrElse {
+                immediate(BadRequest("Creation of user db failed!"))
               }
             }
           }

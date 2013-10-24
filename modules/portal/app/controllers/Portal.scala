@@ -64,14 +64,10 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   def listAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
-      AsyncRest {
-        val params = ListParams.fromRequest(request)
-        EntityDAO(entityType, userOpt).page(params).map { pageOrErr =>
-          pageOrErr.right.map { list =>
-            f(list)(params)(userOpt)(request)
-          }
-        }
-      }      
+      val params = ListParams.fromRequest(request)
+      EntityDAO(entityType, userOpt).page(params).map { page =>
+        f(page)(params)(userOpt)(request)
+      }
     }
   }
 
@@ -83,15 +79,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
                                        implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       itemAction.async[MT](entityType, id) { item => implicit userOpt => implicit request =>
-        AsyncRest.async {
-          val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
-          val linkReq = rest.LinkDAO(userOpt).getFor(id)
-          for { annOrErr <- annsReq ; linkOrErr <- linkReq } yield {
-            for { anns <- annOrErr.right ; links <- linkOrErr.right } yield {
-              f(item)(anns)(links)(userOpt)(request)
-            }
-          }
-        }
+        val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
+        val linkReq = rest.LinkDAO(userOpt).getFor(id)
+        for { anns <- annsReq ; links <- linkReq ; r <- f(item)(anns)(links)(userOpt)(request) } yield r
       }
     }
 
@@ -110,14 +100,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
                                    implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
       getAction.async[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
-        AsyncRest.async {
-          val params = ListParams.fromRequest(request)
-          val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
-          for { cOrErr <- cReq  } yield {
-            for { children <- cOrErr.right } yield {
-              f(item)(children)(params)(anns)(links)(userOpt)(request)
-            }
-          }
+        val params = ListParams.fromRequest(request)
+        rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params).flatMap { children =>
+          f(item)(children)(params)(anns)(links)(userOpt)(request)
         }
       }
     }

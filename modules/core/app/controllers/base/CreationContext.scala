@@ -57,26 +57,15 @@ trait CreationContext[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: 
     form.bindFromRequest.fold(
       errorForm => f(item)(Left((errorForm, VisibilityForm.form)))(userOpt)(request),
       citem => {
-        AsyncRest.async {
-          val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-          rest.EntityDAO(entityType, userOpt)
-            .createInContext[CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).map {
-            itemOrErr =>
-            // If we have an error, check if it's a validation error.
-            // If so, we need to merge those errors back into the form
-            // and redisplay it...
-              if (itemOrErr.isLeft) {
-                itemOrErr.left.get match {
-                  case err: rest.ValidationError => {
-                    val serverErrors = citem.errorsToForm(err.errorSet)
-                    val filledForm = form.fill(citem).copy(errors = form.errors ++ serverErrors)
-                    Right(f(item)(Left((filledForm, VisibilityForm.form)))(userOpt)(request))
-                  }
-                  case e => Left(e)
-                }
-              } else itemOrErr.right.map {
-                citem => f(item)(Right(citem))(userOpt)(request)
-              }
+        val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+        rest.EntityDAO(entityType, userOpt)
+            .createInContext[CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).flatMap { citem =>
+          f(item)(Right(citem))(userOpt)(request)
+        } recoverWith {
+          case err: rest.ValidationError => {
+            val serverErrors = citem.errorsToForm(err.errorSet)
+            val filledForm = form.fill(citem).copy(errors = form.errors ++ serverErrors)
+            f(item)(Left((filledForm, VisibilityForm.form)))(userOpt)(request)
           }
         }
       }

@@ -40,25 +40,18 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
         form.bindFromRequest.fold(
           errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),
           doc => {
-            AsyncRest.async {
-              val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-              rest.EntityDAO(entityType, userOpt)
-                  .create(doc, accessors, logMsg = getLogMessage).map { itemOrErr =>
-                // If we have an error, check if it's a validation error.
-                // If so, we need to merge those errors back into the form
-                // and redisplay it...
-                if (itemOrErr.isLeft) {
-                  itemOrErr.left.get match {
-                    case rest.ValidationError(errorSet) => {
-                      val serverErrors: Seq[FormError] = doc.errorsToForm(errorSet)
-                      val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-                      Right(f(Left((filledForm, VisibilityForm.form)))(userOpt)(request))
-                    }
-                    case e => Left(e)
-                  }
-                } else itemOrErr.right.map {
-                  item => f(Right(item))(userOpt)(request)
-                }
+            val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+            rest.EntityDAO(entityType, userOpt)
+                .create(doc, accessors, logMsg = getLogMessage).flatMap { item =>
+              f(Right(item))(userOpt)(request)
+            } recoverWith {
+              // If we have an error, check if it's a validation error.
+              // If so, we need to merge those errors back into the form
+              // and redisplay it...
+              case rest.ValidationError(errorSet) => {
+                val serverErrors: Seq[FormError] = doc.errorsToForm(errorSet)
+                val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
+                f(Left((filledForm, VisibilityForm.form)))(userOpt)(request)
               }
             }
           }

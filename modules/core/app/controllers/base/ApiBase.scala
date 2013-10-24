@@ -28,12 +28,8 @@ trait ApiBase[TM] extends EntityController {
 
   def getClientJson(id: String)(implicit rr: RestReadable[TM], cw: ClientConvertable[TM]) = userProfileAction.async {
       implicit maybeUser => implicit request =>
-    AsyncRest {
-      rest.EntityDAO(entityType, maybeUser).get(id).map { res =>
-        res.right.map { tm =>
-          Ok(Json.toJson(tm)(cw.clientFormat))
-        }
-      }
+    rest.EntityDAO(entityType, maybeUser).get(id).map { tm =>
+        Ok(Json.toJson(tm)(cw.clientFormat))
     }
   }
 }

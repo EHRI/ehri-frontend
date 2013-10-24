@@ -25,25 +25,16 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
         implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
-      form.bindFromRequest.fold({ ef =>
-          immediate(f(item)(Left(ef))(userOpt)(request))
-      },
-      { desc =>
-        AsyncRest {
-          DescriptionDAO[MT](entityType, userOpt).createDescription(id, desc, logMsg = getLogMessage).map { itemOrErr =>
-            if (itemOrErr.isLeft) {
-              itemOrErr.left.get match {
-                case err: rest.ValidationError => {
-                  Right(f(item)(Left(fillFormErrors(desc, form, err)))(userOpt)(request))
-                }
-                case e => Left(e)
-              }
-            } else itemOrErr.right.map { updated =>
-              f(item)(Right(updated))(userOpt)(request)
-            }
+      form.bindFromRequest.fold(
+        ef => immediate(f(item)(Left(ef))(userOpt)(request)),
+        desc => DescriptionDAO[MT](entityType, userOpt).createDescription(id, desc, logMsg = getLogMessage).map { updated =>
+          f(item)(Right(updated))(userOpt)(request)
+        } recoverWith {
+          case err: rest.ValidationError => {
+            immediate(f(item)(Left(fillFormErrors(desc, form, err)))(userOpt)(request))
           }
         }
-      })
+      )
     }
   }
 
@@ -55,26 +46,17 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
            implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
-      form.bindFromRequest.fold({ ef =>
-        immediate(f(item)(Left(ef))(userOpt)(request))
-      },
-      { desc =>
-        AsyncRest {
-          DescriptionDAO[MT](entityType, userOpt)
-              .updateDescription(id, did, desc, logMsg = getLogMessage).map { itemOrErr =>
-            if (itemOrErr.isLeft) {
-              itemOrErr.left.get match {
-                case err: rest.ValidationError => {
-                  Right(f(item)(Left(fillFormErrors(desc, form, err)))(userOpt)(request))
-                }
-                case e => Left(e)
-              }
-            } else itemOrErr.right.map { updated =>
-              f(item)(Right(updated))(userOpt)(request)
-            }
+      form.bindFromRequest.fold(
+        ef => immediate(f(item)(Left(ef))(userOpt)(request)),
+        desc => DescriptionDAO[MT](entityType, userOpt)
+            .updateDescription(id, did, desc, logMsg = getLogMessage).map { updated =>
+          f(item)(Right(updated))(userOpt)(request)
+        } recoverWith {
+          case err: rest.ValidationError => {
+            immediate(f(item)(Left(fillFormErrors(desc, form, err)))(userOpt)(request))
           }
         }
-      })
+      )
     }
   }
 
@@ -97,13 +79,9 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
       f: Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
-      AsyncRest {
-        DescriptionDAO[MT](entityType, userOpt)
-            .deleteDescription(id, did, logMsg = getLogMessage).map { itemOrErr =>
-          itemOrErr.right.map { ok =>
-            f(ok)(userOpt)(request)
-          }
-        }
+      DescriptionDAO[MT](entityType, userOpt)
+          .deleteDescription(id, did, logMsg = getLogMessage).map { ok =>
+        f(ok)(userOpt)(request)
       }
     }
   }

@@ -82,28 +82,26 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
-  def get(id: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+  def get(id: String)(implicit rd: RestReadable[MT]): Future[MT] = {
     val cached = Cache.getAs[JsValue](id)
     if (cached.isDefined) {
       Future.successful(jsonReadToRestError(cached.get, rd.restReads))
     } else {
       Logger.logger.debug("GET {} ", enc(requestUrl, id))
       WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-        checkErrorAndParse(response)(rd.restReads).right.map { entity =>
-          Cache.set(id, response.json, cacheTime)
-          entity
-        }
+        Cache.set(id, response.json, cacheTime)
+        checkErrorAndParse(response)(rd.restReads)
       }
     }
   }
 
-  def getJson(id: String): Future[Either[RestError, JsObject]] = {
+  def getJson(id: String): Future[JsObject] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[JsObject](response)
     }
   }
 
-  def get(key: String, value: String)(implicit rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+  def get(key: String, value: String)(implicit rd: RestReadable[MT]): Future[MT] = {
     WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*)
         .withQueryString("key" -> key, "value" -> value)
         .get.map { response =>
@@ -113,7 +111,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
 
   def create[T](item: T, accessors: List[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
-      logMsg: Option[String] = None)(implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+      logMsg: Option[String] = None)(implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[MT] = {
     val url = enc(requestUrl)
     Logger.logger.debug("CREATE {} ", url)
     WS.url(url)
@@ -121,63 +119,59 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
         .withQueryString(unpack(params):_*)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-        checkErrorAndParse(response)(rd.restReads).right.map { created =>
-          created match {
-            case item: AnyModel => eventHandler.handleCreate(item.id)
-            case _ =>
-          }
-          created
-        }
+      val created = checkErrorAndParse(response)(rd.restReads)
+      created match {
+        case item: AnyModel => eventHandler.handleCreate(item.id)
+        case _ =>
+      }
+      created
     }
   }
 
   def createInContext[T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: List[String] = Nil,
       logMsg: Option[String] = None)(
-        implicit wrt: RestConvertable[T], rd: RestReadable[TT]): Future[Either[RestError, TT]] = {
+        implicit wrt: RestConvertable[T], rd: RestReadable[TT]): Future[TT] = {
     val url = enc(requestUrl, id, contentType)
     Logger.logger.debug("CREATE-IN {} ", url)
     WS.url(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-      checkErrorAndParse(response)(rd.restReads).right.map { created =>
-        created match {
-          case item: AnyModel => eventHandler.handleCreate(item.id)
-          case _ =>
-        }
-        created
+      val created = checkErrorAndParse(response)(rd.restReads)
+      created match {
+        case item: AnyModel => eventHandler.handleCreate(item.id)
+        case _ =>
       }
+      created
     }
   }
 
   def update[T](id: String, item: T, logMsg: Option[String] = None)(
-      implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+      implicit wrt: RestConvertable[T], rd: RestReadable[MT]): Future[MT] = {
     val url = enc(requestUrl, id)
     Logger.logger.debug("UPDATE: {}", url)
     WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
-      checkErrorAndParse(response)(rd.restReads).right.map { item =>
-        eventHandler.handleUpdate(id)
-        Cache.remove(id)
-        item
-      }
+      val item = checkErrorAndParse(response)(rd.restReads)
+      eventHandler.handleUpdate(id)
+      Cache.remove(id)
+      item
     }
   }
 
-  def delete(id: String, logMsg: Option[String] = None): Future[Either[RestError, Boolean]] = {
+  def delete(id: String, logMsg: Option[String] = None): Future[Boolean] = {
     val url = enc(requestUrl, id)
     Logger.logger.debug("DELETE {}", url)
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
-      checkError(response).right.map(r => {
-        eventHandler.handleDelete(id)
-        Cache.remove(id)
-        r.status == OK
-      })
+      checkError(response)
+      eventHandler.handleDelete(id)
+      Cache.remove(id)
+      true
     }
   }
 
-  def listJson(params: ListParams = ListParams()): Future[Either[RestError, List[JsObject]]] = {
+  def listJson(params: ListParams = ListParams()): Future[List[JsObject]] = {
     val url = enc(requestUrl, "list")
     Logger.logger.debug("LIST: {}", (url, params.toSeq))
     WS.url(url).withQueryString(params.toSeq: _*)
@@ -186,7 +180,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def list(params: ListParams = ListParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
+  def list(params: ListParams = ListParams())(implicit rd: RestReadable[MT]): Future[List[MT]] = {
     val url = enc(requestUrl, "list")
     Logger.logger.debug("LIST: {}", url)
     WS.url(url).withQueryString(params.toSeq: _*)
@@ -195,15 +189,14 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def listChildren[CMT](id: String, params: ListParams = ListParams())(
-      implicit rd: RestReadable[CMT]): Future[Either[RestError, List[CMT]]] = {
+  def listChildren[CMT](id: String, params: ListParams = ListParams())(implicit rd: RestReadable[CMT]): Future[List[CMT]] = {
     WS.url(enc(requestUrl, id, "list")).withQueryString(params.toSeq:_*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
   }
 
-  def pageJson(params: ListParams = ListParams()): Future[Either[RestError, Page[JsObject]]] = {
+  def pageJson(params: ListParams = ListParams()): Future[Page[JsObject]] = {
     val url = enc(requestUrl, "page")
     Logger.logger.debug("PAGE: {}", url)
     WS.url(url).withQueryString(params.toSeq:_*)
@@ -212,7 +205,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def page(params: ListParams = ListParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, Page[MT]]] = {
+  def page(params: ListParams = ListParams())(implicit rd: RestReadable[MT]): Future[Page[MT]] = {
     val url = enc(requestUrl, "page")
     Logger.logger.debug("PAGE: {}", url)
     WS.url(url).withHeaders(authHeaders.toSeq: _*)
@@ -221,21 +214,21 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def pageChildren[CMT](id: String, params: ListParams = utils.ListParams())(implicit rd: RestReadable[CMT]): Future[Either[RestError, Page[CMT]]] = {
+  def pageChildren[CMT](id: String, params: ListParams = utils.ListParams())(implicit rd: RestReadable[CMT]): Future[Page[CMT]] = {
     WS.url(enc(requestUrl, id, "page")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
 
-  def count(params: ListParams = ListParams()): Future[Either[RestError, Long]] = {
+  def count(params: ListParams = ListParams()): Future[Long] = {
     WS.url(enc(requestUrl, "count")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 
-  def countChildren(id: String, params: ListParams = ListParams()): Future[Either[RestError, Long]] = {
+  def countChildren(id: String, params: ListParams = ListParams()): Future[Long] = {
     WS.url(enc(requestUrl, id, "count")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[Long](response)

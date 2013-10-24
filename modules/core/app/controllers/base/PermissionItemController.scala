@@ -21,16 +21,10 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       f: MT => rest.Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      AsyncRest {
-        val params = ListParams.fromRequest(request)
-        for {
-          permGrantsOrErr <- rest.PermissionDAO(userOpt).listForItem(id, params)
-        } yield {
-          for { permGrants <- permGrantsOrErr.right } yield {
-            f(item)(permGrants)(userOpt)(request)
-          }
-        }
-      }
+      val params = ListParams.fromRequest(request)
+      for {
+        permGrants <- rest.PermissionDAO(userOpt).listForItem(id, params)
+      } yield f(item)(permGrants)(userOpt)(request)
     }
   }
 
@@ -38,14 +32,10 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      AsyncRest {
-        for {
-          users <- rest.RestHelpers.getUserList
-          groups <- rest.RestHelpers.getGroupList
-        } yield {
-          Right(f(item)(users)(groups)(userOpt)(request))
-        }
-      }
+      for {
+        users <- rest.RestHelpers.getUserList
+        groups <- rest.RestHelpers.getGroupList
+      } yield f(item)(users)(groups)(userOpt)(request)
     }
   }
 
@@ -54,21 +44,15 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       f: MT => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      AsyncRest {
-        for {
+      for {
 
-          userOrErr <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
-          // FIXME: Faking user for fetching perms to avoid blocking.
-          // This means that when we have both the perm set and the userOpt
-          // we need to re-assemble them so that the permission set has
-          // access to a userOpt's groups to understand inheritance.
-          permsOrErr <- rest.PermissionDAO(userOpt).getItem(userOrErr.right.get, contentType, id)
-        } yield {
-          for {  accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
-            f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
-          }
-        }
-      }
+        accessor <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
+        // FIXME: Faking user for fetching perms to avoid blocking.
+        // This means that when we have both the perm set and the userOpt
+        // we need to re-assemble them so that the permission set has
+        // access to a userOpt's groups to understand inheritance.
+        perms <- rest.PermissionDAO(userOpt).getItem(accessor, contentType, id)
+      } yield f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
     }
   }
 
@@ -79,16 +63,10 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
       implicit val accessorConverter = Accessor.Converter
-      //getEntity[Accessor](EntityType.withName(userType), userId) { accessor =>
-      // FIXME: Broken implementation
 
-      EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId).flatMap { accessorOrErr =>
-        AsyncRest {
-          rest.PermissionDAO(userOpt).setItem(accessorOrErr.right.get, contentType, id, perms).map { permsOrErr =>
-            permsOrErr.right.map { perms =>
-              f(perms)(userOpt)(request)
-            }
-          }
+      EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId).flatMap { accessor =>
+        rest.PermissionDAO(userOpt).setItem(accessor, contentType, id, perms).map { perms =>
+          f(perms)(userOpt)(request)
         }
       }
     }

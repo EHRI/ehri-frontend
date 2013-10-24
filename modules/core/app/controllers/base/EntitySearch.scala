@@ -71,13 +71,10 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
       val allFacets = entityFacets(lang)
       val facets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)
 
-      searchDispatcher.search(sp, facets, allFacets, filters, mode).flatMap { resOrErr =>
-      // FIXME: REFACTOR - error handling removed!
-        val res = resOrErr.right.get
+      searchDispatcher.search(sp, facets, allFacets, filters, mode).flatMap { res =>
         val ids = res.items.map(_.id)
         val itemIds = res.items.map(_.itemId)
-        rest.SearchDAO(userOpt).list[MT](itemIds).map { listOrErr =>
-          val list = listOrErr.right.get
+        rest.SearchDAO(userOpt).list[MT](itemIds).map { list =>
           if (list.size != ids.size) {
             Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
               (ids, list))
@@ -106,12 +103,8 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
         .value.getOrElse(SearchParams())
         .setDefault(params)
 
-      AsyncRest {
-        searchDispatcher.filter(sp, filters).map { resOrErr =>
-          resOrErr.right.map { res =>
-            f(res)(userOpt)(request)
-          }
-        }
+      searchDispatcher.filter(sp, filters).map { res =>
+        f(res)(userOpt)(request)
       }
     }
   }

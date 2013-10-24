@@ -22,7 +22,7 @@ case class MockSearchDispatcher() extends Dispatcher {
   val paramBuffer = collection.mutable.ArrayBuffer.empty[ParamLog]
 
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String, EntityType.Value)]]] = {
+      implicit userOpt: Option[UserProfile]): Future[ItemPage[(String,String, EntityType.Value)]] = {
     val docs = List(("c1", "Collection 1", EntityType.DocumentaryUnit), ("c2", "Collection 2", EntityType.DocumentaryUnit))
     val repo = List(("r1", "Repository 1", EntityType.Repository), ("r2", "Repository 2", EntityType.Repository))
     val items = params.entities match {
@@ -32,15 +32,13 @@ case class MockSearchDispatcher() extends Dispatcher {
       case Nil => docs ++ repo
     }
     Future.successful {
-      Right {
-        ItemPage(items, offset = 0, limit = params.limit.getOrElse(100), total = items.size, facets = Nil)
-      }
+      ItemPage(items, offset = 0, limit = params.limit.getOrElse(100), total = items.size, facets = Nil)
     }
   }
 
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
              filters: Map[String,Any] = Map.empty, mode: SearchMode.Value = SearchMode.DefaultAll)(
-      implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+      implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchDescription]] = {
     paramBuffer += ParamLog(params, facets, allFacets, filters)
     val items = params.entities.foldLeft(List[SearchDescription]()) { case (listOfItems, et) =>
       et match {
@@ -56,14 +54,12 @@ case class MockSearchDispatcher() extends Dispatcher {
       }
     }
     Future.successful{
-      Right {
-        ItemPage(items, 0, 20, items.size, Nil)
-      }
+      ItemPage(items, 0, 20, items.size, Nil)
     }
   }
 
   def facet(facet: String, sort: String, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[Either[RestError,FacetPage[Facet]]] = {
+      implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
 
     // UNIMPLEMENTED
     Future.failed(new NotImplementedError())

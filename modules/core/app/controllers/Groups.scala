@@ -152,15 +152,9 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def addMember(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      AsyncRest {
-        for {
-          groupOrErr <- rest.EntityDAO[Group](entityType, userOpt).get(id)
-        } yield {
-          groupOrErr.right.map { group =>
-            Ok(views.html.group.confirmMembership(group, item,
-              groupRoutes.addMemberPost(id, userType, userId)))
-          }
-        }
+      rest.EntityDAO[Group](entityType, userOpt).get(id).map { group =>
+        Ok(views.html.group.confirmMembership(group, item,
+          groupRoutes.addMemberPost(id, userType, userId)))
       }
     }
   }
@@ -171,13 +165,9 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def addMemberPost(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      AsyncRest {
-        rest.PermissionDAO(userOpt).addGroup(id, userId).map { boolOrErr =>
-          boolOrErr.right.map { ok =>
-            Redirect(groupRoutes.membership(userType, userId))
-              .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-          }
-        }
+      rest.PermissionDAO(userOpt).addGroup(id, userId).map { ok =>
+        Redirect(groupRoutes.membership(userType, userId))
+          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
       }
     }
   }
@@ -188,15 +178,9 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def removeMember(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      AsyncRest {
-        for {
-          groupOrErr <- rest.EntityDAO[Group](entityType, userOpt).get(id)
-        } yield {
-          groupOrErr.right.map { group =>
-            Ok(views.html.group.removeMembership(group, item,
-              groupRoutes.removeMemberPost(id, userType, userId)))
-          }
-        }
+      rest.EntityDAO[Group](entityType, userOpt).get(id).map { group =>
+        Ok(views.html.group.removeMembership(group, item,
+          groupRoutes.removeMemberPost(id, userType, userId)))
       }
     }
   }
@@ -207,13 +191,9 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def removeMemberPost(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      AsyncRest {
-        rest.PermissionDAO(userOpt).removeGroup(id, userId).map { boolOrErr =>
-          boolOrErr.right.map { ok =>
-            Redirect(groupRoutes.membership(userType, userId))
-              .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
-          }
-        }
+      rest.PermissionDAO(userOpt).removeGroup(id, userId).map { ok =>
+        Redirect(groupRoutes.membership(userType, userId))
+          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
       }
     }
   }

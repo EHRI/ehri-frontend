@@ -86,33 +86,27 @@ trait EntityAccessPoints[D <: Description, T <: Model with Described[D], MT <: M
    */
   def getAccessPointsJson(id: String)(implicit rd: RestReadable[MT]) = userProfileAction.async { implicit userOpt => implicit request =>
     getEntity.async(id, userOpt) { item =>
-      AsyncRest {
-        rest.LinkDAO(userOpt).getFor(id).map {
+      rest.LinkDAO(userOpt).getFor(id).map { links =>
+        implicit val accessPointFormat = AccessPointF.Converter.clientFormat
+        implicit val linkFormat = LinkF.Converter.clientFormat
+        implicit val targetWrites = Json.format[Target]
+        implicit val itemWrites = Json.format[LinkItem]
 
-          case Right(links) => {
-            implicit val accessPointFormat = AccessPointF.Converter.clientFormat
-            implicit val linkFormat = LinkF.Converter.clientFormat
-            implicit val targetWrites = Json.format[Target]
-            implicit val itemWrites = Json.format[LinkItem]
-
-            val list = item.model.descriptions.map { desc =>
-              val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
-                val apTypes = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
-                  val linkOpt = links.find(_.bodies.exists(b => b.id == ap.id))
-                  new LinkItem(
-                    ap,
-                    linkOpt.map(_.model),
-                    linkOpt.flatMap(l => l.opposingTarget(item).map(t => new Target(t.id, t.isA)))
-                  )
-                }
-                Map("type" -> Json.toJson(apt.toString), "data" -> Json.toJson(apTypes))
-              }
-              Map("id" -> Json.toJson(desc.id), "data" -> Json.toJson(accessPointTypes))
+        val list = item.model.descriptions.map { desc =>
+          val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
+            val apTypes = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
+              val linkOpt = links.find(_.bodies.exists(b => b.id == ap.id))
+              new LinkItem(
+                ap,
+                linkOpt.map(_.model),
+                linkOpt.flatMap(l => l.opposingTarget(item).map(t => new Target(t.id, t.isA)))
+              )
             }
-            Right(Ok(Json.toJson(list)))
+            Map("type" -> Json.toJson(apt.toString), "data" -> Json.toJson(apTypes))
           }
-          case Left(err) => Left(err)
+          Map("id" -> Json.toJson(desc.id), "data" -> Json.toJson(accessPointTypes))
         }
+        Ok(Json.toJson(list))
       }
     }
   }

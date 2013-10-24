@@ -97,10 +97,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       status(userRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val fetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(userId))
-
-      fetchProfile must beRight
-      val profile = fetchProfile.right.get
+      val profile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(userId))
 
       // TESTING MAGIC!!! We have to create an account for subsequent logins...
       // Then we add the account to the user fixtures (instead of adding it to the database,

@@ -31,8 +31,7 @@ case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandle
    * @param id
    * @return
    */
-  def getFor(id: String): Future[Either[RestError, List[Link]]] = {
-
+  def getFor(id: String): Future[List[Link]] = {
     WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list(linkMetaReads))
@@ -46,25 +45,24 @@ case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandle
    * @param link
    * @return
    */
-  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None): Future[Either[RestError, Link]] = {
+  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None): Future[Link] = {
     WS.url(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
       .withHeaders(authHeaders.toSeq: _*)
       .post(Json.toJson(link)(LinkF.Converter.restFormat)).map { response =>
-      checkError(response).right.map(r => r.json.as[Link](linkMetaReads))
+      checkErrorAndParse[Link](response)(linkMetaReads)
     }
   }
 
   /**
    * Remove a link on an item.
    */
-  def deleteLink(id: String, linkId: String): Future[Either[RestError,Boolean]] = {
+  def deleteLink(id: String, linkId: String): Future[Boolean] = {
     val url = enc(requestUrl, "for", id, linkId)
     Logger.logger.debug(s"DELETE LINK: $url")
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
-      checkError(response).right.map { r =>
-        eventHandler.handleDelete(linkId)
-        true
-      }
+      checkError(response)
+      eventHandler.handleDelete(linkId)
+      true
     }
   }
 
@@ -74,36 +72,23 @@ case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandle
    * TODO: When the linking api gets sorted out, move
    * this somewhere better.
    */
-  def deleteAccessPoint(id: String): Future[Either[RestError,Boolean]] = {
+  def deleteAccessPoint(id: String): Future[Boolean] = {
     val url = enc(requestUrl, "accessPoint", id)
     Logger.logger.debug(s"DELETE ACCESS POINT $url")
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
-      checkError(response).right.map { r =>
-        eventHandler.handleDelete(id)
-        true
-      }
+      checkError(response)
+      eventHandler.handleDelete(id)
+      true
     }
   }
 
   /**
    * Create multiple links. NB: This function is NOT transactional.
-   * @param id
-   * @param srcToLinks list of ids, link object tuples
-   * @return
    */
-  def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])]): Future[Either[RestError, List[Link]]] = {
-    val res = Future.sequence {
+  def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])]): Future[List[Link]] = {
+    Future.sequence {
       srcToLinks.map {
         case (other, ann, accessPoint) => link(id, other, ann, accessPoint)
-      }
-    }
-    res.map { (lst: List[Either[RestError,Link]]) =>
-      // If there was an error, pluck the first one out and
-      // return it... ignore the rest
-      lst.filter(_.isLeft).map(_.left.get).headOption.map { err =>
-        Left(err)
-      } getOrElse {
-        Right(lst.map(_.right.get))
       }
     }
   }

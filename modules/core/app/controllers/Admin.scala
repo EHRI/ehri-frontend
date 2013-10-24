@@ -288,13 +288,9 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    */
   private def grantOwnerPerms[T](profile: UserProfile)(f: => SimpleResult)(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
-    AsyncRest {
-      rest.PermissionDAO(userOpt).setItem(profile, ContentTypes.UserProfile,
-        profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>
-        permsOrErr.right.map { _ =>
-          f
-        }
-      }
+    rest.PermissionDAO(userOpt).setItem(profile, ContentTypes.UserProfile,
+        profile.id, List(PermissionType.Owner.toString)).map { perms =>
+      f
     }
   }
 
@@ -302,26 +298,17 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    * Create a user's profile on the ReSt interface.
    */
   private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Future[SimpleResult])(
-    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
-    AsyncRest.async {
-      rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
-        .create[UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
-        if (itemOrErr.isLeft) {
-          itemOrErr.left.get match {
-            case v@ValidationError(errorSet) => {
-              val serverErrors: Seq[FormError] = user.errorsToForm(errorSet)
-              val form = userPasswordForm.bindFromRequest
-              val errForm = form.copy(errors = form.errors ++ serverErrors)
-              Right(
-                immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
-                  allGroups, controllers.core.routes.Admin.createUserPost)))
-              )
-            }
-            case e => Left(e)
-          }
-        } else {
-          itemOrErr.right.map(f)
-        }
+     implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
+    rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
+        .create[UserProfileF](user, params = Map("group" -> groups)).flatMap { item =>
+      f(item)
+    } recoverWith {
+      case ValidationError(errorSet) => {
+        val serverErrors: Seq[FormError] = user.errorsToForm(errorSet)
+        val form = userPasswordForm.bindFromRequest
+        val errForm = form.copy(errors = form.errors ++ serverErrors)
+        immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
+          allGroups, controllers.core.routes.Admin.createUserPost)))
       }
     }
   }

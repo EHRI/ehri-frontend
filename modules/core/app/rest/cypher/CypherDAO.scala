@@ -37,12 +37,12 @@ case class CypherDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   import CypherErrorReader._
 
-  def checkCypherError(r: Response): Either[CypherError, JsValue] = r.json.validate[CypherError].fold(
-    valid = err => Left(err),
-    invalid = e => Right(r.json)
+  def checkCypherError(r: Response): JsValue = r.json.validate[CypherError].fold(
+    valid = err => throw err,
+    invalid = e => r.json
   )
 
-  def cypher(scriptBody: String, params: Map[String,JsValue] = Map()): Future[Either[CypherError, JsValue]] = {
+  def cypher(scriptBody: String, params: Map[String,JsValue] = Map()): Future[JsValue] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
     WS.url(requestUrl).withHeaders(headers.toList: _*).post(data).map(checkCypherError(_))
   }  

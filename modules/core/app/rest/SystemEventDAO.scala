@@ -18,34 +18,18 @@ case class SystemEventDAO(userProfile: Option[UserProfile]) extends RestDAO {
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/systemEvent".format(baseUrl)
 
-  def history(id: String, params: ListParams): Future[Either[RestError, Page[SystemEvent]]] = {
+  def history(id: String, params: ListParams): Future[Page[SystemEvent]] = {
     implicit val rd: RestReadable[SystemEvent] = SystemEvent.Converter
     WS.url(enc(requestUrl, "for", id)).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[Page[SystemEvent]](Page.pageReads(rd.restReads)).fold(
-          valid = { page => page },
-          invalid = { e =>
-            sys.error("Unable to decode paginated list result: " + e.toString)
-          }
-        )
-      }
+      checkErrorAndParse[Page[SystemEvent]](response)(Page.pageReads(rd.restReads))
     }
   }
 
-  def subjectsFor(id: String, params: ListParams): Future[Either[RestError, Page[AnyModel]]] = {
+  def subjectsFor(id: String, params: ListParams): Future[Page[AnyModel]] = {
     WS.url(enc(requestUrl, id, "subjects")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[Page[AnyModel]](Page.pageReads(AnyModel.Converter.restReads)).fold(
-          valid = { page =>
-            page
-          },
-          invalid = { e =>
-            sys.error("Unable to decode paginated list result: " + e.toString)
-          }
-        )
-      }
+      checkErrorAndParse[Page[AnyModel]](response)(Page.pageReads(AnyModel.Converter.restReads))
     }
   }
 }

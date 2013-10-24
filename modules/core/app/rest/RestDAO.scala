@@ -153,32 +153,32 @@ trait RestDAO {
   lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get
   lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
 
-  protected def checkError(response: Response): Either[RestError, Response] = {
+  protected def checkError(response: Response): Response = {
     Logger.logger.trace("Response body ! : {}", response.body)
     response.status match {
-      case OK | CREATED => Right(response)
+      case OK | CREATED => response
       case e => e match {
 
         case UNAUTHORIZED => response.json.validate[PermissionDenied].fold(
           valid = { perm =>
             Logger.logger.error("Permission denied error! : {}", response.json)
-            Left(perm)
+            throw perm
           },
           invalid = { e =>
-            Left(PermissionDenied())
+            throw PermissionDenied()
           }
         )
         case BAD_REQUEST => response.json.validate[ErrorSet].fold(
           valid = { errorSet =>
             Logger.logger.error("ValidationError ! : {}", response.json)
-            Left(ValidationError(errorSet))
+            throw ValidationError(errorSet)
           },
           invalid = { e =>
             // Temporary approach to handling random Deserialization errors.
             // In practice this should happen
             if ((response.json \ "error").asOpt[String] == Some("DeserializationError")) {
               Logger.logger.error("Derialization error! : {}", response.json)
-              Left(DeserializationError())
+              throw DeserializationError()
             } else {
               throw sys.error(s"Unexpected BAD REQUEST: ${e} \n${response.body}")
             }
@@ -188,10 +188,10 @@ trait RestDAO {
           Logger.logger.error("404: {} -> {}", Array(response.ahcResponse.getUri, response.body))
           response.json.validate[ItemNotFound].fold(
             valid = { item =>
-              Left(item)
+              throw item
             },
             invalid = { e =>
-              Left(ItemNotFound())
+              throw ItemNotFound()
             }
           )
         }
@@ -203,17 +203,14 @@ trait RestDAO {
     }
   }
 
-  private[rest] def checkErrorAndParse[T](response: Response)(implicit reader: Reads[T]): Either[RestError, T] = {
-    checkError(response) match {
-      case Right(r) => jsonReadToRestError(r.json, reader)
-      case Left(err) => Left(err)
-    }
+  private[rest] def checkErrorAndParse[T](response: Response)(implicit reader: Reads[T]): T = {
+    jsonReadToRestError(checkError(response).json, reader)
   }
 
-  private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T]): Either[RestError, T] = {
+  private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T]): T = {
     json.validate(reader).asEither match {
-      case Left(err) => Left(BadJson(err))
-      case Right(ok) => Right(ok)
+      case Right(ok) => ok
+      case Left(err) => throw BadJson(err)
     }
   }
 }

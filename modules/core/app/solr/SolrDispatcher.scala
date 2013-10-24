@@ -42,7 +42,7 @@ case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
    * @return a tuple of id, name, and type
    */
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
-    implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[(String,String,EntityType.Value)]]] = {
+      implicit userOpt: Option[UserProfile]): Future[ItemPage[(String,String,EntityType.Value)]] = {
     val limit = params.limit.getOrElse(100)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -50,11 +50,9 @@ case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
     Logger.logger.debug(queryRequest.queryString())
 
     WS.url(buildSearchUrl(queryRequest)).get.map { response =>
-      checkError(response).right.map { r =>
-        val parser = SolrQueryParser(r.body)
-        val items = parser.items.map(i => (i.itemId, i.name, i.`type`))
-        ItemPage(items, offset, limit, parser.count, Nil)
-      }
+      val parser = SolrQueryParser(checkError(response).body)
+      val items = parser.items.map(i => (i.itemId, i.name, i.`type`))
+      ItemPage(items, offset, limit, parser.count, Nil)
     }
   }
 
@@ -69,7 +67,7 @@ case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
    */
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass[Facet]],
              filters: Map[String,Any] = Map.empty, mode: SearchMode.Value = SearchMode.DefaultAll)(
-      implicit userOpt: Option[UserProfile]): Future[Either[RestError,ItemPage[SearchDescription]]] = {
+      implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchDescription]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -77,11 +75,9 @@ case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
     Logger.logger.debug(queryRequest.queryString())
 
     WS.url(buildSearchUrl(queryRequest)).get.map { response =>
-      checkError(response).right.map { r =>
-        val parser = SolrQueryParser(r.body)
-        ItemPage(parser.items, offset, limit, parser.count,
+      val parser = SolrQueryParser(checkError(response).body)
+      ItemPage(parser.items, offset, limit, parser.count,
           parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
-      }
     }
   }
 
@@ -99,7 +95,7 @@ case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
   def facet(facet: String, sort: String = "name", params: SearchParams,
         facets: List[AppliedFacet], allFacets: List[FacetClass[Facet]],
         filters: Map[String,Any] = Map.empty)(
-          implicit userOpt: Option[UserProfile]): Future[Either[RestError,FacetPage[Facet]]] = {
+          implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -110,18 +106,15 @@ case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
     val queryRequest = SolrQueryBuilder.search(params, facets, allFacets, filters)(userOpt)
 
     WS.url(buildSearchUrl(queryRequest)).get.map { response =>
-      checkError(response).right.map { r =>
+      val facetClasses = SolrQueryParser(checkError(response).body).extractFacetData(facets, allFacets)
 
-        val facetClasses = SolrQueryParser(r.body).extractFacetData(facets, allFacets)
-
-        val facetClass = facetClasses.find(_.param==facet).getOrElse(
-            throw new Exception("Unknown facet: " + facet))
-        val facetLabels = sort match {
-          case "name" => facetClass.sortedByName.slice(offset, offset + limit)
-          case _ => facetClass.sortedByCount.slice(offset, offset + limit)
-        }
-        FacetPage(facetClass, facetLabels, offset, limit, facetClass.count)
+      val facetClass = facetClasses.find(_.param==facet).getOrElse(
+          throw new Exception("Unknown facet: " + facet))
+      val facetLabels = sort match {
+        case "name" => facetClass.sortedByName.slice(offset, offset + limit)
+        case _ => facetClass.sortedByCount.slice(offset, offset + limit)
       }
+      FacetPage(facetClass, facetLabels, offset, limit, facetClass.count)
     }
   }
 }

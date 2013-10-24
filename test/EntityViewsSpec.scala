@@ -144,9 +144,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(cr) must equalTo(SEE_OTHER)
 
       // Now check we can read back the same permissions.
-      val permCall = await(PermissionDAO[UserProfile](Some(userProfile)).get(subjectUser))
-      permCall must beRight
-      val perms = permCall.right.get
+      val perms = await(PermissionDAO[UserProfile](Some(userProfile)).get(subjectUser))
       perms.get(ContentTypes.Repository, PermissionType.Create) must beSome
       perms.get(ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
       perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
@@ -172,8 +170,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(add) must equalTo(SEE_OTHER)
 
       val userFetch = await(EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(id))
-      userFetch must beRight
-      userFetch.right.get.groups.map(_.id) must contain("niod")
+      userFetch.groups.map(_.id) must contain("niod")
     }
 
     "allow removing users from groups" in new FakeApp {
@@ -184,8 +181,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(rem) must equalTo(SEE_OTHER)
 
       val userFetch = await(EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(id))
-      userFetch must beRight
-      userFetch.right.get.groups.map(_.id) must not contain("kcl")
+      userFetch.groups.map(_.id) must not contain("kcl")
     }
   }
 
@@ -212,8 +208,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(add) must equalTo(SEE_OTHER)
 
       val groupFetch = await(EntityDAO[Group](EntityType.Group, Some(userProfile)).get(id))
-      groupFetch must beRight
-      groupFetch.right.get.groups.map(_.id) must contain("admin")
+      groupFetch.groups.map(_.id) must contain("admin")
     }
 
     "allow removing groups from groups" in new FakeApp {
@@ -224,8 +219,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(rem) must equalTo(SEE_OTHER)
 
       val groupFetch = await(EntityDAO[Group](EntityType.Group, Some(userProfile)).get("niod"))
-      groupFetch must beRight
-      groupFetch.right.get.groups.map(_.id) must not contain("admin")
+      groupFetch.groups.map(_.id) must not contain("admin")
     }
   }
 

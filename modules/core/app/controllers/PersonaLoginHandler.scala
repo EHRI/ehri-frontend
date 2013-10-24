@@ -44,13 +44,12 @@ case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalCon
           userDAO.findByEmail(email) match {
             case Some(account) => gotoLoginSucceeded(email)
             case None => {
-              rest.AdminDAO(userProfile = None).createNewUserProfile.flatMap {
-                case Right(up) => {
-                  userDAO.create(up.id, email).map { acc =>
-                    gotoLoginSucceeded(acc.id)
-                  }.getOrElse(immediate(BadRequest("Creation of user db failed!")))
+              rest.AdminDAO(userProfile = None).createNewUserProfile.flatMap { up =>
+                userDAO.create(up.id, email).map { acc =>
+                  gotoLoginSucceeded(acc.id)
+                } getOrElse {
+                  immediate(BadRequest("Creation of user db failed!"))
                 }
-                case Left(err) => immediate(BadRequest("Unexpected REST error: " + err))
               }
             }
           }

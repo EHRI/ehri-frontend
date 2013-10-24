@@ -111,19 +111,15 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig, val se
       case _ : java.lang.NumberFormatException => None
     }
 
-    AsyncRest {
-      val allIds = """START n = node:entities("__ISA__:%s") RETURN n.__ID__""".format(EntityType.Repository)
-      rest.cypher.CypherDAO(userOpt).cypher(allIds).map { r =>
-        r.right.map { json =>
-          val result = json.as[Map[String,JsValue]]
-          val data: JsValue = result.getOrElse("data", Json.arr())
-          val id = data.as[List[List[String]]].flatten.flatMap { rid =>
-            rid.split("\\D+").filterNot(_ == "").headOption.flatMap(safeInt)
-          }.padTo(1, 0).max + 1 // ensure we get '1' with an empty list
+    val allIds = """START n = node:entities("__ISA__:%s") RETURN n.__ID__""".format(EntityType.Repository)
+    rest.cypher.CypherDAO(userOpt).cypher(allIds).map { json =>
+      val result = json.as[Map[String,JsValue]]
+      val data: JsValue = result.getOrElse("data", Json.arr())
+      val id = data.as[List[List[String]]].flatten.flatMap { rid =>
+        rid.split("\\D+").filterNot(_ == "").headOption.flatMap(safeInt)
+      }.padTo(1, 0).max + 1 // ensure we get '1' with an empty list
 
-          f(repoIdFormat.format(id))
-        }
-      }
+      f(repoIdFormat.format(id))
     }
   }
 
