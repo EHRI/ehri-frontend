@@ -52,9 +52,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    */
   object RestAction extends ActionBuilder[Request] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[SimpleResult]) = {
-      try {
-        block(request) // No need to handle the future, invokeBlock does it for us
-      } catch {
+      block(request) recoverWith {
         case e: rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
         case e: rest.ItemNotFound => Future.successful(play.api.mvc.Results.NotFound("Not found! " + e.toString))
         case e: java.net.ConnectException => Future.successful(play.api.mvc.Results.NotFound("No database!"))
