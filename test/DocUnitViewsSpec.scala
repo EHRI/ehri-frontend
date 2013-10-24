@@ -86,7 +86,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(show) must contain("c1")
     }
 
-    "deny access to c1 when logged in as an ordinary user" in new FakeApp {
+    "deny access to c2 when logged in as an ordinary user" in new FakeApp {
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
           controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
       status(show) must equalTo(UNAUTHORIZED)

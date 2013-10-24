@@ -12,9 +12,10 @@ import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
 import rest.RestEventHandler
 import models.Account
-import play.api.mvc.WithFilters
+import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.Authorizer
+import scala.concurrent.Future
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -69,6 +70,11 @@ trait TestLoginHelper {
 
     override def getControllerInstance[A](clazz: Class[A]) = {
       injector.getInstance(clazz)
+    }
+
+    override def onError(request: RequestHeader, ex: Throwable) = ex match {
+      case e: rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
+      case e => super.onError(request, e)
     }
 
     override def onStart(app: play.api.Application) {

@@ -159,29 +159,30 @@ trait RestDAO {
       case OK | CREATED => response
       case e => e match {
 
-        case UNAUTHORIZED => response.json.validate[PermissionDenied].fold(
-          valid = { perm =>
-            Logger.logger.error("Permission denied error! : {}", response.json)
-            throw perm
-          },
-          invalid = { e =>
-            throw PermissionDenied()
-          }
-        )
+        case UNAUTHORIZED => {
+          println("UNAUTHORIZED: " + response.json)
+          response.json.validate[PermissionDenied].fold(
+            err => throw PermissionDenied(user = userProfile.map(_.id)),
+            perm => {
+              Logger.logger.error("Permission denied error! : {}", response.json)
+              throw perm
+            }
+          )
+        }
         case BAD_REQUEST => response.json.validate[ErrorSet].fold(
-          valid = { errorSet =>
-            Logger.logger.error("ValidationError ! : {}", response.json)
-            throw ValidationError(errorSet)
-          },
-          invalid = { e =>
-            // Temporary approach to handling random Deserialization errors.
-            // In practice this should happen
+          e => {
+          // Temporary approach to handling random Deserialization errors.
+          // In practice this should happen
             if ((response.json \ "error").asOpt[String] == Some("DeserializationError")) {
               Logger.logger.error("Derialization error! : {}", response.json)
               throw DeserializationError()
             } else {
               throw sys.error(s"Unexpected BAD REQUEST: ${e} \n${response.body}")
             }
+          },
+          errorSet => {
+            Logger.logger.error("ValidationError ! : {}", response.json)
+            throw ValidationError(errorSet)
           }
         )
         case NOT_FOUND => {

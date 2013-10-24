@@ -117,6 +117,11 @@ object Global extends WithFilters(new CSRFFilter()) with GlobalSettings {
     injector.getInstance(clazz)
   }
 
+  override def onError(request: RequestHeader, ex: Throwable) = ex match {
+    case e: rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
+    case e => super.onError(request, e)
+  }
+
   override def onStart(app: Application) {
 
     // Hack for bug #845
