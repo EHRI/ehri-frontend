@@ -134,8 +134,6 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
 
   def createDocPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.DocumentaryUnit) {
       item => formsOrItem => implicit userOpt => implicit request =>
-    import play.filters.csrf._
-    implicit val token: Option[Token] = CSRF.getToken(request)
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.documentaryUnit.create(item,

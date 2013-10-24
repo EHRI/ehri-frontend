@@ -10,6 +10,7 @@ import play.api.test.Helpers._
  * User: mike
  */
 package object helpers {
+
   val jsonPostHeaders: Map[String, String] = Map(
     HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
   )
@@ -20,8 +21,6 @@ package object helpers {
 
   /**
    * Load database fixtures.
-   * @param app
-   * @return
    */
   def loadFixtures(implicit app: play.api.Application) = {
     val userDAO: SqlAccountDAOPlugin = new SqlAccountDAOPlugin(app)

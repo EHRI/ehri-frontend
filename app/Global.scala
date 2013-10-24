@@ -18,26 +18,6 @@ import utils.search.{Indexer, Dispatcher}
 import global.GlobalConfig
 
 
-/**
- * Filter that applies CSRF protection unless a particular
- * custom header is present. The value of the header is
- * not checked.
- */
-class AjaxCSRFFilter extends EssentialFilter {
-  var csrfFilter = new CSRFFilter()
-
-  val AJAX_HEADER_TOKEN = "ajax-ignore-csrf"
-
-  def apply(next: EssentialAction) = new EssentialAction {
-    def apply(request: RequestHeader) = {
-      if (request.headers.keys.contains(AJAX_HEADER_TOKEN))
-        next(request)
-      else
-        csrfFilter(next)(request)
-    }
-  }
-}
-
 package globalConfig {
 
   import global.RouteRegistry
@@ -91,10 +71,7 @@ package globalConfig {
 
 // FIXME: using WithFilters(new AjaxCSRFFilter) breaks things here...
 
-object Global extends GlobalSettings {
-
-  // This is a workaround for the 'There is no started application error...
-  override def doFilter(action:EssentialAction) = new AjaxCSRFFilter().apply(next = action)
+object Global extends WithFilters(new CSRFFilter()) with GlobalSettings {
 
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer

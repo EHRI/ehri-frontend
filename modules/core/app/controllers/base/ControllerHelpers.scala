@@ -12,6 +12,7 @@ import models.UserProfile
 import play.api.Play.current
 import play.api.libs.json.Json
 import global.{MenuConfig, GlobalConfig}
+import scala.concurrent.Future.{successful => immediate}
 
 object ControllerHelpers {
   def isAjax(implicit request: RequestHeader): Boolean =
@@ -104,9 +105,21 @@ trait ControllerHelpers {
       promise.flatMap { respOrErr =>
         respOrErr.fold(
           // FIXME: REFACTOR
-          err => Future.successful(InternalServerError(err.toString)),
+          err => err match {
+            case e: PermissionDenied => maybeUser.map { user =>
+              immediate(Unauthorized(views.html.errors.permissionDenied(Some(e))))
+            } getOrElse {
+              authenticationFailed(request)
+            }
+            case e: ItemNotFound => immediate(NotFound(views.html.errors.itemNotFound(e.value)))
+            case e: ValidationError => immediate(BadRequest(err.toString()))
+            case e: ServerError => immediate(InternalServerError(views.html.errors.serverTimeout(dbMaintenance)))
+            case e => immediate(BadRequest(e.toString()))
+          },
           resp => resp
         )
+      } recover {
+        case e: ConnectException => InternalServerError(views.html.errors.serverTimeout(dbMaintenance))
       }
     }
   }

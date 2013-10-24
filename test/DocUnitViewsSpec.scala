@@ -2,13 +2,9 @@ package test
 
 import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._
-import play.api.test.Helpers._
-import defines._
-import controllers.routes
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.http.{MimeTypes, HeaderNames}
-import solr.SolrConstants
 
 
 class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
@@ -30,7 +26,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.list.url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(oneItemHeader)
-      contentAsString(list) must not contain ("c1")
+      contentAsString(list) must not contain "c1"
       contentAsString(list) must contain("c4")
     }
 
@@ -94,7 +90,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
           controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
       status(show) must equalTo(UNAUTHORIZED)
-      contentAsString(show) must not contain ("Collection 2")
+      contentAsString(show) must not contain "Collection 2"
     }
 
     "allow deleting c4 when logged in" in new FakeApp {
@@ -114,8 +110,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      println(contentAsString(cr))
+        controllers.archdesc.routes.Repositories.createDocPost("r1").url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -138,7 +134,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
       val call = fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
+        controllers.archdesc.routes.Repositories.createDocPost("r1").url)
+        .withHeaders(formPostHeaders.toSeq: _*)
       val cr1 = route(call, testData).get
       status(cr1) must equalTo(SEE_OTHER)
       // okay the first time
@@ -159,7 +156,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
       val call = fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
+        controllers.archdesc.routes.Repositories.createDocPost("r1").url)
+        .withHeaders(formPostHeaders.toSeq: _*)
       val cr = route(call, testData).get
       status(cr) must equalTo(BAD_REQUEST)
       // If we were doing validating dates we'd use:
@@ -222,8 +220,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // We can view the item when not logged in...
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c4").url)).get
       status(show) must equalTo(OK)
-      contentAsString(show) must not contain ("New Content for c4")
-      mockIndexer.eventBuffer.last must not equalTo("c4")
+      contentAsString(show) must not contain "New Content for c4"
+      mockIndexer.eventBuffer.last must not equalTo "c4"
     }
 
     "should redirect to login page when permission denied when not logged in" in new FakeApp {
