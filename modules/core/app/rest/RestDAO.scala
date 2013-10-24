@@ -130,6 +130,8 @@ trait RestDAO {
   // Abstract value for the user accessing a resource...
   val userProfile: Option[UserProfile]
 
+  implicit def userOpt = userProfile
+
   /**
    * Headers to add to outgoing request...
    * @return
@@ -153,7 +155,7 @@ trait RestDAO {
   lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get
   lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
 
-  protected def checkError(response: Response): Response = {
+  protected def checkError(response: Response)(implicit userOpt: Option[UserProfile]): Response = {
     Logger.logger.trace("Response body ! : {}", response.body)
     response.status match {
       case OK | CREATED => response
@@ -188,12 +190,8 @@ trait RestDAO {
         case NOT_FOUND => {
           Logger.logger.error("404: {} -> {}", Array(response.ahcResponse.getUri, response.body))
           response.json.validate[ItemNotFound].fold(
-            valid = { item =>
-              throw item
-            },
-            invalid = { e =>
-              throw ItemNotFound()
-            }
+            e => throw new ItemNotFound(),
+            err => throw err
           )
         }
         case _ => {

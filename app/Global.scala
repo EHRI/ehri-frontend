@@ -117,8 +117,9 @@ object Global extends WithFilters(new CSRFFilter()) with GlobalSettings {
     injector.getInstance(clazz)
   }
 
-  override def onError(request: RequestHeader, ex: Throwable) = ex match {
+  override def onError(request: RequestHeader, ex: Throwable) = ex.getCause match {
     case e: rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
+    case e: rest.ItemNotFound => Future.successful(play.api.mvc.Results.NotFound("Not found! " + e.toString))
     case e => super.onError(request, e)
   }
 
