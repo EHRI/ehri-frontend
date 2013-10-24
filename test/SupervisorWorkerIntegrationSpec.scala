@@ -6,7 +6,7 @@ import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
 import defines._
-import rest.EntityDAO
+import rest.{PermissionDenied, ItemNotFound, EntityDAO}
 import models.sql.MockAccount
 
 /**
@@ -231,7 +231,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(doc1DeleteRead) must equalTo(SEE_OTHER)
       val doc1CheckDeleteRead = route(fakeLoggedInHtmlRequest(haAccount, GET,
           controllers.archdesc.routes.DocumentaryUnits.get(doc1Id).url)).get
-      status(doc1CheckDeleteRead) must equalTo(NOT_FOUND)
+      status(doc1CheckDeleteRead) must throwA[ItemNotFound]
 
       // ---------------------------------------------
       //
@@ -279,7 +279,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(doc2DeleteRead) must equalTo(SEE_OTHER)
       val doc2CheckDeleteRead = route(fakeLoggedInHtmlRequest(aAccount, GET,
           controllers.archdesc.routes.DocumentaryUnits.get(doc2Id).url)).get
-      status(doc2CheckDeleteRead) must equalTo(NOT_FOUND)
+      status(doc2CheckDeleteRead) must throwA[ItemNotFound]
 
       // HOORAY! Basic stuff seems to work - now onto the difficult things...
       // Create a doc as the head archivist, then check it can't be deleted
@@ -310,12 +310,12 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val doc3UpdateRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
           controllers.archdesc.routes.DocumentaryUnits.update(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*),
           doc3Data.updated("descriptions[0].name", Seq("Foobar"))).get
-      status(doc3UpdateRead) must equalTo(UNAUTHORIZED)
+      status(doc3UpdateRead) must throwA[PermissionDenied]
 
       // Now ensure the ordinary archivist cannot delete it!
       val doc3DeleteRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
           controllers.archdesc.routes.DocumentaryUnits.delete(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
-      status(doc3DeleteRead) must equalTo(UNAUTHORIZED)
+      status(doc3DeleteRead) must throwA[PermissionDenied]
 
       // Test the ordinary archivist can Create a documentary units within repoId
       // and the head archivist CAN delete it...

@@ -105,10 +105,6 @@ trait TestLoginHelper {
   /**
    * Get a FakeRequest with authorization cookies for the given user
    * and HTML Accept.
-   * @param user
-   * @param rtype
-   * @param path
-   * @return
    */
   def fakeLoggedInRequest(user: Account, rtype: String, path: String) = {
     val fr = FakeRequest(rtype, path)

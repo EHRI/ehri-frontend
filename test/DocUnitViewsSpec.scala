@@ -5,6 +5,7 @@ import models._
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.http.{MimeTypes, HeaderNames}
+import rest.PermissionDenied
 
 
 class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
@@ -89,8 +90,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     "deny access to c2 when logged in as an ordinary user" in new FakeApp {
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
           controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
-      status(show) must equalTo(UNAUTHORIZED)
-      contentAsString(show) must not contain "Collection 2"
+      status(show) must throwA[PermissionDenied]
     }
 
     "allow deleting c4 when logged in" in new FakeApp {
