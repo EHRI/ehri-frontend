@@ -48,6 +48,22 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   }
 
   /**
+   * ActionBuilder that randles REST errors appropriately...
+   */
+  object RestAction extends ActionBuilder[Request] {
+    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[SimpleResult]) = {
+      try {
+        block(request) // No need to handle the future, invokeBlock does it for us
+      } catch {
+        case e: rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
+        case e: rest.ItemNotFound => Future.successful(play.api.mvc.Results.NotFound("Not found! " + e.toString))
+        case e: java.net.ConnectException => Future.successful(play.api.mvc.Results.NotFound("No database!"))
+      }
+    }
+  }
+
+
+  /**
    * SystemEvent composition that adds extra context to regular requests. Namely,
    * the profile of the user requesting the page, and her permissions.
    */
@@ -61,7 +77,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             val fakeProfile = UserProfile(UserProfileF(id=Some(account.id), identifier="", name=""))
             implicit val maybeUser = Some(fakeProfile)
 
-            // TODO: For the permissions to be properly initialized they must
+            // For the permissions to be properly initialized they must
             // recieve a completely-constructed instance of the UserProfile
             // object, complete with the groups it belongs to. Since this isn't
             // available initially, and we don't want to block for it to become
@@ -86,6 +102,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
         }
       }
     }
+
     def apply(f: Option[UserProfile] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
       async(f.andThen(_.andThen(t => Future.successful(t))))
     }
