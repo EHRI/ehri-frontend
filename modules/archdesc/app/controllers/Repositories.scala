@@ -88,7 +88,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
 
-    val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
+    val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
 
     searchAction[DocumentaryUnit](filters,

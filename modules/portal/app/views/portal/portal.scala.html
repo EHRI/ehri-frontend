@@ -22,6 +22,9 @@
 }
 
 @layout.portalLayout(Messages("forms.search"), scripts = extrascripts, styles = extrastyles) {
+    @layout.breadcrumbs(showHome = false) {
+        <li>&nbsp;</li>
+    }
 
     @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
         <div class="row main-content">

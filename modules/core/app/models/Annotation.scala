@@ -56,6 +56,24 @@ object Annotation {
       (__ \ "meta").format[JsObject]
     )(Annotation.apply _, unlift(Annotation.unapply _))
   }
+
+  /**
+   * Filter annotations on individual fields
+   */
+  def fieldAnnotations(annotations: Map[String,List[Annotation]]): Map[String,List[Annotation]] = {
+    annotations.map { case (id, list) =>
+      (id, list.filter(_.model.field.isDefined))
+    }
+  }
+
+  /**
+   * Filter annotations on the item
+   */
+  def itemAnnotations(annotations: Map[String,List[Annotation]]): Map[String,List[Annotation]] = {
+    annotations.map { case (id, list) =>
+      (id, list.filter(_.model.field.isEmpty))
+    }
+  }
 }
 
 case class Annotation(

@@ -3,6 +3,7 @@ portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
 portal.browse=Browse
 portal.search=Search
+portal.globalSearch=Search Everything
 portal.browse.countries=Institutions by Country
 portal.browse.repositories=Archival Institutions
 portal.browse.repositoriesByCountry=Institutions By Country

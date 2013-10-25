@@ -49,7 +49,8 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
         name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
-        display = FacetDisplay.List
+        display = FacetDisplay.Choice,
+        sort = FacetSort.Name
       ),
       FieldFacetClass(
         key = "type",
@@ -224,22 +225,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(portal.browse())
   }
 
-  private val repositoriesByCountrySearchFacets: FacetBuilder = { implicit lang =>
-    List(
-      FieldFacetClass(
-        key="countryCode",
-        name=Messages("isdiah.countryCode"),
-        param="country",
-        render= (s: String) => Helpers.countryCodeToName(s),
-        sort = FacetSort.Name,
-        display = FacetDisplay.DropDown
-      )
-    )
-  }
-
   def browseCountries = Action { implicit request =>
     searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country), entities = List(EntityType.Repository))),
-      entityFacets = repositoriesByCountrySearchFacets) {
+      entityFacets = repositorySearchFacets) {
       page => params => facets => implicit userOpt => _ =>
         Ok(portal.repository.listByCountry(page, params, facets, portalRoutes.browseCountries))
     }.apply(request)
@@ -294,7 +282,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
   def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
       item => annotations => links => implicit userOpt => implicit request =>
-    val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
+    val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
     searchAction[DocumentaryUnit](filters,
         defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
@@ -329,9 +317,16 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       Ok(portal.documentaryUnit.listByRepository(page, params, facets, portalRoutes.browseDocumentsByRepository))
   }
 
-  def browseDocument(id: String) = getWithChildrenAction[DocumentaryUnit, DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-      doc => children => params => anns => links => implicit userOpt => implicit request =>
-    Ok(portal.documentaryUnit.show(doc, children, anns, links))
+  def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+      item => annotations => links => implicit userOpt => implicit request =>
+    val filters = Map(SolrConstants.PARENT_ID -> item.id)
+    searchAction[DocumentaryUnit](filters,
+      defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+      entityFacets = docSearchFacets) {
+      page => params => facets => _ => _ =>
+        Ok(portal.documentaryUnit.show(item, page, params, facets,
+          portalRoutes.browseDocument(id), annotations, links))
+    }.apply(request)
   }
 
   private val historicalAgentFacets: FacetBuilder = { implicit lang =>

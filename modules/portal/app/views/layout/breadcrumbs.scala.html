@@ -1,11 +1,13 @@
-@(typeClass: String = "")(html: Html = Html(""))(implicit userOpt: Option[UserProfile], globalGonfig: global.GlobalConfig, req: RequestHeader, lang: Lang)
+@(typeClass: String = "", showHome: Boolean = true)(html: Html = Html(""))(implicit userOpt: Option[UserProfile], globalGonfig: global.GlobalConfig, req: RequestHeader, lang: Lang)
 
 <div class="row top-bar @typeClass">
     <div class="container">
         <ol class="breadcrumb">
-            <li>
-                <a href="@controllers.portal.routes.Portal.index">@Messages("portal.home")</span></a>
-            </li>
+            @if(showHome) {
+                <li>
+                    <a href="@controllers.portal.routes.Portal.index">@Messages("portal.home")</span></a>
+                </li>
+            }
             @html
         </ol>
     </div>

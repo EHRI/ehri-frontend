@@ -12,6 +12,14 @@
 
     @infobar(item)
 
+    @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
+        @views.html.portal.common.descriptionContainer(item.model.descriptions) {
+            @item.model.descriptions.map { desc =>
+                @renderDescription(item, desc, links, annotations)
+            }
+        }
+    }
+
     @views.html.portal.searchForm(result, params, action, key = "", autofocus = false) {
         @views.html.portal.searchItemList(result)
     } {

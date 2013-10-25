@@ -102,6 +102,11 @@ object SolrConstants {
   final val DEFAULT_FILTER_LIMIT = 100
 
   /**
+   * Parent id for hierarchical items.
+   */
+  final val PARENT_ID = "parentId"
+
+  /**
    * Holder id for hierarchical items.
    */
   final val HOLDER_ID = "holderId"

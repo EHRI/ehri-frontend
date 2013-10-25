@@ -30,10 +30,12 @@
 // Margins
 @small-margin: 5px;
 @medium-margin: 10px;
+@large-margin: 20px;
 
 // Padding
 @small-padding: 5px;
-@medium-padding: 5px;
+@medium-padding: 10px;
+@large-padding: 20px;
 
 body {
   padding-top: @menu-height;
@@ -47,6 +49,25 @@ html,
 body {
   height: 100%;
   /* The html and body elements cannot have any padding or margin. */
+}
+
+#navbar-logo {
+  height: @menu-height - @medium-padding;
+  margin-top: @small-margin;
+  margin-right: @small-margin;
+}
+
+.navbar-form {
+  .form-group {
+    input[type='text'] {
+      border: none;
+      background-color: @almost-black;
+    }
+
+    input[type='text']:focus {
+      background-color: @pale-gray;
+    }
+  }
 }
 
 .facet-class {
@@ -261,3 +282,7 @@ label.disabled {
   color: @dark-gray;
 }
 
+// Descriptions...
+.descriptions {
+  margin-top: @large-margin;
+}
