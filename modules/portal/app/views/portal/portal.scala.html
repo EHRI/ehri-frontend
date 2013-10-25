@@ -1,6 +1,7 @@
 @()(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @import utils.search.SearchParams
+@import defines.EntityType
 
 @extrastyles = {
 
@@ -21,6 +22,8 @@
     </script>
 }
 
+
+
 @layout.portalLayout(Messages("forms.search"), scripts = extrascripts, styles = extrastyles) {
     @layout.breadcrumbs(showHome = false) {
         <li>&nbsp;</li>
@@ -35,8 +38,8 @@
 
     @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
         <div class="row search-bar">
-            <div class="col-sm-3 col-md-3 col-lg-3"></div>
-            <div class="col-sm-6 col-md-6 col-lg-6">
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+            <div class="col-sm-8 col-md-8 col-lg-8">
                 <div class="container">
                     <div class="form-group form-inline search-box">
                         <div class="input-group">
@@ -52,23 +55,42 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-3 col-md-3 col-lg-3"></div>
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
         </div>
 
         <div class="row tertiary-content">
-            <div class="col-sm-1 col-md-1 col-lg-1"></div>
-            <div class="col-sm-4 col-md-4 col-lg-4">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">@Messages("portal.latestUpdates")</h3>
-                    </div>
-                    <ul id="latest-events" class="list-unstyled panel-body front-page-panel-content">
-
-                    </ul>
-                </div>
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+            <div class="col-sm-8 col-md-8 col-lg-8">
+                <h3 class="landing-header">
+                    <a class="@EntityType.Repository" href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
+                </h3>
             </div>
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+        </div>
 
-            <div class="col-sm-4 col-md-4 col-lg-4">
+        <div class="row tertiary-content">
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+            <div class="col-sm-8 col-md-8 col-lg-8">
+                <h3 class="landing-header">
+                    <a class="@EntityType.DocumentaryUnit" href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
+                </h3>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+        </div>
+
+        <div class="row tertiary-content">
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+            <div class="col-sm-8 col-md-8 col-lg-8">
+                <h3 class="landing-header">
+                    <a class="@EntityType.HistoricalAgent" href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
+                </h3>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+        </div>
+
+        <div class="row tertiary-content">
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+            <div class="col-sm-8 col-md-8 col-lg-8">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">@Messages("portal.newsFeed")</h3>
@@ -78,8 +100,11 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-sm-1 col-md-1 col-lg-1"></div>
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
         </div>
+
+        <div class="row tertiary-content"></div>
+
 
     }
 }
