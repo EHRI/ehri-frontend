@@ -62,6 +62,12 @@ case class SearchParams(
 ) {
 
   /**
+   * Is there an active constraint on these params?
+   * TODO: Should this include page etc?
+   */
+  def isFiltered: Boolean = query.filterNot(_.trim.isEmpty).isDefined
+
+  /**
    * Set unset values from another (optional) instance.
    */
   def setDefault(default: Option[SearchParams]): SearchParams = default match {

@@ -15,12 +15,4 @@
             </ol>
         </div>
     </div>
-
-    @item.model.primaryDescription.map { desc =>
-        @renderItem(item, desc, links)
-    }.getOrElse {
-        <p class="alert-error">
-            No descriptions found
-        </p>
-    }
 }

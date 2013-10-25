@@ -45,6 +45,9 @@
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
 
                     <ul class="nav navbar-nav">
+                        <li>
+                            <img src="@controllers.portal.routes.Assets.at("img/logo-bw.png")" id="navbar-logo" rel="logo" />
+                        </li>
                         <li class="@maybeActivePath(controllers.portal.routes.Portal.browse.url)">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                 @Messages("portal.browse")
@@ -71,9 +74,12 @@
                         <li class="@maybeActive(controllers.portal.routes.Portal.activity.url)">
                             <a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a>
                         </li>
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
                         @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "navbar-form navbar-right", 'role -> "search") {
                             <div class="form-group">
-                                <input type="text" name="q" class="form-control" placeholder="@Messages("portal.search")" />
+                                <input type="text" name="q" class="form-control" placeholder="@Messages("portal.globalSearch")" />
                             </div>
                         }
                     </ul>

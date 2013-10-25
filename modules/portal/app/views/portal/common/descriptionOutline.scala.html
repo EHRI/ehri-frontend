@@ -1,0 +1,16 @@
+@(desc: Description, annotations: Map[String,List[Annotation]])(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+<div class="description @desc.isA" id="@desc.id">
+    @html
+
+    <div class="description-annotations">
+        @descriptionAnnotations(desc, desc.id.flatMap(id => annotations.get(id)).getOrElse(List.empty))
+        @* For when annotations are working...
+        @userOpt.map { user =>
+            <small class="add-annotation pull-right">
+                <a title="@Messages("portal.annotateItem", desc.name)" href="#"><span class="glyphicon glyphicon-pencil"></span></a>
+            </small>
+        }
+        *@
+    </div>
+</div>

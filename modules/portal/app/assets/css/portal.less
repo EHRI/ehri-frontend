@@ -7,7 +7,7 @@
 @dark-gray: #cccccc;
 @almost-black: #333;
 
-@doc-color: @primary-highlight; // main 'content' shares primary color?
+@doc-color: #360f4f;
 @repo-color: #034153;
 @country-color: #864300;
 @agent-color: #517C00;
@@ -30,10 +30,12 @@
 // Margins
 @small-margin: 5px;
 @medium-margin: 10px;
+@large-margin: 20px;
 
 // Padding
 @small-padding: 5px;
-@medium-padding: 5px;
+@medium-padding: 10px;
+@large-padding: 20px;
 
 body {
   padding-top: @menu-height;
@@ -49,6 +51,25 @@ body {
   /* The html and body elements cannot have any padding or margin. */
 }
 
+#navbar-logo {
+  height: @menu-height - @medium-padding;
+  margin-top: @small-margin;
+  margin-right: @small-margin;
+}
+
+.navbar-form {
+  .form-group {
+    input[type='text'] {
+      border: none;
+      background-color: @almost-black;
+    }
+
+    input[type='text']:focus {
+      background-color: @pale-gray;
+    }
+  }
+}
+
 .facet-class {
   padding-bottom: @medium-padding * 2;
   border-bottom: 1px solid @pale-gray;
@@ -58,6 +79,9 @@ body {
   max-width: 400px;
 }
 
+.landing-header {
+  border-bottom: 1px solid @pale-gray;
+}
 
 // nav menu color fixes
 .nav .caret, .nav a:hover .caret {
@@ -261,3 +285,7 @@ label.disabled {
   color: @dark-gray;
 }
 
+// Descriptions...
+.descriptions {
+  margin-top: @large-margin;
+}

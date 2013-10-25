@@ -33,10 +33,12 @@
         }
     </ul>
     @item.childCount.map { count =>
-        <div class="child-count">
-            <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)#search-items">
-                @Messages("documentaryUnit.childCount", count)</a>
-        </div>
+        @if(count > 0) {
+            <div class="child-count">
+                <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)#search-items">
+                    @Messages("documentaryUnit.childCount", count)</a>
+            </div>
+        }
     }
 </small>
 @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>

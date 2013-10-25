@@ -8,11 +8,11 @@
 
     @infobar(item)
 
-    @item.model.primaryDescription.map { desc =>
-        @renderItem(item, desc, links)
-    }.getOrElse {
-        <p class="alert-error">
-            No descriptions found
-        </p>
+    @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
+        @views.html.portal.common.descriptionContainer(item.model.descriptions) {
+            @item.model.descriptions.map { desc =>
+                @renderDescription(item, desc, links, annotations)
+            }
+        }
     }
 }
