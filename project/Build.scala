@@ -32,6 +32,9 @@ object ApplicationBuild extends Build {
     // Ontology
     "ehri-project" % "ehri-definitions" % "1.0",
 
+    // Solely to satisfy SBT: bit.ly/16bFa4O
+    "com.google.guava" % "guava" % "14.0", 
+    
     // Injection guff
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
