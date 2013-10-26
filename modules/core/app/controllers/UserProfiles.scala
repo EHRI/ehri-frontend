@@ -46,7 +46,7 @@ class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig, val
     Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
-  def list = listAction { page => params => implicit userOptOpt => implicit request =>
+  def list = pageAction { page => params => implicit userOptOpt => implicit request =>
     Ok(views.html.userProfile.list(page, params))
   }
 

@@ -1,0 +1,9 @@
+@(desc: Description, annotations: List[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+@if(!annotations.isEmpty) {
+    <ul class="list-unstyled annotation-list">
+        @annotations.map { annotation =>
+            <li>@annotation.toStringLang</li>
+        }
+    </ul>
+}

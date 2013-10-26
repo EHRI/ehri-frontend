@@ -92,7 +92,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
    */
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
 
-    val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
+    val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
 
     searchAction[DocumentaryUnit](filters,
@@ -107,7 +107,7 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
     Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
-  def list = listAction { page => params => implicit userOpt => implicit request =>
+  def list = pageAction { page => params => implicit userOpt => implicit request =>
     Ok(views.html.repository.list(page, params))
   }
 

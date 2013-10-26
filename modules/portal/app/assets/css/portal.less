@@ -7,7 +7,7 @@
 @dark-gray: #cccccc;
 @almost-black: #333;
 
-@doc-color: @primary-highlight; // main 'content' shares primary color?
+@doc-color: #360f4f;
 @repo-color: #034153;
 @country-color: #864300;
 @agent-color: #517C00;
@@ -30,10 +30,12 @@
 // Margins
 @small-margin: 5px;
 @medium-margin: 10px;
+@large-margin: 20px;
 
 // Padding
 @small-padding: 5px;
-@medium-padding: 5px;
+@medium-padding: 10px;
+@large-padding: 20px;
 
 body {
   padding-top: @menu-height;
@@ -49,6 +51,28 @@ body {
   /* The html and body elements cannot have any padding or margin. */
 }
 
+#navbar-logo {
+  a {
+    padding: @small-padding;
+    img {
+      height: @menu-height - @medium-padding;
+    }
+  }
+}
+
+.navbar-form {
+  .form-group {
+    input[type='text'] {
+      border: none;
+      background-color: @almost-black;
+    }
+
+    input[type='text']:focus {
+      background-color: @pale-gray;
+    }
+  }
+}
+
 .facet-class {
   padding-bottom: @medium-padding * 2;
   border-bottom: 1px solid @pale-gray;
@@ -57,7 +81,6 @@ body {
 .facet-select-dropdown {
   max-width: 400px;
 }
-
 
 // nav menu color fixes
 .nav .caret, .nav a:hover .caret {
@@ -109,6 +132,28 @@ body {
   background-color: @agent-color;
 }
 
+.landing-header {
+  color: white;
+  border-bottom: 1px solid @pale-gray;
+  padding: @small-padding;
+  a {
+    color: white !important;
+  }
+}
+
+.landing-header.documentaryUnit {
+  background-color: @doc-color;
+}
+.landing-header.repository {
+  background-color: @repo-color;
+}
+.landing-header.country {
+  background-color: @country-color;
+}
+.landing-header.historicalAgent {
+  background-color: @agent-color;
+}
+
 /** Heading which divides a set of search results */
 .search-group-heading {
   margin-bottom: 30px;
@@ -133,7 +178,7 @@ a.alt {
 
 .top-bar {
   .downward-shadow();
-  color: #FBFBFB;
+  color: @pale-gray;
   font-size: 1.1em;
 }
 
@@ -146,7 +191,7 @@ a.alt {
 
 .breadcrumb a {
   text-decoration: underline;
-  color: #FDFDFD;
+  color: @pale-gray;
 }
 
 .search-bar {
@@ -208,7 +253,7 @@ footer .container {
 /** Search items */
 .search-item {
   padding-bottom: 0.5em;
-  border-bottom: 1px dashed #EBEBEB;
+  border-bottom: 1px dashed @dark-gray;
   margin-bottom: @search-item-spacing;
 }
 
@@ -261,3 +306,7 @@ label.disabled {
   color: @dark-gray;
 }
 
+// Descriptions...
+.descriptions {
+  margin-top: @large-margin;
+}

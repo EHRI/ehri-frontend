@@ -1,0 +1,9 @@
+@(name:String)(html: Html)(implicit fieldPrefix: String, lang: Lang)
+
+<div class="description-section @{name}-section">
+    @if(html.toString.trim.isEmpty) {
+        <!-- No data! -->
+    } else {
+        @html
+    }
+</div>

@@ -1,57 +1,39 @@
-@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, fieldPrefix: String)
+@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: List[Link], annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, fieldPrefix: String)
 
 @import Isaar._
-@import common.descriptionSection
-
-@otherNameList(list: Option[List[String]]) = {
-    @defining(list.toList.flatten) { pfn =>
-        @if(!pfn.isEmpty) {
-            <small class="text-muted">
-                <ul class="list-unstyled list-inline comma-sep other-name-list">
-                    @pfn.map { p =>
-                        <li>@p</li>
-                    }
-                </ul>
-            </small>
-        }
-    }
-}
+@import views.html.portal.common.descriptionSection
+@import views.html.portal.common.textField
 
 @common.descriptionOutline(desc, desc.languageCode) {
-    <h2>@desc.name</h2>
-    @otherNameList(desc.parallelFormsOfName)
-    @otherNameList(desc.otherFormsOfName)
-
-    @common.renderDates(desc, DATES_OF_EXISTENCE)
-    @common.stringValue(Some(desc.entityType.toString), ENTITY_TYPE)
-
-    @descriptionSection(DESCRIPTION_AREA) {
-        @common.stringValue(desc.details.datesOfExistence, DATES_OF_EXISTENCE)
-        @common.stringValue(desc.details.history, HISTORY)
-        @common.stringValue(desc.details.places, PLACES)
-        @common.stringValue(desc.details.legalStatus, LEGAL_STATUS)
-        @common.stringValue(desc.details.functions, FUNCTIONS)
-        @common.stringValue(desc.details.mandates, MANDATES)
-        @common.stringValue(desc.details.internalStructure, INTERNAL_STRUCTURE)
-        @common.stringValue(desc.details.generalContext, GENERAL_CONTEXT)
-    }
-
-    @descriptionSection(CONTROL_AREA) {
-        @common.stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
-        @common.stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
-        @common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
-        @common.stringValue(desc.control.status, STATUS)
-        @common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
-        @common.stringValue(desc.control.datesCDR, DATES_CVD)
-        @common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-        @common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
-        @common.listValue(desc.control.sources, SOURCES)
-        @common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
-    }
-
-    @link.relatedLinks(item, desc, links)
-
-    @desc.unknownProperties.map { e =>
-        @common.unknownData(e)
+    @defining(Annotation.fieldAnnotations(annotations)) { implicit fieldAnnotations =>
+        
+        @common.renderDates(desc, DATES_OF_EXISTENCE)
+        @textField(item, Some(desc.entityType.toString), ENTITY_TYPE)
+    
+        @descriptionSection(DESCRIPTION_AREA) {
+            @textField(item, desc.details.datesOfExistence, DATES_OF_EXISTENCE)
+            @textField(item, desc.details.history, HISTORY)
+            @textField(item, desc.details.places, PLACES)
+            @textField(item, desc.details.legalStatus, LEGAL_STATUS)
+            @textField(item, desc.details.functions, FUNCTIONS)
+            @textField(item, desc.details.mandates, MANDATES)
+            @textField(item, desc.details.internalStructure, INTERNAL_STRUCTURE)
+            @textField(item, desc.details.generalContext, GENERAL_CONTEXT)
+        }
+    
+        @descriptionSection(CONTROL_AREA) {
+            @textField(item, desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
+            @textField(item, desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
+            @textField(item, desc.control.rulesAndConventions, RULES_CONVENTIONS)
+            @textField(item, desc.control.status, STATUS)
+            @textField(item, desc.control.levelOfDetail, LEVEL_OF_DETAIL)
+            @textField(item, desc.control.datesCDR, DATES_CVD)
+            @common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+            @common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+            @common.listValue(desc.control.sources, SOURCES)
+            @textField(item, desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+        }
+    
+        @link.relatedLinks(item, desc, links)
     }
 }

@@ -1,0 +1,15 @@
+@(item: AnyModel, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, fieldAnnotations: Map[String,List[Annotation]] = Map.empty)
+
+@valueOpt.filterNot(_.isEmpty).map { value =>
+    <div class="item-text-field" id="@item.id-@key">
+        <div class="item-text-field-header">
+            <h4>@Messages(fieldPrefix + "." + key)</h4>
+        </div>
+        <div class="item-text-field-value">
+            @Html(views.Helpers.renderMarkdown(value))
+        </div>
+        <div class="item-text-field-annotations">
+
+        </div>
+    </div>
+}
