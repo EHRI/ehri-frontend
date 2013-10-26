@@ -122,15 +122,11 @@ trait EntityRead[MT] extends EntityController {
   def listAction(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
-      AsyncRest {
-        val params = ListParams.fromRequest(request)
-        rest.EntityDAO[MT](entityType, userOpt).list(params).map { itemOrErr =>
-          itemOrErr.right.map {
-            list => render {
-              case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
-              case _ => f(list)(params)(userOpt)(request)
-            }
-          }
+      val params = ListParams.fromRequest(request)
+      rest.EntityDAO[MT](entityType, userOpt).list(params).map { list =>
+        render {
+          case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
+          case _ => f(list)(params)(userOpt)(request)
         }
       }
     }
