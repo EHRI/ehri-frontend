@@ -20,7 +20,7 @@ import views.Helpers
 import play.api.cache.Cached
 import views.Helpers
 import defines.EntityType
-import utils.ListParams
+import utils.PageParams
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import rest.EntityDAO
@@ -62,11 +62,11 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   }
   
-  def pageAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def pageAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       AsyncRest {
-        val params = ListParams.fromRequest(request)
+        val params = PageParams.fromRequest(request)
         EntityDAO(entityType, userOpt).page(params).map { pageOrErr =>
           pageOrErr.right.map { list =>
             f(list)(params)(userOpt)(request)
@@ -108,11 +108,11 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
    */
   object getWithChildrenAction {
     def async[CT, MT](entityType: EntityType.Value, id: String)(
-      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+      f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
                                    implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
       getAction.async[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
         AsyncRest.async {
-          val params = ListParams.fromRequest(request)
+          val params = PageParams.fromRequest(request)
           val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
           for { cOrErr <- cReq  } yield {
             for { children <- cOrErr.right } yield {
@@ -124,7 +124,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     }
 
     def apply[CT, MT](entityType: EntityType.Value, id: String)(
-      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
       async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))))
     }

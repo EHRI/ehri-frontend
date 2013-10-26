@@ -6,7 +6,7 @@ import rest._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{Repository, DocumentaryUnit, UserProfile, DocumentaryUnitF, UserProfileF}
 import defines.{EntityType, ContentTypes, PermissionType}
-import utils.ListParams
+import utils.PageParams
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -76,19 +76,19 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     }
 
     "page items" in new FakeApp {
-      val r = await(EntityDAO[UserProfile](entityType, Some(userProfile)).page(ListParams()))
+      val r = await(EntityDAO[UserProfile](entityType, Some(userProfile)).page(PageParams()))
       r must beRight
       r.right.get.items.length mustEqual 5
     }
 
     "list items" in new FakeApp {
-      var r = await(EntityDAO[UserProfile](entityType, Some(userProfile)).list(ListParams()))
+      var r = await(EntityDAO[UserProfile](entityType, Some(userProfile)).list(PageParams()))
       r must beRight
       r.right.get.length mustEqual 5
     }
 
     "count items" in new FakeApp {
-      var r = await(EntityDAO(entityType, Some(userProfile)).count(ListParams()))
+      var r = await(EntityDAO(entityType, Some(userProfile)).count(PageParams()))
       r must beRight
       r.right.get mustEqual 5L
     }
