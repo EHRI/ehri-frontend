@@ -6,8 +6,7 @@ import models.base._
 import defines._
 import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
-import utils.ListParams
-import utils.ListParams
+import utils.PageParams
 
 /**
  * Trait for setting permissions on an individual item.
@@ -21,7 +20,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
-        val params = ListParams.fromRequest(request)
+        val params = PageParams.fromRequest(request)
         for {
           permGrantsOrErr <- rest.PermissionDAO(userOpt).listForItem(id, params)
         } yield {

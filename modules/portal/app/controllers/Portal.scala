@@ -20,7 +20,7 @@ import views.Helpers
 import play.api.cache.Cached
 import views.Helpers
 import defines.EntityType
-import utils.ListParams
+import utils.PageParams
 import scala.Some
 import play.api.libs.ws.WS
 import play.api.templates.Html
@@ -62,11 +62,11 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   }
   
-  def pageAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
+  def pageAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
-        val params = ListParams.fromRequest(request)
+        val params = PageParams.fromRequest(request)
         EntityDAO(entityType, userOpt).page(params).map { pageOrErr =>
           pageOrErr.right.map { list =>
             f(list)(params)(userOpt)(request)
@@ -99,11 +99,11 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
    * Fetch a given item with links, annotations, and a page of child items.
    */
   def getWithChildrenAction[CT, MT](entityType: EntityType.Value, id: String)(
-    f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
+    f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
                                  implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
     getAction[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
       AsyncRest {
-        val params = ListParams.fromRequest(request)
+        val params = PageParams.fromRequest(request)
         val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
         for { cOrErr <- cReq  } yield {
           for { children <- cOrErr.right } yield {
