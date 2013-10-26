@@ -42,7 +42,7 @@ class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig
     Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
-  def list = listAction { page => params => implicit userOpt => implicit request =>
+  def list = pageAction { page => params => implicit userOpt => implicit request =>
     Ok(views.html.authoritativeSet.list(page, params))
   }
 

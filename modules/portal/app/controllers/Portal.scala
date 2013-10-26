@@ -62,7 +62,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   }
   
-  def listAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
+  def pageAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {

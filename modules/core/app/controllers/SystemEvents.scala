@@ -27,7 +27,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     }
   }
 
-  def list = listAction {
+  def list = pageAction {
       page => params => implicit userOpt => implicit request =>
     Ok(views.html.systemEvents.list(page, params))
   }

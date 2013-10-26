@@ -32,7 +32,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
     Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
-  def list = listAction {
+  def list = pageAction {
       page => params => implicit maybeUser => implicit request =>
     Ok(views.html.group.list(page, params))
   }

@@ -38,7 +38,7 @@ class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val
     Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
-  def list = listAction { page => params => implicit userOpt => implicit request =>
+  def list = pageAction { page => params => implicit userOpt => implicit request =>
     Ok(views.html.vocabulary.list(page, params))
   }
 
