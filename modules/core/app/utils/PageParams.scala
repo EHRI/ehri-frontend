@@ -3,14 +3,14 @@ package utils
 import play.api.mvc.{AnyContent, Request}
 import play.api.data.Form
 
-object ListParams {
+object PageParams {
   final val OFFSET_PARAM = "offset"
   final val LIMIT_PARAM = "limit"
   final val PAGE_PARAM = "page"
 
   final val DEFAULT_LIST_LIMIT = 20
 
-  def fromRequest(request: Request[AnyContent], namespace: String = ""): ListParams = {
+  def fromRequest(request: Request[AnyContent], namespace: String = ""): PageParams = {
     import play.api.data.Forms._
 
     // NB: There *should* be no way for the binding
@@ -20,8 +20,8 @@ object ListParams {
       mapping(
         namespace + PAGE_PARAM -> optional(number),
         namespace + LIMIT_PARAM -> optional(number)
-      )(ListParams.apply)(ListParams.unapply)
-    ).bindFromRequest(request.queryString).value.getOrElse(new ListParams())
+      )(PageParams.apply)(PageParams.unapply)
+    ).bindFromRequest(request.queryString).value.getOrElse(new PageParams())
   }
 }
 
@@ -30,11 +30,11 @@ object ListParams {
  * @param page
  * @param limit
  */
-case class ListParams(page: Option[Int] = None, limit: Option[Int] = None) {
+case class PageParams(page: Option[Int] = None, limit: Option[Int] = None) {
 
-  import ListParams._
+  import PageParams._
 
-  def mergeWith(default: ListParams): ListParams = ListParams(
+  def mergeWith(default: PageParams): PageParams = PageParams(
     page = page.orElse(default.page),
     limit = limit.orElse(default.limit)
   )

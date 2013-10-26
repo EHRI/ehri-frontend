@@ -11,7 +11,7 @@ import play.api.libs.json.Json
 import play.api.Play.current
 import play.api.cache.Cache
 import play.api.Logger
-import utils.ListParams
+import utils.PageParams
 
 
 case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extends RestDAO {
@@ -48,16 +48,16 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def list(user: T, params: ListParams): Future[Page[PermissionGrant]] =
+  def list(user: T, params: PageParams): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "page", user.id), params)
 
-  def listForItem(id: String, params: ListParams): Future[Page[PermissionGrant]] =
+  def listForItem(id: String, params: PageParams): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "pageForItem", id), params)
 
-  def listForScope(id: String, params: ListParams): Future[Page[PermissionGrant]] =
+  def listForScope(id: String, params: PageParams): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "pageForScope", id), params)
 
-  private def listWithUrl(url: String, params: ListParams): Future[Page[PermissionGrant]] = {
+  private def listWithUrl(url: String, params: PageParams): Future[Page[PermissionGrant]] = {
     WS.url(url).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[Page[PermissionGrant]](response)

@@ -6,7 +6,7 @@ import models._
 import rest.Page
 import models.json.{RestReadable, ClientConvertable}
 import play.api.libs.json.{Writes, Json}
-import utils.ListParams
+import utils.PageParams
 
 import scala.concurrent.Future
 
@@ -19,8 +19,8 @@ import scala.concurrent.Future
 trait EntityRead[MT] extends EntityController {
   val DEFAULT_LIMIT = 20
 
-  val defaultPage: ListParams = new ListParams()
-  val defaultChildPage: ListParams = new ListParams()
+  val defaultPage: PageParams = new PageParams()
+  val defaultChildPage: PageParams = new PageParams()
 
 
   object getEntity {
@@ -90,11 +90,11 @@ trait EntityRead[MT] extends EntityController {
   }
 
   def getWithChildrenAction[CT](id: String)(
-      f: MT => rest.Page[CT] => ListParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
           implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
     itemPermissionAction.async[MT](contentType, id) { item => implicit userOpt => implicit request =>
       // NB: Effectively disable paging here by using a high limit
-      val params = ListParams.fromRequest(request)
+      val params = PageParams.fromRequest(request)
       val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
       val linkReq = rest.LinkDAO(userOpt).getFor(id)
       val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
@@ -106,10 +106,10 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def pageAction(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def pageAction(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
-      val params = ListParams.fromRequest(request)
+      val params = PageParams.fromRequest(request)
       rest.EntityDAO[MT](entityType, userOpt).page(params).map { page =>
         render {
           case Accepts.Json() => Ok(Json.toJson(page)(Page.pageWrites(cfmt.clientFormat)))
@@ -119,10 +119,10 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def listAction(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def listAction(f: List[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
-      val params = ListParams.fromRequest(request)
+      val params = PageParams.fromRequest(request)
       rest.EntityDAO[MT](entityType, userOpt).list(params).map { list =>
         render {
           case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
@@ -133,9 +133,9 @@ trait EntityRead[MT] extends EntityController {
   }
 
   def historyAction(id: String)(
-      f: MT => rest.Page[SystemEvent] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: MT => rest.Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
-      val params = ListParams.fromRequest(request)
+      val params = PageParams.fromRequest(request)
       val itemReq = rest.EntityDAO[MT](entityType, userOpt).get(id)(rd)
       val alReq = rest.SystemEventDAO(userOpt).history(id, params)
       for {

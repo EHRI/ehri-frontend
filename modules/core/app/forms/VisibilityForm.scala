@@ -3,8 +3,8 @@ package forms
 import play.api.data._
 import play.api.data.Forms._
 
-import utils.ListParams
-import utils.ListParams
+import utils.PageParams
+import utils.PageParams
 
 object VisibilityForm {
 

@@ -8,8 +8,7 @@ import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.json.RestReadable
-import utils.ListParams
-import utils.ListParams
+import utils.PageParams
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.
@@ -29,7 +28,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
       f: MT => rest.Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      val params = ListParams.fromRequest(request)
+      val params = PageParams.fromRequest(request)
       rest.PermissionDAO(userOpt).list(item, params).map { perms =>
         f(item)(perms)(userOpt)(request)
       }
