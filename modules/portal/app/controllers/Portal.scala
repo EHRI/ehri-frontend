@@ -62,7 +62,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   }
   
-  def listAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def pageAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = ListParams.fromRequest(request)
@@ -366,7 +366,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(portal.historicalAgent.show(doc, anns, links))
   }
 
-  def activity = TODO
+  def activity = userProfileAction { implicit userOpt => implicit request =>
+    Ok(portal.activity())
+  }
 
   def placeholder = Cached("pages:portalPlaceholder") {
     Action { implicit request =>

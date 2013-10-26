@@ -5,7 +5,7 @@ import play.api.mvc._
 import models._
 import rest.Page
 import models.json.{RestReadable, ClientConvertable}
-import play.api.libs.json.Json
+import play.api.libs.json.{Writes, Json}
 import utils.ListParams
 
 import scala.concurrent.Future
@@ -106,7 +106,7 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def listAction(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def pageAction(f: rest.Page[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = ListParams.fromRequest(request)
@@ -119,6 +119,22 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
+  def listAction(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+    implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
+    userProfileAction.async { implicit userOpt => implicit request =>
+      AsyncRest {
+        val params = ListParams.fromRequest(request)
+        rest.EntityDAO[MT](entityType, userOpt).list(params).map { itemOrErr =>
+          itemOrErr.right.map {
+            list => render {
+              case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
+              case _ => f(list)(params)(userOpt)(request)
+            }
+          }
+        }
+      }
+    }
+  }
 
   def historyAction(id: String)(
       f: MT => rest.Page[SystemEvent] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {

@@ -52,9 +52,12 @@ body {
 }
 
 #navbar-logo {
-  height: @menu-height - @medium-padding;
-  margin-top: @small-margin;
-  margin-right: @small-margin;
+  a {
+    padding: @small-padding;
+    img {
+      height: @menu-height - @medium-padding;
+    }
+  }
 }
 
 .navbar-form {
@@ -77,10 +80,6 @@ body {
 
 .facet-select-dropdown {
   max-width: 400px;
-}
-
-.landing-header {
-  border-bottom: 1px solid @pale-gray;
 }
 
 // nav menu color fixes
@@ -133,6 +132,28 @@ body {
   background-color: @agent-color;
 }
 
+.landing-header {
+  color: white;
+  border-bottom: 1px solid @pale-gray;
+  padding: @small-padding;
+  a {
+    color: white !important;
+  }
+}
+
+.landing-header.documentaryUnit {
+  background-color: @doc-color;
+}
+.landing-header.repository {
+  background-color: @repo-color;
+}
+.landing-header.country {
+  background-color: @country-color;
+}
+.landing-header.historicalAgent {
+  background-color: @agent-color;
+}
+
 /** Heading which divides a set of search results */
 .search-group-heading {
   margin-bottom: 30px;
@@ -157,7 +178,7 @@ a.alt {
 
 .top-bar {
   .downward-shadow();
-  color: #FBFBFB;
+  color: @pale-gray;
   font-size: 1.1em;
 }
 
@@ -170,7 +191,7 @@ a.alt {
 
 .breadcrumb a {
   text-decoration: underline;
-  color: #FDFDFD;
+  color: @pale-gray;
 }
 
 .search-bar {
@@ -232,7 +253,7 @@ footer .container {
 /** Search items */
 .search-item {
   padding-bottom: 0.5em;
-  border-bottom: 1px dashed #EBEBEB;
+  border-bottom: 1px dashed @dark-gray;
   margin-bottom: @search-item-spacing;
 }
 
