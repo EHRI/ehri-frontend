@@ -1,5 +1,17 @@
-@(descriptions: List[Description])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(descriptions: List[models.base.Description])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 <div class="descriptions container">
+    @if(descriptions.size > 1) {
+        <div class="alert alert-block alert-info multiple-descriptions-note">
+            @Messages("portal.multipleDescriptions")
+            <ul class="list-unstyled multiple-descriptions-switcher">
+                @descriptions.map { desc =>
+                  @desc.id.map { id =>
+                    <li lang="@desc.languageCode"><a href="#@id">@desc.name</a></li>
+                  }
+                }
+            </ul>
+        </div>
+    }
     @html
 </div>

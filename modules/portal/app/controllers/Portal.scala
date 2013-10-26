@@ -365,7 +365,9 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(portal.historicalAgent.show(doc, anns, links))
   }
 
-  def activity = TODO
+  def activity = userProfileAction { implicit userOpt => implicit request =>
+    Ok(portal.activity())
+  }
 
   def placeholder = Cached("pages:portalPlaceholder") {
     Action { implicit request =>
