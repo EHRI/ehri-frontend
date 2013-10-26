@@ -29,9 +29,6 @@ object ApplicationBuild extends Build {
     cache,
     filters,
 
-    // 
-    "com.google.guava" % "guava" % "14.0",
-
     // Ontology
     "ehri-project" % "ehri-definitions" % "1.0",
 
