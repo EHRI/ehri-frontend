@@ -89,8 +89,4 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsS
       status(getR) must equalTo(OK)
     }
   }
-
-  step {
-    runner.stop()
-  }
 }

@@ -1,19 +1,18 @@
 package test
 
-import play.api.test.Helpers._
-import org.specs2.mutable.Specification
 import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
 import helpers.WithFixures
 import models.{Account, AccountDAO}
 import models.sql.OpenIDAssociation
+import play.api.test.PlaySpecification
 
 
 /**
  * Spec for testing individual data access components work as expected.
  */
-class AccountSpec extends Specification {
+class AccountSpec extends PlaySpecification {
 
   "account db" should {
     "load fixtures with the right number of accounts" in new WithFixures {

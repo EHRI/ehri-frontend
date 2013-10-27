@@ -64,8 +64,4 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       status(repoMetrics) must equalTo(OK)
     }
   }
-
-  step {
-    runner.stop()
-  }
 }

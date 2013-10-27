@@ -52,8 +52,4 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
       contentAsString(profile) must not contain("not-allowed")
     }
   }
-
-  step {
-    runner.stop()
-  }
 }

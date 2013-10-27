@@ -211,9 +211,9 @@ object SolrQueryBuilder {
 
     // Child count to boost results seems to have an odd affect in making the
     // query only work on the default field - disabled for now...
-    val queryString = (
+    val queryString =
         //s"{!boost b=$CHILD_COUNT}" +
-        params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters)
+        params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
 
@@ -244,7 +244,7 @@ object SolrQueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", s"$NAME_EXACT^4.0 $NAME_MATCH^4.0 $OTHER_NAMES^3.0 $PARALLEL_NAMES^3.0 $NAME_SORT^2.0 $TEXT")
+      req.set("qf", s"$ITEM_ID^0.5 $NAME_EXACT^0.4 $NAME_MATCH^0.4 $OTHER_NAMES^0.3 $PARALLEL_NAMES^0.3 $NAME_SORT^0.2 $TEXT")
     }
 
     // Mmmn, speckcheck

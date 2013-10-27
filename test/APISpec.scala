@@ -67,8 +67,4 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       println(contentAsString(cr))
     }
   }
-
-  step {
-    runner.stop()
-  }
 }

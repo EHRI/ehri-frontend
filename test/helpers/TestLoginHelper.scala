@@ -87,7 +87,7 @@ trait TestLoginHelper {
   /**
    * Get a FakeApplication with the given configuration, plus any plugins
    */
-  def fakeApplication(additionalConfiguration: Map[String, Any] = Map(), global: GlobalSettings = getGlobal) = {
+  def fakeApplication(additionalConfiguration: Map[String, Any] = Map(), global: => GlobalSettings = getGlobal) = {
     FakeApplication(
       additionalConfiguration = additionalConfiguration ++ getConfig,
       additionalPlugins = getPlugins,

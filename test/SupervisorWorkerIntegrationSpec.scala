@@ -351,8 +351,4 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
 
     }
   }
-
-  step {
-    runner.stop()
-  }
 }
