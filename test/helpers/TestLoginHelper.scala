@@ -79,7 +79,7 @@ trait TestLoginHelper {
    * @param global
    * @return
    */
-  def fakeApplication(additionalConfiguration: Map[String, Any] = Map(), global: GlobalSettings = getGlobal) = {
+  def fakeApplication(additionalConfiguration: Map[String, Any] = Map(), global: => GlobalSettings = getGlobal) = {
     FakeApplication(
       additionalConfiguration = additionalConfiguration ++ getConfig,
       additionalPlugins = getPlugins,

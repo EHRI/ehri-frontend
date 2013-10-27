@@ -120,8 +120,4 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       mockIndexer.eventBuffer.last must equalTo("cd1-2")
     }
   }
-
-  step {
-    runner.stop()
-  }
 }

@@ -181,8 +181,4 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       list(0)(0) mustEqual ("admin")
     }
   }
-
-  step {
-    runner.stop()
-  }
 }

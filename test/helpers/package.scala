@@ -1,7 +1,9 @@
+import models.AccountDAO
 import models.sql.{OpenIDAssociation, SqlAccountDAOPlugin}
 import org.specs2.execute.{Result, AsResult}
 import org.specs2.mutable.Around
 import org.specs2.specification.Scope
+import play.api.db.DB
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
@@ -25,13 +27,12 @@ package object helpers {
    */
   def loadFixtures(implicit app: play.api.Application) = {
     val userDAO: SqlAccountDAOPlugin = new SqlAccountDAOPlugin(app)
-    mocks.userFixtures.map { case (profile, account) =>
+    mocks.users.map { case (profile, account) =>
       userDAO.create(account.id, account.email).map { acc =>
         OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")
       }
     }
   }
-
 
   /**
    * Run inside an application with fixtures loaded.

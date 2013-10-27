@@ -228,8 +228,4 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       groupFetch.right.get.groups.map(_.id) must not contain("admin")
     }
   }
-
-  step {
-    runner.stop()
-  }
 }

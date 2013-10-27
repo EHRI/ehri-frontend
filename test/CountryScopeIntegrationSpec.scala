@@ -178,8 +178,4 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
 
     }
   }
-
-  step {
-    runner.stop()
-  }
 }

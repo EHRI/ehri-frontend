@@ -238,8 +238,4 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       status(show) must equalTo(OK)
     }
   }
-
-  step {
-    runner.stop()
-  }
 }
