@@ -11,7 +11,7 @@ import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
 import models.base.AnyModel
-import utils.PageParams
+import utils.{PageParams,ListParams}
 
 /**
  * Class representing a page of data.
@@ -177,7 +177,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def listJson(params: PageParams = PageParams()): Future[Either[RestError, List[JsObject]]] = {
+  def listJson(params: ListParams = ListParams()): Future[Either[RestError, List[JsObject]]] = {
     val url = enc(requestUrl, "list")
     Logger.logger.debug("LIST: {}", (url, params.toSeq))
     WS.url(url).withQueryString(params.toSeq: _*)
@@ -186,7 +186,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def list(params: PageParams = PageParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
+  def list(params: ListParams = ListParams())(implicit rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
     val url = enc(requestUrl, "list")
     Logger.logger.debug("LIST: {}", url)
     WS.url(url).withQueryString(params.toSeq: _*)
@@ -195,7 +195,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def listChildren[CMT](id: String, params: PageParams = PageParams())(
+  def listChildren[CMT](id: String, params: ListParams = ListParams())(
       implicit rd: RestReadable[CMT]): Future[Either[RestError, List[CMT]]] = {
     WS.url(enc(requestUrl, id, "list")).withQueryString(params.toSeq:_*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>

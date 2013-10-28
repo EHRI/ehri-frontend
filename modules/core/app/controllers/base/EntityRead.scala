@@ -6,7 +6,7 @@ import models._
 import rest.{Page}
 import models.json.{RestReadable, ClientConvertable}
 import play.api.libs.json.{Writes, Json}
-import utils.PageParams
+import utils.{ListParams, PageParams}
 
 
 /**
@@ -114,11 +114,11 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def listAction(f: List[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
+  def listAction(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
-        val params = PageParams.fromRequest(request)
+        val params = ListParams.fromRequest(request)
         rest.EntityDAO[MT](entityType, userOpt).list(params).map { itemOrErr =>
           itemOrErr.right.map {
             list => render {
