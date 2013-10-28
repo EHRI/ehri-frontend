@@ -1,28 +1,29 @@
 # Routes for portal routes
 
 # Placeholder for / until site is more functional...
-GET     /                                   @controllers.portal.Portal.placeholder
+GET        /        @controllers.portal.Portal.placeholder
 
-GET     /dev                                @controllers.portal.Portal.index
-GET     /dev/search                         @controllers.portal.Portal.search
-GET     /dev/browse                         @controllers.portal.Portal.browse
-GET     /dev/browse/c                       @controllers.portal.Portal.browseCountries
-GET     /dev/browse/c/:id                   @controllers.portal.Portal.browseCountry(id: String)
-GET     /dev/browse/r/d                     @controllers.portal.Portal.browseDocumentsByRepository
-GET     /dev/browse/r                       @controllers.portal.Portal.browseRepositories
-GET     /dev/browse/r/:id                   @controllers.portal.Portal.browseRepository(id: String)
-GET     /dev/browse/d                       @controllers.portal.Portal.browseDocuments
-GET     /dev/browse/d/:id                   @controllers.portal.Portal.browseDocument(id: String)
-GET     /dev/browse/a                       @controllers.portal.Portal.browseHistoricalAgents
-GET     /dev/browse/a/:id                   @controllers.portal.Portal.browseHistoricalAgent(id: String)
-GET     /dev/browse/s/:id                   @controllers.portal.Portal.browseAuthoritativeSet(id: String)
-GET     /dev/activity                       @controllers.portal.Portal.activity
-GET     /dev/newsFeed                       @controllers.portal.Portal.newsFeed
+GET        /dev                         @controllers.portal.Portal.index
+GET        /dev/search                  @controllers.portal.Portal.search
+GET        /dev/browse                  @controllers.portal.Portal.browse
+GET        /dev/browse/c                @controllers.portal.Portal.browseCountries
+GET        /dev/browse/c/:id            @controllers.portal.Portal.browseCountry(id: String)
+GET        /dev/browse/r/d              @controllers.portal.Portal.browseDocumentsByRepository
+GET        /dev/browse/r                @controllers.portal.Portal.browseRepositories
+GET        /dev/browse/r/:id            @controllers.portal.Portal.browseRepository(id: String)
+GET        /dev/browse/d                @controllers.portal.Portal.browseDocuments
+GET        /dev/browse/d/:id            @controllers.portal.Portal.browseDocument(id: String)
+GET        /dev/browse/a                @controllers.portal.Portal.browseHistoricalAgents
+GET        /dev/browse/a/:id            @controllers.portal.Portal.browseHistoricalAgent(id: String)
+GET        /dev/browse/s/:id            @controllers.portal.Portal.browseAuthoritativeSet(id: String)
+GET        /dev/activity                @controllers.portal.Portal.activity
+GET        /dev/activityMore/:offset    @controllers.portal.Portal.activityMore(offset: Int)
+GET        /dev/newsFeed                @controllers.portal.Portal.newsFeed
 
-GET     /dev/account                        @controllers.portal.Portal.account
-GET     /dev/profile                        @controllers.portal.Portal.profile
-GET     /dev/filter                         @controllers.portal.Portal.filter
-GET     /dev/routes                         @controllers.portal.Portal.jsRoutes
-GET     /globalData                         @controllers.portal.Portal.globalData
+GET        /dev/account                 @controllers.portal.Portal.account
+GET        /dev/profile                 @controllers.portal.Portal.profile
+GET        /dev/filter                  @controllers.portal.Portal.filter
+GET        /dev/routes                  @controllers.portal.Portal.jsRoutes
+GET        /globalData                  @controllers.portal.Portal.globalData
 
-GET     /assets/*file                       controllers.portal.Assets.at(path="/public", file)
+GET        /assets/*file                controllers.portal.Assets.at(path="/public", file)

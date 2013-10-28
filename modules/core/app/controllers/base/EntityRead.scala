@@ -6,7 +6,7 @@ import models._
 import rest.Page
 import models.json.{RestReadable, ClientConvertable}
 import play.api.libs.json.{Writes, Json}
-import utils.PageParams
+import utils.{ListParams, PageParams}
 
 import scala.concurrent.Future
 
@@ -119,10 +119,10 @@ trait EntityRead[MT] extends EntityController {
     }
   }
 
-  def listAction(f: List[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def listAction(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
-      val params = PageParams.fromRequest(request)
+      val params = ListParams.fromRequest(request)
       rest.EntityDAO[MT](entityType, userOpt).list(params).map { list =>
         render {
           case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))

@@ -38,6 +38,13 @@ trait ControllerHelpers {
   def dbMaintenance: Boolean = new java.io.File("dbmaintenance").exists()
 
   /**
+   * Check if a request is Ajax.
+   */
+  def isAjax(implicit request: RequestHeader): Boolean =
+    request.headers.get("X-REQUESTED-WITH")
+      .map(_.toUpperCase() == "XMLHTTPREQUEST").getOrElse(false)
+
+  /**
    * Get a complete list of possible groups
    * @param f
    * @param userOpt

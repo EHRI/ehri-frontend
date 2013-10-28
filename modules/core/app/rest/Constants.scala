@@ -25,5 +25,24 @@ object Constants {
    */
   val cacheTime = 60 * 5 // 5 minutes
 
+  /**
+   * Offset for lists
+   */
+  val OFFSET_PARAM = "offset"
+
+  /**
+   * Limit for lists
+   */
+  final val LIMIT_PARAM = "limit"
+
+  /**
+   * Page for pages
+   */
+  final val PAGE_PARAM = "page"
+
+  /**
+   * Default limit
+   */
+  final val DEFAULT_LIST_LIMIT = 20
 
 }
