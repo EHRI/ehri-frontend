@@ -45,4 +45,34 @@ object Constants {
    */
   final val DEFAULT_LIST_LIMIT = 20
 
+  /**
+   * User filter
+   */
+  val USERS = "user"
+
+  /**
+   * From filter
+   */
+  val FROM = "from"
+
+  /**
+   * To filter
+   */
+  val TO = "to"
+
+  /**
+   * Item type filter
+   */
+  val ITEM_TYPE = "type"
+
+  /**
+   * Event type filter
+   */
+  val EVENT_TYPE = "et"
+
+  /**
+   * Pattern for form input datetime objects
+   */
+  val DATE_PATTERN = "yyyy-MM-dd"
+
 }

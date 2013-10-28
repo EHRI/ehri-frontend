@@ -6,8 +6,8 @@ import play.api.libs.ws.WS
 import models.json.RestReadable
 import models.base.{AnyModel, MetaModel}
 import models.{SystemEvent, UserProfile}
-import utils.PageParams
-import utils.PageParams
+import utils.{ListParams, SystemEventParams, PageParams}
+import play.api.libs.json.Reads
 
 
 /**
@@ -33,19 +33,17 @@ case class SystemEventDAO(userProfile: Option[UserProfile]) extends RestDAO {
     }
   }
 
+  def list(params: ListParams, filters: SystemEventParams): Future[Either[RestError, List[SystemEvent]]] = {
+    WS.url(enc(requestUrl, "list")).withQueryString((params.toSeq ++ filters.toSeq): _*)
+      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkErrorAndParse(response)(Reads.list[SystemEvent](SystemEvent.Converter.restReads))
+    }
+  }
+
   def subjectsFor(id: String, params: PageParams): Future[Either[RestError, Page[AnyModel]]] = {
     WS.url(enc(requestUrl, id, "subjects")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
-      checkError(response).right.map { r =>
-        r.json.validate[Page[AnyModel]](Page.pageReads(AnyModel.Converter.restReads)).fold(
-          valid = { page =>
-            page
-          },
-          invalid = { e =>
-            sys.error("Unable to decode paginated list result: " + e.toString)
-          }
-        )
-      }
+      checkErrorAndParse(response)(Page.pageReads(AnyModel.Converter.restReads))
     }
   }
 }

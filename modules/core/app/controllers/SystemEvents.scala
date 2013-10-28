@@ -6,7 +6,8 @@ import controllers.base.EntityRead
 import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
 import global.GlobalConfig
-import utils.PageParams
+import utils.{ListParams, SystemEventParams, PageParams}
+import rest.SystemEventDAO
 
 class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
   val entityType = EntityType.SystemEvent
@@ -26,8 +27,16 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     }
   }
 
-  def list = pageAction {
-      page => params => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.list(page, params))
+  def list = userProfileAction { implicit userOpt => implicit request =>
+    val listParams = ListParams.fromRequest(request)
+    val eventFilter = SystemEventParams.fromRequest(request)
+    val filterForm = SystemEventParams.form.fill(eventFilter)
+    AsyncRest {
+      SystemEventDAO(userOpt).list(listParams, eventFilter).map { listOrErr =>
+        listOrErr.right.map { list =>
+          Ok(views.html.systemEvents.list(list, listParams, filterForm))
+        }
+      }
+    }
   }
 }
