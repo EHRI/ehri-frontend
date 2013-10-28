@@ -6,8 +6,8 @@ import play.api.libs.ws.WS
 import models.json.RestReadable
 import models.base.{AnyModel, MetaModel}
 import models.{SystemEvent, UserProfile}
-import utils.PageParams
-import utils.PageParams
+import utils.{ListParams, SystemEventParams, PageParams}
+import play.api.libs.json.Reads
 
 
 /**
@@ -23,6 +23,13 @@ case class SystemEventDAO(userProfile: Option[UserProfile]) extends RestDAO {
     WS.url(enc(requestUrl, "for", id)).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[Page[SystemEvent]](response)(Page.pageReads(rd.restReads))
+    }
+  }
+
+  def list(params: ListParams, filters: SystemEventParams): Future[List[SystemEvent]] = {
+    WS.url(enc(requestUrl, "list")).withQueryString((params.toSeq ++ filters.toSeq): _*)
+      .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      checkErrorAndParse(response)(Reads.list[SystemEvent](SystemEvent.Converter.restReads))
     }
   }
 
