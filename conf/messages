@@ -255,6 +255,8 @@ systemEvents.scope=Scope
 systemEvents.subjects={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
 systemEvents.newerEvents=More recent events
 systemEvents.olderEvents=Older events
+systemEvents.et=Event Type
+systemEvents.filter=Filter Events
 
 
 # Actions

@@ -62,7 +62,7 @@ case class SystemEventParams(
   private val fmt = ISODateTimeFormat.dateTime.withZoneUTC
 
   def toSeq: Seq[(String,String)] = {
-    (users.map(u => USERS -> u) :::
+    (users.filterNot(_.isEmpty).map(u => USERS -> u) :::
       eventTypes.map(et => EVENT_TYPE -> et.toString) :::
       itemTypes.map(et => ITEM_TYPE -> et.toString) :::
       from.map(f => FROM -> fmt.print(f)).toList :::
@@ -73,7 +73,7 @@ case class SystemEventParams(
 object SystemEventParams {
   def form: Form[SystemEventParams] = Form(
     mapping(
-      USERS -> list(nonEmptyText),
+      USERS -> list(text),
       EVENT_TYPE -> list(models.forms.enum(EventType)),
       ITEM_TYPE -> list(models.forms.enum(EntityType)),
       FROM -> optional(jodaDate(pattern = DATE_PATTERN)),

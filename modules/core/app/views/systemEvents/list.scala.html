@@ -1,8 +1,22 @@
 @(list: List[SystemEvent], params: utils.ListParams, filterForm: Form[utils.SystemEventParams])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
+@import defines.EventType
 @import rest.Constants._
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }
+
 
 @rightSidebarLayout(Messages("actions.listSystemEvents")) {
+
+    <div class="event-filter">
+        @helper.form(action = controllers.core.routes.SystemEvents.list, 'class -> "form-inline") {
+            <input type="hidden" name="@OFFSET_PARAM" value="@params.offset" />
+            <input type="hidden" name="@LIMIT_PARAM" value="@params.limit" />
+            @defining("systemEvents") { implicit fieldPrefix =>
+                @formHelpers.multiselectInput(filterForm(EVENT_TYPE), EVENT_TYPE, EventType.values.map(e => e.toString -> Messages(fieldPrefix + "." + e.toString)).toList.sorted)
+                <button type="submit">@Messages(fieldPrefix + ".filter")</button>
+            }
+        }
+    </div>
 
 	<ul class="unstyled">
 	@list.map { item =>
