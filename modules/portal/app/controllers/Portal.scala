@@ -20,8 +20,7 @@ import views.Helpers
 import play.api.cache.Cached
 import views.Helpers
 import defines.EntityType
-import utils.PageParams
-import scala.Some
+import utils.{PageParams,ListParams}
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import rest.EntityDAO
@@ -62,17 +61,31 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     )
   }
   
-  def pageAction[MT](entityType: EntityType.Value)(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
+  def pageAction[MT](entityType: EntityType.Value, paramsOpt: Option[PageParams] = None)(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
-        val params = PageParams.fromRequest(request)
+        val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
         EntityDAO(entityType, userOpt).page(params).map { pageOrErr =>
           pageOrErr.right.map { list =>
             f(list)(params)(userOpt)(request)
           }
         }
       }      
+    }
+  }
+
+  def listAction[MT](entityType: EntityType.Value, paramsOpt: Option[ListParams] = None)(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
+    implicit rd: RestReadable[MT]) = {
+    userProfileAction { implicit userOpt => implicit request =>
+      AsyncRest {
+        val params = paramsOpt.getOrElse(ListParams.fromRequest(request))
+        EntityDAO(entityType, userOpt).list(params).map { listOrErr =>
+          listOrErr.right.map { list =>
+            f(list)(params)(userOpt)(request)
+          }
+        }
+      }
     }
   }
 
@@ -165,7 +178,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
     Ok(
       Routes.javascriptRouter("jsRoutes")(
-      // TODO as necessary
+        controllers.portal.routes.javascript.Portal.activityMore
       )
     ).as(MimeTypes.JAVASCRIPT)
   }
@@ -365,8 +378,14 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(portal.historicalAgent.show(doc, anns, links))
   }
 
-  def activity = userProfileAction { implicit userOpt => implicit request =>
-    Ok(portal.activity())
+  def activity = listAction[SystemEvent](EntityType.SystemEvent) {
+      list => params => implicit userOpt => implicit request =>
+    Ok(portal.activity(list, params))
+  }
+
+  def activityMore(offset: Int) = listAction[SystemEvent](EntityType.SystemEvent, Some(ListParams(offset = offset))) {
+      list => params => implicit userOpt => implicit request =>
+    Ok(portal.common.eventItems(list))
   }
 
   def placeholder = Cached("pages:portalPlaceholder") {
