@@ -1,0 +1,12 @@
+@(page: utils.search.ItemPage[(HistoricalAgent,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@p.layout.portalLayout(Messages("actions.listHistoricalAgents")) {
+    @p.layout.breadcrumbs(defines.EntityType.HistoricalAgent.toString) {
+        @p.helpers.breadcrumbCurrent(Messages("portal.browse.historicalAgents"))
+    }
+    @p.searchForm(page, params, action, autofocus = false) {
+        @p.searchItemList(page)
+    } {
+        @p.facetList(page.facets, action)
+    }
+}

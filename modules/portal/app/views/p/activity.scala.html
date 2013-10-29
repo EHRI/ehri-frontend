@@ -1,0 +1,54 @@
+@(events: List[SystemEvent], params: utils.ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@import utils.search.SearchParams
+@import defines.EntityType
+
+
+@p.layout.portalLayout(Messages("portal.activity")) {
+    @p.layout.breadcrumbs() {
+        <li>@Messages("portal.activity")</li>
+    }
+
+    <div class="row info-bar">
+        <div class="container">
+            <h1>@Messages("portal.activityLatest")</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8 col-md-8 col-lg-8">
+                    <p>
+                    <div class="container activity-stream-wrapper">
+                        <ul id="activity-stream" class="list-unstyled">
+                            @p.common.eventItems(events)
+                            @for(event <- events) {
+                                @p.common.eventItem(event)
+                            }
+                        </ul>
+                        <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)" id="activity-stream-fetchmore" class="btn btn-default btn-block">
+                        @Messages("portal.activity.fetchMore")
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-4 col-lg-4">
+                    <p>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">@Messages("portal.bookmarkedItems")</h3>
+                        </div>
+                        <div class="panel-body">
+                            TODO: List of bookmarked items
+                        </div>
+                        <div class="panel-footer">
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

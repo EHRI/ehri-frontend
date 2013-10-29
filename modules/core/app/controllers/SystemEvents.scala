@@ -18,7 +18,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     val params = PageParams.fromRequest(request)
     val subjectParams = PageParams.fromRequest(request, namespace = "s")
-    rest.SystemEventDAO(userOpt).subjectsFor(id, params).map { page =>
+    SystemEventDAO(userOpt).subjectsFor(id, params).map { page =>
       Ok(views.html.systemEvents.show(item, page, params))
     }
   }

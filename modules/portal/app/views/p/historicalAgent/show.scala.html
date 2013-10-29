@@ -1,0 +1,18 @@
+@(item: HistoricalAgent, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@p.layout.portalLayout(item.toStringLang) {
+    @p.layout.breadcrumbs(item.isA.toString) {
+        <li><a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a></li>
+        @p.helpers.breadcrumbCurrent(item.toStringLang)
+    }
+
+    @infobar(item)
+
+    @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
+        @p.common.descriptionContainer(item.model.descriptions) {
+            @item.model.descriptions.map { desc =>
+                @renderDescription(item, desc, links, annotations)
+            }
+        }
+    }
+}

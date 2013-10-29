@@ -1,0 +1,61 @@
+@(item: Repository, desc: RepositoryDescriptionF, links: List[Link], annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, fieldPrefix: String)
+
+@import Isdiah._
+@import views.html.p.common.descriptionSection
+@import views.html.p.common.textField
+
+@otherNameList(list: Option[List[String]]) = {
+    @defining(list.toList.flatten) { pfn =>
+        @if(!pfn.isEmpty) {
+            <small class="text-muted">
+                <ul class="list-unstyled list-inline comma-sep other-name-list">
+                    @pfn.map { p =>
+                        <li>@p</li>
+                    }
+                </ul>
+            </small>
+        }
+    }
+}
+
+@p.common.descriptionOutline(desc, annotations) {
+    @defining(Annotation.fieldAnnotations(annotations)) { implicit fieldAnnotations =>
+        @descriptionSection(DESCRIPTION_AREA) {
+            @textField(item, desc.details.history, HISTORY)
+            @textField(item, desc.details.generalContext, GEOCULTURAL_CONTEXT)
+            @textField(item, desc.details.mandates, MANDATES)
+            @textField(item, desc.details.administrativeStructure, ADMINISTRATIVE_STRUCTURE)
+            @textField(item, desc.details.records, RECORDS)
+            @textField(item, desc.details.buildings, BUILDINGS)
+            @textField(item, desc.details.holdings, HOLDINGS)
+            @textField(item, desc.details.findingAids, FINDING_AIDS)
+        }
+
+        @descriptionSection(ACCESS_AREA) {
+            @textField(item, desc.access.openingTimes, OPENING_TIMES)
+            @textField(item, desc.access.conditions, CONDITIONS)
+            @textField(item, desc.access.accessibility, ACCESSIBILITY)
+        }
+
+        @descriptionSection(SERVICES_AREA) {
+            @textField(item, desc.services.researchServices, RESEARCH_SERVICES)
+            @textField(item, desc.services.reproductionServices, REPROD_SERVICES)
+            @textField(item, desc.services.publicAreas, PUBLIC_AREAS)
+        }
+
+        @descriptionSection(CONTROL_AREA) {
+            @textField(item, desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
+            @textField(item, desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
+            @textField(item, desc.control.rulesAndConventions, RULES_CONVENTIONS)
+            @textField(item, desc.control.status, STATUS)
+            @textField(item, desc.control.levelOfDetail, LEVEL_OF_DETAIL)
+            @textField(item, desc.control.datesCDR, DATES_CVD)
+            @common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+            @common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+            @common.listValue(desc.control.sources, SOURCES)
+            @textField(item, desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+        }
+
+        @link.relatedLinks(item, desc, links)
+    }
+}
