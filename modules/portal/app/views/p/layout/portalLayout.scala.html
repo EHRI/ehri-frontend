@@ -1,0 +1,122 @@
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+
+<!DOCTYPE html>
+
+<html lang="@lang.code">
+    <head>
+        <title>@title</title>
+        <!-- CND Bootstrap...
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css"> -->
+
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("bootstrap-custom/css/bootstrap.min.css")">
+
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("css/portal.css")">
+
+        <style type="text/css">
+        </style>
+
+        @styles
+
+        <script src="//code.jquery.com/jquery.js"></script>
+        <script src="@controllers.portal.routes.Assets.at("bootstrap-custom/js/bootstrap.min.js")"></script>
+        <script type="text/javascript" src="@controllers.portal.routes.PortalData.jsRoutes"></script>
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("select2/select2.css")" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("select2/select2-bootstrap.css")" rel="stylesheet" type="text/css" />
+        <script src="@controllers.portal.routes.Assets.at("select2/select2.js")"></script>
+
+        <script src="@controllers.portal.routes.Assets.at("js/portal.min.js")"></script>
+
+        @scripts
+    </head>
+    <body>
+
+    @maybeActive(url: String) = {
+        @(if(req.path.equals(url)) "active" else "")
+    }
+
+    @maybeActivePath(url: String) = {
+        @(if(req.path.startsWith(url)) "active" else "")
+    }
+
+    <header>
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="collapse navbar-collapse navbar-ex1-collapse">
+
+                    <ul class="nav navbar-nav">
+                        <li id="navbar-logo" >
+                            <a href="@controllers.portal.routes.Portal.index">
+                                <img src="@controllers.portal.routes.Assets.at("img/logo-bw.png")" rel="logo" />
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                @Messages("portal.browse")
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseRepositoriesByCountry">@Messages("portal.browse.repositoriesByCountry")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseDocumentsByRepository">@Messages("portal.browse.documentsByRepository")</a>
+                                </li>
+                                <li>
+                                    <a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="@maybeActive(controllers.portal.routes.Portal.activity.url)">
+                            <a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a>
+                        </li>
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "navbar-form navbar-right", 'role -> "search") {
+                            <div class="form-group">
+                                <input type="text" name="q" class="form-control" placeholder="@Messages("portal.globalSearch")" />
+                            </div>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div id="wrap">
+        <div class="page-content">
+            @content
+            <div id="push"></div>
+        </div>
+    </div>
+    <footer class="footer sticky text-center">
+        <div class="container">
+            <p class="text-muted">@Messages("portal.footerText")</p>
+            <small>
+                <ul class="text-muted lang-switcher pull-right list-inline list-unstyled">
+                @List("en", "fr", "de", "he").map { changeLang =>
+                <li>
+                            @if(lang.toString.toLowerCase.contains(changeLang)) {
+                    @changeLang
+                    } else {
+                    <a href="@controllers.core.routes.Application.changeLocale(changeLang)">@changeLang</a>
+                    }
+                </li>
+                }
+                </ul>
+            </small>
+        </div>
+    </footer>
+
+    </body>
+</html>

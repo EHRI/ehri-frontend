@@ -1,0 +1,28 @@
+@(item: Repository, result: utils.search.ItemPage[(DocumentaryUnit,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@p.layout.portalLayout(item.toStringLang) {
+    @p.layout.breadcrumbs(item.isA.toString) {
+        @item.country.map { country =>
+            <li>
+                <a href="@controllers.portal.routes.Portal.browseCountry(country.id)">@country.toStringLang</a>
+            </li>
+        }
+        @p.helpers.breadcrumbCurrent(views.Helpers.ellipsize(item.toStringLang, 50))
+    }
+
+    @infobar(item)
+
+    @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
+        @p.common.descriptionContainer(item.model.descriptions) {
+            @item.model.descriptions.map { desc =>
+                @renderDescription(item, desc, links, annotations)
+            }
+        }
+    }
+
+    @p.searchForm(result, params, action, key = "", autofocus = false) {
+        @p.searchItemList(result)
+    } {
+        @p.facetList(result.facets, action)
+    }
+}

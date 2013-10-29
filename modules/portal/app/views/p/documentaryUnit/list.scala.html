@@ -1,0 +1,12 @@
+@(page: utils.search.ItemPage[(DocumentaryUnit,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@p.layout.portalLayout(Messages("actions.listDocumentaryUnits")) {
+    @p.layout.breadcrumbs(defines.EntityType.DocumentaryUnit.toString) {
+        @p.helpers.breadcrumbCurrent(Messages("portal.browse.documents"))
+    }
+    @p.searchForm(page, params, action, autofocus = false) {
+        @p.searchItemList(page)
+    } {
+        @p.facetList(page.facets, action)
+    }
+}
