@@ -48,6 +48,7 @@ portal.facet.placeholder.holder=Filter by Repository
 portal.facet.placeholder.country=Filter Country
 portal.facet.placeholder.lang=Filter Language
 portal.facet.placeholder.childCount=Filter Structure
+portal.facet.placeholder.kw=Filter Keyword
 portal.facet.container=Item Structure
 portal.facet.container.hasChildItems=Multi-level (container)
 portal.facet.itemsHeldOnline=Viewable Items

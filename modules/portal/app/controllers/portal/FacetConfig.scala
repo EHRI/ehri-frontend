@@ -137,6 +137,14 @@ trait FacetConfig extends EntitySearch {
         render= (s: String) => Helpers.countryCodeToName(s),
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
+      ),
+      FieldFacetClass(
+        key="accessPoints",
+        name=Messages("Keyword"),
+        param="kw",
+        render= s => s,
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
       )
     )
   }

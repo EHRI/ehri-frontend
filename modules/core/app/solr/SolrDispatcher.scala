@@ -72,8 +72,8 @@ case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
     val queryRequest = SolrQueryBuilder.search(params, facets, allFacets, filters, mode)(userOpt)
-    Logger.logger.debug(queryRequest.queryString())
-
+    val url = buildSearchUrl(queryRequest)
+    Logger.logger.debug("SOLR: {}", url)
     WS.url(buildSearchUrl(queryRequest)).get.map { response =>
       val parser = SolrQueryParser(checkError(response).body)
       ItemPage(parser.items, offset, limit, parser.count,
