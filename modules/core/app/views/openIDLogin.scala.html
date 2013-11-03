@@ -17,7 +17,7 @@
     <link href="@controllers.core.routes.Assets.at("jquery-openid/openid.css")" rel="stylesheet">
 }
 
-@basicLayout(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
+@layout.noSidebarSimple(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
 
 
             @helper.form(action = action, 'class -> "openid login-form form-horizontal") {

@@ -2,7 +2,7 @@
 
 @import controllers.authorities.HistoricalAgents
 
-@rightSidebarLayout(Messages("actions.listHistoricalAgents")) {
+@layout.rightSidebar(Messages("actions.listHistoricalAgents")) {
     @common.filterableList("pagination.displayingItems", page, params) {
         @historicalAgent.itemList(page)
     }

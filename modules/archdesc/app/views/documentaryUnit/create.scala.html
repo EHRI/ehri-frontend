@@ -19,7 +19,7 @@
     }
 }
 
-@rightSidebarLayout(Messages("actions.createDocumentaryUnit"), breadcrumbs = breadcrumbs) {
+@layout.rightSidebar(Messages("actions.createDocumentaryUnit"), breadcrumbs = breadcrumbs) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

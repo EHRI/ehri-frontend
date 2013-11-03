@@ -1,7 +1,7 @@
 @(item: AnyModel, page: utils.search.ItemPage[(AnyModel,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], entityType: EntityType.Value, action: Call, linkAction: (String,String,String) => Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.linkTo"), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.linkTo"), breadcrumbs = common.breadcrumbs(List(item))) {
     @views.html.search.searchSection(Messages("contentTypes." + entityType.toString)) {
         @views.html.search.searchForm(page, params, action, autofocus = false) {
             <ul>

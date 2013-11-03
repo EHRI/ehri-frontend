@@ -3,7 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.createHistoricalAgent")) {
+@layout.rightSidebar(Messages("actions.createHistoricalAgent")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @historicalAgent.renderForm(None, f)

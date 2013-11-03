@@ -3,7 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageItemPermissionsForAccessor", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.manageItemPermissionsForAccessor", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
     <div class="well well-small muted">
         <i class="icon-info-sign"></i>
         @Messages("actions.manageItemPermissionsText")

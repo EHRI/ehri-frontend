@@ -2,7 +2,7 @@
 
 @import controllers.archdesc.DocumentaryUnits
 
-@noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
+@layout.noSidebar(Messages("actions.listDocumentaryUnits")) {
     @common.filterableList("pagination.displayingItems", page, params) {
         @documentaryUnit.itemList(page)
     }

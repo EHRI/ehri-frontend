@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@basicLayout(Messages("login.login")) {
+@layout.noSidebarSimple(Messages("login.login")) {
 
     <div class="alert alert-info">
         @Messages("login.adminLoginMessage")

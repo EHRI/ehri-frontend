@@ -2,7 +2,7 @@
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 
-@rightSidebarLayout(Messages("actions.setVisibility"), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.setVisibility"), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@if(item.accessors.isEmpty) {
         <h3>@Messages("visibility.visibleToEveryone")</h3>

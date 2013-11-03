@@ -5,7 +5,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }
 
 
-@rightSidebarLayout(Messages("actions.listSystemEvents")) {
+@layout.rightSidebar(Messages("actions.listSystemEvents")) {
 
     <div class="event-filter">
         @helper.form(action = controllers.core.routes.SystemEvents.list, 'class -> "form-inline") {

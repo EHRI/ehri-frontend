@@ -1,6 +1,6 @@
 @(item: Link, annotations: Map[String,List[Annotation]], src: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("link.itemLink"), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("link.itemLink"), breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
         @item.model.description

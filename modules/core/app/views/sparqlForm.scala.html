@@ -36,7 +36,7 @@
     </style>
 }
 
-@noSidebarLayout("Sparql", scripts = extrascripts, styles = extrastyles) {
+@layout.noSidebar("Sparql", scripts = extrascripts, styles = extrastyles) {
 
     @helper.form(action = action, 'id -> "sparql-form") {
         @helper.textarea(form("q"))
