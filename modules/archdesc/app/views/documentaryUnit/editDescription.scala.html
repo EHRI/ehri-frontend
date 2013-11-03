@@ -15,7 +15,7 @@
 	</script>
 }
 
-@rightSidebarLayout(Messages("actions.updateDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = extrascripts) {
+@layout.rightSidebar(Messages("actions.updateDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = extrascripts) {
 
     @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {

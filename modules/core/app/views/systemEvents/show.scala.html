@@ -7,7 +7,7 @@
     @item.toStringLang
 }
 
-@rightSidebarLayout(title(item), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(title(item), breadcrumbs = common.breadcrumbs(List(item))) {
 
     <p>
         @item.actioner.map { accessor =>

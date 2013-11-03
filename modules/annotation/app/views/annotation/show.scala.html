@@ -1,6 +1,6 @@
 @(item: Annotation, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item, breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(item, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
         @common.stringValue(Some(item.model.annotationType.toString), AnnotationF.ANNOTATION_TYPE)

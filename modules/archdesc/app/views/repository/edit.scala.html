@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalC
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.updateRepository"), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.updateRepository"), breadcrumbs = common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @repository.renderForm(Some(item), f)

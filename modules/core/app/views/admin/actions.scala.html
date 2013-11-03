@@ -1,6 +1,6 @@
 @()(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
-@noSidebarLayout(Messages("pages.admin.title")) {
+@layout.noSidebar(Messages("pages.admin.title")) {
 
     @Messages("pages.admin.message")
 

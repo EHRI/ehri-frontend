@@ -3,7 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.createRepository")) {
+@layout.rightSidebar(Messages("actions.createRepository")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @repository.renderForm(None, f)

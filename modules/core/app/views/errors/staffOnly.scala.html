@@ -1,6 +1,6 @@
 @()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
-@basicLayout(Messages("errors.staffOnly")) {
+@layout.noSidebarSimple(Messages("errors.staffOnly")) {
     <p class="alert alert-info alert-block">
         <strong>@Messages("errors.staffOnly")</strong><br/>
         @Messages("errors.staffOnlyMessage")

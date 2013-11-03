@@ -84,7 +84,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("search.updateIndex"), scripts=extraScript, styles = extraStyle) {
+@layout.rightSidebar(Messages("search.updateIndex"), scripts=extraScript, styles = extraStyle) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
         @helper.checkbox(form("all"), '_label -> Messages("search.clearEntireIndex"))

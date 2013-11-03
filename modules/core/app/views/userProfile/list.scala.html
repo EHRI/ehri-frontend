@@ -2,7 +2,7 @@
 
 @import controllers.core.UserProfiles
 
-@rightSidebarLayout(Messages("actions.listUserProfiles")) {
+@layout.rightSidebar(Messages("actions.listUserProfiles")) {
 
     @common.filterableList("pagination.displayingItems", items, params) {
         <ul class="unstyled">

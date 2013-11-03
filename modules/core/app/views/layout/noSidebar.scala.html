@@ -1,7 +1,15 @@
 @(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, flash: Flash, lang: Lang)
 
-@basic(title, scripts, styles) {
+@layout.adminLayout(title, scripts, styles) {
 
+    @if(breadcrumbs.body.trim.isEmpty) {
+        @common.breadcrumbs()
+    }
+
+    <div class="success-pullup pull-right">
+        @common.successFlash(flash)
+    </div>
+    @breadcrumbs
     <div class="container">
         <div class="row-fluid">
             <div class="span12">
