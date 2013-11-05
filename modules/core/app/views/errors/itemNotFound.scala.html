@@ -1,14 +1,12 @@
-@(str: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(str: Option[String] = None)(implicit req: RequestHeader, lang: Lang)
 
-@layout.noSidebar(Messages("errors.itemNotFound")) {
+@layout.errorLayout(Messages("errors.itemNotFound")) {
 
-    <div class="alert alert-block alert-error">
-        <h4>@Messages("errors.itemNotFoundExplanation")</h4>
+    <p>
+        @Messages("errors.itemNotFoundExplanation")
+    </p>
 
-        @str.map { s =>
-            <i>@s</i>
-        }
-    </div>
-
-
+    @str.map { s =>
+        <i>@s</i>
+    }
 }

@@ -1,6 +1,6 @@
-@(perm: Option[rest.PermissionDenied] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(perm: Option[rest.PermissionDenied] = None)(implicit req: RequestHeader, lang: Lang)
 
-@layout.noSidebar(Messages("errors.permissionDenied")) {
+@layout.errorLayout(Messages("errors.permissionDenied")) {
 
 	<p class="text-error">@Messages("errors.permissionDeniedExplanation")</p>
 

@@ -16,6 +16,8 @@ import scala.concurrent.Future
 import com.tzavellas.sse.guice.ScalaModule
 import utils.search.{Indexer, Dispatcher}
 import global.GlobalConfig
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 
 
 package globalConfig {
@@ -128,5 +130,10 @@ object Global extends WithFilters(new CSRFFilter()) with GlobalSettings {
 
     // Hack for bug #845
     app.routes
+  }
+
+  override def onHandlerNotFound(request: RequestHeader): Future[SimpleResult] = {
+    implicit def req = request
+    immediate(play.api.mvc.Results.NotFound(views.html.errors.pageNotFound()))
   }
 }
