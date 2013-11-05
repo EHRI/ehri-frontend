@@ -146,6 +146,11 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     app.routes
   }
 
+  override def onHandlerNotFound(request: RequestHeader): Result = {
+    implicit def req = request
+    play.api.mvc.Results.NotFound(views.html.errors.pageNotFound())
+  }
+
   private def noAuthAction = Action { request =>
     play.api.mvc.Results.Unauthorized("This application required authentication")
       .withHeaders("WWW-Authenticate" -> "Basic")

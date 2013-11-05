@@ -1,4 +1,7 @@
 
+// Colors
+@highlight-color: #6c003b;
+
 // Spacings
 @search-item-spacing: 1.5em;
 @menu-height: 50px;
@@ -301,6 +304,23 @@ a.alt {
   form {
     button {
       margin-bottom: @large-margin;
+    }
+  }
+}
+
+.error-page {
+
+  .error-page-header {
+    background-color: @highlight-color;
+    color: whitesmoke;
+    vertical-align: bottom;
+    padding-top: 200px;
+
+    img {
+      float: left;
+      margin-right: @medium-margin;
+      margin-bottom: @medium-margin;
+      vertical-align: top;
     }
   }
 }
