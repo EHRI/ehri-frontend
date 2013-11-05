@@ -119,11 +119,18 @@ object Global extends WithFilters(new CSRFFilter()) with GlobalSettings {
     injector.getInstance(clazz)
   }
 
-  override def onError(request: RequestHeader, ex: Throwable) = ex.getCause match {
-    case e: rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
-    case e: rest.ItemNotFound => Future.successful(play.api.mvc.Results.NotFound("Not found! " + e.toString))
-    case e: java.net.ConnectException => Future.successful(play.api.mvc.Results.InternalServerError("No Database!"))
-    case e => super.onError(request, e)
+  import play.api.mvc.Results._
+
+  override def onError(request: RequestHeader, ex: Throwable) = {
+    import views.html.errors._
+    implicit def req = request
+
+    ex.getCause match {
+      case e: rest.PermissionDenied => immediate(Unauthorized(permissionDenied(Some(e))))
+      case e: rest.ItemNotFound => immediate(NotFound(itemNotFound(e.value)))
+      case e: java.net.ConnectException => immediate(InternalServerError(serverTimeout()))
+      case e => super.onError(request, e)
+    }
   }
 
   override def onStart(app: Application) {
@@ -134,6 +141,6 @@ object Global extends WithFilters(new CSRFFilter()) with GlobalSettings {
 
   override def onHandlerNotFound(request: RequestHeader): Future[SimpleResult] = {
     implicit def req = request
-    immediate(play.api.mvc.Results.NotFound(views.html.errors.pageNotFound()))
+    immediate(NotFound(views.html.errors.pageNotFound()))
   }
 }
