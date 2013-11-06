@@ -305,8 +305,8 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Result)(
     implicit request: Request[T], userOpt: Option[UserProfile]): Result = {
     AsyncRest {
-      rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
-        .create[UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
+      rest.EntityDAO(EntityType.UserProfile)
+        .create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
         if (itemOrErr.isLeft) {
           itemOrErr.left.get match {
             case v@ValidationError(errorSet) => {

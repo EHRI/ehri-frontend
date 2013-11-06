@@ -155,7 +155,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          groupOrErr <- rest.EntityDAO[Group](entityType, userOpt).get(id)
+          groupOrErr <- rest.EntityDAO(entityType).get[Group](id)
         } yield {
           groupOrErr.right.map { group =>
             Ok(views.html.group.confirmMembership(group, item,
@@ -191,7 +191,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          groupOrErr <- rest.EntityDAO[Group](entityType, userOpt).get(id)
+          groupOrErr <- rest.EntityDAO(entityType).get[Group](id)
         } yield {
           groupOrErr.right.map { group =>
             Ok(views.html.group.removeMembership(group, item,

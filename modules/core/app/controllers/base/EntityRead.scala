@@ -25,7 +25,7 @@ trait EntityRead[MT] extends EntityController {
   def getEntity(id: String, user: Option[UserProfile])(f: MT => Result)(
       implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader) = {
     AsyncRest {
-      rest.EntityDAO(entityType, userOpt).get(id).map { itemOrErr =>
+      rest.EntityDAO(entityType).get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
@@ -34,7 +34,7 @@ trait EntityRead[MT] extends EntityController {
   def getEntity[T](otherType: defines.EntityType.Type, id: String)(f: T => Result)(
       implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]) = {
     AsyncRest {
-      rest.EntityDAO[T](otherType, userOpt).get(id).map { itemOrErr =>
+      rest.EntityDAO(otherType).get[T](id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
@@ -85,7 +85,7 @@ trait EntityRead[MT] extends EntityController {
             val params = PageParams.fromRequest(request)
             val annsReq = rest.AnnotationDAO().getFor(id)
             val linkReq = rest.LinkDAO().getFor(id)
-            val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
+            val cReq = rest.EntityDAO(entityType).pageChildren[CT](id, params)
             for { annOrErr <- annsReq ; cOrErr <- cReq ; linkOrErr <- linkReq } yield {
               for { anns <- annOrErr.right ; children <- cOrErr.right ; links <- linkOrErr.right } yield {
                 f(item)(children)(params)(anns)(links)(userOpt)(request)
@@ -102,7 +102,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        rest.EntityDAO[MT](entityType, userOpt).page(params).map { itemOrErr =>
+        rest.EntityDAO(entityType).page(params).map { itemOrErr =>
           itemOrErr.right.map {
             page => render {
               case Accepts.Json() => Ok(Json.toJson(page)(Page.pageWrites(cfmt.clientFormat)))
@@ -119,7 +119,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = ListParams.fromRequest(request)
-        rest.EntityDAO[MT](entityType, userOpt).list(params).map { itemOrErr =>
+        rest.EntityDAO(entityType).list(params).map { itemOrErr =>
           itemOrErr.right.map {
             list => render {
               case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
@@ -136,7 +136,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        val itemReq = rest.EntityDAO[MT](entityType).get(id)
+        val itemReq = rest.EntityDAO(entityType).get(id)
         val alReq = rest.SystemEventDAO(userOpt).history(id, params)
         for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
           for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {

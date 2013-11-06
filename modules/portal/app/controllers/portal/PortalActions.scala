@@ -72,7 +72,7 @@ trait PortalActions {
     getAction[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        val cReq = rest.EntityDAO[MT](entityType).pageChildren[CT](id, params)
+        val cReq = rest.EntityDAO(entityType).pageChildren[CT](id, params)
         for { cOrErr <- cReq  } yield {
           for { children <- cOrErr.right } yield {
             f(item)(children)(params)(anns)(links)(userOpt)(request)

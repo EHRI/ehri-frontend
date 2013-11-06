@@ -41,7 +41,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       implicit request =>
         AsyncRest {
           for {
-            userOrErr <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
+            userOrErr <- rest.EntityDAO(EntityType.withName(userType)).get[Accessor](userId)
             // NB: Faking user for fetching perms to avoid blocking.
             // This means that when we have both the perm set and the user
             // we need to re-assemble them so that the permission set has
@@ -66,7 +66,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
 
       AsyncRest {
         for {
-          accessorOrErr <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
+          accessorOrErr <- rest.EntityDAO(EntityType.withName(userType)).get[Accessor](userId)
         } yield {
           for { accessor <- accessorOrErr.right} yield {
             AsyncRest {

@@ -81,7 +81,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          permOrErr <- rest.EntityDAO[PermissionGrant](EntityType.PermissionGrant, userOpt).get(permId)
+          permOrErr <- rest.EntityDAO(EntityType.PermissionGrant).get[PermissionGrant](permId)
         } yield {
           for { perm <- permOrErr.right } yield {
             f(item)(perm)(userOpt)(request)
@@ -97,7 +97,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          boolOrErr <- rest.EntityDAO[PermissionGrant](EntityType.PermissionGrant, userOpt).delete(permId)
+          boolOrErr <- rest.EntityDAO(EntityType.PermissionGrant).delete(permId)
         } yield {
           for { bool <- boolOrErr.right } yield {
             f(item)(bool)(userOpt)(request)

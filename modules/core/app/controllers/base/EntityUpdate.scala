@@ -69,7 +69,7 @@ trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
       },
       success = doc => {
         AsyncRest {
-          rest.EntityDAO(entityType, userOpt)
+          rest.EntityDAO(entityType)
               .update(item.id, transform(doc), logMsg = getLogMessage).map { itemOrErr =>
             // If we have an error, check if it's a validation error.
             // If so, we need to merge those errors back into the form

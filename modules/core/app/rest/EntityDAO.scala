@@ -70,9 +70,8 @@ trait RestEventHandler {
  * Data Access Object for fetching data about generic entity types.
  *
  * @param entityType
- * @param userProfile
  */
-case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserProfile] = None)(implicit eventHandler: RestEventHandler) extends RestDAO {
+case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
   import play.api.http.Status._
@@ -82,7 +81,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
-  def get(id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+  def get[MT](id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     val cached = Cache.getAs[JsValue](id)
     if (cached.isDefined) {
       Future.successful(jsonReadToRestError(cached.get, rd.restReads))
@@ -103,7 +102,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def get(key: String, value: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+  def get[MT](key: String, value: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*)
         .withQueryString("key" -> key, "value" -> value)
         .get.map { response =>
@@ -111,7 +110,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def create[T](item: T, accessors: List[String] = Nil,
+  def create[MT,T](item: T, accessors: List[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
       logMsg: Option[String] = None)(implicit apiUser: ApiUser, wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     val url = enc(requestUrl)
@@ -150,7 +149,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def update[T](id: String, item: T, logMsg: Option[String] = None)(
+  def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, wrt: RestConvertable[T], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     val url = enc(requestUrl, id)
     Logger.logger.debug("UPDATE: {}", url)
@@ -186,7 +185,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def list(params: ListParams = ListParams())(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
+  def list[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, List[MT]]] = {
     val url = enc(requestUrl, "list")
     Logger.logger.debug("LIST: {}", url)
     WS.url(url).withQueryString(params.toSeq: _*)
@@ -212,7 +211,7 @@ case class EntityDAO[MT](entityType: EntityType.Type, userProfile: Option[UserPr
     }
   }
 
-  def page(params: PageParams = PageParams())(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, Page[MT]]] = {
+  def page[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, Page[MT]]] = {
     val url = enc(requestUrl, "page")
     Logger.logger.debug("PAGE: {}", url)
     WS.url(url).withHeaders(authHeaders.toSeq: _*)

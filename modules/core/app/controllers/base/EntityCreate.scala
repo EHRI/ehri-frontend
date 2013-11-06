@@ -41,7 +41,7 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
         doc => {
           AsyncRest {
             val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-            rest.EntityDAO(entityType, userOpt)
+            rest.EntityDAO(entityType)
                 .create(doc, accessors, logMsg = getLogMessage).map { itemOrErr =>
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form

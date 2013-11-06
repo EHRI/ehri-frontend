@@ -15,11 +15,11 @@ import models.base.AnyModel
 /**
  * Data Access Object for managing descriptions on entities.
  */
-case class DescriptionDAO[MT](entityType: EntityType.Type)(implicit eventHandler: RestEventHandler) extends RestDAO {
+case class DescriptionDAO(entityType: EntityType.Type)(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
-  def createDescription[DT](id: String, item: DT, logMsg: Option[String] = None)(
+  def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
@@ -27,7 +27,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type)(implicit eventHandler
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO[MT](entityType).getJson(id).map {
+          EntityDAO(entityType).getJson(id).map {
             case Right(item) => {
               eventHandler.handleUpdate(id)
               Cache.remove(id)
@@ -40,14 +40,14 @@ case class DescriptionDAO[MT](entityType: EntityType.Type)(implicit eventHandler
     }
   }
 
-  def updateDescription[DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
+  def updateDescription[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .put(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO[MT](entityType).getJson(id).map {
+          EntityDAO(entityType).getJson(id).map {
             case Right(item) => {
               eventHandler.handleUpdate(id)
               Cache.remove(id)
@@ -60,7 +60,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type)(implicit eventHandler
     }
   }
 
-  def deleteDescription(id: String, did: String, logMsg: Option[String] = None)(
+  def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
           .delete.map { response =>
@@ -71,7 +71,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type)(implicit eventHandler
   }
 
   // FIXME: Move these elsewhere...
-  def createAccessPoint[DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
+  def createAccessPoint[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, (MT,DT)]] = {
     WS.url(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
@@ -79,7 +79,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type)(implicit eventHandler
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO[MT](entityType).getJson(id).map {
+          EntityDAO(entityType).getJson(id).map {
             case Right(item) => {
               eventHandler.handleUpdate(id)
               Cache.remove(id)
@@ -96,7 +96,7 @@ case class DescriptionDAO[MT](entityType: EntityType.Type)(implicit eventHandler
         implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .delete.flatMap { response =>
-        EntityDAO[MT](entityType).getJson(id).map {
+        EntityDAO(entityType).getJson(id).map {
           case Right(item) => {
             eventHandler.handleUpdate(id)
             Cache.remove(id)
