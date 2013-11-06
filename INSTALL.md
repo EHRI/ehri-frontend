@@ -22,6 +22,18 @@ You should now able able to start the Solr server in another shell:
 
 If that starts without spewing out any dodgy-looking stack traces all should be well. You can verify this by going to http://localhost:8983/solr which should display the Solr admin page.
 
+### Install and set up the indexer utility
+
+The EHRI frontend does not interact directly with Solr for indexing (it used to, but this made it difficult to tune indexing without mucking about the the frontend code.) Instead there's a [separate utility](https://github.com/mikesname/ehri-indexer) that deals with transforming the database format JSON into Solr format JSON, and provides a convenient command-line syntax to index individual items and classes of items. The front-end currently delegates to this command-line tool.
+
+To set up and build the indexer, do the following:
+
+    cd ~/dev
+    git clone https://github.com/mikesname/ehri-indexer.git
+    cd ehri-indexer
+    mvn clean compile assembly:single
+
+If all goes well this will result in a single Jar file called `ehri-indexer-1 .0-SNAPSHOT-jar-with-dependencies.jar` ending up in the `target` directory.
 
 ### Installing Play 2.1:
 
@@ -94,6 +106,10 @@ There are some settings on the conf/application.conf file you can adjust if you 
 One setting you definitely should change is the value of the `solr.path` key, which needs to be changed to whatever the path to the Solr core is. Since the one we set up above used the default "collection1" name, adjust the setting to match this:
 
     solr.path = "http://localhost:8983/solr/collection1"
+
+Also, we need to put the indexer utility where the interface can find it, in the `bin` directory, named `indexer`. This can be done with a symlink:
+
+    ln -s ~/dev/ehri-indexer/target/ehri-indexer-1 .0-SNAPSHOT-jar-with-dependencies.jar ~/dev/docview/bin/indexer
 
 Start Neo4j server, if you haven't already:
 
