@@ -26,8 +26,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       val itemParams = PageParams.fromRequest(request)
       val scopeParams = PageParams.fromRequest(request, namespace = "s")
       for {
-        permGrants <- rest.PermissionDAO(userOpt).listForItem(id, itemParams)
-        scopeGrants <- rest.PermissionDAO(userOpt).listForScope(id, scopeParams)
+        permGrants <- rest.PermissionDAO().listForItem(id, itemParams)
+        scopeGrants <- rest.PermissionDAO().listForScope(id, scopeParams)
       } yield f(item)(permGrants)(scopeGrants)(userOpt)(request)
     }
   }
@@ -36,12 +36,12 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
-        accessor <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
+        accessor <- rest.EntityDAO(EntityType.withName(userType)).get[Accessor](userId)
         // NB: Faking user for fetching perms to avoid blocking.
         // This means that when we have both the perm set and the user
         // we need to re-assemble them so that the permission set has
         // access to a user's groups to understand inheritance.
-        perms <- rest.PermissionDAO(userOpt).getScope(accessor, id)
+        perms <- rest.PermissionDAO().getScope(accessor, id)
       } yield {
         f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
       }
@@ -57,8 +57,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       }.toMap
 
       for {
-        accessor <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
-        sperms <- rest.PermissionDAO(userOpt).setScope(accessor, id, perms)
+        accessor <- rest.EntityDAO(EntityType.withName(userType)).get[Accessor](userId)
+        sperms <- rest.PermissionDAO().setScope(accessor, id, perms)
       } yield f(sperms)(userOpt)(request)
     }
   }

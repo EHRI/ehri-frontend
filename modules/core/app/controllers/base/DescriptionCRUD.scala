@@ -27,7 +27,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         ef => immediate(f(item)(Left(ef))(userOpt)(request)),
-        desc => DescriptionDAO[MT](entityType, userOpt).createDescription(id, desc, logMsg = getLogMessage).map { updated =>
+        desc => DescriptionDAO(entityType).createDescription(id, desc, logMsg = getLogMessage).map { updated =>
           f(item)(Right(updated))(userOpt)(request)
         } recoverWith {
           case err: rest.ValidationError => {
@@ -48,7 +48,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         ef => immediate(f(item)(Left(ef))(userOpt)(request)),
-        desc => DescriptionDAO[MT](entityType, userOpt)
+        desc => DescriptionDAO(entityType)
             .updateDescription(id, did, desc, logMsg = getLogMessage).map { updated =>
           f(item)(Right(updated))(userOpt)(request)
         } recoverWith {
@@ -79,7 +79,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
       f: Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
-      DescriptionDAO[MT](entityType, userOpt)
+      DescriptionDAO(entityType)
           .deleteDescription(id, did, logMsg = getLogMessage).map { ok =>
         f(ok)(userOpt)(request)
       }

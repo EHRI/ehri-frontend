@@ -22,7 +22,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       for {
-        permGrants <- rest.PermissionDAO(userOpt).listForItem(id, params)
+        permGrants <- rest.PermissionDAO().listForItem(id, params)
       } yield f(item)(permGrants)(userOpt)(request)
     }
   }
@@ -45,12 +45,12 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
 
-        accessor <- rest.EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId)
+        accessor <- rest.EntityDAO(EntityType.withName(userType)).get[Accessor](userId)
         // FIXME: Faking user for fetching perms to avoid blocking.
         // This means that when we have both the perm set and the userOpt
         // we need to re-assemble them so that the permission set has
         // access to a userOpt's groups to understand inheritance.
-        perms <- rest.PermissionDAO(userOpt).getItem(accessor, contentType, id)
+        perms <- rest.PermissionDAO().getItem(accessor, contentType, id)
       } yield f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
     }
   }
@@ -62,9 +62,8 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
       implicit val accessorConverter = Accessor.Converter
-
-      EntityDAO[Accessor](EntityType.withName(userType), userOpt).get(userId).flatMap { accessor =>
-        rest.PermissionDAO(userOpt).setItem(accessor, contentType, id, perms).map { perms =>
+      EntityDAO(EntityType.withName(userType)).get[Accessor](userId).flatMap { accessor =>
+        rest.PermissionDAO().setItem(accessor, contentType, id, perms).map { perms =>
           f(perms)(userOpt)(request)
         }
       }

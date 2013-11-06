@@ -288,7 +288,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    */
   private def grantOwnerPerms[T](profile: UserProfile)(f: => SimpleResult)(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
-    rest.PermissionDAO(userOpt).setItem(profile, ContentTypes.UserProfile,
+    rest.PermissionDAO().setItem(profile, ContentTypes.UserProfile,
         profile.id, List(PermissionType.Owner.toString)).map { perms =>
       f
     }
@@ -299,8 +299,8 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    */
   private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Future[SimpleResult])(
      implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
-    rest.EntityDAO[UserProfile](EntityType.UserProfile, userOpt)
-        .create[UserProfileF](user, params = Map("group" -> groups)).flatMap { item =>
+    rest.EntityDAO(EntityType.UserProfile)
+        .create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).flatMap { item =>
       f(item)
     } recoverWith {
       case ValidationError(errorSet) => {

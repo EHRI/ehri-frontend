@@ -6,7 +6,7 @@ import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
 import defines._
-import rest.{PermissionDenied, ItemNotFound, EntityDAO}
+import rest.{PermissionDenied, ItemNotFound, EntityDAO, ApiUser}
 import models.sql.MockAccount
 
 /**
@@ -23,10 +23,7 @@ import models.sql.MockAccount
 class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[SupervisorWorkerIntegrationSpec]) {
   import mocks.{privilegedUser,unprivilegedUser}
 
-  val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
-  )
+  implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
   /**
    * Get the id from an URL where the ID is the last component...
@@ -142,7 +139,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val headArchivistProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(headArchivistUserId))
+      val headArchivistProfile = await(rest.EntityDAO(EntityType.UserProfile).get[UserProfile](headArchivistUserId))
 
       // Add their account to the mocks
       val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com", staff = true)
@@ -171,7 +168,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val archivistProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(archivistUserId))
+      val archivistProfile = await(rest.EntityDAO(EntityType.UserProfile).get[UserProfile](archivistUserId))
 
       // Add the archivists group to the account mocks
       val aAccount = MockAccount(archivistUserId, "archivist1@example.com", staff = true)

@@ -86,7 +86,7 @@ trait EntityAccessPoints[D <: Description, T <: Model with Described[D], MT <: M
    */
   def getAccessPointsJson(id: String)(implicit rd: RestReadable[MT]) = userProfileAction.async { implicit userOpt => implicit request =>
     getEntity.async(id, userOpt) { item =>
-      rest.LinkDAO(userOpt).getFor(id).map { links =>
+      rest.LinkDAO().getFor(id).map { links =>
         implicit val accessPointFormat = AccessPointF.Converter.clientFormat
         implicit val linkFormat = LinkF.Converter.clientFormat
         implicit val targetWrites = Json.format[Target]

@@ -13,15 +13,14 @@ import models.base.AnyModel
 
 /**
  * Set visibility on items.
- * @param userProfile
  */
-case class VisibilityDAO(userProfile: Option[UserProfile])(implicit eventHandler: RestEventHandler) extends RestDAO {
+case class VisibilityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
 
   def requestUrl = "http://%s:%d/%s/access".format(host, port, mount)
 
-  def set[MT](id: String, data: List[String])(implicit rd: RestReadable[MT]): Future[MT] = {
+  def set[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT] = {
     WS.url(enc(requestUrl, id))
         .withQueryString(data.map(ACCESSOR_PARAM -> _): _*)
         .withHeaders(authHeaders.toSeq: _*).post("").map { response =>

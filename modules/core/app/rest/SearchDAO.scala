@@ -8,17 +8,17 @@ import play.api.libs.json.{Reads, Json}
 import models.json.RestReadable
 import models.base.AnyModel
 
-case class SearchDAO(userProfile: Option[UserProfile]) extends RestDAO {
+case class SearchDAO() extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/entities".format(host, port, mount)
 
-  def get[MT](id: String)(implicit rd: RestReadable[MT]): Future[MT] = {
+  def get[MT](id: String)(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[MT] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(rd.restReads)
     }
   }
 
-  def list[MT](ids: Seq[String])(implicit rd: RestReadable[MT]): Future[List[MT]] = {
+  def list[MT](ids: Seq[String])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[List[MT]] = {
     // NB: Using POST here because the list of IDs can
     // potentially overflow the GET param length...
     if (ids.isEmpty) Future.successful(List.empty[MT])

@@ -13,6 +13,7 @@ import defines.EntityType
 import defines.PermissionType
 import defines.ContentTypes
 import global.GlobalConfig
+import rest.ApiUser
 
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
@@ -26,6 +27,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
 
   // Turning secured off will override staffOnly
   lazy val secured = play.api.Play.current.configuration.getBoolean("ehri.secured").getOrElse(true)
+
+  implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
 
   /**
    * Provide functionality for changing the current locale.
@@ -81,8 +84,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             // available initially, and we don't want to block for it to become
             // available, we should probably add the account to the permissions when
             // we have both items from the server.
-            val getProf = rest.EntityDAO[UserProfile](EntityType.UserProfile, maybeUser).get(account.id)
-            val getGlobalPerms = rest.PermissionDAO(maybeUser).get
+            val getProf = rest.EntityDAO(EntityType.UserProfile).get[UserProfile](account.id)
+            val getGlobalPerms = rest.PermissionDAO().get(fakeProfile)
             // These requests should execute in parallel...
             for {
               entity <- getProf
@@ -113,7 +116,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     def async[MT](entityType: EntityType.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
         implicit rd: RestReadable[MT]): Action[AnyContent] = {
       userProfileAction.async { implicit userOpt => implicit request =>
-        rest.EntityDAO[MT](entityType, userOpt).get(id).flatMap { item =>
+        rest.EntityDAO(entityType).get(id).flatMap { item =>
           f(item)(userOpt)(request)
         }
       }
@@ -141,9 +144,9 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           // NB: We have to re-fetch the global perms here because they need to be
           // within the scope of the particular item. This could be optimised, but
           // it would involve some duplication of code.
-          val getGlobalPerms = rest.PermissionDAO(userOpt).getScope(id)
-          val getItemPerms = rest.PermissionDAO(userOpt).getItem(contentType, id)
-          val getEntity = rest.EntityDAO[MT](entityType, userOpt).get(id)
+          val getGlobalPerms = rest.PermissionDAO().getScope(user, id)
+          val getItemPerms = rest.PermissionDAO().getItem(user, contentType, id)
+          val getEntity = rest.EntityDAO(entityType).get(id)
           // These requests should execute in parallel...
           for {
             gperms <- getGlobalPerms
@@ -153,7 +156,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             r <- f(item)(Some(up))(request)
           } yield r
         } getOrElse {
-          rest.EntityDAO(entityType, None).get(id).flatMap { item =>
+          rest.EntityDAO(entityType).get(id).flatMap { item =>
             f(item)(None)(request)
           }
         }

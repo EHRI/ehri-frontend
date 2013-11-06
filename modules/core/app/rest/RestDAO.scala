@@ -102,6 +102,11 @@ case class ErrorSet(
   }
 }
 
+/**
+ * Wrapper for Auth user id string
+ */
+case class ApiUser(id: Option[String] = None)
+
 
 trait RestDAO {
 
@@ -127,17 +132,12 @@ trait RestDAO {
     HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
   )
 
-  // Abstract value for the user accessing a resource...
-  val userProfile: Option[UserProfile]
-
-  implicit def userOpt = userProfile
-
   /**
    * Headers to add to outgoing request...
    * @return
    */
-  def authHeaders: Map[String, String] = userProfile match {
-    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
+  def authHeaders(implicit apiUser: ApiUser): Map[String, String] = apiUser.id match {
+    case Some(id) => (headers + (AUTH_HEADER_NAME -> id))
     case None => headers
   }
 
@@ -155,7 +155,7 @@ trait RestDAO {
   lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get
   lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
 
-  protected def checkError(response: Response)(implicit userOpt: Option[UserProfile]): Response = {
+  protected def checkError(response: Response): Response = {
     Logger.logger.trace("Response body ! : {}", response.body)
     response.status match {
       case OK | CREATED => response
@@ -164,7 +164,7 @@ trait RestDAO {
         case UNAUTHORIZED => {
           println("UNAUTHORIZED: " + response.json)
           response.json.validate[PermissionDenied].fold(
-            err => throw PermissionDenied(user = userProfile.map(_.id)),
+            err => throw PermissionDenied(),
             perm => {
               Logger.logger.error("Permission denied error! : {}", response.json)
               throw perm

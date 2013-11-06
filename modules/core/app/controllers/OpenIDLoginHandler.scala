@@ -60,7 +60,7 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
             gotoLoginSucceeded(acc.id)
               .map(_.withSession("access_uri" -> globalConfig.routeRegistry.default.url))
           } getOrElse {
-            rest.AdminDAO(userProfile = None).createNewUserProfile.flatMap { up =>
+            rest.AdminDAO().createNewUserProfile.flatMap { up =>
               userDAO.create(up.id, email.toLowerCase).map { account =>
                 OpenIDAssociation.addAssociation(account, info.id)
                 // TODO: Redirect to profile?

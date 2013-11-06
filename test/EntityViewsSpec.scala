@@ -6,7 +6,7 @@ import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
 import defines._
-import rest.EntityDAO
+import rest.{ApiUser, EntityDAO}
 
 /**
  * Spec to test various page views operate as expected.
@@ -14,10 +14,7 @@ import rest.EntityDAO
 class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   import mocks.{privilegedUser,unprivilegedUser}
 
-  val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
-  )
+  implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"
@@ -144,7 +141,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(cr) must equalTo(SEE_OTHER)
 
       // Now check we can read back the same permissions.
-      val perms = await(PermissionDAO[UserProfile](Some(userProfile)).get(subjectUser))
+      val perms = await(PermissionDAO().get(subjectUser))
       perms.get(ContentTypes.Repository, PermissionType.Create) must beSome
       perms.get(ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
       perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
@@ -169,7 +166,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
           .withFormUrlEncodedBody()).get
       status(add) must equalTo(SEE_OTHER)
 
-      val userFetch = await(EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(id))
+      val userFetch = await(EntityDAO(EntityType.UserProfile).get[UserProfile](id))
       userFetch.groups.map(_.id) must contain("niod")
     }
 
@@ -180,7 +177,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
           .withFormUrlEncodedBody()).get
       status(rem) must equalTo(SEE_OTHER)
 
-      val userFetch = await(EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(id))
+      val userFetch = await(EntityDAO(EntityType.UserProfile).get[UserProfile](id))
       userFetch.groups.map(_.id) must not contain("kcl")
     }
   }
@@ -207,7 +204,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
           .withFormUrlEncodedBody()).get
       status(add) must equalTo(SEE_OTHER)
 
-      val groupFetch = await(EntityDAO[Group](EntityType.Group, Some(userProfile)).get(id))
+      val groupFetch = await(EntityDAO(EntityType.Group).get[Group](id))
       groupFetch.groups.map(_.id) must contain("admin")
     }
 
@@ -218,7 +215,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
           .withFormUrlEncodedBody()).get
       status(rem) must equalTo(SEE_OTHER)
 
-      val groupFetch = await(EntityDAO[Group](EntityType.Group, Some(userProfile)).get("niod"))
+      val groupFetch = await(EntityDAO(EntityType.Group).get[Group]("niod"))
       groupFetch.groups.map(_.id) must not contain("admin")
     }
   }

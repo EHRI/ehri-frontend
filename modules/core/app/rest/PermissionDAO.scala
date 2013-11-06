@@ -14,7 +14,7 @@ import play.api.Logger
 import utils.PageParams
 
 
-case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extends RestDAO {
+case class PermissionDAO() extends RestDAO {
 
   import Constants._
   import play.api.http.Status._
@@ -25,46 +25,23 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/permission".format(baseUrl)
 
-  def get: Future[GlobalPermissionSet[UserProfile]] = {
-    userProfile.map { up =>
-      val url = enc(requestUrl, up.id)
-      val cached = Cache.getAs[GlobalPermissionSet[UserProfile]](url)
-      if (cached.isDefined) {
-        Future.successful(cached.get)
-      } else {
-        Logger.logger.debug("Fetch perms: {}", url)
-        WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-          val globalPerms = GlobalPermissionSet(up, checkError(response).json)
-          // NB: We cache permissions for a shorter time since they are effectively
-          // impossible to correctly invalidate when inherited permissions change.
-          // Hence we just live with some uncertainty here.
-          Cache.set(url, globalPerms, cacheTime / 2)
-          globalPerms
-        }
-      }
-    } getOrElse {
-    // If we don't have a user we can't get our own profile, so just return PermissionDenied
-      throw new PermissionDenied()
-    }
-  }
-
-  def list(user: T, params: PageParams): Future[Page[PermissionGrant]] =
+  def list[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "page", user.id), params)
 
-  def listForItem(id: String, params: PageParams): Future[Page[PermissionGrant]] =
+  def listForItem(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "pageForItem", id), params)
 
-  def listForScope(id: String, params: PageParams): Future[Page[PermissionGrant]] =
+  def listForScope(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "pageForScope", id), params)
 
-  private def listWithUrl(url: String, params: PageParams): Future[Page[PermissionGrant]] = {
+  private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] = {
     WS.url(url).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[Page[PermissionGrant]](response)
     }
   }
 
-  def get(user: T): Future[GlobalPermissionSet[T]] = {
+  def get[T <: Accessor](user: T)(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id)
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
@@ -77,7 +54,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def set(user: T, data: Map[String, List[String]]): Future[GlobalPermissionSet[T]] = {
+  def set[T <: Accessor](user: T, data: Map[String, List[String]])(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id)
     WS.url(url).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
       val gperms = GlobalPermissionSet[T](user, checkError(response).json)
@@ -86,25 +63,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def getItem(contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet[UserProfile]] = {
-    userProfile.map { up =>
-      val url = enc(requestUrl, up.id, id)
-      val cached = Cache.getAs[ItemPermissionSet[UserProfile]](url)
-      if (cached.isDefined) Future.successful(cached.get)
-      else {
-        Logger.logger.debug("Fetch item perms: {}", url)
-        WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-          val iperms = ItemPermissionSet[UserProfile](up, contentType, checkError(response).json)
-          Cache.set(url, iperms, cacheTime)
-          iperms
-        }
-      }
-    } getOrElse {
-      throw new PermissionDenied()
-    }
-  }
-
-  def getItem(user: T, contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet[T]] = {
+  def getItem[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String)(implicit apiUser: ApiUser): Future[ItemPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, id)
     val cached = Cache.getAs[ItemPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
@@ -118,7 +77,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def setItem(user: T, contentType: ContentTypes.Value, id: String, data: List[String]): Future[ItemPermissionSet[T]] = {
+  def setItem[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String, data: List[String])(implicit apiUser: ApiUser): Future[ItemPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, id)
     WS.url(url)
         .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
@@ -128,28 +87,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def getScope(id: String): Future[GlobalPermissionSet[UserProfile]] = {
-    // FIXME: WHOA - might not be able to invalidate this cache properly
-    // other than just waiting it out, since, like global perms, they can
-    // be inherited.
-    userProfile.map { up =>
-      val url = enc(requestUrl, up.id, "scope", id)
-      var cached = Cache.getAs[GlobalPermissionSet[UserProfile]](url)
-      if (cached.isDefined) Future.successful(cached.get)
-      else {
-        Logger.logger.debug("Fetch scoped perms: {}", url)
-        WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
-          val sperms = GlobalPermissionSet[UserProfile](up, checkError(response).json)
-          Cache.set(url, sperms, cacheTime)
-          sperms
-        }
-      }
-    } getOrElse {
-      throw new PermissionDenied()
-    }
-  }
-
-  def getScope(user: T, id: String): Future[GlobalPermissionSet[T]] = {
+  def getScope[T <: Accessor](user: T, id: String)(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, "scope", id)
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
@@ -163,7 +101,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def setScope(user: T, id: String, data: Map[String,List[String]]): Future[GlobalPermissionSet[T]] = {
+  def setScope[T <: Accessor](user: T, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, "scope", id)
     WS.url(url).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
       val sperms = GlobalPermissionSet[T](user, checkError(response).json)
@@ -172,7 +110,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def addGroup(groupId: String, userId: String): Future[Boolean] = {
+  def addGroup(groupId: String, userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
     WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
         .withHeaders(authHeaders.toSeq: _*).post(Map[String, List[String]]()).map { response =>
       checkError(response)
@@ -182,7 +120,7 @@ case class PermissionDAO[T <: Accessor](userProfile: Option[UserProfile]) extend
     }
   }
 
-  def removeGroup(groupId: String, userId: String): Future[Boolean] = {
+  def removeGroup(groupId: String, userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
     WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
         .withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       checkError(response)

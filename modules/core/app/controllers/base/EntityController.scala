@@ -2,6 +2,8 @@ package controllers.base
 
 import play.api.mvc.{Request, AnyContent, Controller}
 import defines.{ContentTypes,EntityType}
+import models.UserProfile
+import rest.ApiUser
 
 trait EntityController extends Controller with AuthController with ControllerHelpers {
   val entityType: EntityType.Value

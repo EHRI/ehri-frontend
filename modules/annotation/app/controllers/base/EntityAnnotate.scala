@@ -36,7 +36,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       AnnotationForm.form.bindFromRequest.fold(
         errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
-        ann => rest.AnnotationDAO(userOpt).create(id, ann).map { ann =>
+        ann => rest.AnnotationDAO().create(id, ann).map { ann =>
           f(Right(ann))(userOpt)(request)
         }
       )
@@ -49,7 +49,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
   def getAnnotationsAction(id: String)(
       f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
-      rest.AnnotationDAO(userOpt).getFor(id).map { anns =>
+      rest.AnnotationDAO().getFor(id).map { anns =>
         f(anns)(userOpt)(request)
       }
     }
@@ -81,7 +81,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
         userProfileAction.async { implicit userOpt => implicit request =>
-          rest.AnnotationDAO(userOpt).create(id, ap).map { ann =>
+          rest.AnnotationDAO().create(id, ap).map { ann =>
             Created(Json.toJson(ann.model)(clientAnnotationFormat))
           }
         }(request.map(js => AnyContentAsEmpty))

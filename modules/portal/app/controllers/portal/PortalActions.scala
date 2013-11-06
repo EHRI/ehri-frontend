@@ -23,7 +23,7 @@ trait PortalActions {
     implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
-      EntityDAO(entityType, userOpt).page(params).map { page =>
+      EntityDAO(entityType).page(params).map { page =>
         f(page)(params)(userOpt)(request)
       }
     }
@@ -33,7 +33,7 @@ trait PortalActions {
     implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(ListParams.fromRequest(request))
-      EntityDAO(entityType, userOpt).list(params).map { list =>
+      EntityDAO(entityType).list(params).map { list =>
         f(list)(params)(userOpt)(request)
       }
     }
@@ -47,8 +47,8 @@ trait PortalActions {
       f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
                    implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       itemAction.async[MT](entityType, id) { item => implicit userOpt => implicit request =>
-        val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
-        val linkReq = rest.LinkDAO(userOpt).getFor(id)
+        val annsReq = rest.AnnotationDAO().getFor(id)
+        val linkReq = rest.LinkDAO().getFor(id)
         for { anns <- annsReq ; links <- linkReq ; r <- f(item)(anns)(links)(userOpt)(request) } yield r
       }
     }
@@ -69,7 +69,7 @@ trait PortalActions {
                        implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       getAction.async[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
-        rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params).flatMap { children =>
+        rest.EntityDAO(entityType).pageChildren[CT](id, params).flatMap { children =>
           f(item)(children)(params)(anns)(links)(userOpt)(request)
         }
       }
