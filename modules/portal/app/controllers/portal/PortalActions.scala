@@ -21,7 +21,7 @@ trait PortalActions {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
-        EntityDAO(entityType, userOpt).page(params).map { pageOrErr =>
+        EntityDAO(entityType).page(params).map { pageOrErr =>
           pageOrErr.right.map { list =>
             f(list)(params)(userOpt)(request)
           }
@@ -35,7 +35,7 @@ trait PortalActions {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = paramsOpt.getOrElse(ListParams.fromRequest(request))
-        EntityDAO(entityType, userOpt).list(params).map { listOrErr =>
+        EntityDAO(entityType).list(params).map { listOrErr =>
           listOrErr.right.map { list =>
             f(list)(params)(userOpt)(request)
           }
@@ -52,8 +52,8 @@ trait PortalActions {
                      implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     itemAction[MT](entityType, id) { item => implicit userOpt => implicit request =>
       AsyncRest {
-        val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
-        val linkReq = rest.LinkDAO(userOpt).getFor(id)
+        val annsReq = rest.AnnotationDAO().getFor(id)
+        val linkReq = rest.LinkDAO().getFor(id)
         for { annOrErr <- annsReq ; linkOrErr <- linkReq } yield {
           for { anns <- annOrErr.right ; links <- linkOrErr.right } yield {
             f(item)(anns)(links)(userOpt)(request)
@@ -72,7 +72,7 @@ trait PortalActions {
     getAction[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        val cReq = rest.EntityDAO[MT](entityType, userOpt).pageChildren[CT](id, params)
+        val cReq = rest.EntityDAO[MT](entityType).pageChildren[CT](id, params)
         for { cOrErr <- cReq  } yield {
           for { children <- cOrErr.right } yield {
             f(item)(children)(params)(anns)(links)(userOpt)(request)

@@ -102,6 +102,11 @@ case class ErrorSet(
   }
 }
 
+/**
+ * Wrapper for Auth user id string
+ */
+case class ApiUser(id: Option[String] = None)
+
 
 trait RestDAO {
 
@@ -127,15 +132,12 @@ trait RestDAO {
     HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
   )
 
-  // Abstract value for the user accessing a resource...
-  val userProfile: Option[UserProfile]
-
   /**
    * Headers to add to outgoing request...
    * @return
    */
-  def authHeaders: Map[String, String] = userProfile match {
-    case Some(up) => (headers + (AUTH_HEADER_NAME -> up.id))
+  def authHeaders(implicit apiUser: ApiUser): Map[String, String] = apiUser.id match {
+    case Some(id) => (headers + (AUTH_HEADER_NAME -> id))
     case None => headers
   }
 

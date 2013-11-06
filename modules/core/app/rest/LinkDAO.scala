@@ -14,7 +14,7 @@ import play.api.Logger
  *
  * @param userProfile
  */
-case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandler: RestEventHandler) extends RestDAO {
+case class LinkDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   import EntityDAO._
 
@@ -31,8 +31,7 @@ case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandle
    * @param id
    * @return
    */
-  def getFor(id: String): Future[Either[RestError, List[Link]]] = {
-
+  def getFor(id: String)(implicit apiUser: ApiUser): Future[Either[RestError, List[Link]]] = {
     WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list(linkMetaReads))
@@ -46,7 +45,7 @@ case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandle
    * @param link
    * @return
    */
-  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None): Future[Either[RestError, Link]] = {
+  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser): Future[Either[RestError, Link]] = {
     WS.url(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
       .withHeaders(authHeaders.toSeq: _*)
       .post(Json.toJson(link)(LinkF.Converter.restFormat)).map { response =>
@@ -57,7 +56,7 @@ case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandle
   /**
    * Remove a link on an item.
    */
-  def deleteLink(id: String, linkId: String): Future[Either[RestError,Boolean]] = {
+  def deleteLink(id: String, linkId: String)(implicit apiUser: ApiUser): Future[Either[RestError,Boolean]] = {
     val url = enc(requestUrl, "for", id, linkId)
     Logger.logger.debug(s"DELETE LINK: $url")
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
@@ -74,7 +73,7 @@ case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandle
    * TODO: When the linking api gets sorted out, move
    * this somewhere better.
    */
-  def deleteAccessPoint(id: String): Future[Either[RestError,Boolean]] = {
+  def deleteAccessPoint(id: String)(implicit apiUser: ApiUser): Future[Either[RestError,Boolean]] = {
     val url = enc(requestUrl, "accessPoint", id)
     Logger.logger.debug(s"DELETE ACCESS POINT $url")
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
@@ -91,7 +90,7 @@ case class LinkDAO(userProfile: Option[UserProfile] = None)(implicit eventHandle
    * @param srcToLinks list of ids, link object tuples
    * @return
    */
-  def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])]): Future[Either[RestError, List[Link]]] = {
+  def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])])(implicit apiUser: ApiUser): Future[Either[RestError, List[Link]]] = {
     val res = Future.sequence {
       srcToLinks.map {
         case (other, ann, accessPoint) => link(id, other, ann, accessPoint)

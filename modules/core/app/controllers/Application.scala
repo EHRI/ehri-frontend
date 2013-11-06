@@ -22,6 +22,8 @@ import play.api.i18n.Messages
 
 class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with Authorizer with AuthController {
 
+  implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
+
   /**
    * Action for redirecting to any item page, given a raw id.
    * TODO: Ultimately implement this in a better way, not
@@ -31,8 +33,7 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
    */
   def get(id: String) = userProfileAction { implicit userOpt => implicit request =>
     AsyncRest {
-      implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
-      rest.SearchDAO(userOpt).list(List(id)).map { listOrErr =>
+      rest.SearchDAO().list(List(id)).map { listOrErr =>
         listOrErr.right.map{ list =>
           list match {
             case Nil => NotFound(views.html.errors.itemNotFound())
@@ -48,7 +49,7 @@ class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Con
   def getGeneric(id: String) = userProfileAction {
     implicit userOpt => implicit request =>
       AsyncRest {
-        rest.SearchDAO(userOpt).get[AnyModel](id)(AnyModel.Converter).map { itemOrErr =>
+        rest.SearchDAO().get[AnyModel](id).map { itemOrErr =>
           itemOrErr.right.map { item =>
             Ok(Json.toJson(item)(AnyModel.Converter.clientFormat))
           }

@@ -32,7 +32,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
         val params = PageParams.fromRequest(request)
         for {
           // NB: to save having to wait we just fake the permission user here.
-          permsOrErr <- rest.PermissionDAO(userOpt).list(item, params)
+          permsOrErr <- rest.PermissionDAO().list(item, params)
         } yield {
           for { perms <- permsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
@@ -47,7 +47,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          permsOrErr <- rest.PermissionDAO(userOpt).get(item)
+          permsOrErr <- rest.PermissionDAO().get(item)
         } yield {
           for { perms <- permsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
@@ -65,7 +65,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
       }.toMap
       AsyncRest {
         for {
-          newpermsOrErr <- rest.PermissionDAO(userOpt).set(item, perms)
+          newpermsOrErr <- rest.PermissionDAO().set(item, perms)
         } yield {
           for { perms <- newpermsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)

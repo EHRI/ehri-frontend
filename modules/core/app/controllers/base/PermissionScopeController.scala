@@ -24,8 +24,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       val scopeParams = PageParams.fromRequest(request, namespace = "s")
       AsyncRest {
         for {
-          permGrantsOrErr <- rest.PermissionDAO(userOpt).listForItem(id, itemParams)
-          scopeGrantsOrErr <- rest.PermissionDAO(userOpt).listForScope(id, scopeParams)
+          permGrantsOrErr <- rest.PermissionDAO().listForItem(id, itemParams)
+          scopeGrantsOrErr <- rest.PermissionDAO().listForScope(id, scopeParams)
         } yield {
           for { permGrants <- permGrantsOrErr.right ; scopeGrants <- scopeGrantsOrErr.right } yield {
             f(item)(permGrants)(scopeGrants)(userOpt)(request)
@@ -46,7 +46,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
             // This means that when we have both the perm set and the user
             // we need to re-assemble them so that the permission set has
             // access to a user's groups to understand inheritance.
-            permsOrErr <- rest.PermissionDAO(userOpt).getScope(userOrErr.right.get, id)
+            permsOrErr <- rest.PermissionDAO().getScope(userOrErr.right.get, id)
           } yield {
             for { accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
               f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
@@ -70,7 +70,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
         } yield {
           for { accessor <- accessorOrErr.right} yield {
             AsyncRest {
-              rest.PermissionDAO(userOpt).setScope(accessor, id, perms).map { permsOrErr =>
+              rest.PermissionDAO().setScope(accessor, id, perms).map { permsOrErr =>
                 permsOrErr.right.map { perms =>
                   f(perms)(userOpt)(request)
                 }

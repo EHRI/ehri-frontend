@@ -45,7 +45,7 @@ case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalCon
               case Some(account) => gotoLoginSucceeded(email)
               case None => {
                 Async {
-                  rest.AdminDAO(userProfile = None).createNewUserProfile.map {
+                  rest.AdminDAO().createNewUserProfile.map {
                     case Right(up) => {
                       userDAO.create(up.id, email).map { acc =>
                         gotoLoginSucceeded(acc.id)

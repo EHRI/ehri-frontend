@@ -173,7 +173,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
     withItemPermission[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
-        rest.PermissionDAO(userOpt).addGroup(id, userId).map { boolOrErr =>
+        rest.PermissionDAO().addGroup(id, userId).map { boolOrErr =>
           boolOrErr.right.map { ok =>
             Redirect(groupRoutes.membership(userType, userId))
               .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
@@ -209,7 +209,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
     withItemPermission[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
-        rest.PermissionDAO(userOpt).removeGroup(id, userId).map { boolOrErr =>
+        rest.PermissionDAO().removeGroup(id, userId).map { boolOrErr =>
           boolOrErr.right.map { ok =>
             Redirect(groupRoutes.membership(userType, userId))
               .flashing("success" -> Messages("confirmations.itemWasUpdated", id))

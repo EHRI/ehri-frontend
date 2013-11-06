@@ -11,12 +11,12 @@ case class ApiDAO(val userProfile: Option[UserProfile]) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 
-  def get(urlpart: String, headers: Headers): Future[Response] = {
+  def get(urlpart: String, headers: Headers)(implicit apiUser: ApiUser): Future[Response] = {
     WS.url(enc(requestUrl, urlpart))
     	.withHeaders(authHeaders.toSeq: _*).get
   }
 
-  def get(urlpart: String, params: Map[String,Seq[String]] = Map.empty, headers: Headers): Future[Response] = {
+  def get(urlpart: String, params: Map[String,Seq[String]] = Map.empty, headers: Headers)(implicit apiUser: ApiUser): Future[Response] = {
     WS.url(enc(requestUrl, urlpart) + "?" + joinQueryString(params))
       .withHeaders(authHeaders.toSeq: _*).get
   }

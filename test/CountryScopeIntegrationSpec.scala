@@ -6,6 +6,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import defines._
 import models.sql.MockAccount
+import rest.ApiUser
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -23,10 +24,7 @@ import models.sql.MockAccount
 class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIntegrationSpec]) {
   import mocks.{privilegedUser,unprivilegedUser}
 
-  val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
-  )
+  implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
   /**
    * Get the id from an URL where the ID is the last component...
@@ -97,7 +95,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       status(userRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val fetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(userId))
+      val fetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile).get(userId))
 
       fetchProfile must beRight
       val profile = fetchProfile.right.get

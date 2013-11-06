@@ -22,7 +22,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       AsyncRest {
         val params = PageParams.fromRequest(request)
         for {
-          permGrantsOrErr <- rest.PermissionDAO(userOpt).listForItem(id, params)
+          permGrantsOrErr <- rest.PermissionDAO().listForItem(id, params)
         } yield {
           for { permGrants <- permGrantsOrErr.right } yield {
             f(item)(permGrants)(userOpt)(request)
@@ -60,7 +60,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
           // This means that when we have both the perm set and the userOpt
           // we need to re-assemble them so that the permission set has
           // access to a userOpt's groups to understand inheritance.
-          permsOrErr <- rest.PermissionDAO(userOpt).getItem(userOrErr.right.get, contentType, id)
+          permsOrErr <- rest.PermissionDAO().getItem(userOrErr.right.get, contentType, id)
         } yield {
           for {  accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
             f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
@@ -79,7 +79,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       implicit val accessorConverter = Accessor.Converter
       getEntity[Accessor](EntityType.withName(userType), userId) { accessor =>
         AsyncRest {
-          rest.PermissionDAO(userOpt).setItem(accessor, contentType, id, perms).map { permsOrErr =>
+          rest.PermissionDAO().setItem(accessor, contentType, id, perms).map { permsOrErr =>
             permsOrErr.right.map { perms =>
               f(perms)(userOpt)(request)
             }

@@ -6,7 +6,7 @@ import controllers.routes
 import play.api.test._
 import play.api.test.Helpers._
 import defines._
-import rest.EntityDAO
+import rest.{ApiUser, EntityDAO}
 import models.sql.MockAccount
 
 /**
@@ -23,10 +23,7 @@ import models.sql.MockAccount
 class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[SupervisorWorkerIntegrationSpec]) {
   import mocks.{privilegedUser,unprivilegedUser}
 
-  val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
-  )
+  implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
   /**
    * Get the id from an URL where the ID is the last component...
@@ -142,7 +139,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val haFetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(headArchivistUserId))
+      val haFetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile).get(headArchivistUserId))
 
       haFetchProfile must beRight
       val headArchivistProfile = haFetchProfile.right.get
@@ -174,7 +171,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val aFetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(archivistUserId))
+      val aFetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile).get(archivistUserId))
 
       aFetchProfile must beRight
       val archivistProfile = aFetchProfile.right.get

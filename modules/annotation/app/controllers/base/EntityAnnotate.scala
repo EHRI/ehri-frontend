@@ -37,7 +37,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
         errorForm => f(Left(errorForm))(userOpt)(request),
         ann => {
           AsyncRest {
-            rest.AnnotationDAO(userOpt).create(id, ann).map { annOrErr =>
+            rest.AnnotationDAO().create(id, ann).map { annOrErr =>
               annOrErr.right.map { ann =>
                 f(Right(ann))(userOpt)(request)
               }
@@ -55,7 +55,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
       f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction { implicit  userOpt => implicit request =>
       AsyncRest {
-        val annsReq = rest.AnnotationDAO(userOpt).getFor(id)
+        val annsReq = rest.AnnotationDAO().getFor(id)
         for (annOrErr <- annsReq) yield {
           for { anns <- annOrErr.right } yield {
             f(anns)(userOpt)(request)
@@ -94,7 +94,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
         // on the server for that
         userProfileAction { implicit userOpt => implicit request =>
           AsyncRest {
-            rest.AnnotationDAO(userOpt).create(id, ap).map { annOrErr =>
+            rest.AnnotationDAO().create(id, ap).map { annOrErr =>
               annOrErr.right.map { ann =>
                 Created(Json.toJson(ann.model)(clientAnnotationFormat))
               }

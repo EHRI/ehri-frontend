@@ -290,7 +290,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   private def grantOwnerPerms[T](profile: UserProfile)(f: => Result)(
     implicit request: Request[T], userOpt: Option[UserProfile]): AsyncResult = {
     AsyncRest {
-      rest.PermissionDAO(userOpt).setItem(profile, ContentTypes.UserProfile,
+      rest.PermissionDAO().setItem(profile, ContentTypes.UserProfile,
         profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>
         permsOrErr.right.map { _ =>
           f

@@ -77,7 +77,7 @@ trait EntitySearch extends Controller with AuthController with ControllerHelpers
             val ids = res.items.map(_.id)
             val itemIds = res.items.map(_.itemId)
             AsyncRest {
-              rest.SearchDAO(userOpt).list[MT](itemIds).map { listOrErr =>
+              rest.SearchDAO().list[MT](itemIds).map { listOrErr =>
                 listOrErr.right.map { list =>
                   // Sanity check!
                   if (list.size != ids.size) {

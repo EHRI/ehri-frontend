@@ -11,6 +11,7 @@ import play.api.mvc._
 import concurrent.Future
 import play.api.i18n.Messages
 import com.google.inject._
+import rest.ApiUser
 
 /**
  * OpenID login handler implementation.
@@ -64,7 +65,7 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
                 .withSession("access_uri" -> globalConfig.routeRegistry.default.url)
             } getOrElse {
               Async {
-                rest.AdminDAO(userProfile = None).createNewUserProfile.map { 
+                rest.AdminDAO().createNewUserProfile.map {
                   case Right(entity) => {
                     userDAO.create(entity.id, email.toLowerCase).map { account =>
                       OpenIDAssociation.addAssociation(account, info.id)
