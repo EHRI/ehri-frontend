@@ -5,7 +5,7 @@ import defines.EntityType
 import utils.{ListParams, PageParams}
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc.{Result, AnyContent, Request}
-import models.json.{ClientConvertable, RestReadable}
+import models.json.{RestResource, ClientConvertable, RestReadable}
 import rest.EntityDAO
 import controllers.base.{ControllerHelpers, AuthController}
 
@@ -17,11 +17,11 @@ trait PortalActions {
   self: AuthController with ControllerHelpers =>
 
   def pageAction[MT](entityType: EntityType.Value, paramsOpt: Option[PageParams] = None)(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
-    implicit rd: RestReadable[MT]) = {
+    implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
-        EntityDAO(entityType).page(params).map { pageOrErr =>
+        EntityDAO().page(params).map { pageOrErr =>
           pageOrErr.right.map { list =>
             f(list)(params)(userOpt)(request)
           }
@@ -31,11 +31,11 @@ trait PortalActions {
   }
 
   def listAction[MT](entityType: EntityType.Value, paramsOpt: Option[ListParams] = None)(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
-    implicit rd: RestReadable[MT]) = {
+    implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = paramsOpt.getOrElse(ListParams.fromRequest(request))
-        EntityDAO(entityType).list(params).map { listOrErr =>
+        EntityDAO().list(params).map { listOrErr =>
           listOrErr.right.map { list =>
             f(list)(params)(userOpt)(request)
           }
@@ -49,7 +49,7 @@ trait PortalActions {
    */
   def getAction[MT](entityType: EntityType.Value, id: String)(
     f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
-                     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
+                     implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     itemAction[MT](entityType, id) { item => implicit userOpt => implicit request =>
       AsyncRest {
         val annsReq = rest.AnnotationDAO().getFor(id)
@@ -68,11 +68,11 @@ trait PortalActions {
    */
   def getWithChildrenAction[CT, MT](entityType: EntityType.Value, id: String)(
     f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
-                                     implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
+                                     implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
     getAction[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        val cReq = rest.EntityDAO(entityType).pageChildren[CT](id, params)
+        val cReq = rest.EntityDAO().pageChildren[MT,CT](id, params)
         for { cOrErr <- cReq  } yield {
           for { children <- cOrErr.right } yield {
             f(item)(children)(params)(anns)(links)(userOpt)(request)

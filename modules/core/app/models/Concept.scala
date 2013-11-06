@@ -54,6 +54,10 @@ object Concept {
         (__ \ "meta").format[JsObject]
       )(Concept.apply _, unlift(Concept.unapply _))
   }
+
+  implicit object Resource extends RestResource[Concept] {
+    val entityType = EntityType.Concept
+  }
 }
 
 

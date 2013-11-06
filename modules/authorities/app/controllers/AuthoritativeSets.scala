@@ -1,5 +1,6 @@
 package controllers.authorities
 
+import _root_.models.json.RestResource
 import forms.VisibilityForm
 import controllers.base._
 import models._
@@ -18,6 +19,8 @@ class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
+
+  implicit val resource = AuthoritativeSet.Resource
 
   val entityType = EntityType.AuthoritativeSet
   val contentType = ContentTypes.AuthoritativeSet

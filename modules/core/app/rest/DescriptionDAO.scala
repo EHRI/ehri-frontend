@@ -8,7 +8,7 @@ import defines.{EntityType,ContentTypes}
 import models.{UserProfile, Entity}
 import play.api.Play.current
 import play.api.cache.Cache
-import models.json.{RestReadable, RestConvertable}
+import models.json.{RestResource, RestReadable, RestConvertable}
 import models.base.AnyModel
 
 
@@ -20,14 +20,14 @@ case class DescriptionDAO(entityType: EntityType.Type)(implicit eventHandler: Re
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+        implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO(entityType).getJson(id).map {
+          EntityDAO().getJson(id).map {
             case Right(item) => {
               eventHandler.handleUpdate(id)
               Cache.remove(id)
@@ -41,13 +41,13 @@ case class DescriptionDAO(entityType: EntityType.Type)(implicit eventHandler: Re
   }
 
   def updateDescription[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-      implicit apiUser: ApiUser, fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+      implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .put(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO(entityType).getJson(id).map {
+          EntityDAO().getJson(id).map {
             case Right(item) => {
               eventHandler.handleUpdate(id)
               Cache.remove(id)
@@ -61,7 +61,7 @@ case class DescriptionDAO(entityType: EntityType.Type)(implicit eventHandler: Re
   }
 
   def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, Boolean]] = {
+        implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Either[RestError, Boolean]] = {
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
           .delete.map { response =>
       eventHandler.handleDelete(did)
@@ -72,14 +72,14 @@ case class DescriptionDAO(entityType: EntityType.Type)(implicit eventHandler: Re
 
   // FIXME: Move these elsewhere...
   def createAccessPoint[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, (MT,DT)]] = {
+        implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, (MT,DT)]] = {
     WS.url(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO(entityType).getJson(id).map {
+          EntityDAO().getJson(id).map {
             case Right(item) => {
               eventHandler.handleUpdate(id)
               Cache.remove(id)
@@ -93,10 +93,10 @@ case class DescriptionDAO(entityType: EntityType.Type)(implicit eventHandler: Re
   }
 
   def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
+        implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .delete.flatMap { response =>
-        EntityDAO(entityType).getJson(id).map {
+        EntityDAO().getJson(id).map {
           case Right(item) => {
             eventHandler.handleUpdate(id)
             Cache.remove(id)

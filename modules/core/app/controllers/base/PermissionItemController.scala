@@ -55,7 +55,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       AsyncRest {
         for {
 
-          userOrErr <- rest.EntityDAO(EntityType.withName(userType)).get[Accessor](userId)
+          userOrErr <- rest.EntityDAO().get[Accessor](EntityType.withName(userType), userId)
           // FIXME: Faking user for fetching perms to avoid blocking.
           // This means that when we have both the perm set and the userOpt
           // we need to re-assemble them so that the permission set has

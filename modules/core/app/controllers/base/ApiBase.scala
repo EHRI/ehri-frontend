@@ -2,7 +2,7 @@ package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.Controller
-import models.json.{ClientConvertable, RestReadable}
+import models.json.{RestResource, ClientConvertable, RestReadable}
 
 import play.api.libs.json.{JsError, Json}
 import defines.EntityType
@@ -25,12 +25,14 @@ object TestJson {
 /**
  * Created by mike on 23/06/13.
  */
-trait ApiBase[TM] extends EntityController {
+trait ApiBase[MT] extends EntityController {
 
-  def getClientJson(id: String)(implicit rr: RestReadable[TM], cw: ClientConvertable[TM]) = userProfileAction {
+  implicit def resource: RestResource[MT]
+
+  def getClientJson(id: String)(implicit rr: RestReadable[MT], cw: ClientConvertable[MT]) = userProfileAction {
       implicit maybeUser => implicit request =>
     AsyncRest {
-      rest.EntityDAO(entityType).get(id).map { res =>
+      rest.EntityDAO().get(id).map { res =>
         res.right.map { tm =>
           Ok(Json.toJson(tm)(cw.clientFormat))
         }

@@ -7,7 +7,7 @@ import play.api.mvc._
 import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.json.RestReadable
+import models.json.{RestResource, RestReadable}
 import utils.PageParams
 
 /**
@@ -18,6 +18,10 @@ import utils.PageParams
 trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
 
   type GlobalPermissionCallback = MT => GlobalPermissionSet[MT] => Option[UserProfile] => Request[AnyContent] => Result
+
+  implicit object PermissionGrantResource extends RestResource[PermissionGrant] {
+    val entityType = EntityType.PermissionGrant
+  }
 
   /**
    * Display a list of permissions that have been granted to the given accessor.
@@ -81,7 +85,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          permOrErr <- rest.EntityDAO(EntityType.PermissionGrant).get[PermissionGrant](permId)
+          permOrErr <- rest.EntityDAO().get[PermissionGrant](permId)
         } yield {
           for { perm <- permOrErr.right } yield {
             f(item)(perm)(userOpt)(request)
@@ -97,7 +101,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          boolOrErr <- rest.EntityDAO(EntityType.PermissionGrant).delete(permId)
+          boolOrErr <- rest.EntityDAO().delete[PermissionGrant](permId)
         } yield {
           for { bool <- boolOrErr.right } yield {
             f(item)(bool)(userOpt)(request)

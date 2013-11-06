@@ -1,5 +1,6 @@
 package controllers.core
 
+import _root_.models.json.RestResource
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base._
 import forms.VisibilityForm
@@ -18,6 +19,8 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
 
   val entityType = EntityType.Group
   val contentType = ContentTypes.Group
+
+  implicit val resource = Group.Resource
 
   private val form = models.forms.GroupForm.form
   private val groupRoutes = controllers.core.routes.Groups
@@ -155,7 +158,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          groupOrErr <- rest.EntityDAO(entityType).get[Group](id)
+          groupOrErr <- rest.EntityDAO().get[Group](id)
         } yield {
           groupOrErr.right.map { group =>
             Ok(views.html.group.confirmMembership(group, item,
@@ -191,7 +194,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          groupOrErr <- rest.EntityDAO(entityType).get[Group](id)
+          groupOrErr <- rest.EntityDAO().get[Group](id)
         } yield {
           groupOrErr.right.map { group =>
             Ok(views.html.group.removeMembership(group, item,

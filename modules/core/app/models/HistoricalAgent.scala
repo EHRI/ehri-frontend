@@ -53,6 +53,10 @@ object HistoricalAgent {
       )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply _))
 
   }
+
+  implicit object Resource extends RestResource[HistoricalAgent] {
+    val entityType = EntityType.HistoricalAgent
+  }
 }
 
 

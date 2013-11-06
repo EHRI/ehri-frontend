@@ -1,5 +1,6 @@
 package controllers.vocabs
 
+import _root_.models.json.RestResource
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.base._
@@ -28,6 +29,10 @@ class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig, val sea
   with ApiBase[Concept] {
 
   val targetContentTypes = Seq(ContentTypes.Concept)
+
+  implicit def resource = new RestResource[Concept] {
+    val entityType = EntityType.Concept
+  }
 
   val entityType = EntityType.Concept
   val contentType = ContentTypes.Concept

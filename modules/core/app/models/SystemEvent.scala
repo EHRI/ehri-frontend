@@ -4,7 +4,7 @@ import models.base._
 import org.joda.time.DateTime
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import defines.{EntityType, EventType}
-import models.json.{RestReadable, ClientConvertable}
+import models.json.{RestResource, RestReadable, ClientConvertable}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
@@ -46,6 +46,10 @@ object SystemEvent {
       (__ \ "user").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(SystemEvent.apply _, unlift(SystemEvent.unapply _))
+  }
+
+  implicit object Resource extends RestResource[SystemEvent] {
+    val entityType = EntityType.SystemEvent
   }
 }
 

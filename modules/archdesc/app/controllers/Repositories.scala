@@ -1,6 +1,7 @@
 package controllers.archdesc
 
 
+import _root_.models.json.RestResource
 import forms.VisibilityForm
 import controllers.base._
 import models._
@@ -69,6 +70,8 @@ class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val
   }
 
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
+
+  implicit val resource = Repository.Resource
 
   val entityType = EntityType.Repository
   val contentType = ContentTypes.Repository

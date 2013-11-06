@@ -1,5 +1,6 @@
 package controllers.authorities
 
+import _root_.models.json.RestResource
 import controllers.base._
 import forms.VisibilityForm
 import models._
@@ -18,6 +19,7 @@ class HistoricalAgents @Inject()(implicit val globalConfig: global.GlobalConfig,
   with EntityAnnotate[HistoricalAgent]
   with EntitySearch {
 
+  implicit val resource = HistoricalAgent.Resource
   val entityType = EntityType.HistoricalAgent
   val contentType = ContentTypes.HistoricalAgent
 

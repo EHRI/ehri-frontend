@@ -30,7 +30,7 @@ class Utils @Inject()(implicit val globalConfig: global.GlobalConfig,
     Async {
       // Not using the EntityDAO directly here to avoid caching
       // TODO: Make caching configurable...
-      WS.url(EntityDAO(EntityType.Group).requestUrl + "/admin").get.map { r =>
+      WS.url(EntityDAO().requestUrl + "/admin").get.map { r =>
         r.json.validate[Group](Group.Converter.restReads).fold(
           _ => ServiceUnavailable("ko\nbad json"),
           _ => Ok("ok")

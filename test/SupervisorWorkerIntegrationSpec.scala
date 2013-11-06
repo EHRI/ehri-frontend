@@ -139,7 +139,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val haFetchProfile = await(rest.EntityDAO(EntityType.UserProfile).get[UserProfile](headArchivistUserId))
+      val haFetchProfile = await(rest.EntityDAO().get[UserProfile](headArchivistUserId))
 
       haFetchProfile must beRight
       val headArchivistProfile = haFetchProfile.right.get
@@ -171,7 +171,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val aFetchProfile = await(rest.EntityDAO(EntityType.UserProfile).get[UserProfile](archivistUserId))
+      val aFetchProfile = await(rest.EntityDAO().get[UserProfile](archivistUserId))
 
       aFetchProfile must beRight
       val archivistProfile = aFetchProfile.right.get

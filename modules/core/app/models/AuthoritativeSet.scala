@@ -41,6 +41,10 @@ object AuthoritativeSet {
       (__ \ "meta").format[JsObject]
     )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply _))
   }
+
+  implicit object Resource extends RestResource[AuthoritativeSet] {
+    val entityType = EntityType.AuthoritativeSet
+  }
 }
 
 

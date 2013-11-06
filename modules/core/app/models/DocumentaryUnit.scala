@@ -95,6 +95,10 @@ object DocumentaryUnit {
         (__ \ "meta").format[JsObject]
       )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply _))
   }
+
+  implicit object Resource extends RestResource[DocumentaryUnit] {
+    val entityType = EntityType.DocumentaryUnit
+  }
 }
 
 case class DocumentaryUnit(

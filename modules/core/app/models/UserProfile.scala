@@ -58,6 +58,10 @@ object UserProfile {
     )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply _))
   }
 
+  implicit object Resource extends RestResource[UserProfile] {
+    val entityType = EntityType.UserProfile
+  }
+
   // Constructor, sans account and perms
   def quickApply(
      model: UserProfileF,

@@ -7,7 +7,7 @@ import play.api.data.{Forms, Form, FormError}
 import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentTypes}
 import play.api.i18n.Messages
-import models.{Account, AccountDAO, UserProfile, UserProfileF}
+import models._
 import controllers.base.{ControllerHelpers, AuthController}
 
 import com.google.inject._
@@ -21,6 +21,10 @@ import play.api.Logger
 import rest.ValidationError
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
+import models.json.RestResource
+import play.api.mvc.AsyncResult
+import rest.ValidationError
+import play.api.data.FormError
 
 
 /**
@@ -29,6 +33,9 @@ import java.util.concurrent.TimeUnit
  */
 class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with LoginLogout with ControllerHelpers {
 
+  implicit def resource = new RestResource[UserProfile] {
+    val entityType = EntityType.UserProfile
+  }
   // Login functions are unrestricted
   override val staffOnly = false
 
@@ -305,8 +312,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Result)(
     implicit request: Request[T], userOpt: Option[UserProfile]): Result = {
     AsyncRest {
-      rest.EntityDAO(EntityType.UserProfile)
-        .create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
+      rest.EntityDAO().create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
         if (itemOrErr.isLeft) {
           itemOrErr.left.get match {
             case v@ValidationError(errorSet) => {

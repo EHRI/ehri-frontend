@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models._
 import rest.{Page}
-import models.json.{RestReadable, ClientConvertable}
+import models.json.{RestResource, RestReadable, ClientConvertable}
 import play.api.libs.json.{Writes, Json}
 import utils.{ListParams, PageParams}
 
@@ -21,11 +21,13 @@ trait EntityRead[MT] extends EntityController {
   val defaultPage: PageParams = new PageParams()
   val defaultChildPage: PageParams = new PageParams()
 
+  implicit def resource: RestResource[MT]
+
 
   def getEntity(id: String, user: Option[UserProfile])(f: MT => Result)(
       implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader) = {
     AsyncRest {
-      rest.EntityDAO(entityType).get(id).map { itemOrErr =>
+      rest.EntityDAO().get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
@@ -34,7 +36,7 @@ trait EntityRead[MT] extends EntityController {
   def getEntity[T](otherType: defines.EntityType.Type, id: String)(f: T => Result)(
       implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]) = {
     AsyncRest {
-      rest.EntityDAO(otherType).get[T](id).map { itemOrErr =>
+      rest.EntityDAO().get[T](otherType, id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
@@ -85,7 +87,7 @@ trait EntityRead[MT] extends EntityController {
             val params = PageParams.fromRequest(request)
             val annsReq = rest.AnnotationDAO().getFor(id)
             val linkReq = rest.LinkDAO().getFor(id)
-            val cReq = rest.EntityDAO(entityType).pageChildren[CT](id, params)
+            val cReq = rest.EntityDAO().pageChildren[MT,CT](id, params)
             for { annOrErr <- annsReq ; cOrErr <- cReq ; linkOrErr <- linkReq } yield {
               for { anns <- annOrErr.right ; children <- cOrErr.right ; links <- linkOrErr.right } yield {
                 f(item)(children)(params)(anns)(links)(userOpt)(request)
@@ -102,7 +104,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        rest.EntityDAO(entityType).page(params).map { itemOrErr =>
+        rest.EntityDAO().page(params).map { itemOrErr =>
           itemOrErr.right.map {
             page => render {
               case Accepts.Json() => Ok(Json.toJson(page)(Page.pageWrites(cfmt.clientFormat)))
@@ -119,7 +121,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = ListParams.fromRequest(request)
-        rest.EntityDAO(entityType).list(params).map { itemOrErr =>
+        rest.EntityDAO().list(params).map { itemOrErr =>
           itemOrErr.right.map {
             list => render {
               case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
@@ -136,7 +138,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        val itemReq = rest.EntityDAO(entityType).get(id)
+        val itemReq = rest.EntityDAO().get(id)
         val alReq = rest.SystemEventDAO(userOpt).history(id, params)
         for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
           for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {

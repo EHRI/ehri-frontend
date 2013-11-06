@@ -1,5 +1,6 @@
 package controllers.vocabs
 
+import _root_.models.json.RestResource
 import forms.VisibilityForm
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
@@ -19,6 +20,10 @@ class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val
   with EntitySearch {
 
   val targetContentTypes = Seq(ContentTypes.Concept)
+
+  implicit def resource = new RestResource[Vocabulary] {
+    val entityType = EntityType.Vocabulary
+  }
 
   val entityType = EntityType.Vocabulary
   val contentType = ContentTypes.Vocabulary

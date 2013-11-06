@@ -1,5 +1,6 @@
 package controllers.core
 
+import _root_.models.json.RestResource
 import forms.VisibilityForm
 import controllers.base._
 import models._
@@ -18,6 +19,8 @@ class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig, val
   with EntityUpdate[UserProfileF,UserProfile]
   with EntityDelete[UserProfile]
   with EntitySearch {
+
+  implicit val resource = UserProfile.Resource
 
   val DEFAULT_SORT = "name"
 

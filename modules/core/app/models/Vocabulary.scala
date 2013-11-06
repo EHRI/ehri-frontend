@@ -46,8 +46,10 @@ object Vocabulary {
         (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Vocabulary.apply _, unlift(Vocabulary.unapply _))
+  }
 
-
+  implicit object Resource extends RestResource[Vocabulary] {
+    val entityType = EntityType.Vocabulary
   }
 }
 

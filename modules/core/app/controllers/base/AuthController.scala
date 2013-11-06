@@ -1,6 +1,6 @@
 package controllers.base
 
-import _root_.models.json.RestReadable
+import _root_.models.json.{RestResource, RestReadable}
 import models.{UserProfileF, UserProfile}
 import play.api._
 import play.api.mvc._
@@ -68,7 +68,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
             // available initially, and we don't want to block for it to become
             // available, we should probably add the account to the permissions when
             // we have both items from the server.
-            val getProf = rest.EntityDAO(EntityType.UserProfile).get[UserProfile](account.id)
+            val getProf = rest.EntityDAO().get[UserProfile](EntityType.UserProfile, account.id)
             val getGlobalPerms = rest.PermissionDAO().get(fakeProfile)
             // These requests should execute in parallel...
             for { r1 <- getProf; r2 <- getGlobalPerms } yield {
@@ -97,7 +97,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
     userProfileAction { implicit userOpt => implicit request =>
       userOpt.map { user =>
         AsyncRest {
-          val getEntity = rest.EntityDAO(entityType).get(id)
+          val getEntity = rest.EntityDAO().get(entityType, id)
           for { entity <- getEntity } yield {
             for { item <- entity.right } yield {
               f(item)(Some(user))(request)
@@ -106,7 +106,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
         }
       } getOrElse {
         AsyncRest {
-          rest.EntityDAO(entityType).get(id).map { itemOrErr =>
+          rest.EntityDAO().get(entityType, id).map { itemOrErr =>
             itemOrErr.right.map { item =>
               f(item)(None)(request)
             }
@@ -134,7 +134,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
           // it would involve some duplication of code.
           val getGlobalPerms = rest.PermissionDAO().getScope(user, id)
           val getItemPerms = rest.PermissionDAO().getItem(user, contentType, id)
-          val getEntity = rest.EntityDAO(entityType).get(id)
+          val getEntity = rest.EntityDAO().get(entityType, id)
           // These requests should execute in parallel...
           for { gp <- getGlobalPerms; ip <- getItemPerms ; entity <- getEntity } yield {
             for { gperms <- gp.right; iperms <- ip.right ; item <- entity.right } yield {
@@ -145,7 +145,7 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
         }
       } getOrElse {
         AsyncRest {
-          rest.EntityDAO(entityType).get(id).map { itemOrErr =>
+          rest.EntityDAO().get(entityType, id).map { itemOrErr =>
             itemOrErr.right.map { item =>
               f(item)(None)(request)
             }

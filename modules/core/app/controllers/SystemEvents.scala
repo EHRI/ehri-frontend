@@ -8,10 +8,13 @@ import com.google.inject._
 import global.GlobalConfig
 import utils.{ListParams, SystemEventParams, PageParams}
 import rest.SystemEventDAO
+import models.json.RestResource
 
 class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
   val entityType = EntityType.SystemEvent
   val contentType = ContentTypes.SystemEvent
+
+  implicit val resource = SystemEvent.Resource
 
   def get(id: String) = getAction(id) { 
       item => annotations => links => implicit userOpt => implicit request =>
