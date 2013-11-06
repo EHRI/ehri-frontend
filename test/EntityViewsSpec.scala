@@ -141,7 +141,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(cr) must equalTo(SEE_OTHER)
 
       // Now check we can read back the same permissions.
-      val permCall = await(PermissionDAO[UserProfile]().get(subjectUser))
+      val permCall = await(PermissionDAO().get(subjectUser))
       permCall must beRight
       val perms = permCall.right.get
       perms.get(ContentTypes.Repository, PermissionType.Create) must beSome

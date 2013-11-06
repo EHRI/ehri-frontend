@@ -100,7 +100,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in new FakeApp {
-      val perms = await(PermissionDAO[UserProfile]().get(userProfile))
+      val perms = await(PermissionDAO().get(userProfile))
       perms must beRight
       perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
     }
