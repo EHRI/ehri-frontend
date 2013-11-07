@@ -22,7 +22,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     AsyncRest {
       val params = PageParams.fromRequest(request)
       val subjectParams = PageParams.fromRequest(request, namespace = "s")
-      rest.SystemEventDAO(userOpt).subjectsFor(id, params).map { pageOrErr =>
+      rest.SystemEventDAO().subjectsFor(id, params).map { pageOrErr =>
         pageOrErr.right.map { page =>
           Ok(views.html.systemEvents.show(item, page, params))
         }
@@ -35,7 +35,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     val eventFilter = SystemEventParams.fromRequest(request)
     val filterForm = SystemEventParams.form.fill(eventFilter)
     AsyncRest {
-      SystemEventDAO(userOpt).list(listParams, eventFilter).map { listOrErr =>
+      SystemEventDAO().list(listParams, eventFilter).map { listOrErr =>
         listOrErr.right.map { list =>
           Ok(views.html.systemEvents.list(list, listParams, filterForm))
         }

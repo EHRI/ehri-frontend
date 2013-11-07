@@ -11,8 +11,6 @@ import play.api.Logger
 
 /**
  * Data Access Object for fetching link data.
- *
- * @param userProfile
  */
 case class LinkDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
 

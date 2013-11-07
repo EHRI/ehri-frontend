@@ -15,7 +15,7 @@ import models.base.AnyModel
 /**
  * Data Access Object for managing descriptions on entities.
  */
-case class DescriptionDAO(entityType: EntityType.Type)(implicit eventHandler: RestEventHandler) extends RestDAO {
+case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 

@@ -139,7 +139,7 @@ trait EntityRead[MT] extends EntityController {
       AsyncRest {
         val params = PageParams.fromRequest(request)
         val itemReq = rest.EntityDAO().get(id)
-        val alReq = rest.SystemEventDAO(userOpt).history(id, params)
+        val alReq = rest.SystemEventDAO().history(id, params)
         for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
           for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {
             f(item)(al)(params)(userOpt)(request)

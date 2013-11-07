@@ -13,7 +13,7 @@ import play.api.libs.json.Reads
 /**
  * Data Access Object for Action-related requests.
  */
-case class SystemEventDAO(userProfile: Option[UserProfile]) extends RestDAO {
+case class SystemEventDAO() extends RestDAO {
 
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/systemEvent".format(baseUrl)
