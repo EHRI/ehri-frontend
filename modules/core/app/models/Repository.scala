@@ -54,6 +54,10 @@ object Repository {
       (__ \ "meta").format[JsObject]
     )(Repository.apply _, unlift(Repository.unapply _))
   }
+
+  implicit object Resource extends RestResource[Repository] {
+    val entityType = EntityType.Repository
+  }
 }
 
 case class Repository(

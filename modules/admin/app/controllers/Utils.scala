@@ -4,7 +4,6 @@ import controllers.base.{AuthController, ControllerHelpers}
 import models.Group
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
-import defines.EntityType
 
 import com.google.inject._
 import play.api.mvc.Action
@@ -29,7 +28,7 @@ class Utils @Inject()(implicit val globalConfig: global.GlobalConfig,
   val checkDb = Action.async { implicit request =>
     // Not using the EntityDAO directly here to avoid caching
     // TODO: Make caching configurable...
-    WS.url(EntityDAO(EntityType.Group).requestUrl + "/admin").get.map { r =>
+    WS.url(EntityDAO().requestUrl + "/admin").get.map { r =>
       r.json.validate[Group](Group.Converter.restReads).fold(
         _ => ServiceUnavailable("ko\nbad json"),
         _ => Ok("ok")

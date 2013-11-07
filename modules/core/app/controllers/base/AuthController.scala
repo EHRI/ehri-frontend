@@ -1,6 +1,6 @@
 package controllers.base
 
-
+import _root_.models.json.{RestResource, RestReadable}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.{UserProfileF, UserProfile}
@@ -84,7 +84,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             // available initially, and we don't want to block for it to become
             // available, we should probably add the account to the permissions when
             // we have both items from the server.
-            val getProf = rest.EntityDAO(EntityType.UserProfile).get[UserProfile](account.id)
+            val getProf = rest.EntityDAO().get[UserProfile](EntityType.UserProfile, account.id)
             val getGlobalPerms = rest.PermissionDAO().get(fakeProfile)
             // These requests should execute in parallel...
             for {
@@ -116,7 +116,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     def async[MT](entityType: EntityType.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
         implicit rd: RestReadable[MT]): Action[AnyContent] = {
       userProfileAction.async { implicit userOpt => implicit request =>
-        rest.EntityDAO(entityType).get(id).flatMap { item =>
+        rest.EntityDAO().get(entityType, id).flatMap { item =>
           f(item)(userOpt)(request)
         }
       }
@@ -146,7 +146,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           // it would involve some duplication of code.
           val getGlobalPerms = rest.PermissionDAO().getScope(user, id)
           val getItemPerms = rest.PermissionDAO().getItem(user, contentType, id)
-          val getEntity = rest.EntityDAO(entityType).get(id)
+          val getEntity = rest.EntityDAO().get(entityType, id)
           // These requests should execute in parallel...
           for {
             gperms <- getGlobalPerms
@@ -156,7 +156,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             r <- f(item)(Some(up))(request)
           } yield r
         } getOrElse {
-          rest.EntityDAO(entityType).get(id).flatMap { item =>
+          rest.EntityDAO().get(entityType, id).flatMap { item =>
             f(item)(None)(request)
           }
         }

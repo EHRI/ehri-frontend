@@ -1,5 +1,6 @@
 package controllers.core
 
+import _root_.models.json.RestResource
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base._
 import forms.VisibilityForm
@@ -19,6 +20,8 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
 
   val entityType = EntityType.Group
   val contentType = ContentTypes.Group
+
+  implicit val resource = Group.Resource
 
   private val form = models.forms.GroupForm.form
   private val groupRoutes = controllers.core.routes.Groups
@@ -152,7 +155,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def addMember(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      rest.EntityDAO(entityType).get[Group](id).map { group =>
+      rest.EntityDAO().get[Group](id).map { group =>
         Ok(views.html.group.confirmMembership(group, item,
           groupRoutes.addMemberPost(id, userType, userId)))
       }
@@ -178,7 +181,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def removeMember(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      rest.EntityDAO(entityType).get[Group](id).map { group =>
+      rest.EntityDAO().get[Group](id).map { group =>
         Ok(views.html.group.removeMembership(group, item,
           groupRoutes.removeMemberPost(id, userType, userId)))
       }

@@ -1,5 +1,6 @@
 package controllers.archdesc
 
+import _root_.models.json.RestResource
 import forms.VisibilityForm
 import models._
 import controllers.base._
@@ -73,6 +74,8 @@ class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig,
 
 
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
+
+  implicit val resource = DocumentaryUnit.Resource
 
   val entityType = EntityType.DocumentaryUnit
   val contentType = ContentTypes.DocumentaryUnit

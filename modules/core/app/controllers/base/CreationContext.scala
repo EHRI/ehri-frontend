@@ -58,8 +58,8 @@ trait CreationContext[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: 
       errorForm => f(item)(Left((errorForm, VisibilityForm.form)))(userOpt)(request),
       citem => {
         val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-        rest.EntityDAO(entityType)
-            .createInContext[CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).flatMap { citem =>
+        rest.EntityDAO()
+            .createInContext[MT, CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).flatMap { citem =>
           f(item)(Right(citem))(userOpt)(request)
         } recoverWith {
           case err: rest.ValidationError => {

@@ -8,11 +8,16 @@ import controllers.base.{EntityRead, VisibilityController, EntityDelete, EntityA
 
 import com.google.inject._
 import global.GlobalConfig
+import models.json.RestResource
 
 class Annotations @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[Annotation]
   with VisibilityController[Annotation]
   with EntityDelete[Annotation]
   with EntityAnnotate[Annotation] {
+
+  implicit def resource = new RestResource[Annotation] {
+    val entityType = EntityType.Annotation
+  }
 
   val entityType = EntityType.Annotation
   val contentType = ContentTypes.Annotation

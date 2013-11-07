@@ -46,6 +46,10 @@ object Group {
       (__ \ "meta").format[JsObject]
     )(Group.apply _, unlift(Group.unapply _))
   }
+
+  implicit object Resource extends RestResource[Group] {
+    val entityType = EntityType.Group
+  }
 }
 
 

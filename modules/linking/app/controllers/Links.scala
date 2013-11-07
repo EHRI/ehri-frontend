@@ -9,11 +9,16 @@ import play.api.mvc.{Call, AnyContent, Action}
 
 import com.google.inject._
 import global.GlobalConfig
+import models.json.RestResource
 
 class Links @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[Link]
   with VisibilityController[Link]
   with EntityDelete[Link]
   with EntityAnnotate[Link] {
+
+  implicit def resource = new RestResource[Link] {
+    val entityType = EntityType.Link
+  }
 
   val entityType = EntityType.Link
   val contentType = ContentTypes.Link

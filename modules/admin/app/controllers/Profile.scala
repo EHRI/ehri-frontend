@@ -18,6 +18,7 @@ import scala.concurrent.Future.{successful => immediate}
 @Singleton
 class Profile @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntityUpdate[UserProfileF,UserProfile] {
 
+  implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile
   val contentType = ContentTypes.UserProfile
   val form = models.forms.UserProfileForm.form

@@ -172,7 +172,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
       },
       ap => {
         withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-          rest.DescriptionDAO(entityType).createAccessPoint(id, did, ap).map { case (item, ann) =>
+          rest.DescriptionDAO().createAccessPoint(id, did, ap).map { case (item, ann) =>
             Created(Json.toJson(ann)(AccessPointF.Converter.clientFormat  ))
           }
           // TODO: Fix AuthController so we can use the

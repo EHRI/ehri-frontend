@@ -40,6 +40,10 @@ object Country {
       (__ \ "meta").format[JsObject]
     )(Country.apply _, unlift(Country.unapply _))
   }
+
+  implicit object Resource extends RestResource[Country] {
+    val entityType = EntityType.Country
+  }
 }
 
 

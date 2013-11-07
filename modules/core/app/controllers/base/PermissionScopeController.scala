@@ -36,7 +36,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
-        accessor <- rest.EntityDAO(EntityType.withName(userType)).get[Accessor](userId)
+        accessor <- rest.EntityDAO().get[Accessor](EntityType.withName(userType), userId)
         // NB: Faking user for fetching perms to avoid blocking.
         // This means that when we have both the perm set and the user
         // we need to re-assemble them so that the permission set has
@@ -57,7 +57,7 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       }.toMap
 
       for {
-        accessor <- rest.EntityDAO(EntityType.withName(userType)).get[Accessor](userId)
+        accessor <- rest.EntityDAO().get[Accessor](EntityType.withName(userType), userId)
         sperms <- rest.PermissionDAO().setScope(accessor, id, perms)
       } yield f(sperms)(userOpt)(request)
     }

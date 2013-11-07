@@ -6,7 +6,7 @@ import play.api.libs.ws.WS
 import play.api.libs.json._
 import defines.{EntityType,ContentTypes}
 import models.UserProfile
-import models.json.{ClientConvertable, RestReadable, RestConvertable}
+import models.json.{RestResource, ClientConvertable, RestReadable, RestConvertable}
 import play.api.Logger
 import play.api.Play.current
 import play.api.cache.Cache
@@ -68,40 +68,43 @@ trait RestEventHandler {
 
 /**
  * Data Access Object for fetching data about generic entity types.
- *
- * @param entityType
  */
-case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEventHandler) extends RestDAO {
+case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
   import play.api.http.Status._
 
-  def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, entityType)
+  def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
-  def get[MT](id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT] = {
+  def get[MT](entityType: EntityType.Value, id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT] = {
     val cached = Cache.getAs[JsValue](id)
     if (cached.isDefined) {
       Future.successful(jsonReadToRestError(cached.get, rd.restReads))
     } else {
-      Logger.logger.debug("GET {} ", enc(requestUrl, id))
-      WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      val url = enc(requestUrl, entityType, id)
+      Logger.logger.debug("GET {} ", url)
+      WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
         Cache.set(id, response.json, cacheTime)
         checkErrorAndParse(response)(rd.restReads)
       }
     }
   }
 
-  def getJson(id: String)(implicit apiUser: ApiUser): Future[JsObject] = {
-    WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+  def get[MT](id: String)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
+    get(rs.entityType, id)
+  }
+
+  def getJson[MT](id: String)(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[JsObject] = {
+    WS.url(enc(requestUrl, rs.entityType, id)).withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[JsObject](response)
     }
   }
 
-  def get[MT](key: String, value: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT] = {
-    WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*)
+  def get[MT](key: String, value: String)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
+    WS.url(enc(requestUrl, rs.entityType)).withHeaders(authHeaders.toSeq: _*)
         .withQueryString("key" -> key, "value" -> value)
         .get.map { response =>
       checkErrorAndParse(response)(rd.restReads)
@@ -110,8 +113,8 @@ case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEve
 
   def create[MT,T](item: T, accessors: List[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
-      logMsg: Option[String] = None)(implicit apiUser: ApiUser, wrt: RestConvertable[T], rd: RestReadable[MT]): Future[MT] = {
-    val url = enc(requestUrl)
+      logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], wrt: RestConvertable[T], rd: RestReadable[MT]): Future[MT] = {
+    val url = enc(requestUrl, rs.entityType)
     Logger.logger.debug("CREATE {} ", url)
     WS.url(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
@@ -127,10 +130,10 @@ case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEve
     }
   }
 
-  def createInContext[T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: List[String] = Nil,
+  def createInContext[MT,T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: List[String] = Nil,
       logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, wrt: RestConvertable[T], rd: RestReadable[TT]): Future[TT] = {
-    val url = enc(requestUrl, id, contentType)
+        implicit apiUser: ApiUser, wrt: RestConvertable[T], rs: RestResource[MT], rd: RestReadable[TT]): Future[TT] = {
+    val url = enc(requestUrl, rs.entityType, id, contentType)
     Logger.logger.debug("CREATE-IN {} ", url)
     WS.url(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
@@ -146,8 +149,8 @@ case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEve
   }
 
   def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(
-      implicit apiUser: ApiUser, wrt: RestConvertable[T], rd: RestReadable[MT]): Future[MT] = {
-    val url = enc(requestUrl, id)
+      implicit apiUser: ApiUser, wrt: RestConvertable[T], rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
+    val url = enc(requestUrl, rs.entityType, id)
     Logger.logger.debug("UPDATE: {}", url)
     WS.url(url).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
@@ -158,8 +161,8 @@ case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEve
     }
   }
 
-  def delete(id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser): Future[Boolean] = {
-    val url = enc(requestUrl, id)
+  def delete[MT](entityType: EntityType.Value, id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser): Future[Boolean] = {
+    val url = enc(requestUrl, entityType, id)
     Logger.logger.debug("DELETE {}", url)
     WS.url(url).withHeaders(authHeaders.toSeq: _*).delete.map { response =>
       // FIXME: Check actual error content...
@@ -170,8 +173,12 @@ case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEve
     }
   }
 
-  def listJson(params: ListParams = ListParams())(implicit apiUser: ApiUser): Future[List[JsObject]] = {
-    val url = enc(requestUrl, "list")
+  def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Boolean] = {
+    delete(rs.entityType, id, logMsg)
+  }
+
+  def listJson[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[List[JsObject]] = {
+    val url = enc(requestUrl, rs.entityType, "list")
     Logger.logger.debug("LIST: {}", (url, params.toSeq))
     WS.url(url).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
@@ -179,8 +186,8 @@ case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEve
     }
   }
 
-  def list[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[List[MT]] = {
-    val url = enc(requestUrl, "list")
+  def list[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[List[MT]] = {
+    val url = enc(requestUrl, rs.entityType, "list")
     Logger.logger.debug("LIST: {}", url)
     WS.url(url).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
@@ -188,16 +195,16 @@ case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEve
     }
   }
 
-  def listChildren[CMT](id: String, params: ListParams = ListParams())(
-      implicit apiUser: ApiUser, rd: RestReadable[CMT]): Future[List[CMT]] = {
-    WS.url(enc(requestUrl, id, "list")).withQueryString(params.toSeq:_*)
+  def listChildren[MT,CMT](id: String, params: ListParams = ListParams())(
+      implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT]): Future[List[CMT]] = {
+    WS.url(enc(requestUrl, rs.entityType, id, "list")).withQueryString(params.toSeq:_*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
   }
 
-  def pageJson(params: PageParams = PageParams())(implicit apiUser: ApiUser): Future[Page[JsObject]] = {
-    val url = enc(requestUrl, "page")
+  def pageJson[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Page[JsObject]] = {
+    val url = enc(requestUrl, rs.entityType, "page")
     Logger.logger.debug("PAGE: {}", url)
     WS.url(url).withQueryString(params.toSeq:_*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
@@ -205,8 +212,8 @@ case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEve
     }
   }
 
-  def page[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Page[MT]] = {
-    val url = enc(requestUrl, "page")
+  def page[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Page[MT]] = {
+    val url = enc(requestUrl, rs.entityType, "page")
     Logger.logger.debug("PAGE: {}", url)
     WS.url(url).withHeaders(authHeaders.toSeq: _*)
         .withQueryString(params.toSeq: _*).get.map { response =>
@@ -214,22 +221,22 @@ case class EntityDAO(entityType: EntityType.Type)(implicit eventHandler: RestEve
     }
   }
 
-  def pageChildren[CMT](id: String, params: PageParams = utils.PageParams())(implicit apiUser: ApiUser, rd: RestReadable[CMT]): Future[Page[CMT]] = {
-    WS.url(enc(requestUrl, id, "page")).withQueryString(params.toSeq: _*)
+  def pageChildren[MT,CMT](id: String, params: PageParams = utils.PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT]): Future[Page[CMT]] = {
+    WS.url(enc(requestUrl, rs.entityType, id, "page")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
 
-  def count(params: PageParams = PageParams())(implicit apiUser: ApiUser): Future[Long] = {
-    WS.url(enc(requestUrl, "count")).withQueryString(params.toSeq: _*)
+  def count[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Long] = {
+    WS.url(enc(requestUrl, rs.entityType, "count")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 
-  def countChildren(id: String, params: PageParams = PageParams())(implicit apiUser: ApiUser): Future[Long] = {
-    WS.url(enc(requestUrl, id, "count")).withQueryString(params.toSeq: _*)
+  def countChildren[MT](id: String, params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Long] = {
+    WS.url(enc(requestUrl, rs.entityType, id, "count")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse[Long](response)
     }

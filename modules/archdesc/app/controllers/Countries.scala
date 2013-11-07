@@ -1,5 +1,6 @@
 package controllers.archdesc
 
+import _root_.models.json.RestResource
 import play.api.mvc._
 import forms.VisibilityForm
 import controllers.base._
@@ -31,6 +32,8 @@ class Countries @Inject()(implicit val globalConfig: global.GlobalConfig, val se
    * Content types that relate to this controller.
    */
   val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
+
+  implicit val resource = Country.Resource
 
   val entityType = EntityType.Country
   val contentType = ContentTypes.Country

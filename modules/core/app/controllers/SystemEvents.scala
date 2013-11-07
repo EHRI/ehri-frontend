@@ -8,8 +8,12 @@ import com.google.inject._
 import global.GlobalConfig
 import utils.{ListParams, SystemEventParams, PageParams}
 import rest.SystemEventDAO
+import models.json.RestResource
 
 class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
+
+  implicit val resource = SystemEvent.Resource
+
   val entityType = EntityType.SystemEvent
   val contentType = ContentTypes.SystemEvent
 
@@ -18,7 +22,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     val params = PageParams.fromRequest(request)
     val subjectParams = PageParams.fromRequest(request, namespace = "s")
-    SystemEventDAO(userOpt).subjectsFor(id, params).map { page =>
+    SystemEventDAO().subjectsFor(id, params).map { page =>
       Ok(views.html.systemEvents.show(item, page, params))
     }
   }
@@ -27,7 +31,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     val listParams = ListParams.fromRequest(request)
     val eventFilter = SystemEventParams.fromRequest(request)
     val filterForm = SystemEventParams.form.fill(eventFilter)
-    SystemEventDAO(userOpt).list(listParams, eventFilter).map { list =>
+    SystemEventDAO().list(listParams, eventFilter).map { list =>
       Ok(views.html.systemEvents.list(list, listParams, filterForm))
     }
   }

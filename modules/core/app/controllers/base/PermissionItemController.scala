@@ -45,7 +45,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
 
-        accessor <- rest.EntityDAO(EntityType.withName(userType)).get[Accessor](userId)
+        accessor <- rest.EntityDAO().get[Accessor](EntityType.withName(userType), userId)
         // FIXME: Faking user for fetching perms to avoid blocking.
         // This means that when we have both the perm set and the userOpt
         // we need to re-assemble them so that the permission set has
@@ -62,7 +62,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
       implicit val accessorConverter = Accessor.Converter
-      EntityDAO(EntityType.withName(userType)).get[Accessor](userId).flatMap { accessor =>
+      EntityDAO().get[Accessor](EntityType.withName(userType), userId).flatMap { accessor =>
         rest.PermissionDAO().setItem(accessor, contentType, id, perms).map { perms =>
           f(perms)(userOpt)(request)
         }

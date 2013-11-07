@@ -5,8 +5,7 @@ import defines.EntityType
 import utils.{ListParams, PageParams}
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
-import models.json.{ClientConvertable, RestReadable}
-import rest.EntityDAO
+import models.json.{RestResource, ClientConvertable, RestReadable}
 import controllers.base.{ControllerHelpers, AuthController}
 import scala.concurrent.Future
 import rest.EntityDAO
@@ -20,20 +19,20 @@ trait PortalActions {
   self: AuthController with ControllerHelpers =>
 
   def pageAction[MT](entityType: EntityType.Value, paramsOpt: Option[PageParams] = None)(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
-    implicit rd: RestReadable[MT]) = {
+    implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
-      EntityDAO(entityType).page(params).map { page =>
+      EntityDAO().page(params).map { page =>
         f(page)(params)(userOpt)(request)
       }
     }
   }
 
   def listAction[MT](entityType: EntityType.Value, paramsOpt: Option[ListParams] = None)(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
-    implicit rd: RestReadable[MT]) = {
+    implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(ListParams.fromRequest(request))
-      EntityDAO(entityType).list(params).map { list =>
+      EntityDAO().list(params).map { list =>
         f(list)(params)(userOpt)(request)
       }
     }
@@ -45,7 +44,7 @@ trait PortalActions {
   object getAction {
     def async[MT](entityType: EntityType.Value, id: String)(
       f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
-                   implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+                   implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       itemAction.async[MT](entityType, id) { item => implicit userOpt => implicit request =>
         val annsReq = rest.AnnotationDAO().getFor(id)
         val linkReq = rest.LinkDAO().getFor(id)
@@ -55,7 +54,7 @@ trait PortalActions {
 
     def apply[MT](entityType: EntityType.Value, id: String)(
       f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
-                   implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
+                   implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
       async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))
     }
   }
@@ -66,10 +65,10 @@ trait PortalActions {
   object getWithChildrenAction {
     def async[CT, MT](entityType: EntityType.Value, id: String)(
       f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
-                       implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+                       implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       getAction.async[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
-        rest.EntityDAO(entityType).pageChildren[CT](id, params).flatMap { children =>
+        rest.EntityDAO().pageChildren[MT,CT](id, params).flatMap { children =>
           f(item)(children)(params)(anns)(links)(userOpt)(request)
         }
       }
@@ -77,7 +76,7 @@ trait PortalActions {
 
     def apply[CT, MT](entityType: EntityType.Value, id: String)(
       f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
-                       implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+                       implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))))
     }
   }

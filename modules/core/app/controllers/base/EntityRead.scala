@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models._
 import rest.Page
-import models.json.{RestReadable, ClientConvertable}
+import models.json.{RestResource, RestReadable, ClientConvertable}
 import play.api.libs.json.{Writes, Json}
 import utils.{ListParams, PageParams}
 
@@ -22,11 +22,13 @@ trait EntityRead[MT] extends EntityController {
   val defaultPage: PageParams = new PageParams()
   val defaultChildPage: PageParams = new PageParams()
 
+  implicit def resource: RestResource[MT]
+
 
   object getEntity {
     def async(id: String, user: Option[UserProfile])(f: MT => Future[SimpleResult])(
         implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
-      rest.EntityDAO(entityType).get(id).flatMap { item =>
+      rest.EntityDAO().get(id).flatMap { item =>
         f(item)
       }
     }
@@ -40,7 +42,7 @@ trait EntityRead[MT] extends EntityController {
   object getEntityT {
     def async[T](otherType: defines.EntityType.Type, id: String)(f: T => Future[SimpleResult])(
         implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]): Future[SimpleResult] = {
-      rest.EntityDAO(otherType).get[T](id).flatMap { item =>
+      rest.EntityDAO().get[T](otherType, id).flatMap { item =>
         f(item)
       }
     }
@@ -97,7 +99,7 @@ trait EntityRead[MT] extends EntityController {
       val params = PageParams.fromRequest(request)
       val annsReq = rest.AnnotationDAO().getFor(id)
       val linkReq = rest.LinkDAO().getFor(id)
-      val cReq = rest.EntityDAO(entityType).pageChildren[CT](id, params)
+      val cReq = rest.EntityDAO().pageChildren[MT,CT](id, params)
       for {
         anns <- annsReq
         children <- cReq
@@ -110,7 +112,7 @@ trait EntityRead[MT] extends EntityController {
       implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
-      rest.EntityDAO(entityType).page(params).map { page =>
+      rest.EntityDAO().page(params).map { page =>
         render {
           case Accepts.Json() => Ok(Json.toJson(page)(Page.pageWrites(cfmt.clientFormat)))
           case _ => f(page)(params)(userOpt)(request)
@@ -123,7 +125,7 @@ trait EntityRead[MT] extends EntityController {
     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = ListParams.fromRequest(request)
-      rest.EntityDAO(entityType).list(params).map { list =>
+      rest.EntityDAO().list(params).map { list =>
         render {
           case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
           case _ => f(list)(params)(userOpt)(request)
@@ -136,8 +138,8 @@ trait EntityRead[MT] extends EntityController {
       f: MT => rest.Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
-      val itemReq = rest.EntityDAO(entityType).get(id)
-      val alReq = rest.SystemEventDAO(userOpt).history(id, params)
+      val itemReq = rest.EntityDAO().get(id)
+      val alReq = rest.SystemEventDAO().history(id, params)
       for {
         item <- itemReq
         al <- alReq
