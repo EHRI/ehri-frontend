@@ -15,23 +15,22 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
   val entityType = EntityType.UserProfile
   implicit val apiUser: ApiUser = ApiUser(Some(userProfile.id))
-  val dao = new EntityDAO()
 
   //class FakeApp extends WithApplication(FakeApplication(additionalConfiguration = config, withGlobal = Some(getGlobal)))
 
   "EntityDAO" should {
     "get an item by id" in new FakeApp {
-      await(dao.get[UserProfile](userProfile.id)) must beRight
+      await(testBackend.get[UserProfile](userProfile.id)) must beRight
     }
 
     "create an item" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      await(dao.create[UserProfile,UserProfileF](user)) must beRight
+      await(testBackend.create[UserProfile,UserProfileF](user)) must beRight
     }
 
     "create an item in (agent) context" in new FakeApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
-      val r = await(dao.createInContext[Repository,DocumentaryUnitF,DocumentaryUnit]("r1", ContentTypes.DocumentaryUnit, doc))
+      val r = await(testBackend.createInContext[Repository,DocumentaryUnitF,DocumentaryUnit]("r1", ContentTypes.DocumentaryUnit, doc))
       r must beRight
       r.right.get.holder must beSome
       r.right.get.holder.get.id must equalTo("r1")
@@ -40,7 +39,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
     "create an item in (doc) context" in new FakeApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
-      val r = await(dao
+      val r = await(testBackend
           .createInContext[DocumentaryUnit,DocumentaryUnitF,DocumentaryUnit]("c1", ContentTypes.DocumentaryUnit, doc))
       r must beRight
       r.right.get.parent must beSome
@@ -49,47 +48,47 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
     "update an item by id" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      val entity = await(dao.create[UserProfile,UserProfileF](user)).right.get
+      val entity = await(testBackend.create[UserProfile,UserProfileF](user)).right.get
       val udata = entity.model.copy(location = Some("London"))
-      val res = await(dao.update[UserProfile,UserProfileF](entity.id, udata))
+      val res = await(testBackend.update[UserProfile,UserProfileF](entity.id, udata))
       res must beRight
       res.right.get.model.location must equalTo(Some("London"))
     }
 
     "error when creating an item with a non-unique id" in new FakeApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
-      await(dao.create[UserProfile,UserProfileF](user))
-      val err = await(dao.create[UserProfile,UserProfileF](user))
+      await(testBackend.create[UserProfile,UserProfileF](user))
+      val err = await(testBackend.create[UserProfile,UserProfileF](user))
       err must beLeft
       err.left.get must beAnInstanceOf[ValidationError]
     }
 
     "error when fetching a non-existing item" in new FakeApp {
-      val err = await(dao.get[UserProfile]("blibidyblob"))
+      val err = await(testBackend.get[UserProfile]("blibidyblob"))
       err must beLeft
       err.left.get must beAnInstanceOf[ItemNotFound]
     }
 
     "delete an item by id" in new FakeApp {
       val user = UserProfileF(id = Some("foobar"), identifier = "foo", name = "bar")
-      val entity = await(dao.create[UserProfile,UserProfileF](user)).right.get
-      await(dao.delete[UserProfile](entity.id)) must beRight
+      val entity = await(testBackend.create[UserProfile,UserProfileF](user)).right.get
+      await(testBackend.delete[UserProfile](entity.id)) must beRight
     }
 
     "page items" in new FakeApp {
-      val r = await(dao.page[UserProfile](PageParams()))
+      val r = await(testBackend.page[UserProfile](PageParams()))
       r must beRight
       r.right.get.items.length mustEqual 5
     }
 
     "list items" in new FakeApp {
-      var r = await(dao.list[UserProfile](ListParams()))
+      var r = await(testBackend.list[UserProfile](ListParams()))
       r must beRight
       r.right.get.length mustEqual 5
     }
 
     "count items" in new FakeApp {
-      var r = await(dao.count[UserProfile](PageParams()))
+      var r = await(testBackend.count[UserProfile](PageParams()))
       r must beRight
       r.right.get mustEqual 5L
     }
@@ -100,7 +99,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in new FakeApp {
-      val perms = await(PermissionDAO().get(userProfile))
+      val perms = await(testBackend.getGlobalPermissions(userProfile))
       perms must beRight
       perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
     }
@@ -111,12 +110,12 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
         ContentTypes.Repository.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString),
         ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString)
       )
-      val perms = await(PermissionDAO().get(user))
+      val perms = await(testBackend.getGlobalPermissions(user))
       perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
       perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
       perms.right.get.get(ContentTypes.Repository, PermissionType.Create) must beNone
       perms.right.get.get(ContentTypes.Repository, PermissionType.Update) must beNone
-      val permset = await(PermissionDAO().set(user, data))
+      val permset = await(testBackend.setGlobalPermissions(user, data))
       permset must beRight
       val newperms = permset.right.get
       newperms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
@@ -128,14 +127,14 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     "be able to set a user's permissions within a scope" in new FakeApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       val data = Map(ContentTypes.DocumentaryUnit.toString -> List("create", "update", "delete"))
-      val perms = await(PermissionDAO().get(user))
+      val perms = await(testBackend.getGlobalPermissions(user))
       perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
       perms.right.get.get(ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
       perms.right.get.get(ContentTypes.Repository, PermissionType.Create) must beNone
       perms.right.get.get(ContentTypes.Repository, PermissionType.Update) must beNone
-      await(PermissionDAO().setScope(user, "r1", data))
+      await(testBackend.setScopePermissions(user, "r1", data))
       // Since c1 is held by r1, we should now have permissions to update and delete c1.
-      val permset = await(PermissionDAO().getItem(user, ContentTypes.DocumentaryUnit, "c1"))
+      val permset = await(testBackend.getItemPermissions(user, ContentTypes.DocumentaryUnit, "c1"))
       permset must beRight
       val newItemPerms = permset.right.get
       newItemPerms.get(PermissionType.Create) must beSome
@@ -147,10 +146,10 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       // NB: Currently, there's already a test permission grant for Reto-create on c1...
       val data = List("update", "delete")
-      val perms = await(PermissionDAO().getItem(user, ContentTypes.DocumentaryUnit, "c1"))
+      val perms = await(testBackend.getItemPermissions(user, ContentTypes.DocumentaryUnit, "c1"))
       perms.right.get.get(PermissionType.Update) must beNone
       perms.right.get.get(PermissionType.Delete) must beNone
-      val permReq = await(PermissionDAO().setItem(user, ContentTypes.DocumentaryUnit, "c1", data))
+      val permReq = await(testBackend.setItemPermissions(user, ContentTypes.DocumentaryUnit, "c1", data))
       permReq must beRight
       val newItemPerms = permReq.right.get
       newItemPerms.get(PermissionType.Update) must beSome
@@ -161,21 +160,21 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   "VisibilityDAO" should {
     "set visibility correctly" in new FakeApp {
       // First, fetch an object and assert its accessibility
-      val c1a = await(dao.get[DocumentaryUnit]("c1")).right.get
+      val c1a = await(testBackend.get[DocumentaryUnit]("c1")).right.get
       c1a.accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike"))
 
-      val set = await(VisibilityDAO().set[DocumentaryUnit](c1a.id, List("mike", "reto", "admin")))
+      val set = await(testBackend.setVisibility[DocumentaryUnit](c1a.id, List("mike", "reto", "admin")))
       set must beRight
-      val c1b = await(dao.get[DocumentaryUnit]("c1")).right.get
+      val c1b = await(testBackend.get[DocumentaryUnit]("c1")).right.get
       c1b.accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike", "reto"))
     }
   }
 
   "CypherDAO" should {
     "get a JsValue for a graph item" in new FakeApp {
-      val dao = rest.cypher.CypherDAO(Some(userProfile))
+      val testBackend = rest.cypher.CypherDAO(Some(userProfile))
       // FIXME: Cypher seems
-      val res = await(dao.cypher("START n = node:entities('__ID__:admin') RETURN n.identifier, n.name"))
+      val res = await(testBackend.cypher("START n = node:entities('__ID__:admin') RETURN n.identifier, n.name"))
       res must beRight
       // It should return one list value in the data section
       val list = (res.right.get \ "data").as[List[List[String]]]

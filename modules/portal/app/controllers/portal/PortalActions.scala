@@ -6,7 +6,6 @@ import utils.{ListParams, PageParams}
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc.{Result, AnyContent, Request}
 import models.json.{RestResource, ClientConvertable, RestReadable}
-import rest.EntityDAO
 import controllers.base.{ControllerHelpers, AuthController}
 
 /**
@@ -21,7 +20,7 @@ trait PortalActions {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
-        EntityDAO().page(params).map { pageOrErr =>
+        backend.page(params).map { pageOrErr =>
           pageOrErr.right.map { list =>
             f(list)(params)(userOpt)(request)
           }
@@ -35,7 +34,7 @@ trait PortalActions {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = paramsOpt.getOrElse(ListParams.fromRequest(request))
-        EntityDAO().list(params).map { listOrErr =>
+        backend.list(params).map { listOrErr =>
           listOrErr.right.map { list =>
             f(list)(params)(userOpt)(request)
           }
@@ -52,8 +51,8 @@ trait PortalActions {
                      implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     itemAction[MT](entityType, id) { item => implicit userOpt => implicit request =>
       AsyncRest {
-        val annsReq = rest.AnnotationDAO().getFor(id)
-        val linkReq = rest.LinkDAO().getFor(id)
+        val annsReq = backend.getAnnotationsForItem(id)
+        val linkReq = backend.getLinksForItem(id)
         for { annOrErr <- annsReq ; linkOrErr <- linkReq } yield {
           for { anns <- annOrErr.right ; links <- linkOrErr.right } yield {
             f(item)(anns)(links)(userOpt)(request)
@@ -72,7 +71,7 @@ trait PortalActions {
     getAction[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        val cReq = rest.EntityDAO().pageChildren[MT,CT](id, params)
+        val cReq = backend.pageChildren[MT,CT](id, params)
         for { cOrErr <- cReq  } yield {
           for { children <- cOrErr.right } yield {
             f(item)(children)(params)(anns)(links)(userOpt)(request)

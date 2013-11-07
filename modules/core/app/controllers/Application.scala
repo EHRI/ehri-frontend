@@ -20,7 +20,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 
-class Application @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with Auth with Authorizer with AuthController {
+class Application @Inject()(implicit val globalConfig: GlobalConfig, val backend: rest.Backend) extends Controller with Auth with Authorizer with AuthController {
 
   implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
 

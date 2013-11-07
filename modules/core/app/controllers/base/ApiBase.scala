@@ -1,12 +1,8 @@
 package controllers.base
 
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.Controller
 import models.json.{RestResource, ClientConvertable, RestReadable}
-
-import play.api.libs.json.{JsError, Json}
-import defines.EntityType
-import rest.ApiUser
+import play.api.libs.json.Json
 
 object TestJson {
     import java.sql.Timestamp
@@ -32,7 +28,7 @@ trait ApiBase[MT] extends EntityController {
   def getClientJson(id: String)(implicit rr: RestReadable[MT], cw: ClientConvertable[MT]) = userProfileAction {
       implicit maybeUser => implicit request =>
     AsyncRest {
-      rest.EntityDAO().get(id).map { res =>
+      backend.get(id).map { res =>
         res.right.map { tm =>
           Ok(Json.toJson(tm)(cw.clientFormat))
         }

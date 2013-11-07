@@ -29,7 +29,7 @@ object Search {
 }
 
 @Singleton
-class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val searchIndexer: Indexer) extends EntitySearch {
+class Search @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val searchIndexer: Indexer, val backend: rest.Backend) extends EntitySearch {
 
   // i.e. Everything
   private val entityFacets: FacetBuilder = { implicit lang =>

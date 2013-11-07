@@ -17,6 +17,8 @@ import models.base.AnyModel
  */
 case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
 
+  private val entities = new EntityDAO
+
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
@@ -27,7 +29,7 @@ case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends Res
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO().getJson(id).map {
+          entities.getJson(id).map {
             case Right(item) => {
               eventHandler.handleUpdate(id)
               Cache.remove(id)
@@ -47,7 +49,7 @@ case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends Res
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO().getJson(id).map {
+          entities.getJson(id).map {
             case Right(item) => {
               eventHandler.handleUpdate(id)
               Cache.remove(id)
@@ -79,7 +81,7 @@ case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends Res
       checkError(response) match {
         case Left(err) => Future.successful(Left(err))
         case Right(r) => {
-          EntityDAO().getJson(id).map {
+          entities.getJson(id).map {
             case Right(item) => {
               eventHandler.handleUpdate(id)
               Cache.remove(id)
@@ -96,7 +98,7 @@ case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends Res
         implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Either[RestError, MT]] = {
     WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .delete.flatMap { response =>
-        EntityDAO().getJson(id).map {
+        entities.getJson(id).map {
           case Right(item) => {
             eventHandler.handleUpdate(id)
             Cache.remove(id)

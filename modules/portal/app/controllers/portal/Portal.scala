@@ -21,7 +21,7 @@ import solr.SolrConstants
 
 
 @Singleton
-class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher)
+class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend)
   extends Controller with EntitySearch with FacetConfig with PortalActions {
 
   case class Stats(

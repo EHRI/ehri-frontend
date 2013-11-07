@@ -12,7 +12,7 @@ import utils.search.{Dispatcher, SearchParams}
 import com.google.inject._
 
 @Singleton
-class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CRUD[VocabularyF,Vocabulary]
+class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends CRUD[VocabularyF,Vocabulary]
   with CreationContext[ConceptF, Concept, Vocabulary]
   with VisibilityController[Vocabulary]
   with PermissionScopeController[Vocabulary]

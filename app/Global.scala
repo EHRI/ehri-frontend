@@ -13,7 +13,7 @@ import org.apache.commons.codec.binary.Base64
 
 import play.api.Play.current
 import play.filters.csrf.CSRFFilter
-import rest.RestEventHandler
+import rest.{RestBackend, Backend, RestEventHandler}
 import scala.concurrent.duration.Duration
 import scala.concurrent.Future
 
@@ -99,28 +99,32 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
 
-  object RunConfiguration extends globalConfig.BaseConfiguration {
-    implicit val eventHandler: rest.RestEventHandler = new RestEventHandler {
+  implicit object RunEventHandler extends RestEventHandler {
 
-      // Bind the EntityDAO Create/Update/Delete actions
-      // to the SolrIndexer update/delete handlers. Do this
-      // asyncronously and log any failures...
-      import play.api.libs.concurrent.Execution.Implicits._
-      def logFailure(id: String, func: String => Future[Unit]): Unit = {
-        func(id) onFailure {
-          case t => Logger.logger.error("Indexing error: " + t.getMessage)
-        }
+    // Bind the EntityDAO Create/Update/Delete actions
+    // to the SolrIndexer update/delete handlers. Do this
+    // asyncronously and log any failures...
+    import play.api.libs.concurrent.Execution.Implicits._
+    def logFailure(id: String, func: String => Future[Unit]): Unit = {
+      func(id) onFailure {
+        case t => Logger.logger.error("Indexing error: " + t.getMessage)
       }
-
-      def handleCreate(id: String) = logFailure(id, searchIndexer.indexId)
-      def handleUpdate(id: String) = logFailure(id, searchIndexer.indexId)
-
-      // Special case - block when deleting because otherwise we get ItemNotFounds
-      // after redirects
-      def handleDelete(id: String) = logFailure(id, id => Future.successful[Unit] {
-        concurrent.Await.result(searchIndexer.clearId(id), Duration(1, TimeUnit.MINUTES))
-      })
     }
+
+    def handleCreate(id: String) = logFailure(id, searchIndexer.indexId)
+    def handleUpdate(id: String) = logFailure(id, searchIndexer.indexId)
+
+    // Special case - block when deleting because otherwise we get ItemNotFounds
+    // after redirects
+    def handleDelete(id: String) = logFailure(id, id => Future.successful[Unit] {
+      concurrent.Await.result(searchIndexer.clearId(id), Duration(1, TimeUnit.MINUTES))
+    })
+  }
+
+  private def backend: Backend = new RestBackend()
+
+  object RunConfiguration extends globalConfig.BaseConfiguration {
+    val eventHandler = RunEventHandler
   }
 
 
@@ -129,6 +133,7 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
       bind[GlobalConfig].toInstance(RunConfiguration)
       bind[Indexer].toInstance(searchIndexer)
       bind[Dispatcher].toInstance(searchDispatcher)
+      bind[Backend].toInstance(backend)
     }
   }
 

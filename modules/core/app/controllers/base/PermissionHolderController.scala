@@ -36,7 +36,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
         val params = PageParams.fromRequest(request)
         for {
           // NB: to save having to wait we just fake the permission user here.
-          permsOrErr <- rest.PermissionDAO().list(item, params)
+          permsOrErr <- backend.listPermissionGrants(item, params)
         } yield {
           for { perms <- permsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
@@ -51,7 +51,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          permsOrErr <- rest.PermissionDAO().get(item)
+          permsOrErr <- backend.getGlobalPermissions(item)
         } yield {
           for { perms <- permsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
@@ -69,7 +69,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
       }.toMap
       AsyncRest {
         for {
-          newpermsOrErr <- rest.PermissionDAO().set(item, perms)
+          newpermsOrErr <- backend.setGlobalPermissions(item, perms)
         } yield {
           for { perms <- newpermsOrErr.right } yield {
             f(item)(perms)(userOpt)(request)
@@ -85,7 +85,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          permOrErr <- rest.EntityDAO().get[PermissionGrant](permId)
+          permOrErr <- backend.get[PermissionGrant](permId)
         } yield {
           for { perm <- permOrErr.right } yield {
             f(item)(perm)(userOpt)(request)
@@ -101,7 +101,7 @@ trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
     withItemPermission[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          boolOrErr <- rest.EntityDAO().delete[PermissionGrant](permId)
+          boolOrErr <- backend.delete[PermissionGrant](permId)
         } yield {
           for { bool <- boolOrErr.right } yield {
             f(item)(bool)(userOpt)(request)

@@ -27,7 +27,7 @@ trait ControllerHelpers {
   /**
    * Object that handles event hooks
    */
-  implicit val eventHandler = globalConfig.eventHandler
+  //implicit val eventHandler = globalConfig.eventHandler
 
   /**
    * Issue a warning about database maintenance when a "dbmaintenance"

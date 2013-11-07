@@ -22,7 +22,7 @@ import play.api.http.MimeTypes
  * @param globalConfig
  */
 @Singleton
-class Profile @Inject()(implicit val globalConfig: global.GlobalConfig) extends EntityUpdate[UserProfileF,UserProfile] {
+class Profile @Inject()(implicit val globalConfig: global.GlobalConfig, val backend: rest.Backend) extends EntityUpdate[UserProfileF,UserProfile] {
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile

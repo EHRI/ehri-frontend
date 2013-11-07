@@ -17,7 +17,7 @@ import com.google.inject._
 import solr.SolrConstants
 
 @Singleton
-class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntityRead[Repository]
+class Repositories @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends EntityRead[Repository]
   with EntityUpdate[RepositoryF, Repository]
   with EntityDelete[Repository]
   with CreationContext[DocumentaryUnitF,DocumentaryUnit, Repository]

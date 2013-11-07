@@ -3,7 +3,7 @@ package controllers.base
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models._
-import rest.{Page}
+import rest.Page
 import models.json.{RestResource, RestReadable, ClientConvertable}
 import play.api.libs.json.{Writes, Json}
 import utils.{ListParams, PageParams}
@@ -20,14 +20,14 @@ trait EntityRead[MT] extends EntityController {
 
   val defaultPage: PageParams = new PageParams()
   val defaultChildPage: PageParams = new PageParams()
-
+  
   implicit def resource: RestResource[MT]
 
 
   def getEntity(id: String, user: Option[UserProfile])(f: MT => Result)(
       implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader) = {
     AsyncRest {
-      rest.EntityDAO().get(id).map { itemOrErr =>
+      backend.get(id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
@@ -36,7 +36,7 @@ trait EntityRead[MT] extends EntityController {
   def getEntity[T](otherType: defines.EntityType.Type, id: String)(f: T => Result)(
       implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]) = {
     AsyncRest {
-      rest.EntityDAO().get[T](otherType, id).map { itemOrErr =>
+      backend.get[T](otherType, id).map { itemOrErr =>
         itemOrErr.right.map(f)
       }
     }
@@ -62,8 +62,8 @@ trait EntityRead[MT] extends EntityController {
         case _ => {
           AsyncRest {
             // NB: Effectively disable paging here by using a high limit
-            val annsReq = rest.AnnotationDAO().getFor(id)
-            val linkReq = rest.LinkDAO().getFor(id)
+            val annsReq = backend.getAnnotationsForItem(id)
+            val linkReq = backend.getLinksForItem(id)
             for { annOrErr <- annsReq ; linkOrErr <- linkReq } yield {
               for { anns <- annOrErr.right ; links <- linkOrErr.right } yield {
                 f(item)(anns)(links)(maybeUser)(request)
@@ -85,9 +85,9 @@ trait EntityRead[MT] extends EntityController {
           AsyncRest {
             // NB: Effectively disable paging here by using a high limit
             val params = PageParams.fromRequest(request)
-            val annsReq = rest.AnnotationDAO().getFor(id)
-            val linkReq = rest.LinkDAO().getFor(id)
-            val cReq = rest.EntityDAO().pageChildren[MT,CT](id, params)
+            val annsReq = backend.getAnnotationsForItem(id)
+            val linkReq = backend.getLinksForItem(id)
+            val cReq = backend.pageChildren[MT,CT](id, params)
             for { annOrErr <- annsReq ; cOrErr <- cReq ; linkOrErr <- linkReq } yield {
               for { anns <- annOrErr.right ; children <- cOrErr.right ; links <- linkOrErr.right } yield {
                 f(item)(children)(params)(anns)(links)(userOpt)(request)
@@ -104,7 +104,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        rest.EntityDAO().page(params).map { itemOrErr =>
+        backend.page(params).map { itemOrErr =>
           itemOrErr.right.map {
             page => render {
               case Accepts.Json() => Ok(Json.toJson(page)(Page.pageWrites(cfmt.clientFormat)))
@@ -121,7 +121,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = ListParams.fromRequest(request)
-        rest.EntityDAO().list(params).map { itemOrErr =>
+        backend.list(params).map { itemOrErr =>
           itemOrErr.right.map {
             list => render {
               case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
@@ -138,8 +138,8 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction { implicit userOpt => implicit request =>
       AsyncRest {
         val params = PageParams.fromRequest(request)
-        val itemReq = rest.EntityDAO().get(id)
-        val alReq = rest.SystemEventDAO().history(id, params)
+        val itemReq = backend.get(id)
+        val alReq = backend.history(id, params)
         for { itemOrErr <- itemReq ; alOrErr <- alReq  } yield {
           for { item <- itemOrErr.right ; al <- alOrErr.right  } yield {
             f(item)(al)(params)(userOpt)(request)

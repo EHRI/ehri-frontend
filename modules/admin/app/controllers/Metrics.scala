@@ -19,7 +19,7 @@ import play.api.cache.{Cache, Cached}
 
 
 @Singleton
-class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntitySearch {
+class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends EntitySearch {
 
   private val metricCacheTime = 60 * 60 // 1 hour
 

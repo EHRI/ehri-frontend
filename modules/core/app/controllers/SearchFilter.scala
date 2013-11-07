@@ -7,7 +7,7 @@ import utils.search.Dispatcher
 import com.google.inject._
 
 @Singleton
-class SearchFilter @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntitySearch {
+class SearchFilter @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends EntitySearch {
 
   val searchEntities = List() // i.e. Everything
 

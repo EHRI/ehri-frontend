@@ -2,11 +2,9 @@ package controllers.base
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base._
 import defines._
 import models._
 import play.api.data.Form
-import rest.{BadJson, AnnotationDAO}
 import models.forms.AnnotationForm
 import play.api.libs.json.{Format, Json, JsError}
 import models.json.RestReadable
@@ -37,7 +35,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
         errorForm => f(Left(errorForm))(userOpt)(request),
         ann => {
           AsyncRest {
-            rest.AnnotationDAO().create(id, ann).map { annOrErr =>
+            backend.createAnnotation(id, ann).map { annOrErr =>
               annOrErr.right.map { ann =>
                 f(Right(ann))(userOpt)(request)
               }
@@ -55,7 +53,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
       f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction { implicit  userOpt => implicit request =>
       AsyncRest {
-        val annsReq = rest.AnnotationDAO().getFor(id)
+        val annsReq = backend.getAnnotationsForItem(id)
         for (annOrErr <- annsReq) yield {
           for { anns <- annOrErr.right } yield {
             f(anns)(userOpt)(request)
@@ -94,7 +92,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
         // on the server for that
         userProfileAction { implicit userOpt => implicit request =>
           AsyncRest {
-            rest.AnnotationDAO().create(id, ap).map { annOrErr =>
+            backend.createAnnotation(id, ap).map { annOrErr =>
               annOrErr.right.map { ann =>
                 Created(Json.toJson(ann.model)(clientAnnotationFormat))
               }

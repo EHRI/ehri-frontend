@@ -6,12 +6,9 @@ import play.api.libs.concurrent.Execution.Implicits._
 import defines.ContentTypes
 import models.base._
 import defines.PermissionType
-import models.{UserProfile, Entity}
+import models.UserProfile
 import forms.VisibilityForm
-import rest.EntityDAO
-import play.api.libs.json.Writes
 import models.json.{RestReadable, RestConvertable}
-import scala.Some
 
 /**
  * Controller trait for extending Entity classes which server as
@@ -47,8 +44,7 @@ trait CreationContext[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: 
       citem => {
         AsyncRest {
           val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-          rest.EntityDAO()
-            .createInContext[MT, CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).map {
+          backend.createInContext[MT, CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).map {
             itemOrErr =>
             // If we have an error, check if it's a validation error.
             // If so, we need to merge those errors back into the form

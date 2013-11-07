@@ -8,6 +8,7 @@ import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsString
 import com.google.inject._
+import rest.Backend
 
 /**
  * Handler for Mozilla Persona-based login.
@@ -17,7 +18,7 @@ import com.google.inject._
  * @param globalConfig
  */
 @Singleton
-case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
+case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends LoginHandler {
 
   private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
@@ -45,7 +46,7 @@ case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalCon
               case Some(account) => gotoLoginSucceeded(email)
               case None => {
                 Async {
-                  rest.AdminDAO().createNewUserProfile.map {
+                  backend.createNewUserProfile.map {
                     case Right(up) => {
                       userDAO.create(up.id, email).map { acc =>
                         gotoLoginSucceeded(acc.id)

@@ -8,6 +8,8 @@ import models.base.{Accessor, AnyModel}
 import acl.{ItemPermissionSet, GlobalPermissionSet}
 import defines.{EntityType, ContentTypes}
 import play.api.libs.json.JsObject
+import play.api.mvc.Headers
+import play.api.libs.ws.Response
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -23,6 +25,16 @@ trait Backend {
   def createInContext[MT,T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: List[String] = Nil, logMsg: Option[String] = None)(implicit apiUser: ApiUser, wrt: RestConvertable[T], rs: RestResource[MT], rd: RestReadable[TT]): Future[Either[RestError, TT]]
   def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(implicit apiUser: ApiUser, wrt: RestConvertable[T], rs: RestResource[MT], rd: RestReadable[MT]): Future[Either[RestError, MT]]
   def delete[MT](entityType: EntityType.Value, id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser): Future[Either[RestError, Boolean]]
+  def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Either[RestError, Boolean]]
+
+  def listJson[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Either[RestError, List[JsObject]]]
+  def list[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Either[RestError, List[MT]]]
+  def listChildren[MT,CMT](id: String, params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT]): Future[Either[RestError, List[CMT]]]
+  def pageJson[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Either[RestError, Page[JsObject]]]
+  def page[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Either[RestError, Page[MT]]]
+  def pageChildren[MT,CMT](id: String, params: PageParams = utils.PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT]): Future[Either[RestError, Page[CMT]]]
+  def count[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Either[RestError, Long]]
+  def countChildren[MT](id: String, params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Either[RestError, Long]]
 
   // Descriptions
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[Either[RestError, MT]]
@@ -62,4 +74,10 @@ trait Backend {
 
   // Visibility
   def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, MT]]
+
+  // Direct API queries
+  def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser): Future[Response]
+
+  // Helpers
+  def createNewUserProfile(implicit apiUser: ApiUser = ApiUser()): Future[Either[RestError, UserProfile]]
 }

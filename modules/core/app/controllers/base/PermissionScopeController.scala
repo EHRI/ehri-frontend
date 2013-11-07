@@ -24,8 +24,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       val scopeParams = PageParams.fromRequest(request, namespace = "s")
       AsyncRest {
         for {
-          permGrantsOrErr <- rest.PermissionDAO().listForItem(id, itemParams)
-          scopeGrantsOrErr <- rest.PermissionDAO().listForScope(id, scopeParams)
+          permGrantsOrErr <- backend.listItemPermissionGrants(id, itemParams)
+          scopeGrantsOrErr <- backend.listScopePermissionGrants(id, scopeParams)
         } yield {
           for { permGrants <- permGrantsOrErr.right ; scopeGrants <- scopeGrantsOrErr.right } yield {
             f(item)(permGrants)(scopeGrants)(userOpt)(request)
@@ -41,12 +41,12 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       implicit request =>
         AsyncRest {
           for {
-            userOrErr <- rest.EntityDAO().get[Accessor](EntityType.withName(userType), userId)
+            userOrErr <- backend.get[Accessor](EntityType.withName(userType), userId)
             // NB: Faking user for fetching perms to avoid blocking.
             // This means that when we have both the perm set and the user
             // we need to re-assemble them so that the permission set has
             // access to a user's groups to understand inheritance.
-            permsOrErr <- rest.PermissionDAO().getScope(userOrErr.right.get, id)
+            permsOrErr <- backend.getScopePermissions(userOrErr.right.get, id)
           } yield {
             for { accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
               f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
@@ -66,11 +66,11 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
 
       AsyncRest {
         for {
-          accessorOrErr <- rest.EntityDAO().get[Accessor](EntityType.withName(userType), userId)
+          accessorOrErr <- backend.get[Accessor](EntityType.withName(userType), userId)
         } yield {
           for { accessor <- accessorOrErr.right} yield {
             AsyncRest {
-              rest.PermissionDAO().setScope(accessor, id, perms).map { permsOrErr =>
+              backend.setScopePermissions(accessor, id, perms).map { permsOrErr =>
                 permsOrErr.right.map { perms =>
                   f(perms)(userOpt)(request)
                 }

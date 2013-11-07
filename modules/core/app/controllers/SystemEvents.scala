@@ -7,10 +7,9 @@ import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
 import global.GlobalConfig
 import utils.{ListParams, SystemEventParams, PageParams}
-import rest.SystemEventDAO
-import models.json.RestResource
 
-class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
+
+class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig, val backend: rest.Backend) extends EntityRead[SystemEvent] {
   val entityType = EntityType.SystemEvent
   val contentType = ContentTypes.SystemEvent
 
@@ -22,7 +21,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     AsyncRest {
       val params = PageParams.fromRequest(request)
       val subjectParams = PageParams.fromRequest(request, namespace = "s")
-      rest.SystemEventDAO().subjectsFor(id, params).map { pageOrErr =>
+      backend.subjectsForEvent(id, params).map { pageOrErr =>
         pageOrErr.right.map { page =>
           Ok(views.html.systemEvents.show(item, page, params))
         }
@@ -35,7 +34,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     val eventFilter = SystemEventParams.fromRequest(request)
     val filterForm = SystemEventParams.form.fill(eventFilter)
     AsyncRest {
-      SystemEventDAO().list(listParams, eventFilter).map { listOrErr =>
+      backend.listEvents(listParams, eventFilter).map { listOrErr =>
         listOrErr.right.map { list =>
           Ok(views.html.systemEvents.list(list, listParams, filterForm))
         }

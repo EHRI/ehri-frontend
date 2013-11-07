@@ -22,7 +22,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       AsyncRest {
         val params = PageParams.fromRequest(request)
         for {
-          permGrantsOrErr <- rest.PermissionDAO().listForItem(id, params)
+          permGrantsOrErr <- backend.listItemPermissionGrants(id, params)
         } yield {
           for { permGrants <- permGrantsOrErr.right } yield {
             f(item)(permGrants)(userOpt)(request)
@@ -55,12 +55,12 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       AsyncRest {
         for {
 
-          userOrErr <- rest.EntityDAO().get[Accessor](EntityType.withName(userType), userId)
+          userOrErr <- backend.get[Accessor](EntityType.withName(userType), userId)
           // FIXME: Faking user for fetching perms to avoid blocking.
           // This means that when we have both the perm set and the userOpt
           // we need to re-assemble them so that the permission set has
           // access to a userOpt's groups to understand inheritance.
-          permsOrErr <- rest.PermissionDAO().getItem(userOrErr.right.get, contentType, id)
+          permsOrErr <- backend.getItemPermissions(userOrErr.right.get, contentType, id)
         } yield {
           for {  accessor <- userOrErr.right; perms <- permsOrErr.right } yield {
             f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
@@ -79,7 +79,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       implicit val accessorConverter = Accessor.Converter
       getEntity[Accessor](EntityType.withName(userType), userId) { accessor =>
         AsyncRest {
-          rest.PermissionDAO().setItem(accessor, contentType, id, perms).map { permsOrErr =>
+          backend.setItemPermissions(accessor, contentType, id, perms).map { permsOrErr =>
             permsOrErr.right.map { perms =>
               f(perms)(userOpt)(request)
             }

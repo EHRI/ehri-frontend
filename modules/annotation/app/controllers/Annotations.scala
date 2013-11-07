@@ -10,7 +10,7 @@ import com.google.inject._
 import global.GlobalConfig
 import models.json.RestResource
 
-class Annotations @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[Annotation]
+class Annotations @Inject()(implicit val globalConfig: GlobalConfig, val backend: rest.Backend) extends EntityRead[Annotation]
   with VisibilityController[Annotation]
   with EntityDelete[Annotation]
   with EntityAnnotate[Annotation] {

@@ -91,7 +91,7 @@ trait EntityAccessPoints[D <: Description, T <: Model with Described[D], MT <: M
       implicit rd: RestReadable[MT]) = userProfileAction { implicit userOpt => implicit request =>
     getEntity(id, userOpt) { item =>
       AsyncRest {
-        rest.LinkDAO().getFor(id).map {
+        backend.getLinksForItem(id).map {
 
           case Right(links) => {
             implicit val accessPointFormat = AccessPointF.Converter.clientFormat

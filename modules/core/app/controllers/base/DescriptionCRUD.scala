@@ -3,10 +3,10 @@ package controllers.base
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import play.api.mvc._
-import play.api.data.{Form, FormError}
+import play.api.data.Form
 import defines.{EntityType, PermissionType}
 import models.UserProfile
-import rest.{DescriptionDAO, ValidationError}
+import rest.ValidationError
 import models.json.{RestReadable, RestConvertable}
 
 /**
@@ -34,7 +34,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
       },
       { desc =>
         AsyncRest {
-          DescriptionDAO().createDescription(id, desc, logMsg = getLogMessage).map { itemOrErr =>
+          backend.createDescription(id, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
                 case err: rest.ValidationError => {
@@ -70,8 +70,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
       },
       { desc =>
         AsyncRest {
-          DescriptionDAO()
-              .updateDescription(id, did, desc, logMsg = getLogMessage).map { itemOrErr =>
+          backend.updateDescription(id, did, desc, logMsg = getLogMessage).map { itemOrErr =>
             if (itemOrErr.isLeft) {
               itemOrErr.left.get match {
                 case err: rest.ValidationError => {
@@ -113,8 +112,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
     withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
-        DescriptionDAO()
-            .deleteDescription(id, did, logMsg = getLogMessage).map { itemOrErr =>
+        backend.deleteDescription(id, did, logMsg = getLogMessage).map { itemOrErr =>
           itemOrErr.right.map { ok =>
             f(ok)(userOpt)(request)
           }

@@ -14,8 +14,6 @@ import play.api.Logger
  */
 case class LinkDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
 
-  import EntityDAO._
-
   final val BODY_PARAM = "body"
   final val BODY_TYPE = "bodyType"
   final val BODY_NAME = "bodyName"

@@ -31,7 +31,7 @@ import play.api.data.FormError
  * Controller for handling user admin actions.
  * @param globalConfig
  */
-class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with LoginLogout with ControllerHelpers {
+class Admin @Inject()(implicit val globalConfig: global.GlobalConfig, val backend: rest.Backend) extends Controller with AuthController with LoginLogout with ControllerHelpers {
 
   implicit def resource = new RestResource[UserProfile] {
     val entityType = EntityType.UserProfile
@@ -297,7 +297,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   private def grantOwnerPerms[T](profile: UserProfile)(f: => Result)(
     implicit request: Request[T], userOpt: Option[UserProfile]): AsyncResult = {
     AsyncRest {
-      rest.PermissionDAO().setItem(profile, ContentTypes.UserProfile,
+      backend.setItemPermissions(profile, ContentTypes.UserProfile,
         profile.id, List(PermissionType.Owner.toString)).map { permsOrErr =>
         permsOrErr.right.map { _ =>
           f
@@ -312,7 +312,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
   private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Result)(
     implicit request: Request[T], userOpt: Option[UserProfile]): Result = {
     AsyncRest {
-      rest.EntityDAO().create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
+      backend.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { itemOrErr =>
         if (itemOrErr.isLeft) {
           itemOrErr.left.get match {
             case v@ValidationError(errorSet) => {

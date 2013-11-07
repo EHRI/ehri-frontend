@@ -12,9 +12,14 @@ import collection.immutable.ListMap
 import utils.search.SearchParams
 import utils.search.Dispatcher
 import com.google.inject._
+import rest.Backend
 
 @Singleton
-class UserProfiles @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends PermissionHolderController[UserProfile]
+class UserProfiles @Inject()(
+  implicit val globalConfig: global.GlobalConfig,
+  val searchDispatcher: Dispatcher,
+  val backend: Backend
+) extends PermissionHolderController[UserProfile]
   with EntityRead[UserProfile]
   with EntityUpdate[UserProfileF,UserProfile]
   with EntityDelete[UserProfile]

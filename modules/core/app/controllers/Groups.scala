@@ -12,8 +12,9 @@ import defines.{ ContentTypes, EntityType, PermissionType }
 import global.GlobalConfig
 import com.google.inject._
 import utils.search.Dispatcher
+import rest.Backend
 
-class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispatcher: Dispatcher) extends PermissionHolderController[Group]
+class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispatcher: Dispatcher, val backend: Backend) extends PermissionHolderController[Group]
   with VisibilityController[Group]
   with CRUD[GroupF, Group] {
 
@@ -158,7 +159,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          groupOrErr <- rest.EntityDAO().get[Group](id)
+          groupOrErr <- backend.get[Group](id)
         } yield {
           groupOrErr.right.map { group =>
             Ok(views.html.group.confirmMembership(group, item,
@@ -176,7 +177,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
     withItemPermission[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
-        rest.PermissionDAO().addGroup(id, userId).map { boolOrErr =>
+        backend.addGroup(id, userId).map { boolOrErr =>
           boolOrErr.right.map { ok =>
             Redirect(groupRoutes.membership(userType, userId))
               .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
@@ -194,7 +195,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
         item => implicit userOpt => implicit request =>
       AsyncRest {
         for {
-          groupOrErr <- rest.EntityDAO().get[Group](id)
+          groupOrErr <- backend.get[Group](id)
         } yield {
           groupOrErr.right.map { group =>
             Ok(views.html.group.removeMembership(group, item,
@@ -212,7 +213,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
     withItemPermission[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       AsyncRest {
-        rest.PermissionDAO().removeGroup(id, userId).map { boolOrErr =>
+        backend.removeGroup(id, userId).map { boolOrErr =>
           boolOrErr.right.map { ok =>
             Redirect(groupRoutes.membership(userType, userId))
               .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
