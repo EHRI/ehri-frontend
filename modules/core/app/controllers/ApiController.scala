@@ -9,7 +9,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
 import global.GlobalConfig
 
-class ApiController @Inject()(implicit val globalConfig: GlobalConfig) extends Controller with AuthController with ControllerHelpers {
+class ApiController @Inject()(implicit val globalConfig: GlobalConfig, val backend: rest.Backend) extends Controller with AuthController with ControllerHelpers {
 
   def listItems(contentType: String) = Action.async { implicit request =>
     get(s"$contentType/list")(request)
@@ -26,12 +26,11 @@ class ApiController @Inject()(implicit val globalConfig: GlobalConfig) extends C
   def get(urlpart: String) = userProfileAction.async { implicit maybeUser =>
     implicit request =>
     val url = urlpart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
-    rest.ApiDAO(maybeUser)
-      .get(url, request.headers).map { r =>
+    backend.query(url, request.headers).map { r =>
         Status(r.status)
           .chunked(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
           .as(r.ahcResponse.getContentType)
-      }
+    }
   }
 
   //
@@ -66,7 +65,7 @@ class ApiController @Inject()(implicit val globalConfig: GlobalConfig) extends C
   }
 
   def sparqlQuery = userProfileAction.async { implicit userOpt => implicit request =>
-    rest.ApiDAO(userOpt).get("sparql", request.queryString, request.headers).map { r =>
+    backend.query("sparql", request.headers, request.queryString).map { r =>
       Status(r.status)
         .chunked(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
         .as(r.ahcResponse.getContentType)

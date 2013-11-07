@@ -13,8 +13,9 @@ import global.GlobalConfig
 import com.google.inject._
 import utils.search.Dispatcher
 import scala.concurrent.Future
+import rest.Backend
 
-class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispatcher: Dispatcher) extends PermissionHolderController[Group]
+class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispatcher: Dispatcher, val backend: Backend) extends PermissionHolderController[Group]
   with VisibilityController[Group]
   with CRUD[GroupF, Group] {
 
@@ -155,7 +156,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def addMember(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      rest.EntityDAO().get[Group](id).map { group =>
+      backend.get[Group](id).map { group =>
         Ok(views.html.group.confirmMembership(group, item,
           groupRoutes.addMemberPost(id, userType, userId)))
       }
@@ -168,7 +169,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def addMemberPost(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      rest.PermissionDAO().addGroup(id, userId).map { ok =>
+      backend.addGroup(id, userId).map { ok =>
         Redirect(groupRoutes.membership(userType, userId))
           .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
       }
@@ -181,7 +182,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def removeMember(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      rest.EntityDAO().get[Group](id).map { group =>
+      backend.get[Group](id).map { group =>
         Ok(views.html.group.removeMembership(group, item,
           groupRoutes.removeMemberPost(id, userType, userId)))
       }
@@ -194,7 +195,7 @@ class Groups @Inject()(implicit val globalConfig: GlobalConfig, val searchDispat
   def removeMemberPost(id: String, userType: String, userId: String) = {
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
-      rest.PermissionDAO().removeGroup(id, userId).map { ok =>
+      backend.removeGroup(id, userId).map { ok =>
         Redirect(groupRoutes.membership(userType, userId))
           .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
       }

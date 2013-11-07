@@ -11,14 +11,12 @@ import com.google.inject._
 import global.GlobalConfig
 import models.json.RestResource
 
-class Links @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[Link]
+class Links @Inject()(implicit val globalConfig: GlobalConfig, val backend: rest.Backend) extends EntityRead[Link]
   with VisibilityController[Link]
   with EntityDelete[Link]
   with EntityAnnotate[Link] {
 
-  implicit def resource = new RestResource[Link] {
-    val entityType = EntityType.Link
-  }
+  implicit val resource = Link.Resource
 
   val entityType = EntityType.Link
   val contentType = ContentTypes.Link

@@ -68,7 +68,7 @@ trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
         f(item)(Left(errorForm))(userOpt)(request)
       },
       doc => {
-        rest.EntityDAO().update(item.id, transform(doc), logMsg = getLogMessage).flatMap { updated =>
+        backend.update(item.id, transform(doc), logMsg = getLogMessage).flatMap { updated =>
           f(item)(Right(updated))(userOpt)(request)
         } recoverWith {
           // If we have an error, check if it's a validation error.

@@ -11,12 +11,13 @@ import concurrent.Future
 import play.api.i18n.Messages
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
+import rest.{Backend, ApiUser}
 
 /**
  * OpenID login handler implementation.
  */
 @Singleton
-case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig) extends LoginHandler {
+case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends LoginHandler {
 
   import models.sql._
 
@@ -60,7 +61,7 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
             gotoLoginSucceeded(acc.id)
               .map(_.withSession("access_uri" -> globalConfig.routeRegistry.default.url))
           } getOrElse {
-            rest.AdminDAO().createNewUserProfile.flatMap { up =>
+            backend.createNewUserProfile.flatMap { up =>
               userDAO.create(up.id, email.toLowerCase).map { account =>
                 OpenIDAssociation.addAssociation(account, info.id)
                 // TODO: Redirect to profile?

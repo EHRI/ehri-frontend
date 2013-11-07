@@ -21,14 +21,14 @@ trait EntityRead[MT] extends EntityController {
 
   val defaultPage: PageParams = new PageParams()
   val defaultChildPage: PageParams = new PageParams()
-
+  
   implicit def resource: RestResource[MT]
 
 
   object getEntity {
     def async(id: String, user: Option[UserProfile])(f: MT => Future[SimpleResult])(
         implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
-      rest.EntityDAO().get(id).flatMap { item =>
+      backend.get(id).flatMap { item =>
         f(item)
       }
     }
@@ -42,7 +42,7 @@ trait EntityRead[MT] extends EntityController {
   object getEntityT {
     def async[T](otherType: defines.EntityType.Type, id: String)(f: T => Future[SimpleResult])(
         implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]): Future[SimpleResult] = {
-      rest.EntityDAO().get[T](otherType, id).flatMap { item =>
+      backend.get[T](otherType, id).flatMap { item =>
         f(item)
       }
     }
@@ -75,8 +75,8 @@ trait EntityRead[MT] extends EntityController {
         implicit rd: RestReadable[MT], crd: ClientConvertable[MT]) = {
       itemPermissionAction.async[MT](contentType, id) { item => implicit maybeUser => implicit request =>
           // NB: Effectively disable paging here by using a high limit
-        val annsReq = rest.AnnotationDAO().getFor(id)
-        val linkReq = rest.LinkDAO().getFor(id)
+        val annsReq = backend.getAnnotationsForItem(id)
+        val linkReq = backend.getLinksForItem(id)
         for {
           anns <- annsReq
           links <- linkReq
@@ -97,9 +97,9 @@ trait EntityRead[MT] extends EntityController {
     itemPermissionAction.async[MT](contentType, id) { item => implicit userOpt => implicit request =>
       // NB: Effectively disable paging here by using a high limit
       val params = PageParams.fromRequest(request)
-      val annsReq = rest.AnnotationDAO().getFor(id)
-      val linkReq = rest.LinkDAO().getFor(id)
-      val cReq = rest.EntityDAO().pageChildren[MT,CT](id, params)
+      val annsReq = backend.getAnnotationsForItem(id)
+      val linkReq = backend.getLinksForItem(id)
+      val cReq = backend.pageChildren[MT,CT](id, params)
       for {
         anns <- annsReq
         children <- cReq
@@ -112,7 +112,7 @@ trait EntityRead[MT] extends EntityController {
       implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
-      rest.EntityDAO().page(params).map { page =>
+      backend.page(params).map { page =>
         render {
           case Accepts.Json() => Ok(Json.toJson(page)(Page.pageWrites(cfmt.clientFormat)))
           case _ => f(page)(params)(userOpt)(request)
@@ -125,7 +125,7 @@ trait EntityRead[MT] extends EntityController {
     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = ListParams.fromRequest(request)
-      rest.EntityDAO().list(params).map { list =>
+      backend.list(params).map { list =>
         render {
           case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
           case _ => f(list)(params)(userOpt)(request)
@@ -138,8 +138,8 @@ trait EntityRead[MT] extends EntityController {
       f: MT => rest.Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
-      val itemReq = rest.EntityDAO().get(id)
-      val alReq = rest.SystemEventDAO().history(id, params)
+      val itemReq = backend.get(id)
+      val alReq = backend.history(id, params)
       for {
         item <- itemReq
         al <- alReq

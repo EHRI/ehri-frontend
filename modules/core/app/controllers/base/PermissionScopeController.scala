@@ -26,8 +26,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       val itemParams = PageParams.fromRequest(request)
       val scopeParams = PageParams.fromRequest(request, namespace = "s")
       for {
-        permGrants <- rest.PermissionDAO().listForItem(id, itemParams)
-        scopeGrants <- rest.PermissionDAO().listForScope(id, scopeParams)
+        permGrants <- backend.listItemPermissionGrants(id, itemParams)
+        scopeGrants <- backend.listScopePermissionGrants(id, scopeParams)
       } yield f(item)(permGrants)(scopeGrants)(userOpt)(request)
     }
   }
@@ -36,12 +36,12 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
-        accessor <- rest.EntityDAO().get[Accessor](EntityType.withName(userType), userId)
+        accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
         // NB: Faking user for fetching perms to avoid blocking.
         // This means that when we have both the perm set and the user
         // we need to re-assemble them so that the permission set has
         // access to a user's groups to understand inheritance.
-        perms <- rest.PermissionDAO().getScope(accessor, id)
+        perms <- backend.getScopePermissions(accessor, id)
       } yield {
         f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
       }
@@ -57,8 +57,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
       }.toMap
 
       for {
-        accessor <- rest.EntityDAO().get[Accessor](EntityType.withName(userType), userId)
-        sperms <- rest.PermissionDAO().setScope(accessor, id, perms)
+        accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
+        sperms <- backend.setScopePermissions(accessor, id, perms)
       } yield f(sperms)(userOpt)(request)
     }
   }

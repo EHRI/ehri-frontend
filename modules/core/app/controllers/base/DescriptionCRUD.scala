@@ -6,7 +6,7 @@ import play.api.mvc._
 import play.api.data.Form
 import defines.{EntityType, PermissionType}
 import models.UserProfile
-import rest.{DescriptionDAO, ValidationError}
+import rest.ValidationError
 import models.json.{RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
 
@@ -27,7 +27,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         ef => immediate(f(item)(Left(ef))(userOpt)(request)),
-        desc => DescriptionDAO().createDescription(id, desc, logMsg = getLogMessage).map { updated =>
+        desc => backend.createDescription(id, desc, logMsg = getLogMessage).map { updated =>
           f(item)(Right(updated))(userOpt)(request)
         } recoverWith {
           case err: rest.ValidationError => {
@@ -48,8 +48,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         ef => immediate(f(item)(Left(ef))(userOpt)(request)),
-        desc => DescriptionDAO()
-            .updateDescription(id, did, desc, logMsg = getLogMessage).map { updated =>
+        desc => backend.updateDescription(id, did, desc, logMsg = getLogMessage).map { updated =>
           f(item)(Right(updated))(userOpt)(request)
         } recoverWith {
           case err: rest.ValidationError => {
@@ -79,8 +78,7 @@ trait DescriptionCRUD[D <: Description with Persistable, T <: Model with Describ
       f: Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
-      DescriptionDAO()
-          .deleteDescription(id, did, logMsg = getLogMessage).map { ok =>
+      backend.deleteDescription(id, did, logMsg = getLogMessage).map { ok =>
         f(ok)(userOpt)(request)
       }
     }

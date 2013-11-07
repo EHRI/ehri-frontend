@@ -33,7 +33,7 @@ import scala.concurrent.Future.{successful => immediate}
  * Controller for handling user admin actions.
  * @param globalConfig
  */
-class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Controller with AuthController with LoginLogout with ControllerHelpers {
+class Admin @Inject()(implicit val globalConfig: global.GlobalConfig, val backend: rest.Backend) extends Controller with AuthController with LoginLogout with ControllerHelpers {
 
   implicit def resource = new RestResource[UserProfile] {
     val entityType = EntityType.UserProfile
@@ -295,7 +295,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    */
   private def grantOwnerPerms[T](profile: UserProfile)(f: => SimpleResult)(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
-    rest.PermissionDAO().setItem(profile, ContentTypes.UserProfile,
+    backend.setItemPermissions(profile, ContentTypes.UserProfile,
         profile.id, List(PermissionType.Owner.toString)).map { perms =>
       f
     }
@@ -306,8 +306,7 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig) extends Co
    */
   private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Future[SimpleResult])(
      implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
-    rest.EntityDAO()
-        .create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).flatMap { item =>
+    backend.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).flatMap { item =>
       f(item)
     } recoverWith {
       case ValidationError(errorSet) => {

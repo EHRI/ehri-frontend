@@ -17,6 +17,8 @@ import models.base.AnyModel
  */
 case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
 
+  private val entities = new EntityDAO
+
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
@@ -25,7 +27,7 @@ case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends Res
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response)
-      EntityDAO().getJson(id).map { item =>
+      entities.getJson(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
         item.as[MT](rd.restReads)
@@ -38,7 +40,7 @@ case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends Res
     WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .put(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response)
-      EntityDAO().getJson(id).map { item =>
+      entities.getJson(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
         item.as[MT](rd.restReads)
@@ -62,7 +64,7 @@ case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends Res
     WS.url(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
         .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
-      EntityDAO().getJson(id).map { item =>
+      entities.getJson(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
         (item.as[MT](rd.restReads), checkError(response).json.as[DT](fmt.restFormat))
@@ -74,7 +76,7 @@ case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends Res
         implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
     WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
       .delete.flatMap { response =>
-      EntityDAO().getJson(id).map { item =>
+      entities.getJson(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
         item.as[MT](rd.restReads)

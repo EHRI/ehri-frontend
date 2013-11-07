@@ -8,11 +8,13 @@ import models.base.{Accessor, AnyModel}
 import acl.{ItemPermissionSet, GlobalPermissionSet}
 import defines.{EntityType, ContentTypes}
 import play.api.libs.json.JsObject
+import play.api.mvc.Headers
+import play.api.libs.ws.Response
 
 /**
   * @author Mike Bryant (http://github.com/mikesname)
   */
-class RestBackend()(implicit eventHandler: RestEventHandler) extends Backend {
+case class RestBackend()(implicit eventHandler: RestEventHandler) extends Backend {
 
   private val generic = new EntityDAO
   private val descriptions = new DescriptionDAO
@@ -21,6 +23,8 @@ class RestBackend()(implicit eventHandler: RestEventHandler) extends Backend {
   private val annotations = new AnnotationDAO
   private val events = new SystemEventDAO
   private val visibility = new VisibilityDAO
+  private val api = new ApiDAO
+  private val admin = new AdminDAO
 
    // Generic CRUD
    def get[MT](entityType: EntityType.Value, id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT]
@@ -47,7 +51,34 @@ class RestBackend()(implicit eventHandler: RestEventHandler) extends Backend {
    def delete[MT](entityType: EntityType.Value, id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser): Future[Boolean]
       = generic.delete(entityType, id, logMsg)
 
-   // Descriptions
+  def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Boolean]
+      = generic.delete(id, logMsg)
+
+  def listJson[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[List[JsObject]]
+      = generic.listJson(params)
+
+  def list[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[List[MT]]
+      = generic.list(params)
+
+  def listChildren[MT,CMT](id: String, params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT]): Future[List[CMT]]
+      = generic.listChildren(id, params)
+
+  def pageJson[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Page[JsObject]]
+      = generic.pageJson(params)
+
+  def page[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Page[MT]]
+      = generic.page(params)
+
+  def pageChildren[MT,CMT](id: String, params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT]): Future[Page[CMT]]
+      = generic.pageChildren(id, params)
+
+  def count[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Long]
+      = generic.count(params)
+
+  def countChildren[MT](id: String, params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Long]
+      = generic.countChildren(id, params)
+
+  // Descriptions
    def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[MT]
       = descriptions.createDescription(id, item, logMsg)
 
@@ -62,7 +93,6 @@ class RestBackend()(implicit eventHandler: RestEventHandler) extends Backend {
 
    def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT]
       = descriptions.deleteAccessPoint(id, did, apid, logMsg)
-
    // Annotations
    def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Map[String,List[Annotation]]]
       = annotations.getFor(id)
@@ -133,4 +163,12 @@ class RestBackend()(implicit eventHandler: RestEventHandler) extends Backend {
    // Visibility
    def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT]
       = visibility.set(id, data)
+
+  // Direct API query
+  def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser): Future[Response]
+      = api.get(urlpart, headers, params)
+
+  // Helpers
+  def createNewUserProfile(implicit apiUser: ApiUser = ApiUser()): Future[UserProfile]
+    = admin.createNewUserProfile
  }

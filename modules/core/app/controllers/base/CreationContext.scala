@@ -6,7 +6,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import defines.ContentTypes
 import models.base._
 import defines.PermissionType
-import models.{UserProfile, Entity}
+import models.UserProfile
 import forms.VisibilityForm
 import models.json.{RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
@@ -58,8 +58,7 @@ trait CreationContext[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: 
       errorForm => f(item)(Left((errorForm, VisibilityForm.form)))(userOpt)(request),
       citem => {
         val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-        rest.EntityDAO()
-            .createInContext[MT, CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).flatMap { citem =>
+        backend.createInContext[MT, CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).flatMap { citem =>
           f(item)(Right(citem))(userOpt)(request)
         } recoverWith {
           case err: rest.ValidationError => {

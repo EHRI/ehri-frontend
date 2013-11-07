@@ -41,8 +41,7 @@ trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
           errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),
           doc => {
             val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-            rest.EntityDAO()
-                .create(doc, accessors, logMsg = getLogMessage).flatMap { item =>
+            backend.create(doc, accessors, logMsg = getLogMessage).flatMap { item =>
               f(Right(item))(userOpt)(request)
             } recoverWith {
               // If we have an error, check if it's a validation error.

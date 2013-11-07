@@ -2,11 +2,8 @@ package controllers.base
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base._
-import models.base.Persistable
 import defines._
-import models.{UserProfile, Entity}
-import rest.EntityDAO
+import models.UserProfile
 import models.json.RestReadable
 
 object VisibilityController {
@@ -41,7 +38,7 @@ trait VisibilityController[MT] extends EntityRead[MT] {
   def visibilityPostAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-      rest.VisibilityDAO().set[MT](id, data).map { item =>
+      backend.setVisibility[MT](id, data).map { item =>
         f(item)(userOpt)(request)
       }
     }

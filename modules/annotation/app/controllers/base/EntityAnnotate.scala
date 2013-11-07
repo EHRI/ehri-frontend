@@ -2,11 +2,9 @@ package controllers.base
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base._
 import defines._
 import models._
 import play.api.data.Form
-import rest.{BadJson, AnnotationDAO}
 import models.forms.AnnotationForm
 import play.api.libs.json.{Format, Json, JsError}
 import models.json.RestReadable
@@ -36,7 +34,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       AnnotationForm.form.bindFromRequest.fold(
         errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
-        ann => rest.AnnotationDAO().create(id, ann).map { ann =>
+        ann => backend.createAnnotation(id, ann).map { ann =>
           f(Right(ann))(userOpt)(request)
         }
       )
@@ -49,7 +47,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
   def getAnnotationsAction(id: String)(
       f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
-      rest.AnnotationDAO().getFor(id).map { anns =>
+      backend.getAnnotationsForItem(id).map { anns =>
         f(anns)(userOpt)(request)
       }
     }
@@ -81,7 +79,7 @@ trait EntityAnnotate[MT] extends EntityRead[MT] {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
         userProfileAction.async { implicit userOpt => implicit request =>
-          rest.AnnotationDAO().create(id, ap).map { ann =>
+          backend.createAnnotation(id, ap).map { ann =>
             Created(Json.toJson(ann.model)(clientAnnotationFormat))
           }
         }(request.map(js => AnyContentAsEmpty))

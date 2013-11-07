@@ -7,17 +7,12 @@ import models.UserProfile
 import play.api.libs.ws.Response
 import play.api.mvc.Headers
 
-case class ApiDAO(val userProfile: Option[UserProfile]) extends RestDAO {
+case class ApiDAO() extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 
-  def get(urlpart: String, headers: Headers)(implicit apiUser: ApiUser): Future[Response] = {
-    WS.url(enc(requestUrl, urlpart))
-    	.withHeaders(authHeaders.toSeq: _*).get
-  }
-
-  def get(urlpart: String, params: Map[String,Seq[String]] = Map.empty, headers: Headers)(implicit apiUser: ApiUser): Future[Response] = {
-    WS.url(enc(requestUrl, urlpart) + "?" + joinQueryString(params))
+  def get(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser): Future[Response] = {
+    WS.url(enc(requestUrl, urlpart) + (if(!params.isEmpty) "?" + joinQueryString(params) else ""))
       .withHeaders(authHeaders.toSeq: _*).get
   }
 }

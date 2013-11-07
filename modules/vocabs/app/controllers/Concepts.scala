@@ -18,7 +18,7 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
-class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CreationContext[ConceptF, Concept, Concept]
+class Concepts @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends CreationContext[ConceptF, Concept, Concept]
   with VisibilityController[Concept]
   with EntityRead[Concept]
   with EntityUpdate[ConceptF, Concept]

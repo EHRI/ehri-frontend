@@ -10,7 +10,7 @@ import global.GlobalConfig
 import utils.search.{Indexer, Dispatcher}
 import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
-import rest.RestEventHandler
+import rest.{RestBackend, Backend, RestEventHandler}
 import models.Account
 import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
@@ -42,6 +42,9 @@ trait TestLoginHelper {
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
 
+  // Might want to mock this at some point!
+  val testBackend: Backend = new RestBackend()
+
   object TestConfig extends globalConfig.BaseConfiguration {
     val eventHandler = RestEventCollector
   }
@@ -61,6 +64,7 @@ trait TestLoginHelper {
         bind[GlobalConfig].toInstance(TestConfig)
         bind[Indexer].toInstance(mockIndexer)
         bind[Dispatcher].toInstance(mockDispatcher)
+        bind[Backend].toInstance(testBackend)
       }
     }
 

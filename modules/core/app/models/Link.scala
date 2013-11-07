@@ -52,6 +52,10 @@ object Link {
         (__ \ "meta").format[JsObject]
     )(Link.apply _, unlift(Link.unapply _))
   }
+
+  implicit object Resource extends RestResource[Link] {
+    val entityType = EntityType.Link
+  }
 }
 
 case class Link(

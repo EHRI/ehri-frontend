@@ -6,7 +6,6 @@ import models.base._
 import defines._
 import models._
 import play.api.data.Form
-import rest.LinkDAO
 import models.forms.LinkForm
 import play.api.mvc.Result
 import play.api.libs.json.{Writes, JsError, Json}
@@ -81,7 +80,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
             f(Left((item,srcitem,errorForm)))(userOpt)(request)
           }
         },
-        ann => rest.LinkDAO().link(id, to, ann).map { ann =>
+        ann => backend.linkItems(id, to, ann).map { ann =>
           f(Right(ann))(userOpt)(request)
         }
       )
@@ -102,7 +101,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
       val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => immediate(f(Left((item,errorForm)))(userOpt)(request)),
-        links => rest.LinkDAO().linkMultiple(id, links).map { outLinks =>
+        links => backend.linkMultiple(id, links).map { outLinks =>
           f(Right(outLinks))(userOpt)(request)
         }
       )
@@ -123,7 +122,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
         withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
             item => implicit userOpt => implicit request =>
           val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
-          rest.LinkDAO().link(id, ann.target, link, Some(apid)).map { ann =>
+          backend.linkItems(id, ann.target, link, Some(apid)).map { ann =>
             Cache.remove(id)
             Created(Json.toJson(ann)(Link.Converter.clientFormat))
           }
@@ -151,7 +150,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
           val links = anns.map(ann =>
             (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
           )
-          rest.LinkDAO().linkMultiple(id, links).map { newLinks =>
+          backend.linkMultiple(id, links).map { newLinks =>
             Cache.remove(id)
             Created(Json.toJson(newLinks)(Writes.list(Link.Converter.clientFormat)))
           }
@@ -172,7 +171,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
       },
       ap => {
         withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-          rest.DescriptionDAO().createAccessPoint(id, did, ap).map { case (item, ann) =>
+          backend.createAccessPoint(id, did, ap).map { case (item, ann) =>
             Created(Json.toJson(ann)(AccessPointF.Converter.clientFormat  ))
           }
           // TODO: Fix AuthController so we can use the
@@ -188,7 +187,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
    */
   def getLinksAction(id: String)(f: List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
-      rest.LinkDAO().getFor(id).map { links =>
+      backend.getLinksForItem(id).map { links =>
         f(links)(userOpt)(request)
       }
     }
@@ -222,7 +221,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
    */
   def deleteAccessPointAction(id: String, accessPointId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Update, contentType) {
       bool => implicit userOpt => implicit request =>
-    LinkDAO().deleteAccessPoint(accessPointId).map { ok =>
+    backend.deleteAccessPoint(accessPointId).map { ok =>
       Cache.remove(id)
       Ok(Json.toJson(ok))
     }
@@ -235,7 +234,7 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
    */
   def deleteLink(id: String, linkId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
       bool => implicit userOpt => implicit request =>
-    LinkDAO().deleteLink(id, linkId).map { ok =>
+    backend.deleteLink(id, linkId).map { ok =>
       Cache.remove(id)
       Ok(Json.toJson(ok))
     }

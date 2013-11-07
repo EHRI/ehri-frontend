@@ -13,7 +13,7 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
-class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CRUD[VocabularyF,Vocabulary]
+class Vocabularies @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends CRUD[VocabularyF,Vocabulary]
   with CreationContext[ConceptF, Concept, Vocabulary]
   with VisibilityController[Vocabulary]
   with PermissionScopeController[Vocabulary]

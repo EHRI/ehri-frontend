@@ -17,7 +17,7 @@ import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
-class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntityRead[DocumentaryUnit]
+class DocumentaryUnits @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends EntityRead[DocumentaryUnit]
   with VisibilityController[DocumentaryUnit]
   with CreationContext[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
   with EntityUpdate[DocumentaryUnitF, DocumentaryUnit]

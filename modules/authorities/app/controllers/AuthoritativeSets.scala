@@ -12,7 +12,7 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
-class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+class AuthoritativeSets @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with CreationContext[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with VisibilityController[AuthoritativeSet]
   with PermissionScopeController[AuthoritativeSet]

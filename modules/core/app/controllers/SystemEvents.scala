@@ -7,10 +7,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
 import global.GlobalConfig
 import utils.{ListParams, SystemEventParams, PageParams}
-import rest.SystemEventDAO
-import models.json.RestResource
 
-class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends EntityRead[SystemEvent] {
+class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig, val backend: rest.Backend) extends EntityRead[SystemEvent] {
 
   implicit val resource = SystemEvent.Resource
 
@@ -22,7 +20,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     val params = PageParams.fromRequest(request)
     val subjectParams = PageParams.fromRequest(request, namespace = "s")
-    SystemEventDAO().subjectsFor(id, params).map { page =>
+        backend.subjectsForEvent(id, params).map { page =>
       Ok(views.html.systemEvents.show(item, page, params))
     }
   }
@@ -31,7 +29,7 @@ class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig) extends En
     val listParams = ListParams.fromRequest(request)
     val eventFilter = SystemEventParams.fromRequest(request)
     val filterForm = SystemEventParams.form.fill(eventFilter)
-    SystemEventDAO().list(listParams, eventFilter).map { list =>
+    backend.listEvents(listParams, eventFilter).map { list =>
       Ok(views.html.systemEvents.list(list, listParams, filterForm))
     }
   }

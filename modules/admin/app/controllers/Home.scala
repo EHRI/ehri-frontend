@@ -19,7 +19,7 @@ import play.api.http.MimeTypes
 import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
-class Home @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher) extends EntitySearch {
+class Home @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends EntitySearch {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

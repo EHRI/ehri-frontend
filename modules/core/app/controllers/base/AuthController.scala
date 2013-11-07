@@ -13,12 +13,14 @@ import defines.EntityType
 import defines.PermissionType
 import defines.ContentTypes
 import global.GlobalConfig
-import rest.ApiUser
+import rest.{Backend, ApiUser}
 
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
  */
 trait AuthController extends Controller with ControllerHelpers with AsyncAuth with Authorizer {
+
+  val backend: Backend
 
   implicit val globalConfig: GlobalConfig
 
@@ -84,8 +86,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             // available initially, and we don't want to block for it to become
             // available, we should probably add the account to the permissions when
             // we have both items from the server.
-            val getProf = rest.EntityDAO().get[UserProfile](EntityType.UserProfile, account.id)
-            val getGlobalPerms = rest.PermissionDAO().get(fakeProfile)
+            val getProf = backend.get[UserProfile](EntityType.UserProfile, account.id)
+            val getGlobalPerms = backend.getGlobalPermissions(fakeProfile)
             // These requests should execute in parallel...
             for {
               entity <- getProf
@@ -116,7 +118,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     def async[MT](entityType: EntityType.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
         implicit rd: RestReadable[MT]): Action[AnyContent] = {
       userProfileAction.async { implicit userOpt => implicit request =>
-        rest.EntityDAO().get(entityType, id).flatMap { item =>
+        backend.get(entityType, id).flatMap { item =>
           f(item)(userOpt)(request)
         }
       }
@@ -144,9 +146,9 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           // NB: We have to re-fetch the global perms here because they need to be
           // within the scope of the particular item. This could be optimised, but
           // it would involve some duplication of code.
-          val getGlobalPerms = rest.PermissionDAO().getScope(user, id)
-          val getItemPerms = rest.PermissionDAO().getItem(user, contentType, id)
-          val getEntity = rest.EntityDAO().get(entityType, id)
+          val getGlobalPerms = backend.getScopePermissions(user, id)
+          val getItemPerms = backend.getItemPermissions(user, contentType, id)
+          val getEntity = backend.get(entityType, id)
           // These requests should execute in parallel...
           for {
             gperms <- getGlobalPerms
@@ -156,7 +158,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             r <- f(item)(Some(up))(request)
           } yield r
         } getOrElse {
-          rest.EntityDAO().get(entityType, id).flatMap { item =>
+          backend.get(entityType, id).flatMap { item =>
             f(item)(None)(request)
           }
         }
