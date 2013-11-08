@@ -39,7 +39,7 @@ trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
         implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
       withItemPermission.async[MT](id, PermissionType.Update, contentType) {
           item => implicit userOpt => implicit request =>
-        updateAction(item, form, transform)(f)
+        updateAction.async(item, form, transform)(f)
       }
     }
 
@@ -60,27 +60,34 @@ trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends Enti
    * @param transform
    * @return
    */
-  def updateAction(item: MT, form: Form[F], transform: F => F = identity)(f: AsyncUpdateCallback)(
-      implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[F], rd: RestReadable[MT]) = {
-    form.bindFromRequest.fold(
-      errorForm => {
-        Logger.logger.debug("Form errors: {}", errorForm.errors)
-        f(item)(Left(errorForm))(userOpt)(request)
-      },
-      doc => {
-        backend.update(item.id, transform(doc), logMsg = getLogMessage).flatMap { updated =>
-          f(item)(Right(updated))(userOpt)(request)
-        } recoverWith {
-          // If we have an error, check if it's a validation error.
-          // If so, we need to merge those errors back into the form
-          // and redisplay it...
-          case err: rest.ValidationError => {
-            val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
-            val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
-            f(item)(Left(filledForm))(userOpt)(request)
+  object updateAction {
+    def async(item: MT, form: Form[F], transform: F => F = identity)(f: AsyncUpdateCallback)(
+        implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[F], rd: RestReadable[MT]) = {
+      form.bindFromRequest.fold(
+        errorForm => {
+          Logger.logger.debug("Form errors: {}", errorForm.errors)
+          f(item)(Left(errorForm))(userOpt)(request)
+        },
+        doc => {
+          backend.update(item.id, transform(doc), logMsg = getLogMessage).flatMap { updated =>
+            f(item)(Right(updated))(userOpt)(request)
+          } recoverWith {
+            // If we have an error, check if it's a validation error.
+            // If so, we need to merge those errors back into the form
+            // and redisplay it...
+            case err: rest.ValidationError => {
+              val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
+              val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
+              f(item)(Left(filledForm))(userOpt)(request)
+            }
           }
         }
-      }
-    )
+      )
+    }
+
+    def apply(item: MT, form: Form[F], transform: F => F = identity)(f: UpdateCallback)(
+      implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[F], rd: RestReadable[MT]) = {
+      async(item, form, transform)(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
+    }
   }
 }

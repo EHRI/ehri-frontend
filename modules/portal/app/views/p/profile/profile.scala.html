@@ -1,0 +1,24 @@
+@(item: UserProfile)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@p.layout.portalLayout(item.toStringLang) {
+    @p.layout.breadcrumbs(showHome = false) {
+        <li>&nbsp;</li>
+    }
+
+    <div class="row info-bar">
+        <div class="container">
+            <h1>@Messages("portal.profile")</h1>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="container">
+            <div class="col-sm-8">
+                @profileDetails(item)
+            </div>
+            <div class="col-sm-4">
+            </div>
+        </div>
+    </div>
+}

@@ -7,7 +7,7 @@
         @defining(fc.sorted.size <= 1) { disabled =>
             <div class="facet-class">
                 <h4>@Messages(fc.name)</h4>
-                <select multiple style="width: 100%" name="@fc.param" data-placeholder="@Messages("portal.facet.placeholder." + fc.param)" class="select2">
+                <select multiple style="width: 100%" name="@fc.param" data-placeholder="@Messages("portal.facet.placeholder." + fc.param)" class="select2 autosubmit">
                     <option></option>
                     @fc.sorted.filter(_.count > 0).map { f =>
                         <option value="@f.value" @{if(f.applied) "selected"}>@fc.pretty(f) (@f.count)</option>

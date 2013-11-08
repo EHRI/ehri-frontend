@@ -24,7 +24,7 @@ case class Utils @Inject()(implicit val globalConfig: global.GlobalConfig, backe
     // TODO: Make caching configurable...
     implicit val apiUser = new ApiUser
 
-    backend.query("/admin", request.headers).map { r =>
+    backend.query("group/admin", request.headers).map { r =>
       r.json.validate[Group](Group.Converter.restReads).fold(
         _ => ServiceUnavailable("ko\nbad json"),
         _ => Ok("ok")

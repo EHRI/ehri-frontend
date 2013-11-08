@@ -1,5 +1,3 @@
-@(desc: play.api.data.Field, fieldName: String)(implicit prefix: String = "")
-
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+@(desc: play.api.data.Field, fieldName: String)(implicit prefix: String = "", fieldConstructor: views.html.helper.FieldConstructor)
 
 @helper.inputText(desc(fieldName), 'title -> views.Helpers.renderMarkdown(Messages(prefix + "." + fieldName + ".description")), 'class -> "span8", '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))

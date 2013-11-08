@@ -175,13 +175,19 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Wrap userProfileAction to ensure we have a user, or
    * access is denied
    */
-  def withUserAction(f: Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
-    userProfileAction.async { implicit  maybeUser => implicit request =>
-      maybeUser.map { user =>
-        f(maybeUser)(request)
-      } getOrElse {
-        authenticationFailed(request)
+  object withUserAction {
+    def async(f: UserProfile => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+      userProfileAction.async { implicit  maybeUser => implicit request =>
+        maybeUser.map { user =>
+          f(user)(request)
+        } getOrElse {
+          authenticationFailed(request)
+        }
       }
+    }
+
+    def apply(f: UserProfile => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+      async(f.andThen(_.andThen(t => immediate(t))))
     }
   }
 

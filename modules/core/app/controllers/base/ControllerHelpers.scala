@@ -26,6 +26,14 @@ trait ControllerHelpers {
   implicit val globalConfig: GlobalConfig
 
   /**
+   * Some actions **require** a user is logged in.
+   * However the main templates assume it is optional. This helper
+   * to put an optional user in scope for template rendering
+   * when there's definitely one defined.
+   */
+  implicit def userOpt(implicit user: UserProfile): Option[UserProfile] = Some(user)
+
+  /**
    * Object that handles event hooks
    */
   //implicit val eventHandler = globalConfig.eventHandler

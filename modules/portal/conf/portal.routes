@@ -22,6 +22,8 @@ GET        /dev/newsFeed                @controllers.portal.Portal.newsFeed
 
 GET        /dev/account                 @controllers.portal.Portal.account
 GET        /dev/profile                 @controllers.portal.Portal.profile
+GET        /dev/profile/edit            @controllers.portal.Portal.updateProfile
+POST       /dev/profile/edit            @controllers.portal.Portal.updateProfilePost
 GET        /dev/filter                  @controllers.portal.Portal.filter
 
 # Various JS data helpers

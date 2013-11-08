@@ -18,11 +18,12 @@ import utils.ListParams
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
+import play.api.i18n.Messages
 
 
 @Singleton
 class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend)
-  extends Controller with EntitySearch with FacetConfig with PortalActions {
+  extends Controller with EntitySearch with FacetConfig with PortalActions with PortalProfile {
 
   case class Stats(
     repositoryCount: Int,
@@ -99,10 +100,6 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(Json.toJson(userOpt.flatMap(_.account)))
   }
 
-  def profile = userProfileAction { implicit userOpt => implicit request =>
-    Ok(Json.toJson(userOpt)(Format.optionWithNull(UserProfile.Converter.clientFormat)))
-  }
-
   def index = Cached("pages.landing", 3600) {
     userProfileAction.async { implicit userOpt => implicit request =>
       searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
@@ -128,7 +125,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     }.apply(request)
   }
 
-  def browseCountry(id: String) = getAction.async[Country](EntityType.Country, id) {
+  def browseCountry(id: String) = portalGetAction.async[Country](EntityType.Country, id) {
       item => annotations => links => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), entityFacets = repositorySearchFacets,
         defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
@@ -144,7 +141,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories))
   }
 
-  def browseRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
+  def browseRepository(id: String) = portalGetAction.async[Repository](EntityType.Repository, id) {
       item => annotations => links => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
@@ -169,7 +166,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       Ok(p.documentaryUnit.listByRepository(page, params, facets, portalRoutes.browseDocumentsByRepository))
   }
 
-  def browseDocument(id: String) = getAction.async[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+  def browseDocument(id: String) = portalGetAction.async[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
       item => annotations => links => implicit userOpt => implicit request =>
     val filters = Map(SolrConstants.PARENT_ID -> item.id)
     searchAction[DocumentaryUnit](filters,
@@ -188,7 +185,7 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
   }
 
 
-  def browseAuthoritativeSet(id: String) = getAction.async[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
+  def browseAuthoritativeSet(id: String) = portalGetAction.async[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
       item => annotations => links => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
@@ -200,17 +197,17 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
     }.apply(request)
   }
 
-  def browseHistoricalAgent(id: String) = getAction[HistoricalAgent](EntityType.HistoricalAgent, id) {
+  def browseHistoricalAgent(id: String) = portalGetAction[HistoricalAgent](EntityType.HistoricalAgent, id) {
       doc => anns => links => implicit userOpt => implicit request =>
     Ok(p.historicalAgent.show(doc, anns, links))
   }
 
-  def activity = listAction[SystemEvent](EntityType.SystemEvent) {
+  def activity = portalListAction[SystemEvent](EntityType.SystemEvent) {
       list => params => implicit userOpt => implicit request =>
     Ok(p.activity(list, params))
   }
 
-  def activityMore(offset: Int) = listAction[SystemEvent](EntityType.SystemEvent, Some(ListParams(offset = offset))) {
+  def activityMore(offset: Int) = portalListAction[SystemEvent](EntityType.SystemEvent, Some(ListParams(offset = offset))) {
       list => params => implicit userOpt => implicit request =>
     Ok(p.common.eventItems(list))
   }
@@ -220,7 +217,6 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       Ok(views.html.placeholder())
     }
   }
-
 
   case class NewsItem(title: String, link: String, description: Html)
 
