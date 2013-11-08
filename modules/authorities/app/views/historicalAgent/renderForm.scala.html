@@ -5,9 +5,9 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@lineInput(f(""), IDENTIFIER)(prefix = FIELD_PREFIX)
-
 @defining(FIELD_PREFIX) { implicit fieldPrefix =>
+    @lineInput(f(""), IDENTIFIER)
+
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
         @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
 

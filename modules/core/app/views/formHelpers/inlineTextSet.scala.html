@@ -1,4 +1,4 @@
-@(desc: Field, label: String)(implicit fieldPrefix: String, lang: Lang)
+@(desc: Field, label: String)(implicit fieldPrefix: String, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-formset control-group clearfix" data-prefix="@label">
     <!-- Template for adding inline date forms via JS -->
