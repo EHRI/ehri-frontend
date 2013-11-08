@@ -25,13 +25,13 @@ case class PermissionDAO() extends RestDAO {
   def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   def requestUrl = "%s/permission".format(baseUrl)
 
-  def list[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]] =
+  def listPermissionGrants[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]] =
     listWithUrl(enc(requestUrl, "page", user.id), params)
 
-  def listForItem(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]] =
+  def listItemPermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]] =
     listWithUrl(enc(requestUrl, "pageForItem", id), params)
 
-  def listForScope(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]] =
+  def listScopePermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]] =
     listWithUrl(enc(requestUrl, "pageForScope", id), params)
 
   private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]] = {
@@ -41,7 +41,7 @@ case class PermissionDAO() extends RestDAO {
     }
   }
 
-  def get[T <: Accessor](user: T)(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]] = {
+  def getGlobalPermissions[T <: Accessor](user: T)(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id)
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(Right(cached.get))
@@ -57,7 +57,7 @@ case class PermissionDAO() extends RestDAO {
     }
   }
 
-  def set[T <: Accessor](user: T, data: Map[String, List[String]])(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]] = {
+  def setGlobalPermissions[T <: Accessor](user: T, data: Map[String, List[String]])(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id)
     WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
@@ -69,7 +69,7 @@ case class PermissionDAO() extends RestDAO {
     }
   }
 
-  def getItem[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String)(implicit apiUser: ApiUser): Future[Either[RestError, ItemPermissionSet[T]]] = {
+  def getItemPermissions[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String)(implicit apiUser: ApiUser): Future[Either[RestError, ItemPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id, id)
     val cached = Cache.getAs[ItemPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(Right(cached.get))
@@ -85,7 +85,7 @@ case class PermissionDAO() extends RestDAO {
     }
   }
 
-  def setItem[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String, data: List[String])(implicit apiUser: ApiUser): Future[Either[RestError, ItemPermissionSet[T]]] = {
+  def setItemPermissions[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String, data: List[String])(implicit apiUser: ApiUser): Future[Either[RestError, ItemPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id, id)
     WS.url(url)
       .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
@@ -97,7 +97,7 @@ case class PermissionDAO() extends RestDAO {
     }
   }
 
-  def getScope[T <: Accessor](user: T, id: String)(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]] = {
+  def getScopePermissions[T <: Accessor](user: T, id: String)(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id, "scope", id)
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(Right(cached.get))
@@ -113,7 +113,7 @@ case class PermissionDAO() extends RestDAO {
     }
   }
 
-  def setScope[T <: Accessor](user: T, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]] = {
+  def setScopePermissions[T <: Accessor](user: T, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]] = {
     val url = enc(requestUrl, user.id, "scope", id)
     WS.url(url).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
       checkError(response).right.map { r =>

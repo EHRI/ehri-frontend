@@ -17,7 +17,7 @@ case class AnnotationDAO() extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
 
-  def getFor(id: String)(implicit apiUser: ApiUser): Future[Either[RestError, Map[String,List[Annotation]]]] = {
+  def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Either[RestError, Map[String,List[Annotation]]]] = {
     val url = enc(requestUrl, "for/%s?limit=1000".format(id))
     Logger.logger.debug("GET ANNOTATIONS {}", url)
     WS.url(url)
@@ -26,7 +26,7 @@ case class AnnotationDAO() extends RestDAO {
     }
   }
 
-  def create(id: String, ann: AnnotationF)(implicit apiUser: ApiUser): Future[Either[RestError, Annotation]] = {
+  def createAnnotation(id: String, ann: AnnotationF)(implicit apiUser: ApiUser): Future[Either[RestError, Annotation]] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*)
       .post(Json.toJson(ann)(AnnotationFormat.restFormat)).map { response =>
       checkErrorAndParse(response)(AnnotationFormat.metaReads)

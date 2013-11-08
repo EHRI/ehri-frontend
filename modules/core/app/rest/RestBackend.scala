@@ -93,19 +93,20 @@ case class RestBackend()(implicit eventHandler: RestEventHandler) extends Backen
 
    def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Either[RestError, MT]]
       = descriptions.deleteAccessPoint(id, did, apid, logMsg)
+  
    // Annotations
    def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Either[RestError, Map[String,List[Annotation]]]]
-      = annotations.getFor(id)
+      = annotations.getAnnotationsForItem(id)
 
    def createAnnotation(id: String, ann: AnnotationF)(implicit apiUser: ApiUser): Future[Either[RestError, Annotation]]
-      = annotations.create(id, ann)
+      = annotations.createAnnotation(id, ann)
 
    // Links
    def getLinksForItem(id: String)(implicit apiUser: ApiUser): Future[Either[RestError, List[Link]]]
-      = links.getFor(id)
+      = links.getLinksForItem(id)
 
    def linkItems(id: String, src: String, link: LinkF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser): Future[Either[RestError, Link]]
-      = links.link(id, src, link, accessPoint)
+      = links.linkItems(id, src, link, accessPoint)
 
    def deleteLink(id: String, linkId: String)(implicit apiUser: ApiUser): Future[Either[RestError,Boolean]]
       = links.deleteLink(id, linkId)
@@ -118,31 +119,31 @@ case class RestBackend()(implicit eventHandler: RestEventHandler) extends Backen
 
    // Permissions
    def getItemPermissions[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String)(implicit apiUser: ApiUser): Future[Either[RestError, ItemPermissionSet[T]]]
-      = perms.getItem(user, contentType, id)
+      = perms.getItemPermissions(user, contentType, id)
 
    def setItemPermissions[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String, data: List[String])(implicit apiUser: ApiUser): Future[Either[RestError, ItemPermissionSet[T]]]
-      = perms.setItem(user, contentType, id, data)
+      = perms.setItemPermissions(user, contentType, id, data)
 
    def setGlobalPermissions[T <: Accessor](user: T, data: Map[String, List[String]])(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]]
-      = perms.set(user, data)
+      = perms.setGlobalPermissions(user, data)
 
    def getGlobalPermissions[T <: Accessor](user: T)(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]]
-      = perms.get(user)
+      = perms.getGlobalPermissions(user)
 
    def getScopePermissions[T <: Accessor](user: T, id: String)(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]]
-      = perms.getScope(user, id)
+      = perms.getScopePermissions(user, id)
 
    def setScopePermissions[T <: Accessor](user: T, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser): Future[Either[RestError, GlobalPermissionSet[T]]]
-      = perms.setScope(user, id, data)
+      = perms.setScopePermissions(user, id, data)
 
    def listPermissionGrants[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]]
-      = perms.list(user, params)
+      = perms.listPermissionGrants(user, params)
 
    def listItemPermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]]
-      = perms.listForItem(id, params)
+      = perms.listItemPermissionGrants(id, params)
 
    def listScopePermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[PermissionGrant]]]
-      = perms.listForScope(id, params)
+      = perms.listScopePermissionGrants(id, params)
 
    def addGroup(groupId: String, userId: String)(implicit apiUser: ApiUser): Future[Either[RestError, Boolean]]
       = perms.addGroup(groupId, userId)
@@ -152,17 +153,17 @@ case class RestBackend()(implicit eventHandler: RestEventHandler) extends Backen
 
    // Events
    def subjectsForEvent(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[AnyModel]]]
-      = events.subjectsFor(id, params)
+      = events.subjectsForEvent(id, params)
 
    def listEvents(params: ListParams, filters: SystemEventParams)(implicit apiUser: ApiUser): Future[Either[RestError, List[SystemEvent]]]
-      = events.list(params, filters)
+      = events.listEvents(params, filters)
 
    def history(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[SystemEvent]]]
       = events.history(id, params)
 
    // Visibility
    def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Either[RestError, MT]]
-      = visibility.set(id, data)
+      = visibility.setVisibility(id, data)
 
   // Direct API query
   def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser): Future[Response]

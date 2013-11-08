@@ -33,14 +33,14 @@ case class SystemEventDAO() extends RestDAO {
     }
   }
 
-  def list(params: ListParams, filters: SystemEventParams)(implicit apiUser: ApiUser): Future[Either[RestError, List[SystemEvent]]] = {
+  def listEvents(params: ListParams, filters: SystemEventParams)(implicit apiUser: ApiUser): Future[Either[RestError, List[SystemEvent]]] = {
     WS.url(enc(requestUrl, "list")).withQueryString((params.toSeq ++ filters.toSeq): _*)
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list[SystemEvent](SystemEvent.Converter.restReads))
     }
   }
 
-  def subjectsFor(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[AnyModel]]] = {
+  def subjectsForEvent(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Either[RestError, Page[AnyModel]]] = {
     WS.url(enc(requestUrl, id, "subjects")).withQueryString(params.toSeq: _*)
         .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads(AnyModel.Converter.restReads))
