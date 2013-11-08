@@ -18,11 +18,12 @@ import utils.ListParams
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
+import play.api.i18n.Messages
 
 
 @Singleton
 class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend)
-  extends Controller with EntitySearch with FacetConfig with PortalActions {
+  extends Controller with EntitySearch with FacetConfig with PortalActions with PortalProfile {
 
   case class Stats(
     repositoryCount: Int,
@@ -97,10 +98,6 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
 
   def account = userProfileAction { implicit userOpt => implicit request =>
     Ok(Json.toJson(userOpt.flatMap(_.account)))
-  }
-
-  def profile = userProfileAction { implicit userOpt => implicit request =>
-    Ok(Json.toJson(userOpt)(Format.optionWithNull(UserProfile.Converter.clientFormat)))
   }
 
   def index = Cached("pages.landing", 3600) {
@@ -220,7 +217,6 @@ class Portal @Inject()(implicit val globalConfig: global.GlobalConfig, val searc
       Ok(views.html.placeholder())
     }
   }
-
 
   case class NewsItem(title: String, link: String, description: Html)
 

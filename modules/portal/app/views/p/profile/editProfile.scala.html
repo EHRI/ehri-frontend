@@ -1,0 +1,18 @@
+@(item: UserProfile, f: play.api.data.Form[UserProfileF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@p.layout.portalLayout(Messages("actions.updateUserProfile")) {
+    @p.layout.breadcrumbs(showHome = false) {
+    <li>&nbsp;</li>
+    }
+
+    <div class="row info-bar">
+        <div class="container">
+            <h1>@Messages("portal.profile")</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        @editProfileForm(item, f, action)
+    </div>
+}

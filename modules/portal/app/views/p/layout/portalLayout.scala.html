@@ -79,6 +79,11 @@
                         <li class="@maybeActive(controllers.portal.routes.Portal.activity.url)">
                             <a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a>
                         </li>
+                        @userOpt.map { _ =>
+                            <li class="@maybeActive(controllers.portal.routes.Portal.profile.url)">
+                                <a href="@controllers.portal.routes.Portal.profile">@Messages("portal.profile")</a>
+                            </li>
+                        }
                     </ul>
 
                     <ul class="nav navbar-nav navbar-right">

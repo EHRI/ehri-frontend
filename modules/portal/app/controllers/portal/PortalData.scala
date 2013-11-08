@@ -16,7 +16,10 @@ object PortalData extends Controller {
 
     Ok(
       Routes.javascriptRouter("jsRoutes")(
-        controllers.portal.routes.javascript.Portal.activityMore
+        controllers.portal.routes.javascript.Portal.activityMore,
+        controllers.portal.routes.javascript.Portal.profile,
+        controllers.portal.routes.javascript.Portal.updateProfile,
+        controllers.portal.routes.javascript.Portal.updateProfilePost
       )
     ).as(MimeTypes.JAVASCRIPT)
   }

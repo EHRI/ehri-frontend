@@ -1,0 +1,32 @@
+@(name: Html)(location: Html)(languages: Html)(about: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+
+@import UserProfileF._
+
+@profileSection(key: String)(html: Html = Html(Messages("profile.notSupplied"))) = {
+    <div class="profile-section">
+        <h4>@Messages(key)</h4>
+        @if(!html.body.trim.isEmpty) {
+        <div class="profile-section-text">
+            @html
+        </div>
+        } else {
+        <i>@Messages("portal.noDetails")</i>
+        }
+    </div>
+}
+
+
+@defining(FIELD_PREFIX) { implicit fieldPrefix =>
+    @profileSection("profile.name") {
+        @name
+    }
+    @profileSection("profile.location") {
+        @location
+    }
+    @profileSection("profile.languages") {
+        @languages
+    }
+    @profileSection("profile.about") {
+        @about
+    }
+}
