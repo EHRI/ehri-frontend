@@ -20,7 +20,7 @@ case class VisibilityDAO()(implicit eventHandler: RestEventHandler) extends Rest
 
   def requestUrl = "http://%s:%d/%s/access".format(host, port, mount)
 
-  def set[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT] = {
+  def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT] = {
     WS.url(enc(requestUrl, id))
         .withQueryString(data.map(ACCESSOR_PARAM -> _): _*)
         .withHeaders(authHeaders.toSeq: _*).post("").map { response =>

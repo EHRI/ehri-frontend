@@ -27,7 +27,7 @@ case class LinkDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
    * @param id
    * @return
    */
-  def getFor(id: String)(implicit apiUser: ApiUser): Future[List[Link]] = {
+  def getLinksForItem(id: String)(implicit apiUser: ApiUser): Future[List[Link]] = {
     WS.url(enc(requestUrl, "for/%s?limit=1000".format(id)))
       .withHeaders(authHeaders.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list(linkMetaReads))
@@ -41,7 +41,7 @@ case class LinkDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
    * @param link
    * @return
    */
-  def link(id: String, src: String, link: LinkF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser): Future[Link] = {
+  def linkItems(id: String, src: String, link: LinkF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser): Future[Link] = {
     WS.url(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
       .withHeaders(authHeaders.toSeq: _*)
       .post(Json.toJson(link)(LinkF.Converter.restFormat)).map { response =>
@@ -84,7 +84,7 @@ case class LinkDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
   def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])])(implicit apiUser: ApiUser): Future[List[Link]] = {
     Future.sequence {
       srcToLinks.map {
-        case (other, ann, accessPoint) => link(id, other, ann, accessPoint)
+        case (other, ann, accessPoint) => linkItems(id, other, ann, accessPoint)
       }
     }
   }
