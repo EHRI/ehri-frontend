@@ -161,10 +161,10 @@ trait AuthController extends Controller with ControllerHelpers with Auth with Au
    * Wrap userProfileAction to ensure we have a user, or
    * access is denied
    */
-  def withUserAction(f: Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+  def withUserAction(f: UserProfile => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction { implicit  maybeUser => implicit request =>
       maybeUser.map { user =>
-        f(maybeUser)(request)
+        f(user)(request)
       }.getOrElse(authenticationFailed(request))
     }
   }
