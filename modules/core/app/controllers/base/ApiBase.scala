@@ -3,6 +3,7 @@ package controllers.base
 import play.api.libs.concurrent.Execution.Implicits._
 import models.json.{RestResource, ClientConvertable, RestReadable}
 import play.api.libs.json.Json
+import controllers.generic.Generic
 
 object TestJson {
     import java.sql.Timestamp
@@ -21,7 +22,7 @@ object TestJson {
 /**
  * Created by mike on 23/06/13.
  */
-trait ApiBase[MT] extends EntityController[MT] {
+trait ApiBase[MT] extends Generic[MT] {
   def getClientJson(id: String)(implicit rr: RestReadable[MT], cw: ClientConvertable[MT]) = userProfileAction.async {
       implicit maybeUser => implicit request =>
     backend.get[MT](id).map { tm =>

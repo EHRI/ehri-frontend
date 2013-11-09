@@ -4,15 +4,15 @@ import solr.facet.{SolrQueryFacet, QueryFacetClass, FieldFacetClass}
 import models.{Isaar, IsadG}
 import play.api.i18n.Messages
 import views.Helpers
-import controllers.base.EntitySearch
 import utils.search.{Facet, FacetClass, FacetSort, FacetDisplay}
 import solr.SolrConstants
 import defines.EntityType
+import controllers.generic.Search
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait FacetConfig extends EntitySearch {
+trait FacetConfig extends Search {
 
   // i.e. Everything
   protected val globalSearchFacets: FacetBuilder = { implicit lang =>

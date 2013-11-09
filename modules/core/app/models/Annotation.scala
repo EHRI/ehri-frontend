@@ -57,6 +57,11 @@ object Annotation {
     )(Annotation.apply _, unlift(Annotation.unapply _))
   }
 
+  implicit object Resource extends RestResource[Annotation] {
+    val entityType = EntityType.Annotation
+  }
+
+
   /**
    * Filter annotations on individual fields
    */

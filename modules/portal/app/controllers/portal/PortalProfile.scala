@@ -1,8 +1,9 @@
 package controllers.portal
 
-import controllers.base.{EntityUpdate, AuthController, ControllerHelpers}
+import controllers.base.{AuthController, ControllerHelpers}
 import models.{UserProfile, UserProfileF}
 import play.api._
+import controllers.generic.Update
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
@@ -11,7 +12,7 @@ import play.api.libs.json.{Format, Json}
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalProfile extends EntityUpdate[UserProfileF,UserProfile] {
+trait PortalProfile extends Update[UserProfileF,UserProfile] {
   self: Controller with ControllerHelpers with AuthController =>
 
   implicit val resource = UserProfile.Resource

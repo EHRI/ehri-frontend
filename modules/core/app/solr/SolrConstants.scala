@@ -121,4 +121,9 @@ object SolrConstants {
    */
   final val TOP_LEVEL = "isTopLevel"
 
+  /**
+   * Country code.
+   */
+  final val COUNTRY_CODE = "countryCode"
+
 }

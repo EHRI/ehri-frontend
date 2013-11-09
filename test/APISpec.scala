@@ -1,13 +1,10 @@
 package test
 
-import play.api.test._
-import play.api.test.Helpers._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{AnnotationF, AccessPointF}
-import controllers.routes
 import helpers._
 import play.api.libs.json.Json
-import controllers.base.{EntityAnnotate, AccessPointLink}
+import controllers.generic.{AccessPointLink, Annotate}
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
@@ -31,7 +28,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
 
     "allow creating new access points" in new FakeApp {
       val ap = new AccessPointF(id = None, accessPointType=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
-      val json = Json.toJson(ap)(controllers.base.AccessPointLink.accessPointFormat)
+      val json = Json.toJson(ap)(controllers.generic.AccessPointLink.accessPointFormat)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.archdesc.routes.DocumentaryUnits.createAccessPoint("c1", "cd1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
@@ -53,7 +50,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
   "Annotation JSON endpoints" should {
     "allow creating annotations" in new FakeApp {
       val json = Json.toJson(new AnnotationF(id = None, body = "Hello, world!"))(
-        EntityAnnotate.clientAnnotationFormat)
+        Annotate.clientAnnotationFormat)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.annotation.routes.Annotations.createAnnotationJsonPost("c1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get

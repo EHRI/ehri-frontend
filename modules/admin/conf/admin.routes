@@ -10,14 +10,14 @@ GET     /overview                           @controllers.admin.Home.overview
 # Js Routes
 GET     /routes                             @controllers.admin.Home.jsRoutes
 
-GET     /updateIndex                        @controllers.admin.Search.updateIndex
-POST    /updateIndex                        @controllers.admin.Search.updateIndexPost
+GET     /updateIndex                        @controllers.admin.AdminSearch.updateIndex
+POST    /updateIndex                        @controllers.admin.AdminSearch.updateIndexPost
 
 # Search testing
-GET     /search                             @controllers.admin.Search.search
+GET     /search                             @controllers.admin.AdminSearch.search
 
 # Get JSON (id,name) pair for a given type
-GET     /filter                             @controllers.admin.Search.filter
+GET     /filter                             @controllers.admin.AdminSearch.filter
 
 # Metrics
 GET     /metrics/languageOfMaterial         @controllers.admin.Metrics.languageOfMaterial

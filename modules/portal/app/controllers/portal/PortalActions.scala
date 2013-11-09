@@ -18,7 +18,7 @@ trait PortalActions {
 
   self: AuthController with ControllerHelpers =>
 
-  def portalPageAction[MT](entityType: EntityType.Value, paramsOpt: Option[PageParams] = None)(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def pageAction[MT](entityType: EntityType.Value, paramsOpt: Option[PageParams] = None)(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
     implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
@@ -28,7 +28,7 @@ trait PortalActions {
     }
   }
 
-  def portalListAction[MT](entityType: EntityType.Value, paramsOpt: Option[ListParams] = None)(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def listAction[MT](entityType: EntityType.Value, paramsOpt: Option[ListParams] = None)(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
     implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(ListParams.fromRequest(request))
@@ -41,7 +41,7 @@ trait PortalActions {
   /**
    * Fetch a given item, along with its links and annotations.
    */
-  object portalGetAction {
+  object getAction {
     def async[MT](entityType: EntityType.Value, id: String)(
       f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
                    implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
@@ -62,11 +62,11 @@ trait PortalActions {
   /**
    * Fetch a given item with links, annotations, and a page of child items.
    */
-  object portalGetWithChildrenAction {
+  object getWithChildrenAction {
     def async[CT, MT](entityType: EntityType.Value, id: String)(
       f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
                        implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
-      portalGetAction.async[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
+      getAction.async[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
         backend.pageChildren[MT,CT](id, params).flatMap { children =>
           f(item)(children)(params)(anns)(links)(userOpt)(request)
