@@ -45,7 +45,6 @@ case class LinkDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
    */
   def deleteLink(id: String, linkId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
     val url = enc(requestUrl, "for", id, linkId)
-    Logger.logger.debug(s"DELETE LINK: $url")
     userCall(url).delete.map { response =>
       checkError(response)
       eventHandler.handleDelete(linkId)

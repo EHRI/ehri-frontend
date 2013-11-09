@@ -106,7 +106,9 @@ case class ErrorSet(
 /**
  * Wrapper for Auth user id string
  */
-case class ApiUser(id: Option[String] = None)
+case class ApiUser(id: Option[String] = None) {
+  override def toString = id.getOrElse(None.toString)
+}
 
 
 trait RestDAO {
@@ -149,8 +151,10 @@ trait RestDAO {
   /**
    * Create a web request with correct auth parameters for the REST API.
    */
-  def userCall(url: String)(implicit apiUser: ApiUser): WSRequestHolder
-      = WS.url(url).withHeaders(authHeaders.toSeq: _*)
+  def userCall(url: String)(implicit apiUser: ApiUser): WSRequestHolder = {
+    Logger.logger.debug("[{} {}] {}", apiUser, this.getClass.getCanonicalName, url)
+    WS.url(url).withHeaders(authHeaders.toSeq: _*)
+  }
 
   /**
    * Encode a bunch of URL parts.
@@ -173,7 +177,6 @@ trait RestDAO {
       case e => e match {
 
         case UNAUTHORIZED => {
-          println("UNAUTHORIZED: " + response.json)
           response.json.validate[PermissionDenied].fold(
             err => throw PermissionDenied(),
             perm => {

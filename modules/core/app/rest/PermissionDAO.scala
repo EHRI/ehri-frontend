@@ -66,7 +66,6 @@ case class PermissionDAO() extends RestDAO {
     val cached = Cache.getAs[ItemPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
     else {
-      Logger.logger.debug("Fetch item perms: {}", url)
       userCall(url).get.map { response =>
         val iperms = ItemPermissionSet[T](user, contentType, checkError(response).json)
         Cache.set(url, iperms, cacheTime)
@@ -89,7 +88,6 @@ case class PermissionDAO() extends RestDAO {
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
     else {
-      Logger.logger.debug("Fetch scoped perms: {}", url)
       userCall(url).get.map { response =>
         val sperms = GlobalPermissionSet[T](user, checkError(response).json)
         Cache.set(url, sperms, cacheTime)

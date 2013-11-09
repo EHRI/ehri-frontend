@@ -83,7 +83,6 @@ case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO 
       Future.successful(jsonReadToRestError(cached.get, rd.restReads))
     } else {
       val url = enc(requestUrl, entityType, id)
-      Logger.logger.debug("GET {} ", url)
       userCall(url).get.map { response =>
         Cache.set(id, response.json, cacheTime)
         checkErrorAndParse(response)(rd.restReads)
@@ -112,7 +111,6 @@ case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO 
       params: Map[String,Seq[String]] = Map(),
       logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], wrt: RestConvertable[T], rd: RestReadable[MT]): Future[MT] = {
     val url = enc(requestUrl, rs.entityType)
-    Logger.logger.debug("CREATE {} ", url)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .withQueryString(unpack(params):_*)
@@ -130,7 +128,6 @@ case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO 
       logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, wrt: RestConvertable[T], rs: RestResource[MT], rd: RestReadable[TT]): Future[TT] = {
     val url = enc(requestUrl, rs.entityType, id, contentType)
-    Logger.logger.debug("CREATE-IN {} ", url)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .withHeaders(msgHeader(logMsg): _*)
@@ -147,7 +144,6 @@ case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO 
   def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, wrt: RestConvertable[T], rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
     val url = enc(requestUrl, rs.entityType, id)
-    Logger.logger.debug("UPDATE: {}", url)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
       val item = checkErrorAndParse(response)(rd.restReads)
@@ -159,7 +155,6 @@ case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO 
 
   def delete[MT](entityType: EntityType.Value, id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser): Future[Boolean] = {
     val url = enc(requestUrl, entityType, id)
-    Logger.logger.debug("DELETE {}", url)
     userCall(url).delete.map { response =>
       checkError(response)
       eventHandler.handleDelete(id)
@@ -174,7 +169,6 @@ case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO 
 
   def listJson[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[List[JsObject]] = {
     val url = enc(requestUrl, rs.entityType, "list")
-    Logger.logger.debug("LIST: {}", (url, params.toSeq))
     userCall(url).withQueryString(params.toSeq: _*).get.map { response =>
       checkErrorAndParse[List[JsObject]](response)
     }
@@ -182,7 +176,6 @@ case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO 
 
   def list[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[List[MT]] = {
     val url = enc(requestUrl, rs.entityType, "list")
-    Logger.logger.debug("LIST: {}", url)
     userCall(url).withQueryString(params.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
@@ -197,7 +190,6 @@ case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO 
 
   def pageJson[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Page[JsObject]] = {
     val url = enc(requestUrl, rs.entityType, "page")
-    Logger.logger.debug("PAGE: {}", url)
     userCall(url).withQueryString(params.toSeq:_*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads[JsObject])
     }
@@ -205,7 +197,6 @@ case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO 
 
   def page[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Page[MT]] = {
     val url = enc(requestUrl, rs.entityType, "page")
-    Logger.logger.debug("PAGE: {}", url)
     userCall(url).withQueryString(params.toSeq: _*).get.map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }

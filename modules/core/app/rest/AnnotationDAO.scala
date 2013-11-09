@@ -18,7 +18,6 @@ case class AnnotationDAO() extends RestDAO {
 
   def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Map[String,List[Annotation]]] = {
     val url = enc(requestUrl, "for/%s?limit=1000".format(id))
-    Logger.logger.debug("GET ANNOTATIONS {}", url)
     userCall(url).get.map { response =>
       checkErrorAndParse(response)(Reads.mapReads(Reads.list(AnnotationFormat.metaReads)))
     }
