@@ -75,7 +75,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
 
-  object RunEventHandler extends RestEventHandler {
+  private val eventHandler = new RestEventHandler {
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers. Do this
@@ -97,11 +97,9 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     })
   }
 
-  private def backend: Backend = new RestBackend(RunEventHandler)
+  private def backend: Backend = new RestBackend(eventHandler)
 
-  object RunConfiguration extends globalConfig.BaseConfiguration {
-    val eventHandler = RunEventHandler
-  }
+  object RunConfiguration extends globalConfig.BaseConfiguration
 
 
   class ProdModule extends ScalaModule {
@@ -133,12 +131,6 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       case e: java.net.ConnectException => immediate(InternalServerError(serverTimeout()))
       case e => super.onError(request, e)
     }
-  }
-
-  override def onStart(app: Application) {
-
-    // Hack for bug #845
-    app.routes
   }
 
   override def onHandlerNotFound(request: RequestHeader): Future[SimpleResult] = {

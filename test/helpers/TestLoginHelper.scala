@@ -36,18 +36,16 @@ trait TestLoginHelper {
   // we can validate the actions)
   // Note: this is defined as an implicit object here so it
   // can be used by the DAO classes directly.
-  object RestEventCollector extends RestEventHandler {
+  val testEventHandler = new RestEventHandler {
     def handleCreate(id: String) = mockIndexer.indexId(id)
     def handleUpdate(id: String) = mockIndexer.indexId(id)
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
 
   // Might want to mock this at some point!
-  val testBackend: Backend = new RestBackend(RestEventCollector)
+  val testBackend: Backend = new RestBackend(testEventHandler)
 
-  object TestConfig extends globalConfig.BaseConfiguration {
-    val eventHandler = RestEventCollector
-  }
+  object TestConfig extends globalConfig.BaseConfiguration
 
   // Dummy auth config for play-2-auth
   object AuthConfig extends Authorizer {
@@ -79,12 +77,6 @@ trait TestLoginHelper {
     override def onError(request: RequestHeader, ex: Throwable) = ex match {
       case e: rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
       case e => super.onError(request, e)
-    }
-
-    override def onStart(app: play.api.Application) {
-      // Workaround for issue #845
-      app.routes
-      super.onStart(app)
     }
   }
 
