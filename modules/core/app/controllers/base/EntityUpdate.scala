@@ -7,18 +7,15 @@ import play.api.data.Form
 import defines.PermissionType
 import models.UserProfile
 import play.api.Logger
-import models.json.{RestReadable, RestConvertable}
+import models.json.{RestResource, RestReadable, RestConvertable}
 import play.api.data.FormError
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 
 /**
  * Controller trait which updates an AccessibleEntity.
- *
- * @tparam F the Entity's formable representation
- * @tparam MT the Entity's meta representation
  */
-trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
+trait EntityUpdate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityController[MT] {
 
   type UpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => SimpleResult
   type AsyncUpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]

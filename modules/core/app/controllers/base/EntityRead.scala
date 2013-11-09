@@ -16,14 +16,11 @@ import scala.concurrent.Future
  *
  * @tparam MT Meta-model
  */
-trait EntityRead[MT] extends EntityController {
+trait EntityRead[MT] extends EntityController[MT] {
   val DEFAULT_LIMIT = 20
 
   val defaultPage: PageParams = new PageParams()
   val defaultChildPage: PageParams = new PageParams()
-  
-  implicit def resource: RestResource[MT]
-
 
   object getEntity {
     def async(id: String, user: Option[UserProfile])(f: MT => Future[SimpleResult])(
@@ -49,24 +46,6 @@ trait EntityRead[MT] extends EntityController {
     def apply[T](otherType: defines.EntityType.Type, id: String)(f: T => SimpleResult)(
       implicit rd: RestReadable[T], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
       async(otherType, id)(f.andThen(t => Future.successful(t)))
-    }
-  }
-
-  object getUsersAndGroups {
-    def async(f: Seq[(String,String)] => Seq[(String,String)] => Future[SimpleResult])(
-        implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
-    // TODO: Handle REST errors
-
-      for {
-        users <- rest.RestHelpers.getUserList
-        groups <- rest.RestHelpers.getGroupList
-        r <- f(users)(groups)
-      } yield r
-    }
-
-    def apply(f: Seq[(String,String)] => Seq[(String,String)] => SimpleResult)(
-        implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
-      async(f.andThen(_.andThen(t => Future.successful(t))))
     }
   }
 

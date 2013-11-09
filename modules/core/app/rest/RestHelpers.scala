@@ -6,7 +6,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 
 
-object RestHelpers {
+trait RestHelpers {
 
   def parseUsers(json: JsValue): List[(String, String)] = {
     (json \ "data").as[List[List[String]]].flatMap { lst =>
@@ -31,3 +31,5 @@ object RestHelpers {
     }    
   }  
 }
+
+object RestHelpers extends RestHelpers

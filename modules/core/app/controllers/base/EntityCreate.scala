@@ -7,14 +7,14 @@ import play.api.data._
 import defines.PermissionType
 import models.UserProfile
 import forms.VisibilityForm
-import models.json.{RestReadable, RestConvertable}
+import models.json.{RestResource, RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 
 /**
  * Controller trait for creating AccessibleEntities.
  */
-trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityRead[MT] {
+trait EntityCreate[F <: Model with Persistable, MT <: MetaModel[F]] extends EntityController[MT] {
 
   type CreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => SimpleResult
   type AsyncCreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]

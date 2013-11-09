@@ -1,9 +1,6 @@
 package controllers.base
 
-import play.api._
-import play.api.mvc._
 import jp.t2v.lab.play2.auth._
-import play.api._
 import play.api.mvc._
 
 import scala.reflect.classTag
