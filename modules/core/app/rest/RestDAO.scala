@@ -4,11 +4,12 @@ import models.{UserProfile, Entity}
 import play.api.{Logger, Play}
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
-import play.api.libs.ws.Response
+import play.api.libs.ws.{WS, Response}
 import play.api.data.validation.{ValidationError => PlayValidationError}
 import play.api.libs.json.util._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.ws.WS.WSRequestHolder
 
 
 sealed trait RestError extends Throwable
@@ -111,7 +112,11 @@ case class ApiUser(id: Option[String] = None)
 trait RestDAO {
 
   import Constants._
+  import play.api.http.Status._
 
+  /**
+   * Header to add for log messages.
+   */
   def msgHeader(msg: Option[String]): Seq[(String,String)] = msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq[(String,String)]())
 
   /**
@@ -141,11 +146,17 @@ trait RestDAO {
     case None => headers
   }
 
-  import play.api.http.Status._
+  /**
+   * Create a web request with correct auth parameters for the REST API.
+   */
+  def userCall(url: String)(implicit apiUser: ApiUser): WSRequestHolder
+      = WS.url(url).withHeaders(authHeaders.toSeq: _*)
 
-  import java.net.URI
-
+  /**
+   * Encode a bunch of URL parts.
+   */
   def enc(s: Any*) = {
+    import java.net.URI
     val url = new java.net.URL(s.mkString("/"))
     val uri: URI = new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef);
     uri.toString

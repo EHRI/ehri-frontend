@@ -2,14 +2,13 @@ package rest
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
-import play.api.libs.ws.{WS,Response => WSResponse}
 import play.api.libs.json._
-import defines.{EntityType,ContentTypes}
-import models.{UserProfile, Entity}
+import defines.EntityType
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.{RestResource, RestReadable, RestConvertable}
 import models.base.AnyModel
+import play.api.Logger
 
 
 /**
@@ -23,64 +22,73 @@ case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends Res
 
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[MT] = {
-    WS.url(enc(requestUrl, id))
-        .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
+    userCall(enc(requestUrl, id)).withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response)
-      entities.getJson(id).map { item =>
+      entities.get(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
-        item.as[MT](rd.restReads)
+        item
       }
     }
   }
 
   def updateDescription[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[MT] = {
-    WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
+    userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response)
-      entities.getJson(id).map { item =>
+      entities.get(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
-        item.as[MT](rd.restReads)
+        item
       }
     }
   }
 
   def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Boolean] = {
-    WS.url(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
+    userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
           .delete.map { response =>
+      checkError(response)
       eventHandler.handleDelete(did)
       Cache.remove(id)
       true
     }
   }
 
-  // FIXME: Move these elsewhere...
   def createAccessPoint[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[(MT,DT)] = {
-    WS.url(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
-        .withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
+    userCall(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
+        .withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
-      entities.getJson(id).map { item =>
+      entities.get(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
-        (item.as[MT](rd.restReads), checkError(response).json.as[DT](fmt.restFormat))
+        (item, checkErrorAndParse[DT](response)(fmt.restFormat))
       }
     }
   }
 
   def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
-    WS.url(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg) ++ authHeaders.toSeq: _*)
+    userCall(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg): _*)
       .delete.flatMap { response =>
-      entities.getJson(id).map { item =>
+      entities.get(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
-        item.as[MT](rd.restReads)
+        item
       }
+    }
+  }
+
+  def deleteAccessPoint(id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser): Future[Boolean] = {
+    val url = enc(requestUrl, "accessPoint", id)
+    Logger.logger.debug(s"DELETE ACCESS POINT $url")
+    userCall(url).withHeaders(msgHeader(logMsg): _*).delete.map { response =>
+      checkError(response)
+      eventHandler.handleDelete(id)
+      true
     }
   }
 }

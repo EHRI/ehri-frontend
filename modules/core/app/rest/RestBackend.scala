@@ -93,8 +93,11 @@ case class RestBackend()(implicit eventHandler: RestEventHandler) extends Backen
 
    def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT]
       = descriptions.deleteAccessPoint(id, did, apid, logMsg)
-  
-   // Annotations
+
+  def deleteAccessPoint(id: String)(implicit apiUser: ApiUser): Future[Boolean]
+      = descriptions.deleteAccessPoint(id)
+
+  // Annotations
    def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Map[String,List[Annotation]]]
       = annotations.getAnnotationsForItem(id)
 
@@ -110,9 +113,6 @@ case class RestBackend()(implicit eventHandler: RestEventHandler) extends Backen
 
    def deleteLink(id: String, linkId: String)(implicit apiUser: ApiUser): Future[Boolean]
       = links.deleteLink(id, linkId)
-
-   def deleteAccessPoint(id: String)(implicit apiUser: ApiUser): Future[Boolean]
-      = links.deleteAccessPoint(id)
 
    def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])])(implicit apiUser: ApiUser): Future[List[Link]]
       = links.linkMultiple(id, srcToLinks)

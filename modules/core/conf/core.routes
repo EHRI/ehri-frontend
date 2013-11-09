@@ -38,7 +38,6 @@ GET	    /persona						        @controllers.core.PersonaLoginHandler.personaLogin
 POST	/persona						        @controllers.core.PersonaLoginHandler.personaLoginPost
 
 # Admin routes - FIXME: Move to admin controller when reverse-route dependencies are resolved
-GET     /actions                                @controllers.core.Admin.adminActions
 GET     /createUser                             @controllers.core.Admin.createUser
 POST    /createUser                             @controllers.core.Admin.createUserPost
 GET     /changePassword                         @controllers.core.Admin.changePassword

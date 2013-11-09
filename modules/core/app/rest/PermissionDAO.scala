@@ -2,11 +2,10 @@ package rest
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
-import play.api.libs.ws.WS
 import acl._
 import models.base.Accessor
 import defines._
-import models.{PermissionGrant, UserProfile}
+import models.PermissionGrant
 import play.api.libs.json.Json
 import play.api.Play.current
 import play.api.cache.Cache
@@ -35,8 +34,7 @@ case class PermissionDAO() extends RestDAO {
     listWithUrl(enc(requestUrl, "pageForScope", id), params)
 
   private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] = {
-    WS.url(url).withQueryString(params.toSeq: _*)
-        .withHeaders(authHeaders.toSeq: _*).get.map { response =>
+    userCall(url).withQueryString(params.toSeq: _*).get.map { response =>
       checkErrorAndParse[Page[PermissionGrant]](response)
     }
   }
@@ -46,7 +44,7 @@ case class PermissionDAO() extends RestDAO {
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
     else {
-      WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      userCall(url).get.map { response =>
         val gperms = GlobalPermissionSet[T](user, checkError(response).json)
         Cache.set(url, gperms, cacheTime)
         gperms
@@ -56,7 +54,7 @@ case class PermissionDAO() extends RestDAO {
 
   def setGlobalPermissions[T <: Accessor](user: T, data: Map[String, List[String]])(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id)
-    WS.url(url).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
+    userCall(url).post(Json.toJson(data)).map { response =>
       val gperms = GlobalPermissionSet[T](user, checkError(response).json)
       Cache.set(url, gperms, cacheTime)
       gperms
@@ -69,7 +67,7 @@ case class PermissionDAO() extends RestDAO {
     if (cached.isDefined) Future.successful(cached.get)
     else {
       Logger.logger.debug("Fetch item perms: {}", url)
-      WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      userCall(url).get.map { response =>
         val iperms = ItemPermissionSet[T](user, contentType, checkError(response).json)
         Cache.set(url, iperms, cacheTime)
         iperms
@@ -79,8 +77,7 @@ case class PermissionDAO() extends RestDAO {
 
   def setItemPermissions[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String, data: List[String])(implicit apiUser: ApiUser): Future[ItemPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, id)
-    WS.url(url)
-        .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
+    userCall(url).post(Json.toJson(data)).map { response =>
       val iperms = ItemPermissionSet[T](user, contentType, checkError(response).json)
       Cache.set(url, iperms, cacheTime)
       iperms
@@ -93,7 +90,7 @@ case class PermissionDAO() extends RestDAO {
     if (cached.isDefined) Future.successful(cached.get)
     else {
       Logger.logger.debug("Fetch scoped perms: {}", url)
-      WS.url(url).withHeaders(authHeaders.toSeq: _*).get.map { response =>
+      userCall(url).get.map { response =>
         val sperms = GlobalPermissionSet[T](user, checkError(response).json)
         Cache.set(url, sperms, cacheTime)
         sperms
@@ -103,7 +100,7 @@ case class PermissionDAO() extends RestDAO {
 
   def setScopePermissions[T <: Accessor](user: T, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, "scope", id)
-    WS.url(url).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(data)).map { response =>
+    userCall(url).post(Json.toJson(data)).map { response =>
       val sperms = GlobalPermissionSet[T](user, checkError(response).json)
       Cache.set(url, sperms, cacheTime)
       sperms
@@ -111,8 +108,7 @@ case class PermissionDAO() extends RestDAO {
   }
 
   def addGroup(groupId: String, userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
-    WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
-        .withHeaders(authHeaders.toSeq: _*).post(Map[String, List[String]]()).map { response =>
+    userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, List[String]]()).map { response =>
       checkError(response)
       Cache remove(userId)
       Cache.remove(enc(requestUrl, userId))
@@ -121,8 +117,7 @@ case class PermissionDAO() extends RestDAO {
   }
 
   def removeGroup(groupId: String, userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
-    WS.url(enc(baseUrl, EntityType.Group, groupId, userId))
-        .withHeaders(authHeaders.toSeq: _*).delete.map { response =>
+    userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete.map { response =>
       checkError(response)
       Cache remove(userId)
       Cache.remove(enc(requestUrl, userId))

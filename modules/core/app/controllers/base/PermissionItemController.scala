@@ -10,8 +10,6 @@ import utils.PageParams
 
 /**
  * Trait for setting permissions on an individual item.
- *
- * @tparam MT the entity's meta class
  */
 trait PermissionItemController[MT] extends EntityRead[MT] {
 
@@ -20,9 +18,9 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
-      for {
-        permGrants <- backend.listItemPermissionGrants(id, params)
-      } yield f(item)(permGrants)(userOpt)(request)
+      backend.listItemPermissionGrants(id, params).map { permGrants =>
+        f(item)(permGrants)(userOpt)(request)
+      }
     }
   }
 
@@ -30,10 +28,9 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      for {
-        users <- rest.RestHelpers.getUserList
-        groups <- rest.RestHelpers.getGroupList
-      } yield f(item)(users)(groups)(userOpt)(request)
+      getUsersAndGroups { users => groups =>
+        f(item)(users)(groups)(userOpt)(request)
+      }
     }
   }
 
@@ -43,12 +40,7 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
-
         accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
-        // FIXME: Faking user for fetching perms to avoid blocking.
-        // This means that when we have both the perm set and the userOpt
-        // we need to re-assemble them so that the permission set has
-        // access to a userOpt's groups to understand inheritance.
         perms <- backend.getItemPermissions(accessor, contentType, id)
       } yield f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
     }
@@ -60,12 +52,10 @@ trait PermissionItemController[MT] extends EntityRead[MT] {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
-      implicit val accessorConverter = Accessor.Converter
-      backend.get[Accessor](EntityType.withName(userType), userId).flatMap { accessor =>
-        backend.setItemPermissions(accessor, contentType, id, perms).map { perms =>
-          f(perms)(userOpt)(request)
-        }
-      }
+      for {
+        accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
+        perms <- backend.setItemPermissions(accessor, contentType, id, perms)
+      } yield f(perms)(userOpt)(request)
     }
   }
 }

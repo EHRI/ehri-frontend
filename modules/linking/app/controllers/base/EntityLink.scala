@@ -216,8 +216,6 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
 
   /**
    * Delete an access point by ID. FIXME: This should probably be moved elsewhere.
-   * @param id
-   * @return
    */
   def deleteAccessPointAction(id: String, accessPointId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Update, contentType) {
       bool => implicit userOpt => implicit request =>
@@ -229,8 +227,6 @@ trait EntityLink[MT <: AnyModel] extends EntityRead[MT] with EntitySearch {
 
   /**
    * Delete a link.
-   * @param id
-   * @return
    */
   def deleteLink(id: String, linkId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
       bool => implicit userOpt => implicit request =>

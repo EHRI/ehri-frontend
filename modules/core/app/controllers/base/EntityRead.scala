@@ -95,15 +95,11 @@ trait EntityRead[MT] extends EntityController {
       f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
           implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
     itemPermissionAction.async[MT](contentType, id) { item => implicit userOpt => implicit request =>
-      // NB: Effectively disable paging here by using a high limit
       val params = PageParams.fromRequest(request)
-      val annsReq = backend.getAnnotationsForItem(id)
-      val linkReq = backend.getLinksForItem(id)
-      val cReq = backend.pageChildren[MT,CT](id, params)
       for {
-        anns <- annsReq
-        children <- cReq
-        links <- linkReq
+        anns <- backend.getAnnotationsForItem(id)
+        children <- backend.pageChildren[MT,CT](id, params)
+        links <- backend.getLinksForItem(id)
       } yield f(item)(children)(params)(anns)(links)(userOpt)(request)
     }
   }
@@ -113,10 +109,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       backend.page(params).map { page =>
-        render {
-          case Accepts.Json() => Ok(Json.toJson(page)(Page.pageWrites(cfmt.clientFormat)))
-          case _ => f(page)(params)(userOpt)(request)
-        }
+        f(page)(params)(userOpt)(request)
       }
     }
   }
@@ -126,10 +119,7 @@ trait EntityRead[MT] extends EntityController {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = ListParams.fromRequest(request)
       backend.list(params).map { list =>
-        render {
-          case Accepts.Json() => Ok(Json.toJson(list)(Writes.list(cfmt.clientFormat)))
-          case _ => f(list)(params)(userOpt)(request)
-        }
+        f(list)(params)(userOpt)(request)
       }
     }
   }
@@ -138,12 +128,10 @@ trait EntityRead[MT] extends EntityController {
       f: MT => rest.Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
-      val itemReq = backend.get(id)
-      val alReq = backend.history(id, params)
       for {
-        item <- itemReq
-        al <- alReq
-      } yield f(item)(al)(params)(userOpt)(request)
+        item <- backend.get(id)
+        events <- backend.history(id, params)
+      } yield f(item)(events)(params)(userOpt)(request)
     }
   }
 }

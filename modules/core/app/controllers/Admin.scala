@@ -109,14 +109,6 @@ class Admin @Inject()(implicit val globalConfig: global.GlobalConfig, val backen
   private val groupMembershipForm = Form(single("group" -> list(nonEmptyText)))
 
   /**
-   * Show the admin home page.
-   * @return
-   */
-  def adminActions = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.admin.actions())
-  }
-
-  /**
    * Create a user's account for them with a pre-set password. This is an
    * admin only function and should be removed eventually.
    */

@@ -42,6 +42,7 @@ trait Backend {
   def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Boolean]
   def createAccessPoint[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[(MT,DT)]
   def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT]
+  def deleteAccessPoint(id: String)(implicit apiUser: ApiUser): Future[Boolean]
 
   // Annotations
   def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Map[String,List[Annotation]]]
@@ -51,7 +52,6 @@ trait Backend {
   def getLinksForItem(id: String)(implicit apiUser: ApiUser): Future[List[Link]]
   def linkItems(id: String, src: String, link: LinkF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser): Future[Link]
   def deleteLink(id: String, linkId: String)(implicit apiUser: ApiUser): Future[Boolean]
-  def deleteAccessPoint(id: String)(implicit apiUser: ApiUser): Future[Boolean]
   def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])])(implicit apiUser: ApiUser): Future[List[Link]]
 
   // Permissions

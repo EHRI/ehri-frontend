@@ -6,8 +6,6 @@ import scala.concurrent.Future
 import play.api.libs.json.{Json,JsValue}
 import rest.RestDAO
 import play.api.PlayException
-import play.api.http.HeaderNames
-import play.api.http.ContentTypes
 import models.UserProfile
 
 case class GremlinError(

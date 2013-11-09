@@ -6,15 +6,10 @@ import models.base._
 import defines._
 import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
-import scala.concurrent.Await
-import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.Duration
 import utils.PageParams
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
- *
- * @tparam MT the entity's build class
  */
 trait PermissionScopeController[MT] extends PermissionItemController[MT] {
 
@@ -37,14 +32,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
         accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
-        // NB: Faking user for fetching perms to avoid blocking.
-        // This means that when we have both the perm set and the user
-        // we need to re-assemble them so that the permission set has
-        // access to a user's groups to understand inheritance.
         perms <- backend.getScopePermissions(accessor, id)
-      } yield {
-        f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
-      }
+      } yield f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
     }
   }
 
@@ -58,8 +47,8 @@ trait PermissionScopeController[MT] extends PermissionItemController[MT] {
 
       for {
         accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
-        sperms <- backend.setScopePermissions(accessor, id, perms)
-      } yield f(sperms)(userOpt)(request)
+        perms <- backend.setScopePermissions(accessor, id, perms)
+      } yield f(perms)(userOpt)(request)
     }
   }
 }

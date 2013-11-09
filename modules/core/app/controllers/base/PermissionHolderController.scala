@@ -12,8 +12,6 @@ import utils.PageParams
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.
- *
- * @tparam MT
  */
 trait PermissionHolderController[MT <: Accessor] extends EntityRead[MT] {
 
