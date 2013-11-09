@@ -12,7 +12,7 @@ import rest.{ApiUser, Backend}
  * Controller for various monitoring functions.
  */
 @Singleton
-case class Utils @Inject()(implicit val globalConfig: global.GlobalConfig, backend: Backend) extends AuthController with ControllerHelpers {
+case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends AuthController with ControllerHelpers {
 
   override val staffOnly = false
 

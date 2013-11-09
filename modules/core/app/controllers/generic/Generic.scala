@@ -1,9 +1,8 @@
 package controllers.generic
 
-import play.api.mvc.{Request, AnyContent, Controller}
+import play.api.mvc.Controller
 import defines.{ContentTypes,EntityType}
-import models.UserProfile
-import rest.{Backend, ApiUser}
+import rest.Backend
 import models.json.RestResource
 import controllers.base.{ControllerHelpers, AuthController}
 

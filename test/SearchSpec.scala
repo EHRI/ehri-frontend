@@ -53,7 +53,6 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
           controllers.admin.routes.AdminSearch.updateIndexPost.url), data).get
       status(idx) must equalTo(OK)
-      println(mockIndexer.eventBuffer)
     }
   }
 
