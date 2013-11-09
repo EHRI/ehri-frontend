@@ -1,3 +1,5 @@
 @(item: Option[Country], f: Form[models.CountryF])
 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
 @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
