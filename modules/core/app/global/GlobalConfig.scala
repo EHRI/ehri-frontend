@@ -15,7 +15,6 @@ trait MenuConfig {
 trait GlobalConfig {
   val menuConfig: MenuConfig
   val routeRegistry: RouteRegistry
-  val eventHandler: RestEventHandler
 
   /**
    * Flag to indicate whether we're running a testing config or not.

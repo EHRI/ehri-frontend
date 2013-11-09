@@ -14,7 +14,7 @@ import models.base.AnyModel
 /**
  * Set visibility on items.
  */
-case class VisibilityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
+case class VisibilityDAO(eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
 

@@ -12,7 +12,7 @@ import play.api.Logger
 /**
  * Data Access Object for fetching annotation data.
  */
-case class AnnotationDAO() extends RestDAO {
+case class AnnotationDAO(eventHandler: RestEventHandler) extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
 

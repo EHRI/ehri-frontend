@@ -36,14 +36,14 @@ trait TestLoginHelper {
   // we can validate the actions)
   // Note: this is defined as an implicit object here so it
   // can be used by the DAO classes directly.
-  implicit object RestEventCollector extends RestEventHandler {
+  object RestEventCollector extends RestEventHandler {
     def handleCreate(id: String) = mockIndexer.indexId(id)
     def handleUpdate(id: String) = mockIndexer.indexId(id)
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
 
   // Might want to mock this at some point!
-  val testBackend: Backend = new RestBackend()
+  val testBackend: Backend = new RestBackend(RestEventCollector)
 
   object TestConfig extends globalConfig.BaseConfiguration {
     val eventHandler = RestEventCollector

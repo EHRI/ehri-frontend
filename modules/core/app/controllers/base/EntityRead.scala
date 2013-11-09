@@ -3,9 +3,7 @@ package controllers.base
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models._
-import rest.Page
-import models.json.{RestResource, RestReadable, ClientConvertable}
-import play.api.libs.json.{Writes, Json}
+import models.json.{RestReadable, ClientConvertable}
 import utils.{ListParams, PageParams}
 
 import scala.concurrent.Future

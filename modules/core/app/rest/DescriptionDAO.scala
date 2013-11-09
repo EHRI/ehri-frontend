@@ -14,9 +14,9 @@ import play.api.Logger
 /**
  * Data Access Object for managing descriptions on entities.
  */
-case class DescriptionDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
+case class DescriptionDAO(eventHandler: RestEventHandler) extends RestDAO {
 
-  private val entities = new EntityDAO
+  private val entities = new EntityDAO(eventHandler)
 
   def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 

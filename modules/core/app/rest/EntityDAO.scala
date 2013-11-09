@@ -67,7 +67,7 @@ trait RestEventHandler {
 /**
  * Data Access Object for fetching data about generic entity types.
  */
-case class EntityDAO()(implicit eventHandler: RestEventHandler) extends RestDAO {
+case class EntityDAO(eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
   import play.api.http.Status._

@@ -70,14 +70,12 @@ package globalConfig {
   }
 }
 
-// FIXME: using WithFilters(new AjaxCSRFFilter) breaks things here...
-
-object Global extends WithFilters(new CSRFFilter()) with GlobalSettings {
+object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
 
-  implicit object RunEventHandler extends RestEventHandler {
+  object RunEventHandler extends RestEventHandler {
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers. Do this
@@ -99,7 +97,7 @@ object Global extends WithFilters(new CSRFFilter()) with GlobalSettings {
     })
   }
 
-  private def backend: Backend = new RestBackend()
+  private def backend: Backend = new RestBackend(RunEventHandler)
 
   object RunConfiguration extends globalConfig.BaseConfiguration {
     val eventHandler = RunEventHandler

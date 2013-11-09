@@ -14,17 +14,17 @@ import play.api.libs.ws.Response
 /**
   * @author Mike Bryant (http://github.com/mikesname)
   */
-case class RestBackend()(implicit eventHandler: RestEventHandler) extends Backend {
+case class RestBackend(eventHandler: RestEventHandler) extends Backend {
 
-  private val generic = new EntityDAO
-  private val descriptions = new DescriptionDAO
-  private val perms = new PermissionDAO
-  private val links = new LinkDAO
-  private val annotations = new AnnotationDAO
+  private val generic = new EntityDAO(eventHandler)
+  private val descriptions = new DescriptionDAO(eventHandler)
+  private val perms = new PermissionDAO(eventHandler)
+  private val links = new LinkDAO(eventHandler)
+  private val annotations = new AnnotationDAO(eventHandler)
   private val events = new SystemEventDAO
-  private val visibility = new VisibilityDAO
+  private val visibility = new VisibilityDAO(eventHandler)
   private val api = new ApiDAO
-  private val admin = new AdminDAO
+  private val admin = new AdminDAO(eventHandler)
 
    // Generic CRUD
    def get[MT](entityType: EntityType.Value, id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT]

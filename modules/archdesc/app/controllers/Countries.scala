@@ -1,6 +1,5 @@
 package controllers.archdesc
 
-import _root_.models.json.RestResource
 import play.api.mvc._
 import forms.VisibilityForm
 import controllers.base._
@@ -14,6 +13,8 @@ import utils.search.Dispatcher
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
+import play.filters.csrf.CSRF.Token
+import play.filters.csrf.CSRF
 
 @Singleton
 class Countries @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends CRUD[CountryF,Country]

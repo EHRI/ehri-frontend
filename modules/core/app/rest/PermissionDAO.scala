@@ -13,7 +13,7 @@ import play.api.Logger
 import utils.PageParams
 
 
-case class PermissionDAO() extends RestDAO {
+case class PermissionDAO(eventHandler: RestEventHandler) extends RestDAO {
 
   import Constants._
   import play.api.http.Status._
