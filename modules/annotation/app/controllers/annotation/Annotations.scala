@@ -1,10 +1,8 @@
 package controllers.annotation
 
-import defines._
+import defines.ContentTypes
 import models.Annotation
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.i18n.Messages
-
 import com.google.inject._
 import global.GlobalConfig
 import controllers.generic.{Annotate, Delete, Read, Visibility}
@@ -17,7 +15,6 @@ case class Annotations @Inject()(implicit globalConfig: GlobalConfig, backend: r
 
   implicit val resource = Annotation.Resource
 
-  val entityType = EntityType.Annotation
   val contentType = ContentTypes.Annotation
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>

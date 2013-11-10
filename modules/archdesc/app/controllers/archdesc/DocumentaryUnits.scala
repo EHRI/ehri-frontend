@@ -2,14 +2,12 @@ package controllers.archdesc
 
 import forms.VisibilityForm
 import models.{DocumentaryUnit,DocumentaryUnitF,DocumentaryUnitDescriptionF,IsadG}
-import controllers.base._
+import controllers.base.ApiBase
 import controllers.generic._
 import models.forms.LinkForm
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
-import defines._
+import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
 import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
@@ -73,18 +71,16 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
 
-  val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
-
   implicit val resource = DocumentaryUnit.Resource
 
-  val entityType = EntityType.DocumentaryUnit
   val contentType = ContentTypes.DocumentaryUnit
+  val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
   val form = models.forms.DocumentaryUnitForm.form
   val childForm = models.forms.DocumentaryUnitForm.form
   val descriptionForm = models.forms.IsadGForm.form
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(resource.entityType))
 
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
 

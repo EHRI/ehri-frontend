@@ -4,7 +4,6 @@ import play.api.mvc._
 import forms.VisibilityForm
 import controllers.generic._
 import models.{Country,CountryF,Repository,RepositoryF,UserProfile}
-import play.api._
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import utils.search.SearchParams
@@ -29,18 +28,17 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   /**
    * Content types that relate to this controller.
    */
-  val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
   implicit val resource = Country.Resource
 
-  val entityType = EntityType.Country
   val contentType = ContentTypes.Country
+  val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
-  val form = models.forms.CountryForm.form
-  val childForm = models.forms.RepositoryForm.form
+  private val form = models.forms.CountryForm.form
+  private val childForm = models.forms.RepositoryForm.form
 
   // Search memebers
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
+  private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
   private final val countryRoutes = controllers.archdesc.routes.Countries
 

@@ -4,11 +4,11 @@ import controllers.generic._
 import forms.VisibilityForm
 import models.{HistoricalAgent,HistoricalAgentF,Isaar}
 import models.forms.LinkForm
-import play.api._
 import play.api.i18n.Messages
-import defines._
+import defines.{ContentTypes,PermissionType}
 import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
+import solr.SolrConstants
 
 @Singleton
 case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends CRUD[HistoricalAgentF,HistoricalAgent]
@@ -19,11 +19,10 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   with Search {
 
   implicit val resource = HistoricalAgent.Resource
-  val entityType = EntityType.HistoricalAgent
+
   val contentType = ContentTypes.HistoricalAgent
 
-  val form = models.forms.HistoricalAgentForm.form
-
+  private val form = models.forms.HistoricalAgentForm.form
   private val histRoutes = controllers.authorities.routes.HistoricalAgents
 
   // Documentary unit facets
@@ -37,8 +36,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
         render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
       ),
       FieldFacetClass(
-        key="holderName",
-        name=Messages(s"$entityType.authoritativeSet"),
+        key=SolrConstants.HOLDER_NAME,
+        name=Messages("historicalAgent.authoritativeSet"),
         param="set",
         sort = FacetSort.Name
       )
@@ -46,7 +45,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
   // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
 
   def search = searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {

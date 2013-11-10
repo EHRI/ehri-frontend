@@ -5,7 +5,6 @@ import controllers.generic.Search
 import models._
 import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api._
 import play.api.mvc._
 import views.html.p
 

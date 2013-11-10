@@ -3,7 +3,6 @@ package controllers.authorities
 import forms.VisibilityForm
 import controllers.generic._
 import models.{HistoricalAgent,HistoricalAgentF,AuthoritativeSet,AuthoritativeSetF}
-import play.api._
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import utils.search.{Dispatcher, SearchOrder, SearchParams}
@@ -18,18 +17,16 @@ case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfi
   with Annotate[AuthoritativeSet]
   with Search {
 
-  val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
-
   implicit val resource = AuthoritativeSet.Resource
-
-  val entityType = EntityType.AuthoritativeSet
   val contentType = ContentTypes.AuthoritativeSet
 
-  val form = models.forms.AuthoritativeSetForm.form
-  val childForm = models.forms.HistoricalAgentForm.form
+  val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
+  private val form = models.forms.AuthoritativeSetForm.form
+  private val childForm = models.forms.HistoricalAgentForm.form
+  private val setRoutes = controllers.authorities.routes.AuthoritativeSets
 
   // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(resource.entityType))
 
 
   def get(id: String) = getAction.async(id) {
@@ -37,7 +34,7 @@ case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfi
     searchAction[HistoricalAgent](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
         page => params => facets => _ => _ =>
       Ok(views.html.authoritativeSet.show(
-          item, page, params, facets, controllers.authorities.routes.AuthoritativeSets.get(id), annotations, links))
+          item, page, params, facets, setRoutes.get(id), annotations, links))
     }.apply(request)
   }
 
@@ -50,30 +47,30 @@ case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfi
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.authoritativeSet.create(form, VisibilityForm.form, users, groups, controllers.authorities.routes.AuthoritativeSets.createPost))
+    Ok(views.html.authoritativeSet.create(form, VisibilityForm.form, users, groups, setRoutes.createPost))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.authoritativeSet.create(errorForm, accForm, users, groups, controllers.authorities.routes.AuthoritativeSets.createPost))
+        BadRequest(views.html.authoritativeSet.create(errorForm, accForm, users, groups, setRoutes.createPost))
       }
-      case Right(item) => immediate(Redirect(controllers.authorities.routes.AuthoritativeSets.get(item.id))
+      case Right(item) => immediate(Redirect(setRoutes.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
     }
   }
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.authoritativeSet.edit(
-      item, form.fill(item.model),controllers.authorities.routes.AuthoritativeSets.updatePost(id)))
+      item, form.fill(item.model),setRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.authoritativeSet.edit(
-          olditem, errorForm, controllers.authorities.routes.AuthoritativeSets.updatePost(id)))
-      case Right(item) => Redirect(controllers.authorities.routes.AuthoritativeSets.get(item.id))
+          olditem, errorForm, setRoutes.updatePost(id)))
+      case Right(item) => Redirect(setRoutes.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }
   }
@@ -82,7 +79,7 @@ case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfi
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.create(
       item, childForm, VisibilityForm.form, users, groups,
-        controllers.authorities.routes.AuthoritativeSets.createHistoricalAgentPost(id)))
+        setRoutes.createHistoricalAgentPost(id)))
   }
 
   def createHistoricalAgentPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.HistoricalAgent) {
@@ -90,7 +87,7 @@ case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfi
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.historicalAgent.create(item,
-          errorForm, accForm, users, groups, controllers.authorities.routes.AuthoritativeSets.createHistoricalAgentPost(id)))
+          errorForm, accForm, users, groups, setRoutes.createHistoricalAgentPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
@@ -99,65 +96,65 @@ case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfi
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        item, controllers.authorities.routes.AuthoritativeSets.deletePost(id),
-        controllers.authorities.routes.AuthoritativeSets.get(id)))
+        item, setRoutes.deletePost(id),
+        setRoutes.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(controllers.authorities.routes.AuthoritativeSets.list())
+    Redirect(setRoutes.list())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, controllers.authorities.routes.AuthoritativeSets.visibilityPost(id)))
+        users, groups, setRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(controllers.authorities.routes.AuthoritativeSets.get(id))
+    Redirect(setRoutes.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
-        controllers.authorities.routes.AuthoritativeSets.addItemPermissions(id), controllers.authorities.routes.AuthoritativeSets.addScopedPermissions(id)))
+        setRoutes.addItemPermissions(id), setRoutes.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        controllers.authorities.routes.AuthoritativeSets.setItemPermissions _))
+        setRoutes.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        controllers.authorities.routes.AuthoritativeSets.setScopedPermissions _))
+        setRoutes.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
-        controllers.authorities.routes.AuthoritativeSets.setItemPermissionsPost(id, userType, userId)))
+        setRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
-    Redirect(controllers.authorities.routes.AuthoritativeSets.managePermissions(id))
+    Redirect(setRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
-        controllers.authorities.routes.AuthoritativeSets.setScopedPermissionsPost(id, userType, userId)))
+        setRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
   def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
-    Redirect(controllers.authorities.routes.AuthoritativeSets.managePermissions(id))
+    Redirect(setRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 }

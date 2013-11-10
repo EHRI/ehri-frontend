@@ -1,8 +1,8 @@
 package controllers.portal
 
 import play.api.http.MimeTypes
-import play.api._
-import play.api.mvc._
+import play.api.Routes
+import play.api.mvc.{Controller,Action}
 
 
 /**
@@ -12,8 +12,6 @@ object PortalData extends Controller {
 
 
   def jsRoutes = Action { implicit request =>
-
-
     Ok(
       Routes.javascriptRouter("jsRoutes")(
         controllers.portal.routes.javascript.Portal.activityMore,

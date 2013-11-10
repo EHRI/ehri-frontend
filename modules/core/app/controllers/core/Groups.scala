@@ -3,11 +3,10 @@ package controllers.core
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import forms.VisibilityForm
-import models._
+import models.{Group,GroupF}
 import models.base.Accessor
-import play.api._
 import play.api.i18n.Messages
-import defines.{ ContentTypes, EntityType, PermissionType }
+import defines.{ContentTypes, PermissionType }
 import global.GlobalConfig
 import com.google.inject._
 import utils.search.Dispatcher
@@ -18,9 +17,7 @@ case class Groups @Inject()(implicit globalConfig: GlobalConfig, searchDispatche
   with Visibility[Group]
   with CRUD[GroupF, Group] {
 
-  val entityType = EntityType.Group
   val contentType = ContentTypes.Group
-
   implicit val resource = Group.Resource
 
   private val form = models.forms.GroupForm.form

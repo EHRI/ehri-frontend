@@ -1,10 +1,9 @@
 package controllers.core
 
 import controllers.generic._
-import models._
-import play.api._
+import models.{UserProfile,UserProfileF}
 import play.api.i18n.Messages
-import defines._
+import defines.ContentTypes
 import utils.search.SearchParams
 import utils.search.Dispatcher
 import com.google.inject._
@@ -19,18 +18,15 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   implicit val resource = UserProfile.Resource
 
-  val DEFAULT_SORT = "name"
-
-  val entityType = EntityType.UserProfile
   val contentType = ContentTypes.UserProfile
 
   // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
   val form = models.forms.UserProfileForm.form
 
-  // NB: Because the UserProfile class has more optional
-  // parameters we use the companion object apply method here.
+  private val userRoutes = controllers.core.routes.UserProfiles
+  
 
   def get(id: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
@@ -40,7 +36,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def search = {
     searchAction[UserProfile](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
         page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.userProfile.search(page, params, facets, controllers.core.routes.UserProfiles.search))
+      Ok(views.html.userProfile.search(page, params, facets, userRoutes.search))
     }
   }
 
@@ -54,7 +50,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.userProfile.edit(
-        item, form.fill(item.model), controllers.core.routes.UserProfiles.updatePost(id)))
+        item, form.fill(item.model), userRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
@@ -62,22 +58,22 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.userProfile.edit(
-          item, errorForm, controllers.core.routes.UserProfiles.updatePost(id)))
-      case Right(item) => Redirect(controllers.core.routes.UserProfiles.get(item.id))
+          item, errorForm, userRoutes.updatePost(id)))
+      case Right(item) => Redirect(userRoutes.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
     }
   }
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(item, controllers.core.routes.UserProfiles.deletePost(id),
-          controllers.core.routes.UserProfiles.get(id)))
+    Ok(views.html.delete(item, userRoutes.deletePost(id),
+          userRoutes.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     // For the users we need to clean up by deleting their profile id, if any...
     userFinder.findByProfileId(id).map(_.delete())
-    Redirect(controllers.core.routes.UserProfiles.search())
+    Redirect(userRoutes.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
@@ -89,24 +85,24 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def permissions(id: String) = setGlobalPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.editGlobalPermissions(item, perms,
-        controllers.core.routes.UserProfiles.permissionsPost(id)))
+        userRoutes.permissionsPost(id)))
   }
 
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) {
       item => perms => implicit userOpt => implicit request =>
-    Redirect(controllers.core.routes.UserProfiles.get(id))
+    Redirect(userRoutes.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
       item => perm => implicit userOpt => implicit request =>
         Ok(views.html.permissions.revokePermission(item, perm,
-          controllers.core.routes.UserProfiles.revokePermissionPost(id, permId), controllers.core.routes.UserProfiles.grantList(id)))
+          userRoutes.revokePermissionPost(id, permId), userRoutes.grantList(id)))
   }
 
   def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
     item => bool => implicit userOpt => implicit request =>
-      Redirect(controllers.core.routes.UserProfiles.grantList(id))
+      Redirect(userRoutes.grantList(id))
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 }

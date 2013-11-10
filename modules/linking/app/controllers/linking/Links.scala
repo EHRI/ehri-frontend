@@ -1,8 +1,8 @@
 package controllers.linking
 
-import defines._
+import defines.ContentTypes
 import forms.VisibilityForm
-import models._
+import models.Link
 import play.api.i18n.Messages
 
 import com.google.inject._
@@ -16,7 +16,6 @@ case class Links @Inject()(implicit globalConfig: GlobalConfig, backend: rest.Ba
 
   implicit val resource = Link.Resource
 
-  val entityType = EntityType.Link
   val contentType = ContentTypes.Link
 
   def get(id: String) = getAndRedirect(id, None)

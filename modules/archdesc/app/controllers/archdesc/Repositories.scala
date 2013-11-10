@@ -1,14 +1,11 @@
 package controllers.archdesc
 
 import forms.VisibilityForm
-import controllers.base._
+import controllers.base.ApiBase
 import controllers.generic._
 import models.{Repository,RepositoryF,DocumentaryUnit,DocumentaryUnitF}
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api._
-import play.api.mvc._
-import play.api.i18n.{Lang, Messages}
-import defines._
+import play.api.i18n.Messages
+import defines.{EntityType,PermissionType,ContentTypes}
 import views.Helpers
 import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
@@ -68,17 +65,15 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
   }
 
-  val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
-
   implicit val resource = Repository.Resource
 
-  val entityType = EntityType.Repository
   val contentType = ContentTypes.Repository
+  val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
-  val form = models.forms.RepositoryForm.form
-  val childForm = models.forms.DocumentaryUnitForm.form
+  private val form = models.forms.RepositoryForm.form
+  private val childForm = models.forms.DocumentaryUnitForm.form
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
+  private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
   private val repositoryRoutes = controllers.archdesc.routes.Repositories
 

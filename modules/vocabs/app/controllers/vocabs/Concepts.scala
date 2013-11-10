@@ -1,18 +1,15 @@
 package controllers.vocabs
 
-import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
-import controllers.base._
+import controllers.base.ApiBase
 import controllers.generic._
 import models.{Concept,ConceptF}
 import models.forms.LinkForm
-import play.api._
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import solr.facet.FieldFacetClass
 import views.Helpers
 import utils.search.{SearchParams, FacetSort}
-
 import utils.search.Dispatcher
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
@@ -29,16 +26,14 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   with Search
   with ApiBase[Concept] {
 
-  val targetContentTypes = Seq(ContentTypes.Concept)
-
   implicit val resource = Concept.Resource
 
-  val entityType = EntityType.Concept
   val contentType = ContentTypes.Concept
+  val targetContentTypes = Seq(ContentTypes.Concept)
 
-  val form = models.forms.ConceptForm.form
-  val childForm = models.forms.ConceptForm.form
-
+  private val form = models.forms.ConceptForm.form
+  private val childForm = models.forms.ConceptForm.form
+  private val conceptRoutes = controllers.vocabs.routes.Concepts
 
   private def entityFacets: FacetBuilder = { implicit lang =>
     List(
@@ -58,7 +53,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   }
 
   // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(entityType))
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(EntityType.Concept))
 
 
   def get(id: String) = getWithChildrenAction[Concept](id) {
@@ -68,7 +63,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def search = searchAction[Concept](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.concept.search(page, params, facets, controllers.vocabs.routes.Concepts.search))
+    Ok(views.html.concept.search(page, params, facets, conceptRoutes.search))
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
@@ -81,15 +76,15 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.concept.edit(item, form.fill(item.model),controllers.vocabs.routes.Concepts.updatePost(id)))
+    Ok(views.html.concept.edit(item, form.fill(item.model),conceptRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       oldItem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => BadRequest(views.html.concept.edit(
-          oldItem, errorForm, controllers.vocabs.routes.Concepts.updatePost(id)))
-      case Right(item) => Redirect(controllers.vocabs.routes.Concepts.get(item.id))
+          oldItem, errorForm, conceptRoutes.updatePost(id)))
+      case Right(item) => Redirect(conceptRoutes.get(item.id))
         .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
     }
   }
@@ -97,7 +92,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def createConcept(id: String) = childCreateAction(id, ContentTypes.Concept) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.concept.create(
-        item, childForm, VisibilityForm.form, users, groups, controllers.vocabs.routes.Concepts.createConceptPost(id)))
+        item, childForm, VisibilityForm.form, users, groups, conceptRoutes.createConceptPost(id)))
   }
 
   def createConceptPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.Concept) {
@@ -105,21 +100,21 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.concept.create(item,
-          errorForm, accForm, users, groups, controllers.vocabs.routes.Concepts.createConceptPost(id)))
+          errorForm, accForm, users, groups, conceptRoutes.createConceptPost(id)))
       }
-      case Right(citem) => immediate(Redirect(controllers.vocabs.routes.Concepts.get(id))
+      case Right(citem) => immediate(Redirect(conceptRoutes.get(id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
     }
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        item, controllers.vocabs.routes.Concepts.deletePost(id), controllers.vocabs.routes.Concepts.get(id)))
+        item, conceptRoutes.deletePost(id), conceptRoutes.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(controllers.vocabs.routes.Concepts.search())
+    Redirect(conceptRoutes.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 
@@ -127,61 +122,61 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, controllers.vocabs.routes.Concepts.visibilityPost(id)))
+        users, groups, conceptRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(controllers.vocabs.routes.Concepts.get(id))
+    Redirect(conceptRoutes.get(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
-        controllers.vocabs.routes.Concepts.addItemPermissions(id), controllers.vocabs.routes.Concepts.addScopedPermissions(id)))
+        conceptRoutes.addItemPermissions(id), conceptRoutes.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        controllers.vocabs.routes.Concepts.setItemPermissions _))
+        conceptRoutes.setItemPermissions _))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        controllers.vocabs.routes.Concepts.setScopedPermissions _))
+        conceptRoutes.setScopedPermissions _))
   }
 
   def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
-        controllers.vocabs.routes.Concepts.setItemPermissionsPost(id, userType, userId)))
+        conceptRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
-    Redirect(controllers.vocabs.routes.Concepts.managePermissions(id))
+    Redirect(conceptRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
-        controllers.vocabs.routes.Concepts.setScopedPermissionsPost(id, userType, userId)))
+        conceptRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
   def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
-    Redirect(controllers.vocabs.routes.Concepts.managePermissions(id))
+    Redirect(conceptRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
   def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.link.link(target, source,
-            LinkForm.form, controllers.vocabs.routes.Concepts.linkAnnotatePost(id, toType, to)))
+            LinkForm.form, conceptRoutes.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
@@ -189,10 +184,10 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
           BadRequest(views.html.link.link(target, source,
-              errorForm, controllers.vocabs.routes.Concepts.linkAnnotatePost(id, toType, to)))
+              errorForm, conceptRoutes.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {
-        Redirect(controllers.vocabs.routes.Concepts.get(id))
+        Redirect(conceptRoutes.get(id))
           .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
       }
     }
