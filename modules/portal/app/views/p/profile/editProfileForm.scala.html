@@ -4,14 +4,14 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalC
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateHorizontal.f) }
 @import UserProfileF._
 
-@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal", 'id -> "update-profile-form") {
+@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'id -> "update-profile-form") {
     @formHelpers.csrfToken()
     @* NB: The value of this hidden input can be changed, but will be ignored on the server *@
     @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
 
     <div class="pull-right">
-        <button id="cancel-profile-update" class="btn btn-xs btn-default">@Messages("actions.cancel")</button>
-        <button id="submit-profile-update" class="btn btn-xs btn-primary">
+        <input type="button" id="cancel-profile-update" class="btn btn-xs btn-default" value="@Messages("actions.cancel")" />
+        <button type="submit" id="submit-profile-update" class="btn btn-xs btn-primary">
             <span class="glyphicon glyphicon-ok"></span>
             @Messages("submitButton.updateUserProfile")
         </button>
@@ -20,7 +20,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalC
 
     @defining(FIELD_PREFIX) { implicit fieldPrefix =>
         @profileDetailsLayout {
-            <input type="text" name="@f(NAME).name" value="@f(NAME).value" id="@f(NAME).id" />
+            <input type="text" name="@f(NAME).name" value="@f(NAME).value" id="@f(NAME).id" required />
         } {
             <input type="text" name="@f(LOCATION).name" value="@f(LOCATION).value" id="@f(LOCATION).id" />
         } {

@@ -1,5 +1,12 @@
 jQuery(function($) {
 
+  // Validate any forms with 'validate-form' class...
+  $(".validate-form").validate();
+  $(document).ajaxComplete(function() {
+    $(".validate-form").validate();
+  });
+
+
   var select2Opts = {
     placeholder: "Select an option...",
     allowClear: true,
@@ -44,26 +51,28 @@ jQuery(function($) {
     jsRoutes.controllers.portal.Portal.updateProfile().ajax({
       success: function(data) {
         $("#profile-details").hide().after(data);
-        $("#submit-profile-update").click(function(e2) {
-          e2.preventDefault();
-          var url = jsRoutes.controllers.portal.Portal.updateProfilePost().url;
-          var method = jsRoutes.controllers.portal.Portal.updateProfilePost().method;
-          console.log($("#update-profile-form").serialize())
-          $.ajax({
-            url: url,
-            type: method,
-            data: $("#update-profile-form").serialize(),
-            success: function(data) {
-              $("#update-profile-form").remove();
-              $("#profile-details").replaceWith(data).show();
-            }
-          })
+        $("#update-profile-form").submit(function(submitEvent) {
+          submitEvent.preventDefault();
+          var formData = $(submitEvent.target).serialize();
+          if ($(submitEvent.target).valid()) {
+            var url = jsRoutes.controllers.portal.Portal.updateProfilePost().url;
+            var method = jsRoutes.controllers.portal.Portal.updateProfilePost().method;
+            $.ajax({
+              url: url,
+              type: method,
+              data: formData,
+              success: function(data) {
+                $("#update-profile-form").remove();
+                $("#profile-details").replaceWith(data).show();
+              }
+            });
+          }
         });
 
-        $("#cancel-profile-update").click(function(e3) {
-          e3.preventDefault();
-          $("#profile-details").show();
+        $("#cancel-profile-update").click(function(cancelEvent) {
+          cancelEvent.preventDefault();
           $("#update-profile-form").remove();
+          $("#profile-details").show();
         });
       }
     });
