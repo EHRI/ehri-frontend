@@ -8,7 +8,6 @@ import play.api.mvc._
 import models.json.{RestResource, ClientConvertable, RestReadable}
 import controllers.base.{ControllerHelpers, AuthController}
 import scala.concurrent.Future
-import rest.EntityDAO
 import play.api.mvc.SimpleResult
 
 /**
