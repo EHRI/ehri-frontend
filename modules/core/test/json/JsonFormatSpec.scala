@@ -1,15 +1,10 @@
 package test.json
 
-import org.specs2.mutable._
-
-import play.api.test._
-import play.api.test.Helpers._
-import play.api.i18n.Messages
-import models.json._
 import play.api.libs.json.Json
-import models.{ConceptF, RepositoryF, HistoricalAgentF, DocumentaryUnitF,VocabularyF,UserProfileF,GroupF,AnnotationF}
+import play.api.test.PlaySpecification
+import models.{json => _, _}
 
-class JsonFormatSpec extends Specification {
+class JsonFormatSpec extends PlaySpecification {
 
   "Documentary Unit Format should read and write with no changes" in {
     import models.json.DocumentaryUnitFormat._
