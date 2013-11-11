@@ -302,9 +302,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       f(item)
     } recoverWith {
       case ValidationError(errorSet) => {
-        val serverErrors: Seq[FormError] = user.errorsToForm(errorSet)
-        val form = userPasswordForm.bindFromRequest
-        val errForm = form.copy(errors = form.errors ++ serverErrors)
+        val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
         immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
           allGroups, controllers.core.routes.Admin.createUserPost)))
       }

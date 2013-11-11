@@ -122,15 +122,22 @@ object Persistable {
 trait Persistable {
 
   import Persistable._
+  import play.api.data.FormError
+  import play.api.data.Form
 
   def id: Option[String]
   def isA: EntityType.Value
 
+  def getFormErrors[T](errorSet: rest.ErrorSet, form: Form[T]): Form[T] = {
+    val serverErrors: Seq[FormError] = errorsToForm(errorSet)
+    form.copy(errors = form.errors ++ serverErrors)
+  }
+
+
   /**
    * Map a tree of errors from the server into form errors.
    */
-  import play.api.data.FormError
-  def errorsToForm(errorSet: rest.ErrorSet): Seq[FormError] = {
+  private def errorsToForm(errorSet: rest.ErrorSet): Seq[FormError] = {
     unfurlErrors(errorSet, getRelationToAttributeMap(this)).flatMap { case (field, errorList) =>
       errorList.map(FormError(field, _))
     }.toSeq

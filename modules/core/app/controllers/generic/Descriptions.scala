@@ -30,8 +30,9 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
         desc => backend.createDescription(id, desc, logMsg = getLogMessage).map { updated =>
           f(item)(Right(updated))(userOpt)(request)
         } recoverWith {
-          case err: rest.ValidationError => {
-            immediate(f(item)(Left(fillFormErrors(desc, form, err)))(userOpt)(request))
+          case rest.ValidationError(errorSet) => {
+            val badForm = desc.getFormErrors(errorSet, form.fill(desc))
+            immediate(f(item)(Left(badForm))(userOpt)(request))
           }
         }
       )
@@ -51,8 +52,9 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
         desc => backend.updateDescription(id, did, desc, logMsg = getLogMessage).map { updated =>
           f(item)(Right(updated))(userOpt)(request)
         } recoverWith {
-          case err: rest.ValidationError => {
-            immediate(f(item)(Left(fillFormErrors(desc, form, err)))(userOpt)(request))
+          case rest.ValidationError(errorSet) => {
+            val badForm = desc.getFormErrors(errorSet, form.fill(desc))
+            immediate(f(item)(Left(badForm))(userOpt)(request))
           }
         }
       )
@@ -82,18 +84,6 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
         f(ok)(userOpt)(request)
       }
     }
-  }
-
-  /**
-   * Given a ValidationError from the server and an item, fold
-   * the server's complaints back into the form for redisplay.
-   * @param item
-   * @param form
-   * @param err
-   * @return
-   */
-  private def fillFormErrors(item: D, form: Form[D], err: ValidationError): Form[D] = {
-    form.fill(item).copy(errors = form.errors ++ item.errorsToForm(err.errorSet))
   }
 }
 

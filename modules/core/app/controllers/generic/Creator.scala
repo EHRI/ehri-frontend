@@ -61,9 +61,8 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
         backend.createInContext[MT, CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).flatMap { citem =>
           f(item)(Right(citem))(userOpt)(request)
         } recoverWith {
-          case err: rest.ValidationError => {
-            val serverErrors = citem.errorsToForm(err.errorSet)
-            val filledForm = form.fill(citem).copy(errors = form.errors ++ serverErrors)
+          case rest.ValidationError(errorSet) => {
+            val filledForm = citem.getFormErrors(errorSet, form.fill(citem))
             f(item)(Left((filledForm, VisibilityForm.form)))(userOpt)(request)
           }
         }

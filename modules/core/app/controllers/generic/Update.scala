@@ -72,9 +72,8 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
             // If we have an error, check if it's a validation error.
             // If so, we need to merge those errors back into the form
             // and redisplay it...
-            case err: rest.ValidationError => {
-              val serverErrors: Seq[FormError] = doc.errorsToForm(err.errorSet)
-              val filledForm = form.fill(doc).copy(errors = form.errors ++ serverErrors)
+            case rest.ValidationError(errorSet) => {
+              val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
               f(item)(Left(filledForm))(userOpt)(request)
             }
           }
