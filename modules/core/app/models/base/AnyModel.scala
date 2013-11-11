@@ -5,9 +5,7 @@ import defines.EntityType
 import play.api.i18n.Lang
 import models.json.{Utils, ClientConvertable, RestReadable}
 import models._
-import play.api.data.validation.ValidationError
 import play.api.Logger
-import scala.Some
 import play.api.data.validation.ValidationError
 import play.api.libs.json.KeyPathNode
 
@@ -16,7 +14,6 @@ trait AnyModel {
   val id: String
   val isA: EntityType.Value
 
-  //override def toString = s"TODO: $isA [$id]"
   def toStringLang(implicit lang: Lang): String = this match {
     case e: MetaModel[_] => e.toStringLang(Lang.defaultLang)
     case t => t.toString
@@ -73,11 +70,6 @@ trait Named {
   def name: String
 }
 
-object Accessible {
-  final val REL = "access"
-  final val EVENT_REL = "lifecycleEvent"
-}
-
 trait Accessible extends AnyModel {
   def accessors: List[Accessor]
   def latestEvent: Option[SystemEvent]
@@ -94,11 +86,10 @@ trait MetaModel[+T <: Model] extends AnyModel {
   val id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
   val isA = model.isA
 
-  override def toStringLang(implicit lang: Lang) = {
-    if (model.isInstanceOf[Described[_]]) {
-      val d = model.asInstanceOf[Described[Description]]
+  override def toStringLang(implicit lang: Lang) = model match {
+    case d: Described[Description] =>
       d.descriptions.find(_.languageCode == lang.code).orElse(d.descriptions.headOption).map(_.name).getOrElse(id)
-    } else id
+    case _ => id
   }
 
   override def toStringAbbr(implicit lang: Lang): String = toStringLang(lang)
@@ -111,8 +102,6 @@ trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T
 
   /**
    * Links that relate to access points on this item's description(s)
-   * @param links
-   * @return
    */
   def accessPointLinks(links: Seq[Link]): Seq[Link]
       = links.filterNot(link => link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
@@ -120,8 +109,6 @@ trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T
 
   /**
    * Links that point to this item from other item's access points.
-   * @param links
-   * @return
    */
   def externalLinks(links: Seq[Link]): Seq[Link]
       = links.filter(link =>
@@ -130,8 +117,6 @@ trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T
 
   /**
    * Links that don't relate to access points.
-   * @param links
-   * @return
    */
   def annotationLinks(links: Seq[Link]): Seq[Link]
       = links.filter(link => link.bodies.isEmpty)
@@ -163,20 +148,11 @@ trait Hierarchical[+T] extends AnyModel {
       = (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
 }
 
-object Description {
-  final val ACCESS_REL = "relatesTo"
-  final val UNKNOWN_PROP = "hasUnknownProperty"
-}
-
 trait Description extends Model {
   val name: String
   val languageCode: String
   val accessPoints: List[AccessPointF]
   val unknownProperties: List[Entity] // Unknown, unparsed data
-}
-
-object Described {
-  final val REL = "describes"
 }
 
 trait Described[+T <: Description] extends Model {

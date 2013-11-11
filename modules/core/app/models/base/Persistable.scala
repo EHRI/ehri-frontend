@@ -6,7 +6,7 @@ package models.base
  * them on the server. To do this, we have to use reflection (along with the @Relation)
  * annotation that is added to attributes that represent a node -> subnode relationship.
  *
- * This is quite complicated. More complicates is taking a set of field errors that
+ * This is quite complicated. More complicated is taking a set of field errors that
  * the server gave back, and mapping them to form errors.
  *
  * TODO: Improve all of this drastically.
@@ -14,10 +14,7 @@ package models.base
 
 import defines._
 import models.Relation
-import models.Entity
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
-import play.api.libs.json.JsValue
+
 
 object Persistable {
   def getRelationToAttributeMap[T <:Persistable](p: T): Map[String,String] = {
@@ -131,8 +128,6 @@ trait Persistable {
 
   /**
    * Map a tree of errors from the server into form errors.
-   * 
-   * @type {[type]}
    */
   import play.api.data.FormError
   def errorsToForm(errorSet: rest.ErrorSet): Seq[FormError] = {

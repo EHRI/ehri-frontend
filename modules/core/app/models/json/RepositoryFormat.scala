@@ -44,7 +44,7 @@ object RepositoryFormat {
       // FIXME: This throws an error if an item has no descriptions - we should somehow
       // make it so that the path being missing is permissable but a validation error
       // is not.
-      (__ \ RELATIONSHIPS \ Described.REL).lazyReadNullable[List[RepositoryDescriptionF]](
+      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[RepositoryDescriptionF]](
         Reads.list[RepositoryDescriptionF]).map(_.getOrElse(List.empty[RepositoryDescriptionF])) and
       (__ \ DATA \ PRIORITY).readNullable[Int]
     )(RepositoryF.apply _)

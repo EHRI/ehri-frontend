@@ -1,4 +1,4 @@
-package test.json
+package models.json
 
 import play.api.libs.json.Json
 import play.api.test.PlaySpecification

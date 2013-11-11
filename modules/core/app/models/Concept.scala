@@ -6,6 +6,7 @@ import defines.EntityType
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import eu.ehri.project.definitions.Ontology
 
 
 object ConceptF {
@@ -36,7 +37,7 @@ case class ConceptF(
   isA: EntityType.Value = EntityType.Concept,
   id: Option[String],
   identifier: String,
-  @Annotations.Relation(Described.REL) val descriptions: List[ConceptDescriptionF] = Nil
+  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY) val descriptions: List[ConceptDescriptionF] = Nil
 ) extends Model with Persistable with Described[ConceptDescriptionF]
 
 
