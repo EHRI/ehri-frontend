@@ -18,7 +18,7 @@ import rest.{Backend, ApiUser}
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
  */
-trait AuthController extends Controller with ControllerHelpers with AsyncAuth with Authorizer {
+trait AuthController extends Controller with ControllerHelpers with AsyncAuth with AuthConfigImpl {
 
   val backend: Backend
 

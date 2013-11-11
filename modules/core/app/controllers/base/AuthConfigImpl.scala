@@ -14,7 +14,7 @@ import scala.concurrent.Future.{successful => immediate}
  * https://github.com/t2v/play20-auth/blob/master/README.md
  */
 
-trait Authorizer extends Results with AuthConfig {
+trait AuthConfigImpl extends AuthConfig with Results {
 
   val globalConfig: GlobalConfig
 

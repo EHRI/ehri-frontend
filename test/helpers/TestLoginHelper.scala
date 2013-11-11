@@ -14,7 +14,7 @@ import rest.{RestBackend, Backend, RestEventHandler}
 import models.Account
 import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
-import controllers.base.Authorizer
+import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
 
 /**
@@ -48,7 +48,7 @@ trait TestLoginHelper {
   object TestConfig extends globalConfig.BaseConfiguration
 
   // Dummy auth config for play-2-auth
-  object AuthConfig extends Authorizer {
+  object AuthConfig extends AuthConfigImpl {
     val globalConfig = TestConfig
   }
 

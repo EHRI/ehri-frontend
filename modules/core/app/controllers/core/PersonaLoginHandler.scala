@@ -15,8 +15,6 @@ import rest.Backend
  * Handler for Mozilla Persona-based login.
  *
  * NOTE: Not tested for some time...
- *
- * @param globalConfig
  */
 @Singleton
 case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends LoginHandler {

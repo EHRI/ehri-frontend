@@ -1,7 +1,7 @@
 package controllers.core
 
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.base.{AuthController, Authorizer}
+import controllers.base.{AuthController, AuthConfigImpl}
 import models.base.AnyModel
 import models.json.RestReadable
 import global.GlobalConfig
@@ -14,7 +14,7 @@ import com.google.inject._
 import play.api.http.ContentTypes
 import java.util.Locale
 
-case class Application @Inject()(implicit globalConfig: GlobalConfig, backend: rest.Backend) extends Controller with AsyncAuth with Authorizer with AuthController {
+case class Application @Inject()(implicit globalConfig: GlobalConfig, backend: rest.Backend) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
 
   implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
 
