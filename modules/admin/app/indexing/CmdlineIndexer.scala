@@ -65,6 +65,7 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
     "--index",
     "--solr", solrUrl,
     "--rest", restUrl,
+    "-H", "Authorization=admin",
     "--verbose" // print one line of output per item
   )
 
