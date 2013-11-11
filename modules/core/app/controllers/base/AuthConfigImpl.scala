@@ -74,8 +74,6 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * A redirect target after a successful user login.
    */
   def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
-    //val uri = request.session.get("access_uri").getOrElse(controllers.routes.Search.search.url)
-    // FIXME: Hard-coded reference to /admin...
     val uri = request.session.get("access_uri").getOrElse(globalConfig.routeRegistry.default.url)
     request.session - "access_uri"
     immediate(Redirect(uri))
@@ -91,7 +89,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * A redirect target after a failed authentication.
    */
   def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
-    if (ControllerHelpers.isAjax(request))
+    if (utils.isAjax(request))
       immediate(Unauthorized("authentication failed"))
     else
       immediate(Redirect(globalConfig.routeRegistry.login.url)
@@ -106,13 +104,8 @@ trait AuthConfigImpl extends AuthConfig with Results {
 
   /**
    * A function that authorizes a user by `Authority`.
-   * Describe the procedure according to your application.
+   * We don't use this because Authorization is done with our own ACL.
    */
-  def authorize(user: User, authority: Authority)(implicit context: ExecutionContext): Future[Boolean] = {
-    // FIXME: Need to use ACL for this, but the play20-auth scheme might not fit perfectly
-    // with ours because of the split between a User account (sql) and a UserProfile. For
-    // the time being we do authorization ourselves and don't worry about implementing
-    // this function properly.
-    immediate(true)
-  }
+  def authorize(user: User, authority: Authority)(implicit context: ExecutionContext): Future[Boolean]
+      = immediate(true)
 }

@@ -8,7 +8,7 @@ import global.GlobalConfig
 import utils.{ListParams, SystemEventParams, PageParams}
 import controllers.generic.Read
 
-class SystemEvents @Inject()(implicit val globalConfig: GlobalConfig, val backend: rest.Backend) extends Read[SystemEvent] {
+case class SystemEvents @Inject()(implicit globalConfig: GlobalConfig, backend: rest.Backend) extends Read[SystemEvent] {
 
   implicit val resource = SystemEvent.Resource
 

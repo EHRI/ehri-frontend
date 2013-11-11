@@ -2,7 +2,6 @@ package controllers.archdesc
 
 import forms.VisibilityForm
 import models.{DocumentaryUnit,DocumentaryUnitF,DocumentaryUnitDescriptionF,IsadG}
-import controllers.base.ApiBase
 import controllers.generic._
 import models.forms.LinkForm
 import play.api.mvc._
@@ -13,6 +12,7 @@ import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
+import scala.Some
 
 @Singleton
 case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends Read[DocumentaryUnit]
@@ -26,7 +26,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   with Descriptions[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
   with AccessPoints[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
   with Search
-  with ApiBase[DocumentaryUnit] {
+  with Api[DocumentaryUnit] {
 
   // Documentary unit facets
   import solr.facet._

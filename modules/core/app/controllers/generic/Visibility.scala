@@ -2,30 +2,14 @@ package controllers.generic
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import defines._
+import defines.PermissionType
 import models.UserProfile
 import models.json.RestReadable
 
-object Visibility {
-  /**
-   * Extract a list of accessors from the request params.
-   * @param d
-   * @return
-   */
-  def extractAccessors(d: Option[Map[String,Seq[String]]]): List[String] = {
-    d.getOrElse(Map()).flatMap {
-      case (k, s) if k == s"accessor_${EntityType.Group}" || k == s"accessor_${EntityType.UserProfile}" => s.toList
-      case (_, s) => Nil
-    }.toList
-  }
-}
-
 /**
- * Trait for setting visibility on any AccessibleEntity.
- *
- * @tparam MT the entity's meta class
+ * Trait for setting visibility on any item.
  */
-trait Visibility[MT] extends Read[MT] {
+trait Visibility[MT] extends Generic[MT] {
 
   def visibilityAction(id: String)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>

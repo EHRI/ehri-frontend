@@ -1,7 +1,6 @@
 package controllers.vocabs
 
 import forms.VisibilityForm
-import controllers.base.ApiBase
 import controllers.generic._
 import models.{Concept,ConceptF}
 import models.forms.LinkForm
@@ -13,6 +12,8 @@ import utils.search.{SearchParams, FacetSort}
 import utils.search.Dispatcher
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
+import solr.facet.FieldFacetClass
+import scala.Some
 
 @Singleton
 case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends Creator[ConceptF, Concept, Concept]
@@ -24,7 +25,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   with Linking[Concept]
   with Annotate[Concept]
   with Search
-  with ApiBase[Concept] {
+  with Api[Concept] {
 
   implicit val resource = Concept.Resource
 

@@ -3,22 +3,10 @@ package controllers.base
 import scala.concurrent.Future
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import rest._
-import java.net.ConnectException
 import models.UserProfile
-import play.api.Play.current
-import play.api.libs.json.Json
-import global.{MenuConfig, GlobalConfig}
+import global.GlobalConfig
 import scala.concurrent.Future.{successful => immediate}
-import scala.Some
-import scala.Some
-import play.api.mvc.SimpleResult
 
-object ControllerHelpers {
-  def isAjax(implicit request: RequestHeader): Boolean =
-    request.headers.get("X-REQUESTED-WITH")
-      .map(_.toUpperCase() == "XMLHTTPREQUEST").getOrElse(false)
-}
 
 trait ControllerHelpers {
   this: Controller with AuthController =>
@@ -56,9 +44,7 @@ trait ControllerHelpers {
   /**
    * Check if a request is Ajax.
    */
-  def isAjax(implicit request: RequestHeader): Boolean =
-    request.headers.get("X-REQUESTED-WITH")
-      .map(_.toUpperCase() == "XMLHTTPREQUEST").getOrElse(false)
+  def isAjax(implicit request: RequestHeader): Boolean = utils.isAjax
 
   /**
    * Get a complete list of possible groups
@@ -94,15 +80,5 @@ trait ControllerHelpers {
       implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
       async(f.andThen(_.andThen(t => immediate(t))))
     }
-  }
-
-  /**
-   * Join params into a query string
-   */
-  def joinQueryString(qs: Map[String, Seq[String]]): String = {
-    import java.net.URLEncoder
-    qs.map { case (key, vals) => {
-      vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
-    }}.flatten.mkString("&")
   }
 }

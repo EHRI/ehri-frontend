@@ -1,7 +1,6 @@
 package controllers.archdesc
 
 import forms.VisibilityForm
-import controllers.base.ApiBase
 import controllers.generic._
 import models.{Repository,RepositoryF,DocumentaryUnit,DocumentaryUnitF}
 import play.api.i18n.Messages
@@ -11,6 +10,7 @@ import utils.search.{Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
+import scala.Some
 
 @Singleton
 case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends Read[Repository]
@@ -21,7 +21,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   with ScopePermissions[Repository]
   with Annotate[Repository]
   with Search
-  with ApiBase[Repository] {
+  with Api[Repository] {
 
   val DEFAULT_SORT = "name"
 
