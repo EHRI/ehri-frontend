@@ -117,14 +117,11 @@
         <div class="row tertiary-content">
             <div class="col-sm-2 col-md-2 col-lg-2"></div>
             <div class="col-sm-8 col-md-8 col-lg-8">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">@Messages("portal.newsFeed")</h3>
-                    </div>
+                @p.common.panel(Messages("portal.newsFeed")) {
                     <ul id="news-feed" class="list-unstyled panel-body front-page-panel-content">
 
                     </ul>
-                </div>
+                }
             </div>
             <div class="col-sm-2 col-md-2 col-lg-2"></div>
         </div>

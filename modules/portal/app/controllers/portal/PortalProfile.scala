@@ -1,13 +1,14 @@
 package controllers.portal
 
 import controllers.base.{AuthController, ControllerHelpers}
-import models.{UserProfile, UserProfileF}
+import models.{Link, Annotation, UserProfile, UserProfileF}
 import play.api._
 import controllers.generic.Update
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json.{Format, Json}
+import backend.Page
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -21,6 +22,12 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
   val form = models.forms.UserProfileForm.form
 
   def profile = withUserAction { implicit user => implicit request =>
+
+    // TODO: Pull this data from the backend...
+    val follows = Page.empty[UserProfile]
+    val links = Page.empty[Link]
+    val annotations = Page.empty[Annotation]
+
     render {
       case Accepts.Json() =>
         Ok(Json.toJson(userOpt)(Format.optionWithNull(UserProfile.Converter.clientFormat)))
@@ -28,7 +35,7 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
         if (isAjax) {
           Ok(views.html.p.profile.profileDetails(user))
         } else {
-          Ok(views.html.p.profile.profile(user))
+          Ok(views.html.p.profile.profile(user, links, annotations, follows))
         }
       }
     }

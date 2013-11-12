@@ -178,7 +178,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def activity = listAction[SystemEvent](EntityType.SystemEvent) {
       list => params => implicit userOpt => implicit request =>
-    Ok(p.activity(list, params))
+    Ok(p.activity.activity(list, params))
   }
 
   def activityMore(offset: Int) = listAction[SystemEvent](EntityType.SystemEvent, Some(ListParams(offset = offset))) {

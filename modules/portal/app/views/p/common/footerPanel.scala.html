@@ -1,0 +1,15 @@
+@(title: Any, cls: String = "default")(body: Html = Html(""))(footer: Html = Html(""))(implicit lang: Lang)
+
+<div class="panel panel-@cls">
+    <div class="panel-heading">
+        <h3 class="panel-title">@title</h3>
+    </div>
+    <div class="panel-body">
+        @body
+    </div>
+    @if(!footer.body.trim.isEmpty) {
+        <div class="panel-footer">
+            @footer
+        </div>
+    }
+</div>

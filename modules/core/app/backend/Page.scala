@@ -15,6 +15,8 @@ case class Page[+T](
 
 object Page {
 
+  def empty[T] = new Page[T](0, 0, 20, Seq.empty[T])
+
   implicit def restReads[T](implicit apiUser: ApiUser, rd: RestReadable[T]): Reads[Page[T]] = {
     Page.pageReads(rd.restReads)
   }

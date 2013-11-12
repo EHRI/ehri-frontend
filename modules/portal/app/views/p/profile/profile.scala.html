@@ -1,4 +1,4 @@
-@(item: UserProfile)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: UserProfile, links: backend.Page[Link], annotations: backend.Page[Annotation], follows: backend.Page[UserProfile])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(item.toStringLang) {
     @p.layout.breadcrumbs(showHome = false) {
@@ -18,6 +18,29 @@
                 @profileDetails(item)
             </div>
             <div class="col-sm-4">
+                <p/>
+                @following(item, follows)
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="container">
+            <div class="col-sm-8">
+                @userAnnotations(item, annotations)
+            </div>
+            <div class="col-sm-4">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="container">
+            <div class="col-sm-8">
+                @userLinks(item, links)
+            </div>
+            <div class="col-sm-4">
+
             </div>
         </div>
     </div>

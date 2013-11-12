@@ -18,4 +18,6 @@ trait AbstractPage[+A] {
 
   lazy val prev = Option(page - 1).filter(_ >= 0)
   lazy val next = Option(page + 1).filter(_ => (offset + items.size) < total)
+
+  def isEmpty = total == 0 // items.isEmpty? Not sure of the best semantics here?
 }
