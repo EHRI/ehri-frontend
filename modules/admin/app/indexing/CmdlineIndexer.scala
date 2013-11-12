@@ -10,7 +10,8 @@ import scala.concurrent.Future
 
 
 object CmdlineIndexer {
-  val jar = "%s/bin/indexer.jar".format(System.getProperty("user.dir"))
+  def jar = current.configuration.getString("solr.indexer.jar")
+      .getOrElse(sys.error("No indexer jar configured for solr.indexer.jar"))
 }
 
 /**
