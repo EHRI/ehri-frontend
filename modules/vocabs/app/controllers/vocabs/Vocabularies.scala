@@ -8,9 +8,10 @@ import defines.{ContentTypes, EntityType}
 import utils.search.{Dispatcher, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
+import backend.Backend
 
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends CRUD[VocabularyF,Vocabulary]
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]

@@ -7,6 +7,7 @@ import defines._
 import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
 import utils.PageParams
+import backend.Page
 
 /**
  * Trait for setting permissions on an individual item.
@@ -14,7 +15,7 @@ import utils.PageParams
 trait ItemPermissions[MT] extends Read[MT] {
 
   def manageItemPermissionsAction(id: String)(
-      f: MT => rest.Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)

@@ -7,8 +7,9 @@ import com.google.inject._
 import global.GlobalConfig
 import utils.{ListParams, SystemEventParams, PageParams}
 import controllers.generic.Read
+import backend.Backend
 
-case class SystemEvents @Inject()(implicit globalConfig: GlobalConfig, backend: rest.Backend) extends Read[SystemEvent] {
+case class SystemEvents @Inject()(implicit globalConfig: GlobalConfig, backend: Backend) extends Read[SystemEvent] {
 
   implicit val resource = SystemEvent.Resource
 

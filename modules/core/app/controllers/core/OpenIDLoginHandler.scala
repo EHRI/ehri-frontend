@@ -12,7 +12,7 @@ import concurrent.Future
 import play.api.i18n.Messages
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
-import rest.Backend
+import backend.Backend
 
 /**
  * OpenID login handler implementation.

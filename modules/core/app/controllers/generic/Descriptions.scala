@@ -6,9 +6,9 @@ import play.api.mvc._
 import play.api.data.Form
 import defines.{EntityType, PermissionType}
 import models.UserProfile
-import rest.ValidationError
 import models.json.{RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
+import backend.rest.ValidationError
 
 /**
  * Controller trait for creating, updating, and deleting auxiliary descriptions
@@ -30,7 +30,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
         desc => backend.createDescription(id, desc, logMsg = getLogMessage).map { updated =>
           f(item)(Right(updated))(userOpt)(request)
         } recoverWith {
-          case rest.ValidationError(errorSet) => {
+          case ValidationError(errorSet) => {
             val badForm = desc.getFormErrors(errorSet, form.fill(desc))
             immediate(f(item)(Left(badForm))(userOpt)(request))
           }
@@ -52,7 +52,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
         desc => backend.updateDescription(id, did, desc, logMsg = getLogMessage).map { updated =>
           f(item)(Right(updated))(userOpt)(request)
         } recoverWith {
-          case rest.ValidationError(errorSet) => {
+          case ValidationError(errorSet) => {
             val badForm = desc.getFormErrors(errorSet, form.fill(desc))
             immediate(f(item)(Left(badForm))(userOpt)(request))
           }

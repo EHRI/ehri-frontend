@@ -1,12 +1,10 @@
 package test
 
 import helpers._
-import models.{GroupF, Group, UserProfileF, UserProfile}
-import play.api.test._
-import play.api.test.Helpers._
+import models.UserProfile
 import defines._
 import models.sql.MockAccount
-import rest.ApiUser
+import backend.ApiUser
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -51,7 +49,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         "description" -> Seq("Group for UK archivists")
       )
       val groupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Groups.create.url)
+        controllers.core.routes.Groups.create().url)
         .withHeaders(formPostHeaders.toSeq: _*), groupData).get
       status(groupCreatePost) must equalTo(SEE_OTHER)
 
@@ -85,7 +83,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         "group[]" -> Seq(groupId) // NB: Note brackets on param name!!!
       )
       val userCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Admin.createUserPost.url)
+        controllers.core.routes.Admin.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), newUserData).get
       status(userCreatePost) must equalTo(SEE_OTHER)
 

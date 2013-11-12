@@ -1,114 +1,12 @@
-package rest
+package backend.rest
 
-import models.{UserProfile, Entity}
 import play.api.{Logger, Play}
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
 import play.api.libs.ws.{WS, Response}
-import play.api.data.validation.{ValidationError => PlayValidationError}
-import play.api.libs.json.util._
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import play.api.libs.ws.WS.WSRequestHolder
-
-
-sealed trait RestError extends Throwable
-case class PermissionDenied(
-  user: Option[String] = None,
-  permission: Option[String] = None,
-  item: Option[String] = None,
-  scope: Option[String] = None
-) extends RestError
-case class ValidationError(errorSet: ErrorSet) extends RestError
-case class DeserializationError() extends RestError
-case class IntegrityError() extends RestError
-case class ItemNotFound(
-  key: Option[String] = None,
-  value: Option[String] = None,
-  message: Option[String] = None
-) extends RestError
-case class ServerError(error: String) extends RestError
-case class CriticalError(error: String) extends RestError
-case class BadJson(error: Seq[(JsPath,Seq[PlayValidationError])]) extends RestError {
-  override def toString = Json.prettyPrint(JsError.toFlatJson(error))
-}
-
-object ItemNotFound {
-  val itemNotFoundReads: Reads[ItemNotFound] = (
-    (__ \ "details" \ "key").readNullable[String] and
-    (__ \ "details" \ "value").readNullable[String] and
-    (__ \ "details" \ "message").readNullable[String]
-  )(ItemNotFound.apply _)
-
-  val itemNotFoundWrites: Writes[ItemNotFound] = (
-    (__ \ "key").writeNullable[String] and
-    (__ \ "value").writeNullable[String] and
-    (__ \ "message").writeNullable[String]
-  )(unlift(ItemNotFound.unapply _))
-
-  implicit val itemNotFoundFormat = Format(itemNotFoundReads, itemNotFoundWrites)
-}
-
-
-object PermissionDenied {
-  val permissionDeniedReads: Reads[PermissionDenied] = (
-    (__ \ "details" \ "accessor").readNullable[String] and
-    (__ \ "details" \ "permission").readNullable[String] and
-    (__ \ "details" \ "item").readNullable[String] and
-    (__ \ "details" \ "scope").readNullable[String]
-  )(PermissionDenied.apply _)
-  
-  val permissionDeniedWrites: Writes[PermissionDenied] = (
-    (__ \ "accessor").writeNullable[String] and
-    (__ \ "permission").writeNullable[String] and
-    (__ \ "item").writeNullable[String] and
-    (__ \ "scope").writeNullable[String]
-  )(unlift(PermissionDenied.unapply _))
-
-  implicit val permissionDeniedFormat = Format(
-      permissionDeniedReads, permissionDeniedWrites)
-}
-
-
-/**
- * Structure that holds a set of errors for an entity and its
- * subtree relations.
- * 
- */
-object ErrorSet {
-
-  import play.api.libs.json.Reads._
-  import play.api.libs.json.util._
-  import play.api.libs.json._
-  import play.api.libs.functional.syntax._
-
-  implicit val errorReads: Reads[ErrorSet] = (
-    (__ \ "errors").lazyRead(map[List[String]]) and
-    (__ \ Entity.RELATIONSHIPS).lazyRead(
-      map[List[Option[ErrorSet]]](list(optionNoError(errorReads)))))(ErrorSet.apply _)
-}
-
-case class ErrorSet(
-  errors: Map[String,List[String]],
-  relationships: Map[String,List[Option[ErrorSet]]]
-) {
-
-  /**
-   * Given a persistable class, unfurl the nested errors so that they
-   * conform to members of this class's form fields.
-   */
-  def errorsFor: Map[String,List[String]] = {
-    // TODO: Handle nested errors
-    errors
-  }
-}
-
-/**
- * Wrapper for Auth user id string
- */
-case class ApiUser(id: Option[String] = None) {
-  override def toString = id.getOrElse(None.toString)
-}
+import backend.{ErrorSet, ApiUser}
 
 
 trait RestDAO {
@@ -144,7 +42,7 @@ trait RestDAO {
    * @return
    */
   def authHeaders(implicit apiUser: ApiUser): Map[String, String] = apiUser.id match {
-    case Some(id) => (headers + (AUTH_HEADER_NAME -> id))
+    case Some(id) => headers + (AUTH_HEADER_NAME -> id)
     case None => headers
   }
 
@@ -162,7 +60,7 @@ trait RestDAO {
   def enc(s: Any*) = {
     import java.net.URI
     val url = new java.net.URL(s.mkString("/"))
-    val uri: URI = new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef);
+    val uri: URI = new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef)
     uri.toString
   }
 
@@ -193,7 +91,7 @@ trait RestDAO {
               Logger.logger.error("Derialization error! : {}", response.json)
               throw DeserializationError()
             } else {
-              throw sys.error(s"Unexpected BAD REQUEST: ${e} \n${response.body}")
+              throw sys.error(s"Unexpected BAD REQUEST: $e \n${response.body}")
             }
           },
           errorSet => {

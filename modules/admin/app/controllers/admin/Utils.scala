@@ -6,7 +6,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 
 import com.google.inject._
 import play.api.mvc.Action
-import rest.{ApiUser, Backend}
+import backend.{ApiUser, Backend}
 
 /**
  * Controller for various monitoring functions.

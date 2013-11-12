@@ -7,7 +7,7 @@ import defines.ContentTypes
 import utils.search.SearchParams
 import utils.search.Dispatcher
 import com.google.inject._
-import rest.Backend
+import backend.Backend
 
 @Singleton
 case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends PermissionHolder[UserProfile]

@@ -5,9 +5,10 @@ import play.api.libs.json.Json
 import utils.search.Dispatcher
 import com.google.inject._
 import controllers.generic.Search
+import backend.Backend
 
 @Singleton
-case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends Search {
+case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends Search {
 
   val searchEntities = List() // i.e. Everything
 

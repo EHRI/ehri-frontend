@@ -1,12 +1,11 @@
-package rest
+package backend.rest
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.ws.WS
-import models.UserProfile
 import play.api.libs.json.{Reads, Json}
 import models.json.RestReadable
-import models.base.AnyModel
+import backend.ApiUser
 
 case class SearchDAO() extends RestDAO {
 

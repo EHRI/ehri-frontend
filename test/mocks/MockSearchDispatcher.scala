@@ -3,7 +3,6 @@ package mocks
 import defines.EntityType
 import models.UserProfile
 import scala.concurrent.Future
-import rest.RestError
 import utils.search._
 
 /**

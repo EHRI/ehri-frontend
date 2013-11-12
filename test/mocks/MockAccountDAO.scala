@@ -25,7 +25,6 @@ object MockAccountDAO {
 
 /**
  * Find a user given their profile from the fixture store.
- * @param app
  */
 class MockAccountDAO(app: play.api.Application) extends AccountDAO {
 

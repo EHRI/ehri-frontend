@@ -1,12 +1,12 @@
 package test
 
-import play.api.test._
-import play.api.test.Helpers._
-import rest._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{Repository, DocumentaryUnit, UserProfile, DocumentaryUnitF, UserProfileF}
 import defines.{EntityType, ContentTypes, PermissionType}
 import utils.{ListParams, PageParams}
+import backend.ApiUser
+import backend.rest.{ItemNotFound, ValidationError}
+import backend.rest.cypher.CypherDAO
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -167,12 +167,12 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
   "CypherDAO" should {
     "get a JsValue for a graph item" in new FakeApp {
-      val dao = rest.cypher.CypherDAO(Some(userProfile))
+      val dao = new CypherDAO
       // FIXME: Cypher seems
       val res = await(dao.cypher("START n = node:entities('__ID__:admin') RETURN n.identifier, n.name"))
       // It should return one list value in the data section
       val list = (res \ "data").as[List[List[String]]]
-      list(0)(0) mustEqual ("admin")
+      list(0)(0) mustEqual "admin"
     }
   }
 }

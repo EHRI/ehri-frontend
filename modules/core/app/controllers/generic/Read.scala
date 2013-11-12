@@ -5,6 +5,7 @@ import play.api.mvc._
 import models._
 import models.json.{RestReadable, ClientConvertable}
 import utils.{ListParams, PageParams}
+import backend.Page
 
 import scala.concurrent.Future
 
@@ -69,7 +70,7 @@ trait Read[MT] extends Generic[MT] {
   }
 
   def getWithChildrenAction[CT](id: String)(
-      f: MT => rest.Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
           implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
     itemPermissionAction.async[MT](contentType, id) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
@@ -81,7 +82,7 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
-  def pageAction(f: rest.Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def pageAction(f: Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
@@ -102,7 +103,7 @@ trait Read[MT] extends Generic[MT] {
   }
 
   def historyAction(id: String)(
-      f: MT => rest.Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: MT => Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       for {

@@ -14,9 +14,10 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import solr.facet.FieldFacetClass
 import scala.Some
+import backend.Backend
 
 @Singleton
-case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends Creator[ConceptF, Concept, Concept]
+case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]
   with Read[Concept]
   with Update[ConceptF, Concept]

@@ -9,6 +9,7 @@ import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.json.{RestResource, RestReadable}
 import utils.PageParams
+import backend.Page
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.
@@ -23,11 +24,9 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
 
   /**
    * Display a list of permissions that have been granted to the given accessor.
-   * @param id
-   * @return
    */
   def grantListAction(id: String)(
-      f: MT => rest.Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)

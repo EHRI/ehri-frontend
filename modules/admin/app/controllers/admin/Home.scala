@@ -16,9 +16,10 @@ import solr.facet.FieldFacetClass
 import com.google.inject._
 import play.api.http.MimeTypes
 import scala.concurrent.Future.{successful => immediate}
+import backend.Backend
 
 @Singleton
-case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends Search {
+case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

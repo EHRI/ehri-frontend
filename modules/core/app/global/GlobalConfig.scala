@@ -1,9 +1,6 @@
 package global
 
-import controllers.base.LoginHandler
-
 import play.api.Play.current
-import rest.RestEventHandler
 
 
 trait MenuConfig {
@@ -20,7 +17,6 @@ trait GlobalConfig {
    * Flag to indicate whether we're running a testing config or not.
    * This is different from the usual dev/prod run configuration because
    * we might be running experimental stuff on a real life server.
-   * @return
    */
   def isTestMode = current.configuration.getBoolean("ehri.testing").getOrElse(true)
 }

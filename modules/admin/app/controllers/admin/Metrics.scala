@@ -16,10 +16,11 @@ import solr.facet.FieldFacetClass
 import com.google.inject._
 import play.api.http.MimeTypes
 import play.api.cache.{Cache, Cached}
+import backend.Backend
 
 
 @Singleton
-class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: rest.Backend) extends Search {
+class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: Backend) extends Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
 

@@ -1,6 +1,5 @@
 package controllers.base
 
-import _root_.models.json.{RestResource, RestReadable}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.{UserProfileF, UserProfile}
@@ -13,7 +12,8 @@ import defines.EntityType
 import defines.PermissionType
 import defines.ContentTypes
 import global.GlobalConfig
-import rest.{Backend, ApiUser}
+import backend.{ApiUser, Backend}
+import backend.rest.{ItemNotFound,PermissionDenied}
 
 /**
  * Wraps optionalUserAction to asyncronously fetch the User's profile.
@@ -58,8 +58,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   object RestAction extends ActionBuilder[Request] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[SimpleResult]) = {
       block(request) recoverWith {
-        case e: rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
-        case e: rest.ItemNotFound => Future.successful(play.api.mvc.Results.NotFound("Not found! " + e.toString))
+        case e: PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
+        case e: ItemNotFound => Future.successful(play.api.mvc.Results.NotFound("Not found! " + e.toString))
         case e: java.net.ConnectException => Future.successful(play.api.mvc.Results.NotFound("No database!"))
       }
     }

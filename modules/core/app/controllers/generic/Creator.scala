@@ -11,6 +11,7 @@ import forms.VisibilityForm
 import models.json.{RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
+import backend.rest.ValidationError
 
 /**
  * Controller trait for extending Entity classes which server as
@@ -61,7 +62,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
         backend.createInContext[MT, CF, CMT](item.id, ct, citem, accessors, logMsg = getLogMessage).flatMap { citem =>
           f(item)(Right(citem))(userOpt)(request)
         } recoverWith {
-          case rest.ValidationError(errorSet) => {
+          case ValidationError(errorSet) => {
             val filledForm = citem.getFormErrors(errorSet, form.fill(citem))
             f(item)(Left((filledForm, VisibilityForm.form)))(userOpt)(request)
           }

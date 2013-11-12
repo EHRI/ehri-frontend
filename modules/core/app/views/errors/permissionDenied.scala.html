@@ -1,4 +1,4 @@
-@(perm: Option[rest.PermissionDenied] = None)(implicit req: RequestHeader, lang: Lang)
+@(perm: Option[backend.rest.PermissionDenied] = None)(implicit req: RequestHeader, lang: Lang)
 
 @layout.errorLayout(Messages("errors.permissionDenied")) {
 

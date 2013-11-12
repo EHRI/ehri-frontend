@@ -17,6 +17,7 @@ import utils.search.{Dispatcher, Indexer, SearchParams, SearchOrder}
 import scala.util.{Failure, Success}
 import play.api.Logger
 import controllers.generic.Search
+import backend.Backend
 
 
 object AdminSearch {
@@ -29,7 +30,7 @@ object AdminSearch {
 }
 
 @Singleton
-case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, backend: rest.Backend) extends Search {
+case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, backend: Backend) extends Search {
 
   // i.e. Everything
   private val entityFacets: FacetBuilder = { implicit lang =>

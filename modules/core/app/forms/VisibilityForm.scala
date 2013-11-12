@@ -9,6 +9,6 @@ import utils.PageParams
 object VisibilityForm {
 
   val form = Form(single(
-    rest.Constants.ACCESSOR_PARAM -> list(nonEmptyText)
+    backend.rest.Constants.ACCESSOR_PARAM -> list(nonEmptyText)
   ))
 }

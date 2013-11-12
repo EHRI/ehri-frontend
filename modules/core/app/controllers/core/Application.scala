@@ -5,7 +5,6 @@ import controllers.base.{AuthController, AuthConfigImpl}
 import models.base.AnyModel
 import models.json.RestReadable
 import global.GlobalConfig
-import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play2.auth.AsyncAuth
 import play.api.libs.json.Json
@@ -13,10 +12,14 @@ import defines.EntityType
 import com.google.inject._
 import play.api.http.ContentTypes
 import java.util.Locale
+import backend.Backend
+import backend.rest.SearchDAO
 
-case class Application @Inject()(implicit globalConfig: GlobalConfig, backend: rest.Backend) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
+case class Application @Inject()(implicit globalConfig: GlobalConfig, backend: Backend) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
 
   implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
+
+  private val searchDao = new SearchDAO
 
   /**
    * Action for redirecting to any item page, given a raw id.
@@ -27,7 +30,7 @@ case class Application @Inject()(implicit globalConfig: GlobalConfig, backend: r
    */
   def get(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
     implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
-    rest.SearchDAO().list(List(id)).map { list =>
+    searchDao.list(List(id)).map { list =>
       list match {
         case Nil => NotFound(views.html.errors.itemNotFound())
         case mm :: _ =>
@@ -38,7 +41,7 @@ case class Application @Inject()(implicit globalConfig: GlobalConfig, backend: r
   }
 
   def getGeneric(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
-    rest.SearchDAO().get[AnyModel](id).map { item =>
+    searchDao.get[AnyModel](id).map { item =>
       Ok(Json.toJson(item)(AnyModel.Converter.clientFormat))
     }
   }

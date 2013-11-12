@@ -9,13 +9,14 @@ import defines.{ContentTypes, EntityType}
 import play.api.i18n.Messages
 import com.google.inject._
 import play.api.libs.concurrent.Execution.Implicits._
+import backend.Backend
 
 /**
  * Controller for a user managing their own profile.
  * @param globalConfig
  */
 @Singleton
-case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, backend: rest.Backend) extends Update[UserProfileF,UserProfile] {
+case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Update[UserProfileF,UserProfile] {
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile

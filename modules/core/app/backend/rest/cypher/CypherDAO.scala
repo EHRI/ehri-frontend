@@ -1,4 +1,4 @@
-package rest.cypher
+package backend.rest.cypher
 
 import scala.concurrent.Future
 import play.api.PlayException
@@ -8,11 +8,10 @@ import play.api.libs.json.Reads
 import play.api.libs.json.__
 import play.api.libs.ws.Response
 import play.api.libs.ws.WS
-import rest.RestDAO
-import models.UserProfile
+import backend.rest.RestDAO
 
 case class CypherError(
-  val message: String, val exception: String, val stacktrace: List[String]  
+  message: String, exception: String, stacktrace: List[String]
 ) extends PlayException("Cypher Script Error: %s".format(exception), message)
 
 object CypherErrorReader {
@@ -31,7 +30,7 @@ object CypherDAO {
   
 }
 
-case class CypherDAO(userProfile: Option[UserProfile]) extends RestDAO {
+case class CypherDAO() extends RestDAO {
 
   def requestUrl = "http://%s:%d/db/data/cypher".format(host, port)
 
@@ -44,6 +43,6 @@ case class CypherDAO(userProfile: Option[UserProfile]) extends RestDAO {
 
   def cypher(scriptBody: String, params: Map[String,JsValue] = Map()): Future[JsValue] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
-    WS.url(requestUrl).withHeaders(headers.toList: _*).post(data).map(checkCypherError(_))
+    WS.url(requestUrl).withHeaders(headers.toList: _*).post(data).map(checkCypherError)
   }  
 }

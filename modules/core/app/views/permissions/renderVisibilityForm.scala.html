@@ -1,6 +1,6 @@
 @(f: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)])(implicit req: RequestHeader)
 
-@import rest.Constants.ACCESSOR_PARAM
+@import backend.rest.Constants.ACCESSOR_PARAM
 
 <fieldset id="visibility-area">
     <legend>@Messages("actions.setVisibility")</legend>

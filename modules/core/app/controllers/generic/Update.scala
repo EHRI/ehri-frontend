@@ -7,10 +7,10 @@ import play.api.data.Form
 import defines.PermissionType
 import models.UserProfile
 import play.api.Logger
-import models.json.{RestResource, RestReadable, RestConvertable}
-import play.api.data.FormError
+import models.json.{RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
+import backend.rest.ValidationError
 
 /**
  * Controller trait which updates an AccessibleEntity.
@@ -51,11 +51,6 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
    * transforming it prior to being saved. Since the item itself is
    * given it is assumed that update perms exist (and the server will
    * error if they don't)
-   *
-   * @param item
-   * @param form
-   * @param transform
-   * @return
    */
   object updateAction {
     def async(item: MT, form: Form[F], transform: F => F = identity)(f: AsyncUpdateCallback)(
@@ -72,7 +67,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
             // If we have an error, check if it's a validation error.
             // If so, we need to merge those errors back into the form
             // and redisplay it...
-            case rest.ValidationError(errorSet) => {
+            case ValidationError(errorSet) => {
               val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
               f(item)(Left(filledForm))(userOpt)(request)
             }

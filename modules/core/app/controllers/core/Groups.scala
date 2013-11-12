@@ -11,7 +11,8 @@ import global.GlobalConfig
 import com.google.inject._
 import utils.search.Dispatcher
 import scala.concurrent.Future
-import rest.Backend
+import backend.Backend
+import backend.rest.RestHelpers
 
 case class Groups @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends PermissionHolder[Group]
   with Visibility[Group]
@@ -125,7 +126,7 @@ case class Groups @Inject()(implicit globalConfig: GlobalConfig, searchDispatche
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       for {
-        groups <- rest.RestHelpers.getGroupList
+        groups <- RestHelpers.getGroupList
       } yield {
         // filter out the groups the user already belongs to
         val filteredGroups = groups.filter(t => t._1 != item.id).filter {

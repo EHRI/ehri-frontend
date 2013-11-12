@@ -1,76 +1,24 @@
-package rest
+package backend.rest
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.json._
 import defines.{EntityType,ContentTypes}
-import models.json.{RestResource, ClientConvertable, RestReadable, RestConvertable}
-import play.api.Logger
+import models.json.{RestResource, RestReadable, RestConvertable}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.base.AnyModel
 import utils.{PageParams,ListParams}
+import backend.{EventHandler, ApiUser, Page}
 
-/**
- * Class representing a page of data.
- *
- * @param total
- * @param offset
- * @param limit
- * @param items
- * @tparam T
- */
-case class Page[+T](
-  total: Long,
-  offset: Int,
-  limit: Int,
-  items: Seq[T]
-) extends utils.AbstractPage[T]
 
-object Page {
-
-  implicit def restReads[T](implicit apiUser: ApiUser, rd: RestReadable[T]): Reads[Page[T]] = {
-    Page.pageReads(rd.restReads)
-  }
-  implicit def clientFormat[T](implicit cfmt: ClientConvertable[T]): Writes[Page[T]] = {
-    Page.pageWrites(cfmt.clientFormat)
-  }
-
-  import play.api.libs.json._
-  import play.api.libs.json.util._
-  import play.api.libs.functional.syntax._
-
-  implicit def pageReads[T](implicit r: Reads[T]): Reads[Page[T]] = (
-    (__ \ "total").read[Long] and
-    (__ \ "offset").read[Int] and
-    (__ \ "limit").read[Int] and
-    (__ \ "values").lazyRead(Reads.seq[T](r))
-  )(Page.apply[T] _)
-
-  implicit def pageWrites[T](implicit r: Writes[T]): Writes[Page[T]] = (
-    (__ \ "total").write[Long] and
-      (__ \ "offset").write[Int] and
-      (__ \ "limit").write[Int] and
-      (__ \ "values").lazyWrite(Writes.seq[T](r))
-    )(unlift(Page.unapply[T] _))
-
-  implicit def pageFormat[T](implicit r: Reads[T], w: Writes[T]): Format[Page[T]]
-      = Format(pageReads(r), pageWrites(w))
-}
-
-trait RestEventHandler {
-  def handleCreate(id: String): Unit
-  def handleUpdate(id: String): Unit
-  def handleDelete(id: String): Unit
-}
 
 /**
  * Data Access Object for fetching data about generic entity types.
  */
-case class EntityDAO(eventHandler: RestEventHandler) extends RestDAO {
+case class EntityDAO(eventHandler: EventHandler) extends RestDAO {
 
   import Constants._
-  import play.api.http.Status._
 
   def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 
@@ -83,7 +31,7 @@ case class EntityDAO(eventHandler: RestEventHandler) extends RestDAO {
       Future.successful(jsonReadToRestError(cached.get, rd.restReads))
     } else {
       val url = enc(requestUrl, entityType, id)
-      userCall(url).get.map { response =>
+      userCall(url).get().map { response =>
         Cache.set(id, response.json, cacheTime)
         checkErrorAndParse(response)(rd.restReads)
       }
@@ -95,14 +43,14 @@ case class EntityDAO(eventHandler: RestEventHandler) extends RestDAO {
   }
 
   def getJson[MT](id: String)(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[JsObject] = {
-    userCall(enc(requestUrl, rs.entityType, id)).get.map { response =>
+    userCall(enc(requestUrl, rs.entityType, id)).get().map { response =>
       checkErrorAndParse[JsObject](response)
     }
   }
 
   def get[MT](key: String, value: String)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
     userCall(enc(requestUrl, rs.entityType)).withQueryString("key" -> key, "value" -> value)
-        .get.map { response =>
+        .get().map { response =>
       checkErrorAndParse(response)(rd.restReads)
     }
   }
@@ -155,7 +103,7 @@ case class EntityDAO(eventHandler: RestEventHandler) extends RestDAO {
 
   def delete[MT](entityType: EntityType.Value, id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser): Future[Boolean] = {
     val url = enc(requestUrl, entityType, id)
-    userCall(url).delete.map { response =>
+    userCall(url).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(id)
       Cache.remove(id)
@@ -169,53 +117,53 @@ case class EntityDAO(eventHandler: RestEventHandler) extends RestDAO {
 
   def listJson[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[List[JsObject]] = {
     val url = enc(requestUrl, rs.entityType, "list")
-    userCall(url).withQueryString(params.toSeq: _*).get.map { response =>
+    userCall(url).withQueryString(params.toSeq: _*).get().map { response =>
       checkErrorAndParse[List[JsObject]](response)
     }
   }
 
   def list[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[List[MT]] = {
     val url = enc(requestUrl, rs.entityType, "list")
-    userCall(url).withQueryString(params.toSeq: _*).get.map { response =>
+    userCall(url).withQueryString(params.toSeq: _*).get().map { response =>
       checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
   }
 
   def listChildren[MT,CMT](id: String, params: ListParams = ListParams())(
       implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT]): Future[List[CMT]] = {
-    userCall(enc(requestUrl, rs.entityType, id, "list")).withQueryString(params.toSeq:_*).get.map { response =>
+    userCall(enc(requestUrl, rs.entityType, id, "list")).withQueryString(params.toSeq:_*).get().map { response =>
       checkErrorAndParse(response)(Reads.list(rd.restReads))
     }
   }
 
   def pageJson[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Page[JsObject]] = {
     val url = enc(requestUrl, rs.entityType, "page")
-    userCall(url).withQueryString(params.toSeq:_*).get.map { response =>
+    userCall(url).withQueryString(params.toSeq:_*).get().map { response =>
       checkErrorAndParse(response)(Page.pageReads[JsObject])
     }
   }
 
   def page[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Page[MT]] = {
     val url = enc(requestUrl, rs.entityType, "page")
-    userCall(url).withQueryString(params.toSeq: _*).get.map { response =>
+    userCall(url).withQueryString(params.toSeq: _*).get().map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
 
   def pageChildren[MT,CMT](id: String, params: PageParams = utils.PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT]): Future[Page[CMT]] = {
-    userCall(enc(requestUrl, rs.entityType, id, "page")).withQueryString(params.toSeq: _*).get.map { response =>
+    userCall(enc(requestUrl, rs.entityType, id, "page")).withQueryString(params.toSeq: _*).get().map { response =>
       checkErrorAndParse(response)(Page.pageReads(rd.restReads))
     }
   }
 
   def count[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Long] = {
-    userCall(enc(requestUrl, rs.entityType, "count")).withQueryString(params.toSeq: _*).get.map { response =>
+    userCall(enc(requestUrl, rs.entityType, "count")).withQueryString(params.toSeq: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 
   def countChildren[MT](id: String, params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT]): Future[Long] = {
-    userCall(enc(requestUrl, rs.entityType, id, "count")).withQueryString(params.toSeq: _*).get.map { response =>
+    userCall(enc(requestUrl, rs.entityType, id, "count")).withQueryString(params.toSeq: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }

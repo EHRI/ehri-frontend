@@ -2,9 +2,8 @@ package test
 
 import helpers._
 import models.{Group, UserProfileF, UserProfile}
-import play.api.test.Helpers._
 import defines._
-import rest.ApiUser
+import backend.ApiUser
 
 /**
  * Spec to test various page views operate as expected.
@@ -24,7 +23,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
     "list should get some items" in new FakeApp {
 
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-          controllers.authorities.routes.HistoricalAgents.list.url)).get
+          controllers.authorities.routes.HistoricalAgents.list().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("a1")

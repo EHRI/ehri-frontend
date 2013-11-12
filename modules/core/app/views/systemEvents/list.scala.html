@@ -1,7 +1,7 @@
 @(list: List[SystemEvent], params: utils.ListParams, filterForm: Form[utils.SystemEventParams])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @import defines.EventType
-@import rest.Constants._
+@import backend.rest.Constants._
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }
 
 

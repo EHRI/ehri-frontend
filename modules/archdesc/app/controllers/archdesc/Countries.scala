@@ -11,9 +11,11 @@ import utils.search.Dispatcher
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
+import backend.Backend
+import backend.rest.cypher.CypherDAO
 
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends CRUD[CountryF,Country]
+case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
   with Visibility[Country]
   with ScopePermissions[Country]
@@ -41,6 +43,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
   private final val countryRoutes = controllers.archdesc.routes.Countries
+
+  private val cypher = new CypherDAO
 
   /**
    * Search repositories inside this country.
@@ -111,7 +115,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
 
     val allIds = """START n = node:entities("__ISA__:%s") RETURN n.__ID__""".format(EntityType.Repository)
-    rest.cypher.CypherDAO(userOpt).cypher(allIds).map { json =>
+    cypher.cypher(allIds).map { json =>
       val result = json.as[Map[String,JsValue]]
       val data: JsValue = result.getOrElse("data", Json.arr())
       val id = data.as[List[List[String]]].flatten.flatMap { rid =>

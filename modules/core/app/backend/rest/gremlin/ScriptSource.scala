@@ -1,6 +1,6 @@
-package rest.gremlin
+package backend.rest.gremlin
 
-import org.codehaus.groovy.antlr.{GroovySourceAST,SourceBuffer,UnicodeEscapingReader,AntlrParserPlugin}
+import org.codehaus.groovy.antlr.{GroovySourceAST,SourceBuffer,UnicodeEscapingReader}
 import org.codehaus.groovy.antlr.parser.{GroovyLexer,GroovyRecognizer}
 import org.codehaus.groovy.antlr.parser.GroovyTokenTypes._
 
@@ -32,7 +32,6 @@ class ScriptSource() {
   }
 
   def loadScript(path: String) = {
-    import collection.JavaConversions._
     val code = io.Source.fromFile(path).mkString
     var ast = getAST(code)
     while (ast != null) {

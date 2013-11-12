@@ -1,4 +1,4 @@
-package rest
+package backend.rest
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
@@ -8,13 +8,13 @@ import play.api.Play.current
 import play.api.cache.Cache
 import models.json.{RestResource, RestReadable, RestConvertable}
 import models.base.AnyModel
-import play.api.Logger
+import backend.{EventHandler, ApiUser}
 
 
 /**
  * Data Access Object for managing descriptions on entities.
  */
-case class DescriptionDAO(eventHandler: RestEventHandler) extends RestDAO {
+case class DescriptionDAO(eventHandler: EventHandler) extends RestDAO {
 
   private val entities = new EntityDAO(eventHandler)
 
@@ -49,7 +49,7 @@ case class DescriptionDAO(eventHandler: RestEventHandler) extends RestDAO {
   def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Boolean] = {
     userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
-          .delete.map { response =>
+          .delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(did)
       Cache.remove(id)
@@ -72,8 +72,7 @@ case class DescriptionDAO(eventHandler: RestEventHandler) extends RestDAO {
 
   def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
-    userCall(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg): _*)
-      .delete.flatMap { response =>
+    userCall(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg): _*).delete().flatMap { response =>
       entities.get(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
@@ -84,7 +83,6 @@ case class DescriptionDAO(eventHandler: RestEventHandler) extends RestDAO {
 
   def deleteAccessPoint(id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser): Future[Boolean] = {
     val url = enc(requestUrl, "accessPoint", id)
-    Logger.logger.debug(s"DELETE ACCESS POINT $url")
     userCall(url).withHeaders(msgHeader(logMsg): _*).delete.map { response =>
       checkError(response)
       eventHandler.handleDelete(id)

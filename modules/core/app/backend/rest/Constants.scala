@@ -1,4 +1,4 @@
-package rest
+package backend.rest
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

@@ -1,15 +1,16 @@
-package rest.gremlin
+package backend.rest.gremlin
 
 import play.api.libs.ws.{ WS, Response }
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.json.{Json,JsValue}
-import rest.RestDAO
 import play.api.PlayException
 import models.UserProfile
+import backend.rest.RestDAO
 
 case class GremlinError(
-  val message: String, val exception: String, val stacktrace: List[String]) extends PlayException("Gremlin Script Error: %s".format(exception), message)
+  message: String, exception: String, stacktrace: List[String]
+) extends PlayException("Gremlin Script Error: %s".format(exception), message)
 
 object GremlinErrorReader {
 

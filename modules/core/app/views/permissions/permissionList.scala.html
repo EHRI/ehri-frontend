@@ -1,4 +1,4 @@
-@(accessorOpt: Option[Accessor], page: rest.Page[PermissionGrant], pageParamName: String = "page")(implicit req: RequestHeader, globalConfig: GlobalConfig)
+@(accessorOpt: Option[Accessor], page: backend.Page[PermissionGrant], pageParamName: String = "page")(implicit req: RequestHeader, globalConfig: GlobalConfig)
 
 <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 <ul>

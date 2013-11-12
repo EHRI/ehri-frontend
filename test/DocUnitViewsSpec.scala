@@ -5,7 +5,7 @@ import models._
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.http.{MimeTypes, HeaderNames}
-import rest.PermissionDenied
+import backend.rest.PermissionDenied
 
 
 class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {

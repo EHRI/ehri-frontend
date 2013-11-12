@@ -1,7 +1,6 @@
 package utils.search
 
 import concurrent.Future
-import rest.RestError
 import models.UserProfile
 import defines.EntityType
 

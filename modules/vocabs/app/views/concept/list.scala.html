@@ -1,4 +1,4 @@
-@(page: rest.Page[Concept], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(page: backend.Page[Concept], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.noSidebar(Messages("actions.listConcepts")) {
 

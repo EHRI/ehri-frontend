@@ -2,6 +2,8 @@
 // Global request object
 //
 
+import backend.{EventHandler, Backend}
+import backend.rest.{PermissionDenied, ItemNotFound, RestBackend}
 import defines.EntityType
 import java.util.concurrent.TimeUnit
 import play.api._
@@ -9,7 +11,6 @@ import play.api.mvc._
 
 import play.api.Play.current
 import play.filters.csrf._
-import rest.{RestBackend, Backend, RestEventHandler}
 import scala.concurrent.duration.Duration
 
 import com.tzavellas.sse.guice.ScalaModule
@@ -75,7 +76,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
 
-  private val eventHandler = new RestEventHandler {
+  private val eventHandler = new EventHandler {
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers. Do this
@@ -126,8 +127,8 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     implicit def req = request
 
     ex.getCause match {
-      case e: rest.PermissionDenied => immediate(Unauthorized(permissionDenied(Some(e))))
-      case e: rest.ItemNotFound => immediate(NotFound(itemNotFound(e.value)))
+      case e: PermissionDenied => immediate(Unauthorized(permissionDenied(Some(e))))
+      case e: ItemNotFound => immediate(NotFound(itemNotFound(e.value)))
       case e: java.net.ConnectException => immediate(InternalServerError(serverTimeout()))
       case e => super.onError(request, e)
     }

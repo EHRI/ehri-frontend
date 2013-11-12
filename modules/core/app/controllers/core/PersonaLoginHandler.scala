@@ -9,7 +9,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsString
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
-import rest.Backend
+import backend.Backend
 
 /**
  * Handler for Mozilla Persona-based login.

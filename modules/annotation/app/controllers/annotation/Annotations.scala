@@ -6,9 +6,10 @@ import play.api.i18n.Messages
 import com.google.inject._
 import global.GlobalConfig
 import controllers.generic.{Annotate, Delete, Read, Visibility}
+import backend.Backend
 
 
-case class Annotations @Inject()(implicit globalConfig: GlobalConfig, backend: rest.Backend) extends Read[Annotation]
+case class Annotations @Inject()(implicit globalConfig: GlobalConfig, backend: Backend) extends Read[Annotation]
   with Visibility[Annotation]
   with Delete[Annotation]
   with Annotate[Annotation] {

@@ -1,4 +1,4 @@
-package rest
+package backend.rest
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
@@ -9,14 +9,13 @@ import models.PermissionGrant
 import play.api.libs.json.Json
 import play.api.Play.current
 import play.api.cache.Cache
-import play.api.Logger
 import utils.PageParams
+import backend.{EventHandler, Page, ApiUser}
 
 
-case class PermissionDAO(eventHandler: RestEventHandler) extends RestDAO {
+case class PermissionDAO(eventHandler: EventHandler) extends RestDAO {
 
   import Constants._
-  import play.api.http.Status._
 
   implicit val permissionGrantMetaReads = PermissionGrant.Converter.restReads
   implicit val pageReads = Page.pageReads(permissionGrantMetaReads)
@@ -34,7 +33,7 @@ case class PermissionDAO(eventHandler: RestEventHandler) extends RestDAO {
     listWithUrl(enc(requestUrl, "pageForScope", id), params)
 
   private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] = {
-    userCall(url).withQueryString(params.toSeq: _*).get.map { response =>
+    userCall(url).withQueryString(params.toSeq: _*).get().map { response =>
       checkErrorAndParse[Page[PermissionGrant]](response)
     }
   }
@@ -44,7 +43,7 @@ case class PermissionDAO(eventHandler: RestEventHandler) extends RestDAO {
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
     else {
-      userCall(url).get.map { response =>
+      userCall(url).get().map { response =>
         val gperms = GlobalPermissionSet[T](user, checkError(response).json)
         Cache.set(url, gperms, cacheTime)
         gperms
@@ -66,7 +65,7 @@ case class PermissionDAO(eventHandler: RestEventHandler) extends RestDAO {
     val cached = Cache.getAs[ItemPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
     else {
-      userCall(url).get.map { response =>
+      userCall(url).get().map { response =>
         val iperms = ItemPermissionSet[T](user, contentType, checkError(response).json)
         Cache.set(url, iperms, cacheTime)
         iperms
@@ -88,7 +87,7 @@ case class PermissionDAO(eventHandler: RestEventHandler) extends RestDAO {
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
     else {
-      userCall(url).get.map { response =>
+      userCall(url).get().map { response =>
         val sperms = GlobalPermissionSet[T](user, checkError(response).json)
         Cache.set(url, sperms, cacheTime)
         sperms
@@ -108,16 +107,16 @@ case class PermissionDAO(eventHandler: RestEventHandler) extends RestDAO {
   def addGroup(groupId: String, userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, List[String]]()).map { response =>
       checkError(response)
-      Cache remove(userId)
+      Cache.remove(userId)
       Cache.remove(enc(requestUrl, userId))
       true
     }
   }
 
   def removeGroup(groupId: String, userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
-    userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete.map { response =>
+    userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
       checkError(response)
-      Cache remove(userId)
+      Cache.remove(userId)
       Cache.remove(enc(requestUrl, userId))
       true
     }

@@ -5,7 +5,6 @@ import models.UserProfile
 import play.api.libs.ws.WS
 import play.api.Logger
 import defines.EntityType
-import rest.RestError
 import scala.concurrent.Future
 import utils.search._
 import utils.search.SearchDescription
@@ -17,7 +16,7 @@ import com.github.seratch.scalikesolr.request.QueryRequest
  * Implements the plugin implementation so other search
  * engines/mocks can be substituted.
  */
-case class SolrDispatcher() extends rest.RestDAO with Dispatcher {
+case class SolrDispatcher() extends backend.rest.RestDAO with Dispatcher {
 
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None

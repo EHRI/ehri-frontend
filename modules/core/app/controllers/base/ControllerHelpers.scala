@@ -1,11 +1,12 @@
 package controllers.base
 
+import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import global.GlobalConfig
 import scala.concurrent.Future.{successful => immediate}
+import backend.rest.RestHelpers
 
 
 trait ControllerHelpers {
@@ -51,7 +52,7 @@ trait ControllerHelpers {
    */
   object getGroups {
     def async(f: Seq[(String,String)] => Future[SimpleResult])(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
-      rest.RestHelpers.getGroupList.flatMap { groups =>
+      RestHelpers.getGroupList.flatMap { groups =>
         f(groups)
       }
     }
@@ -67,11 +68,9 @@ trait ControllerHelpers {
   object getUsersAndGroups {
     def async(f: Seq[(String,String)] => Seq[(String,String)] => Future[SimpleResult])(
       implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
-      // TODO: Handle REST errors
-
       for {
-        users <- rest.RestHelpers.getUserList
-        groups <- rest.RestHelpers.getGroupList
+        users <- RestHelpers.getUserList
+        groups <- RestHelpers.getGroupList
         r <- f(users)(groups)
       } yield r
     }

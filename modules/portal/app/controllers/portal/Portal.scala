@@ -17,10 +17,11 @@ import utils.ListParams
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
+import backend.Backend
 
 
 @Singleton
-case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend)
+case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend)
   extends Controller with Search with FacetConfig with PortalActions with PortalProfile {
 
   // This is a publically-accessible site

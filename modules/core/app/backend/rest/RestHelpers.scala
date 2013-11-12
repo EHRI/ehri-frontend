@@ -1,4 +1,4 @@
-package rest
+package backend.rest
 
 import play.api.libs.json.JsValue
 import defines.EntityType
@@ -9,23 +9,21 @@ import scala.concurrent.Future
 trait RestHelpers {
 
   def parseUsers(json: JsValue): List[(String, String)] = {
-    (json \ "data").as[List[List[String]]].flatMap { lst =>
-      lst match {
-        case x :: y :: _ => Some((x, y))
-        case _ => None
-      }
+    (json \ "data").as[List[List[String]]].flatMap {
+      case x :: y :: _ => Some((x, y))
+      case _ => None
     }
   }
 
   def getGroupList: Future[List[(String,String)]] = {
-    rest.cypher.CypherDAO(None)
+    cypher.CypherDAO()
               .cypher("START n=node:entities('__ISA__:%s') RETURN n.__ID__, n.name".format(EntityType.Group)).map { goe =>
       parseUsers(goe)
     }    
   }
   
   def getUserList: Future[List[(String,String)]] = {
-    rest.cypher.CypherDAO(None)
+    cypher.CypherDAO()
               .cypher("START n=node:entities('__ISA__:%s') RETURN n.__ID__, n.name".format(EntityType.UserProfile)).map { goe =>
       parseUsers(goe)
     }    

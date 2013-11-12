@@ -7,9 +7,10 @@ import play.api.data._
 import defines.PermissionType
 import models.UserProfile
 import forms.VisibilityForm
-import models.json.{RestResource, RestReadable, RestConvertable}
+import models.json.{RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
+import backend.rest.ValidationError
 
 /**
  * Controller trait for creating AccessibleEntities.
@@ -22,9 +23,6 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   /**
    * Create an item. Because the item must have an initial visibility we need
    * to collect the users and group lists at the point of creation
-   *
-   * @param f
-   * @return
    */
   def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
     withContentPermission.async(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
@@ -47,7 +45,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...
-              case rest.ValidationError(errorSet) => {
+              case ValidationError(errorSet) => {
                 val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
                 f(Left((filledForm, VisibilityForm.form)))(userOpt)(request)
               }

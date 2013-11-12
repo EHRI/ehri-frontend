@@ -3,37 +3,34 @@ package controllers.core
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 
-import play.api.data.{Forms, Form, FormError}
+import play.api.data.{Forms, Form}
 import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentTypes}
 import play.api.i18n.Messages
-import models._
+import models.{UserProfile,UserProfileF,Account,AccountDAO}
 import controllers.base.{ControllerHelpers, AuthController}
 
 import com.google.inject._
-import play.api.mvc.AsyncResult
 import jp.t2v.lab.play2.auth.LoginLogout
 import java.util.UUID
 import play.api.Play.current
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
 import play.api.libs.ws.WS
 import play.api.Logger
-import rest.ValidationError
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import models.json.RestResource
-import play.api.mvc.AsyncResult
-import rest.ValidationError
+import backend.rest.{RestHelpers, ValidationError}
 import play.api.data.FormError
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import backend.Backend
 
 /**
  * Controller for handling user admin actions.
- * @param globalConfig
  */
-case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: rest.Backend) extends Controller with AuthController with LoginLogout with ControllerHelpers {
+case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Controller with AuthController with LoginLogout with ControllerHelpers {
 
   implicit def resource = new RestResource[UserProfile] {
     val entityType = EntityType.UserProfile
@@ -116,7 +113,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       implicit userOpt => implicit request =>
     getGroups { groups =>
       Ok(views.html.admin.createUser(userPasswordForm, groupMembershipForm, groups,
-        controllers.core.routes.Admin.createUserPost))
+        controllers.core.routes.Admin.createUserPost()))
     }
   }
 
@@ -144,7 +141,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
     // Blocking! This helps simplify the nest of callbacks.
     val allGroups: List[(String, String)] = Await.result(
-      rest.RestHelpers.getGroupList, Duration(1, TimeUnit.MINUTES))
+      RestHelpers.getGroupList, Duration(1, TimeUnit.MINUTES))
 
     userPasswordForm.bindFromRequest.fold(
       errorForm => {

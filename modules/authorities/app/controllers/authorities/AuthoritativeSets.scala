@@ -8,9 +8,10 @@ import defines.{ContentTypes, EntityType}
 import utils.search.{Dispatcher, SearchOrder, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
+import backend.Backend
 
 @Singleton
-case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]

@@ -10,6 +10,7 @@ import utils.search._
 import play.api.Logger
 import play.api.i18n.Lang
 import controllers.base.{ControllerHelpers, AuthController}
+import backend.rest.SearchDAO
 
 
 /**
@@ -19,6 +20,7 @@ import controllers.base.{ControllerHelpers, AuthController}
 trait Search extends Controller with AuthController with ControllerHelpers {
 
   def searchDispatcher: utils.search.Dispatcher
+  private val dao = new SearchDAO
 
   type FacetBuilder = Lang => FacetClassList
   private val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]] }
@@ -48,8 +50,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
     if (sp.sort.isDefined) sp.sort
     else {
       val q = request.getQueryString(SearchParams.QUERY)
-      if (q.map(!_.trim.isEmpty).getOrElse(false))
-        Some(SearchOrder.Score)
+      if (q.exists(!_.trim.isEmpty)) Some(SearchOrder.Score)
       else Some(SearchOrder.Name)
     }
   }
@@ -74,7 +75,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
       searchDispatcher.search(sp, facets, allFacets, filters, mode).flatMap { res =>
         val ids = res.items.map(_.id)
         val itemIds = res.items.map(_.itemId)
-        rest.SearchDAO().list[MT](itemIds).map { list =>
+        dao.list[MT](itemIds).map { list =>
           if (list.size != ids.size) {
             Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
               (ids, list))

@@ -8,8 +8,9 @@ import play.api.i18n.Messages
 import com.google.inject._
 import global.GlobalConfig
 import controllers.generic.{Annotate, Delete, Read, Visibility}
+import backend.Backend
 
-case class Links @Inject()(implicit globalConfig: GlobalConfig, backend: rest.Backend) extends Read[Link]
+case class Links @Inject()(implicit globalConfig: GlobalConfig, backend: Backend) extends Read[Link]
   with Visibility[Link]
   with Delete[Link]
   with Annotate[Link] {

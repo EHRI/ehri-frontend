@@ -3,7 +3,7 @@ package utils
 import play.api.mvc.RequestHeader
 import play.api.data.Form
 import play.api.data.Forms._
-import rest.Constants._
+import backend.rest.Constants._
 import eu.ehri.project.definitions.EventTypes
 import defines.{EntityType, EventType}
 import org.joda.time.DateTime

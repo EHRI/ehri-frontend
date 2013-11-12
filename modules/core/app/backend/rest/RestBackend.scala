@@ -1,4 +1,4 @@
-package rest
+package backend.rest
 
 import models.json.{RestConvertable, RestResource, RestReadable}
 import scala.concurrent.Future
@@ -10,11 +10,12 @@ import defines.{EntityType, ContentTypes}
 import play.api.libs.json.JsObject
 import play.api.mvc.Headers
 import play.api.libs.ws.Response
+import backend.{EventHandler, ApiUser, Backend, Page}
 
 /**
   * @author Mike Bryant (http://github.com/mikesname)
   */
-case class RestBackend(eventHandler: RestEventHandler) extends Backend {
+case class RestBackend(eventHandler: EventHandler) extends Backend {
 
   private val generic = new EntityDAO(eventHandler)
   private val descriptions = new DescriptionDAO(eventHandler)

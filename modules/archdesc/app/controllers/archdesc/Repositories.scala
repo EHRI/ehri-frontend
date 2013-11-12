@@ -11,9 +11,10 @@ import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import scala.Some
+import backend.Backend
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: rest.Backend) extends Read[Repository]
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends Read[Repository]
   with Update[RepositoryF, Repository]
   with Delete[Repository]
   with Creator[DocumentaryUnitF,DocumentaryUnit, Repository]

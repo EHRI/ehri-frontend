@@ -1,17 +1,17 @@
-package rest
+package backend.rest
 
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import defines.EntityType
 import models._
 import play.api.libs.json.{Reads, Json}
-import play.api.Logger
+import backend.{EventHandler, ApiUser}
 
 
 /**
  * Data Access Object for fetching link data.
  */
-case class LinkDAO(eventHandler: RestEventHandler) extends RestDAO {
+case class LinkDAO(eventHandler: EventHandler) extends RestDAO {
 
   final val BODY_PARAM = "body"
   final val BODY_TYPE = "bodyType"

@@ -10,12 +10,13 @@ import global.GlobalConfig
 import utils.search.{Indexer, Dispatcher}
 import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
-import rest.{RestBackend, Backend, RestEventHandler}
 import models.Account
 import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
+import backend.{EventHandler, Backend}
+import backend.rest.{RestBackend}
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -36,7 +37,7 @@ trait TestLoginHelper {
   // we can validate the actions)
   // Note: this is defined as an implicit object here so it
   // can be used by the DAO classes directly.
-  val testEventHandler = new RestEventHandler {
+  val testEventHandler = new EventHandler {
     def handleCreate(id: String) = mockIndexer.indexId(id)
     def handleUpdate(id: String) = mockIndexer.indexId(id)
     def handleDelete(id: String) = mockIndexer.clearId(id)
@@ -75,7 +76,7 @@ trait TestLoginHelper {
     }
 
     override def onError(request: RequestHeader, ex: Throwable) = ex match {
-      case e: rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
+      case e: backend.rest.PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
       case e => super.onError(request, e)
     }
   }
