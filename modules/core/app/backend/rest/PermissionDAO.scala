@@ -108,6 +108,7 @@ case class PermissionDAO(eventHandler: EventHandler) extends RestDAO {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, List[String]]()).map { response =>
       checkError(response)
       Cache.remove(userId)
+      Cache.remove(groupId)
       Cache.remove(enc(requestUrl, userId))
       true
     }
@@ -117,6 +118,7 @@ case class PermissionDAO(eventHandler: EventHandler) extends RestDAO {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
       checkError(response)
       Cache.remove(userId)
+      Cache.remove(groupId)
       Cache.remove(enc(requestUrl, userId))
       true
     }
