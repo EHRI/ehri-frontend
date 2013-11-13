@@ -9,6 +9,7 @@ import utils.ListParams
 import backend.rest.{SearchDAO, PermissionDenied}
 import utils.search.{SearchOrder, Dispatcher, SearchParams}
 import defines.EntityType
+import backend.ApiUser
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -36,9 +37,11 @@ trait PortalSocial {
   }
 
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    backend.get[UserProfile](userId).map { other =>
-      Ok(p.social.browseUser(user, other))
-    }
+    for {
+      other <- backend.get[UserProfile](userId)
+      following <- backend.listFollowing(ListParams())(ApiUser(Some(userId)), UserProfile.Converter)
+      followers <- backend.listFollowers(ListParams())(ApiUser(Some(userId)), UserProfile.Converter)
+    } yield Ok(p.social.browseUser(user, other, following, followers))
   }
 
   def followUser(userId: String) = withUserAction.async { implicit user => implicit request =>
