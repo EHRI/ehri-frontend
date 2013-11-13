@@ -80,6 +80,9 @@
                         <li class="@maybeActive(controllers.portal.routes.Portal.activity.url)">
                             <a href="@controllers.portal.routes.Portal.activity">@Messages("portal.activity")</a>
                         </li>
+                        <li class="@maybeActive(controllers.portal.routes.Portal.browseUsers.url)">
+                            <a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.users")</a>
+                        </li>
                         @userOpt.map { _ =>
                             <li class="@maybeActive(controllers.portal.routes.Portal.profile.url)">
                                 <a href="@controllers.portal.routes.Portal.profile">@Messages("portal.profile")</a>

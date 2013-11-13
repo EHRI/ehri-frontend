@@ -2,7 +2,6 @@ package controllers.portal
 
 import controllers.base.{AuthController, ControllerHelpers}
 import models.{UserProfile, UserProfileF}
-import play.api._
 import controllers.generic.Update
 import play.api.i18n.Messages
 import play.api.mvc._

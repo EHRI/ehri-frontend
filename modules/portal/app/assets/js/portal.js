@@ -77,5 +77,23 @@ jQuery(function($) {
       }
     });
   });
+
+  $(document).on("click", ".user-list-item .follow a", function(e) {
+    e.preventDefault();
+    $.post(e.target.href, "", function(data) {
+      console.log("Done", data)
+      $(e.target).parents(".user-list-item").find(".follow").hide();
+      $(e.target).parents(".user-list-item").find(".unfollow").show();
+    })
+  });
+
+  $(document).on("click", ".user-list-item .unfollow a", function(e) {
+    e.preventDefault();
+    $.post(e.target.href, "", function(data) {
+      console.log("Done", data)
+      $(e.target).parents(".user-list-item").find(".unfollow").hide();
+      $(e.target).parents(".user-list-item").find(".follow").show();
+    })
+  });
 });
 

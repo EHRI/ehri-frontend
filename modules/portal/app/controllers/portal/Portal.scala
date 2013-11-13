@@ -22,7 +22,7 @@ import backend.Backend
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend)
-  extends Controller with Search with FacetConfig with PortalActions with PortalProfile {
+  extends Controller with Search with FacetConfig with PortalActions with PortalProfile with PortalSocial {
 
   // This is a publically-accessible site
   override val staffOnly = false

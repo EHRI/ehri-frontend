@@ -2,7 +2,6 @@
 // Variables
 @primary-highlight: #6C003B;
 
-
 @pale-gray: #F5F5F5;
 @dark-gray: #cccccc;
 @almost-black: #333;
@@ -16,6 +15,8 @@
 @shadow-blur: 5px;
 @shadow-color: @dark-gray;
 @shadow-opacity: 0.7;
+
+@gravitar-size: 48px;
 
 
 .downward-shadow (@height: @shadow-depth, @blur: @shadow-blur) {
@@ -328,4 +329,32 @@ label.disabled {
 
 .search-result-list {
   margin-top: @large-margin;
+}
+
+.user-list {
+  .user-list-item {
+    position: relative;
+    .gravitar {
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      width: 48px;
+      height: 48px;
+
+      img {
+        border-radius: 5px;
+      }
+    }
+
+    .user-list-info {
+      margin-left: @gravitar-size + @small-margin;
+      a.name {
+        font-size: 1.2em;
+      }
+      height: @gravitar-size + @small-margin;
+    }
+
+    margin-bottom: @large-margin;
+    border-bottom: 1px solid @pale-gray;
+  }
 }
