@@ -21,8 +21,8 @@ GET         /dev/activityMore/:offset    @controllers.portal.Portal.activityMore
 GET         /dev/newsFeed                @controllers.portal.Portal.newsFeed
 
 # Social networking stuff...
-GET         /dev/browse/users            @controllers.portal.Portal.browseUsers
-GET         /dev/browse/user/:userId     @controllers.portal.Portal.browseUser(userId: String)
+GET         /dev/browse/u                @controllers.portal.Portal.browseUsers
+GET         /dev/browse/u/:userId        @controllers.portal.Portal.browseUser(userId: String)
 GET         /dev/follow/:userId          @controllers.portal.Portal.followUser(userId: String)
 POST        /dev/follow/:userId          @controllers.portal.Portal.followUserPost(userId: String)
 GET         /dev/unfollow/:userId        @controllers.portal.Portal.unfollowUser(userId: String)

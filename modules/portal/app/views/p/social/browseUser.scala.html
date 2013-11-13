@@ -1,1 +1,31 @@
-@(user: UserProfile, other: UserProfile)(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
+@(user: UserProfile, other: UserProfile)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+
+@p.layout.portalLayout(other.model.name) {
+
+    @p.layout.breadcrumbs() {
+        <li><a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.browseUsers")</a></li>
+        <li>@other.model.name</li>
+    }
+
+    <div class="row info-bar">
+        <div class="container">
+            <h1>@other.model.name</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8 col-md-8 col-lg-8">
+                    <p>
+                    @profileForUser(other)
+                </div>
+                <div class="col-sm-4 col-md-4 col-lg-4">
+                    <p>
+                    TODO: This section...
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
