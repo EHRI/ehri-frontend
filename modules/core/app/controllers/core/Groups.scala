@@ -14,7 +14,7 @@ import scala.concurrent.Future
 import backend.Backend
 import backend.rest.RestHelpers
 
-case class Groups @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends PermissionHolder[Group]
+case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends PermissionHolder[Group]
   with Visibility[Group]
   with CRUD[GroupF, Group] {
 

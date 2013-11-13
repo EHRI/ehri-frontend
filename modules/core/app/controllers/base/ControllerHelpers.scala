@@ -12,7 +12,7 @@ import backend.rest.RestHelpers
 trait ControllerHelpers {
   this: Controller with AuthController =>
 
-  implicit val globalConfig: GlobalConfig
+  implicit val globalConfig: global.GlobalConfig
 
   /**
    * Some actions **require** a user is logged in.

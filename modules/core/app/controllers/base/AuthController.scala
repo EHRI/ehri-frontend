@@ -22,7 +22,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
 
   val backend: Backend
 
-  implicit val globalConfig: GlobalConfig
+  implicit val globalConfig: global.GlobalConfig
 
   // Override this to allow non-staff to view a page
   val staffOnly = true

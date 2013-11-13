@@ -1,4 +1,4 @@
-@(result: utils.search.ItemPage[(AnyModel,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+@(result: utils.search.ItemPage[(AnyModel,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <ul class="unstyled">
     @result.items.map { case(item, id) =>
