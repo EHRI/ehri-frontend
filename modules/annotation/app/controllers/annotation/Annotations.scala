@@ -9,7 +9,7 @@ import controllers.generic.{Annotate, Delete, Read, Visibility}
 import backend.Backend
 
 
-case class Annotations @Inject()(implicit globalConfig: GlobalConfig, backend: Backend) extends Read[Annotation]
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Read[Annotation]
   with Visibility[Annotation]
   with Delete[Annotation]
   with Annotate[Annotation] {

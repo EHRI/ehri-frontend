@@ -1,4 +1,4 @@
-@(item: SystemEvent)(implicit globalConfig: GlobalConfig)
+@(item: SystemEvent)(implicit globalConfig: global.GlobalConfig)
 
 <li class="list-item">
     <h5><a href="@controllers.core.routes.SystemEvents.get(item.id)">@item.time</a>

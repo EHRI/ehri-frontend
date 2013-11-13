@@ -15,7 +15,7 @@ import java.util.Locale
 import backend.Backend
 import backend.rest.SearchDAO
 
-case class Application @Inject()(implicit globalConfig: GlobalConfig, backend: Backend) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
+case class Application @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
 
   implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
 

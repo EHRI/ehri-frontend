@@ -1,4 +1,4 @@
-@(page: utils.search.ItemPage[(HistoricalAgent,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(page: utils.search.ItemPage[(HistoricalAgent,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(Messages("actions.listHistoricalAgents")) {
     @p.layout.breadcrumbs(defines.EntityType.HistoricalAgent.toString) {

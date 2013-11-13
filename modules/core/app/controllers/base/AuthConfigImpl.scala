@@ -16,7 +16,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 trait AuthConfigImpl extends AuthConfig with Results {
 
-  val globalConfig: GlobalConfig
+  val globalConfig: global.GlobalConfig
 
   /**
    * Dummy permission (which is not actually used.)

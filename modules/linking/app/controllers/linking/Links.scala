@@ -10,7 +10,7 @@ import global.GlobalConfig
 import controllers.generic.{Annotate, Delete, Read, Visibility}
 import backend.Backend
 
-case class Links @Inject()(implicit globalConfig: GlobalConfig, backend: Backend) extends Read[Link]
+case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Read[Link]
   with Visibility[Link]
   with Delete[Link]
   with Annotate[Link] {

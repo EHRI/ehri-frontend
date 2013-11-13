@@ -1,4 +1,4 @@
-@(item: Concept, page: backend.Page[Concept], params: utils.PageParams, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: Concept, page: backend.Page[Concept], params: utils.PageParams, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import models.ConceptF._
 @import controllers.vocabs.Concepts
