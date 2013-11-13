@@ -26,6 +26,7 @@ case class RestBackend(eventHandler: EventHandler) extends Backend {
   private val visibility = new VisibilityDAO(eventHandler)
   private val api = new ApiDAO
   private val admin = new AdminDAO(eventHandler)
+  private val social = new SocialDAO(eventHandler)
 
    // Generic CRUD
    def get[MT](entityType: EntityType.Value, id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT]
@@ -173,4 +174,22 @@ case class RestBackend(eventHandler: EventHandler) extends Backend {
   // Helpers
   def createNewUserProfile(implicit apiUser: ApiUser = ApiUser()): Future[UserProfile]
     = admin.createNewUserProfile
+
+  def follow(userId: String)(implicit apiUser: ApiUser): Future[Unit]
+     = social.follow(userId)
+
+  def unfollow(userId: String)(implicit apiUser: ApiUser): Future[Unit]
+     = social.unfollow(userId)
+
+  def isFollowing(userId: String)(implicit apiUser: ApiUser): Future[Boolean]
+    = social.isFollowing(userId)
+
+  def isFollower(userId: String)(implicit apiUser: ApiUser): Future[Boolean]
+    = social.isFollower(userId)
+
+  def listFollowers(params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]]
+    = social.listFollowers(params)
+
+  def listFollowing(params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]]
+    = social.listFollowing(params)
  }

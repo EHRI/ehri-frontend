@@ -9,7 +9,7 @@ import play.api.libs.ws.Response
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait Backend extends Generic with Permissions with Descriptions with Links with Annotations with Events {
+trait Backend extends Generic with Permissions with Descriptions with Links with Annotations with Events with Social {
 
   // Visibility
   def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT]

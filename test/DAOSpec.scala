@@ -165,6 +165,18 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     }
   }
 
+  "SocialDAO" should {
+    "allow following and unfollowing" in new FakeApp {
+      await(testBackend.isFollowing("reto")) must beFalse
+      await(testBackend.follow("reto"))
+      await(testBackend.isFollowing("reto")) must beTrue
+      val following = await(testBackend.listFollowing(ListParams()))
+      following.exists(_.id == "reto") must beTrue
+      await(testBackend.unfollow("reto"))
+      await(testBackend.isFollowing("reto")) must beFalse
+    }
+  }
+
   "CypherDAO" should {
     "get a JsValue for a graph item" in new FakeApp {
       val dao = new CypherDAO
