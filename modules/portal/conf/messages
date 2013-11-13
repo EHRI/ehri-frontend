@@ -62,3 +62,5 @@ portal.social.users=People
 portal.social.browseUsers=People on EHRI
 portal.social.follow=Follow
 portal.social.unfollow=Unfollow
+portal.social.followers=Followers
+portal.social.following=Following

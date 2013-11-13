@@ -1,4 +1,4 @@
-@(user: UserProfile)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+@(user: UserProfile, following: List[UserProfile], followers: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
 
 <div class="user-profile">
     <div class="row">
@@ -22,6 +22,14 @@
                 }
             </ul>
             <hr />
+            <div class="profile-social">
+                <div class="followers">
+                    @Messages("portal.social.followers"): @followers.size
+                </div>
+                <div class="following">
+                    @Messages("portal.social.following"): @following.size
+                </div>
+            </div>
         </div>
         <div class="col-md-8 user-profile-activity">
             TODO: This section...
