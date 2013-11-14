@@ -7,16 +7,16 @@ import models.base.AnyModel
 import models.SystemEvent
 import utils.{ListParams, SystemEventParams, PageParams}
 import play.api.libs.json.Reads
-import backend.{ApiUser,Page}
+import backend.{Events, ApiUser, Page}
 
 
 /**
  * Data Access Object for Action-related requests.
  */
-case class SystemEventDAO() extends RestDAO {
+trait RestEvents extends Events with RestDAO {
 
-  def baseUrl = "http://%s:%d/%s".format(host, port, mount)
-  def requestUrl = "%s/systemEvent".format(baseUrl)
+  private def baseUrl = "http://%s:%d/%s".format(host, port, mount)
+  private def requestUrl = "%s/systemEvent".format(baseUrl)
 
   def history(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[SystemEvent]] = {
     implicit val rd: RestReadable[SystemEvent] = SystemEvent.Converter
@@ -37,3 +37,6 @@ case class SystemEventDAO() extends RestDAO {
     }
   }
 }
+
+
+case class SystemEventDAO() extends RestEvents

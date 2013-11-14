@@ -6,15 +6,17 @@ import play.api.libs.json.{Reads, Json}
 import defines.EntityType
 import models._
 import models.json.AnnotationFormat
-import backend.{EventHandler, ApiUser}
+import backend.{Annotations, EventHandler, ApiUser}
 
 
 /**
  * Data Access Object for fetching annotation data.
  */
-case class AnnotationDAO(eventHandler: EventHandler) extends RestDAO {
+trait RestAnnotations extends Annotations with RestDAO {
 
-  def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
+  val eventHandler: EventHandler
+
+  private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
 
   def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Map[String,List[Annotation]]] = {
     val url = enc(requestUrl, "for/%s?limit=1000".format(id))
@@ -29,3 +31,5 @@ case class AnnotationDAO(eventHandler: EventHandler) extends RestDAO {
     }
   }
 }
+
+case class AnnotationDAO(eventHandler: EventHandler) extends RestAnnotations

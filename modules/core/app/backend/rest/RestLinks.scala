@@ -5,19 +5,21 @@ import scala.concurrent.Future
 import defines.EntityType
 import models._
 import play.api.libs.json.{Reads, Json}
-import backend.{EventHandler, ApiUser}
+import backend.{Links, EventHandler, ApiUser}
 
 
 /**
  * Data Access Object for fetching link data.
  */
-case class LinkDAO(eventHandler: EventHandler) extends RestDAO {
+trait RestLinks extends Links with RestDAO {
+
+  val eventHandler: EventHandler
 
   final val BODY_PARAM = "body"
   final val BODY_TYPE = "bodyType"
   final val BODY_NAME = "bodyName"
 
-  def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Link)
+  private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Link)
 
   implicit val linkMetaReads = Link.Converter.restReads
 
@@ -63,3 +65,5 @@ case class LinkDAO(eventHandler: EventHandler) extends RestDAO {
     }
   }
 }
+
+case class LinkDAO(eventHandler: EventHandler) extends RestLinks

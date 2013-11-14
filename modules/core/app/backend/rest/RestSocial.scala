@@ -12,9 +12,11 @@ import play.api.libs.json.Reads
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SocialDAO(eventHandler: EventHandler) extends Social with RestDAO {
+trait RestSocial extends Social with RestDAO {
 
-  def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.UserProfile)
+  val eventHandler: EventHandler
+
+  private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.UserProfile)
 
   def follow(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
     userCall(enc(requestUrl, userId, "follow", otherId)).post("").map { r =>
@@ -50,3 +52,6 @@ case class SocialDAO(eventHandler: EventHandler) extends Social with RestDAO {
     }
   }
 }
+
+
+case class SocialDAO(eventHandler: EventHandler) extends RestSocial
