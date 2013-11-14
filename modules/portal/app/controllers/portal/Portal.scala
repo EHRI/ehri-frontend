@@ -100,12 +100,12 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseCountry(id: String) = getAction.async[Country](EntityType.Country, id) {
-      item => annotations => links => implicit userOpt => implicit request =>
+      item => details => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), entityFacets = repositorySearchFacets,
         defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
         page => params => facets => _ => _ =>
       Ok(p.country.show(item, page, params, facets,
-          portalRoutes.browseCountry(id), annotations, links))
+          portalRoutes.browseCountry(id), details.annotations, details.links))
     }.apply(request)
   }
 
@@ -116,7 +116,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
-      item => annotations => links => implicit userOpt => implicit request =>
+      item => details => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
     searchAction[DocumentaryUnit](filters,
@@ -124,7 +124,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         entityFacets = docSearchFacets) {
         page => params => facets => _ => _ =>
       Ok(p.repository.show(item, page, params, facets,
-          portalRoutes.browseRepository(id), annotations, links))
+          portalRoutes.browseRepository(id), details.annotations, details.links))
     }.apply(request)
   }
 
@@ -141,14 +141,14 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseDocument(id: String) = getAction.async[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-      item => annotations => links => implicit userOpt => implicit request =>
+      item => details => implicit userOpt => implicit request =>
     val filters = Map(SolrConstants.PARENT_ID -> item.id)
     searchAction[DocumentaryUnit](filters,
       defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
       entityFacets = docSearchFacets) {
       page => params => facets => _ => _ =>
         Ok(p.documentaryUnit.show(item, page, params, facets,
-          portalRoutes.browseDocument(id), annotations, links))
+          portalRoutes.browseDocument(id), details.annotations, details.links))
     }.apply(request)
   }
 
@@ -160,7 +160,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
 
   def browseAuthoritativeSet(id: String) = getAction.async[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
-      item => annotations => links => implicit userOpt => implicit request =>
+      item => details => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
     searchAction[HistoricalAgent](filters,
@@ -172,8 +172,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseHistoricalAgent(id: String) = getAction[HistoricalAgent](EntityType.HistoricalAgent, id) {
-      doc => anns => links => implicit userOpt => implicit request =>
-    Ok(p.historicalAgent.show(doc, anns, links))
+      doc => details => implicit userOpt => implicit request =>
+    Ok(p.historicalAgent.show(doc, details.annotations, details.links))
   }
 
   def activity = listAction[SystemEvent](EntityType.SystemEvent) {

@@ -11,6 +11,12 @@ import scala.concurrent.Future
 import play.api.mvc.SimpleResult
 import backend.Page
 
+case class ItemDetails(
+  annotations: Map[String,List[Annotation]],
+  links: List[Link],
+  watched: Boolean
+)
+
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
@@ -43,19 +49,27 @@ trait PortalActions {
    */
   object getAction {
     def async[MT](entityType: EntityType.Value, id: String)(
-      f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+      f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
                    implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       itemAction.async[MT](entityType, id) { item => implicit userOpt => implicit request =>
-        val annsReq = backend.getAnnotationsForItem(id)
-        val linkReq = backend.getLinksForItem(id)
-        for { anns <- annsReq ; links <- linkReq ; r <- f(item)(anns)(links)(userOpt)(request) } yield r
+
+        def isWatching =
+          if (userOpt.isDefined)backend.isWatching(userOpt.get.id, id)
+          else Future.successful(false)
+
+        for {
+          watching <- isWatching
+          anns <- backend.getAnnotationsForItem(id)
+          links <- backend.getLinksForItem(id)
+          r <- f(item)(ItemDetails(anns, links, watching))(userOpt)(request)
+        } yield r
       }
     }
 
     def apply[MT](entityType: EntityType.Value, id: String)(
-      f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
                    implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
-      async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))
+      async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))
     }
   }
 
@@ -64,20 +78,20 @@ trait PortalActions {
    */
   object getWithChildrenAction {
     def async[CT, MT](entityType: EntityType.Value, id: String)(
-      f: MT => Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+      f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
                        implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
-      getAction.async[MT](entityType, id) { item => anns => links => implicit userOpt => implicit request =>
+      getAction.async[MT](entityType, id) { item => details => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
         backend.pageChildren[MT,CT](id, params).flatMap { children =>
-          f(item)(children)(params)(anns)(links)(userOpt)(request)
+          f(item)(children)(params)(details)(userOpt)(request)
         }
       }
     }
 
     def apply[CT, MT](entityType: EntityType.Value, id: String)(
-      f: MT => Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
                        implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
-      async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))))
+      async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))))
     }
   }
 }
