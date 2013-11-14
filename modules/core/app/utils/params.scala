@@ -8,6 +8,7 @@ import eu.ehri.project.definitions.EventTypes
 import defines.{EntityType, EventType}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
+import utils.SystemEventParams.ShowType
 
 /**
  * A list offset and limit.
@@ -57,8 +58,9 @@ case class SystemEventParams(
   eventTypes: List[EventType.Value] = Nil,
   itemTypes: List[EntityType.Value] = Nil,
   from: Option[DateTime] = None,
-  to: Option[DateTime] = None) {
-
+  to: Option[DateTime] = None,
+  show: Option[ShowType.Value] = None) {
+  import SystemEventParams._
   private val fmt = ISODateTimeFormat.dateTime.withZoneUTC
 
   def toSeq: Seq[(String,String)] = {
@@ -66,18 +68,29 @@ case class SystemEventParams(
       eventTypes.map(et => EVENT_TYPE -> et.toString) :::
       itemTypes.map(et => ITEM_TYPE -> et.toString) :::
       from.map(f => FROM -> fmt.print(f)).toList :::
-      to.map(t => TO -> fmt.print(t)).toList).toSeq
+      to.map(t => TO -> fmt.print(t)).toList :::
+      show.map(f => SHOW -> f.toString).toList).toSeq
   }
 }
 
 object SystemEventParams {
+
+  val SHOW = "show"
+  object ShowType extends Enumeration {
+    type Type = Value
+    val All = Value("all")
+    val Watched = Value("watched")
+    val Follows = Value("follows")
+  }
+
   def form: Form[SystemEventParams] = Form(
     mapping(
       USERS -> list(text),
       EVENT_TYPE -> list(models.forms.enum(EventType)),
       ITEM_TYPE -> list(models.forms.enum(EntityType)),
       FROM -> optional(jodaDate(pattern = DATE_PATTERN)),
-      TO -> optional(jodaDate(pattern = DATE_PATTERN))
+      TO -> optional(jodaDate(pattern = DATE_PATTERN)),
+      SHOW -> optional(models.forms.enum(ShowType))
     )(SystemEventParams.apply _)(SystemEventParams.unapply _)
   )
 

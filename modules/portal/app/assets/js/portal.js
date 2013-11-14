@@ -35,7 +35,7 @@ jQuery(function($) {
   $("#activity-stream-fetchmore").click(function(event) {
     var offset = $(event.target).data("offset");
     var limit = $(event.target).data("limit")
-    jsRoutes.controllers.portal.Portal.activityMore(offset).ajax({
+    jsRoutes.controllers.portal.Portal.personalisedActivityMore(offset).ajax({
       success: function(data) {
           console.log("Data", data);
           $("#activity-stream").append(data);

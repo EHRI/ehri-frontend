@@ -11,5 +11,6 @@ import models.base.AnyModel
 trait Events {
   def subjectsForEvent(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[AnyModel]]
   def listEvents(params: ListParams, filters: SystemEventParams)(implicit apiUser: ApiUser): Future[List[SystemEvent]]
+  def listEventsForUser(userId: String, params: ListParams, filters: SystemEventParams)(implicit apiUser: ApiUser): Future[List[SystemEvent]]
   def history(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[SystemEvent]]
 }
