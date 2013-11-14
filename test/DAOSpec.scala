@@ -175,6 +175,16 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.unfollow(userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
     }
+
+    "allow watching and unwatching" in new FakeApp {
+      await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
+      await(testBackend.watch(userProfile.id, "c1"))
+      await(testBackend.isWatching(userProfile.id, "c1")) must beTrue
+      val watching = await(testBackend.listWatching(userProfile.id, ListParams()))
+      watching.exists(_.id == "c1") must beTrue
+      await(testBackend.unwatch(userProfile.id, "c1"))
+      await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
+    }
   }
 
   "CypherDAO" should {
