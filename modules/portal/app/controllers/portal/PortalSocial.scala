@@ -30,7 +30,7 @@ trait PortalSocial {
       .getOrElse(defaultParams).setDefault(Some(defaultParams))
 
     for {
-      followers <- backend.listFollowing(ListParams())
+      followers <- backend.listFollowing(user.id, ListParams())
       srch <- searchDispatcher.search(searchParams, Nil, Nil)
       users <- searchDao.list[UserProfile](srch.items.map(_.itemId))
     } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, followers))
@@ -39,8 +39,8 @@ trait PortalSocial {
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     for {
       other <- backend.get[UserProfile](userId)
-      following <- backend.listFollowing(ListParams())(ApiUser(Some(userId)), UserProfile.Converter)
-      followers <- backend.listFollowers(ListParams())(ApiUser(Some(userId)), UserProfile.Converter)
+      following <- backend.listFollowing(user.id, ListParams())(ApiUser(Some(userId)), UserProfile.Converter)
+      followers <- backend.listFollowers(user.id, ListParams())(ApiUser(Some(userId)), UserProfile.Converter)
     } yield Ok(p.social.browseUser(user, other, following, followers))
   }
 
@@ -49,7 +49,7 @@ trait PortalSocial {
   }
 
   def followUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
-    backend.follow(userId).map { _ =>
+    backend.follow(user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -63,7 +63,7 @@ trait PortalSocial {
   }
 
   def unfollowUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
-    backend.unfollow(userId).map { _ =>
+    backend.unfollow(user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -74,14 +74,14 @@ trait PortalSocial {
 
   def whoIsFollowingMe  = withUserAction.async { implicit user => implicit request =>
     val params = ListParams.fromRequest(request)
-    backend.listFollowers(params).map { followers =>
+    backend.listFollowers(user.id, params).map { followers =>
       Ok(p.social.listFollowers(user, followers, params))
     }
   }
 
   def whoAmIFollowing  = withUserAction.async { implicit user => implicit request =>
     val params = ListParams.fromRequest(request)
-    backend.listFollowing(params).map { following =>
+    backend.listFollowing(user.id, params).map { following =>
       Ok(p.social.listFollowing(user, following, params))
     }
   }

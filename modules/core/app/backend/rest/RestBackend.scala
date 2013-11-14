@@ -175,21 +175,21 @@ case class RestBackend(eventHandler: EventHandler) extends Backend {
   def createNewUserProfile(implicit apiUser: ApiUser = ApiUser()): Future[UserProfile]
     = admin.createNewUserProfile
 
-  def follow(userId: String)(implicit apiUser: ApiUser): Future[Unit]
-     = social.follow(userId)
+  def follow(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit]
+     = social.follow(userId, otherId)
 
-  def unfollow(userId: String)(implicit apiUser: ApiUser): Future[Unit]
-     = social.unfollow(userId)
+  def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit]
+     = social.unfollow(userId, otherId)
 
-  def isFollowing(userId: String)(implicit apiUser: ApiUser): Future[Boolean]
-    = social.isFollowing(userId)
+  def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean]
+    = social.isFollowing(userId, otherId)
 
-  def isFollower(userId: String)(implicit apiUser: ApiUser): Future[Boolean]
-    = social.isFollower(userId)
+  def isFollower(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean]
+    = social.isFollower(userId, otherId)
 
-  def listFollowers(params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]]
-    = social.listFollowers(params)
+  def listFollowers(userId: String, params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]]
+    = social.listFollowers(userId, params)
 
-  def listFollowing(params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]]
-    = social.listFollowing(params)
+  def listFollowing(userId: String, params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]]
+    = social.listFollowing(userId, params)
  }

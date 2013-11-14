@@ -16,36 +16,36 @@ case class SocialDAO(eventHandler: EventHandler) extends Social with RestDAO {
 
   def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.UserProfile)
 
-  def follow(userId: String)(implicit apiUser: ApiUser): Future[Unit] = {
-    userCall(enc(requestUrl, "follow", userId)).post("").map { r =>
+  def follow(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
+    userCall(enc(requestUrl, userId, "follow", otherId)).post("").map { r =>
       checkError(r);
     }
   }
-  def unfollow(userId: String)(implicit apiUser: ApiUser): Future[Unit] = {
-    userCall(enc(requestUrl, "unfollow", userId)).post("").map { r =>
+  def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
+    userCall(enc(requestUrl, userId, "unfollow", otherId)).post("").map { r =>
       checkError(r);
     }
   }
-  def isFollowing(userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
-    userCall(enc(requestUrl, "isFollowing", userId)).get().map { r =>
+  def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+    userCall(enc(requestUrl, userId, "isFollowing", otherId)).get().map { r =>
       checkErrorAndParse[Boolean](r);
     }
   }
 
-  def isFollower(userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
-    userCall(enc(requestUrl, "isFollower", userId)).get().map { r =>
+  def isFollower(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+    userCall(enc(requestUrl, userId, "isFollower", otherId)).get().map { r =>
       checkErrorAndParse[Boolean](r);
     }
   }
 
-  def listFollowers(params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
-    userCall(enc(requestUrl, "followers")).get().map { r =>
+  def listFollowers(userId: String, params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
+    userCall(enc(requestUrl, userId, "followers")).get().map { r =>
       checkErrorAndParse(r)(Reads.list(rd.restReads));
     }
   }
 
-  def listFollowing(params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
-    userCall(enc(requestUrl, "following")).get().map { r =>
+  def listFollowing(userId: String, params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
+    userCall(enc(requestUrl, userId, "following")).get().map { r =>
       checkErrorAndParse(r)(Reads.list(rd.restReads));
     }
   }
