@@ -256,12 +256,22 @@ footer .container {
   padding-bottom: 0.5em;
   border-bottom: 1px dashed @dark-gray;
   margin-bottom: @search-item-spacing;
+  padding-right: @large-padding;
 }
 
 .search-item-heading {
   font-size: 1.0em;
   font-weight: bolder;
   margin-bottom: 0.2em;
+}
+
+.search-item-actions {
+  float: right;
+  width: @large-margin;
+
+  .watch-item.watch {
+    opacity: 0.3;
+  }
 }
 
 /** Inline lists - Bootstrap doesn't actually do this by itself */

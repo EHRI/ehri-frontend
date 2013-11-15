@@ -58,19 +58,19 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def listFollowers(userId: String, params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
+  def listFollowers(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
     userCall(enc(requestUrl, userId, "followers")).get().map { r =>
       checkErrorAndParse(r)(Reads.list(rd.restReads))
     }
   }
 
-  def listFollowing(userId: String, params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
+  def listFollowing(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
     userCall(enc(requestUrl, userId, "following")).get().map { r =>
       checkErrorAndParse(r)(Reads.list(rd.restReads))
     }
   }
 
-  def listWatching(userId: String, params: ListParams)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel]): Future[List[AnyModel]] = {
+  def listWatching(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel]): Future[List[AnyModel]] = {
     userCall(enc(requestUrl, userId, "watching")).get().map { r =>
       checkErrorAndParse(r)(Reads.list(rd.restReads))
     }

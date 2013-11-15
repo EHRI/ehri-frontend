@@ -17,7 +17,9 @@ object PortalData extends Controller {
         controllers.portal.routes.javascript.Portal.personalisedActivityMore,
         controllers.portal.routes.javascript.Portal.profile,
         controllers.portal.routes.javascript.Portal.updateProfile,
-        controllers.portal.routes.javascript.Portal.updateProfilePost
+        controllers.portal.routes.javascript.Portal.updateProfilePost,
+        controllers.portal.routes.javascript.Portal.watchItemPost,
+        controllers.portal.routes.javascript.Portal.unwatchItemPost
       )
     ).as(MimeTypes.JAVASCRIPT)
   }

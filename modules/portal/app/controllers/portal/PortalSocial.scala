@@ -90,4 +90,32 @@ trait PortalSocial {
       Ok(p.social.listFollowing(user, following, params))
     }
   }
+
+  def watchItem(id: String) = withUserAction.async { implicit user => implicit request =>
+    ???
+  }
+
+  def watchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
+    backend.watch(user.id, id).map { _ =>
+      if (isAjax) {
+        Ok("ok")
+      } else {
+        Redirect(controllers.portal.routes.Portal.browseUsers())
+      }
+    }
+  }
+
+  def unwatchItem(id: String) = withUserAction.async { implicit user => implicit request =>
+    ???
+  }
+
+  def unwatchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
+    backend.unwatch(user.id, id).map { _ =>
+      if (isAjax) {
+        Ok("ok")
+      } else {
+        Redirect(controllers.portal.routes.Portal.browseUsers())
+      }
+    }
+  }
 }

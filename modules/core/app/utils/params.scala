@@ -19,6 +19,9 @@ case class ListParams(offset: Int = 0, limit: Int = DEFAULT_LIST_LIMIT) {
 }
 
 object ListParams {
+
+  def empty: ListParams = new ListParams()
+
   def fromRequest(request: RequestHeader, namespace: String = ""): ListParams = {
     Form(
       mapping(
@@ -30,6 +33,8 @@ object ListParams {
 }
 
 object PageParams {
+
+  def empty: PageParams = new PageParams()
 
   def fromRequest(request: RequestHeader, namespace: String = ""): PageParams = {
     Form(

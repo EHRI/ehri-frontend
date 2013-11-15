@@ -18,7 +18,7 @@ jQuery(function($) {
   // Re-check select2s whenever there's an Ajax event that could
   // load a widget (e.g. the profile form)
   $(document).ajaxComplete(function() {
-    $(".select2").select2(select2Opts);
+    //$(".select2").select2(select2Opts);
   });
 
   $(".select2").select2(select2Opts).change(function(e) {
@@ -95,5 +95,37 @@ jQuery(function($) {
       $(e.target).parents(".user-list-item").find(".follow").show();
     })
   });
+
+    var watcherFunc = jsRoutes.controllers.portal.Portal.watchItemPost,
+        unwatcherFunc = jsRoutes.controllers.portal.Portal.unwatchItemPost;
+
+    $(document).on("click", "a.watch-item", function(e) {
+        e.preventDefault();
+        var $elem = $(e.target).parent();
+        var id = $elem.data("item");
+        var watch = $elem.hasClass("watch");
+
+        var call, href, addcls, remcls;
+        if (watch) {
+          call = watcherFunc;
+          href = unwatcherFunc;
+          addcls = "unwatch";
+          remcls = "watch";
+        } else {
+            call = unwatcherFunc;
+            href = watcherFunc;
+            addcls = "watch";
+            remcls = "unwatch";
+        }
+
+        call(id).ajax({
+          success: function(data) {
+              $elem
+                  .removeClass(remcls)
+                  .addClass(addcls)
+                  .attr("href", href(id).url);
+          }
+        });
+    });
 });
 

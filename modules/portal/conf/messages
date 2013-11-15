@@ -64,3 +64,6 @@ portal.social.follow=Follow
 portal.social.unfollow=Unfollow
 portal.social.followers=Followers
 portal.social.following=Following
+
+portal.social.watchItem=Add item to your watch list
+portal.social.unwatchItem=Remove item from your watch list

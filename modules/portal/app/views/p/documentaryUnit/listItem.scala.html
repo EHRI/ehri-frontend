@@ -1,8 +1,8 @@
-@(item: DocumentaryUnit, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: DocumentaryUnit, showRepository: Boolean = true, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @import org.apache.commons.lang3.StringUtils
 
-@p.layout.searchItemOutline(item) {
+@p.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription(descriptionId).map { desc =>
