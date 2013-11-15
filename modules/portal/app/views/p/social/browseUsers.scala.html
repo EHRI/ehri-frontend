@@ -49,7 +49,7 @@
                         <div class="col-sm-8 col-md-8 col-lg-8">
                             <p>
                             <ul class="list-unstyled user-list">
-                                @browseUsersList(user, users, params, following)
+                                @browseUsersList(user, users.items, following)
                             </ul>
                             @p.helpers.pagination(users)
                         </div>

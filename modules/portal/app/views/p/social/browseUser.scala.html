@@ -1,4 +1,4 @@
-@(user: UserProfile, other: UserProfile, following: List[UserProfile], followers: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+@(user: UserProfile, other: UserProfile, following: List[UserProfile], followers: List[UserProfile], theirFollowers: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
 
 @p.layout.portalLayout(other.model.name) {
 
@@ -9,6 +9,9 @@
 
     <div class="row info-bar">
         <div class="container">
+            <div class="pull-right">
+                @p.common.followingButtons(other, following.exists(_.id == other.id))
+            </div>
             <h1>@other.model.name</h1>
         </div>
     </div>
@@ -22,7 +25,11 @@
                 </div>
                 <div class="col-sm-4 col-md-4 col-lg-4">
                     <p>
-                    TODO: This section...
+                    @p.common.panel(Messages("portal.social.followedBy")) {
+                        <ul class="list-unstyled browse-users-followers">
+                            @browseUsersList(other, theirFollowers, following)
+                        </ul>
+                    }
                 </div>
             </div>
         </div>

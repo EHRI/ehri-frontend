@@ -44,9 +44,10 @@ trait PortalSocial {
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     for {
       other <- backend.get[UserProfile](userId)
-      following <- backend.listFollowing(user.id, ListParams())(ApiUser(Some(userId)), UserProfile.Converter)
-      followers <- backend.listFollowers(user.id, ListParams())(ApiUser(Some(userId)), UserProfile.Converter)
-    } yield Ok(p.social.browseUser(user, other, following, followers))
+      following <- backend.listFollowing(user.id, ListParams())
+      followers <- backend.listFollowers(user.id, ListParams())
+      theirFollowers <- backend.listFollowers(userId)
+    } yield Ok(p.social.browseUser(user, other, following, followers, theirFollowers))
   }
 
   def followUser(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -75,6 +76,18 @@ trait PortalSocial {
         Redirect(controllers.portal.routes.Portal.browseUsers())
       }
     }
+  }
+
+  /**
+   * Render list of someone else's followers via Ajax...
+   */
+  def followersForUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    val params = ListParams.fromRequest(request)
+    for {
+      them <- backend.get[UserProfile](userId)
+      theirFollowers <- backend.listFollowers(userId, params)
+      whoImFollowing <- backend.listFollowing(user.id)
+    } yield Ok(p.social.browseUsersList(them, theirFollowers, whoImFollowing))
   }
 
   def whoIsFollowingMe  = withUserAction.async { implicit user => implicit request =>
