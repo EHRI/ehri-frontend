@@ -43,10 +43,10 @@ trait PortalSocial {
 
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     val params = ListParams.fromRequest(request)
-    val eventParams = SystemEventParams.fromRequest(request)
+    val eventParams = SystemEventParams.fromRequest(request).copy(users = List(userId))
     for {
       them <- backend.get[UserProfile](userId)
-      theirActivity <- backend.listEventsForUser(userId, params, eventParams)
+      theirActivity <- backend.listEvents(params, eventParams)
       theirFollowers <- backend.listFollowers(userId)
       myFollowing <- backend.listFollowing(user.id, ListParams.empty)
     } yield Ok(p.social.browseUser(them, theirActivity, theirFollowers, myFollowing))

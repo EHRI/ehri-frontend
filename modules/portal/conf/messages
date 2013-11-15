@@ -33,6 +33,7 @@ portal.activity.userImportedItem={2,choice,0#{0} imported item {1}|1#{0} importe
 portal.activity.userLinkedItem={2,choice,0#{0} created a link for item {1}|1#{0} created a link for {1} and 1 more item|1<{0} created a link for {1} and {2,number,integer} more items}
 portal.activity.userAnnotatedItem={2,choice,0#{0} annotated item {1}|1#{0} annotated {1} and 1 more item|1<{0} annotated {1} and {2,number,integer} more items}
 portal.activity.fetchMore=More
+portal.noActivityYet=No activity yet.
 portal.bookmarkedItems=Bookmarked Items
 portal.newsFeed=Latest News
 portal.latestUpdates=Recent Updates
