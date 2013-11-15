@@ -1,33 +1,41 @@
-@(user: UserProfile, other: UserProfile, following: List[UserProfile], followers: List[UserProfile], theirFollowers: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+@(them: UserProfile, events: List[SystemEvent], theirFollowers: List[UserProfile], myFollowing: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
 
-@p.layout.portalLayout(other.model.name) {
+@p.layout.portalLayout(them.toStringLang) {
 
     @p.layout.breadcrumbs() {
         <li><a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.browseUsers")</a></li>
-        <li>@other.model.name</li>
+        <li>@them.toStringLang</li>
     }
 
     <div class="row info-bar">
         <div class="container">
             <div class="pull-right">
-                @p.common.followingButtons(other, following.exists(_.id == other.id))
+                @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
             </div>
-            <h1>@other.model.name</h1>
+            <h1>@them.toStringLang</h1>
         </div>
     </div>
 
     <div class="row">
         <div class="container">
             <div class="row">
-                <div class="col-sm-8 col-md-8 col-lg-8">
+                <div class="col-sm-2 col-md-2 col-lg-2">
                     <p>
-                    @profileForUser(other, following, followers)
+                    @profileForUser(them)
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-6">
+                    <p>
+                    @p.common.panel(Messages("portal.activity")) {
+                        <ul id="activity-stream" class="list-unstyled">
+                            @p.common.eventItems(events)
+                        </ul>
+                    }
                 </div>
                 <div class="col-sm-4 col-md-4 col-lg-4">
                     <p>
                     @p.common.panel(Messages("portal.social.followedBy")) {
                         <ul class="list-unstyled browse-users-followers">
-                            @browseUsersList(other, theirFollowers, following)
+                            @browseUsersList(them, theirFollowers, myFollowing)
                         </ul>
                     }
                 </div>

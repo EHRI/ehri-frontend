@@ -16,6 +16,7 @@ import play.api.cache.Cache
  */
 trait RestSocial extends Social with RestDAO {
 
+  import backend.rest.Constants._
   import play.api.Play.current
   val eventHandler: EventHandler
 
@@ -31,15 +32,17 @@ trait RestSocial extends Social with RestDAO {
   def follow(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
     userCall(followUrl(userId, otherId)).post("").map { r =>
       checkError(r)
-      Cache.set(isFollowingUrl(userId, otherId), true)
+      Cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
       Cache.remove(followingUrl(userId))
+      Cache.remove(userId)
     }
   }
   def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
     userCall(followUrl(userId, otherId)).delete().map { r =>
       checkError(r)
-      Cache.set(isFollowingUrl(userId, otherId), false)
+      Cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
       Cache.remove(followingUrl(userId))
+      Cache.remove(userId)
     }
   }
   def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
@@ -50,7 +53,7 @@ trait RestSocial extends Social with RestDAO {
     } else {
       userCall(isFollowingUrl(userId, otherId)).get().map { r =>
         val bool = checkErrorAndParse[Boolean](r)
-        Cache.set(isFollowingUrl(userId, otherId), bool)
+        Cache.set(isFollowingUrl(userId, otherId), bool, cacheTime)
         bool
       }
     }
@@ -76,7 +79,7 @@ trait RestSocial extends Social with RestDAO {
     } else {
       userCall(url).get().map { r =>
         val following = checkErrorAndParse(r)(Reads.list(rd.restReads))
-        Cache.set(url, r.json)
+        Cache.set(url, r.json, cacheTime)
         following
       }
     }
@@ -90,7 +93,7 @@ trait RestSocial extends Social with RestDAO {
     } else {
       userCall(url).get().map { r =>
         val watching = checkErrorAndParse(r)(Reads.list(rd.restReads))
-        Cache.set(url, r.json)
+        Cache.set(url, r.json, cacheTime)
         watching
       }
     }
@@ -98,7 +101,7 @@ trait RestSocial extends Social with RestDAO {
 
   def watch(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
     userCall(watchUrl(userId, otherId)).post("").map { r =>
-      Cache.set(isWatchingUrl(userId, otherId), true)
+      Cache.set(isWatchingUrl(userId, otherId), true, cacheTime)
       Cache.remove(watchingUrl(userId))
       checkError(r)
     }
@@ -106,7 +109,7 @@ trait RestSocial extends Social with RestDAO {
 
   def unwatch(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
     userCall(watchUrl(userId, otherId)).delete().map { r =>
-      Cache.set(isWatchingUrl(userId, otherId), false)
+      Cache.set(isWatchingUrl(userId, otherId), false, cacheTime)
       Cache.remove(watchingUrl(userId))
       checkError(r)
     }
@@ -120,7 +123,7 @@ trait RestSocial extends Social with RestDAO {
     } else {
       userCall(url).get().map { r =>
         val bool = checkErrorAndParse[Boolean](r)
-        Cache.set(url, bool)
+        Cache.set(url, bool, cacheTime)
         bool
       }
     }

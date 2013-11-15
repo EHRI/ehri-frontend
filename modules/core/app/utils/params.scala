@@ -80,6 +80,8 @@ case class SystemEventParams(
 
 object SystemEventParams {
 
+  def empty: SystemEventParams = new SystemEventParams()
+
   val SHOW = "show"
   object ShowType extends Enumeration {
     type Type = Value

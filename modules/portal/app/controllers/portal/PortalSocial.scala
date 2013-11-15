@@ -5,7 +5,7 @@ import play.api.mvc.Controller
 import controllers.base.{AuthController, ControllerHelpers}
 import models.UserProfile
 import views.html.p
-import utils.ListParams
+import utils.{SystemEventParams, ListParams}
 import backend.rest.{SearchDAO, PermissionDenied}
 import utils.search.{SearchOrder, Dispatcher, SearchParams}
 import defines.EntityType
@@ -42,12 +42,14 @@ trait PortalSocial {
   }
 
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    val params = ListParams.fromRequest(request)
+    val eventParams = SystemEventParams.fromRequest(request)
     for {
-      other <- backend.get[UserProfile](userId)
-      following <- backend.listFollowing(user.id, ListParams())
-      followers <- backend.listFollowers(user.id, ListParams())
+      them <- backend.get[UserProfile](userId)
+      theirActivity <- backend.listEventsForUser(userId, params, eventParams)
       theirFollowers <- backend.listFollowers(userId)
-    } yield Ok(p.social.browseUser(user, other, following, followers, theirFollowers))
+      myFollowing <- backend.listFollowing(user.id, ListParams.empty)
+    } yield Ok(p.social.browseUser(them, theirActivity, theirFollowers, myFollowing))
   }
 
   def followUser(userId: String) = withUserAction.async { implicit user => implicit request =>

@@ -100,4 +100,7 @@ case class UserProfile(
       }
     }.getOrElse(false)
   }
+
+  def followerCount = meta.fields.find(_._1 == "followers").flatMap(_._2.asOpt[Int]).getOrElse(0)
+  def followingCount = meta.fields.find(_._1 == "following").flatMap(_._2.asOpt[Int]).getOrElse(0)
 }

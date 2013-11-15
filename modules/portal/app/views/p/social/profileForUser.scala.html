@@ -1,38 +1,31 @@
-@(user: UserProfile, following: List[UserProfile], followers: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+@(user: UserProfile)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
 
 <div class="user-profile">
-    <div class="row">
-        <div class="col-md-4">
-            <a href="#" class="gravitar">
-                <img height="220" width="220" class="img-responsive img-thumbnail" src="@controllers.portal.routes.Assets.at("img/default-gravitar.png")" />
-            </a>
-            <p>
-            <ul class="list-unstyled user-profile-info">
-                @user.model.location.map { loc =>
-                    <li>
-                        <span class="glyphicon glyphicon-map-marker"></span>
-                        @loc
-                    </li>
-                }
-                @user.model.about.map { about =>
-                    <li>
-                        <span class="glyphicon glyphicon-info-sign"></span>
-                        @about
-                    </li>
-                }
-            </ul>
-            <hr />
-            <div class="profile-social">
-                <div class="followers">
-                    @Messages("portal.social.followers"): @followers.size
-                </div>
-                <div class="following">
-                    @Messages("portal.social.following"): @following.size
-                </div>
-            </div>
+    <a href="#" class="gravitar">
+        <img height="200" width="200" class="img-responsive img-thumbnail" src="@controllers.portal.routes.Assets.at("img/default-gravitar.png")" />
+    </a>
+    <p>
+    <ul class="list-unstyled user-profile-info">
+        @user.model.location.map { loc =>
+            <li>
+                <span class="glyphicon glyphicon-map-marker"></span>
+                @loc
+            </li>
+        }
+        @user.model.about.map { about =>
+            <li>
+                <span class="glyphicon glyphicon-info-sign"></span>
+                @about
+            </li>
+        }
+    </ul>
+    <hr />
+    <div class="profile-social">
+        <div class="followers">
+            @Messages("portal.social.followers"): <span class="user-follower-count">@user.followerCount</span>
         </div>
-        <div class="col-md-8 user-profile-activity">
-
+        <div class="following">
+            @Messages("portal.social.following"): <span class="user-following-count">@user.followingCount</span>
         </div>
     </div>
 </div>

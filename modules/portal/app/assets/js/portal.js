@@ -108,6 +108,13 @@ jQuery(function ($) {
         $other.show();
         $(".browse-users-followers")
             .load(followerListFunc(id).url);
+
+        // If a follower count is shown, munge it...
+        var fc = $(".user-follower-count");
+        if (fc.size()) {
+          var cnt = parseInt(fc.html(), 10);
+          fc.html(follow ? (cnt + 1) : (cnt - 1));
+        }
       }
     });
   });
