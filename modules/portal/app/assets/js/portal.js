@@ -99,7 +99,7 @@ jQuery(function($) {
 
     $(document).on("click", "a.watch-item", function(e) {
         e.preventDefault();
-        var $elem = $(e.target).parent();
+        var $elem = $(e.target);
         var id = $elem.data("item");
         var watch = $elem.hasClass("watch");
 

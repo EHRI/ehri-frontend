@@ -2,8 +2,8 @@
 
 <div class="search-item" id="@item.id">
     <div class="search-item-actions">
-        <a data-item="@item.id" title="@Messages(if(watched) "portal.social.unwatchItem" else "portal.social.watchItem")" class="spinner watch-item @{if(watched) "unwatch" else "watch"}" href="@controllers.portal.routes.Portal.watchItem(item.id)">
-            <span class="glyphicon glyphicon-star"></span>
+        <a data-item="@item.id" title="@Messages(if(watched) "portal.social.unwatchItem" else "portal.social.watchItem")"
+                class="glyphicon glyphicon-star spinner watch-item @{if(watched) "unwatch" else "watch"}" href="@controllers.portal.routes.Portal.watchItem(item.id)">
         </a>
     </div>
     <div class="search-item-heading type-highlight @item.isA.toString">
