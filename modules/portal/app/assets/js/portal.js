@@ -156,46 +156,5 @@ jQuery(function ($) {
       }
     });
   });
-
-//  /**
-//   * Handle watching/unwatching items using Ajax...
-//   */
-//  $(document).on("click", "a.watch-item", function (e) {
-//    e.preventDefault();
-//
-//    var watcherFunc = jsRoutes.controllers.portal.Portal.watchItemPost,
-//        unwatcherFunc = jsRoutes.controllers.portal.Portal.unwatchItemPost,
-//        $elem = $(e.target),
-//        id = $elem.data("item"),
-//        watch = $elem.hasClass("watch");
-//
-//    var call, href, addcls, remcls;
-//    if (watch) {
-//      call = watcherFunc;
-//      href = unwatcherFunc;
-//      addcls = "unwatch";
-//      remcls = "watch";
-//    } else {
-//      call = unwatcherFunc;
-//      href = watcherFunc;
-//      addcls = "watch";
-//      remcls = "unwatch";
-//    }
-//
-//    call(id).ajax({
-//      beforeSend: function () {
-//        $elem.addClass("spinner");
-//      },
-//      success: function (data) {
-//        $elem
-//            .removeClass(remcls)
-//            .addClass(addcls)
-//            .attr("href", href(id).url);
-//      },
-//      complete: function () {
-//        $elem.removeClass("spinner");
-//      }
-//    });
-//  });
 });
 
