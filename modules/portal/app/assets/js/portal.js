@@ -122,42 +122,80 @@ jQuery(function ($) {
   /**
    * Handle watching/unwatching items using Ajax...
    */
-  $(document).on("click", "a.watch-item", function (e) {
+  $(document).on("click", "a.watch, a.unwatch", function (e) {
     e.preventDefault();
 
-    var watcherFunc = jsRoutes.controllers.portal.Portal.watchItemPost,
-        unwatcherFunc = jsRoutes.controllers.portal.Portal.unwatchItemPost,
+    var watchFunc = jsRoutes.controllers.portal.Portal.watchItemPost,
+        unwatchFunc = jsRoutes.controllers.portal.Portal.unwatchItemPost,
         $elem = $(e.target),
         id = $elem.data("item"),
         watch = $elem.hasClass("watch");
 
-    var call, href, addcls, remcls;
+    var call, $other;
     if (watch) {
-      call = watcherFunc;
-      href = unwatcherFunc;
-      addcls = "unwatch";
-      remcls = "watch";
+      call = watchFunc;
+      $other = $elem.parent().find("a.unwatch");
     } else {
-      call = unwatcherFunc;
-      href = watcherFunc;
-      addcls = "watch";
-      remcls = "unwatch";
+      call = unwatchFunc;
+      $other = $elem.parent().find("a.watch");
     }
 
     call(id).ajax({
-      beforeSend: function () {
-        $elem.addClass("spinner");
-      },
-      success: function (data) {
-        $elem
-            .removeClass(remcls)
-            .addClass(addcls)
-            .attr("href", href(id).url);
-      },
-      complete: function () {
-        $elem.removeClass("spinner");
+      success: function () {
+        // Swap the buttons and, if necessary, reload
+        // their followers list...
+        $elem.hide();
+        $other.show();
+
+        // If a watch count is shown, munge it...
+        var fc = $(".item-watch-count");
+        if (fc.size()) {
+          var cnt = parseInt(fc.html(), 10);
+          fc.html(watch ? (cnt + 1) : (cnt - 1));
+        }
       }
     });
   });
+
+//  /**
+//   * Handle watching/unwatching items using Ajax...
+//   */
+//  $(document).on("click", "a.watch-item", function (e) {
+//    e.preventDefault();
+//
+//    var watcherFunc = jsRoutes.controllers.portal.Portal.watchItemPost,
+//        unwatcherFunc = jsRoutes.controllers.portal.Portal.unwatchItemPost,
+//        $elem = $(e.target),
+//        id = $elem.data("item"),
+//        watch = $elem.hasClass("watch");
+//
+//    var call, href, addcls, remcls;
+//    if (watch) {
+//      call = watcherFunc;
+//      href = unwatcherFunc;
+//      addcls = "unwatch";
+//      remcls = "watch";
+//    } else {
+//      call = unwatcherFunc;
+//      href = watcherFunc;
+//      addcls = "watch";
+//      remcls = "unwatch";
+//    }
+//
+//    call(id).ajax({
+//      beforeSend: function () {
+//        $elem.addClass("spinner");
+//      },
+//      success: function (data) {
+//        $elem
+//            .removeClass(remcls)
+//            .addClass(addcls)
+//            .attr("href", href(id).url);
+//      },
+//      complete: function () {
+//        $elem.removeClass("spinner");
+//      }
+//    });
+//  });
 });
 

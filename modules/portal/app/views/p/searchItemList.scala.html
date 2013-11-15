@@ -3,7 +3,7 @@
 <ul class="list-unstyled search-result-list">
     @result.items.map { case(item, id) =>
         @defining(Some(id)) { implicit descriptionId =>
-            @defining(watching.exists(_.id == id)) { watched =>
+            @defining(watching.exists(_.id == item.id)) { watched =>
             <li>
                 @item match {
                     case d: DocumentaryUnit => {

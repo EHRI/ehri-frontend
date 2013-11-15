@@ -1,0 +1,10 @@
+@(item: AnyModel, watching: Boolean)(implicit lang: Lang)
+
+<div class="watch-controls">
+    <a data-item="@item.id"
+       class="unwatch glyphicon glyphicon-star"
+       style="display: @(if(watching) "inline" else "none")" href="@controllers.portal.routes.Portal.unwatchItem(item.id)"></a>
+    <a data-item="@item.id"
+       class="watch glyphicon glyphicon-star"
+       style="display: @(if(!watching) "inline" else "none")" href="@controllers.portal.routes.Portal.watchItem(item.id)"></a>
+</div>

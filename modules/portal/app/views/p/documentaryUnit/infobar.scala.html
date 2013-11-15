@@ -1,7 +1,12 @@
-@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: DocumentaryUnit, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <div class="row info-bar">
     <div class="container">
+        @userOpt.map { user =>
+            <div class="pull-right">
+                @p.common.watchButtons(item, watched)
+            </div>
+        }
         <h1>@item.toStringLang</h1>
 
         @item.holder.map { repo =>

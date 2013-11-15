@@ -100,7 +100,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
         page => params => facets => _ => _ =>
       Ok(p.country.show(item, page, params, facets,
-          portalRoutes.browseCountry(id), details.annotations, details.links))
+          portalRoutes.browseCountry(id), details.annotations, details.links, details.watched))
     }.apply(request)
   }
 
@@ -124,7 +124,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           entityFacets = docSearchFacets) {
           page => params => facets => _ => _ =>
         Ok(p.repository.show(item, page, params, facets,
-            portalRoutes.browseRepository(id), details.annotations, details.links))
+            portalRoutes.browseRepository(id), details.annotations, details.links, details.watched))
       }.apply(request)
     }
   }
@@ -154,7 +154,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       entityFacets = docSearchFacets) {
       page => params => facets => _ => _ =>
         Ok(p.documentaryUnit.show(item, page, params, facets,
-          portalRoutes.browseDocument(id), details.annotations, details.links))
+          portalRoutes.browseDocument(id), details.annotations, details.links, details.watched))
     }.apply(request)
   }
 
@@ -181,7 +181,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def browseHistoricalAgent(id: String) = getAction[HistoricalAgent](EntityType.HistoricalAgent, id) {
       doc => details => implicit userOpt => implicit request =>
-    Ok(p.historicalAgent.show(doc, details.annotations, details.links))
+    Ok(p.historicalAgent.show(doc, details.annotations, details.links, details.watched))
   }
 
   def activity = listAction[SystemEvent](EntityType.SystemEvent) {

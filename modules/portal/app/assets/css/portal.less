@@ -386,7 +386,16 @@ label.disabled {
   font-size: 1.2em;
 }
 
-.follow-controls {
+.follow-controls, .watch-controls {
   padding-top: @medium-padding;
   padding-bottom: @medium-padding;
+  * {
+    text-decoration: none;
+  }
+}
+
+.watch-controls {
+  .watch {
+    opacity: 0.3;
+  }
 }

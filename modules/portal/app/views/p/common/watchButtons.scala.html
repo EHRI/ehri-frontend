@@ -1,0 +1,16 @@
+@(item: AnyModel, watching: Boolean)(implicit lang: Lang)
+
+<div class="watch-controls">
+    <a data-item="@item.id"
+       class="btn btn-sm btn-danger unwatch"
+       style="display: @(if(watching) "inline" else "none")" href="@controllers.portal.routes.Portal.unwatchItem(item.id)">
+        <span class="glyphicon glyphicon-star"></span>
+        @Messages("portal.social.unwatch")
+    </a>
+    <a data-item="@item.id"
+       class="btn btn-sm btn-default watch"
+       style="display: @(if(!watching) "inline" else "none")" href="@controllers.portal.routes.Portal.watchItem(item.id)">
+        <span class="glyphicon glyphicon-star"></span>
+        @Messages("portal.social.watch")
+    </a>
+</div>

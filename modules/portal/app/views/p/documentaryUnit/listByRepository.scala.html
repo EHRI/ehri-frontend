@@ -7,7 +7,6 @@
 }
 
 @itemByHolderList(docs: Seq[(DocumentaryUnit,String)], lastOpt: Option[(DocumentaryUnit,String)]) = {
-
     @docs.headOption.map { case (doc, did) =>
         @lastOpt.map { case (last, ldid) =>
             @if(last.holder != doc.holder) {
@@ -21,7 +20,7 @@
             }
         }
         <div class="indented-search-item">
-            @listItem(doc, showRepository=false, watched.exists(_.id == doc.id))
+            @listItem(doc, watched.exists(_.id == doc.id), showRepository=false)
         </div>
     }
     @if(!docs.isEmpty) {
