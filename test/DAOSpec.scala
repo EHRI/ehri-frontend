@@ -170,8 +170,10 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
       await(testBackend.follow(userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beTrue
-      val following = await(testBackend.listFollowing(userProfile.id, ListParams()))
+      val following = await(testBackend.listFollowing(userProfile.id))
       following.exists(_.id == "reto") must beTrue
+      val followingPage = await(testBackend.pageFollowing(userProfile.id))
+      followingPage.total must equalTo(1)
       await(testBackend.unfollow(userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
     }
@@ -180,8 +182,10 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
       await(testBackend.watch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beTrue
-      val watching = await(testBackend.listWatching(userProfile.id, ListParams()))
+      val watching = await(testBackend.listWatching(userProfile.id))
       watching.exists(_.id == "c1") must beTrue
+      val watchingPage = await(testBackend.pageWatching(userProfile.id))
+      watchingPage.total must equalTo(1)
       await(testBackend.unwatch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
     }
