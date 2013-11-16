@@ -1,9 +1,9 @@
 package backend.rest
 
 import play.api.libs.concurrent.Execution.Implicits._
-import backend.{EventHandler, Social, ApiUser}
+import backend.{Page, EventHandler, Social, ApiUser}
 import scala.concurrent.Future
-import utils.ListParams
+import utils.{PageParams, ListParams}
 import models.UserProfile
 import defines.EntityType
 import models.json.RestReadable
@@ -66,36 +66,38 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def listFollowers(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
-    userCall(enc(requestUrl, userId, "followers")).get().map { r =>
+    userCall(enc(requestUrl, userId, "followers")).withQueryString(params.toSeq: _*).get().map { r =>
       checkErrorAndParse(r)(Reads.list(rd.restReads))
     }
   }
 
+  def pageFollowers(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[Page[UserProfile]] = {
+    userCall(enc(requestUrl, userId, "followers", "page")).withQueryString(params.toSeq: _*).get().map { r =>
+      checkErrorAndParse(r)(Page.pageReads(rd.restReads))
+    }
+  }
+
   def listFollowing(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
-    val url = followingUrl(userId)
-    val cached = Cache.getAs[JsValue](url)
-    if (cached.isDefined) {
-      Future.successful(cached.get.as[List[UserProfile]](Reads.list(rd.restReads)))
-    } else {
-      userCall(url).get().map { r =>
-        val following = checkErrorAndParse(r)(Reads.list(rd.restReads))
-        Cache.set(url, r.json, cacheTime)
-        following
-      }
+    userCall(enc(requestUrl, userId, "following")).withQueryString(params.toSeq: _*).get().map { r =>
+      checkErrorAndParse(r)(Reads.list(rd.restReads))
+    }
+  }
+
+  def pageFollowing(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[Page[UserProfile]] = {
+    userCall(enc(requestUrl, userId, "following", "page")).withQueryString(params.toSeq: _*).get().map { r =>
+      checkErrorAndParse(r)(Page.pageReads(rd.restReads))
     }
   }
 
   def listWatching(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel]): Future[List[AnyModel]] = {
-    val url = watchingUrl(userId)
-    val cached = Cache.getAs[JsValue](url)
-    if (cached.isDefined) {
-      Future.successful(cached.get.as[List[AnyModel]](Reads.list(rd.restReads)))
-    } else {
-      userCall(url).get().map { r =>
-        val watching = checkErrorAndParse(r)(Reads.list(rd.restReads))
-        Cache.set(url, r.json, cacheTime)
-        watching
-      }
+    userCall(enc(requestUrl, userId, "watching")).withQueryString(params.toSeq: _*).get().map { r =>
+      checkErrorAndParse(r)(Reads.list(rd.restReads))
+    }
+  }
+
+  def pageWatching(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel]): Future[Page[AnyModel]] = {
+    userCall(enc(requestUrl, userId, "watching", "page")).withQueryString(params.toSeq: _*).get().map { r =>
+      checkErrorAndParse(r)(Page.pageReads(rd.restReads))
     }
   }
 

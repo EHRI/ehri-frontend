@@ -5,7 +5,7 @@ import play.api.mvc.Controller
 import controllers.base.{AuthController, ControllerHelpers}
 import models.UserProfile
 import views.html.p
-import utils.{SystemEventParams, ListParams}
+import utils.{PageParams, SystemEventParams, ListParams}
 import backend.rest.{SearchDAO, PermissionDenied}
 import utils.search.{SearchOrder, Dispatcher, SearchParams}
 import defines.EntityType
@@ -47,9 +47,8 @@ trait PortalSocial {
     for {
       them <- backend.get[UserProfile](userId)
       theirActivity <- backend.listEvents(params, eventParams)
-      theirFollowers <- backend.listFollowers(userId)
-      myFollowing <- backend.listFollowing(user.id, ListParams.empty)
-    } yield Ok(p.social.browseUser(them, theirActivity, theirFollowers, myFollowing))
+      followed <- backend.isFollowing(user.id, userId)
+    } yield Ok(p.social.browseUser(them, theirActivity, followed))
   }
 
   def followUser(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -84,25 +83,30 @@ trait PortalSocial {
    * Render list of someone else's followers via Ajax...
    */
   def followersForUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    val params = ListParams.fromRequest(request)
+    val params = PageParams.fromRequest(request)
     for {
       them <- backend.get[UserProfile](userId)
-      theirFollowers <- backend.listFollowers(userId, params)
+      theirFollowers <- backend.pageFollowers(userId, params)
       whoImFollowing <- backend.listFollowing(user.id)
-    } yield Ok(p.social.browseUsersList(them, theirFollowers, whoImFollowing))
-  }
-
-  def whoIsFollowingMe  = withUserAction.async { implicit user => implicit request =>
-    val params = ListParams.fromRequest(request)
-    backend.listFollowers(user.id, params).map { followers =>
-      Ok(p.social.listFollowers(user, followers, params))
+    } yield {
+      if (isAjax)
+        Ok(p.social.followerList(them, theirFollowers, params, whoImFollowing))
+      else
+        Ok(p.social.listFollowers(them, theirFollowers, params, whoImFollowing))
     }
   }
 
-  def whoAmIFollowing  = withUserAction.async { implicit user => implicit request =>
-    val params = ListParams.fromRequest(request)
-    backend.listFollowing(user.id, params).map { following =>
-      Ok(p.social.listFollowing(user, following, params))
+  def followingForUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    val params = PageParams.fromRequest(request)
+    for {
+      them <- backend.get[UserProfile](userId)
+      theirFollowing <- backend.pageFollowing(userId, params)
+      whoImFollowing <- backend.listFollowing(user.id)
+    } yield {
+      if (isAjax)
+        Ok(p.social.followingList(them, theirFollowing, params, whoImFollowing))
+      else
+        Ok(p.social.listFollowing(them, theirFollowing, params, whoImFollowing))
     }
   }
 

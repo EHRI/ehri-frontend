@@ -21,11 +21,11 @@
     </ul>
     <hr />
     <div class="profile-social">
-        <div class="followers">
+        <a class="followers" href="@controllers.portal.routes.Portal.followersForUser(user.id)">
             @Messages("portal.social.followers"): <span class="user-follower-count">@user.followerCount</span>
-        </div>
-        <div class="following">
+        </a>
+        <a class="following" href="@controllers.portal.routes.Portal.followingForUser(user.id)">
             @Messages("portal.social.following"): <span class="user-following-count">@user.followingCount</span>
-        </div>
+        </a>
     </div>
 </div>

@@ -1,5 +1,6 @@
 package controllers.portal
 
+import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{AuthController, ControllerHelpers}
 import models.{UserProfile, UserProfileF}
 import controllers.generic.Update
@@ -7,6 +8,8 @@ import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json.{Format, Json}
+import utils.{PageParams, ListParams}
+import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -19,17 +22,14 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
   val contentType = ContentTypes.UserProfile
   val form = models.forms.UserProfileForm.form
 
-  def profile = withUserAction { implicit user => implicit request =>
-    render {
-      case Accepts.Json() =>
-        Ok(Json.toJson(userOpt)(Format.optionWithNull(UserProfile.Converter.clientFormat)))
-      case Accepts.Html() => {
-        if (isAjax) {
-          Ok(views.html.p.profile.profileDetails(user))
-        } else {
-          Ok(views.html.p.profile.profile(user))
-        }
-      }
+  def profile = withUserAction.async { implicit user => implicit request =>
+    if (isAjax) {
+      Future.successful(Ok(views.html.p.profile.profileDetails(user)))
+    } else {
+      val params = PageParams.fromRequest(request)
+      for {
+        watchList <- backend.pageWatching(user.id, params)
+      } yield Ok(views.html.p.profile.profile(user, watchList))
     }
   }
 

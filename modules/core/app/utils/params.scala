@@ -14,6 +14,12 @@ import utils.SystemEventParams.ShowType
  * A list offset and limit.
  */
 case class ListParams(offset: Int = 0, limit: Int = DEFAULT_LIST_LIMIT) {
+  /**
+   * The REST interface follows a convention whereby a limit of -1
+   * returns ALL items.
+   */
+  def withoutLimit = copy(limit = -1)
+
   def toSeq: Seq[(String,String)]
       = (List(OFFSET_PARAM -> offset.toString) ::: List(LIMIT_PARAM -> limit.toString)).toSeq
 }

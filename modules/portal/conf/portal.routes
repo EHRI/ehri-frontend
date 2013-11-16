@@ -21,19 +21,18 @@ GET         /dev/activityMore/:offset    @controllers.portal.Portal.personalised
 GET         /dev/newsFeed                @controllers.portal.Portal.newsFeed
 
 # Social networking stuff...
-GET         /dev/browse/u                @controllers.portal.Portal.browseUsers
-GET         /dev/browse/u/:userId        @controllers.portal.Portal.browseUser(userId: String)
+GET         /dev/people                  @controllers.portal.Portal.browseUsers
+GET         /dev/people/:userId          @controllers.portal.Portal.browseUser(userId: String)
 GET         /dev/follow/:userId          @controllers.portal.Portal.followUser(userId: String)
 POST        /dev/follow/:userId          @controllers.portal.Portal.followUserPost(userId: String)
 GET         /dev/unfollow/:userId        @controllers.portal.Portal.unfollowUser(userId: String)
 POST        /dev/unfollow/:userId        @controllers.portal.Portal.unfollowUserPost(userId: String)
-GET         /dev/followers               @controllers.portal.Portal.whoIsFollowingMe
-GET         /dev/following               @controllers.portal.Portal.whoAmIFollowing
 GET         /dev/watch/:id               @controllers.portal.Portal.watchItem(id: String)
 POST        /dev/watch/:id               @controllers.portal.Portal.watchItemPost(id: String)
 GET         /dev/unwatch/:id             @controllers.portal.Portal.unwatchItem(id: String)
 POST        /dev/unwatch/:id             @controllers.portal.Portal.unwatchItemPost(id: String)
-GET         /dev/followers/:userId       @controllers.portal.Portal.followersForUser(userId: String)
+GET         /dev/people/:userId/following       @controllers.portal.Portal.followingForUser(userId: String)
+GET         /dev/people/:userId/followers       @controllers.portal.Portal.followersForUser(userId: String)
 
 GET         /dev/account                 @controllers.portal.Portal.account
 GET         /dev/profile                 @controllers.portal.Portal.profile

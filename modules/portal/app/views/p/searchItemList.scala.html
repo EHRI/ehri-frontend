@@ -5,23 +5,7 @@
         @defining(Some(id)) { implicit descriptionId =>
             @defining(watching.exists(_.id == item.id)) { watched =>
             <li>
-                @item match {
-                    case d: DocumentaryUnit => {
-                        @documentaryUnit.listItem(d, watched)
-                    }
-                    case d: HistoricalAgent => {
-                        @historicalAgent.listItem(d, watched)
-                    }
-                    case d: Repository => {
-                        @repository.listItem(d, watched)
-                    }
-                    case d: Country => {
-                        @country.listItem(d, watched)
-                    }
-                    case _ => {
-                        @views.html.common.searchItem(item)
-                    }
-                }
+                @searchItem(item, watched)
             </li>
             }
         }

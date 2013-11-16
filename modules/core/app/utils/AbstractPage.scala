@@ -4,7 +4,8 @@ package utils
  * Abstract result page.
  * @tparam A
  */
-trait AbstractPage[+A] {
+trait AbstractPage[+A] extends Iterable[A] {
+  def iterator = items.iterator
   val total: Long
   val offset: Int
   val limit: Int

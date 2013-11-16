@@ -1,1 +1,36 @@
-@(user: UserProfile, users: List[UserProfile], params: utils.ListParams)(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
+@(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
+
+@p.layout.portalLayout(them.toStringLang) {
+
+    @p.layout.breadcrumbs() {
+        <li><a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.browseUsers")</a></li>
+        <li><a href="@controllers.portal.routes.Portal.browseUser(them.id)">@them.toStringLang</a></li>
+        <li>@Messages("portal.social.followers")</li>
+    }
+
+    <div class="row info-bar">
+        <div class="container">
+            @userOpt.map { user =>
+                @if(user.id != them.id) {
+                    <div class="pull-right">
+                    @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
+                    </div>
+                }
+            }
+            <h1>@them.toStringLang</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-md-12 col-lg-12">
+                    <p>
+                    <div class="browse-users-followers">
+                        @followerList(them, users, params, myFollowing)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

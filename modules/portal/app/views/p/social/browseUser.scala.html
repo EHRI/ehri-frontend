@@ -1,4 +1,4 @@
-@(them: UserProfile, events: List[SystemEvent], theirFollowers: List[UserProfile], myFollowing: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+@(them: UserProfile, events: List[SystemEvent], followed: Boolean)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
 
 @p.layout.portalLayout(them.toStringLang) {
 
@@ -12,7 +12,7 @@
             @userOpt.map { user =>
                 @if(user.id != them.id) {
                     <div class="pull-right">
-                        @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
+                        @p.common.followingButtons(them, followed)
                     </div>
                 }
             }
@@ -23,11 +23,11 @@
     <div class="row">
         <div class="container">
             <div class="row">
-                <div class="col-sm-2 col-md-2 col-lg-2">
+                <div class="col-sm-4 col-md-4 col-lg-4">
                     <p>
                     @profileForUser(them)
                 </div>
-                <div class="col-sm-6 col-md-6 col-lg-6">
+                <div class="col-sm-8 col-md-8 col-lg-8">
                     <p>
                     @p.common.panel(Messages("portal.activity")) {
                         @if(!events.isEmpty) {
@@ -37,14 +37,6 @@
                         } else {
                             <p class="text-muted">@Messages("portal.noActivityYet")</p>
                         }
-                    }
-                </div>
-                <div class="col-sm-4 col-md-4 col-lg-4">
-                    <p>
-                    @p.common.panel(Messages("portal.social.followedBy")) {
-                        <ul class="list-unstyled browse-users-followers">
-                            @browseUsersList(them, theirFollowers, myFollowing)
-                        </ul>
                     }
                 </div>
             </div>
