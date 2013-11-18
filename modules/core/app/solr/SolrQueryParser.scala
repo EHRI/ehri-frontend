@@ -18,15 +18,19 @@ object SolrQueryParser {
  * @param response
  */
 case class SolrQueryParser(response: Elem) {
+
+  import SolrConstants._
+
   /**
    * Fetch the search description items returned in this response.
    */
   lazy val items: Seq[SearchDescription] = (response \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
     SearchDescription(
-      id = (doc \\ "str").filter(hasAttr("name", "id")).text,
-      itemId = (doc \\ "str").filter(hasAttr("name", "itemId")).text,
-      name = (doc \\ "str").filter(hasAttr("name", "name")).text,
-      `type` = EntityType.withName((doc \\ "str").filter(hasAttr("name", "type")).text.trim)
+      id = (doc \\ "str").filter(hasAttr("name", ID)).text,
+      itemId = (doc \\ "str").filter(hasAttr("name", ITEM_ID)).text,
+      name = (doc \\ "str").filter(hasAttr("name", NAME_EXACT)).text,
+      `type` = EntityType.withName((doc \\ "str").filter(hasAttr("name", TYPE)).text.trim),
+      gid = (doc \\ "long").filter(hasAttr("name", DB_ID)).text.toLong
     )
   }
 

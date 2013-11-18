@@ -6,8 +6,7 @@ import controllers.generic._
 import models.{Country,CountryF,Repository,RepositoryF,UserProfile}
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
-import utils.search.SearchParams
-import utils.search.Dispatcher
+import utils.search.{Resolver, SearchParams, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
@@ -15,7 +14,7 @@ import backend.Backend
 import backend.rest.cypher.CypherDAO
 
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends CRUD[CountryF,Country]
+case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
   with Visibility[Country]
   with ScopePermissions[Country]

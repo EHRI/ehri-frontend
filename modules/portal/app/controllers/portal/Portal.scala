@@ -22,7 +22,7 @@ import controllers.base.ControllerHelpers
 
 
 @Singleton
-case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend)
+case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend)
   extends Controller with ControllerHelpers with Search with FacetConfig with PortalActions with PortalProfile with PortalSocial {
 
   // This is a publically-accessible site

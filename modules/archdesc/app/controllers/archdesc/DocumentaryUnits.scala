@@ -8,7 +8,7 @@ import play.api.mvc._
 import play.api.i18n.Messages
 import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
-import utils.search.{Dispatcher, SearchParams, FacetSort}
+import utils.search.{Resolver, Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
@@ -16,7 +16,7 @@ import scala.Some
 import backend.Backend
 
 @Singleton
-case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends Read[DocumentaryUnit]
+case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
   with Creator[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
   with Update[DocumentaryUnitF, DocumentaryUnit]

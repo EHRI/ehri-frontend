@@ -42,13 +42,13 @@ case class MockSearchDispatcher() extends Dispatcher {
     val items = params.entities.foldLeft(List[SearchDescription]()) { case (listOfItems, et) =>
       et match {
         case EntityType.DocumentaryUnit => listOfItems ++ List(
-          SearchDescription(itemId = "c1", id = "cd1", name = "Collection 1", `type` = EntityType.DocumentaryUnit),
-          SearchDescription(itemId = "c2", id = "cd2", name = "Collection 2", `type` = EntityType.DocumentaryUnit),
-          SearchDescription(itemId = "c3", id = "cd3", name = "Collection 3", `type` = EntityType.DocumentaryUnit),
-          SearchDescription(itemId = "c4", id = "cd4", name = "Collection 4", `type` = EntityType.DocumentaryUnit))
+          SearchDescription(itemId = "c1", id = "cd1", name = "Collection 1", `type` = EntityType.DocumentaryUnit, gid = 1L),
+          SearchDescription(itemId = "c2", id = "cd2", name = "Collection 2", `type` = EntityType.DocumentaryUnit, gid = 2L),
+          SearchDescription(itemId = "c3", id = "cd3", name = "Collection 3", `type` = EntityType.DocumentaryUnit, gid = 3L),
+          SearchDescription(itemId = "c4", id = "cd4", name = "Collection 4", `type` = EntityType.DocumentaryUnit, gid = 4L))
         case EntityType.Repository => listOfItems ++ List(
-          SearchDescription(itemId = "r1", id = "rd1", name = "Repository 1", `type` = EntityType.Repository),
-          SearchDescription(itemId = "r2", id = "rd2", name = "Repository 2", `type` = EntityType.Repository))
+          SearchDescription(itemId = "r1", id = "rd1", name = "Repository 1", `type` = EntityType.Repository, gid = 5L),
+          SearchDescription(itemId = "r2", id = "rd2", name = "Repository 2", `type` = EntityType.Repository, gid = 6L))
         case _ => listOfItems // TODO: Implement other types
       }
     }

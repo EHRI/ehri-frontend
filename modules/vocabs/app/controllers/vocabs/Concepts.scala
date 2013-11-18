@@ -8,8 +8,7 @@ import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import solr.facet.FieldFacetClass
 import views.Helpers
-import utils.search.{SearchParams, FacetSort}
-import utils.search.Dispatcher
+import utils.search.{Resolver, SearchParams, FacetSort, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import solr.facet.FieldFacetClass
@@ -17,7 +16,7 @@ import scala.Some
 import backend.Backend
 
 @Singleton
-case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends Creator[ConceptF, Concept, Concept]
+case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]
   with Read[Concept]
   with Update[ConceptF, Concept]

@@ -19,7 +19,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 
 @Singleton
-case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends Search {
+case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

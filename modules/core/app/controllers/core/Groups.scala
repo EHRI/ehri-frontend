@@ -9,12 +9,12 @@ import play.api.i18n.Messages
 import defines.{ContentTypes, PermissionType }
 import global.GlobalConfig
 import com.google.inject._
-import utils.search.Dispatcher
+import utils.search.{Resolver, Dispatcher}
 import scala.concurrent.Future
 import backend.Backend
 import backend.rest.RestHelpers
 
-case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends PermissionHolder[Group]
+case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends PermissionHolder[Group]
   with Visibility[Group]
   with CRUD[GroupF, Group] {
 

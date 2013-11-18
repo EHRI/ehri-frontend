@@ -72,6 +72,12 @@ object SolrConstants {
   final val ITEM_ID = "itemId"
 
   /**
+   * The field referring to the database internal representation
+   * of the item.
+   */
+  final val DB_ID = "gid"
+
+  /**
    * The type-of-item key
    */
   final val TYPE = "type"

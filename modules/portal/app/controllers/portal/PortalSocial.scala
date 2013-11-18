@@ -7,7 +7,7 @@ import models.UserProfile
 import views.html.p
 import utils.{PageParams, SystemEventParams, ListParams}
 import backend.rest.{SearchDAO, PermissionDenied}
-import utils.search.{SearchOrder, Dispatcher, SearchParams}
+import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.EntityType
 import backend.ApiUser
 
@@ -23,7 +23,7 @@ trait PortalSocial {
   self: Controller with ControllerHelpers with AuthController =>
 
   val searchDispatcher: Dispatcher
-  private val searchDao = new SearchDAO
+  val searchResolver: Resolver
 
   def browseUsers = withUserAction.async { implicit user => implicit request =>
     // This is a bit gnarly because we want to get a searchable list
@@ -37,7 +37,7 @@ trait PortalSocial {
     for {
       followers <- backend.listFollowing(user.id, ListParams())
       srch <- searchDispatcher.search(searchParams, Nil, Nil)
-      users <- searchDao.list[UserProfile](srch.items.map(_.itemId))
+      users <- searchResolver.resolve[UserProfile](srch.items)
     } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, followers))
   }
 

@@ -5,13 +5,13 @@ import controllers.generic._
 import models.{HistoricalAgent,HistoricalAgentF,AuthoritativeSet,AuthoritativeSetF}
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
-import utils.search.{Dispatcher, SearchOrder, SearchParams}
+import utils.search.{Resolver, Dispatcher, SearchOrder, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 
 @Singleton
-case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]

@@ -9,5 +9,6 @@ case class SearchDescription(
   id: String,
   itemId: String,
   name: String,
-  `type`: EntityType.Value
+  `type`: EntityType.Value,
+  gid: Long
 )
