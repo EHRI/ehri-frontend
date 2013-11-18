@@ -3,6 +3,7 @@
 @primary-highlight: #6C003B;
 
 @pale-gray: #F5F5F5;
+@medium-gray: #dddddd;
 @dark-gray: #cccccc;
 @almost-black: #333;
 
@@ -411,4 +412,12 @@ label.disabled {
   .watch {
     opacity: 0.3;
   }
+}
+
+// Add an outline to tab panes
+.tab-content-panel {
+  border-left: 1px solid @medium-gray;
+  border-right: 1px solid @medium-gray;
+  border-bottom: 1px solid @medium-gray;
+  margin-bottom: @large-margin;
 }

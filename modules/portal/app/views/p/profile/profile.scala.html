@@ -1,4 +1,4 @@
-@(watchList: utils.AbstractPage[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(watchList: utils.AbstractPage[models.base.AnyModel], annotations: utils.AbstractPage[Annotation], links: utils.AbstractPage[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @* user should always be defined here *@
 @userOpt.map { user =>
@@ -23,15 +23,32 @@
 
         <div class="row">
             <div class="container">
-                <div class="col-sm-4">
+                <div class="col-sm-2">
                     <p>
                     @p.social.profileForUser(user)
                 </div>
-                <div class="col-sm-8">
+                <div class="col-sm-10">
                     <p>
-                    @p.common.panel(Messages("portal.social.watchedItems")) {
-                        @itemWatchList(user, watchList)
-                    }
+
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#user-watch-list" data-toggle="tab">@Messages("portal.social.watchedItems")</a></li>
+                        <li><a href="#user-annotations" data-toggle="tab">@Messages("portal.social.annotations")</a></li>
+                        <li><a href="#user-links" data-toggle="tab">@Messages("portal.social.links")</a></li>
+                    </ul>
+
+                    <div class="tab-content tab-content-panel">
+                        <div class="tab-pane active panel-body" id="user-watch-list">
+                            @itemWatchList(user, watchList)
+                        </div>
+                        <div class="tab-pane  panel-body" id="user-annotations">
+                            <p>
+                            TODO
+                        </div>
+                        <div class="tab-pane  panel-body" id="user-links">
+                            <p>
+                            TODO
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

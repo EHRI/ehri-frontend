@@ -23,10 +23,15 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
   val form = models.forms.UserProfileForm.form
 
   def profile = withUserAction.async { implicit user => implicit request =>
-    val params = PageParams.fromRequest(request)
+    val watchParams = PageParams.fromRequest(request, namespace = "watch")
+    val linkParams = PageParams.fromRequest(request, namespace = "link")
+    val annParams = PageParams.fromRequest(request, namespace = "ann")
+  
     for {
-      watchList <- backend.pageWatching(user.id, params)
-    } yield Ok(views.html.p.profile.profile(watchList))
+      watchList <- backend.pageWatching(user.id, watchParams)
+      links <- backend.userLinks(user.id, linkParams)
+      anns <- backend.userAnnotations(user.id, annParams)
+    } yield Ok(views.html.p.profile.profile(watchList, anns, links))
   }
 
   def updateProfile = withUserAction { implicit user => implicit request =>

@@ -24,14 +24,12 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
             }
             </div>
         </div>
-        @formHelpers.textInput(f(""), ABOUT)
+        @helper.textarea(f(ABOUT), '_label -> Messages(FIELD_PREFIX + "." + ABOUT), 'class -> "input-lg")
     }
 
-    <div class="form-actions">
-        <a  id="cancel-profile-update" class="btn btn-default" href="@controllers.portal.routes.Portal.profile">@Messages("actions.cancel")</a>
-        <button type="submit" id="submit-profile-update" class="btn btn-primary">
-            <span class="glyphicon glyphicon-ok"></span>
-            @Messages("submitButton.updateUserProfile")
-        </button>
-    </div>
+    <button type="submit" id="submit-profile-update" class="btn btn-primary">
+        <span class="glyphicon glyphicon-ok"></span>
+        @Messages("submitButton.updateUserProfile")
+    </button>
+    <a  id="cancel-profile-update" class="btn btn-default" href="@controllers.portal.routes.Portal.profile">@Messages("actions.cancel")</a>
 }
