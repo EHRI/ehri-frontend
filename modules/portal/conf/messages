@@ -4,6 +4,7 @@ portal.footerText=This is a development version of the EHRI portal interface.
 portal.browse=Browse
 portal.search=Search
 portal.profile=Profile
+portal.profile.updateProfile=Edit Profile
 portal.globalSearch=Search Everything
 portal.browse.countries=Country Reports
 portal.browse.repositoriesByCountry=Institutions By Country

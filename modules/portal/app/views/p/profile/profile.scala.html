@@ -1,29 +1,39 @@
-@(item: UserProfile, watchList: utils.AbstractPage[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(watchList: utils.AbstractPage[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@p.layout.portalLayout(item.toStringLang) {
-    @p.layout.breadcrumbs(showHome = false) {
-        <li>&nbsp;</li>
+@* user should always be defined here *@
+@userOpt.map { user =>
+    @p.layout.portalLayout(user.toStringLang) {
+        @p.layout.breadcrumbs(showHome = false) {
+            <li>&nbsp;</li>
+        }
+
+        <div class="row info-bar">
+            <div class="container">
+                <div class="header-controls pull-right">
+                    <a class="btn btn-sm btn-info" href="@controllers.portal.routes.Portal.updateProfile">
+                        <span class="glyphicon glyphicon-wrench"></span>
+                        @Messages("portal.profile.updateProfile")
+                    </a>
+                </div>
+
+                <h1>@Messages("portal.profile")</h1>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="container">
+                <div class="col-sm-4">
+                    <p>
+                    @p.social.profileForUser(user)
+                </div>
+                <div class="col-sm-8">
+                    <p>
+                    @p.common.panel(Messages("portal.social.watchedItems")) {
+                        @itemWatchList(user, watchList)
+                    }
+                </div>
+            </div>
+        </div>
     }
-
-    <div class="row info-bar">
-        <div class="container">
-            <h1>@Messages("portal.profile")</h1>
-        </div>
-    </div>
-
-
-    <div class="row">
-        <div class="container">
-            <div class="col-sm-4">
-                <p>
-                @profileDetails(item)
-            </div>
-            <div class="col-sm-8">
-                <p>
-                @p.common.panel(Messages("portal.social.watchedItems")) {
-                    @itemWatchList(item, watchList)
-                }
-            </div>
-        </div>
-    </div>
 }

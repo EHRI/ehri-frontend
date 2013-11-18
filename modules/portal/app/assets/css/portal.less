@@ -381,6 +381,10 @@ label.disabled {
   border-bottom: 1px solid @pale-gray;
 }
 
+.user-profile-info li {
+  padding-top: @small-padding;
+}
+
 .profile-social {
   color: @dark-gray;
   font-size: 1.2em;
@@ -391,9 +395,13 @@ label.disabled {
   }
 }
 
-.follow-controls, .watch-controls {
+.header-controls {
   padding-top: @medium-padding;
   padding-bottom: @medium-padding;
+}
+
+.follow-controls, .watch-controls {
+  .header-controls;
   * {
     text-decoration: none;
   }
