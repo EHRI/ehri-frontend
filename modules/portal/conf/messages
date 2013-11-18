@@ -78,3 +78,5 @@ portal.social.unwatchItem=Remove item from your watch list
 portal.social.watchedItems=Items You''re Watching
 portal.social.annotations=Your Annotations
 portal.social.links=Your Links
+portal.social.noAnnotationsYet=You haven''t made any annotations yet.
+portal.social.noLinksYet=You haven''t made any links yet.

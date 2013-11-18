@@ -1,0 +1,12 @@
+@(link: Link)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+<div class="item-link" id="@link.id">
+    <ul class="list-unstyled link-target-list">
+        @link.targets.map { target =>
+            <li>@p.helpers.linkTo(target)</li>
+        }
+    </ul>
+    @link.model.description.map { desc =>
+        <small>@desc</small>
+    }
+</div>

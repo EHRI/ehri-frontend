@@ -27,13 +27,13 @@ trait Annotate[MT] extends Read[MT] {
   import Annotate._
 
   def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
-    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       f(item)(AnnotationForm.form.bindFromRequest)(userOpt)(request)
     }
   }
 
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission.async[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       AnnotationForm.form.bindFromRequest.fold(
         errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
         ann => backend.createAnnotation(id, ann).map { ann =>
