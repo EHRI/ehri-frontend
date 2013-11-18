@@ -12,7 +12,7 @@ import com.google.inject._
 import utils.search._
 import play.api.libs.json.{Writes, Json}
 import play.api.cache.Cached
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import utils.{SystemEventParams, ListParams}
 import play.api.libs.ws.WS
 import play.api.templates.Html
@@ -217,6 +217,25 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val eventFilter = SystemEventParams.fromRequest(request)
     backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
       Ok(p.common.eventItems(events))
+    }
+  }
+
+  // Ajax
+  def annotateDoc(id: String) = annotationAction[DocumentaryUnit](id, ContentTypes.DocumentaryUnit) {
+      doc => form => implicit userOpt => implicit request =>
+    Ok(p.common.annotationForm(doc, form, portalRoutes.annotateDocPost(id),
+      portalRoutes.browseDocument(id)))
+  }
+
+  // Ajax
+  def annotateDocPost(id: String) = annotationPostAction[DocumentaryUnit](id, ContentTypes.DocumentaryUnit) {
+      formOrAnn => implicit userOpt => implicit request =>
+    formOrAnn match {
+      case Right(ann) => Ok(p.common.annotation(ann))
+      case Left(err) => {
+        println(err)
+        Ok(err.errorsAsJson)
+      }
     }
   }
 

@@ -1,0 +1,11 @@
+@(item: AnyModel, f: Form[AnnotationF], action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+@import AnnotationF._
+
+@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'class -> "annotate-item-form") {
+
+    @helper.textarea(f(BODY))
+
+    <button class="btn btn-xs btn-primary" type="submit" class="submit-annotation">@Messages("actions.submit")</button>
+    <a class="btn btn-xs btn-default" href="@cancel">@Messages("actions.cancel")</a>
+}

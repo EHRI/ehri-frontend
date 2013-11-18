@@ -156,5 +156,31 @@ jQuery(function ($) {
       }
     });
   });
+
+  // Load an annotation form...
+  $(document).on("click", ".annotate-item", function(e) {
+    var $elem = $(this),
+        id = $elem.data("item");
+    jsRoutes.controllers.portal.Portal.annotateDoc(id).ajax({
+      success: function(data) {
+        $elem.after(data)
+      }
+    });
+  });
+
+  $(document).on("submit", ".annotate-item-form", function(e) {
+    e.preventDefault();
+    var $form = $(this);
+    var action = $form.closest("form").attr("action");
+    console.log("DATA: ", $form.serialize())
+    $.ajax({
+      url: action,
+      data: $form.serialize(),
+      method: "POST",
+      success: function(data) {
+        console.log(data)
+      }
+    });
+  });
 });
 
