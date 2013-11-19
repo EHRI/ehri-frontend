@@ -1,17 +1,24 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import defines.EntityType
+import defines.{PermissionType, EntityType}
 import utils.{ListParams, PageParams}
-import models.{Link, Annotation, UserProfile}
+import models.{AnnotationF, Link, Annotation, UserProfile}
 import play.api.mvc._
 import models.json.{RestResource, ClientConvertable, RestReadable}
 import controllers.base.{ControllerHelpers, AuthController}
 import scala.concurrent.Future
-import play.api.mvc.SimpleResult
-import backend.{ApiUser, Page}
+import backend.Page
 import models.base.AnyModel
-import acl.GlobalPermissionSet
+import play.api.data.Form
+import models.forms.AnnotationForm
+import scala.Some
+import play.api.mvc.SimpleResult
+import backend.ApiUser
+import defines.ContentTypes
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
+
 
 case class ItemDetails(
   annotations: Map[String,List[Annotation]],
@@ -137,6 +144,28 @@ trait PortalActions {
       f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
                        implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))))
+    }
+  }
+
+  def annotationAction[MT](id: String, contentType: ContentTypes.Value)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+    withItemPermission[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+      f(item)(AnnotationForm.form.bindFromRequest)(userOpt)(request)
+    }
+  }
+
+  def annotationPostAction[MT](id: String, contentType: ContentTypes.Value)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
+
+      // TODO: Define visibility rules here and bind them
+      // from a custom form declaring something like: private (me only)
+      // my groups, or global visibility.
+
+      AnnotationForm.form.bindFromRequest.fold(
+        errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
+        ann => backend.createAnnotation(id, ann).map { ann =>
+          f(Right(ann))(userOpt)(request)
+        }
+      )
     }
   }
 }

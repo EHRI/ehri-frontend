@@ -5,9 +5,9 @@ import play.api.test.FakeRequest
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
 import models.sql.SqlAccount
-import mocks.{MockSearchDispatcher, userFixtures, MockSearchIndexer}
+import mocks.{MockSearchResolver, MockSearchDispatcher, userFixtures, MockSearchIndexer}
 import global.GlobalConfig
-import utils.search.{Indexer, Dispatcher}
+import utils.search.{Resolver, Indexer, Dispatcher}
 import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
 import models.Account
@@ -32,6 +32,7 @@ trait TestLoginHelper {
 
   val mockIndexer: MockSearchIndexer = new MockSearchIndexer()
   val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher()
+  val mockResolver: MockSearchResolver = new MockSearchResolver
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -63,6 +64,7 @@ trait TestLoginHelper {
         bind[GlobalConfig].toInstance(TestConfig)
         bind[Indexer].toInstance(mockIndexer)
         bind[Dispatcher].toInstance(mockDispatcher)
+        bind[Resolver].toInstance(mockResolver)
         bind[Backend].toInstance(testBackend)
       }
     }

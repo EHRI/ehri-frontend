@@ -20,7 +20,7 @@ import backend.Backend
 
 
 @Singleton
-class Metrics @Inject()(implicit val globalConfig: global.GlobalConfig, val searchDispatcher: Dispatcher, val backend: Backend) extends Search {
+case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
 

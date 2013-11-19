@@ -2,7 +2,7 @@ package backend
 
 import scala.concurrent.Future
 import utils.{PageParams, ListParams}
-import models.UserProfile
+import models.{Link, Annotation, UserProfile}
 import models.json.RestReadable
 import models.base.AnyModel
 
@@ -23,4 +23,7 @@ trait Social {
   def watch(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit]
   def unwatch(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit]
   def isWatching(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean]
+
+  def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser): Future[Page[Annotation]]
+  def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser): Future[Page[Link]]
 }

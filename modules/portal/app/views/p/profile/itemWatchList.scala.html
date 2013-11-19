@@ -1,10 +1,16 @@
 @(them: UserProfile, items: utils.AbstractPage[models.base.AnyModel])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
 
-<ul class="list-unstyled watched-items">
-    @items.map { item =>
-        <li>
-            @p.searchItem(item, true)
-        </li>
-    }
-</ul>
-@p.helpers.pagination(items)
+@if(!items.isEmpty) {
+    <ul class="list-unstyled watched-items">
+        @items.map { item =>
+            <li>
+                @p.searchItem(item, true)
+            </li>
+        }
+    </ul>
+    @p.helpers.pagination(items)
+} else {
+    <p class="text-muted">
+        @Messages("portal.social.noItemsWatchedYet")
+    </p>
+}

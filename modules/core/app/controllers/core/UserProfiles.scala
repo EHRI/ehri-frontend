@@ -4,13 +4,12 @@ import controllers.generic._
 import models.{UserProfile,UserProfileF}
 import play.api.i18n.Messages
 import defines.ContentTypes
-import utils.search.SearchParams
-import utils.search.Dispatcher
+import utils.search.{Resolver, SearchParams, Dispatcher}
 import com.google.inject._
 import backend.Backend
 
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends PermissionHolder[UserProfile]
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends PermissionHolder[UserProfile]
   with Read[UserProfile]
   with Update[UserProfileF,UserProfile]
   with Delete[UserProfile]

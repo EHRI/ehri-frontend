@@ -86,6 +86,16 @@ object SqlAccount extends AccountDAO {
     findByProfileId(id)
   }
 
+  def createWithPassword(id: String, email: String, staff: Boolean = false, hashed: HashedPassword): Option[Account]
+    = DB.withConnection { implicit connection =>
+    SQL(
+      """INSERT INTO users (id, email, staff) VALUES ({id}, {email}, {staff})"""
+    ).on('id -> id, 'email -> email, 'staff -> staff).executeUpdate
+    SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data})")
+      .on('id -> id, 'data -> hashed.toString).executeInsert()
+    findByProfileId(id)
+  }
+
   def findByResetToken(token: String): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
       """SELECT u.*, t.token FROM users u, token t
@@ -100,5 +110,7 @@ class SqlAccountDAOPlugin(app: play.api.Application) extends AccountDAO {
   def findByEmail(email: String) = SqlAccount.findByEmail(email)
   def findByResetToken(token: String) = SqlAccount.findByResetToken(token)
   def create(id: String, email: String, staff: Boolean = false) = SqlAccount.create(id, email, staff)
+  def createWithPassword(id: String, email: String, staff: Boolean = false, hashed: HashedPassword)
+      = SqlAccount.createWithPassword(id, email, staff, hashed)
 }
 

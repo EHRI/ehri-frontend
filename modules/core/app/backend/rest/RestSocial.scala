@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import backend.{Page, EventHandler, Social, ApiUser}
 import scala.concurrent.Future
 import utils.{PageParams, ListParams}
-import models.UserProfile
+import models.{Link, Annotation, UserProfile}
 import defines.EntityType
 import models.json.RestReadable
 import play.api.libs.json.{JsValue, Json, Reads}
@@ -128,6 +128,18 @@ trait RestSocial extends Social with RestDAO {
         Cache.set(url, bool, cacheTime)
         bool
       }
+    }
+  }
+
+  def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser): Future[Page[Annotation]] = {
+    userCall(enc(requestUrl, userId, EntityType.Annotation, "page")).get().map { r =>
+      checkErrorAndParse(r)(Page.pageReads(Annotation.Converter.restReads))
+    }
+  }
+
+  def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser): Future[Page[Link]] = {
+    userCall(enc(requestUrl, userId, EntityType.Link, "page")).get().map { r =>
+      checkErrorAndParse(r)(Page.pageReads(Link.Converter.restReads))
     }
   }
 }

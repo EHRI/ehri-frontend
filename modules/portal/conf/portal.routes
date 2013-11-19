@@ -20,6 +20,10 @@ GET         /dev/activity                @controllers.portal.Portal.personalised
 GET         /dev/activityMore/:offset    @controllers.portal.Portal.personalisedActivityMore(offset: Int)
 GET         /dev/newsFeed                @controllers.portal.Portal.newsFeed
 
+# Annotations...
+GET         /dev/annotate/doc/:id        @controllers.portal.Portal.annotateDoc(id: String)
+POST        /dev/annotate/doc/:id        @controllers.portal.Portal.annotateDocPost(id: String)
+
 # Social networking stuff...
 GET         /dev/people                  @controllers.portal.Portal.browseUsers
 GET         /dev/people/:userId          @controllers.portal.Portal.browseUser(userId: String)

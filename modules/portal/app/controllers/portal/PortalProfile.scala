@@ -23,23 +23,24 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
   val form = models.forms.UserProfileForm.form
 
   def profile = withUserAction.async { implicit user => implicit request =>
-    if (isAjax) {
-      Future.successful(Ok(views.html.p.profile.profileDetails(user)))
-    } else {
-      val params = PageParams.fromRequest(request)
-      for {
-        watchList <- backend.pageWatching(user.id, params)
-      } yield Ok(views.html.p.profile.profile(user, watchList))
-    }
+    val watchParams = PageParams.fromRequest(request, namespace = "watch")
+    val linkParams = PageParams.fromRequest(request, namespace = "link")
+    val annParams = PageParams.fromRequest(request, namespace = "ann")
+  
+    for {
+      watchList <- backend.pageWatching(user.id, watchParams)
+      links <- backend.userLinks(user.id, linkParams)
+      anns <- backend.userAnnotations(user.id, annParams)
+    } yield Ok(views.html.p.profile.profile(watchList, anns, links))
   }
 
   def updateProfile = withUserAction { implicit user => implicit request =>
     if (isAjax) {
       Ok(views.html.p.profile.editProfileForm(
-        user, form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
+        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
     } else {
       Ok(views.html.p.profile.editProfile(
-        user, form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
+        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
     }
   }
 
@@ -57,16 +58,12 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
             BadRequest(errorForm.errorsAsJson)
           } else {
             BadRequest(views.html.p.profile.editProfile(
-                user, errorForm, controllers.portal.routes.Portal.updateProfilePost))
+                errorForm, controllers.portal.routes.Portal.updateProfilePost))
           }
         }
         case Right(item) => {
-          if (isAjax) {
-            Ok(views.html.p.profile.profileDetails(item))
-          } else {
-            Redirect(controllers.portal.routes.Portal.profile)
-              .flashing("success" -> Messages("confirmations.profileUpdated"))
-          }
+          Redirect(controllers.portal.routes.Portal.profile)
+            .flashing("success" -> Messages("confirmations.profileUpdated"))
         }
       }
     }

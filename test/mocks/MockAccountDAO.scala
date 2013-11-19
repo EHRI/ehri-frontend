@@ -43,6 +43,10 @@ class MockAccountDAO(app: play.api.Application) extends AccountDAO {
     Some(user)
   }
 
+  def createWithPassword(id: String, email: String, staff: Boolean = false, hashed: HashedPassword): Option[Account] = {
+    create(id, email, staff)
+  }
+
   def findByResetToken(token: String): Option[Account] = MockAccountDAO.tokens.find(_._1 == token).flatMap { case (t, p) =>
     findByProfileId(p)
   }

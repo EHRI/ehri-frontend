@@ -19,7 +19,7 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
 
-  private val searchDao = new SearchDAO
+  private object searchDao extends SearchDAO
 
   /**
    * Action for redirecting to any item page, given a raw id.

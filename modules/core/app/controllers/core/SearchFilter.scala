@@ -1,14 +1,13 @@
 package controllers.core
 
-import play.api.mvc._
 import play.api.libs.json.Json
-import utils.search.Dispatcher
+import utils.search.{Resolver, Dispatcher}
 import com.google.inject._
 import controllers.generic.Search
 import backend.Backend
 
 @Singleton
-case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends Search {
+case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Search {
 
   val searchEntities = List() // i.e. Everything
 

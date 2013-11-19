@@ -13,11 +13,15 @@ import play.api.libs.json.{Writes, Json}
 import com.google.inject._
 import solr.facet.FieldFacetClass
 import models.base.AnyModel
-import utils.search.{Dispatcher, Indexer, SearchParams, SearchOrder}
+import utils.search._
 import scala.util.{Failure, Success}
 import play.api.Logger
 import controllers.generic.Search
 import backend.Backend
+import scala.util.Failure
+import solr.facet.FieldFacetClass
+import scala.Some
+import scala.util.Success
 
 
 object AdminSearch {
@@ -30,7 +34,7 @@ object AdminSearch {
 }
 
 @Singleton
-case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, backend: Backend) extends Search {
+case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend) extends Search {
 
   // i.e. Everything
   private val entityFacets: FacetBuilder = { implicit lang =>
