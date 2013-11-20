@@ -1,3 +1,14 @@
 @(annotation: Annotation)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-@annotation
+<div class="annotation clearfix">
+
+    @annotation.target.map { src =>
+        @p.helpers.linkTo(src)
+    }
+
+    <blockquote>@annotation.model.body</blockquote>
+    @for(user <- annotation.user ; event <- annotation.latestEvent) {
+        <small class="context text-muted">@Html(Messages("portal.social.annotationCreatedBy", p.helpers.linkTo(user).body.trim, event.model.datetime))</small>
+
+    }
+</div>

@@ -4,7 +4,7 @@
 
 @eventBody(event: SystemEvent)(html: Html) = {
     <li class="activity-stream-event">
-        <small class="text-muted time">@views.Helpers.prettyDate(event.model.timestamp)</small>
+        <small class="text-muted time">@views.Helpers.relativeDate(event.model.timestamp)</small>
         <div class="title">@html</div>
         @event.model.logMessage.filterNot(_.trim.isEmpty).map { msg =>
             <blockquote class="log-message blockquote">@msg</blockquote>

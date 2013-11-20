@@ -16,15 +16,15 @@ import defines.EntityType
 
 package object Helpers {
 
-  // Pretty date/time handling
+  // Pretty relative date/time handling
   import org.ocpsoft.pretty.time.PrettyTime
-  def prettyDate(d: java.util.Date): String = {
-    val p = new PrettyTime() // TODO: Locale awareness, but not sure how to handle this centrally yet
+  def relativeDate(d: java.util.Date)(implicit lang: Lang): String = {
+    val p = new PrettyTime(lang.toLocale)
     p.format(d)
   }
-  def prettyDate(d: org.joda.time.DateTime): String = prettyDate(d.toDate)
-  def prettyDate(d: Option[org.joda.time.DateTime]): String
-      = d.map(dt => prettyDate(dt.toDate)) getOrElse ""
+  def relativeDate(d: org.joda.time.DateTime)(implicit lang: Lang): String = relativeDate(d.toDate)
+  def relativeDate(d: Option[org.joda.time.DateTime])(implicit lang: Lang): String
+      = d.map(dt => relativeDate(dt.toDate)) getOrElse ""
 
 
   // Initialize Markdown processor for rendering markdown

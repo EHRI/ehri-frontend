@@ -14,7 +14,7 @@
             <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>:
         }
         <time>@item.time</time>
-        (@views.Helpers.prettyDate(item.model.timestamp))
+        (@views.Helpers.relativeDate(item.model.timestamp))
     </p>
 
     @item.model.logMessage.map { lm =>

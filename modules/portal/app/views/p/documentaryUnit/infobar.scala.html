@@ -23,7 +23,7 @@
         <small>
             @item.latestEvent.map { event =>
                 <time datetime="@event.model.timestamp">
-                    @Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))
+                    @Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
                 </time>
             }
         </small>

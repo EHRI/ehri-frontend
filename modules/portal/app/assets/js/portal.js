@@ -172,13 +172,12 @@ jQuery(function ($) {
     e.preventDefault();
     var $form = $(this);
     var action = $form.closest("form").attr("action");
-    console.log("DATA: ", $form.serialize())
     $.ajax({
       url: action,
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
-        console.log(data)
+        $form.replaceWith(data);
       }
     });
   });

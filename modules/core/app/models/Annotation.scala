@@ -51,6 +51,7 @@ object Annotation {
       lazyNullableListFormat(__ \ "annotations")(clientFormat) and
       (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
       (__ \ "source").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
+      (__ \ "target").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
@@ -86,6 +87,7 @@ case class Annotation(
   annotations: List[Annotation] = Nil,
   user: Option[UserProfile] = None,
   source: Option[AnyModel] = None,
+  target: Option[AnyModel] = None,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
