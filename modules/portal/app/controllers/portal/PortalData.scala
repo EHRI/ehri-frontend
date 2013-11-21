@@ -24,7 +24,9 @@ object PortalData extends Controller {
         controllers.portal.routes.javascript.Portal.unwatchItemPost,
         controllers.portal.routes.javascript.Portal.followersForUser,
         controllers.portal.routes.javascript.Portal.annotateDoc,
-        controllers.portal.routes.javascript.Portal.annotateDocPost
+        controllers.portal.routes.javascript.Portal.annotateDocPost,
+        controllers.portal.routes.javascript.Portal.annotateDocField,
+        controllers.portal.routes.javascript.Portal.annotateDocFieldPost
       )
     ).as(MimeTypes.JAVASCRIPT)
   }

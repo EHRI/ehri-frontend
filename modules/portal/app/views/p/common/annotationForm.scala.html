@@ -1,13 +1,37 @@
-@(item: AnyModel, f: Form[AnnotationF], action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: AnyModel, f: Form[AnnotationF], visForm: Form[utils.ContributionVisibility.Value], action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @import AnnotationF._
+@import utils.ContributionVisibility.{Me,Groups}
+@import backend.rest.Constants.ACCESSOR_PARAM
 
 @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'class -> "annotate-item-form") {
+    <div row">
+        <div class="col-sm-10 col-md-10 col-lg-10">
+            <div class="row">
+                <textarea class="col-sm-12 col-md-12 col-lg-12" name="@BODY" placeholder="@Messages("portal.social.annotation.placeholder")">
 
-    @helper.textarea(f(BODY))
+                </textarea>
+            </div>
 
-    <button class="btn btn-xs btn-primary" type="submit" class="submit-annotation">
-        @Messages("portal.social.createAnnotation")
-    </button>
-    <a class="btn btn-xs btn-default" href="@cancel">@Messages("actions.cancel")</a>
+            <label for="@ACCESSOR_PARAM">@Messages("portal.contributionVisibility")</label>
+            <span class="buttonset" id="@ACCESSOR_PARAM">
+                <input type="radio" id="@(ACCESSOR_PARAM)_@(Me)" name="@ACCESSOR_PARAM" value="@Me" checked>
+                <label for="@(ACCESSOR_PARAM)_@(Me)">@Messages("portal.contributionVisibility.me")</label>
+                <input type="radio" id="@(ACCESSOR_PARAM)_@(Groups)" name="@ACCESSOR_PARAM" value="@Groups">
+                <label for="@(ACCESSOR_PARAM)_@(Groups)">@Messages("portal.contributionVisibility.groups")</label>
+            </span>
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2">
+            <a class="close" href="@cancel">&times;</a>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="@ALLOW_PUBLIC" />
+                    @Messages("portal.contributionVisibility.allowPublic")
+                </label>
+            </div>
+            <button class="btn btn-xs btn-primary" type="submit" class="submit-annotation">
+                @Messages("portal.social.createAnnotation")
+            </button>
+        </div>
+    </div>
 }

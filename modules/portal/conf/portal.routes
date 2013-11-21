@@ -21,8 +21,10 @@ GET         /dev/activityMore/:offset    @controllers.portal.Portal.personalised
 GET         /dev/newsFeed                @controllers.portal.Portal.newsFeed
 
 # Annotations...
-GET         /dev/annotate/doc/:id        @controllers.portal.Portal.annotateDoc(id: String)
-POST        /dev/annotate/doc/:id        @controllers.portal.Portal.annotateDocPost(id: String)
+GET         /dev/annotate/doc/:id/:did        @controllers.portal.Portal.annotateDoc(id: String, did: String)
+POST        /dev/annotate/doc/:id/:did        @controllers.portal.Portal.annotateDocPost(id: String, did: String)
+GET         /dev/annotate/doc/:id/:did/:field @controllers.portal.Portal.annotateDocField(id: String, did: String, field: String)
+POST        /dev/annotate/doc/:id/:did/:field @controllers.portal.Portal.annotateDocFieldPost(id: String, did: String, field: String)
 
 # Social networking stuff...
 GET         /dev/people                  @controllers.portal.Portal.browseUsers

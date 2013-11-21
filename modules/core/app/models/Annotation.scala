@@ -10,6 +10,7 @@ import scala.Some
 import scala.Some
 import play.api.libs.functional.syntax._
 import scala.Some
+import backend.Visibility
 
 
 object AnnotationF {
@@ -17,6 +18,7 @@ object AnnotationF {
   val FIELD = "field"
   val ANNOTATION_TYPE = "annotationType"
   val COMMENT = "comment"
+  val ALLOW_PUBLIC = "public"
 
   object AnnotationType extends Enumeration {
     type Type = Value
@@ -38,7 +40,8 @@ case class AnnotationF(
   annotationType: Option[AnnotationF.AnnotationType.Type] = Some(AnnotationF.AnnotationType.Comment),
   body: String,
   field: Option[String] = None,
-  comment: Option[String] = None
+  comment: Option[String] = None,
+  allowPublic: Boolean = false
 ) extends Model with Persistable
 
 

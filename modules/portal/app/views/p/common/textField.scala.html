@@ -1,15 +1,25 @@
-@(item: AnyModel, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, fieldAnnotations: Map[String,List[Annotation]] = Map.empty)
+@(item: AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Map[String,List[Annotation]] = Map.empty)
 
-@valueOpt.filterNot(_.isEmpty).map { value =>
-    <div class="item-text-field" id="@item.id-@key">
-        <div class="item-text-field-header">
-            <h4>@Messages(fieldPrefix + "." + key)</h4>
-        </div>
-        <div class="item-text-field-value">
-            @Html(views.Helpers.renderMarkdown(value))
-        </div>
-        <div class="item-text-field-annotations">
+@defining(fieldAnnotations.getOrElse(nodeId, List.empty).filter(_.model.field==Some(key))) { anns =>
 
+    @valueOpt.filterNot(_.isEmpty).map { value =>
+        <div class="item-text-field" id="@nodeId-@key">
+            <div class="item-text-field-header">
+                <h4>@Messages(fieldPrefix + "." + key)</h4>
+            </div>
+            <div class="item-text-field-value">
+                @Html(views.Helpers.renderMarkdown(value))
+            </div>
+            <div class="item-text-field-annotations">
+                @for(ann <- anns) {
+                    @p.common.annotationInline(ann)
+                }
+
+                <a data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field" href="@controllers.portal.routes.Portal.annotateDocField(item.id, nodeId, key)">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    @Messages("portal.social.createFieldAnnotation")
+                </a>
+            </div>
         </div>
-    </div>
+    }
 }

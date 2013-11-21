@@ -25,7 +25,8 @@ object AnnotationFormat {
           ANNOTATION_TYPE_PROP -> d.annotationType,
           BODY -> d.body,
           FIELD -> d.field,
-          COMMENT -> d.comment
+          COMMENT -> d.comment,
+          ALLOW_PUBLIC -> d.allowPublic
         )
       )
     }
@@ -38,7 +39,8 @@ object AnnotationFormat {
           orElse Reads.pure(Some(AnnotationType.Comment))) and
       (__ \ DATA \ BODY).read[String] and
       (__ \ DATA \ FIELD).readNullable[String] and
-      (__ \ DATA \ COMMENT).readNullable[String]
+      (__ \ DATA \ COMMENT).readNullable[String] and
+      (__ \ DATA \ ALLOW_PUBLIC).readNullable[Boolean].map(_.getOrElse(false))
     )(AnnotationF.apply _)
 
   implicit val restFormat: Format[AnnotationF] = Format(annotationReads,annotationWrites)

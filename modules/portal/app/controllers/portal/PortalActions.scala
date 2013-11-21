@@ -2,7 +2,7 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.{PermissionType, EntityType}
-import utils.{ListParams, PageParams}
+import utils.{ContributionVisibility, ListParams, PageParams}
 import models.{AnnotationF, Link, Annotation, UserProfile}
 import play.api.mvc._
 import models.json.{RestResource, ClientConvertable, RestReadable}
@@ -147,25 +147,44 @@ trait PortalActions {
     }
   }
 
-  def annotationAction[MT](id: String, contentType: ContentTypes.Value)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+  def annotationAction[MT](id: String, did: String, contentType: ContentTypes.Value)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       f(item)(AnnotationForm.form.bindFromRequest)(userOpt)(request)
     }
   }
 
-  def annotationPostAction[MT](id: String, contentType: ContentTypes.Value)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def annotationPostAction[MT](id: String, did: String, contentType: ContentTypes.Value,
+       transform: AnnotationF => AnnotationF = identity)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
 
-      // TODO: Define visibility rules here and bind them
-      // from a custom form declaring something like: private (me only)
-      // my groups, or global visibility.
+      // If we have item permission the user *must* be defined?
+      assert(userOpt.isDefined, "Attempting to annotation, but no user is defined!")
+      val user = userOpt.get
 
-      AnnotationForm.form.bindFromRequest.fold(
-        errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
-        ann => backend.createAnnotation(id, ann).map { ann =>
-          f(Right(ann))(userOpt)(request)
-        }
+      utils.ContributionVisibility.form.bindFromRequest.fold(
+        errForm => immediate(BadRequest(errForm.errorsAsJson)),
+        visibility => AnnotationForm.form.bindFromRequest.fold(
+          errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
+          ann => {
+            val accessors: List[String] = getAccessors(visibility, user)
+            backend.createAnnotationForDependent(id, did, transform(ann), accessors).map {
+              ann =>
+                f(Right(ann))(userOpt)(request)
+            }
+          }
+        )
       )
+    }
+  }
+
+  /**
+   * Convert a contribution visibility value to the correct
+   * accessors for the backend
+   */
+  private def getAccessors(vis: ContributionVisibility.Value, user: UserProfile): List[String] = {
+    vis match {
+      case ContributionVisibility.Me => List(user.id)
+      case ContributionVisibility.Groups => user.groups.map(_.id)
     }
   }
 }

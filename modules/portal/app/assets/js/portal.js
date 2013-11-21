@@ -160,15 +160,31 @@ jQuery(function ($) {
   // Load an annotation form...
   $(document).on("click", ".annotate-item", function(e) {
     var $elem = $(this),
-        id = $elem.data("item");
-    jsRoutes.controllers.portal.Portal.annotateDoc(id).ajax({
+        id = $elem.data("item"),
+        did = $elem.data("did");
+    jsRoutes.controllers.portal.Portal.annotateDoc(id, did).ajax({
       success: function(data) {
-        $elem.after(data)
+        $elem.after(data).hide();
       }
     });
   });
 
-  $(document).on("submit", ".annotate-item-form", function(e) {
+  // Fields are very similar but we have to use the field as part
+  // of the form submission url...
+  $(document).on("click", ".annotate-field", function(e) {
+    e.preventDefault();
+    var $elem = $(this),
+        id = $elem.data("item"),
+        did = $elem.data("did"),
+        field = $elem.data("field");
+    jsRoutes.controllers.portal.Portal.annotateDocField(id, did, field).ajax({
+      success: function(data) {
+        $elem.after(data).hide();
+      }
+    });
+  });
+
+  $(document).on("submit", ".annotate-item-form, .annotate-field-form", function(e) {
     e.preventDefault();
     var $form = $(this);
     var action = $form.closest("form").attr("action");

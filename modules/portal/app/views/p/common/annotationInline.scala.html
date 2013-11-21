@@ -1,0 +1,12 @@
+@(annotation: Annotation)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+<div class="annotation clearfix" id="@annotation.id">
+    @annotation.model.body
+    @for(user <- annotation.user ; event <- annotation.latestEvent) {
+        - <small class="text-muted">
+            @p.helpers.linkTo(user)
+            @views.Helpers.relativeDate(event.model.timestamp)
+        </small>
+
+    }
+</div>

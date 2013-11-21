@@ -15,18 +15,29 @@ import backend.{Annotations, EventHandler, ApiUser}
 trait RestAnnotations extends Annotations with RestDAO {
 
   val eventHandler: EventHandler
+  import Constants.{ACCESSOR_PARAM,LIMIT_PARAM}
 
   private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
 
   def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Map[String,List[Annotation]]] = {
-    val url = enc(requestUrl, "for/%s?limit=1000".format(id))
-    userCall(url).get().map { response =>
+    val url = enc(requestUrl, "for", id)
+    userCall(url).withQueryString(LIMIT_PARAM -> "-1").get().map { response =>
       checkErrorAndParse(response)(Reads.mapReads(Reads.list(AnnotationFormat.metaReads)))
     }
   }
 
-  def createAnnotation(id: String, ann: AnnotationF)(implicit apiUser: ApiUser): Future[Annotation] = {
-    userCall(enc(requestUrl, id)).post(Json.toJson(ann)(AnnotationFormat.restFormat)).map { response =>
+  def createAnnotation(id: String, ann: AnnotationF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser): Future[Annotation] = {
+    userCall(enc(requestUrl, id))
+        .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
+        .post(Json.toJson(ann)(AnnotationFormat.restFormat)).map { response =>
+      checkErrorAndParse(response)(AnnotationFormat.metaReads)
+    }
+  }
+
+  def createAnnotationForDependent(id: String, did: String, ann: AnnotationF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser): Future[Annotation] = {
+    userCall(enc(requestUrl, id, did))
+      .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
+      .post(Json.toJson(ann)(AnnotationFormat.restFormat)).map { response =>
       checkErrorAndParse(response)(AnnotationFormat.metaReads)
     }
   }

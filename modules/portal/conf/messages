@@ -81,5 +81,12 @@ portal.social.links=Your Links
 portal.social.noAnnotationsYet=You haven''t made any annotations yet.
 portal.social.noLinksYet=You haven''t made any links yet.
 portal.social.createAnnotation=Create Annotation
+portal.social.createFieldAnnotation=Annotate Field
 portal.social.createLink=Create Link
 portal.social.annotationCreatedBy=Created by {0} at {1}
+
+portal.contributionVisibility=Choose who can see this
+portal.contributionVisibility.me=Only Me
+portal.contributionVisibility.groups=My Groups
+portal.contributionVisibility.allowPublic=Allow Public Promotion
+portal.social.annotation.placeholder=Created by {0} at {1}

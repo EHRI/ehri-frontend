@@ -13,7 +13,7 @@ import utils.search._
 import play.api.libs.json.{Writes, Json}
 import play.api.cache.Cached
 import defines.{ContentTypes, EntityType}
-import utils.{SystemEventParams, ListParams}
+import utils.{ContributionVisibility, SystemEventParams, ListParams}
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
@@ -221,21 +221,35 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   // Ajax
-  def annotateDoc(id: String) = annotationAction[DocumentaryUnit](id, ContentTypes.DocumentaryUnit) {
+  def annotateDoc(id: String, did: String) = annotationAction[DocumentaryUnit](id, did, ContentTypes.DocumentaryUnit) {
+    doc => form => implicit userOpt => implicit request =>
+      Ok(p.common.annotationForm(doc, form, ContributionVisibility.form, portalRoutes.annotateDocPost(id, did),
+        portalRoutes.browseDocument(id)))
+  }
+
+  // Ajax
+  def annotateDocPost(id: String, did: String) = annotationPostAction[DocumentaryUnit](id, did, ContentTypes.DocumentaryUnit) {
+    formOrAnn => implicit userOpt => implicit request =>
+      formOrAnn match {
+        case Right(ann) => Ok(p.common.annotationInline(ann))
+        case Left(err) => Ok(err.errorsAsJson)
+      }
+  }
+
+  // Ajax
+  def annotateDocField(id: String, did: String, field: String) = annotationAction[DocumentaryUnit](id, did, ContentTypes.DocumentaryUnit) {
       doc => form => implicit userOpt => implicit request =>
-    Ok(p.common.annotationForm(doc, form, portalRoutes.annotateDocPost(id),
+    Ok(p.common.annotationForm(doc, form, ContributionVisibility.form, portalRoutes.annotateDocFieldPost(id, did, field),
       portalRoutes.browseDocument(id)))
   }
 
   // Ajax
-  def annotateDocPost(id: String) = annotationPostAction[DocumentaryUnit](id, ContentTypes.DocumentaryUnit) {
-      formOrAnn => implicit userOpt => implicit request =>
+  def annotateDocFieldPost(id: String, did: String, field: String) = annotationPostAction[DocumentaryUnit](
+        id, did, ContentTypes.DocumentaryUnit, ann => ann.copy(field = Some(field))) {
+      formOrAnn => implicit user => implicit request =>
     formOrAnn match {
-      case Right(ann) => Ok(p.common.annotation(ann))
-      case Left(err) => {
-        println(err)
-        Ok(err.errorsAsJson)
-      }
+      case Right(ann) => Ok(p.common.annotationInline(ann))
+      case Left(err) => Ok(err.errorsAsJson)
     }
   }
 
