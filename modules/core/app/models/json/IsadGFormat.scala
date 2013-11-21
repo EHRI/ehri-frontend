@@ -9,6 +9,7 @@ import eu.ehri.project.definitions.Ontology
 
 
 object IsadGFormat {
+
   import Entity._
   import IsadG._
   import DatePeriodFormat._
@@ -65,7 +66,7 @@ object IsadGFormat {
 
   implicit val isadGReads: Reads[DocumentaryUnitDescriptionF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnitDescription)) and
-    (__ \ ID).readNullable[String] and
+      (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).read[String] and
       (__ \ DATA \ REF).readNullable[String] and
@@ -89,9 +90,9 @@ object IsadGFormat {
         (__ \ ACCESS_COND).readNullable[String] and
           (__ \ REPROD_COND).readNullable[String] and
           ((__ \ LANG_MATERIALS).readNullable[List[String]] orElse
-            (__ \ LANG_MATERIALS).readNullable[String].map(os => os.map(List(_))) ) and
+            (__ \ LANG_MATERIALS).readNullable[String].map(os => os.map(List(_)))) and
           ((__ \ SCRIPT_MATERIALS).readNullable[List[String]] orElse
-            (__ \ SCRIPT_MATERIALS).readNullable[String].map(os => os.map(List(_))) ) and
+            (__ \ SCRIPT_MATERIALS).readNullable[String].map(os => os.map(List(_)))) and
           (__ \ PHYSICAL_CHARS).readNullable[String] and
           (__ \ FINDING_AIDS).readNullable[String]
         )(IsadGConditions.apply _)) and
@@ -101,8 +102,8 @@ object IsadGFormat {
           (__ \ RELATED_UNITS).readNullable[String] and
           (__ \ PUBLICATION_NOTE).readNullable[String]
         )(IsadGMaterials.apply _)) and
-      ((__ \ NOTES).readNullable[List[String]] orElse
-        (__ \ NOTES).readNullable[String].map(os => os.map(List(_))) ) and
+      ((__ \ DATA \ NOTES).readNullable[List[String]] orElse
+        (__ \ DATA \ NOTES).readNullable[String].map(os => os.map(List(_)))) and
       (__ \ DATA).read[IsadGControl]((
         (__ \ ARCHIVIST_NOTE).readNullable[String] and
           (__ \ RULES_CONVENTIONS).readNullable[String] and
@@ -114,5 +115,5 @@ object IsadGFormat {
         .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
     )(DocumentaryUnitDescriptionF.apply _)
 
-  implicit val restFormat: Format[DocumentaryUnitDescriptionF] = Format(isadGReads,isadGWrites)
+  implicit val restFormat: Format[DocumentaryUnitDescriptionF] = Format(isadGReads, isadGWrites)
 }
