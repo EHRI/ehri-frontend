@@ -23,7 +23,7 @@ import controllers.base.ControllerHelpers
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend)
-  extends Controller with ControllerHelpers with Search with FacetConfig with PortalActions with PortalProfile with PortalSocial {
+  extends Controller with ControllerHelpers with Search with FacetConfig with PortalActions with PortalProfile with PortalSocial with PortalAnnotations {
 
   // This is a publically-accessible site
   override val staffOnly = false
@@ -217,39 +217,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val eventFilter = SystemEventParams.fromRequest(request)
     backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
       Ok(p.common.eventItems(events))
-    }
-  }
-
-  // Ajax
-  def annotateDoc(id: String, did: String) = annotationAction[DocumentaryUnit](id, did, ContentTypes.DocumentaryUnit) {
-    doc => form => implicit userOpt => implicit request =>
-      Ok(p.common.annotationForm(doc, form, ContributionVisibility.form, portalRoutes.annotateDocPost(id, did),
-        portalRoutes.browseDocument(id)))
-  }
-
-  // Ajax
-  def annotateDocPost(id: String, did: String) = annotationPostAction[DocumentaryUnit](id, did, ContentTypes.DocumentaryUnit) {
-    formOrAnn => implicit userOpt => implicit request =>
-      formOrAnn match {
-        case Right(ann) => Ok(p.common.annotationInline(ann))
-        case Left(err) => Ok(err.errorsAsJson)
-      }
-  }
-
-  // Ajax
-  def annotateDocField(id: String, did: String, field: String) = annotationAction[DocumentaryUnit](id, did, ContentTypes.DocumentaryUnit) {
-      doc => form => implicit userOpt => implicit request =>
-    Ok(p.common.annotationForm(doc, form, ContributionVisibility.form, portalRoutes.annotateDocFieldPost(id, did, field),
-      portalRoutes.browseDocument(id)))
-  }
-
-  // Ajax
-  def annotateDocFieldPost(id: String, did: String, field: String) = annotationPostAction[DocumentaryUnit](
-        id, did, ContentTypes.DocumentaryUnit, ann => ann.copy(field = Some(field))) {
-      formOrAnn => implicit user => implicit request =>
-    formOrAnn match {
-      case Right(ann) => Ok(p.common.annotationInline(ann))
-      case Left(err) => Ok(err.errorsAsJson)
     }
   }
 

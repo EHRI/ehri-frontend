@@ -162,7 +162,7 @@ jQuery(function ($) {
     var $elem = $(this),
         id = $elem.data("item"),
         did = $elem.data("did");
-    jsRoutes.controllers.portal.Portal.annotateDoc(id, did).ajax({
+    jsRoutes.controllers.portal.Portal.annotate(id, did).ajax({
       success: function(data) {
         $elem.after(data).hide();
       }
@@ -177,13 +177,15 @@ jQuery(function ($) {
         id = $elem.data("item"),
         did = $elem.data("did"),
         field = $elem.data("field");
-    jsRoutes.controllers.portal.Portal.annotateDocField(id, did, field).ajax({
+    jsRoutes.controllers.portal.Portal.annotateField(id, did, field).ajax({
       success: function(data) {
-        $elem.after(data).hide();
+        $elem.before(data).hide();
       }
     });
   });
 
+  // POST back an annotation form and then replace it with the returned
+  // data.
   $(document).on("submit", ".annotate-item-form, .annotate-field-form", function(e) {
     e.preventDefault();
     var $form = $(this);
@@ -193,9 +195,59 @@ jQuery(function ($) {
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
+        $form.next(".annotate-field").show()
         $form.replaceWith(data);
       }
     });
+  });
+
+  // Fields are very similar but we have to use the field as part
+  // of the form submission url...
+  $(document).on("click", ".edit-annotation", function(e) {
+    e.preventDefault();
+    var $elem = $(this),
+        id = $elem.data("item");
+    jsRoutes.controllers.portal.Portal.editAnnotation(id).ajax({
+      success: function(data) {
+        $elem.closest(".annotation").replaceWith(data);
+      }
+    });
+  });
+
+  // POST back an annotation form and then replace it with the returned
+  // data.
+  $(document).on("submit", ".edit-annotation-form", function(e) {
+    e.preventDefault();
+    var $form = $(this);
+    var action = $form.closest("form").attr("action");
+    $.ajax({
+      url: action,
+      data: $form.serialize(),
+      method: "POST",
+      success: function(data) {
+        console.log(data)
+        $form.next(".annotate-field").show()
+        $form.replaceWith(data);
+      },
+      complete: function(data) {
+        console.log(data)
+      }
+    });
+  });
+
+  // Fields are very similar but we have to use the field as part
+  // of the form submission url...
+  $(document).on("click", ".delete-annotation", function(e) {
+    e.preventDefault();
+    var $elem = $(this),
+        id = $elem.data("item");
+    if (confirm("Delete annotation?")) { // FIXME: i18n?
+      jsRoutes.controllers.portal.Portal.deleteAnnotationPost(id).ajax({
+        success: function(data) {
+          $elem.closest(".annotation").remove();
+        }
+      });
+    }
   });
 });
 

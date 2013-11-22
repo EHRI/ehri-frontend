@@ -1,23 +1,18 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import defines.{PermissionType, EntityType}
-import utils.{ContributionVisibility, ListParams, PageParams}
-import models.{AnnotationF, Link, Annotation, UserProfile}
+import defines.EntityType
+import utils.{ListParams, PageParams}
+import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
 import models.json.{RestResource, ClientConvertable, RestReadable}
 import controllers.base.{ControllerHelpers, AuthController}
-import scala.concurrent.Future
 import backend.Page
 import models.base.AnyModel
-import play.api.data.Form
-import models.forms.AnnotationForm
 import scala.Some
 import play.api.mvc.SimpleResult
 import backend.ApiUser
-import defines.ContentTypes
 import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
 
 
 case class ItemDetails(
@@ -144,47 +139,6 @@ trait PortalActions {
       f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
                        implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))))
-    }
-  }
-
-  def annotationAction[MT](id: String, did: String, contentType: ContentTypes.Value)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
-    withItemPermission[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
-      f(item)(AnnotationForm.form.bindFromRequest)(userOpt)(request)
-    }
-  }
-
-  def annotationPostAction[MT](id: String, did: String, contentType: ContentTypes.Value,
-       transform: AnnotationF => AnnotationF = identity)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
-
-      // If we have item permission the user *must* be defined?
-      assert(userOpt.isDefined, "Attempting to annotation, but no user is defined!")
-      val user = userOpt.get
-
-      utils.ContributionVisibility.form.bindFromRequest.fold(
-        errForm => immediate(BadRequest(errForm.errorsAsJson)),
-        visibility => AnnotationForm.form.bindFromRequest.fold(
-          errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
-          ann => {
-            val accessors: List[String] = getAccessors(visibility, user)
-            backend.createAnnotationForDependent(id, did, transform(ann), accessors).map {
-              ann =>
-                f(Right(ann))(userOpt)(request)
-            }
-          }
-        )
-      )
-    }
-  }
-
-  /**
-   * Convert a contribution visibility value to the correct
-   * accessors for the backend
-   */
-  private def getAccessors(vis: ContributionVisibility.Value, user: UserProfile): List[String] = {
-    vis match {
-      case ContributionVisibility.Me => List(user.id)
-      case ContributionVisibility.Groups => user.groups.map(_.id)
     }
   }
 }

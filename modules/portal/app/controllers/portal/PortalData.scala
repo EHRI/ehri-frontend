@@ -23,10 +23,14 @@ object PortalData extends Controller {
         controllers.portal.routes.javascript.Portal.watchItemPost,
         controllers.portal.routes.javascript.Portal.unwatchItemPost,
         controllers.portal.routes.javascript.Portal.followersForUser,
-        controllers.portal.routes.javascript.Portal.annotateDoc,
-        controllers.portal.routes.javascript.Portal.annotateDocPost,
-        controllers.portal.routes.javascript.Portal.annotateDocField,
-        controllers.portal.routes.javascript.Portal.annotateDocFieldPost
+        controllers.portal.routes.javascript.Portal.annotate,
+        controllers.portal.routes.javascript.Portal.annotatePost,
+        controllers.portal.routes.javascript.Portal.annotateField,
+        controllers.portal.routes.javascript.Portal.annotateFieldPost,
+        controllers.portal.routes.javascript.Portal.editAnnotation,
+        controllers.portal.routes.javascript.Portal.editAnnotationPost,
+        controllers.portal.routes.javascript.Portal.deleteAnnotation,
+        controllers.portal.routes.javascript.Portal.deleteAnnotationPost
       )
     ).as(MimeTypes.JAVASCRIPT)
   }

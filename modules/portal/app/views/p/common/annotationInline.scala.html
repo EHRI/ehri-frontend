@@ -6,7 +6,12 @@
         - <small class="text-muted">
             @p.helpers.linkTo(user)
             @views.Helpers.relativeDate(event.model.timestamp)
-        </small>
 
+            @if(Some(user.id) == userOpt.map(_.id)) {
+                <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Portal.editAnnotation(annotation.id)">edit</a>
+                <a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Portal.deleteAnnotation(annotation.id)">delete</a>
+            }
+
+        </small>
     }
 </div>

@@ -15,7 +15,8 @@
                     @p.common.annotationInline(ann)
                 }
 
-                <a data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field" href="@controllers.portal.routes.Portal.annotateDocField(item.id, nodeId, key)">
+                <a data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field"
+                   href="@controllers.portal.routes.Portal.annotateField(item.id, nodeId, key)">
                     <span class="glyphicon glyphicon-pencil"></span>
                     @Messages("portal.social.createFieldAnnotation")
                 </a>
