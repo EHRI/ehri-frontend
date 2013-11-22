@@ -8,6 +8,7 @@ import backend.{EventHandler, Backend}
 import defines.EntityType
 import java.util.concurrent.TimeUnit
 import play.api._
+import play.api.libs.json.JsError
 import play.api.mvc._
 
 import play.api.mvc.SimpleResult
@@ -135,6 +136,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       case e: PermissionDenied => immediate(Unauthorized(permissionDenied(Some(e))))
       case e: ItemNotFound => immediate(NotFound(itemNotFound(e.value)))
       case e: java.net.ConnectException => immediate(InternalServerError(serverTimeout()))
+      case BadJson(err) => immediate(BadRequest(JsError.toFlatJson(err)))
       case e => super.onError(request, e)
     }
   }

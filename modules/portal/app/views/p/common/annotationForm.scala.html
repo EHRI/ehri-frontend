@@ -1,7 +1,7 @@
-@(f: Form[AnnotationF], visForm: Form[utils.ContributionVisibility.Value])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(f: Form[AnnotationF], visForm: Form[utils.ContributionVisibility.Value], users: Seq[(String,String)], groups: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @import AnnotationF._
-@import utils.ContributionVisibility.{Me,Groups}
+@import utils.ContributionVisibility.{Me,Groups,Custom,PARAM}
 @import backend.rest.Constants.ACCESSOR_PARAM
 
 <div class="row">
@@ -10,10 +10,28 @@
     </textarea>
 </div>
 
-<label for="@ACCESSOR_PARAM">@Messages("portal.contributionVisibility")</label>
-<span class="buttonset" id="@ACCESSOR_PARAM">
-    <input type="radio" id="@(ACCESSOR_PARAM)_@(Me)" name="@ACCESSOR_PARAM" value="@Me" checked>
-    <label for="@(ACCESSOR_PARAM)_@(Me)">@Messages("portal.contributionVisibility.me")</label>
-    <input type="radio" id="@(ACCESSOR_PARAM)_@(Groups)" name="@ACCESSOR_PARAM" value="@Groups">
-    <label for="@(ACCESSOR_PARAM)_@(Groups)">@Messages("portal.contributionVisibility.groups")</label>
+<label for="@PARAM">@Messages("portal.contributionVisibility")</label>
+<span class="buttonset" id="@PARAM">
+    <input type="radio" id="@(PARAM)_@(Me)" name="@PARAM" value="@Me" checked>
+    <label for="@(PARAM)_@(Me)">@Messages("portal.contributionVisibility.me")</label>
+    <input type="radio" id="@(PARAM)_@(Groups)" name="@PARAM" value="@Groups">
+    <label for="@(PARAM)_@(Groups)">@Messages("portal.contributionVisibility.groups")</label>
+    <input type="radio" id="@(PARAM)_@(Custom)" name="@PARAM" value="@Custom">
+    <label for="@(PARAM)_@(Custom)">@Messages("portal.contributionVisibility.custom")</label>
+    <div class="custom-visibility">
+        <select class="select2" multiple name="@(ACCESSOR_PARAM)[]">
+            <option></option>
+            <optgroup label="Groups">
+                @for((id, name) <- groups) {
+                    <option value="@id">@name</option>
+                }
+            </optgroup>
+            <optgroup label="Users">
+                @for((id, name) <- users) {
+                    <option value="@id">@name</option>
+                }
+            </optgroup>
+        </select>
+    </div>
+
 </span>

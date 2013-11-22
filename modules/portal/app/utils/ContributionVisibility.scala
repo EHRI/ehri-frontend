@@ -10,6 +10,9 @@ import backend.rest.Constants
  * @author Mike Bryant (http://github.com/mikesname)
  */
 object ContributionVisibility extends Enumeration {
+
+  val PARAM = "visibility"
+
   /**
    * Only the author.
    */
@@ -22,9 +25,14 @@ object ContributionVisibility extends Enumeration {
   val Groups = Value("groups")
 
   /**
+   * A specific mix of users and/or groups.
+   */
+  val Custom = Value("custom")
+
+  /**
    * Binding/unbinding from a form.
    */
-  val form = Form(Forms.single(Constants.ACCESSOR_PARAM -> models.forms.enum(this)))
+  val form = Form(Forms.single(PARAM -> models.forms.enum(this)))
 
   /**
    * Binding/unbinding from JSON.

@@ -1,7 +1,7 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.{Action, AnyContent, SimpleResult, Controller}
+import play.api.mvc._
 import controllers.base.{AuthController, ControllerHelpers}
 import models.{AnnotationF, Annotation, UserProfile}
 import views.html.p
@@ -13,6 +13,10 @@ import backend.rest.cypher.CypherDAO
 import play.api.libs.json.JsString
 import eu.ehri.project.definitions.Ontology
 import scala.concurrent.Future
+import play.api.libs.json.JsString
+import scala.Some
+import play.api.mvc.SimpleResult
+import forms.VisibilityForm
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -38,17 +42,14 @@ trait PortalAnnotations {
 
   // Ajax
   def annotatePost(id: String, did: String) = withUserAction.async { implicit user => implicit request =>
-    utils.ContributionVisibility.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(errForm.errorsAsJson)),
-      visibility => AnnotationForm.form.bindFromRequest.fold(
-        errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
-        ann => {
-          val accessors: List[String] = getAccessors(visibility, user)
-          backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
-            Ok(p.common.annotationInline(ann))
-          }
+    AnnotationForm.form.bindFromRequest.fold(
+      errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
+      ann => {
+        val accessors: List[String] = getAccessors(user)
+        backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
+          Ok(p.common.annotationInline(ann))
         }
-      )
+      }
     )
   }
 
@@ -100,19 +101,16 @@ trait PortalAnnotations {
 
   // Ajax
   def annotateFieldPost(id: String, did: String, field: String) = withUserAction.async { implicit user => implicit request =>
-    utils.ContributionVisibility.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(errForm.errorsAsJson)),
-      visibility => AnnotationForm.form.bindFromRequest.fold(
-        errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
-        ann => {
-          // Add the field to the model!
-          val fieldAnn = ann.copy(field = Some(field))
-          val accessors: List[String] = getAccessors(visibility, user)
-          backend.createAnnotationForDependent(id, did, fieldAnn, accessors).map { ann =>
-            Ok(p.common.annotationInline(ann))
-          }
+    AnnotationForm.form.bindFromRequest.fold(
+      errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
+      ann => {
+        // Add the field to the model!
+        val fieldAnn = ann.copy(field = Some(field))
+        val accessors: List[String] = getAccessors(user)
+        backend.createAnnotationForDependent(id, did, fieldAnn, accessors).map { ann =>
+          Ok(p.common.annotationInline(ann))
         }
-      )
+      }
     )
   }
 
@@ -120,11 +118,19 @@ trait PortalAnnotations {
    * Convert a contribution visibility value to the correct
    * accessors for the backend
    */
-  private def getAccessors(vis: ContributionVisibility.Value, user: UserProfile): List[String] = {
-    vis match {
-      case ContributionVisibility.Me => List(user.id)
-      case ContributionVisibility.Groups => user.groups.map(_.id)
-    }
+  private def getAccessors(user: UserProfile)(implicit request: Request[AnyContent]): List[String] = {
+    utils.ContributionVisibility.form.bindFromRequest.fold(
+      errForm => List(user.id), {
+        case ContributionVisibility.Me => List(user.id)
+        case ContributionVisibility.Groups => user.groups.map(_.id)
+        case ContributionVisibility.Custom => {
+          VisibilityForm.form.bindFromRequest.fold(
+            err => List(user.id), // default to user visibility.
+            list => list
+          )
+        }
+      }
+    )
   }
 
   /**
