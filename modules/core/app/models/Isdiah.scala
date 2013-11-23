@@ -63,7 +63,7 @@ case object Isdiah {
 
   // Control
   val CONTROL_AREA = "controlArea"
-  val DESCRIPTION_IDENTIFIER = "descriptionIdentifier"
+  val DESCRIPTION_IDENTIFIER = "descriptionIentifier"
   val INSTITUTION_IDENTIFIER = "institutionIdentifier"
   val RULES_CONVENTIONS = "rulesAndConventions"
   val STATUS = "status"

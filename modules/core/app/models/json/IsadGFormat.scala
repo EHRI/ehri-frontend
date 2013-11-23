@@ -22,6 +22,7 @@ object IsadGFormat {
         ID -> d.id,
         TYPE -> d.isA,
         DATA -> Json.obj(
+          IDENTIFIER -> d.identifier,
           TITLE -> d.name,
           REF -> d.ref,
           ABSTRACT -> d.`abstract`,
@@ -69,6 +70,7 @@ object IsadGFormat {
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
       (__ \ DATA \ TITLE).read[String] and
+      (__ \ DATA \ IDENTIFIER).readNullable[String] and
       (__ \ DATA \ REF).readNullable[String] and
       (__ \ DATA \ ABSTRACT).readNullable[String] and
       (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).lazyReadNullable[List[DatePeriodF]](
