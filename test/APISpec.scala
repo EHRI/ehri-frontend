@@ -56,12 +56,5 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
     }
-
-    "be able to fetch annotations for an item" in new FakeApp {
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.annotation.routes.Annotations.getAnnotationJson("c1").url)).get
-      status(cr) must equalTo(OK)
-      println(contentAsString(cr))
-    }
   }
 }

@@ -47,7 +47,7 @@ trait Annotate[MT] extends Read[MT] {
    * Fetch annotations for a given item.
    */
   def getAnnotationsAction(id: String)(
-      f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
+      f: Seq[Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
       backend.getAnnotationsForItem(id).map { anns =>
         f(anns)(userOpt)(request)
@@ -58,14 +58,6 @@ trait Annotate[MT] extends Read[MT] {
   //
   // JSON endpoints
   //
-
-
-  def getAnnotationJson(id: String) = getAnnotationsAction(id) {
-      anns => implicit userOpt => implicit request =>
-    Ok(Json.toJson(anns.map{ case (itemId, anns) =>
-      itemId -> anns.map(_.model)
-    }))
-  }
 
   /**
    * Create an annotation via Ajax...

@@ -19,10 +19,10 @@ trait RestAnnotations extends Annotations with RestDAO {
 
   private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
 
-  def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Map[String,List[Annotation]]] = {
+  def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser): Future[Seq[Annotation]] = {
     val url = enc(requestUrl, "for", id)
     userCall(url).withQueryString(LIMIT_PARAM -> "-1").get().map { response =>
-      checkErrorAndParse(response)(Reads.mapReads(Reads.list(AnnotationFormat.metaReads)))
+      checkErrorAndParse(response)(Reads.list(AnnotationFormat.metaReads))
     }
   }
 

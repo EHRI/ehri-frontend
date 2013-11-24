@@ -1,6 +1,6 @@
-@(item: AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Map[String,List[Annotation]] = Map.empty)
+@(item: AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Seq[Annotation])
 
-@defining(fieldAnnotations.getOrElse(nodeId, List.empty).filter(_.model.field==Some(key))) { anns =>
+@defining(fieldAnnotations.filter(_.model.field==Some(key))) { anns =>
 
     @valueOpt.filterNot(_.isEmpty).map { value =>
         <div class="item-text-field" id="@nodeId-@key">

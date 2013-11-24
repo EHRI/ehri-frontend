@@ -16,7 +16,7 @@ import scala.concurrent.Future
 
 
 case class ItemDetails(
-  annotations: Map[String,List[Annotation]],
+  annotations: Seq[Annotation],
   links: List[Link],
   watched: Boolean
 )

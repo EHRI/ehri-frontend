@@ -1,4 +1,4 @@
-@(item: Repository, desc: RepositoryDescriptionF, links: List[Link], annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
+@(item: Repository, desc: RepositoryDescriptionF, links: List[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
 
 @import Isdiah._
 @import views.html.p.common.descriptionSection
@@ -19,7 +19,7 @@
 }
 
 @p.common.descriptionOutline(desc, annotations) {
-    @defining(Annotation.fieldAnnotations(annotations)) { implicit fieldAnnotations =>
+    @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
             @descriptionSection(DESCRIPTION_AREA) {        
                 @textField(item, descId, desc.details.history, HISTORY)

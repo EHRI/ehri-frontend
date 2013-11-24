@@ -9,4 +9,3 @@ POST    /delete/:id                  @controllers.annotation.Annotations.deleteP
 
 # Ugh, ugly REST violation - create an annotation on *another* entity
 POST    /create/:id                  @controllers.annotation.Annotations.createAnnotationJsonPost(id: String)
-GET     /getFor/:id                  @controllers.annotation.Annotations.getAnnotationJson(id: String)

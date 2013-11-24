@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: List[Link], annotations: Map[String,List[Annotation]])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: List[Link], annotations: Seq[Annotation])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import defines._
 @import models.IsadG._
@@ -7,7 +7,7 @@
 
 
 @p.common.descriptionOutline(desc, annotations) {
-    @defining(Annotation.fieldAnnotations(annotations)) { implicit fieldAnnotations =>
+    @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
             @textField(item, descId, desc.`abstract`, ABSTRACT)
