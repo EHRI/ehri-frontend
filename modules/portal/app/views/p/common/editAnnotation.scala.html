@@ -13,7 +13,7 @@
             <a class="close" href="#">&times;</a>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" name="@ALLOW_PUBLIC" @if(f(ALLOW_PUBLIC).value) {"checked"} />
+                    <input type="checkbox" name="@ALLOW_PUBLIC" value="@f(ALLOW_PUBLIC).value" @if(f(ALLOW_PUBLIC).value) {"checked"} />
                     @Messages("portal.contributionVisibility.allowPublic")
                 </label>
             </div>

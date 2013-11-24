@@ -57,6 +57,7 @@ trait PortalAnnotations {
   def editAnnotation(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
       item => implicit userOpt => implicit request =>
     val vis = getContributionVisibility(item, userOpt.get)
+    println("Contribution visibility: " + vis)
     getCanShareWith(userOpt.get) { users => groups =>
       Ok(p.common.editAnnotation(AnnotationForm.form.fill(item.model),
         ContributionVisibility.form.fill(vis),
@@ -153,7 +154,7 @@ trait PortalAnnotations {
   private def getContributionVisibility(annotation: Annotation, user: UserProfile): ContributionVisibility.Value = {
     annotation.accessors.map(_.id).sorted match {
       case user.id :: Nil => ContributionVisibility.Me
-      case g if user.groups.map(_.id).exists(a => g.exists( b => a == b)) => ContributionVisibility.Groups
+      case g if g.sorted == user.groups.map(_.id).sorted => ContributionVisibility.Groups
       case _ => ContributionVisibility.Custom
     }
   }

@@ -181,6 +181,10 @@ jQuery(function ($) {
     jsRoutes.controllers.portal.Portal.annotateField(id, did, field).ajax({
       success: function(data) {
         $elem.before(data).hide();
+        $(data).find("select.custom-accessors").select2({
+          placeholder: "Select a set of groups or users",
+          width: "copy"
+        });
       }
     });
   });
@@ -219,9 +223,13 @@ jQuery(function ($) {
         id = $elem.data("item");
     jsRoutes.controllers.portal.Portal.editAnnotation(id).ajax({
       success: function(data) {
-        $elem.closest(".annotation").hide().after(data);
-        console.log($(data).find(".select2").length)
-        $(data).find(".select2").select2();
+        //$elem.closest(".annotation").hide().after(data)
+        $(data)
+          .insertAfter($elem.closest(".annotation").hide())
+          .find("select.custom-accessors").select2({
+            placeholder: "Select a set of groups or users",
+            width: "copy"
+          });
       }
     });
   });
@@ -270,11 +278,20 @@ jQuery(function ($) {
     }
   });
 
+  $(document).on("change", "input[type=radio].visibility", function(e) {
+    $(".custom-visibility").toggle(e.target.value === "custom")
+    $(".custom-visibility").find("select.custom-accessors").select2({
+      placeholder: "Select a set of groups or users",
+      width: "copy"
+    });
+  });
+
   // Set visibility of annotations
   // POST back an annotation form and then replace it with the returned
   // data.
   $(document).on("change", ".edit-annotation-form .visibility, .edit-annotation-form .custom-accessors", function(e) {
     e.preventDefault();
+    // Toggle the accessors list
     var $form = $(this).closest("form"),
       id = $form.prev(".annotation").attr("id"),
       data = $form.serialize();

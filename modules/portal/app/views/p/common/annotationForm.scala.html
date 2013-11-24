@@ -11,17 +11,16 @@
 </div>
 
 <label for="@PARAM">@Messages("portal.contributionVisibility")</label>
-<span class="buttonset" id="@PARAM">
-    @println(visForm.value)
+<span id="@PARAM">
     <input class="visibility" type="radio" id="@(PARAM)_@(Me)" name="@PARAM" value="@Me" @{if(visForm.value == Some(Me)) "checked"}>
     <label for="@(PARAM)_@(Me)">@Messages("portal.contributionVisibility.me")</label>
     <input class="visibility" type="radio" id="@(PARAM)_@(Groups)" name="@PARAM" value="@Groups" @{if(visForm.value == Some(Groups)) "checked"}>
     <label for="@(PARAM)_@(Groups)">@Messages("portal.contributionVisibility.groups")</label>
     <input class="visibility" type="radio" id="@(PARAM)_@(Custom)" name="@PARAM" value="@Custom" @{if(visForm.value == Some(Custom)) "checked"}>
     <label for="@(PARAM)_@(Custom)">@Messages("portal.contributionVisibility.custom")</label>
-    <div class="custom-visibility">
+    <span class="custom-visibility" style="@{if(visForm.value != Some(Custom)) "display:none"}">
         @defining(views.Helpers.fieldValues(accessorsForm(ACCESSOR_PARAM))) { values =>
-            <select class="select2 custom-accessors" multiple name="@(ACCESSOR_PARAM)[]">
+            <select class="select2 custom-accessors" style="width:300px" multiple name="@(ACCESSOR_PARAM)[]">
                 <option></option>
                 <optgroup label="Groups">
                     @for((id, name) <- groups) {
@@ -35,6 +34,5 @@
                 </optgroup>
             </select>
         }
-    </div>
-
+    </span>
 </span>
