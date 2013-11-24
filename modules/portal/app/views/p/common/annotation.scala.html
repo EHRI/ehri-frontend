@@ -3,7 +3,7 @@
 <div class="annotation clearfix" id="@annotation.id">
 
     @annotation.target.map { src =>
-        @p.helpers.linkTo(src)
+        @p.helpers.linkToWithFragment(src, "#" + annotation.id)
     }
     @annotation.model.field.map { field =>
         <strong>@field</strong>

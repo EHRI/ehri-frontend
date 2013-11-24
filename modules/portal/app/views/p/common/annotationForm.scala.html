@@ -5,9 +5,11 @@
 @import backend.rest.Constants.ACCESSOR_PARAM
 
 <div class="row">
-    <textarea required minlength="15" maxlength="600" class="col-sm-12 col-md-12 col-lg-12" name="@BODY" placeholder="@Messages("portal.social.annotation.placeholder")">
-        @f(BODY).value
-    </textarea>
+    <textarea
+            autofocus required minlength="15" maxlength="600"
+            class="col-sm-12 col-md-12 col-lg-12"
+            name="@BODY"
+            placeholder="@Messages("portal.social.annotation.placeholder")">@f(BODY).value</textarea>
 </div>
 
 <label for="@PARAM">@Messages("portal.contributionVisibility")</label>

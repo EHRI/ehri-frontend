@@ -5,7 +5,7 @@
     @for(user <- annotation.user ; event <- annotation.latestEvent) {
         - <small class="text-muted">
             @p.helpers.linkTo(user)
-            @views.Helpers.relativeDate(event.model.timestamp)
+            <a class="time-permalink" href="#@annotation.id">@views.Helpers.relativeDate(event.model.timestamp)</a>
 
             @if(Some(user.id) == userOpt.map(_.id)) {
                 <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Portal.editAnnotation(annotation.id)">edit</a>
