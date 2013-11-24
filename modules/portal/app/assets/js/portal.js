@@ -184,6 +184,15 @@ jQuery(function ($) {
     });
   });
 
+  $(document).on("click", ".annotate-item-form .close", function(e) {
+    e.preventDefault();
+    var $form = $(e.target).parents(".annotate-item-form");
+    $form.next(".annotate-field").show();
+    $form.remove();
+  });
+
+
+
   // POST back an annotation form and then replace it with the returned
   // data.
   $(document).on("submit", ".annotate-item-form, .annotate-field-form", function(e) {
@@ -209,9 +218,16 @@ jQuery(function ($) {
         id = $elem.data("item");
     jsRoutes.controllers.portal.Portal.editAnnotation(id).ajax({
       success: function(data) {
-        $elem.closest(".annotation").replaceWith(data);
+        $elem.closest(".annotation").hide().after(data);
       }
     });
+  });
+
+  $(document).on("click", ".edit-annotation-form .close", function(e) {
+    e.preventDefault();
+    var $form = $(e.target).parents(".edit-annotation-form");
+    $form.prev(".annotation").show();
+    $form.remove()
   });
 
   // POST back an annotation form and then replace it with the returned
@@ -225,7 +241,6 @@ jQuery(function ($) {
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
-        console.log(data)
         $form.next(".annotate-field").show()
         $form.replaceWith(data);
       },
