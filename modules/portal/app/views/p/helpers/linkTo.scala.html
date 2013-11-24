@@ -1,3 +1,5 @@
 @(item: models.base.AnyModel, attributes: (Symbol,String)*)(implicit globalConfig: global.GlobalConfig, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
+@* This just delegates to the anchored link (which no fragment)
+   because we can't use a default argument with a varargs method. *@
 @linkToWithFragment(item, "", attributes: _*)

@@ -3,20 +3,20 @@
 @import AnnotationF._
 @import utils.ContributionVisibility.{Me,Groups,Custom,PARAM}
 
-@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'class -> "edit-annotation-form validate-form") {
-    <div row">
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
+
+
+@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'class -> "annotation-form edit-annotation-form validate-form") {
+    <div class="row">
         @formHelpers.hiddenInput(f(FIELD))
         <div class="col-sm-10 col-md-10 col-lg-10">
             @annotationForm(f, visForm, accessorsForm, users, groups)
         </div>
         <div class="col-sm-2 col-md-2 col-lg-2">
             <a class="close" href="#">&times;</a>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" name="@ALLOW_PUBLIC" value="@f(ALLOW_PUBLIC).value" @if(f(ALLOW_PUBLIC).value) {"checked"} />
-                    @Messages("portal.contributionVisibility.allowPublic")
-                </label>
-            </div>
+
+            @helper.checkbox(f(ALLOW_PUBLIC), '_label -> Messages("portal.contributionVisibility.allowPublic"))
+
             <button class="btn btn-xs btn-primary" type="submit" class="edit-annotation">
                 @Messages("portal.social.editAnnotation")
             </button>

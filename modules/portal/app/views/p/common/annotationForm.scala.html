@@ -4,6 +4,8 @@
 @import utils.ContributionVisibility.{Me,Groups,Custom,PARAM}
 @import backend.rest.Constants.ACCESSOR_PARAM
 
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
+
 <div class="row">
     <textarea
             autofocus required minlength="15" maxlength="600"
@@ -20,6 +22,7 @@
     <label for="@(PARAM)_@(Groups)">@Messages("portal.contributionVisibility.groups")</label>
     <input class="visibility" type="radio" id="@(PARAM)_@(Custom)" name="@PARAM" value="@Custom" @{if(visForm.value == Some(Custom)) "checked"}>
     <label for="@(PARAM)_@(Custom)">@Messages("portal.contributionVisibility.custom")</label>
+
     <span class="custom-visibility" style="@{if(visForm.value != Some(Custom)) "display:none"}">
         @defining(views.Helpers.fieldValues(accessorsForm(ACCESSOR_PARAM))) { values =>
             <select class="select2 custom-accessors" style="width:300px" multiple name="@(ACCESSOR_PARAM)[]">

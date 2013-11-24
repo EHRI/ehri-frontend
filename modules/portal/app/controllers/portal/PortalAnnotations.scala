@@ -57,7 +57,6 @@ trait PortalAnnotations {
   def editAnnotation(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
       item => implicit userOpt => implicit request =>
     val vis = getContributionVisibility(item, userOpt.get)
-    println("Contribution visibility: " + vis)
     getCanShareWith(userOpt.get) { users => groups =>
       Ok(p.common.editAnnotation(AnnotationForm.form.fill(item.model),
         ContributionVisibility.form.fill(vis),
@@ -73,8 +72,11 @@ trait PortalAnnotations {
     val field = item.model.field
     AnnotationForm.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
-      edited => backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
-        Ok(p.common.annotationInline(done))
+      edited => {
+        println("Edited: " + edited)
+        backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
+          Ok(p.common.annotationInline(done))
+        }
       }
     )
   }
