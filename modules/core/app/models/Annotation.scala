@@ -70,10 +70,8 @@ object Annotation {
   /**
    * Filter annotations on individual fields
    */
-  def fieldAnnotations(partId: Option[String], annotations: Seq[Annotation]): Seq[Annotation] = {
-    println(partId + " -> " + annotations.map(_.model.body) + " -> " + annotations.flatMap(_.targetParts.map(_.id)))
-      annotations.filter(_.targetParts.exists(p => Some(p.id) == partId)).filter(_.model.field.isDefined)
-  }
+  def fieldAnnotations(partId: Option[String], annotations: Seq[Annotation]): Seq[Annotation] =
+    annotations.filter(_.targetParts.exists(p => Some(p.id) == partId)).filter(_.model.field.isDefined)
 
   /**
    * Filter annotations on the item

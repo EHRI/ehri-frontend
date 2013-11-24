@@ -5,6 +5,7 @@
 
 @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'class -> "edit-annotation-form validate-form") {
     <div row">
+        @formHelpers.hiddenInput(f(FIELD))
         <div class="col-sm-10 col-md-10 col-lg-10">
             @annotationForm(f, visForm, accessorsForm, users, groups)
         </div>

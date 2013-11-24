@@ -68,9 +68,11 @@ trait PortalAnnotations {
 
   def editAnnotationPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
       item => implicit userOpt => implicit request =>
+    // save an override field, becuase it's not possible to change it.
+    val field = item.model.field
     AnnotationForm.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
-      edited => backend.update[Annotation,AnnotationF](aid, edited).map { done =>
+      edited => backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
         Ok(p.common.annotationInline(done))
       }
     )
@@ -138,7 +140,7 @@ trait PortalAnnotations {
         case ContributionVisibility.Custom => {
           VisibilityForm.form.bindFromRequest.fold(
             err => List(user.id), // default to user visibility.
-            list => list
+            list => (list ::: List(user.id)).distinct
           )
         }
       }

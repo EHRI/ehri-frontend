@@ -32,7 +32,7 @@ object ContributionVisibility extends Enumeration {
   /**
    * Binding/unbinding from a form.
    */
-  val form = Form(Forms.single(PARAM -> models.forms.enum(this)))
+  val form = Form(Forms.single(PARAM -> Forms.default(models.forms.enum(this), ContributionVisibility.Me)))
 
   /**
    * Binding/unbinding from JSON.
