@@ -6,7 +6,7 @@ import defines._
 import models._
 import play.api.data.Form
 import models.forms.AnnotationForm
-import play.api.libs.json.{Format, Json, JsError}
+import play.api.libs.json.{Writes, Format, Json, JsError}
 import models.json.RestReadable
 import scala.concurrent.Future.{successful => immediate}
 
@@ -58,6 +58,11 @@ trait Annotate[MT] extends Read[MT] {
   //
   // JSON endpoints
   //
+
+  def getAnnotationJson(id: String) = getAnnotationsAction(id) {
+      anns => implicit userOpt => implicit request =>
+    Ok(Json.toJson(anns)(Writes.seq(Annotation.Converter.clientFormat)))
+  }
 
   /**
    * Create an annotation via Ajax...

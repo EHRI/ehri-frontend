@@ -6,6 +6,7 @@ GET     /visibility/:id              @controllers.annotation.Annotations.visibil
 POST    /visibility/:id              @controllers.annotation.Annotations.visibilityPost(id: String)
 GET     /delete/:id                  @controllers.annotation.Annotations.delete(id: String)
 POST    /delete/:id                  @controllers.annotation.Annotations.deletePost(id: String)
+GET     /getFor/:id                  @controllers.annotation.Annotations.getAnnotationJson(id: String)
 
 # Ugh, ugly REST violation - create an annotation on *another* entity
 POST    /create/:id                  @controllers.annotation.Annotations.createAnnotationJsonPost(id: String)

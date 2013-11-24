@@ -48,6 +48,12 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
   }
 
   "Annotation JSON endpoints" should {
+    "be able to fetch annotations for an item" in new FakeApp {
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.annotation.routes.Annotations.getAnnotationJson("c1").url)).get
+      status(cr) must equalTo(OK)
+    }
+
     "allow creating annotations" in new FakeApp {
       val json = Json.toJson(new AnnotationF(id = None, body = "Hello, world!"))(
         Annotate.clientAnnotationFormat)
