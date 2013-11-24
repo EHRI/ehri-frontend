@@ -159,12 +159,13 @@ jQuery(function ($) {
 
   // Load an annotation form...
   $(document).on("click", ".annotate-item", function(e) {
+    e.preventDefault();
     var $elem = $(this),
         id = $elem.data("item"),
         did = $elem.data("did");
     jsRoutes.controllers.portal.Portal.annotate(id, did).ajax({
       success: function(data) {
-        $elem.after(data).hide();
+        $elem.before(data).hide();
       }
     });
   });
@@ -187,7 +188,7 @@ jQuery(function ($) {
   $(document).on("click", ".annotate-item-form .close", function(e) {
     e.preventDefault();
     var $form = $(e.target).parents(".annotate-item-form");
-    $form.next(".annotate-field").show();
+    $form.next(".annotate-field, .annotate-item").show();
     $form.remove();
   });
 
@@ -204,7 +205,7 @@ jQuery(function ($) {
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
-        $form.next(".annotate-field").show()
+        $form.next(".annotate-field, .annotate-item").show()
         $form.replaceWith(data);
       }
     });

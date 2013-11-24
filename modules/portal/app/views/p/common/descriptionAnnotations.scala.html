@@ -1,4 +1,4 @@
-@(desc: Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: AnyModel, desc: Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @if(!annotations.isEmpty) {
     <ul class="list-unstyled item-annotation-list">
@@ -8,4 +8,11 @@
             </li>
         }
     </ul>
+}
+@desc.id.map { did =>
+    <a data-item="@item.id" data-did="@did" class="annotate-item"
+       href="@controllers.portal.routes.Portal.annotate(item.id, did)">
+        <span class="glyphicon glyphicon-pencil"></span>
+        @Messages("portal.social.createAnnotation")
+    </a>
 }

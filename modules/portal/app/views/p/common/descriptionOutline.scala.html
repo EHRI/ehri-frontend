@@ -1,17 +1,10 @@
-@(desc: Description, annotations: Seq[Annotation])(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: AnyModel, desc: Description, annotations: Seq[Annotation])(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 <div class="description @desc.isA" id="@desc.id">
     @html
 
     <div class="description-annotations">
-        @descriptionAnnotations(desc, Annotation.itemAnnotations(desc.id, annotations))
-        @* For when annotations are working...
-        @userOpt.map { user =>
-            <small class="add-annotation pull-right">
-                <a title="@Messages("portal.annotateItem", desc.name)" href="#"><span class="glyphicon glyphicon-pencil"></span></a>
-            </small>
-        }
-        *@
+        @descriptionAnnotations(item, desc, Annotation.itemAnnotations(desc.id, annotations))
     </div>
     <hr />
 </div>

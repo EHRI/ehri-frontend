@@ -6,7 +6,7 @@
 @import p.common.textField
 
 
-@p.common.descriptionOutline(desc, annotations) {
+@p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>

@@ -18,7 +18,7 @@
     }
 }
 
-@p.common.descriptionOutline(desc, annotations) {
+@p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
             @descriptionSection(DESCRIPTION_AREA) {        
