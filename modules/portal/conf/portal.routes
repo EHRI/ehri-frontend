@@ -25,6 +25,7 @@ GET         /dev/annotate/:aid/delete     @controllers.portal.Portal.deleteAnnot
 POST        /dev/annotate/:aid/delete     @controllers.portal.Portal.deleteAnnotationPost(aid: String)
 GET         /dev/annotate/:aid/edit       @controllers.portal.Portal.editAnnotation(aid: String)
 POST        /dev/annotate/:aid/edit       @controllers.portal.Portal.editAnnotationPost(aid: String)
+POST        /dev/annotate/:aid/visibility @controllers.portal.Portal.setAnnotationVisibilityPost(aid: String)
 GET         /dev/annotate/:id/:did        @controllers.portal.Portal.annotate(id: String, did: String)
 POST        /dev/annotate/:id/:did        @controllers.portal.Portal.annotatePost(id: String, did: String)
 GET         /dev/annotate/:id/:did/:field @controllers.portal.Portal.annotateField(id: String, did: String, field: String)

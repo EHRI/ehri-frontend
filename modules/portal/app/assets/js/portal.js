@@ -219,6 +219,8 @@ jQuery(function ($) {
     jsRoutes.controllers.portal.Portal.editAnnotation(id).ajax({
       success: function(data) {
         $elem.closest(".annotation").hide().after(data);
+        console.log($(data).find(".select2").length)
+        $(data).find(".select2").select2();
       }
     });
   });
@@ -243,9 +245,6 @@ jQuery(function ($) {
       success: function(data) {
         $form.next(".annotate-field").show()
         $form.replaceWith(data);
-      },
-      complete: function(data) {
-        console.log(data)
       }
     });
   });
@@ -264,5 +263,22 @@ jQuery(function ($) {
       });
     }
   });
+
+  // Set visibility of annotations
+  // POST back an annotation form and then replace it with the returned
+  // data.
+  $(document).on("change", ".edit-annotation-form .visibility, .edit-annotation-form .custom-accessors", function(e) {
+    e.preventDefault();
+    var $form = $(this).closest("form"),
+      id = $form.prev(".annotation").attr("id"),
+      data = $form.serialize();
+    jsRoutes.controllers.portal.Portal.setAnnotationVisibilityPost(id).ajax({
+      data: data,
+      success: function(data) {
+        console.log("Set visibility to ", data)
+      }
+    });
+  });
+
 });
 

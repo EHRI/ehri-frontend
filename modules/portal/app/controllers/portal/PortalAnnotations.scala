@@ -10,13 +10,12 @@ import models.forms.AnnotationForm
 import scala.concurrent.Future.{successful => immediate}
 import defines.{ContentTypes, PermissionType}
 import backend.rest.cypher.CypherDAO
-import play.api.libs.json.JsString
+import play.api.libs.json.{Json, JsString}
 import eu.ehri.project.definitions.Ontology
 import scala.concurrent.Future
-import play.api.libs.json.JsString
-import scala.Some
 import play.api.mvc.SimpleResult
 import forms.VisibilityForm
+import scala.collection.Set
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -33,6 +32,7 @@ trait PortalAnnotations {
         p.common.createAnnotation(
           AnnotationForm.form.bindFromRequest,
           ContributionVisibility.form.bindFromRequest,
+          VisibilityForm.form.bindFromRequest,
           portalRoutes.annotatePost(id, did),
           users, groups
         )
@@ -56,9 +56,12 @@ trait PortalAnnotations {
   // Ajax
   def editAnnotation(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
       item => implicit userOpt => implicit request =>
+    val vis = getContributionVisibility(item, userOpt.get)
     getCanShareWith(userOpt.get) { users => groups =>
       Ok(p.common.editAnnotation(AnnotationForm.form.fill(item.model),
-        ContributionVisibility.form.bindFromRequest, portalRoutes.editAnnotationPost(aid),
+        ContributionVisibility.form.fill(vis),
+        VisibilityForm.form.fill(item.accessors.map(_.id)),
+        portalRoutes.editAnnotationPost(aid),
         users, groups))
     }
   }
@@ -71,6 +74,14 @@ trait PortalAnnotations {
         Ok(p.common.annotationInline(done))
       }
     )
+  }
+
+  def setAnnotationVisibilityPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
+      item => implicit userOpt => implicit request =>
+    val accessors = getAccessors(userOpt.get)
+    backend.setVisibility[Annotation](aid, accessors).map { ann =>
+      Ok(Json.toJson(ann.accessors.map(_.id)))
+    }
   }
 
   // Ajax
@@ -92,6 +103,7 @@ trait PortalAnnotations {
       Ok(p.common.createAnnotation(
         AnnotationForm.form.bindFromRequest,
         ContributionVisibility.form.bindFromRequest,
+        VisibilityForm.form.bindFromRequest,
         portalRoutes.annotateFieldPost(id, did, field),
         users, groups
       )
@@ -131,6 +143,17 @@ trait PortalAnnotations {
         }
       }
     )
+  }
+
+  /**
+   * Convert accessors to contribution visibility enum var...
+   */
+  private def getContributionVisibility(annotation: Annotation, user: UserProfile): ContributionVisibility.Value = {
+    annotation.accessors.map(_.id).sorted match {
+      case user.id :: Nil => ContributionVisibility.Me
+      case g if user.groups.map(_.id).exists(a => g.exists( b => a == b)) => ContributionVisibility.Groups
+      case _ => ContributionVisibility.Custom
+    }
   }
 
   /**
