@@ -1,13 +1,13 @@
-@(annotation: Annotation)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(annotation: Annotation, editable: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 <div class="annotation clearfix" id="@annotation.id">
-    @annotation.model.body
+    @Html(views.Helpers.renderMarkdown(annotation.model.body))
     @for(user <- annotation.user ; event <- annotation.latestEvent) {
         - <small class="text-muted">
             @p.helpers.linkTo(user)
             <a class="time-permalink" href="#@annotation.id">@views.Helpers.relativeDate(event.model.timestamp)</a>
 
-            @if(Some(user.id) == userOpt.map(_.id)) {
+            @if(editable) {
                 <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Portal.editAnnotation(annotation.id)">edit</a>
                 <a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Portal.deleteAnnotation(annotation.id)">delete</a>
             }

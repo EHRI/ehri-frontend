@@ -6,13 +6,11 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
 
-<div class="row">
-    <textarea
-            autofocus required minlength="15" maxlength="600"
-            class="col-sm-12 col-md-12 col-lg-12"
-            name="@BODY"
-            placeholder="@Messages("portal.social.annotation.placeholder")">@f(BODY).value</textarea>
-</div>
+<textarea
+        autofocus required minlength="15" maxlength="600"
+        class="col-sm-12 col-md-12 col-lg-12 autosize"
+        name="@BODY"
+        placeholder="@Messages("portal.social.annotation.placeholder")">@f(BODY).value</textarea>
 
 <label for="@PARAM">@Messages("portal.contributionVisibility")</label>
 <span id="@PARAM">

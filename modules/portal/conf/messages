@@ -91,4 +91,4 @@ portal.contributionVisibility.me=Only Me
 portal.contributionVisibility.groups=My Groups
 portal.contributionVisibility.custom=Custom
 portal.contributionVisibility.allowPublic=Allow Promotion
-portal.social.annotation.placeholder=Created by {0} at {1}
+portal.social.annotation.placeholder=

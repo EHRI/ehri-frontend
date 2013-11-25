@@ -1,5 +1,12 @@
 @(item: AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Seq[Annotation])
 
+@isOwnAnnotation(annotation: Annotation) = @{
+    (for {
+        user <- userOpt
+        annotator <- annotation.user
+    } yield annotator.id == user.id).getOrElse(false)
+}
+
 @defining(fieldAnnotations.filter(_.model.field==Some(key))) { anns =>
 
     @valueOpt.filterNot(_.isEmpty).map { value =>
@@ -11,13 +18,18 @@
                 @Html(views.Helpers.renderMarkdown(value))
             </div>
             <div class="item-text-field-annotations">
-                @for(ann <- anns) {
-                    @p.common.annotationInline(ann)
+                @if(!anns.isEmpty) {
+                    <ul class="list-unstyled">
+                    @for(ann <- anns) {
+                        @defining(isOwnAnnotation(ann)) { mine =>
+                            <li style="display: @{if(mine) "block" else "none"}">@p.common.annotationInline(ann, mine)</li>
+                        }
+                    }
+                    </ul>
                 }
 
                 <a data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field"
                    href="@controllers.portal.routes.Portal.annotateField(item.id, nodeId, key)">
-                    <span class="glyphicon glyphicon-pencil"></span>
                     @Messages("portal.social.createFieldAnnotation")
                 </a>
             </div>

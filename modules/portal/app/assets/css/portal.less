@@ -7,6 +7,7 @@
 @medium-gray: #dddddd;
 @dark-gray: #cccccc;
 @almost-black: #333;
+@glow-color: #FFF9C0;
 
 @doc-color: #360f4f;
 @repo-color: #034153;
@@ -424,10 +425,16 @@ label.disabled {
 }
 
 a.annotate-field, a.annotate-item {
-  color: @almost-black;
+  color: @muted-gray;
   font-size: 0.9em;
-  text-decoration: underline;
+  font-weight: bolder;
 }
+
+a.annotate-field:hover, a.annotate-item:hover {
+  text-decoration: none;
+  background-color: @glow-color;
+}
+
 
 .annotation {
   blockquote {
@@ -457,7 +464,7 @@ a.time-permalink {
 .item-text-field-annotations {
 
   padding-left: @medium-padding;
-  color: @almost-black;
+  color: @muted-gray;
 
   .annotation {
     font-size: 0.9em;
@@ -469,9 +476,15 @@ select.custom-accessors {
 }
 
 .annotation-form {
+  background-color: @glow-color;
+  padding: @small-padding;
   font-size: 0.9em;
   label {
     font-weight: inherit;
+  }
+
+  textarea {
+    padding: @small-padding;
   }
 
   select {

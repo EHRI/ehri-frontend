@@ -4,6 +4,7 @@ jQuery(function ($) {
   $(".validate-form").validate();
   $(document).ajaxComplete(function () {
     $(".validate-form").validate();
+    $("textarea.autosize").autosize();
   });
 
 
