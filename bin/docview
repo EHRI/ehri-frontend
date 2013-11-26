@@ -16,11 +16,11 @@ CONF=$APP_PATH/conf/prod.conf
 
 start() {
 	cd $APP_PATH
-	su $USER -c "$APP_PATH/target/start -DapplyEvolutions.default=true -Dhttp.port=9000 -Dconfig.file=$CONF &"
+	su $USER -c "$APP_PATH/target/universal/stage/bin/$APP -DapplyEvolutions.default=false -Dhttp.port=9000 -Dconfig.file=$CONF &"
 }
 
 stop() {
-kill `cat $APP_PATH/RUNNING_PID`
+kill `cat $APP_PATH/target/universal/stage/RUNNING_PID`
 }
 
 case "$1" in
