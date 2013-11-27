@@ -25,8 +25,8 @@ import controllers.base.ControllerHelpers
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend)
   extends Controller with ControllerHelpers with Search with FacetConfig with PortalActions with PortalProfile with PortalSocial with PortalAnnotations {
 
-  // This is a publically-accessible site
-  override val staffOnly = false
+  // This is a publically-accessible site, but not just yet.
+  override val staffOnly = true
 
   private val portalRoutes = controllers.portal.routes.Portal
 

@@ -19,4 +19,5 @@ trait GlobalConfig {
    * we might be running experimental stuff on a real life server.
    */
   def isTestMode = current.configuration.getBoolean("ehri.testing").getOrElse(true)
+  def isStageMode = current.configuration.getBoolean("ehri.staging").getOrElse(false)
 }
