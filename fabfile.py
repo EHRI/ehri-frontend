@@ -42,7 +42,7 @@ def deploy():
         copy_to_server()
         set_permissions()
         symlink_current()
-        restart_docview()
+        restart()
 
 def clean_deploy():
     """Build a clean version and deploy."""
@@ -71,11 +71,23 @@ def set_permissions():
         run("chown -R %(user)s.webadm deploys/%(version)s/target/universal/stage" % env)
         run("chmod g+x deploys/%(version)s/target/universal/stage/bin/%(project_name)s" % env)
 
-def restart_docview():
+def start():
+    "Start docview"
+    # NB: This doesn't use sudo() directly because it insists on asking
+    # for a password, even though we should have NOPASSWD in visudo.
+    run('sudo service %(project_name)s start' % env, pty=False, shell=False)
+
+def stop():
+    "Stop docview"
+    # NB: This doesn't use sudo() directly because it insists on asking
+    # for a password, even though we should have NOPASSWD in visudo.
+    run('sudo service %(project_name)s stop' % env, pty=False, shell=False)
+
+def restart():
     "Restart docview"
     # NB: This doesn't use sudo() directly because it insists on asking
     # for a password, even though we should have NOPASSWD in visudo.
-    run('sudo service %(project_name)s restart' % env, pty=False)
+    run('sudo service %(project_name)s restart' % env, pty=False, shell=False)
 
 def rollback():
     "Rollback to the last versioned dir and restart"
@@ -85,7 +97,7 @@ def rollback():
             raise Exception("Unable to get previous version for rollback!")
         with settings(version=output):
             symlink_current()
-            restart_docview()
+            restart()
 
 def latest():
     "Point symlink at latest version"
@@ -95,6 +107,6 @@ def latest():
             raise Exception("Unable to get latest version for rollback!")
         with settings(version=output):
             symlink_current()
-            restart_docview()
+            restart()
 
 
