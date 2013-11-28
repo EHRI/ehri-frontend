@@ -4,48 +4,90 @@
 # chkconfig: 234 20 80
 #JAVA_HOME=/usr/java/jdk1.7.0_05
 JAVA_HOME=/usr/lib/jvm/jre-1.6.0-sun.x86_64
+
 export JAVA_HOME
 PATH=$JAVA_HOME/bin:$PATH
 export PATH
+
+# Source function library
+. /etc/init.d/functions
 
 export USER=docview
 
 APP="docview"
 APP_PATH="/opt/webapps/$APP"
 CONF=$APP_PATH/conf/prod.conf
+LOG_CONF=$APP_PATH/conf/prod-logging.xml
+PID_FILE=$APP_PATH/RUNNING_PID
+START_SCRIPT=$APP_PATH/target/universal/stage/bin/$APP
+PORT=9000
+
 
 start() {
+    echo -n "Starting Play service: $APP"
 	cd $APP_PATH
-	su $USER -c "$APP_PATH/target/universal/stage/bin/$APP -DapplyEvolutions.default=false -Dhttp.port=9000 -Dconfig.file=$CONF &"
+    su -s /bin/sh $USER -c "nohup $START_SCRIPT -Dpidfile.path=$PID_FILE -Dhttp.port=$PORT -Dlogger.file=$LOG_CONF -Dconfig.file=$CONF > /dev/null 2> $APP.err < /dev/null &"
+
+    RETVAL=$?
+    if [ $RETVAL -eq 0 ]; then
+		echo_success
+	else
+		echo_failure
+	fi
+	echo
 }
 
 stop() {
-kill `cat $APP_PATH/target/universal/stage/RUNNING_PID`
+    echo -n "Shutting down Play service: "
+    kill `cat $PID_FILE`
+
+	RETVAL=$?
+
+	if [ $RETVAL -eq 0 ]; then
+		echo_success
+	else
+		echo_failure
+	fi
+	echo
+}
+
+status() {
+    pid=`cat $PID_FILE`
+
+	RETVAL=$?
+
+	if [ $RETVAL -eq 0 ]; then
+		echo "$APP is running at pid $pid"
+	else
+		echo "$APP is not running"
+	fi
+}
+
+clean() {
+        rm -f $PID_FILE
 }
 
 case "$1" in
-start)
-echo "Starting $APP"
-start
-echo "$APP started."
-;;
-stop)
-echo "Stopping $APP"
-stop
-echo "$APP stopped."
-;;
-restart)
-echo  "Restarting $APP."
-stop
-sleep 2
-start
-echo "$APP restarted."
-;;
-*)
-N=/etc/init.d/$APP
-echo "Usage: $N {start|stop|restart}" >&2
-exit 1
-;;
+	start)
+	clean
+	start
+	;;
+	stop)
+	stop
+	;;
+	restart|reload)
+	stop
+	sleep 10
+	start
+	;;
+	status)
+	status
+	;;
+	clean)
+	clean
+	;;
+	*)
+	echo "Usage: $0 {start|stop|restart|status}"
 esac
-
 exit 0
+
