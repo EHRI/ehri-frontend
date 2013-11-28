@@ -38,11 +38,11 @@ def deploy():
     Deploy the latest version of the site to the servers, install any
     required third party modules, and then restart the webserver
     """
-    env.version = get_version_stamp()
-    copy_to_server()
-    set_permissions()
-    symlink_current()
-    restart_docview()
+    with settings(version = get_version_stamp()):
+        copy_to_server()
+        set_permissions()
+        symlink_current()
+        restart_docview()
 
 def clean_deploy():
     """Build a clean version and deploy."""
