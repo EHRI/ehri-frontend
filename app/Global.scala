@@ -17,7 +17,6 @@ import play.filters.csrf._
 import scala.concurrent.duration.Duration
 
 import com.tzavellas.sse.guice.ScalaModule
-import scala.Some
 import utils.search.{Resolver, Indexer, Dispatcher}
 import global.GlobalConfig
 import scala.concurrent.Future
