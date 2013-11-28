@@ -101,6 +101,8 @@ object SearchParams {
   import play.api.data.Forms._
   import play.api.data.Form
 
+  def empty: SearchParams = new SearchParams()
+
   // Form deserialization
   val form = Form(
     mapping(

@@ -64,6 +64,7 @@ case class DocumentaryUnitDescriptionF(
   id: Option[String],
   languageCode: String,
   name: String,
+  identifier: Option[String] = None,
   ref: Option[String] = None,
   `abstract`: Option[String] = None,
   @Annotations.Relation(Ontology.ENTITY_HAS_DATE)

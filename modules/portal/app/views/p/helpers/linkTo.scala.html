@@ -1,13 +1,5 @@
 @(item: models.base.AnyModel, attributes: (Symbol,String)*)(implicit globalConfig: global.GlobalConfig, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-@url(item: models.base.AnyModel) = {
-    @item match {
-        case c: Country => { @controllers.portal.routes.Portal.browseCountry(c.id).url }
-        case d: DocumentaryUnit => { @controllers.portal.routes.Portal.browseDocument(d.id).url }
-        case r: Repository => { @controllers.portal.routes.Portal.browseRepository(r.id).url }
-        case a: HistoricalAgent => { @controllers.portal.routes.Portal.browseHistoricalAgent(a.id).url }
-        case a: AuthoritativeSet => { @controllers.portal.routes.Portal.browseAuthoritativeSet(a.id).url }
-        case _ => { "#" }
-    }
-}
-<a href="@url(item)" class="@("type-highlight " + item.isA)" @attributes.map(a => s"${a._1}='${a._2}'").mkString(" ") >@item.toStringLang</a>
+@* This just delegates to the anchored link (which no fragment)
+   because we can't use a default argument with a varargs method. *@
+@linkToWithFragment(item, "", attributes: _*)

@@ -10,6 +10,9 @@
 <div class="description-form" id="@desc("form").id">
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
     @lineInput(desc, REF)
+    @defining(EntityType.DocumentaryUnitDescription.toString) { implicit fieldPrefix =>
+        @lineInput(desc, Entity.IDENTIFIER)
+    }
 
     @descriptionFormSection(IDENTITY_AREA) {
         @hiddenInput(desc(Entity.ID))

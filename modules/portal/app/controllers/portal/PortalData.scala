@@ -14,10 +14,24 @@ object PortalData extends Controller {
   def jsRoutes = Action { implicit request =>
     Ok(
       Routes.javascriptRouter("jsRoutes")(
-        controllers.portal.routes.javascript.Portal.activityMore,
+        controllers.portal.routes.javascript.Portal.personalisedActivityMore,
         controllers.portal.routes.javascript.Portal.profile,
         controllers.portal.routes.javascript.Portal.updateProfile,
-        controllers.portal.routes.javascript.Portal.updateProfilePost
+        controllers.portal.routes.javascript.Portal.updateProfilePost,
+        controllers.portal.routes.javascript.Portal.followUserPost,
+        controllers.portal.routes.javascript.Portal.unfollowUserPost,
+        controllers.portal.routes.javascript.Portal.watchItemPost,
+        controllers.portal.routes.javascript.Portal.unwatchItemPost,
+        controllers.portal.routes.javascript.Portal.followersForUser,
+        controllers.portal.routes.javascript.Portal.annotate,
+        controllers.portal.routes.javascript.Portal.annotatePost,
+        controllers.portal.routes.javascript.Portal.annotateField,
+        controllers.portal.routes.javascript.Portal.annotateFieldPost,
+        controllers.portal.routes.javascript.Portal.editAnnotation,
+        controllers.portal.routes.javascript.Portal.editAnnotationPost,
+        controllers.portal.routes.javascript.Portal.deleteAnnotation,
+        controllers.portal.routes.javascript.Portal.deleteAnnotationPost,
+        controllers.portal.routes.javascript.Portal.setAnnotationVisibilityPost
       )
     ).as(MimeTypes.JAVASCRIPT)
   }

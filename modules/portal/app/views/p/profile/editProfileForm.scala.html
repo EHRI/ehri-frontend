@@ -1,4 +1,4 @@
-@(item: UserProfile, f: play.api.data.Form[UserProfileF], action: Call)(
+@(f: play.api.data.Form[UserProfileF], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateHorizontal.f) }
@@ -9,30 +9,27 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
     @* NB: The value of this hidden input can be changed, but will be ignored on the server *@
     @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
 
-    <div class="pull-right">
-        <input type="button" id="cancel-profile-update" class="btn btn-xs btn-default" value="@Messages("actions.cancel")" />
-        <button type="submit" id="submit-profile-update" class="btn btn-xs btn-primary">
-            <span class="glyphicon glyphicon-ok"></span>
-            @Messages("submitButton.updateUserProfile")
-        </button>
-    </div>
-
-
     @defining(FIELD_PREFIX) { implicit fieldPrefix =>
-        @profileDetailsLayout {
-            <input type="text" name="@f(NAME).name" value="@f(NAME).value" id="@f(NAME).id" required />
-        } {
-            <input type="text" name="@f(LOCATION).name" value="@f(LOCATION).value" id="@f(LOCATION).id" />
-        } {
-            @defining(views.Helpers.fieldValues(f(LANGUAGES))) { values =>
-                <select class="select2 clearfix" multiple name="@{f(LANGUAGES).name}[]" id="@f(LANGUAGES).id">
+        @formHelpers.lineInput(f(""), NAME)
+        @formHelpers.lineInput(f(""), LOCATION)
+        <div class="form-group">
+           <label class="col-sm-4 control-label" for="@LANGUAGES">@Messages(FIELD_PREFIX + "." + LANGUAGES)</label>
+            <div class="col-sm-8">
+           @defining(views.Helpers.fieldValues(f(LANGUAGES))) { values =>
+                <select class="select2" multiple name="@{f(LANGUAGES).name}[]" id="@f(LANGUAGES).id">
                     @views.Helpers.languagePairList.map { case (oid, oval) =>
-                        <option value="@oid" @{if(values.contains(oid)) "selected"}>@oval</option>
+                    <option value="@oid" @{if(values.contains(oid)) "selected"}>@oval</option>
                     }
                 </select>
             }
-        } {
-            <textarea name="@f(ABOUT).name" id="@f(ABOUT).id">@f(ABOUT).value</textarea>
-        }
+            </div>
+        </div>
+        @helper.textarea(f(ABOUT), '_label -> Messages(FIELD_PREFIX + "." + ABOUT), 'class -> "input-lg")
     }
+
+    <button type="submit" id="submit-profile-update" class="btn btn-primary">
+        <span class="glyphicon glyphicon-ok"></span>
+        @Messages("submitButton.updateUserProfile")
+    </button>
+    <a  id="cancel-profile-update" class="btn btn-default" href="@controllers.portal.routes.Portal.profile">@Messages("actions.cancel")</a>
 }

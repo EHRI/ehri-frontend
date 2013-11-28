@@ -1,19 +1,21 @@
-@(item: Annotation, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Annotation, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@layout.rightSidebar(item, breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
-        @common.stringValue(Some(item.model.annotationType.toString), AnnotationF.ANNOTATION_TYPE)
 
-        @item.model.body.map { body =>
-            <div class="well well-small">
-                @body
-            </div>
-        }
+        <div class="well well-small">
+            @item.model.body
+        </div>
 
         @item.user.map { u =>
-            <h4>@Messages("link.creator")</h4>
+            <h4>@Messages("annotation.createdBy")</h4>
             <a href="@globalConfig.routeRegistry.urlFor(u)">@u.toStringLang</a>
+        }
+
+        @item.target.map { t =>
+            <h4>@Messages("annotation.target")</h4>
+            <a href="@globalConfig.routeRegistry.urlFor(t)">@t.toStringLang</a>
         }
     }
 } {

@@ -1,8 +1,8 @@
-@(item: Repository, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: Repository, watched: Boolean, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import Isdiah._
 
-@p.layout.searchItemOutline(item) {
+@p.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.Portal.browseRepository(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription.map { desc =>

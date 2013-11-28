@@ -49,7 +49,7 @@ trait Read[MT] extends Generic[MT] {
   }
 
   object getAction {
-    def async(id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+    def async(id: String)(f: MT => Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
         implicit rd: RestReadable[MT], crd: ClientConvertable[MT]) = {
       itemPermissionAction.async[MT](contentType, id) { item => implicit maybeUser => implicit request =>
           // NB: Effectively disable paging here by using a high limit
@@ -63,14 +63,14 @@ trait Read[MT] extends Generic[MT] {
       }
     }
 
-    def apply(id: String)(f: MT => Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+    def apply(id: String)(f: MT => Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT], crd: ClientConvertable[MT]) = {
       async(id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))
     }
   }
 
   def getWithChildrenAction[CT](id: String)(
-      f: MT => Page[CT] => PageParams =>  Map[String,List[Annotation]] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Page[CT] => PageParams =>  Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
           implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
     itemPermissionAction.async[MT](contentType, id) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)

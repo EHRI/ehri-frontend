@@ -9,18 +9,20 @@ import play.api.Play.current
 import play.api.cache.Cache
 import models.base.AnyModel
 import utils.{PageParams,ListParams}
-import backend.{EventHandler, ApiUser, Page}
+import backend.{Generic, EventHandler, ApiUser, Page}
 
 
 
 /**
  * Data Access Object for fetching data about generic entity types.
  */
-case class EntityDAO(eventHandler: EventHandler) extends RestDAO {
+trait RestGeneric extends Generic with RestDAO {
+
+  val eventHandler: EventHandler
 
   import Constants._
 
-  def requestUrl = "http://%s:%d/%s".format(host, port, mount)
+  private def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
@@ -168,3 +170,5 @@ case class EntityDAO(eventHandler: EventHandler) extends RestDAO {
     }
   }
 }
+
+case class EntityDAO(eventHandler: EventHandler) extends RestGeneric

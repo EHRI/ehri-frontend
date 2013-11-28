@@ -50,5 +50,6 @@ trait AccountDAO extends Plugin {
 	def findByProfileId(id: String): Option[Account]
   def findByEmail(email: String): Option[Account]
   def create(id: String, email: String, staff: Boolean = false): Option[Account]
+  def createWithPassword(id: String, email: String, staff: Boolean = false, hashed: HashedPassword): Option[Account]
   def findByResetToken(token: String): Option[Account]
 }

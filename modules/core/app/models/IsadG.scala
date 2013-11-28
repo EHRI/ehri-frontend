@@ -1,5 +1,7 @@
 package models
 
+import eu.ehri.project.definitions.Ontology
+
 case object IsadG {
 
   object LevelOfDescription extends Enumeration {

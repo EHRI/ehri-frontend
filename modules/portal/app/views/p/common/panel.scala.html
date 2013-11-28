@@ -1,5 +1,10 @@
-@(title: Any, cls: String = "default")(body: Html = Html(""))(implicit lang: Lang)
+@(header: Any)(body: Html = Html(""))(implicit lang: Lang)
 
-@footerPanel(title, cls)(body) {
-
-}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">@header</h3>
+    </div>
+    <div class="panel-body">
+        @body
+    </div>
+</div>

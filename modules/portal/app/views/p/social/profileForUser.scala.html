@@ -1,0 +1,31 @@
+@(user: UserProfile)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+
+<div class="user-profile">
+    <a href="#" class="gravitar">
+        <img height="200" width="200" class="img-responsive img-thumbnail" src="@controllers.portal.routes.Assets.at("img/default-gravitar.png")" />
+    </a>
+    <p>
+    <ul class="list-unstyled user-profile-info">
+        @user.model.location.map { loc =>
+            <li>
+                <span class="glyphicon glyphicon-map-marker"></span>
+                @loc
+            </li>
+        }
+        @user.model.about.map { about =>
+            <li>
+                <span class="glyphicon glyphicon-info-sign"></span>
+                @about
+            </li>
+        }
+    </ul>
+    <hr />
+    <div class="profile-social">
+        <a class="followers" href="@controllers.portal.routes.Portal.followersForUser(user.id)">
+            @Messages("portal.social.followers"): <span class="user-follower-count">@user.followerCount</span>
+        </a>
+        <a class="following" href="@controllers.portal.routes.Portal.followingForUser(user.id)">
+            @Messages("portal.social.following"): <span class="user-following-count">@user.followingCount</span>
+        </a>
+    </div>
+</div>

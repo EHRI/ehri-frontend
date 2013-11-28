@@ -1,11 +1,11 @@
-@(item: Country, result: utils.search.ItemPage[(Repository,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Map[String,List[Annotation]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Country, result: utils.search.ItemPage[(Repository,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Seq[Annotation], links: List[Link], watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(item.toStringLang) {
     @p.layout.breadcrumbs(item.isA.toString) {
         @p.helpers.breadcrumbCurrent(item.toStringLang)
     }
 
-    @infobar(item)
+    @infobar(item, watched)
 
     @p.searchForm(result, params, action, headerKey = "country.repositoriesPageHeader", key = "", autofocus = false) {
         @p.searchItemList(result)

@@ -30,6 +30,7 @@ object IsadGForm {
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
       TITLE -> nonEmptyText,
+      Entity.IDENTIFIER -> optional(nonEmptyText),
       REF -> optional(text),
       ABSTRACT -> optional(nonEmptyText),
       DATES -> list(DatePeriodForm.form.mapping),

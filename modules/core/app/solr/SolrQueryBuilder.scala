@@ -262,7 +262,7 @@ object SolrQueryBuilder {
     // Only return what we immediately need to build a SearchDescription. We
     // ignore nearly everything currently stored in Solr, instead fetching the
     // data from the DB, but this might change in future.
-    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE"))
+    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE $DB_ID"))
 
     // Return only fields we care about...
     applyAccessFilter(req, userOpt)

@@ -2,6 +2,7 @@ package backend
 
 import models.json.{ClientConvertable, RestReadable}
 import play.api.libs.json.{Writes, Reads}
+import backend.rest.Constants
 
 /**
  * Class representing a page of data.
@@ -15,7 +16,7 @@ case class Page[+T](
 
 object Page {
 
-  def empty[T] = new Page[T](0, 0, 20, Seq.empty[T])
+  def empty[T] = new Page(0, 0, Constants.DEFAULT_LIST_LIMIT, Seq.empty[T])
 
   implicit def restReads[T](implicit apiUser: ApiUser, rd: RestReadable[T]): Reads[Page[T]] = {
     Page.pageReads(rd.restReads)

@@ -171,6 +171,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         "descriptions[0].name" -> Seq("Collection 1"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c1"),
         "descriptions[0].contextArea.acquistition" -> Seq("Acquisistion info"),
+        "descriptions[0].notes[0]" -> Seq("Test Note"),
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -180,6 +181,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for c1")
+      contentAsString(show) must contain("Test Note")
       mockIndexer.eventBuffer.last must equalTo("c1")
     }
 

@@ -2,19 +2,23 @@
 // Global request object
 //
 
+import backend.rest._
+import backend.rest.RestBackend
 import backend.{EventHandler, Backend}
-import backend.rest.{PermissionDenied, ItemNotFound, RestBackend}
 import defines.EntityType
 import java.util.concurrent.TimeUnit
 import play.api._
+import play.api.libs.json.JsError
 import play.api.mvc._
 
+import play.api.mvc.SimpleResult
 import play.api.Play.current
 import play.filters.csrf._
 import scala.concurrent.duration.Duration
 
 import com.tzavellas.sse.guice.ScalaModule
-import utils.search.{Indexer, Dispatcher}
+import scala.Some
+import utils.search.{Resolver, Indexer, Dispatcher}
 import global.GlobalConfig
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -75,6 +79,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
+  private def searchResolver: Resolver = new SearchResolver
 
   private val eventHandler = new EventHandler {
 
@@ -108,6 +113,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind[GlobalConfig].toInstance(RunConfiguration)
       bind[Indexer].toInstance(searchIndexer)
       bind[Dispatcher].toInstance(searchDispatcher)
+      bind[Resolver].toInstance(searchResolver)
       bind[Backend].toInstance(backend)
     }
   }
@@ -130,6 +136,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       case e: PermissionDenied => immediate(Unauthorized(permissionDenied(Some(e))))
       case e: ItemNotFound => immediate(NotFound(itemNotFound(e.value)))
       case e: java.net.ConnectException => immediate(InternalServerError(serverTimeout()))
+      case BadJson(err) => immediate(BadRequest(JsError.toFlatJson(err)))
       case e => super.onError(request, e)
     }
   }

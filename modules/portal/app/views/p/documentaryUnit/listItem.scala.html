@@ -1,8 +1,8 @@
-@(item: DocumentaryUnit, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: DocumentaryUnit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @import org.apache.commons.lang3.StringUtils
 
-@p.layout.searchItemOutline(item) {
+@p.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription(descriptionId).map { desc =>
@@ -36,7 +36,7 @@
                 @item.latestEvent.map { event =>
                 <li title="@common.eventTitle(event)">
                     <time datetime="@event.model.timestamp">
-                        @Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))
+                        @Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
                     </time>
                 </li>
                 }

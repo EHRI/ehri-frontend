@@ -1,14 +1,15 @@
 package controllers.portal
 
+import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{AuthController, ControllerHelpers}
-import models.{Link, Annotation, UserProfile, UserProfileF}
-import play.api._
+import models.{UserProfile, UserProfileF}
 import controllers.generic.Update
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json.{Format, Json}
-import backend.Page
+import utils.{PageParams, ListParams}
+import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -21,33 +22,25 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
   val contentType = ContentTypes.UserProfile
   val form = models.forms.UserProfileForm.form
 
-  def profile = withUserAction { implicit user => implicit request =>
-
-    // TODO: Pull this data from the backend...
-    val follows = Page.empty[UserProfile]
-    val links = Page.empty[Link]
-    val annotations = Page.empty[Annotation]
-
-    render {
-      case Accepts.Json() =>
-        Ok(Json.toJson(userOpt)(Format.optionWithNull(UserProfile.Converter.clientFormat)))
-      case Accepts.Html() => {
-        if (isAjax) {
-          Ok(views.html.p.profile.profileDetails(user))
-        } else {
-          Ok(views.html.p.profile.profile(user, links, annotations, follows))
-        }
-      }
-    }
+  def profile = withUserAction.async { implicit user => implicit request =>
+    val watchParams = PageParams.fromRequest(request, namespace = "watch")
+    val linkParams = PageParams.fromRequest(request, namespace = "link")
+    val annParams = PageParams.fromRequest(request, namespace = "ann")
+  
+    for {
+      watchList <- backend.pageWatching(user.id, watchParams)
+      links <- backend.userLinks(user.id, linkParams)
+      anns <- backend.userAnnotations(user.id, annParams)
+    } yield Ok(views.html.p.profile.profile(watchList, anns, links))
   }
 
   def updateProfile = withUserAction { implicit user => implicit request =>
     if (isAjax) {
       Ok(views.html.p.profile.editProfileForm(
-        user, form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
+        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
     } else {
       Ok(views.html.p.profile.editProfile(
-        user, form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
+        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
     }
   }
 
@@ -65,16 +58,12 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
             BadRequest(errorForm.errorsAsJson)
           } else {
             BadRequest(views.html.p.profile.editProfile(
-                user, errorForm, controllers.portal.routes.Portal.updateProfilePost))
+                errorForm, controllers.portal.routes.Portal.updateProfilePost))
           }
         }
         case Right(item) => {
-          if (isAjax) {
-            Ok(views.html.p.profile.profileDetails(item))
-          } else {
-            Redirect(controllers.portal.routes.Portal.profile)
-              .flashing("success" -> Messages("confirmations.profileUpdated"))
-          }
+          Redirect(controllers.portal.routes.Portal.profile)
+            .flashing("success" -> Messages("confirmations.profileUpdated"))
         }
       }
     }

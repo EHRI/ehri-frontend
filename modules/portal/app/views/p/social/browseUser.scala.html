@@ -1,0 +1,46 @@
+@(them: UserProfile, events: List[SystemEvent], followed: Boolean)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+
+@p.layout.portalLayout(them.toStringLang) {
+
+    @p.layout.breadcrumbs() {
+        <li><a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.browseUsers")</a></li>
+        <li>@them.toStringLang</li>
+    }
+
+    <div class="row info-bar">
+        <div class="container">
+            @userOpt.map { user =>
+                @if(user.id != them.id) {
+                    <div class="pull-right">
+                        @p.common.followingButtons(them, followed)
+                    </div>
+                }
+            }
+            <h1>@them.toStringLang</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4 col-md-4 col-lg-4">
+                    <p>
+                    @profileForUser(them)
+                </div>
+                <div class="col-sm-8 col-md-8 col-lg-8">
+                    <p>
+                    @p.common.panel(Messages("portal.activity")) {
+                        @if(!events.isEmpty) {
+                            <ul id="activity-stream" class="list-unstyled">
+                                @p.common.eventItems(events)
+                            </ul>
+                        } else {
+                            <p class="text-muted">@Messages("portal.noActivityYet")</p>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

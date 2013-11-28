@@ -16,9 +16,10 @@ object AnnotationForm {
     Entity.ISA -> ignored(EntityType.Annotation),
     Entity.ID -> optional(nonEmptyText),
     ANNOTATION_TYPE -> optional(models.forms.enum(AnnotationType)),
-    BODY -> nonEmptyText, // TODO: Validate this server side
+    BODY -> nonEmptyText(minLength = 15, maxLength = 600),
     FIELD -> optional(nonEmptyText),
-    COMMENT -> optional(nonEmptyText)
+    COMMENT -> optional(nonEmptyText),
+    ALLOW_PUBLIC -> default(boolean, false)
   )(AnnotationF.apply)(AnnotationF.unapply))
 
   val multiForm = Form(    single(

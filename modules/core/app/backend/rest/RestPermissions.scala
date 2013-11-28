@@ -10,18 +10,20 @@ import play.api.libs.json.Json
 import play.api.Play.current
 import play.api.cache.Cache
 import utils.PageParams
-import backend.{EventHandler, Page, ApiUser}
+import backend.{Permissions, EventHandler, Page, ApiUser}
 
 
-case class PermissionDAO(eventHandler: EventHandler) extends RestDAO {
+trait RestPermissions extends Permissions with RestDAO {
+
+  val eventHandler: EventHandler
 
   import Constants._
 
   implicit val permissionGrantMetaReads = PermissionGrant.Converter.restReads
   implicit val pageReads = Page.pageReads(permissionGrantMetaReads)
 
-  def baseUrl = "http://%s:%d/%s".format(host, port, mount)
-  def requestUrl = "%s/permission".format(baseUrl)
+  private def baseUrl = "http://%s:%d/%s".format(host, port, mount)
+  private def requestUrl = "%s/permission".format(baseUrl)
 
   def listPermissionGrants[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "page", user.id), params)
@@ -124,3 +126,6 @@ case class PermissionDAO(eventHandler: EventHandler) extends RestDAO {
     }
   }
 }
+
+
+case class PermissionDAO(eventHandler: EventHandler) extends RestPermissions

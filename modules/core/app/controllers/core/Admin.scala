@@ -324,9 +324,8 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
 
       createUserProfile(user, groups, allGroups) { profile =>
-        userDAO.create(profile.id, email.toLowerCase, staff = true).map { account =>
-          account.setPassword(Account.hashPassword(pw))
-          // Final step, grant user permissions on their own account
+        userDAO.createWithPassword(profile.id, email.toLowerCase,
+            true, Account.hashPassword(pw)).map { account =>
           grantOwnerPerms(profile) {
             Redirect(controllers.core.routes.UserProfiles.search)
           }

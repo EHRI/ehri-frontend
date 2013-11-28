@@ -6,16 +6,16 @@ import controllers.generic._
 import models.{Country,CountryF,Repository,RepositoryF,UserProfile}
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
-import utils.search.SearchParams
-import utils.search.Dispatcher
+import utils.search.{Resolver, SearchParams, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 import backend.Backend
 import backend.rest.cypher.CypherDAO
+import play.api.libs.json.JsString
 
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends CRUD[CountryF,Country]
+case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
   with Visibility[Country]
   with ScopePermissions[Country]
@@ -114,8 +114,9 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
       case _ : java.lang.NumberFormatException => None
     }
 
-    val allIds = """START n = node:entities("__ISA__:%s") RETURN n.__ID__""".format(EntityType.Repository)
-    cypher.cypher(allIds).map { json =>
+    val allIds = """START n = node:entities(__ISA__ = {isA}) RETURN n.__ID__"""
+    var params = Map("isA" -> JsString(EntityType.Repository))
+    cypher.cypher(allIds, params).map { json =>
       val result = json.as[Map[String,JsValue]]
       val data: JsValue = result.getOrElse("data", Json.arr())
       val id = data.as[List[List[String]]].flatten.flatMap { rid =>

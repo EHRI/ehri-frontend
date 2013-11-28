@@ -1,0 +1,33 @@
+# Skos/Concept i18n definitions
+
+actions.updateConcept=Update Term
+actions.updateVocabulary=Update Vocabulary
+actions.linkToConcept=Link to a vocabulary term
+actions.listConcepts=Terms
+actions.listVocabularies=Vocabularies
+actions.createConcept=Create New Term
+actions.createVocabulary=Create New Vocabulary
+submitButton.createVocabulary=Create Vocabulary
+submitButton.createConcept=Create Term
+submitButton.updateVocabulary=Update Vocabulary
+submitButton.updateConcept=Update Term
+
+#
+# Concepts
+#
+concept.descriptions=Descriptions
+concept.languageCode=Language
+concept.name=Preferred Label
+concept.altLabel=Alternative Label(s)
+concept.scopeNote=Scope Note
+concept.definition=Definition
+concept.inVocabulary=Vocabulary
+concept.search=Search Terms
+concept.broaderTerms=Broader Terms
+concept.narrowerTerms=Narrower Terms
+concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+vocabulary.description=Description
+vocabulary.items=Search Terms
+vocabulary.search=Search Vocabularies
+

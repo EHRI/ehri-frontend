@@ -6,13 +6,13 @@ import models.{HistoricalAgent,HistoricalAgentF,Isaar}
 import models.forms.LinkForm
 import play.api.i18n.Messages
 import defines.{ContentTypes,PermissionType}
-import utils.search.{Dispatcher, SearchParams, FacetSort}
+import utils.search.{Resolver, Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import backend.Backend
 
 @Singleton
-case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends CRUD[HistoricalAgentF,HistoricalAgent]
+case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]

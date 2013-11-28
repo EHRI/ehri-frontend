@@ -6,17 +6,19 @@ import play.api.libs.ws.WS
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
-import backend.{EventHandler, ApiUser}
+import backend.{Visibility, EventHandler, ApiUser}
 
 
 /**
  * Set visibility on items.
  */
-case class VisibilityDAO(eventHandler: EventHandler) extends RestDAO {
+trait RestVisibility extends Visibility with RestDAO {
+
+  val eventHandler: EventHandler
 
   import Constants._
 
-  def requestUrl = "http://%s:%d/%s/access".format(host, port, mount)
+  private def requestUrl = "http://%s:%d/%s/access".format(host, port, mount)
 
   def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT] = {
     WS.url(enc(requestUrl, id))
@@ -29,3 +31,5 @@ case class VisibilityDAO(eventHandler: EventHandler) extends RestDAO {
     }
   }
 }
+
+case class VisibilityDAO(eventHandler: EventHandler) extends RestVisibility

@@ -3,11 +3,13 @@ package models.json
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import models.{SystemEvent, UserProfile, Annotation, AnnotationF}
+import models._
 import defines.EntityType
 import defines.EnumUtils._
 import models.base.{AnyModel, Accessible, Accessor, MetaModel}
 import eu.ehri.project.definitions.Ontology
+import play.api.libs.json.JsObject
+import scala.Some
 
 object AnnotationFormat {
   import AnnotationF.{ANNOTATION_TYPE => ANNOTATION_TYPE_PROP, _}
@@ -25,7 +27,8 @@ object AnnotationFormat {
           ANNOTATION_TYPE_PROP -> d.annotationType,
           BODY -> d.body,
           FIELD -> d.field,
-          COMMENT -> d.comment
+          COMMENT -> d.comment,
+          ALLOW_PUBLIC -> d.allowPublic
         )
       )
     }
@@ -38,7 +41,8 @@ object AnnotationFormat {
           orElse Reads.pure(Some(AnnotationType.Comment))) and
       (__ \ DATA \ BODY).read[String] and
       (__ \ DATA \ FIELD).readNullable[String] and
-      (__ \ DATA \ COMMENT).readNullable[String]
+      (__ \ DATA \ COMMENT).readNullable[String] and
+      (__ \ DATA \ ALLOW_PUBLIC).readNullable[Boolean].map(_.getOrElse(false))
     )(AnnotationF.apply _)
 
   implicit val restFormat: Format[AnnotationF] = Format(annotationReads,annotationWrites)
@@ -56,6 +60,10 @@ object AnnotationFormat {
       Reads.list(userProfileMetaReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyReadNullable[List[AnyModel]](
       Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ ANNOTATES).lazyReadNullable[List[AnyModel]](
+      Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
+      (__ \ RELATIONSHIPS \ ANNOTATES_PART).lazyReadNullable[List[Entity]](
+        Reads.list(models.json.entityReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](

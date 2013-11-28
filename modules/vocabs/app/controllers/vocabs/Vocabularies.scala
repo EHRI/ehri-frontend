@@ -5,13 +5,13 @@ import controllers.generic._
 import models.{Vocabulary,Concept,VocabularyF,ConceptF}
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
-import utils.search.{Dispatcher, SearchParams}
+import utils.search.{Resolver, Dispatcher, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, backend: Backend) extends CRUD[VocabularyF,Vocabulary]
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]

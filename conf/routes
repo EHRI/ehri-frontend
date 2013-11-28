@@ -3,6 +3,7 @@
 # ~~~~
 
 # Map static resources from the /public folder to the /assets URL path
+GET     /robots.txt                     controllers.Assets.at(path="/public", file="robots.txt")
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)
 
 # Defer other routes to modules

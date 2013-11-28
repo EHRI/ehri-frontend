@@ -1,4 +1,4 @@
-@(page: utils.search.ItemPage[(DocumentaryUnit,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(page: utils.search.ItemPage[(DocumentaryUnit,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, watched: List[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @headerLink(r: Repository) = {
     <h2 class="search-group-heading">
@@ -7,7 +7,6 @@
 }
 
 @itemByHolderList(docs: Seq[(DocumentaryUnit,String)], lastOpt: Option[(DocumentaryUnit,String)]) = {
-
     @docs.headOption.map { case (doc, did) =>
         @lastOpt.map { case (last, ldid) =>
             @if(last.holder != doc.holder) {
@@ -21,7 +20,7 @@
             }
         }
         <div class="indented-search-item">
-            @listItem(doc, showRepository=false)
+            @listItem(doc, watched.exists(_.id == doc.id), showRepository=false)
         </div>
     }
     @if(!docs.isEmpty) {

@@ -4,7 +4,8 @@ package utils
  * Abstract result page.
  * @tparam A
  */
-trait AbstractPage[+A] {
+trait AbstractPage[+A] extends Iterable[A] {
+  def iterator = items.iterator
   val total: Long
   val offset: Int
   val limit: Int
@@ -19,5 +20,5 @@ trait AbstractPage[+A] {
   lazy val prev = Option(page - 1).filter(_ >= 0)
   lazy val next = Option(page + 1).filter(_ => (offset + items.size) < total)
 
-  def isEmpty = total == 0 // items.isEmpty? Not sure of the best semantics here?
+  //def isEmpty = total == 0 // items.isEmpty? Not sure of the best semantics here?
 }

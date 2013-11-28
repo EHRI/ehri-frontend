@@ -6,7 +6,7 @@ import defines._
 import models._
 import play.api.data.Form
 import models.forms.AnnotationForm
-import play.api.libs.json.{Format, Json, JsError}
+import play.api.libs.json.{Writes, Format, Json, JsError}
 import models.json.RestReadable
 import scala.concurrent.Future.{successful => immediate}
 
@@ -27,13 +27,13 @@ trait Annotate[MT] extends Read[MT] {
   import Annotate._
 
   def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
-    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       f(item)(AnnotationForm.form.bindFromRequest)(userOpt)(request)
     }
   }
 
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+    withItemPermission.async[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       AnnotationForm.form.bindFromRequest.fold(
         errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
         ann => backend.createAnnotation(id, ann).map { ann =>
@@ -47,7 +47,7 @@ trait Annotate[MT] extends Read[MT] {
    * Fetch annotations for a given item.
    */
   def getAnnotationsAction(id: String)(
-      f: Map[String,List[Annotation]] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
+      f: Seq[Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
       backend.getAnnotationsForItem(id).map { anns =>
         f(anns)(userOpt)(request)
@@ -59,12 +59,9 @@ trait Annotate[MT] extends Read[MT] {
   // JSON endpoints
   //
 
-
   def getAnnotationJson(id: String) = getAnnotationsAction(id) {
       anns => implicit userOpt => implicit request =>
-    Ok(Json.toJson(anns.map{ case (itemId, anns) =>
-      itemId -> anns.map(_.model)
-    }))
+    Ok(Json.toJson(anns)(Writes.seq(Annotation.Converter.clientFormat)))
   }
 
   /**

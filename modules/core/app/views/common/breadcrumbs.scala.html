@@ -1,12 +1,15 @@
 @(items: List[AnyModel] = Nil)(implicit lang: Lang, globalConfig: global.GlobalConfig)
-<div>
 
-@if(globalConfig.isTestMode) {
-    <small>
-        <span class="alert alert-danger pull-right">
-            <strong>Warning</strong>: Data is for test purposes only.
-        </span>
-    </small>
+@if(globalConfig.isStageMode) {
+    <div class="testing-banner alert-info">
+        <H1>STAGING <span class="info"><strong>Warning</strong>: Data is for staging purposes only.</span></H1>
+    </div>
+} else {
+    @if(globalConfig.isTestMode) {
+        <div class="testing-banner alert-danger">
+            <H1>TESTING <span class="info"><strong>Warning</strong>: Data is for test purposes only.</span></H1>
+        </div>
+    }
 }
 
 <ul class="breadcrumb">
@@ -22,7 +25,7 @@
             <li></li>
         }
     }
-	
+
 
 </ul>
-</div>
+

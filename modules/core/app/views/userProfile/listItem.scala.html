@@ -15,7 +15,7 @@
         </ul>
         <ul class="unstyled muted inline inline-separator">
             @item.latestEvent.map { event =>
-            <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))</li>
+            <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
             }
         </ul>
     </small>

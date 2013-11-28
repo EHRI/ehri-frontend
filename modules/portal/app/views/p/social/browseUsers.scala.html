@@ -1,0 +1,61 @@
+@(user: UserProfile, users: utils.search.ItemPage[UserProfile], params: utils.search.SearchParams, following: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+
+@import utils.search.SearchParams
+
+@p.layout.portalLayout("portal.social.browseUsers") {
+
+    @p.layout.breadcrumbs() {
+        <li>@Messages("portal.social.browseUsers")</li>
+    }
+
+    <div class="row info-bar">
+        <div class="container">
+            <h1>@Messages("portal.social.browseUsers")</h1>
+        </div>
+    </div>
+
+    @if(params.isFiltered || !users.items.isEmpty) {
+        @helper.form(action = controllers.portal.routes.Portal.browseUsers, 'role -> "form", 'class -> "form-horizontal") {
+
+            <div class="row search-bar">
+                <div class="col-sm-2 col-md-2 col-lg-2">
+                    <div class="container">
+                        <h4>@Messages("portal.search")</h4>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-6">
+                    <div class="container">
+                        <div class="form-group form-inline search-box">
+                            <div class="input-group">
+                                <input type="search" class="form-control"
+                                       placeholder="@Messages("search.queryPlaceholder")"
+                                name="@SearchParams.QUERY" value="@params.query" autofocus />
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default">
+                                            <span class="glyphicon glyphicon-search"></span>
+                                            @Messages("forms.search")
+                                        </button>
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8 col-md-8 col-lg-8">
+                            <p>
+                            <ul class="list-unstyled user-list">
+                                @browseUsersList(user, users.items, following)
+                            </ul>
+                            @p.helpers.pagination(users)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}

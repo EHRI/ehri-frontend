@@ -1,0 +1,12 @@
+@(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, following: List[UserProfile] = Nil)(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
+
+@if(!users.isEmpty) {
+    <ul class="list-unstyled">
+        @browseUsersList(them, users, following)
+    </ul>
+    @p.helpers.pagination(users)
+} else {
+    <p class="text-muted">
+        @Messages("portal.social.noFollowersYet", them.toStringLang)
+    </p>
+}

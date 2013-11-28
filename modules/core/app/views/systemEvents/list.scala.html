@@ -34,7 +34,7 @@
                     @item.actioner.map { accessor =>
                         <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
                     }
-                    <li>@views.Helpers.prettyDate(item.model.timestamp)</li>
+                    <li>@views.Helpers.relativeDate(item.model.timestamp)</li>
                 </ul>
             </small>
             <small>

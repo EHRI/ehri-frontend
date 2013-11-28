@@ -7,7 +7,7 @@
         }
         <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
         @item.latestEvent.map { event =>
-            <li title="@event.time">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))</li>
+            <li title="@event.time">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
         }
     </ul>
 @if(item.broaderTerms.size > 0) {

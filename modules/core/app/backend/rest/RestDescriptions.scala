@@ -14,11 +14,13 @@ import backend.{EventHandler, ApiUser}
 /**
  * Data Access Object for managing descriptions on entities.
  */
-case class DescriptionDAO(eventHandler: EventHandler) extends RestDAO {
+trait RestDescriptions extends RestDAO {
 
   private val entities = new EntityDAO(eventHandler)
 
-  def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
+  val eventHandler: EventHandler
+
+  private def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[MT] = {
@@ -90,3 +92,6 @@ case class DescriptionDAO(eventHandler: EventHandler) extends RestDAO {
     }
   }
 }
+
+
+case class DescriptionDAO(eventHandler: EventHandler) extends RestDescriptions

@@ -20,7 +20,7 @@ import backend.rest.SearchDAO
 trait Search extends Controller with AuthController with ControllerHelpers {
 
   def searchDispatcher: utils.search.Dispatcher
-  private val dao = new SearchDAO
+  def searchResolver: utils.search.Resolver
 
   type FacetBuilder = Lang => FacetClassList
   private val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]] }
@@ -74,8 +74,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
       val facets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)
       searchDispatcher.search(sp, facets, allFacets, filters, mode).flatMap { res =>
         val ids = res.items.map(_.id)
-        val itemIds = res.items.map(_.itemId)
-        dao.list[MT](itemIds).map { list =>
+        searchResolver.resolve[MT](res.items).map { list =>
           if (list.size != ids.size) {
             Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
               (ids, list))
