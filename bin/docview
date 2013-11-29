@@ -18,7 +18,7 @@ APP="docview"
 APP_PATH="/opt/webapps/$APP"
 CONF=$APP_PATH/conf/prod.conf
 LOG_CONF=$APP_PATH/conf/prod-logging.xml
-PID_FILE=$APP_PATH/RUNNING_PID
+PID_FILE=$APP_PATH/run/RUNNING_PID
 START_SCRIPT=$APP_PATH/target/universal/stage/bin/$APP
 PORT=9000
 
