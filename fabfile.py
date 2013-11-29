@@ -28,7 +28,7 @@ def stage():
     "Use the remote staging server"
     env.hosts = ['ehristage']
 
-def production():
+def prod():
     "Use the remote virtual server"
     env.hosts = ['ehriprod']
     env.prod = True
