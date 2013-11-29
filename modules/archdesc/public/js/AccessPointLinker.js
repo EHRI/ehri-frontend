@@ -19,7 +19,14 @@
         },
 
         detail: function(type, id) {
-          return $http.get("/api/" + type + "/" + id);
+          // FIXME: Get reverse routing working here...
+          return $http.get("/admin/api/" + type + "/" + id);
+//          return $http.get($service.getType(type, id).url, {
+//            headers: {
+//              "Content-Type": "application/json",
+//              "Accept": "application/json; charset=utf-8"
+//            }
+//          });
         }
       };
     });

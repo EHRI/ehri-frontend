@@ -25,7 +25,7 @@
                         <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>
                     }
                 }
-                <li><span class="text-muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
+                <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
                 @desc.dates.headOption.map { dp =>
                 <li>@dp.years</li>

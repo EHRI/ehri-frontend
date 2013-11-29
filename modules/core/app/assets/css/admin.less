@@ -2,6 +2,8 @@
 // Colors
 @highlight-color: #6c003b;
 
+@pale-gray: #f5f5f5;
+
 // Spacings
 @search-item-spacing: 1.5em;
 @menu-height: 50px;
@@ -66,7 +68,7 @@ body {
 }
 
 #footer {
-    background-color: #f5f5f5;
+    background-color: @pale-gray;
 }
 
 #footer {
@@ -229,8 +231,8 @@ body.modal-open {
 /** 'Sticky' footers which pin themselves to the
     botton of the viewport when initially outside it. */
 .sticky {
-    -webkit-box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
-    box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
+    //-webkit-box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
+    //box-shadow: 0px -2px 5px 5px rgba(200, 200, 200, 0.2);
 }
 
 /** Search items */
@@ -299,20 +301,24 @@ a.alt {
     padding-bottom: 40px;
 }
 
+.sidebar affix {
+
+}
+
 #form-nav-sidebar {
-    top: 80px;
+    //top: 80px;
 }
 
 #head-signin {
     padding: 10px 15px 10px;
-    color: #f5f5f5;
+    color: @pale-gray;
 }
 
 #footer {
     text-align: center;
     /*   padding: 20px 20px;*/
-    border-top: 1px solid #e5e5e5;
-    background-color: #f5f5f5;
+    border-top: 1px solid darken(@pale-gray, 20%);
+    background-color: @pale-gray;
 }
 
 .remove-inline-element {

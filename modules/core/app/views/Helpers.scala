@@ -2,16 +2,12 @@ package views
 
 import java.util.Locale
 
-import views.html.helper.FieldConstructor
-import models.base.AnyModel
 import play.api.i18n.Lang
 
 import com.petebevin.markdown.MarkdownProcessor
 import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
 import models._
-import play.api.mvc.Call
-import defines.EntityType
 
 
 package object Helpers {
@@ -78,18 +74,15 @@ package object Helpers {
   def ellipsize(text: String, max: Int) = StringUtils.abbreviateMiddle(text, "...", max)
 
   /**
-   * Get the display language of the given code in the current locale.
-   */
-  def displayLanguage(code: String)(implicit lang: Lang) = new java.util.Locale(code).getDisplayLanguage(lang.toLocale)
-
-  /**
    * Get a list of code->name pairs for the given language.
    */
   def languagePairList(implicit lang: Lang): List[(String,String)] = {
     val locale = lang.toLocale
-    lang3to2lookup.map { case (c3,c2) =>
+    val localeLangs = lang3to2lookup.map { case (c3,c2) =>
       c3 -> WordUtils.capitalize(new java.util.Locale(c2).getDisplayLanguage(locale))
-    }.toList.sortBy(_._2)
+    }.toList
+
+    (localeLangs ::: utils.Data.additionalLangs).sortBy(_._2)
   }
 
   /**
@@ -139,7 +132,9 @@ package object Helpers {
     if (code.size == 2) {
       languageCode2ToNameOpt(code).getOrElse(code)
     } else {
-      lang3to2lookup.get(code).flatMap(c2 => languageCode2ToNameOpt(c2)).getOrElse(code)
+      lang3to2lookup.get(code)
+          .flatMap(c2 => languageCode2ToNameOpt(c2))
+          .getOrElse(utils.Data.additionalLangs.toMap.getOrElse(code, code))
     }
   }
 

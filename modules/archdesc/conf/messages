@@ -15,7 +15,6 @@ actions.createNewRepository=Create New Repository
 submitButton.createDocumentaryUnit=Create Collection
 submitButton.createRepository=Create Repository
 submitButton.updateDocumentaryUnit=Update Collection
-submitButton.updateDescription=Update Description
 submitButton.updateRepository=Update Repository
 submitButton.createCountry=Add Country
 submitButton.updateCountry=Update Country

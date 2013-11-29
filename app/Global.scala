@@ -8,7 +8,7 @@ import backend.{EventHandler, Backend}
 import defines.EntityType
 import java.util.concurrent.TimeUnit
 import play.api._
-import play.api.libs.json.JsError
+import play.api.libs.json.{Json, JsPath, JsError}
 import play.api.mvc._
 
 import play.api.mvc.SimpleResult
@@ -131,11 +131,17 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     import views.html.errors._
     implicit def req = request
 
+    def jsonError(err: Seq[(JsPath,Seq[play.api.data.validation.ValidationError])]) = {
+      "Unexpected JSON received from backend at %s (%s)\n\n%s".format(
+        request.path, request.method, Json.prettyPrint(JsError.toFlatJson(err))
+      )
+    }
+
     ex.getCause match {
       case e: PermissionDenied => immediate(Unauthorized(permissionDenied(Some(e))))
       case e: ItemNotFound => immediate(NotFound(itemNotFound(e.value)))
       case e: java.net.ConnectException => immediate(InternalServerError(serverTimeout()))
-      case BadJson(err) => immediate(BadRequest(JsError.toFlatJson(err)))
+      case BadJson(err) => sys.error(jsonError(err))
       case e => super.onError(request, e)
     }
   }

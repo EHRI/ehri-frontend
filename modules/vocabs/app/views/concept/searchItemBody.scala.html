@@ -5,7 +5,7 @@
         @item.vocabulary.map { vocab =>
             <li><a class="alt" href="@controllers.vocabs.routes.Vocabularies.get(vocab.id)">@vocab.toStringLang</a></li>
         }
-        <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
+        <li><span class="muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
         @item.latestEvent.map { event =>
             <li title="@event.time">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
         }

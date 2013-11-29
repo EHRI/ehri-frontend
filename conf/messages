@@ -250,7 +250,7 @@ actions.viewProfile=View Profile
 actions.exportJson=Export JSON
 actions.deleteItem=Delete Item
 actions.deleteAnnotation=Delete Annotation
-actions.updateItem=Update Item
+actions.updateItem=Edit Item
 actions.createNewItem=Create New Item
 actions.setVisibility=Set Visibility
 actions.modifyPermissions=Modify Permissions
@@ -309,6 +309,8 @@ submitButton.createUser=Create User
 submitButton.loginWithPassword=Sign In
 submitButton.loginWithOpenid=Sign In With OpenID
 submitButton.changePassword=Change Password
+submitButton.createDescription=Create Description
+submitButton.updateDescription=Update Description
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 deleting.deleteDescriptionConfirmationMessage=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.

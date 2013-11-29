@@ -9,6 +9,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
 import global.GlobalConfig
 import backend.Backend
+import play.api.Routes
+import play.api.http.MimeTypes
 
 case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Controller with AuthController with ControllerHelpers {
 
@@ -33,6 +35,16 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
           .as(r.ahcResponse.getContentType)
     }
   }
+
+  def jsRoutes = Action { implicit request =>
+    Ok(
+      Routes.javascriptRouter("jsRoutes")(
+
+      )
+    ).as(MimeTypes.JAVASCRIPT)
+  }
+
+
 
   //
   // Test guff for the Sparql endpoint...
