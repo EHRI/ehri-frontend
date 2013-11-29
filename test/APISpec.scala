@@ -3,7 +3,7 @@ package test
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{AnnotationF, AccessPointF}
 import helpers._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import controllers.generic.{AccessPointLink, Annotate}
 
 /**
@@ -26,14 +26,21 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       Json.parse(contentAsString(cr2)) mustEqual json
     }
 
-    "allow creating new access points" in new FakeApp {
+    "allow creating new access points and deleting them" in new FakeApp {
       val ap = new AccessPointF(id = None, accessPointType=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
       val json = Json.toJson(ap)(controllers.generic.AccessPointLink.accessPointFormat)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.archdesc.routes.DocumentaryUnits.createAccessPoint("c1", "cd1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
-      println(contentAsString(cr))
+      val jsap: JsValue = contentAsJson(cr)
+      val id = (jsap \ "id").as[String]
+
+      val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
+        controllers.archdesc.routes.DocumentaryUnits.deleteAccessPointAction("c1", "cd1", id).url)
+          .withHeaders(jsonPostHeaders.toSeq: _*), "").get
+      status(del) must equalTo(OK)
+      println(contentAsString(del))
     }
 
     "allow creating new links" in new FakeApp {

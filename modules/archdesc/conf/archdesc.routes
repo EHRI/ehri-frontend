@@ -46,7 +46,7 @@ POST    /docs/linkjs/:id                                @controllers.archdesc.Do
 GET     /docs/accessPoints/:id/:desc                    @controllers.archdesc.DocumentaryUnits.manageAccessPoints(id: String, desc: String)
 POST    /docs/accessPoints/create/:id/:desc             @controllers.archdesc.DocumentaryUnits.createAccessPoint(id: String, desc: String)
 GET     /docs/accessPointsJs/:id                        @controllers.archdesc.DocumentaryUnits.getAccessPointsJson(id: String)
-POST    /docs/deleteAccess/:id/:accessPoint             @controllers.archdesc.DocumentaryUnits.deleteAccessPointAction(id: String, accessPoint: String)
+POST    /docs/deleteAccess/:id/:did/:accessPoint        @controllers.archdesc.DocumentaryUnits.deleteAccessPointAction(id: String, did: String, accessPoint: String)
 POST    /docs/deleteLink/:id/:link                      @controllers.archdesc.DocumentaryUnits.deleteLink(id: String, link: String)
 
 

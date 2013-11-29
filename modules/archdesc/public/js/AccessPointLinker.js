@@ -19,14 +19,12 @@
         },
 
         detail: function(type, id) {
-          // FIXME: Get reverse routing working here...
-          return $http.get("/admin/api/" + type + "/" + id);
-//          return $http.get($service.getType(type, id).url, {
-//            headers: {
-//              "Content-Type": "application/json",
-//              "Accept": "application/json; charset=utf-8"
-//            }
-//          });
+          return $http.get($service.getItem(type, id).url, {
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json; charset=utf-8"
+            }
+          });
         }
       };
     });
@@ -34,10 +32,10 @@
     $provide.factory('$service', function() {
       return {
         get: jsRoutes.controllers.core.Application.get,
-        getType: jsRoutes.controllers.core.Application.getType,
+        getItem: jsRoutes.controllers.core.ApiController.getItem,
         filter: jsRoutes.controllers.core.SearchFilter.filter,
         createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
-        createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.createMultipleLinks,
+        createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost,
         createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
         getAccessPoints: jsRoutes.controllers.archdesc.DocumentaryUnits.getAccessPointsJson,
         deleteLink: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLink,
@@ -299,7 +297,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
 
                 console.log("Deleted link, now proceeding to delete access point ", accessPointId);
 
-                $service.deleteAccessPoint($scope.itemId, accessPointId).ajax({
+                $service.deleteAccessPoint($scope.itemId, $scope.descriptionId, accessPointId).ajax({
                   headers: {"Accept": "application/json; charset=utf-8"},
                   success: function(data) {
                     if (data === true) {
@@ -365,7 +363,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
         if (result == 1) {
           console.log("Deleting access point", accessPointId);
 
-          $service.deleteAccessPoint($scope.itemId, accessPointId).ajax({
+          $service.deleteAccessPoint($scope.itemId, $scope.descriptionId, accessPointId).ajax({
             headers: {"Accept": "application/json; charset=utf-8"},
             success: function(data) {
               console.log("Access point delete result: ", data)
@@ -490,7 +488,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
    * @returns url the (local) URL
    */
   $scope.getTypeUrl = function(type, id) {
-    return $service.getType(type, id).url;
+    return $service.getItem(type, id).url;
   }
 
   /**

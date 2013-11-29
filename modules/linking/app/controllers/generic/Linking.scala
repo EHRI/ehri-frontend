@@ -215,11 +215,11 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   /**
    * Delete an access point by ID. FIXME: This should probably be moved elsewhere.
    */
-  def deleteAccessPointAction(id: String, accessPointId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Update, contentType) {
+  def deleteAccessPointAction(id: String, did: String, accessPointId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Update, contentType) {
       bool => implicit userOpt => implicit request =>
-    backend.deleteAccessPoint(accessPointId).map { ok =>
+    backend.deleteAccessPoint(id, did, accessPointId).map { ok =>
       Cache.remove(id)
-      Ok(Json.toJson(ok))
+      Ok(Json.toJson(true))
     }
   }
 

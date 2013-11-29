@@ -74,7 +74,7 @@ trait RestDescriptions extends RestDAO {
 
   def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
-    userCall(enc(requestUrl, id, did, apid)).withHeaders(msgHeader(logMsg): _*).delete().flatMap { response =>
+    userCall(enc(requestUrl, id, did, EntityType.AccessPoint.toString, apid)).withHeaders(msgHeader(logMsg): _*).delete().flatMap { response =>
       entities.get(id).map { item =>
         eventHandler.handleUpdate(id)
         Cache.remove(id)
