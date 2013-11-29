@@ -171,7 +171,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def createDescription(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.editDescription(item,
+    Ok(views.html.documentaryUnit.createDescription(item,
         descriptionForm, docRoutes.createDescriptionPost(id)))
   }
 

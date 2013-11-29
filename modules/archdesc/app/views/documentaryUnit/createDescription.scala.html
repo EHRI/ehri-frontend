@@ -3,14 +3,14 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.updateDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = formJs()) {
+@layout.rightSidebar(Messages("actions.createDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = formJs()) {
 
     @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
             @formHelpers.csrfToken()
             @documentaryUnit.renderDescriptionForm(f(""))
 
-            @common.submitButtonWithLogMessageInput(Messages("submitButton.updateDescription"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+            @common.submitButtonWithLogMessageInput(Messages("submitButton.createDescription"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
         }
     }
 } {

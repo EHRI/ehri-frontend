@@ -18,7 +18,7 @@
         @item.holder.map { holder =>
             <li><a class="alt" href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
         }
-        <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
+        <li><span class="muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
         @desc.dates.headOption.map { dp =>
             <li>@dp.years</li>
