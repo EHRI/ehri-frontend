@@ -21,6 +21,8 @@
 
 @gravitar-size: 48px;
 
+@footer-height: 100px;
+
 
 .downward-shadow (@height: @shadow-depth, @blur: @shadow-blur) {
   box-shadow: 0px @height @height @blur @shadow-color;
@@ -42,7 +44,7 @@
 @large-padding: 20px;
 
 body {
-  padding-top: @menu-height;
+  //padding-top: @menu-height;
 
 }
 
@@ -53,6 +55,69 @@ html,
 body {
   height: 100%;
   /* The html and body elements cannot have any padding or margin. */
+  background-color: #FCFCFC;
+}
+
+body {
+  max-width: 1020px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+div.navigation {
+  background-color: #252525;
+  color: white;
+
+  li {
+    padding: 0px;
+  }
+
+  padding-top: @medium-padding;
+
+  a {
+    color: white;
+    padding: @medium-padding;
+  }
+
+  .nav-secondary {
+    padding-top: @large-padding;
+    padding-bottom: @large-padding;
+    ul {
+      margin: @medium-margin;
+    }
+
+    padding: @small-padding;
+    font-size: 0.9em;
+  }
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  background-color: white;
+  border-left: 1px solid @dark-gray;
+  border-right: 1px solid @dark-gray;
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  /* Negative indent footer by it's height */
+  margin: 0 auto -@footer-height;
+}
+
+/* Set the fixed height of the footer here */
+#push, footer {
+  height: @footer-height - 1;
+}
+
+footer {
+  background-color: @pale-gray;
+  border-left: 1px solid @dark-gray;
+  border-right: 1px solid @dark-gray;
+  padding-left: @large-padding;
+  padding-right: @large-padding;
+}
+
+footer .container {
+  padding-top: @large-padding;
 }
 
 #navbar-logo {
@@ -64,18 +129,32 @@ body {
   }
 }
 
-.navbar-form {
-  .form-group {
-    input[type='text'] {
-      border: none;
-      background-color: @almost-black;
-    }
-
-    input[type='text']:focus {
-      background-color: @pale-gray;
-    }
-  }
+// Bootstrap mixins - not working till bootstrap play integration
+// is figured out...
+/*
+.wrapper {
+  .make_row();
 }
+
+.content-main-left {
+  .make-md-column(9);
+  .make-md-column-pull(3);
+}
+
+.content-secondary-right {
+  .make-md-column(3);
+  .make-md-column-push(9);
+}
+
+.content-main-right {
+  .make-md-column(9);
+}
+
+.content-secondary-left {
+  .make-md-column(3);
+}
+*/
+
 
 .facet-class {
   padding-bottom: @medium-padding * 2;
@@ -84,11 +163,6 @@ body {
 
 .facet-select-dropdown {
   max-width: 400px;
-}
-
-// nav menu color fixes
-.nav .caret, .nav a:hover .caret {
-  border-top-color: #fff;
 }
 
 .dropdown-menu>li > a:hover, .dropdown-menu > li > a:focus {
@@ -106,6 +180,7 @@ body {
 
 .top-bar {
   background-color: @primary-highlight;
+  padding: @small-padding;
 }
 
 .top-bar.documentaryUnit {
@@ -178,10 +253,11 @@ a.alt {
 }
 
 .sidebar {
+  padding: @large-padding;
 }
 
 .top-bar {
-  .downward-shadow();
+  //.downward-shadow();
   color: @pale-gray;
   font-size: 1.1em;
 }
@@ -199,17 +275,20 @@ a.alt {
 }
 
 .search-bar {
-  border-top: solid 1px @dark-gray;
   border-bottom: solid 1px @pale-gray;
-  background-color: white;
-  margin-bottom: 10px;
+
+  .search-heading {
+    padding: @large-padding;
+  }
 }
 
 .info-bar {
+  padding: @medium-padding;
   background-color: @pale-gray;
 }
 
 .main-content {
+  padding: @large-padding;
 }
 
 .tertiary-content {
@@ -228,30 +307,6 @@ a.alt {
 
 #news-feed img {
   display: none;
-}
-
-/* Wrapper for page content to push down footer */
-#wrap {
-  min-height: 100%;
-  height: auto !important;
-  height: 100%;
-  /* Negative indent footer by it's height */
-  margin: 0 auto -100px;
-}
-
-/* Set the fixed height of the footer here */
-#push, footer {
-  height: 99px;
-}
-
-footer {
-  background-color: @pale-gray;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-footer .container {
-  padding-top: 20px;
 }
 
 /** Search items */

@@ -8,28 +8,22 @@
         <li>@Messages("portal.social.followers")</li>
     }
 
-    <div class="row info-bar">
-        <div class="container">
-            @userOpt.map { user =>
-                @if(user.id != them.id) {
-                    <div class="pull-right">
-                    @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
-                    </div>
-                }
+    @p.layout.infobar {
+        @userOpt.map { user =>
+            @if(user.id != them.id) {
+                <div class="pull-right">
+                @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
+                </div>
             }
-            <h1>@them.toStringLang</h1>
-        </div>
-    </div>
+        }
+        <h1>@them.toStringLang</h1>
+    }
 
     <div class="row">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12 col-md-12 col-lg-12">
-                    <p>
-                    <div class="browse-users-followers">
-                        @followerList(them, users, params, myFollowing)
-                    </div>
-                </div>
+        <div class="col-md-12">
+            <p>
+            <div class="browse-users-followers container">
+                @followerList(them, users, params, myFollowing)
             </div>
         </div>
     </div>

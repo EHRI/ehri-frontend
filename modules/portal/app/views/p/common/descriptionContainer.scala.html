@@ -1,6 +1,6 @@
 @(descriptions: List[models.base.Description])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-<div class="descriptions container">
+<div class="descriptions">
     @if(descriptions.size > 1) {
         <div class="alert alert-block alert-info multiple-descriptions-note">
             @Messages("portal.multipleDescriptions")

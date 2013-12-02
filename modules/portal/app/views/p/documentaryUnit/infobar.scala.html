@@ -1,31 +1,30 @@
 @(item: DocumentaryUnit, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-<div class="row info-bar">
-    <div class="container">
-        @userOpt.map { user =>
-            <div class="pull-right">
-                @p.common.watchButtons(item, watched)
-            </div>
-        }
-        <h1>@item.toStringLang</h1>
+@p.layout.infobar {
+    @userOpt.map { user =>
+        <div class="pull-right">
+            @p.common.watchButtons(item, watched)
+        </div>
+    }
+    <h1>@item.toStringLang</h1>
 
-        @item.holder.map { repo =>
-            <h4>@p.helpers.linkTo(repo)</h4>
-        }
+    @item.holder.map { repo =>
+        <h4>@p.helpers.linkTo(repo)</h4>
+    }
 
-        @if(!item.ancestors.isEmpty) {
-            <ul class="list-unstyled inline-separator">
-                @item.ancestors.map { ann =>
-                    <li>@p.helpers.linkTo(ann)</li>
-                }
-            </ul>
-        }
-        <small>
-            @item.latestEvent.map { event =>
-                <time datetime="@event.model.timestamp">
-                    @Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
-                </time>
+    @if(!item.ancestors.isEmpty) {
+        <ul class="list-unstyled inline-separator">
+            @item.ancestors.map { ann =>
+                <li>@p.helpers.linkTo(ann)</li>
             }
-        </small>
-    </div>
-</div>
+        </ul>
+    }
+    <small>
+        @item.latestEvent.map { event =>
+            <time datetime="@event.model.timestamp">
+                @Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
+            </time>
+        }
+    </small>
+}
+

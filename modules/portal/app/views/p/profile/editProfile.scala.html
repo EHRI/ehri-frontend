@@ -6,11 +6,9 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
     <li>&nbsp;</li>
     }
 
-    <div class="row info-bar">
-        <div class="container">
-            <h1>@Messages("portal.profile")</h1>
-        </div>
-    </div>
+    @p.layout.infobar {
+        <h1>@Messages("portal.profile")</h1>
+    }
 
     <div class="container">
         <p>

@@ -8,11 +8,9 @@
         <li>@Messages("portal.social.browseUsers")</li>
     }
 
-    <div class="row info-bar">
-        <div class="container">
-            <h1>@Messages("portal.social.browseUsers")</h1>
-        </div>
-    </div>
+    @p.layout.infobar {
+        <h1>@Messages("portal.social.browseUsers")</h1>
+    }
 
     @if(params.isFiltered || !users.items.isEmpty) {
         @helper.form(action = controllers.portal.routes.Portal.browseUsers, 'role -> "form", 'class -> "form-horizontal") {

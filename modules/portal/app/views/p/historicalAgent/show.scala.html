@@ -6,7 +6,14 @@
         @p.helpers.breadcrumbCurrent(item.toStringLang)
     }
 
-    @infobar(item, watched)
+    @p.layout.infobar {
+        @userOpt.map { user =>
+            <div class="pull-right">
+                @p.common.watchButtons(item, watched)
+            </div>
+        }
+        <h1>@item.toStringLang</h1>
+    }
 
     @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
         @p.common.descriptionContainer(item.model.descriptions) {

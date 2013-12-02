@@ -9,32 +9,28 @@
         <li>@Messages("portal.activity")</li>
     }
 
-    <div class="row info-bar">
-        <div class="container">
-            <h1>@Messages("portal.activityLatest")</h1>
-        </div>
-    </div>
+    @p.layout.infobar {
+        <h1>@Messages("portal.activityLatest")</h1>
+    }
 
     <div class="row">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-8 col-md-8 col-lg-8">
-                    <p>
-                    <div class="container activity-stream-wrapper">
-                        <ul id="activity-stream" class="list-unstyled">
-                            @p.common.eventItems(events)
-                        </ul>
-                        <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)" id="activity-stream-fetchmore" class="btn btn-default btn-block">
-                        @Messages("portal.activity.fetchMore")
-                        </button>
-                    </div>
-                </div>
-                <div class="col-sm-4 col-md-4 col-lg-4">
-                    <p>
-                    @p.common.panel(Messages("portal.bookmarkedItems")) {
-                        TODO: List of bookmarked items
-                    }
-                </div>
+        <div class="col-md-8">
+            <p>
+            <div class="container activity-stream-wrapper">
+                <ul id="activity-stream" class="list-unstyled">
+                    @p.common.eventItems(events)
+                </ul>
+                <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)" id="activity-stream-fetchmore" class="btn btn-default btn-block">
+                @Messages("portal.activity.fetchMore")
+                </button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <p>
+            <div class="container">
+                @p.common.panel(Messages("portal.bookmarkedItems")) {
+                    TODO: List of bookmarked items
+                }
             </div>
         </div>
     </div>

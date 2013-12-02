@@ -7,27 +7,25 @@
             <li>&nbsp;</li>
         }
 
-        <div class="row info-bar">
-            <div class="container">
-                <div class="header-controls pull-right">
-                    <a class="btn btn-sm btn-info" href="@controllers.portal.routes.Portal.updateProfile">
-                        <span class="glyphicon glyphicon-wrench"></span>
-                        @Messages("portal.profile.updateProfile")
-                    </a>
-                </div>
-
-                <h1>@Messages("portal.profile")</h1>
+        @p.layout.infobar {
+            <div class="header-controls pull-right">
+                <a class="btn btn-sm btn-info" href="@controllers.portal.routes.Portal.updateProfile">
+                    <span class="glyphicon glyphicon-wrench"></span>
+                    @Messages("portal.profile.updateProfile")
+                </a>
             </div>
-        </div>
+
+            <h1>@Messages("portal.profile")</h1>
+        }
 
 
         <div class="row">
             <div class="container">
-                <div class="col-sm-2">
+                <div class="col-md-2">
                     <p>
                     @p.social.profileForUser(user)
                 </div>
-                <div class="col-sm-10">
+                <div class="col-md-10">
                     <p>
 
                     <ul class="nav nav-tabs">
