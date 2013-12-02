@@ -95,7 +95,7 @@ trait RestDAO {
             }
           },
           errorSet => {
-            Logger.logger.error("ValidationError ! : {}", response.json)
+            Logger.logger.warn("ValidationError ! : {}", response.json)
             throw ValidationError(errorSet)
           }
         )

@@ -49,17 +49,22 @@ case class OpenIDLoginHandler @Inject()(implicit globalConfig: global.GlobalConf
       OpenIDAssociation.findByUrl(info.id) match {
         // NOTE: If this user exists in the auth DB but not on the REST
         // server we have a bit of a problem at present...
-        case Some(assoc) => gotoLoginSucceeded(assoc.user.get.id)
+        case Some(assoc) => {
+          Logger.logger.info("User '{}' logged in via OpenId", assoc.user.get.id)
+          gotoLoginSucceeded(assoc.user.get.id)
+        }
         case None => {
           val email = extractEmail(info.attributes).getOrElse(sys.error("No openid email"))
           userDAO.findByEmail(email).map { acc =>
             OpenIDAssociation.addAssociation(acc, info.id)
+            Logger.logger.info("User '{}' created OpenID association", acc.id)
             gotoLoginSucceeded(acc.id)
               .map(_.withSession("access_uri" -> globalConfig.routeRegistry.default.url))
           } getOrElse {
             backend.createNewUserProfile.flatMap { up =>
               userDAO.create(up.id, email.toLowerCase).map { account =>
                 OpenIDAssociation.addAssociation(account, info.id)
+                Logger.logger.info("User '{}' created OpenID account", account.id)
                 gotoLoginSucceeded(account.id).map { r =>
                   r.withSession("access_uri" -> globalConfig.routeRegistry.default.url)
                 }

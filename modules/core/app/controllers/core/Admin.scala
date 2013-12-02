@@ -68,6 +68,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       data => {
         val (email, pw) = data
         userDAO.authenticate(email, pw).map { account =>
+          Logger.logger.info("User '{}' logged in via password", account.id)
           gotoLoginSucceeded(account.id)
         } getOrElse {
           immediate(Redirect(controllers.core.routes.Admin.login)
@@ -78,6 +79,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   }
 
   def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
+    Logger.logger.info("User '{}' logged out", maybeUser.map(_.id).getOrElse("?"))
     gotoLogoutSucceeded
   }
 
