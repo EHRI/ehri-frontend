@@ -20,4 +20,7 @@ trait GlobalConfig {
    */
   def isTestMode = current.configuration.getBoolean("ehri.testing").getOrElse(true)
   def isStageMode = current.configuration.getBoolean("ehri.staging").getOrElse(false)
+
+  lazy val languages: Seq[String] = current.configuration
+        .getString("application.langs").map(_.split(",").toSeq).getOrElse(Nil)
 }

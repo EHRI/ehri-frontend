@@ -90,7 +90,7 @@
                 <p class="text-muted">@Messages("portal.footerText")</p>
                 <small>
                     <ul class="text-muted lang-switcher pull-right list-inline list-unstyled">
-                    @List("en", "fr", "de", "he").map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
+                    @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
                     <li>
                         @if(lang.toString.toLowerCase.contains(changeLang)) {
                             @locale.getDisplayName(locale).toLowerCase
