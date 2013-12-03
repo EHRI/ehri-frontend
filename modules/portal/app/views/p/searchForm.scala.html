@@ -2,6 +2,8 @@
 
 @import utils.search.{SearchParams,SearchOrder}
 
+<div class="container main-content">
+
 @if(params.isFiltered || !result.items.isEmpty) {
     @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal") {
     <div class="row">
@@ -33,7 +35,7 @@
         <div class="col-md-3 sidebar">
             @facets
         </div>
-        <div class="col-md-9 main-content">
+        <div class="col-md-9">
             <h4>
                 @Messages(headerKey, result.offset + 1, result.offset + result.items.size, result.total)
 
@@ -59,3 +61,5 @@
     </div>
     }
 }
+
+</div>

@@ -1,38 +1,37 @@
-@(events: List[SystemEvent], params: utils.ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(events: Seq[SystemEvent], params: utils.ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import utils.search.SearchParams
 @import defines.EntityType
 
 
 @p.layout.portalLayout(Messages("portal.activity")) {
-    @p.layout.breadcrumbs() {
-        <li>@Messages("portal.activity")</li>
-    }
+@p.layout.breadcrumbs() {
+<li>@Messages("portal.activity")</li>
+}
 
-    @p.layout.infobar {
-        <h1>@Messages("portal.activityLatest")</h1>
-    }
+@p.layout.infobar {
+<h1>@Messages("portal.activity.latestActivity")</h1>
+}
 
+<div class="container main-content">
     <div class="row">
-        <div class="col-md-8">
-            <p>
-            <div class="container activity-stream-wrapper">
+        <div class="col-md-12">
+            <div class="activity-stream-wrapper">
+                @if(!events.isEmpty) {
                 <ul id="activity-stream" class="list-unstyled">
                     @p.common.eventItems(events)
                 </ul>
-                <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)" id="activity-stream-fetchmore" class="btn btn-default btn-block">
-                @Messages("portal.activity.fetchMore")
+                <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)"
+                        id="activity-stream-fetchmore" class="btn btn-default btn-block">
+                    @Messages("portal.activity.fetchMore")
                 </button>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <p>
-            <div class="container">
-                @p.common.panel(Messages("portal.bookmarkedItems")) {
-                    TODO: List of bookmarked items
+                } else {
+                <p class="text-muted">
+                    @Messages("portal.activity.noActivityYet")
+                </p>
                 }
             </div>
         </div>
     </div>
-
+</div>
 }

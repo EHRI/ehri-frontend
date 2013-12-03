@@ -26,15 +26,7 @@ portal.landingBlurb.familyLink={0,choice,0#{0} families|1#1 family|1<{0,number,i
 portal.search.repositories=Search Archival Institutions
 portal.search.documents=Search Archival Descriptions
 portal.search.historicalAgents=Search Authorities
-portal.activity=Activity
-portal.activityLatest=Latest Activity
-portal.activity.userCreatedItem={2,choice,0#{0} created item {1}|1#{0} created {1} and 1 more item|1<{0} created {1} and {2,number,integer} more items}
-portal.activity.userUpdatedItem={2,choice,0#{0} updated item {1}|1#{0} updated {1} and 1 more item|1<{0} updated {1} and {2,number,integer} more items}
-portal.activity.userImportedItem={2,choice,0#{0} imported item {1}|1#{0} imported {1} and 1 more item|1<{0} imported {1} and {2,number,integer} more items}
-portal.activity.userLinkedItem={2,choice,0#{0} created a link for item {1}|1#{0} created a link for {1} and 1 more item|1<{0} created a link for {1} and {2,number,integer} more items}
-portal.activity.userAnnotatedItem={2,choice,0#{0} annotated item {1}|1#{0} annotated {1} and 1 more item|1<{0} annotated {1} and {2,number,integer} more items}
-portal.activity.fetchMore=More
-portal.noActivityYet=No activity yet.
+
 portal.bookmarkedItems=Bookmarked Items
 portal.newsFeed=Latest News
 portal.latestUpdates=Recent Updates
@@ -59,7 +51,19 @@ portal.facet.itemsHeldOnline.yes=Catalogued Material Available
 portal.multipleDescriptions=This item has multiple descriptions. Alternate descriptions may source from different institutions or represent a (partial) translation.
 portal.noDetails=---
 
-# 'Social' crap...
+# Activity...
+portal.activity=Activity
+portal.activity.latestActivity=Latest Activity
+portal.activity.userCreatedItem={2,choice,0#{0} created item {1}|1#{0} created {1} and 1 more item|1<{0} created {1} and {2,number,integer} more items}
+portal.activity.userUpdatedItem={2,choice,0#{0} updated item {1}|1#{0} updated {1} and 1 more item|1<{0} updated {1} and {2,number,integer} more items}
+portal.activity.userImportedItem={2,choice,0#{0} imported item {1}|1#{0} imported {1} and 1 more item|1<{0} imported {1} and {2,number,integer} more items}
+portal.activity.userLinkedItem={2,choice,0#{0} created a link for item {1}|1#{0} created a link for {1} and 1 more item|1<{0} created a link for {1} and {2,number,integer} more items}
+portal.activity.userAnnotatedItem={2,choice,0#{0} annotated item {1}|1#{0} annotated {1} and 1 more item|1<{0} annotated {1} and {2,number,integer} more items}
+portal.activity.fetchMore=More
+portal.activity.noActivityYet=Activity involving items you''re watching and users you follow will show up here.
+portal.activity.noUserActivityYet=No activity yet.
+
+# 'Social' stuff...
 portal.social.users=People
 portal.social.browseUsers=People on EHRI
 portal.social.follow=Follow

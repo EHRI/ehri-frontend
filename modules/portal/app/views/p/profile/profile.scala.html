@@ -18,37 +18,33 @@
             <h1>@Messages("portal.profile")</h1>
         }
 
+    <div class="container main-content">
+    <div class="row">
+        <div class="col-md-2">
+            @p.social.profileForUser(user)
+        </div>
+        <div class="col-md-10">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#user-watch-list" data-toggle="tab">@Messages("portal.social.watchedItems")</a></li>
+                <li><a href="#user-annotations" data-toggle="tab">@Messages("portal.social.annotations")</a></li>
+                <li><a href="#user-links" data-toggle="tab">@Messages("portal.social.links")</a></li>
+            </ul>
 
-        <div class="row">
-            <div class="container">
-                <div class="col-md-2">
-                    <p>
-                    @p.social.profileForUser(user)
+            <div class="tab-content tab-content-panel">
+                <div class="tab-pane active panel-body" id="user-watch-list">
+                    @itemWatchList(user, watchList)
                 </div>
-                <div class="col-md-10">
+                <div class="tab-pane  panel-body" id="user-annotations">
                     <p>
-
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a href="#user-watch-list" data-toggle="tab">@Messages("portal.social.watchedItems")</a></li>
-                        <li><a href="#user-annotations" data-toggle="tab">@Messages("portal.social.annotations")</a></li>
-                        <li><a href="#user-links" data-toggle="tab">@Messages("portal.social.links")</a></li>
-                    </ul>
-
-                    <div class="tab-content tab-content-panel">
-                        <div class="tab-pane active panel-body" id="user-watch-list">
-                            @itemWatchList(user, watchList)
-                        </div>
-                        <div class="tab-pane  panel-body" id="user-annotations">
-                            <p>
-                            @annotationList(annotations)
-                        </div>
-                        <div class="tab-pane  panel-body" id="user-links">
-                            <p>
-                            @linkList(links)
-                        </div>
-                    </div>
+                        @annotationList(annotations)
+                </div>
+                <div class="tab-pane  panel-body" id="user-links">
+                    <p>
+                        @linkList(links)
                 </div>
             </div>
         </div>
+    </div>
+    </div>
     }
 }
