@@ -1,4 +1,5 @@
 logs
+lib
 project/project
 project/target
 target
@@ -11,11 +12,15 @@ tmp
 .target
 dist
 *.sublime-workspace
+OLD
+*.pyc
+*.jar
 
 # Intellij stuff
 *.iml
 ^fonts
 .fonts
+fonts
 .idea
 .idea_modules
 
