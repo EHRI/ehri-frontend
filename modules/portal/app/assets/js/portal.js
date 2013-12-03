@@ -174,6 +174,10 @@ jQuery(function ($) {
     });
   });
 
+  /**
+   * ANNOTATIONS...
+   */
+
   // Load an annotation form...
   $(document).on("click", ".annotate-item", function(e) {
     e.preventDefault();
