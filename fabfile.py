@@ -7,6 +7,8 @@ from __future__ import with_statement
 import os
 import datetime
 import subprocess
+from datetime import datetime
+
 from fabric.api import *
 from fabric.contrib.console import confirm
 from fabric.contrib.project import upload_project
@@ -18,6 +20,8 @@ env.prod = False
 env.use_ssh_config = True
 env.path = '/opt/webapps/' + env.project_name
 env.user = os.getenv("USER")
+
+TIMESTAMP_FORMAT = "%Y%m%d%H%M%S"
 
 # environments
 def test():
@@ -52,7 +56,7 @@ def clean_deploy():
 def get_version_stamp():
     "Get a dated and revision stamped version string"
     rev = subprocess.check_output(["git","rev-parse", "--short", "HEAD"]).strip()
-    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")    
+    timestamp = datetime.now().strftime(TIMESTAMP_FORMAT)    
     return "%s_%s" % (timestamp, rev)
 
 def copy_to_server():
@@ -109,4 +113,19 @@ def latest():
             symlink_current()
             restart()
 
+def current_version():
+    "Show the current date/revision"
+    with cd(env.path):
+        path = run("readlink -f target")
+        deploy = os.path.split(path)
+        if deploy[-1] != "target":
+            abort("Unexpected path for deploy directory: " + path)
+        timestamp, revision = os.path.basename(deploy[-2]).split("_")        
+        date = datetime.strptime(timestamp, TIMESTAMP_FORMAT)
+        print("Timestamp: %s, revision: %s" % (date, revision))
+        return date, revision
 
+def current_version_log():
+    "Output git log between HEAD and the current deployed version."
+    _, revision = current()
+    local("git log %s..HEAD" % revision)
