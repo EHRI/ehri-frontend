@@ -18,6 +18,7 @@ trait AnyModel {
     case e: MetaModel[_] => e.toStringLang(Lang.defaultLang)
     case t => t.toString
   }
+
   def toStringAbbr(implicit lang: Lang) = s"TODO (with abbr): $isA [$id]"
 }
 
@@ -33,8 +34,9 @@ object AnyModel {
       def reads(json: JsValue): JsResult[AnyModel] = {
         // Sniff the type...
         val et = (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType))
-        Utils.restReadRegistry.get(et).map { reads =>
-          json.validate(reads)
+        Utils.restReadRegistry.get(et).map {
+          reads =>
+            json.validate(reads)
         }.getOrElse {
           JsError(
             JsPath(List(KeyPathNode("type"))),
@@ -46,16 +48,18 @@ object AnyModel {
     implicit val clientFormat: Format[AnyModel] = new Format[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
         val et = (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType))
-        Utils.clientFormatRegistry.get(et).map { format =>
-          json.validate(format)
+        Utils.clientFormatRegistry.get(et).map {
+          format =>
+            json.validate(format)
         }.getOrElse {
           JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unregistered AnyModel type for Client read: " + et))
         }
       }
 
       def writes(a: AnyModel): JsValue = {
-        Utils.clientFormatRegistry.get(a.isA).map { format =>
-          Json.toJson(a)(format)
+        Utils.clientFormatRegistry.get(a.isA).map {
+          format =>
+            Json.toJson(a)(format)
         }.getOrElse {
           // FIXME: Throw an error here???
           Logger.logger.warn("Unregistered AnyModel type {} (Writing to Client)", a.isA)
@@ -64,6 +68,7 @@ object AnyModel {
       }
     }
   }
+
 }
 
 trait Named {
@@ -72,6 +77,7 @@ trait Named {
 
 trait Accessible extends AnyModel {
   def accessors: List[Accessor]
+
   def latestEvent: Option[SystemEvent]
 }
 
@@ -104,22 +110,22 @@ trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T
    * Links that relate to access points on this item's description(s)
    */
   def accessPointLinks(links: Seq[Link]): Seq[Link]
-      = links.filterNot(link => link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
+  = links.filterNot(link => link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
 
 
   /**
    * Links that point to this item from other item's access points.
    */
   def externalLinks(links: Seq[Link]): Seq[Link]
-      = links.filter(link =>
-          !link.bodies.isEmpty
-              && link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
+  = links.filter(link =>
+    !link.bodies.isEmpty
+      && link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
 
   /**
    * Links that don't relate to access points.
    */
   def annotationLinks(links: Seq[Link]): Seq[Link]
-      = links.filter(link => link.bodies.isEmpty)
+  = links.filter(link => link.bodies.isEmpty)
 }
 
 trait Holder[+T] extends AnyModel {
@@ -145,7 +151,7 @@ trait Hierarchical[+T] extends AnyModel {
    * List of ancestor items 'above' this one, including the parent.
    */
   def ancestors: List[Hierarchical[T]]
-      = (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
+  = (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
 }
 
 trait Description extends Model {
@@ -155,19 +161,56 @@ trait Description extends Model {
   val unknownProperties: List[Entity] // Unknown, unparsed data
 }
 
+object Description {
+  /**
+   * Somewhat gnarly function to get the first value from
+   * a set of descriptions that is available, along with an
+   * indication of it
+   * @param prim The primary description
+   * @param descriptions A set of 'alternate' descriptions
+   * @param f A function to extract an optional string from a description
+   * @tparam T The description type
+   * @return A tuple of the value and whether it was found in the primary description
+   */
+  def firstValue[T](prim: T, descriptions: Seq[T], f: T => Option[String]): (Option[String], Boolean) = {
+    if (f(prim).isDefined) (f(prim), true)
+    else descriptions.find(d => f(d).isDefined).map { backup =>
+      (f(backup), false)
+    }.getOrElse((None, false))
+  }
+
+  /**
+   * Helper for iterating over each description with a list of the other
+   * descriptions that are also available.
+   * @param descriptions The full list of descriptions
+   * @tparam T A description type
+   * @return A sequence of each element and its alterates
+   */
+  def iterateWithAlternates[T](descriptions: Seq[T]): Iterable[(T, Seq[T])] = for {
+    i <- descriptions.indices
+    elem = descriptions(i)
+    before = descriptions.take(i)
+    after = descriptions.drop(i + 1)
+  } yield (elem, before ++ after)
+}
+
 trait Described[+T <: Description] extends Model {
   val descriptions: List[T]
+
   def description(id: String) = descriptions.find(_.id == Some(id)): Option[T]
+
   def primaryDescription(id: Option[String])(implicit lang: Lang): Option[T]
-      = id.map(s => primaryDescription(s)).getOrElse(primaryDescription)
+  = id.map(s => primaryDescription(s)).getOrElse(primaryDescription)
+
   def primaryDescription(implicit lang: Lang) = descriptions.headOption
+
   def primaryDescription(id: String)(implicit lang: Lang) = {
     // TODO:!!!
     description(id)
   }
 
   def accessPoints: List[AccessPointF]
-      = descriptions.flatMap(_.accessPoints)
+  = descriptions.flatMap(_.accessPoints)
 }
 
 trait Temporal {
