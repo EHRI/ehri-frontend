@@ -35,6 +35,14 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
       }
     }
 
+    "redirect 301 for trailing-slash URLs" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
+          controllers.admin.routes.Home.index.url + "/")).get
+        status(home) must equalTo(MOVED_PERMANENTLY)
+      }
+    }
+
     "deny non-staff users access to admin areas" in {
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
