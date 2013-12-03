@@ -1,5 +1,21 @@
 jQuery(function ($) {
 
+  // jQuery history plugin... initialise
+  // Bind to StateChange Event
+  History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
+    var State = History.getState(); // Note: We are using History.getState() instead of event.state
+
+    // TODO: Use...
+  });
+
+  // Integrate Bootstrap tab switching with the history plugin...
+  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    // e.target // activated tab
+    // e.relatedTarget // previous tab
+    var t = $(e.target).data("tabidx"); // chop off #
+    History.replaceState({tabState: t}, t, "?tab=" + t);
+  });
+
   // Validate any forms with 'validate-form' class...
   $(".validate-form").validate();
   $(document).ajaxComplete(function () {

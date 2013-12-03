@@ -24,25 +24,27 @@
             @p.social.profileForUser(user)
         </div>
         <div class="col-md-10">
+            @defining(req.getQueryString("tab").getOrElse("0")) { activeTab =>
             <ul class="nav nav-tabs">
-                <li class="active"><a href="#user-watch-list" data-toggle="tab">@Messages("portal.social.watchedItems")</a></li>
-                <li><a href="#user-annotations" data-toggle="tab">@Messages("portal.social.annotations")</a></li>
-                <li><a href="#user-links" data-toggle="tab">@Messages("portal.social.links")</a></li>
+                <li class="@(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab">@Messages("portal.social.watchedItems")</a></li>
+                <li class="@(if(activeTab == "1") "active")"><a href="#user-annotations" data-tabidx="1" data-toggle="tab">@Messages("portal.social.annotations")</a></li>
+                <li class="@(if(activeTab == "2") "active")"><a href="#user-links" data-tabidx="2" data-toggle="tab">@Messages("portal.social.links")</a></li>
             </ul>
 
             <div class="tab-content tab-content-panel">
-                <div class="tab-pane active panel-body" id="user-watch-list">
+                <div class="tab-pane @(if(activeTab == "0") "active") panel-body" id="user-watch-list">
                     @itemWatchList(user, watchList)
                 </div>
-                <div class="tab-pane  panel-body" id="user-annotations">
+                <div class="tab-pane @(if(activeTab == "1") "active") panel-body" id="user-annotations">
                     <p>
                         @annotationList(annotations)
                 </div>
-                <div class="tab-pane  panel-body" id="user-links">
+                <div class="tab-pane @(if(activeTab == "2") "active") panel-body" id="user-links">
                     <p>
                         @linkList(links)
                 </div>
             </div>
+            }
         </div>
     </div>
     </div>
