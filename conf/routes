@@ -6,6 +6,8 @@
 GET     /robots.txt                     controllers.Assets.at(path="/public", file="robots.txt")
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)
 
+GET     /*path/                         controllers.GlobalController.untrail(path)
+
 # Defer other routes to modules
 -> /admin               core.Routes
 -> /admin               admin.Routes
@@ -17,5 +19,3 @@ GET     /assets/*file                   controllers.Assets.at(path="/public", fi
 
 # Portal is special
 -> /  portal.Routes
-
-
