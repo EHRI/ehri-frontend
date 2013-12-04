@@ -37,4 +37,8 @@ case class MockSearchIndexer() extends Indexer {
     eventBuffer += id
     Logger.logger.info("Clearing id: " + id)
   }
+  def clearKeyValue(key: String, value: String) = Future.successful {
+    eventBuffer += "clear-key-value " + s"$key=$value"
+    Logger.logger.info("Clearing key-value: " + s"$key=$value")
+  }
 }

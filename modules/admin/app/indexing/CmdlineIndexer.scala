@@ -92,4 +92,7 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
         = runProcess(clearArgs ++ entityTypes.flatMap(s => Seq("--clear-type", s.toString)))
 
   def clearId(id: String): Future[Unit] = runProcess(clearArgs ++ Seq("--clear-id", id))
+
+  def clearKeyValue(key: String, value: String): Future[Unit]
+        = runProcess(clearArgs ++ Seq("--clear-key-value", s"$key=$value"))
 }

@@ -35,6 +35,7 @@ search.sortItems=Sort Items
 search.sortReversed=(Descending)
 search.noItemsFound=No Items Found
 search.updateIndex=Refresh Search Index
+search.updateIndexFor=Refresh searching index for {0}
 search.clearEntireIndex=Clear Entire Index First
 search.selectAllTypes=Select All
 search.typesToUpdate=Types to Update

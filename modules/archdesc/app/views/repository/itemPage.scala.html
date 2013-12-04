@@ -25,6 +25,7 @@
     </ul>
 
     <ul class="item-actions nav nav-tabs nav-stacked">
+        <li><a href="@controllers.archdesc.routes.Repositories.updateIndex(item.id)">@Messages("search.updateIndex")</a></li>
         <li><a href="@controllers.core.routes.ApiController.getItem(ContentTypes.Repository.toString, item.id)">@Messages("actions.exportJson")</a></li>
     </ul>
 }

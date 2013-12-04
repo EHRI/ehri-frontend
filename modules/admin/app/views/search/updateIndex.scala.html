@@ -17,69 +17,11 @@
 
 @extraScript = {
     <script type="application/javascript">
-        jQuery(function($) {
-
-            var doneMsg = "<message>@controllers.admin.AdminSearch.DONE_MESSAGE</message>";
-            var errMsg = "<message>@controllers.admin.AdminSearch.ERR_MESSAGE</message>";
-
-            $("#select-all").change(function(event) {
-                $("input[name='type[]']").prop("checked", $(this).prop("checked"));
-            })
-
-            $("#submit-update").click(function(e) {
-                var $elem = $(this);
-                $elem.attr("disabled", true);
-                submitAndPoll($("#update-form").serialize(), function() {
-                    $elem.attr("disabled", false);
-                });
-                e.preventDefault();
-                e.stopPropagation();
-            });
-
-            function appendProgressMessage(msg) {
-                var $elem = $("#update-progress");
-                var $inner = $("#update-progress > pre");
-                if ($inner.length === 0) {
-                    $inner = $("<pre></pre>");
-                    $elem.append($inner);
-                }
-                $inner.append(msg + "<br/>");
-                $elem.scrollTop($inner.height());
-
-            }
-
-            function submitAndPoll(data, doneFunc) {
-                var pollTimer = -1, nextReadPos = -1;
-                var xhReq = new XMLHttpRequest();
-                xhReq.open("POST", "@action.url", true);
-                //Send the proper header information along with the request
-                xhReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhReq.send(data);
-
-                // Don't bother with onreadystatechange - it shouldn't close
-                // and we're polling responsetext anyway
-                pollTimer = setInterval(pollLatestResponse, 250);
-
-                function pollLatestResponse() {
-                    var allMessages = xhReq.responseText;
-                    do {
-                        var unprocessed = allMessages.substring(nextReadPos);
-                        var messageXMLEndIndex = unprocessed.indexOf("</message>");
-                        if (messageXMLEndIndex!=-1) {
-                            var endOfFirstMessageIndex = messageXMLEndIndex + "</message>".length;
-                            var anUpdate = unprocessed.substring(0, endOfFirstMessageIndex);
-                            appendProgressMessage(anUpdate);
-                            nextReadPos += endOfFirstMessageIndex;
-                            if (anUpdate.indexOf(doneMsg) != -1 || anUpdate.indexOf(errMsg) != -1) {
-                                doneFunc();
-                                clearInterval(pollTimer);
-                            }
-                        }
-                    } while (messageXMLEndIndex != -1);
-                }
-            }
-        });
+        var POLL_URL = "@action.url";
+        var DONE_MSG = "<message>@controllers.generic.Indexable.DONE_MESSAGE</message>";
+        var ERR_MSG = "<message>@controllers.generic.Indexable.ERR_MESSAGE</message>";
     </script>
+    <script src="@controllers.core.routes.Assets.at("js/index_utils.js")" type="text/javascript"></script>
 }
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }

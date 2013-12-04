@@ -72,6 +72,8 @@ POST    /repository/permissions/:id/:userType/:userId   @controllers.archdesc.Re
 GET     /repository/scope/:id/add                       @controllers.archdesc.Repositories.addScopedPermissions(id: String)
 GET     /repository/scope/:id/:userType/:userId         @controllers.archdesc.Repositories.setScopedPermissions(id: String, userType: String, userId: String)
 POST    /repository/scope/:id/:userType/:userId         @controllers.archdesc.Repositories.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /repository/reindex/:id                         @controllers.archdesc.Repositories.updateIndex(id: String)
+POST    /repository/reindex/:id                         @controllers.archdesc.Repositories.updateIndexPost(id: String)
 
 GET     /country/show/:id                               @controllers.archdesc.Countries.get(id: String)
 GET     /country/history/:id                            @controllers.archdesc.Countries.history(id: String)

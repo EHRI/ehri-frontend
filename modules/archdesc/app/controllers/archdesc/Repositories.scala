@@ -6,15 +6,14 @@ import models.{Repository,RepositoryF,DocumentaryUnit,DocumentaryUnitF}
 import play.api.i18n.Messages
 import defines.{EntityType,PermissionType,ContentTypes}
 import views.Helpers
-import utils.search.{Resolver, Dispatcher, SearchParams, FacetSort}
+import utils.search.{Resolver, Indexer, Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
-import scala.Some
 import backend.Backend
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Read[Repository]
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend) extends Read[Repository]
   with Update[RepositoryF, Repository]
   with Delete[Repository]
   with Creator[DocumentaryUnitF,DocumentaryUnit, Repository]
@@ -22,7 +21,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   with ScopePermissions[Repository]
   with Annotate[Repository]
   with Search
-  with Api[Repository] {
+  with Api[Repository]
+  with Indexable[Repository] {
 
   val DEFAULT_SORT = "name"
 
@@ -204,5 +204,12 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       perms => implicit userOpt => implicit request =>
     Redirect(repositoryRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+  }
+
+  def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
+    getEntity(id, userOpt) { item =>
+      Ok(views.html.search.updateItemIndex(item,
+        action = controllers.archdesc.routes.Repositories.updateIndexPost(id)))
+    }
   }
 }

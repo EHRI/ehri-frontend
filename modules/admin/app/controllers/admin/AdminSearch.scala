@@ -1,37 +1,24 @@
 package controllers.admin
 
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc._
-import play.Play.application
 import play.api.libs.iteratee.{Concurrent, Enumerator}
 import models.IsadG
 import concurrent.Future
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.{Writes, Json}
 
 import com.google.inject._
-import solr.facet.FieldFacetClass
 import models.base.AnyModel
 import utils.search._
-import scala.util.{Failure, Success}
 import play.api.Logger
-import controllers.generic.Search
+import controllers.generic.{Indexable, Search}
 import backend.Backend
 import scala.util.Failure
 import solr.facet.FieldFacetClass
 import scala.Some
 import scala.util.Success
 
-
-object AdminSearch {
-  /**
-   * Message that terminates a long-lived streaming response, such
-   * as the search index update job.
-   */
-  val DONE_MESSAGE = "Done"
-  val ERR_MESSAGE = "Index Error"
-}
 
 @Singleton
 case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend) extends Search {
@@ -124,10 +111,9 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
    * Render the update form
    * @return
    */
-  def updateIndex = adminAction {
-    implicit userOpt => implicit request =>
-      Ok(views.html.search.updateIndex(form = updateIndexForm,
-        action = controllers.admin.routes.AdminSearch.updateIndexPost))
+  def updateIndex = adminAction { implicit userOpt => implicit request =>
+    Ok(views.html.search.updateIndex(form = updateIndexForm,
+      action = controllers.admin.routes.AdminSearch.updateIndexPost))
   }
 
   /**
@@ -162,13 +148,13 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
       job.onComplete {
         case Success(()) => {
-          chan.push(wrapMsg(AdminSearch.DONE_MESSAGE))
+          chan.push(wrapMsg(Indexable.DONE_MESSAGE))
           chan.eofAndEnd()
         }
         case Failure(t) => {
           Logger.logger.error(t.getMessage)
           chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
-          chan.push(wrapMsg(AdminSearch.ERR_MESSAGE))
+          chan.push(wrapMsg(Indexable.ERR_MESSAGE))
           chan.eofAndEnd()
         }
       }

@@ -58,4 +58,12 @@ trait Indexer {
    * @return
    */
   def clearId(id: String): Future[Unit]
+
+  /**
+   * Clear a given item from the index.
+   * @param key
+   * @param value
+   * @return
+   */
+  def clearKeyValue(key: String, value: String): Future[Unit]
 }
