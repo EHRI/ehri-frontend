@@ -47,7 +47,7 @@ trait PortalAnnotations {
       ann => {
         val accessors: List[String] = getAccessors(user)
         backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
-          Ok(p.common.annotationInline(ann))
+          Created(p.common.annotationInline(ann))
         }
       }
     )
@@ -125,7 +125,7 @@ trait PortalAnnotations {
         val fieldAnn = ann.copy(field = Some(field))
         val accessors: List[String] = getAccessors(user)
         backend.createAnnotationForDependent(id, did, fieldAnn, accessors).map { ann =>
-          Ok(p.common.annotationInline(ann))
+          Created(p.common.annotationInline(ann))
         }
       }
     )
