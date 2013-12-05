@@ -4,7 +4,7 @@ import forms.VisibilityForm
 import controllers.generic._
 import models.{Repository,RepositoryF,DocumentaryUnit,DocumentaryUnitF}
 import play.api.i18n.Messages
-import defines.{EntityType,PermissionType,ContentTypes}
+import defines.{EntityType,ContentTypes}
 import views.Helpers
 import utils.search.{Resolver, Indexer, Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
@@ -23,8 +23,6 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Search
   with Api[Repository]
   with Indexable[Repository] {
-
-  val DEFAULT_SORT = "name"
 
   // Documentary unit facets
   import solr.facet._
@@ -212,4 +210,6 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         action = controllers.archdesc.routes.Repositories.updateIndexPost(id)))
     }
   }
+
+  def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
 }

@@ -5,13 +5,11 @@ import play.api.mvc.Controller
 import controllers.base.{ControllerHelpers, AuthController}
 import utils.search.Indexer
 import models.json.RestResource
-import play.api.data.Form
-import play.api.data.Forms._
 import play.api.libs.iteratee.{Enumerator, Concurrent}
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import play.api.Logger
-import solr.SolrConstants
+
 
 object Indexable {
   /**
@@ -30,24 +28,54 @@ object Indexable {
  */
 trait Indexable[MT] extends Controller with AuthController with ControllerHelpers {
   implicit val resource: RestResource[MT]
+
   def searchIndexer: Indexer
 
+  private def wrapMsg(m: String) = s"<message>$m</message>"
+
+  private def finishSuccess(chan: Concurrent.Channel[String]) {
+    chan.push(wrapMsg(Indexable.DONE_MESSAGE))
+    chan.eofAndEnd()
+  }
+
+  private def finishError(chan: Concurrent.Channel[String], t: Throwable) {
+    Logger.logger.error(t.getMessage)
+    chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
+    chan.push(wrapMsg(Indexable.ERR_MESSAGE))
+    chan.eofAndEnd()
+  }
+
+
   /**
-   * This field is used as the key for clearing items, i.e
-   * everything using this trait should have its child items
-   * refer to it as holderId=this-id
+   * Update a single item in the index.
+   *
+   * @param id The items id
+   * @return An action returning a chunked progress response.
    */
-  val DISCRIMINATOR = SolrConstants.HOLDER_ID
+  def updateItemPost(id: String) = adminAction { implicit userOpt => implicit request =>
+    val channel = Concurrent.unicast[String] { chan =>
+      searchIndexer.withChannel(chan, wrapMsg).indexId(id).onComplete {
+        case Success(()) => finishSuccess(chan)
+        case Failure(t) => finishError(chan, t)
+      }
+    }
 
-  def updateIndexPost(id: String) = adminAction { implicit userOpt => implicit request =>
+    Ok.chunked(channel.andThen(Enumerator.eof))
+  }
 
-    def wrapMsg(m: String) = s"<message>$m</message>"
-
-    // Create an unicast channel in which to feed progress messages
+  /**
+   * Update items parented by this one. The field in the parent docs that
+   * refers to this one must be given, i.e. holderId=[this-item]
+   * @param field The discriminator field
+   * @param id The parent item id
+   * @return An action returning a chunked progress response.
+   */
+  def updateChildItemsPost(field: String, id: String) = adminAction { implicit userOpt => implicit request =>
+    println("INDEXING WITH: " + searchIndexer)
     val channel = Concurrent.unicast[String] { chan =>
 
       def clearIndex: Future[Unit] = {
-        val f = searchIndexer.clearKeyValue(DISCRIMINATOR, id)
+        val f = searchIndexer.clearKeyValue(field, id)
         f.onSuccess {
           case () => chan.push(wrapMsg("... finished clearing index"))
         }
@@ -59,16 +87,8 @@ trait Indexable[MT] extends Controller with AuthController with ControllerHelper
       }
 
       job.onComplete {
-        case Success(()) => {
-          chan.push(wrapMsg(Indexable.DONE_MESSAGE))
-          chan.eofAndEnd()
-        }
-        case Failure(t) => {
-          Logger.logger.error(t.getMessage)
-          chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
-          chan.push(wrapMsg(Indexable.ERR_MESSAGE))
-          chan.eofAndEnd()
-        }
+        case Success(()) => finishSuccess(chan)
+        case Failure(t) => finishError(chan, t)
       }
     }
 

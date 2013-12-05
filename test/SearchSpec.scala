@@ -53,6 +53,15 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
           controllers.admin.routes.AdminSearch.updateIndexPost.url), data).get
       status(idx) must equalTo(OK)
+      // TODO: Check index buffer - problematic due to chunked response?
+    }
+
+    "perform hierarchy indexing correctly" in new FakeApp {
+
+      val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.archdesc.routes.Repositories.updateIndexPost("r1").url), "").get
+      status(idx) must equalTo(OK)
+      // TODO: Check index buffer - problematic due to chunked response?
     }
   }
 
