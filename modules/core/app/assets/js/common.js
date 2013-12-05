@@ -9,10 +9,10 @@ jQuery(function($) {
     // HACK! If there's a description viewport, disable jumping
     // to the element on page load... this is soooo horrible.
   setTimeout(function() {
-    if (location.hash && $(location.hash).hasClass("description")) {
+    if (location.hash && $(location.hash).hasClass("description-holder")) {
       window.scrollTo(0, 0);
     }
-  }, 1);
+  }, 0);
 
   function collapseDescriptions() {
     var hash = location.hash;
