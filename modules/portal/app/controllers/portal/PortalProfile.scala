@@ -34,6 +34,13 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
     } yield Ok(views.html.p.profile.profile(watchList, anns, links))
   }
 
+  def watching = withUserAction.async { implicit user => implicit request =>
+    val watchParams = PageParams.fromRequest(request)
+    backend.pageWatching(user.id, watchParams).map { watchList =>
+      Ok(views.html.p.profile.watchedItems(watchList))
+    }
+  }
+
   def updateProfile = withUserAction { implicit user => implicit request =>
     if (isAjax) {
       Ok(views.html.p.profile.editProfileForm(

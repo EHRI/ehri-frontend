@@ -42,6 +42,7 @@ GET         /dev/watch/:id               @controllers.portal.Portal.watchItem(id
 POST        /dev/watch/:id               @controllers.portal.Portal.watchItemPost(id: String)
 GET         /dev/unwatch/:id             @controllers.portal.Portal.unwatchItem(id: String)
 POST        /dev/unwatch/:id             @controllers.portal.Portal.unwatchItemPost(id: String)
+GET         /dev/watching                @controllers.portal.Portal.watching
 GET         /dev/people/:userId/following       @controllers.portal.Portal.followingForUser(userId: String)
 GET         /dev/people/:userId/followers       @controllers.portal.Portal.followersForUser(userId: String)
 
