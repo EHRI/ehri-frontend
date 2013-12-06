@@ -1,4 +1,4 @@
-@(annotation: Annotation, editable: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 <div class="annotation clearfix" id="@annotation.id">
     @Html(views.Helpers.renderMarkdown(annotation.model.body))

@@ -47,7 +47,7 @@ trait PortalAnnotations {
       ann => {
         val accessors: List[String] = getAccessors(user)
         backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
-          Created(p.common.annotationInline(ann))
+          Created(p.common.annotationInline(ann, editable = true))
         }
       }
     )
@@ -73,9 +73,8 @@ trait PortalAnnotations {
     AnnotationForm.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
       edited => {
-        println("Edited: " + edited)
         backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
-          Ok(p.common.annotationInline(done))
+          Ok(p.common.annotationInline(done, editable = true))
         }
       }
     )
@@ -125,7 +124,7 @@ trait PortalAnnotations {
         val fieldAnn = ann.copy(field = Some(field))
         val accessors: List[String] = getAccessors(user)
         backend.createAnnotationForDependent(id, did, fieldAnn, accessors).map { ann =>
-          Created(p.common.annotationInline(ann))
+          Created(p.common.annotationInline(ann, editable = true))
         }
       }
     )
