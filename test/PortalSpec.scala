@@ -10,33 +10,36 @@ import backend.rest.PermissionDenied
 import utils.ContributionVisibility
 import backend.ApiUser
 import scala.concurrent.Future
+import controllers.portal.ReversePortal
 
 
 class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
   import mocks.{privilegedUser, unprivilegedUser}
 
+  private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
+
   "Portal views" should {
     "view docs" in new FakeApp {
       val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.portal.routes.Portal.browseDocument("c1").url)).get
+        portalRoutes.browseDocument("c1").url)).get
       status(doc) must equalTo(OK)
     }
 
     "view repositories" in new FakeApp {
       val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.portal.routes.Portal.browseRepository("r1").url)).get
+        portalRoutes.browseRepository("r1").url)).get
       status(doc) must equalTo(OK)
     }
 
     "view historical agents" in new FakeApp {
       val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.portal.routes.Portal.browseHistoricalAgent("a1").url)).get
+        portalRoutes.browseHistoricalAgent("a1").url)).get
       status(doc) must equalTo(OK)
     }
 
     "allow viewing profile" in new FakeApp {
       val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.portal.routes.Portal.profile.url)).get
+        portalRoutes.profile.url)).get
       status(prof) must equalTo(OK)
     }
 
@@ -47,20 +50,60 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
         UserProfileF.NAME -> Seq(testName)
       )
       val update = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.portal.routes.Portal.updateProfilePost.url), data).get
+        portalRoutes.updateProfilePost.url), data).get
       status(update) must equalTo(SEE_OTHER)
 
       val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.portal.routes.Portal.profile.url)).get
+        portalRoutes.profile.url)).get
       status(prof) must equalTo(OK)
       contentAsString(prof) must contain(testName)
     }
 
     "allow following and unfollowing users" in new FakeApp {
+      val follow = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        portalRoutes.followUser(unprivilegedUser.id).url), "").get
+      status(follow) must equalTo(SEE_OTHER)
 
+      val following = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        portalRoutes.followingForUser(privilegedUser.id).url)).get
+      // Check the following page contains a link to the user we just followed
+      contentAsString(following) must contain(
+        portalRoutes.browseUser(unprivilegedUser.id).url)
+
+      // Unfollow the sucker - he's boring...
+      val unfollow = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        portalRoutes.unfollowUser(unprivilegedUser.id).url), "").get
+      status(unfollow) must equalTo(SEE_OTHER)
+
+      val following2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        portalRoutes.followingForUser(privilegedUser.id).url)).get
+      // Check the following page contains no links to the user we just unfollowed
+      contentAsString(following2) must not contain(
+        portalRoutes.browseUser(unprivilegedUser.id).url)
     }
 
     "allow watching and unwatching items" in new FakeApp {
+      val watch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        portalRoutes.watchItemPost("c1").url), "").get
+      status(watch) must equalTo(SEE_OTHER)
+
+      // Watched items show up on the profile - maybe change this?
+      val watching = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        portalRoutes.watching.url)).get
+      // Check the following page contains a link to the user we just followed
+      contentAsString(watching) must contain(
+        portalRoutes.browseDocument("c1").url)
+
+      // Unwatch
+      val unwatch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        portalRoutes.unwatchItemPost("c1").url), "").get
+      status(unwatch) must equalTo(SEE_OTHER)
+
+      val watching2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        portalRoutes.watching.url)).get
+      // Check the profile contains no links to the item we just unwatched
+      contentAsString(watching2) must not contain(
+        portalRoutes.browseDocument("c1").url)
 
     }
 
@@ -76,13 +119,13 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       )
 
       val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.portal.routes.Portal.annotatePost("c4", "cd4").url), testData).get
+        portalRoutes.annotatePost("c4", "cd4").url), testData).get
       status(post) must equalTo(CREATED)
       contentAsString(post) must contain(testBody)
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        controllers.portal.routes.Portal.browseDocument("c4").url)).get
+        portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
       contentAsString(doc) must not contain(testBody)
 
@@ -96,14 +139,14 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       )
 
       val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.portal.routes.Portal.annotateFieldPost(
+        portalRoutes.annotateFieldPost(
           "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
       status(post) must equalTo(CREATED)
       contentAsString(post) must contain(testBody)
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        controllers.portal.routes.Portal.browseDocument("c4").url)).get
+        portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
       contentAsString(doc) must not contain(testBody)
     }
@@ -120,14 +163,14 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       )
 
       val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.portal.routes.Portal.annotateFieldPost(
+        portalRoutes.annotateFieldPost(
           "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
       status(post) must equalTo(CREATED)
       contentAsString(post) must contain(testBody)
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        controllers.portal.routes.Portal.browseDocument("c4").url)).get
+        portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
       contentAsString(doc) must not contain(testBody)
 
@@ -143,12 +186,12 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
         ContributionVisibility.PARAM -> Seq(ContributionVisibility.Groups.toString)
       )
       val setVis = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.portal.routes.Portal.setAnnotationVisibilityPost(aid).url), visData).get
+        portalRoutes.setAnnotationVisibilityPost(aid).url), visData).get
       status(setVis) must equalTo(OK)
 
       // Ensure the unprivileged user CAN now see the annotation...
       val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        controllers.portal.routes.Portal.browseDocument("c4").url)).get
+        portalRoutes.browseDocument("c4").url)).get
       status(doc2) must equalTo(OK)
       contentAsString(doc2) must contain(testBody)
     }
