@@ -66,7 +66,6 @@ object Annotation {
     val entityType = EntityType.Annotation
   }
 
-
   /**
    * Filter annotations on individual fields
    */
@@ -97,6 +96,14 @@ case class Annotation(
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends MetaModel[AnnotationF] with Accessible {
+
+  def isOwnedBy(userOpt: Option[UserProfile]): Boolean = {
+    (for {
+      u <- userOpt
+      creator <-user
+    } yield (u.id == creator.id)).getOrElse(false)
+  }
+
   def formatted: String = {
     "%s%s".format(
       model.comment.map(c => s"$c\n\n").getOrElse(""),

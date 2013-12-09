@@ -84,11 +84,12 @@ portal.social.annotations=Your Annotations
 portal.social.links=Your Links
 portal.social.noAnnotationsYet=You haven''t made any annotations yet.
 portal.social.noLinksYet=You haven''t made any links yet.
-portal.social.createAnnotation=Create Annotation
+portal.social.createAnnotation=comment
 portal.social.editAnnotation=Save
-portal.social.createFieldAnnotation=Annotate Field
+portal.social.createFieldAnnotation=comment
 portal.social.createLink=Create Link
 portal.social.annotationCreatedBy=Created by {0} at {1}
+portal.social.showPublicAnnotations={0,choice,1#Show 1 public comment|1<Show {0} public comments}
 
 portal.contributionVisibility=Choose who can see this
 portal.contributionVisibility.me=Only Me

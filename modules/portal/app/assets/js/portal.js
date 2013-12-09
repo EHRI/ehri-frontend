@@ -178,6 +178,25 @@ jQuery(function ($) {
    * ANNOTATIONS...
    */
 
+  // Show/hide hidden annotations...
+  $(".show-other-annotations").click(function(event) {
+    event.preventDefault();
+    $(this).find("span")
+        .toggleClass("glyphicon-chevron-up")
+        .toggleClass("glyphicon-chevron-down")
+      .end()
+        .closest(".item-text-field-annotations, .description-annotations")
+        .find(".other-annotation").toggle();
+  });
+
+  function insertAnnotationForm($elem, data) {
+    $elem.hide().parent().after(data);
+    $(data).find("select.custom-accessors").select2({
+      placeholder: "Select a set of groups or users",
+      width: "copy"
+    });
+  }
+
   // Load an annotation form...
   $(document).on("click", ".annotate-item", function(e) {
     e.preventDefault();
@@ -185,8 +204,8 @@ jQuery(function ($) {
         id = $elem.data("item"),
         did = $elem.data("did");
     jsRoutes.controllers.portal.Portal.annotate(id, did).ajax({
-      success: function(data) {
-        $elem.before(data).hide();
+      success: function (data) {
+        insertAnnotationForm($elem, data)
       }
     });
   });
@@ -200,12 +219,8 @@ jQuery(function ($) {
         did = $elem.data("did"),
         field = $elem.data("field");
     jsRoutes.controllers.portal.Portal.annotateField(id, did, field).ajax({
-      success: function(data) {
-        $elem.before(data).hide();
-        $(data).find("select.custom-accessors").select2({
-          placeholder: "Select a set of groups or users",
-          width: "copy"
-        });
+      success: function (data) {
+        insertAnnotationForm($elem, data)
       }
     });
   });
@@ -213,7 +228,7 @@ jQuery(function ($) {
   $(document).on("click", ".annotate-item-form .close", function(e) {
     e.preventDefault();
     var $form = $(e.target).parents(".annotate-item-form");
-    $form.next(".annotate-field, .annotate-item").show();
+    $form.prev().find(".annotate-field, .annotate-item").show();
     $form.remove();
   });
 
@@ -224,14 +239,15 @@ jQuery(function ($) {
   $(document).on("submit", ".annotate-item-form, .annotate-field-form", function(e) {
     e.preventDefault();
     var $form = $(this);
-    var action = $form.closest("form").attr("action");
+    var action = $form.attr("action");
     $.ajax({
       url: action,
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
-        $form.next(".annotate-field, .annotate-item").show()
-        $form.replaceWith(data);
+        $form.prev().find(".annotate-field, .annotate-item").show()
+        $form.parents(".annotation-set").find("ul").append(data);
+        $form.remove();
       }
     });
   });

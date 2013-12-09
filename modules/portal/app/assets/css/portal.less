@@ -493,10 +493,18 @@ label.disabled {
   visibility: hidden;
 }
 
-a.annotate-field, a.annotate-item {
-  color: @muted-gray;
-  font-size: 0.9em;
-  font-weight: bolder;
+.annotation-set a {
+  color: @almost-black;
+}
+
+.annotate-field-controls, .annotate-item-controls {
+  opacity: 0.5;
+  a {
+    float: right;
+    color: @muted-gray;
+    font-size: 0.8em;
+    margin-right: @medium-margin;
+  }
 }
 
 a.annotate-field:hover, a.annotate-item:hover {
@@ -530,9 +538,12 @@ a.time-permalink {
   color: @muted-gray;
 }
 
-.item-text-field-annotations {
+.item-text-field {
+  padding-right: @medium-padding;
+  margin-bottom: @large-margin;
+}
 
-  padding-left: @medium-padding;
+.item-text-field-annotations {
   color: @muted-gray;
 
   .annotation {

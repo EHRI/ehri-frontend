@@ -1,18 +1,19 @@
 @(item: AnyModel, desc: Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-@if(!annotations.isEmpty) {
-    <ul class="list-unstyled item-annotation-list">
-        @Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty).map { annotation =>
-            <li>
-                @p.common.annotationInline(annotation, annotation.user == userOpt)
-            </li>
-        }
-    </ul>
-}
-@desc.id.map { did =>
-    <a data-item="@item.id" data-did="@did" class="annotate-item"
-       href="@controllers.portal.routes.Portal.annotate(item.id, did)">
-        <span class="glyphicon glyphicon-pencil"></span>
-        @Messages("portal.social.createAnnotation")
-    </a>
-}
+<div class="description-annotations annotation-set clearfix">
+    @if(!annotations.isEmpty) {
+        <ul class="list-unstyled item-annotation-list">
+            @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
+                @p.common.inlineAnnotationList(annotations)
+            }
+        </ul>
+    }
+    <div class="annotate-item-controls">
+    @desc.id.map { did =>
+        <a data-item="@item.id" data-did="@did" class="annotate-item"
+           href="@controllers.portal.routes.Portal.annotate(item.id, did)">
+            @Messages("portal.social.createAnnotation")
+        </a>
+    }
+    </div>
+</div>

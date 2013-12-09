@@ -8,13 +8,25 @@ jQuery(function($) {
 
     // HACK! If there's a description viewport, disable jumping
     // to the element on page load... this is soooo horrible.
+
+  /**
+   * Determine if the fragment refers to a description element.
+   */
+  function isDescriptionRef() {
+    return location.hash && $(location.hash).hasClass("description-holder");
+  }
+
   setTimeout(function() {
-    if (location.hash && $(location.hash).hasClass("description-holder")) {
+    if (isDescriptionRef()) {
       window.scrollTo(0, 0);
     }
   }, 0);
 
   function collapseDescriptions() {
+    if (!isDescriptionRef()) {
+      return;
+    }
+
     var hash = location.hash;
 
     $(".description-viewport").each(function(i, elem) {
