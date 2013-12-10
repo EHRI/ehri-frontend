@@ -15,13 +15,13 @@ import jp.t2v.lab.play2.auth.LoginLogout
 import java.util.UUID
 import play.api.Play.current
 import scala.concurrent.Await
-import play.api.libs.ws.WS
 import play.api.Logger
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import models.json.RestResource
 import backend.rest.{RestHelpers, ValidationError}
 import play.api.data.FormError
+import utils.forms.checkRecapture
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -208,13 +208,15 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   }
 
   def forgotPassword = Action { implicit request =>
-    val recaptchaKey = play.api.Play.configuration.getString("recaptcha.key.public").getOrElse("fakekey")
+    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+          .getOrElse("fakekey")
     Ok(views.html.admin.forgotPassword(forgotPasswordForm,
       recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
   }
 
   def forgotPasswordPost = Action.async { implicit request =>
-    val recaptchaKey = play.api.Play.configuration.getString("recaptcha.key.public").getOrElse("fakekey")
+    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+          .getOrElse("fakekey")
 
     checkRecapture.map { ok =>
       if (!ok) {
@@ -335,38 +337,6 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
           sys.error("Unable to create user profile on database. Probably a programming error...")
         }
       }
-    }
-  }
-
-  private def checkRecapture(implicit request: Request[AnyContent]): Future[Boolean] = {
-    // https://developers.google.com/recaptcha/docs/verify
-    val recaptchaForm = Form(
-      tuple(
-        "recaptcha_challenge_field" -> nonEmptyText,
-        "recaptcha_response_field" -> nonEmptyText
-      )
-    )
-
-    // Allow skipping recaptcha checks globally if recaptcha.skip is true
-    val skipRecapture = current.configuration.getBoolean("recaptcha.skip").getOrElse(false)
-    if (skipRecapture) Future.successful(true)
-    else {
-      recaptchaForm.bindFromRequest.fold({ badCapture =>
-        Future.successful(false)
-      }, { case (challenge, response) =>
-        WS.url("http://www.google.com/recaptcha/api/verify")
-          .withQueryString(
-          "remoteip" -> request.headers.get("REMOTE_ADDR").getOrElse(""),
-          "challenge" -> challenge, "response" -> response,
-          "privatekey" -> current.configuration.getString("recaptcha.key.private").getOrElse("")
-        ).post("").map { response =>
-          response.body.split("\n").headOption match {
-            case Some("true") => true
-            case Some("false") => Logger.logger.error(response.body); false
-            case _ => sys.error("Unexpected captcha result: " + response.body)
-          }
-        }
-      })
     }
   }
 }
