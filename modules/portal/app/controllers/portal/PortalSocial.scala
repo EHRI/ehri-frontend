@@ -6,10 +6,10 @@ import controllers.base.{AuthController, ControllerHelpers}
 import models.UserProfile
 import views.html.p
 import utils.{PageParams, SystemEventParams, ListParams}
-import backend.rest.{SearchDAO, PermissionDenied}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
-import backend.ApiUser
+import play.api.Play._
+import scala.Some
 
 
 /**
@@ -177,6 +177,36 @@ trait PortalSocial {
         Ok("ok")
       } else {
         Redirect(controllers.portal.routes.Portal.browseUsers())
+      }
+    }
+  }
+
+
+  import play.api.data.Form
+  import play.api.data.Forms._
+  import utils.forms.checkRecapture
+  private val messageForm = Form(
+    tuple(
+      "subject" -> nonEmptyText,
+      "message" -> nonEmptyText
+    )
+  )
+
+  def sendMessage(userId: String) = withUserAction { implicit user => implicit request =>
+    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+      .getOrElse("fakekey")
+    ???
+  }
+
+  def sendMessagePost(userId: String) = withUserAction.async { implicit user => implicit request =>
+    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+      .getOrElse("fakekey")
+    checkRecapture.map { ok =>
+      if (!ok) {
+        val form = messageForm.withGlobalError("error.badRecaptcha")
+        ???
+      } else {
+        ???
       }
     }
   }

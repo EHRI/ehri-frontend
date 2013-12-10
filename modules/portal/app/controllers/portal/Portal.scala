@@ -10,26 +10,40 @@ import views.html.p
 
 import com.google.inject._
 import utils.search._
-import play.api.libs.json.{Writes, Json}
+import play.api.libs.json.Json
 import play.api.cache.Cached
-import defines.{EventType, ContentTypes, EntityType}
-import utils.{ContributionVisibility, SystemEventParams, ListParams}
+import defines.EntityType
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
-import backend.{ApiUser, Backend}
+import backend.Backend
 import controllers.base.ControllerHelpers
+import jp.t2v.lab.play2.auth.LoginLogout
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend)
-  extends Controller with ControllerHelpers with Search with FacetConfig with PortalActions with PortalProfile with PortalSocial with PortalAnnotations {
+  extends Controller
+  with LoginLogout
+  with ControllerHelpers
+  with PortalLogin
+  with Search
+  with FacetConfig
+  with PortalActions
+  with PortalProfile
+  with PortalSocial
+  with PortalAnnotations {
 
   // This is a publically-accessible site, but not just yet.
   override val staffOnly = true
 
   private val portalRoutes = controllers.portal.routes.Portal
 
+  override def gotoLoginSucceeded(id: Id)(implicit request: RequestHeader, ctx: scala.concurrent.ExecutionContext): Future[SimpleResult] = {
+    immediate(Redirect("/dev"))
+  }
 
   /**
    * Full text search action that returns a complete page of item data.
