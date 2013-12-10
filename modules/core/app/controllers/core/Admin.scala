@@ -30,7 +30,12 @@ import backend.Backend
 /**
  * Controller for handling user admin actions.
  */
-case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Controller with AuthController with LoginLogout with ControllerHelpers {
+case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend)
+  extends Controller
+  with AuthController
+  with OpenIDLoginHandler
+  with LoginLogout
+  with ControllerHelpers {
 
   implicit def resource = new RestResource[UserProfile] {
     val entityType = EntityType.UserProfile
@@ -46,6 +51,26 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       "password" -> nonEmptyText
     )
   )
+
+  def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>
+    implicit val accountOpt: Option[Account] = None
+    formOrAccount match {
+      case Right(account) => gotoLoginSucceeded(account.id)
+        .map(_.withSession("access_uri" -> globalConfig.routeRegistry.default.url))
+      case Left(formError) =>
+        immediate(BadRequest(views.html.openIDLogin(formError,
+          action = routes.Admin.openIDLoginPost)))
+    }
+  }
+
+  def openIDLogin = optionalUserAction { implicit maybeUser => implicit request =>
+    Ok(views.html.openIDLogin(openidForm, action = routes.Admin.openIDLoginPost))
+  }
+
+  def openIDLoginPost = openIDLoginPostAction(routes.Admin.openIDCallback) { formError => implicit request =>
+    implicit val accountOpt: Option[Account] = None
+    BadRequest(views.html.openIDLogin(formError, action = routes.Admin.openIDLoginPost))
+  }
 
   /**
    * Login via a password...

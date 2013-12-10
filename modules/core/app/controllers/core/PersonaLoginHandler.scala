@@ -1,7 +1,7 @@
 package controllers.core
 
 import controllers.base.LoginHandler
-import models.AccountDAO
+import models.{Account, AccountDAO}
 import play.api._
 import play.api.mvc._
 import play.api.libs.ws.WS
@@ -10,6 +10,7 @@ import play.api.libs.json.JsString
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
+import scala.concurrent.Future
 
 /**
  * Handler for Mozilla Persona-based login.
@@ -17,44 +18,54 @@ import backend.Backend
  * NOTE: Not tested for some time...
  */
 @Singleton
-case class PersonaLoginHandler @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends LoginHandler {
+trait PersonaLoginHandler {
+
+  self: Controller =>
+
+  val globalConfig: global.GlobalConfig
+  val backend: Backend
 
   private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
 
-  def personaLogin = Action {
-    // TODO: Implement a login action for Persona...
-    Ok("Mozilla Persona should handle this view...")
-  }
-  
-  def personaLoginPost = Action.async { implicit request =>
-    val assertion: String = request.body.asFormUrlEncoded.map(
-      _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("")
 
-    val validate = Map("assertion" -> Seq(assertion), "audience" -> Seq(EHRI_URL))
+  object personaLoginPost {
+    def async(f: Either[String,Account] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+      Action.async { implicit request =>
 
-    WS.url(PERSONA_URL).post(validate).flatMap { response =>
-      response.json \ "status" match {
-        case js @ JsString("okay") => {
-          val email: String = (response.json \ "email").as[String]
+        val assertion: String = request.body.asFormUrlEncoded.map(
+          _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("")
 
-          userDAO.findByEmail(email) match {
-            case Some(account) => gotoLoginSucceeded(email)
-            case None => {
-              backend.createNewUserProfile.flatMap { up =>
-                userDAO.create(up.id, email).map { acc =>
-                  gotoLoginSucceeded(acc.id)
-                } getOrElse {
-                  immediate(BadRequest("Creation of user db failed!"))
-               }
+        val validate = Map("assertion" -> Seq(assertion), "audience" -> Seq(EHRI_URL))
+
+        WS.url(PERSONA_URL).post(validate).flatMap { response =>
+          response.json \ "status" match {
+            case js @ JsString("okay") => {
+              val email: String = (response.json \ "email").as[String]
+
+              userDAO.findByEmail(email) match {
+                case Some(account) => f(Right(account))(request)
+                case None => {
+                  backend.createNewUserProfile.flatMap { up =>
+                    userDAO.create(up.id, email).map { acc =>
+                      f(Right(acc))(request)
+                    } getOrElse {
+                      f(Left("Creation of user db failed!"))(request)
+                   }
+                  }
+                }
               }
             }
+            case other => f(Left(other.toString))(request)
           }
         }
-        case other => immediate(BadRequest(other.toString))
       }
+    }
+
+    def apply(f: Either[String,Account] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+      async(f.andThen(_.andThen(t => immediate(t))))
     }
   }
 }

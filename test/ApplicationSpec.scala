@@ -52,7 +52,7 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
           controllers.core.routes.Admin.login.url)).get
         status(login) must equalTo(OK)
         val openid = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.core.routes.OpenIDLoginHandler.openIDLogin.url)).get
+          controllers.core.routes.Admin.openIDLogin.url)).get
         status(openid) must equalTo(OK)
       }
     }
@@ -66,15 +66,12 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
       }
     }
 
-    "allow access to the openid callback url, and redirect with flash error" in {
+    "allow access to the openid callback url, and return a bad request" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(FakeRequest(GET,
-          controllers.core.routes.OpenIDLoginHandler.openIDCallback.url)
+          controllers.core.routes.Admin.openIDCallback.url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
-        status(home) must equalTo(SEE_OTHER)
-        val err = flash(home).get("error")
-        err must beSome
-        err.get must equalTo(Messages("openid.openIdError", null))
+        status(home) must equalTo(BAD_REQUEST)
       }
     }
     

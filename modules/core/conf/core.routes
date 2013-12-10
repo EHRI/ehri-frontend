@@ -29,13 +29,13 @@ GET /filter                                     @controllers.core.SearchFilter.f
 
 # Plugin-handled login
 # OpenID
-GET     /openid                                 @controllers.core.OpenIDLoginHandler.openIDCallback
-GET 	/openidLogin  					        @controllers.core.OpenIDLoginHandler.openIDLogin
-POST	/openidLogin   					        @controllers.core.OpenIDLoginHandler.openIDLoginPost
+GET     /openid                                 @controllers.core.Admin.openIDCallback
+GET 	/openidLogin  					        @controllers.core.Admin.openIDLogin
+POST	/openidLogin   					        @controllers.core.Admin.openIDLoginPost
 
 # Mozilla Persona
-GET	    /persona						        @controllers.core.PersonaLoginHandler.personaLogin
-POST	/persona						        @controllers.core.PersonaLoginHandler.personaLoginPost
+# GET	    /persona						        @controllers.core.PersonaLoginHandler.personaLogin
+# POST	/persona						        @controllers.core.PersonaLoginHandler.personaLoginPost
 
 # Admin routes - FIXME: Move to admin controller when reverse-route dependencies are resolved
 GET     /createUser                             @controllers.core.Admin.createUser

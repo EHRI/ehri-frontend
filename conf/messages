@@ -79,6 +79,8 @@ error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and n
     get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
 openid.openIdError=There was a problem logging you in with OpenID.\
   This may because your provider does not support attribute exchange. The error messages was: {0}
+openid.openIdUrlError=There was no response from the given openid provider: ''{0}''.\
+  Please ensure the provider URL is correct.
 
 # Mail stuff
 mail.forgotPasswordMailHeading=EHRI Password Reset
