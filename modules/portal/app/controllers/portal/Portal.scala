@@ -12,7 +12,7 @@ import com.google.inject._
 import utils.search._
 import play.api.libs.json.{Writes, Json}
 import play.api.cache.Cached
-import defines.{ContentTypes, EntityType}
+import defines.{EventType, ContentTypes, EntityType}
 import utils.{ContributionVisibility, SystemEventParams, ListParams}
 import play.api.libs.ws.WS
 import play.api.templates.Html
@@ -184,40 +184,14 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Ok(p.historicalAgent.show(doc, details.annotations, details.links, details.watched))
   }
 
-  def activity = listAction[SystemEvent](EntityType.SystemEvent) {
-      list => params => implicit userOpt => implicit request =>
-    Ok(p.activity.activity(list, params))
+  def browseLink(id: String) = getAction[Link](EntityType.Link, id) {
+      link => details => implicit userOpt => implicit request =>
+    Ok(p.link.show(link))
   }
 
-  def activityMore(offset: Int) = listAction[SystemEvent](EntityType.SystemEvent, Some(ListParams(offset = offset))) {
-      list => params => implicit userOpt => implicit request =>
-    Ok(p.common.eventItems(list))
-  }
-
-  import play.api.data.Form
-  import play.api.data.Forms._
-
-  private val activityForm = Form(
-    tuple(
-      "watched" -> default(boolean, true),
-      "follows" -> default(boolean, true)
-    )
-  )
-
-  def personalisedActivity = withUserAction.async { implicit user => implicit request =>
-    val listParams = ListParams.fromRequest(request)
-    val eventFilter = SystemEventParams.fromRequest(request)
-    backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
-      Ok(p.activity.activity(events, listParams))
-    }
-  }
-
-  def personalisedActivityMore(offset: Int) = withUserAction.async { implicit user => implicit request =>
-    val listParams = ListParams.fromRequest(request).copy(offset = offset)
-    val eventFilter = SystemEventParams.fromRequest(request)
-    backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
-      Ok(p.common.eventItems(events))
-    }
+  def browseAnnotation(id: String) = getAction[Annotation](EntityType.Annotation, id) {
+      ann => details => implicit userOpt => implicit request =>
+    Ok(p.annotation.show(ann))
   }
 
   def placeholder = Cached("pages:portalPlaceholder") {

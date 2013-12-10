@@ -62,6 +62,7 @@ portal.activity.userAnnotatedItem={2,choice,0#{0} annotated item {1}|1#{0} annot
 portal.activity.fetchMore=More
 portal.activity.noActivityYet=Activity involving items you''re watching and users you follow will show up here.
 portal.activity.noUserActivityYet=No activity yet.
+portal.activity.modifiedProfile=Updated profile information.
 
 # 'Social' stuff...
 portal.social.users=People

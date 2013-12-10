@@ -8,7 +8,7 @@ import views.html.p
 import utils.{PageParams, SystemEventParams, ListParams}
 import backend.rest.{SearchDAO, PermissionDenied}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
-import defines.EntityType
+import defines.{EventType, EntityType}
 import backend.ApiUser
 
 
@@ -24,6 +24,46 @@ trait PortalSocial {
 
   val searchDispatcher: Dispatcher
   val searchResolver: Resolver
+
+  val activityEventTypes = List(
+    EventType.deletion,
+    EventType.creation,
+    EventType.modification,
+    EventType.modifyDependent,
+    EventType.createDependent,
+    EventType.deleteDependent,
+    EventType.link,
+    EventType.annotation
+  )
+
+  val activityItemTypes = List(
+    EntityType.DocumentaryUnit,
+    EntityType.Repository,
+    EntityType.Country,
+    EntityType.HistoricalAgent,
+    EntityType.Link,
+    EntityType.Annotation
+  )
+
+  def personalisedActivity = withUserAction.async { implicit user => implicit request =>
+    val listParams = ListParams.fromRequest(request)
+    val eventFilter = SystemEventParams.fromRequest(request)
+      .copy(eventTypes = activityEventTypes)
+      .copy(itemTypes = activityItemTypes)
+    backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
+      Ok(p.activity.activity(events, listParams))
+    }
+  }
+
+  def personalisedActivityMore(offset: Int) = withUserAction.async { implicit user => implicit request =>
+    val listParams = ListParams.fromRequest(request).copy(offset = offset)
+    val eventFilter = SystemEventParams.fromRequest(request)
+      .copy(eventTypes = activityEventTypes)
+      .copy(itemTypes = activityItemTypes)
+    backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
+      Ok(p.common.eventItems(events))
+    }
+  }
 
   def browseUsers = withUserAction.async { implicit user => implicit request =>
     // This is a bit gnarly because we want to get a searchable list
@@ -44,6 +84,9 @@ trait PortalSocial {
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     val params = ListParams.fromRequest(request)
     val eventParams = SystemEventParams.fromRequest(request).copy(users = List(userId))
+      .copy(eventTypes = activityEventTypes)
+      .copy(itemTypes = activityItemTypes)
+
     for {
       them <- backend.get[UserProfile](userId)
       theirActivity <- backend.listEvents(params, eventParams)

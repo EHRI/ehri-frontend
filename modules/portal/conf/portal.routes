@@ -16,6 +16,8 @@ GET         /dev/browse/d/:id            @controllers.portal.Portal.browseDocume
 GET         /dev/browse/a                @controllers.portal.Portal.browseHistoricalAgents
 GET         /dev/browse/a/:id            @controllers.portal.Portal.browseHistoricalAgent(id: String)
 GET         /dev/browse/s/:id            @controllers.portal.Portal.browseAuthoritativeSet(id: String)
+GET         /dev/browse/link/:id         @controllers.portal.Portal.browseLink(id: String)
+GET         /dev/browse/annotation/:id   @controllers.portal.Portal.browseAnnotation(id: String)
 GET         /dev/activity                @controllers.portal.Portal.personalisedActivity
 GET         /dev/activityMore/:offset    @controllers.portal.Portal.personalisedActivityMore(offset: Int)
 GET         /dev/newsFeed                @controllers.portal.Portal.newsFeed
