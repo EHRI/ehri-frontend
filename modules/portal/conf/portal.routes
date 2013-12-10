@@ -8,6 +8,7 @@ GET         /dev                         @controllers.portal.Portal.index
 GET         /dev/openid                  @controllers.portal.Portal.openIDCallback
 GET 	    /dev/openidLogin  			 @controllers.portal.Portal.openIDLogin
 POST	    /dev/openidLogin   			 @controllers.portal.Portal.openIDLoginPost
+GET         /dev/logout                  @controllers.portal.Portal.logout
 
 GET         /dev/search                  @controllers.portal.Portal.search
 GET         /dev/browse                  @controllers.portal.Portal.browseCountries

@@ -21,6 +21,7 @@ import controllers.base.ControllerHelpers
 import jp.t2v.lab.play2.auth.LoginLogout
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import play.api.Logger
 
 
 @Singleton
@@ -28,6 +29,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   extends Controller
   with LoginLogout
   with ControllerHelpers
+  with PortalAuthConfigImpl
   with PortalLogin
   with Search
   with FacetConfig
@@ -41,8 +43,9 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   private val portalRoutes = controllers.portal.routes.Portal
 
-  override def gotoLoginSucceeded(id: Id)(implicit request: RequestHeader, ctx: scala.concurrent.ExecutionContext): Future[SimpleResult] = {
-    immediate(Redirect("/dev"))
+  def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
+    Logger.logger.info("Portal User '{}' logged out", maybeUser.map(_.id).getOrElse("?"))
+    gotoLogoutSucceeded
   }
 
   /**

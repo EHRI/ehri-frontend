@@ -19,7 +19,7 @@ trait PortalLogin extends OpenIDLoginHandler {
     implicit val accountOpt: Option[Account] = None
     formOrAccount match {
       case Right(account) => gotoLoginSucceeded(account.id)
-        .map(_.withSession("access_uri" -> globalConfig.routeRegistry.default.url))
+        .map(_.withSession("access_uri" -> controllers.portal.routes.Portal.index.url))
       case Left(formError) =>
         immediate(BadRequest(views.html.openIDLogin(formError,
           action = controllers.portal.routes.Portal.openIDLoginPost)))

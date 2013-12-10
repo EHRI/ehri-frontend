@@ -8,6 +8,7 @@ import play.api.Play.current
 import global.GlobalConfig
 import scala.concurrent.{ExecutionContext,Future}
 import scala.concurrent.Future.{successful => immediate}
+import play.api.Logger
 
 /*
  * Implementation of play2-auth
@@ -17,6 +18,11 @@ import scala.concurrent.Future.{successful => immediate}
 trait AuthConfigImpl extends AuthConfig with Results {
 
   val globalConfig: global.GlobalConfig
+
+  def defaultLoginUrl: Call = globalConfig.routeRegistry.default
+  def defaultLogoutUrl: Call = globalConfig.routeRegistry.default
+  def defaultAuthFailedUrl: Call = globalConfig.routeRegistry.login
+  
 
   /**
    * Dummy permission (which is not actually used.)
@@ -74,7 +80,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * A redirect target after a successful user login.
    */
   def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
-    val uri = request.session.get("access_uri").getOrElse(globalConfig.routeRegistry.default.url)
+    val uri = request.session.get("access_uri").getOrElse(defaultLoginUrl.url)
     request.session - "access_uri"
     immediate(Redirect(uri))
   }
@@ -83,17 +89,18 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * A redirect target after a successful user logout.
    */
   def logoutSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult]
-        = immediate(Redirect(globalConfig.routeRegistry.default))
+        = immediate(Redirect(defaultLogoutUrl))
 
   /**
    * A redirect target after a failed authentication.
    */
   def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
-    if (utils.isAjax(request))
+    if (utils.isAjax(request)) {
+      Logger.logger.warn("Auth failed for: {}", request.toString())
       immediate(Unauthorized("authentication failed"))
-    else
-      immediate(Redirect(globalConfig.routeRegistry.login.url)
-          .withSession("access_uri" -> request.uri))
+    } else {
+      immediate(Redirect(defaultAuthFailedUrl).withSession("access_uri" -> request.uri))
+    }
   }
 
   /**
