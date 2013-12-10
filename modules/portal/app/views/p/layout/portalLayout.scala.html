@@ -35,8 +35,9 @@
             <header>
                 <div class="navigation pull-right account-admin">
                     <ul class="list-unstyled list-inline">
-                        @userOpt.map { user =>
-                            <li><a href="@controllers.portal.routes.Portal.logout">@Messages("logout " + user.toStringLang)</a></li>
+
+                        @userOpt.flatMap(_.account).map { account =>
+                            <li><a href="@controllers.portal.routes.Portal.logout">@Messages("logout " + account.email)</a></li>
                         }.getOrElse {
                             <li><a href="@controllers.portal.routes.Portal.openIDLogin">@Messages("login")</a></li>
                         }

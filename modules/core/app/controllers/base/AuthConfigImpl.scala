@@ -81,6 +81,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
    */
   def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
     val uri = request.session.get("access_uri").getOrElse(defaultLoginUrl.url)
+    Logger.logger.debug("Redirecting loggin-in user to: {}", uri)
     request.session - "access_uri"
     immediate(Redirect(uri))
   }

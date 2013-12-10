@@ -39,14 +39,9 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with PortalAnnotations {
 
   // This is a publically-accessible site, but not just yet.
-  override val staffOnly = true
+  override val staffOnly = false
 
   private val portalRoutes = controllers.portal.routes.Portal
-
-  def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
-    Logger.logger.info("Portal User '{}' logged out", maybeUser.map(_.id).getOrElse("?"))
-    gotoLogoutSucceeded
-  }
 
   /**
    * Full text search action that returns a complete page of item data.
@@ -83,15 +78,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Ok(Json.toJson(userOpt.flatMap(_.account)))
   }
 
-  def index = Cached("pages.landing", 3600) {
-    userProfileAction.async { implicit userOpt => implicit request =>
-      searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
-        entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent))),
-        entityFacets = entityMetrics) {
-        page => params => facets => implicit userOpt => _ =>
-          Ok(p.portal(Stats(page.facets)))
-      }.apply(request)
-    }
+  def index = userProfileAction.async { implicit userOpt => implicit request =>
+    searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
+      entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent))),
+      entityFacets = entityMetrics) {
+      page => params => facets => implicit userOpt => _ =>
+        Ok(p.portal(Stats(page.facets)))
+    }.apply(request)
   }
 
   def browseCountries = userBrowseAction.async { implicit userDetails => implicit request =>

@@ -7,6 +7,7 @@ import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import controllers.base.{ControllerHelpers, AuthController}
 import controllers.core.OpenIDLoginHandler
+import play.api.Logger
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -33,5 +34,10 @@ trait PortalLogin extends OpenIDLoginHandler {
   def openIDLoginPost = openIDLoginPostAction(controllers.portal.routes.Portal.openIDCallback) { formError => implicit request =>
     implicit val accountOpt: Option[Account] = None
     BadRequest(views.html.openIDLogin(formError, action = controllers.portal.routes.Portal.openIDLoginPost))
+  }
+
+  def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
+    Logger.logger.info("Portal User '{}' logged out", maybeUser.map(_.id).getOrElse("?"))
+    gotoLogoutSucceeded
   }
 }

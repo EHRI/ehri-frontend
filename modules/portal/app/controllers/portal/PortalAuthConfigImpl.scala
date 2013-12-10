@@ -10,7 +10,7 @@ trait PortalAuthConfigImpl extends AuthConfigImpl {
 
   private val portalRoutes = controllers.portal.routes.Portal
 
-  override def defaultLoginUrl = portalRoutes.index
+  override def defaultLoginUrl = portalRoutes.profile
   override def defaultLogoutUrl: Call = portalRoutes.index
   override def defaultAuthFailedUrl: Call = portalRoutes.openIDLogin
 }
