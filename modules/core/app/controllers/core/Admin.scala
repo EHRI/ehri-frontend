@@ -64,7 +64,11 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   }
 
   def openIDLogin = optionalUserAction { implicit maybeUser => implicit request =>
-    Ok(views.html.openIDLogin(openidForm, action = routes.Admin.openIDLoginPost))
+    if (maybeUser.isEmpty) {
+      Ok(views.html.openIDLogin(openidForm, action = routes.Admin.openIDLoginPost))
+    } else {
+      Redirect(defaultLoginUrl)
+    }
   }
 
   def openIDLoginPost = openIDLoginPostAction(routes.Admin.openIDCallback) { formError => implicit request =>
@@ -76,8 +80,12 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    * Login via a password...
    * @return
    */
-  def login = Action { implicit request =>
-    Ok(views.html.admin.pwLogin(passwordLoginForm, controllers.core.routes.Admin.loginPost))
+  def login = optionalUserAction { implicit maybeUser => implicit request =>
+    if (maybeUser.isEmpty) {
+      Ok(views.html.admin.pwLogin(passwordLoginForm, controllers.core.routes.Admin.loginPost))
+    } else {
+      Redirect(defaultLoginUrl)
+    }
   }
 
   /**

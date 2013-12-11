@@ -11,12 +11,12 @@ import play.api.libs.concurrent.Execution.Implicits._
 import defines.EntityType
 import defines.PermissionType
 import defines.ContentTypes
-import global.GlobalConfig
 import backend.{ApiUser, Backend}
 import backend.rest.{ItemNotFound,PermissionDenied}
 
 /**
- * Wraps optionalUserAction to asyncronously fetch the User's profile.
+ * Trait containing composable Action wrappers to handle different
+ * types of request authentication.
  */
 trait AuthController extends Controller with ControllerHelpers with AsyncAuth with AuthConfigImpl {
 
