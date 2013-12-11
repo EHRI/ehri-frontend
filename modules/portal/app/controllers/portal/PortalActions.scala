@@ -53,8 +53,9 @@ trait PortalActions {
           implicit val apiUser: ApiUser = ApiUser(Some(account.id))
           for {
             user <- backend.get[UserProfile](account.id)
+            userWithAccount = user.copy(account=Some(account))
             watched <- backend.listWatching(account.id)
-            r <- f(UserDetails(Some(user), watched))(request)
+            r <- f(UserDetails(Some(userWithAccount), watched))(request)
           } yield r
         } getOrElse {
           f(new UserDetails)(request)

@@ -39,7 +39,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with PortalAnnotations {
 
   // This is a publically-accessible site, but not just yet.
-  override val staffOnly = false
+  override val staffOnly = true
 
   private val portalRoutes = controllers.portal.routes.Portal
 
