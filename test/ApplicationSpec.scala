@@ -48,12 +48,17 @@ class ApplicationSpec extends Specification with TestMockLoginHelper {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
           controllers.admin.routes.Home.index.url)).get
         status(home) must equalTo(UNAUTHORIZED)
+      }
+    }
+
+    "redirect to default URL when accessing login page when logged in" in {
+      running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val login = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
           controllers.core.routes.Admin.login.url)).get
-        status(login) must equalTo(OK)
+        status(login) must equalTo(SEE_OTHER)
         val openid = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
           controllers.core.routes.Admin.openIDLogin.url)).get
-        status(openid) must equalTo(OK)
+        status(openid) must equalTo(SEE_OTHER)
       }
     }
 
