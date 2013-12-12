@@ -4,10 +4,10 @@ import java.util.Locale
 
 import play.api.i18n.Lang
 
-import com.petebevin.markdown.MarkdownProcessor
 import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
 import models._
+import org.pegdown.PegDownProcessor
 
 
 package object Helpers {
@@ -23,10 +23,26 @@ package object Helpers {
       = d.map(dt => relativeDate(dt.toDate)) getOrElse ""
 
 
-  // Initialize Markdown processor for rendering markdown
-  private val markdownProcessor = new MarkdownProcessor
+  // Initialize Markdown processor for rendering markdown. NB: The
+  // instance is apparently not thread safe, so using a threadlocal
+  // here to be on the safe side.
+  val markdownParser = new ThreadLocal[PegDownProcessor]
+  def getMarkdownProcessor = {
+    // NB: Eventually we want auto-linking. However this seems
+    // to crash pegdown at the moment.
+    //import org.pegdown.{Extensions,Parser,PegDownProcessor}
+    //val pegdownParser = new Parser(Extensions.AUTOLINKS)
+    //new PegDownProcessor//(pegdownParser)
+    Option(markdownParser.get).getOrElse {
+      val parser = new PegDownProcessor
+      markdownParser.set(parser)
+      parser
+    }
+  }
 
-  def renderMarkdown(text: String) = markdownProcessor.markdown(text)
+  private val markdownProcessor = getMarkdownProcessor
+
+  def renderMarkdown(text: String): String = markdownProcessor.markdownToHtml(text)
 
   /**
    * Condense multiple descriptions that are next to each other in a list.

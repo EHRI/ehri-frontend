@@ -44,7 +44,11 @@ object ApplicationBuild extends Build {
 
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "mysql" % "mysql-connector-java" % "5.1.25",
-    "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4",
+
+    // Pegdown. Currently versions higher than 1.1 crash
+    // Play at runtime with an IncompatibleClassChangeError.
+    "org.pegdown" % "pegdown" % "1.1.0",
+
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",
