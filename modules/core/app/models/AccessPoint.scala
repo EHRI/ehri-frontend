@@ -48,7 +48,15 @@ case class AccessPointF(
    * @param links
    * @return
    */
-  def linkFor(links: List[Link]): Option[Link] = links.find(_.bodies.exists(body => body.id == id))
+  def linkFor(links: Seq[Link]): Option[Link] = links.find(_.bodies.exists(body => body.id == id))
+
+  /**
+   * Given a set of links, see if we can find one with this access point
+   * as a body.
+   * @param links
+   * @return
+   */
+  def linksFor(links: Seq[Link]): Seq[Link] = links.filter(_.bodies.exists(body => body.id == id))
 
   /**
    * Given an item and a set of links, see if we can resolve the
@@ -57,7 +65,7 @@ case class AccessPointF(
    * @param links
    * @return
    */
-  def target(item: AnyModel, links: List[Link]): Option[(Link,AnyModel)] = linkFor(links).flatMap { link =>
+  def target(item: AnyModel, links: Seq[Link]): Option[(Link,AnyModel)] = linkFor(links).flatMap { link =>
     link.opposingTarget(item).map { target =>
       (link, target)
     }
@@ -75,6 +83,10 @@ object AccessPoint {
     private val clw: Writes[AccessPoint] = (__.write[AccessPointF].contramap{(l: AccessPoint) => l.model})
     val clientFormat: Format[AccessPoint] = Format(clr, clw)
   }
+
+
+  def linksOfType(links: Seq[Link], `type`: AccessPointF.AccessPointType.Value): Seq[Link]
+      = links.filter(_.bodies.exists(body => body.accessPointType == `type`))
 }
 
 

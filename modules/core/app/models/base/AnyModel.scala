@@ -210,7 +210,7 @@ trait Described[+T <: Description] extends Model {
   }
 
   def accessPoints: List[AccessPointF]
-  = descriptions.flatMap(_.accessPoints)
+      = descriptions.flatMap(_.accessPoints)
 }
 
 trait Temporal {

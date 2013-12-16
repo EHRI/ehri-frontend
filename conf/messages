@@ -404,6 +404,13 @@ accessPoints.newAccessPoint=New Access Point
 accessPoints.browse=Search
 accessPoints.name=Name of link target...
 accessPoints.description=Optional description...
+accessPoints.type.creatorAccess=Creator
+accessPoints.type.personAccess=People
+accessPoints.type.familyAccess=Families
+accessPoints.type.corporateBodyAccess=Corporate Bodies
+accessPoints.type.placeAccess=Places
+accessPoints.type.otherAccess=Miscellaneous
+
 
 # References not on this item, but from another item's access points
 accessPoints.externalReferences=External references to this item

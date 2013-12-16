@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, fragment: String, attributes: (Symbol,String)*)(implicit globalConfig: global.GlobalConfig, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: models.base.AnyModel, fragment: String, text: String = "", attributes: Seq[(Symbol,String)] = Seq.empty)(implicit globalConfig: global.GlobalConfig, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @url(item: models.base.AnyModel) = {
     @item match {
@@ -13,4 +13,4 @@
         case _ => { "#" }
     }
 }
-<a href="@{url(item).body.trim + fragment}" class="@("type-highlight " + item.isA)" @attributes.map(a => s"${a._1}='${a._2}'").mkString(" ") >@item.toStringLang</a>
+<a href="@{url(item).body.trim + fragment}" class="@("type-highlight " + item.isA)" @attributes.map(a => s"${a._1}='${a._2}'").mkString(" ") >@{if(text.trim.isEmpty) item.toStringLang else text}</a>

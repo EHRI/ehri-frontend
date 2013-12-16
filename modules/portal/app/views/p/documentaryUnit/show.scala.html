@@ -26,6 +26,10 @@
                 @renderDescription(item, desc, links, annotations)
             }
         }
+
+        @p.common.relatedItemsContainer(item) {
+            @p.common.relatedItems(item, links)
+        }
     }
 
     @p.searchForm(result, params, action, key = "", autofocus = false) {

@@ -34,7 +34,13 @@
                 @textField(item, descId,   desc.control.maintenanceNotes, MAINTENANCE_NOTES)
             }        
         }
-    
+
+        @for(accessPoint <- desc.accessPoints) {
+            @for(aplink <- accessPoint.linksFor(links)) {
+                <h3>Link: @aplink</h3>
+            }
+        }
+
         @link.relatedLinks(item, desc, links)
     }
 }
