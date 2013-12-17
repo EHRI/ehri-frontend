@@ -39,7 +39,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with PortalAnnotations {
 
   // This is a publically-accessible site, but not just yet.
-  override val staffOnly = true
+  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   private val portalRoutes = controllers.portal.routes.Portal
 
