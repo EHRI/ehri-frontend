@@ -20,21 +20,23 @@
             <div class="item-text-field-annotations annotation-set clearfix">
                 @p.common.inlineAnnotationList(anns)
 
-                <div class="annotate-item-controls clearfix">
-                    <a title="@Messages("portal.social.createFieldAnnotation")" data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field"
-                       href="@controllers.portal.routes.Portal.annotateField(item.id, nodeId, key)">
-                        <span class="glyphicon glyphicon-comment"></span>
-                    </a>
-                    @defining(anns.count(!_.isOwnedBy(userOpt))) { otherCount =>
-                        @if(otherCount > 0) {
-                        <a title="@Messages("portal.social.showPublicAnnotations", otherCount)" class="show-other-annotations" href="#">
-                            <span class="glyphicon glyphicon-chevron-down"></span>
-                            @otherCount
+                @if(userOpt.isDefined) {
+                    <div class="annotate-item-controls clearfix">
+                        <a title="@Messages("portal.social.createFieldAnnotation")" data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field"
+                           href="@controllers.portal.routes.Portal.annotateField(item.id, nodeId, key)">
+                            <span class="glyphicon glyphicon-comment"></span>
                         </a>
+                        @defining(anns.count(!_.isOwnedBy(userOpt))) { otherCount =>
+                            @if(otherCount > 0) {
+                            <a title="@Messages("portal.social.showPublicAnnotations", otherCount)" class="show-other-annotations" href="#">
+                                <span class="glyphicon glyphicon-chevron-down"></span>
+                                @otherCount
+                            </a>
+                            }
                         }
-                    }
 
-                </div>
+                    </div>
+                }
             </div>
         </div>
     }

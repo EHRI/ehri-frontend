@@ -8,12 +8,14 @@
             }
         </ul>
     }
-    <div class="annotate-item-controls">
-    @desc.id.map { did =>
-        <a data-item="@item.id" data-did="@did" class="annotate-item"
-           href="@controllers.portal.routes.Portal.annotate(item.id, did)">
-            @Messages("portal.social.createAnnotation")
-        </a>
+    @if(userOpt.isDefined) {
+        <div class="annotate-item-controls">
+            @desc.id.map { did =>
+                <a data-item="@item.id" data-did="@did" class="annotate-item"
+                   href="@controllers.portal.routes.Portal.annotate(item.id, did)">
+                    @Messages("portal.social.createAnnotation")
+                </a>
+            }
+        </div>
     }
-    </div>
 </div>
