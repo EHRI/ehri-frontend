@@ -3,6 +3,9 @@ package backend
 import play.api.libs.json._
 import play.api.data.validation.{ValidationError => PlayValidationError}
 import play.api.libs.functional.syntax._
+import scala._
+import java.lang.RuntimeException
+import scala.RuntimeException
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -10,22 +13,32 @@ import play.api.libs.functional.syntax._
 package object rest {
 
   sealed trait RestError extends Throwable
+
   case class PermissionDenied(
     user: Option[String] = None,
     permission: Option[String] = None,
     item: Option[String] = None,
     scope: Option[String] = None
-  ) extends RestError
-  case class ValidationError(errorSet: ErrorSet) extends RestError
+  ) extends RuntimeException(s"Permission denied on $item for $user") with RestError
+
+  case class ValidationError(errorSet: ErrorSet) extends RuntimeException(errorSet.toString) with RestError
+
+  case class BadRequest(msg: String) extends RuntimeException(msg) with RestError
+
   case class DeserializationError() extends RestError
+
   case class IntegrityError() extends RestError
+
   case class ItemNotFound(
     key: Option[String] = None,
     value: Option[String] = None,
     message: Option[String] = None
   ) extends RestError
-  case class ServerError(error: String) extends RestError
-  case class CriticalError(error: String) extends RestError
+
+  case class ServerError(error: String) extends RuntimeException(error) with RestError
+
+  case class CriticalError(error: String) extends RuntimeException(error) with RestError
+
   case class BadJson(error: Seq[(JsPath,Seq[PlayValidationError])]) extends RestError {
     override def toString = Json.prettyPrint(JsError.toFlatJson(error))
   }
