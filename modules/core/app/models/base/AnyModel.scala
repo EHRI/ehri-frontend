@@ -81,9 +81,11 @@ trait Accessible extends AnyModel {
   def latestEvent: Option[SystemEvent]
 }
 
-/**
- * Created by mike on 23/06/13.
- */
+trait Promotable extends Accessible {
+  def promotors: Seq[UserProfile]
+  def isPromoted: Boolean = !promotors.isEmpty
+}
+
 trait MetaModel[+T <: Model] extends AnyModel {
   val model: T
   val meta: JsObject

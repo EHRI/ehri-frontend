@@ -8,4 +8,6 @@ import scala.concurrent.Future
  */
 trait Visibility {
   def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[MT]
+  def promote(id: String)(implicit apiUser: ApiUser): Future[Boolean]
+  def demote(id: String)(implicit apiUser: ApiUser): Future[Boolean]
 }

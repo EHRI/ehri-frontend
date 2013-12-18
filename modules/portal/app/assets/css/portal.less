@@ -13,6 +13,7 @@
 @repo-color: #034153;
 @country-color: #864300;
 @agent-color: #517C00;
+@promoted-color: #FFFBFB;
 
 @shadow-depth: 5px;
 @shadow-blur: 5px;
@@ -507,6 +508,11 @@ a.annotate-field:hover, a.annotate-item:hover {
   dl {
 
   }
+}
+
+.annotation.promoted {
+  background-color: @promoted-color;
+  color: darken(@muted-gray, 20%);
 }
 
 a.time-permalink {

@@ -54,4 +54,24 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
         .getOrElse(globalConfig.routeRegistry.default))
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
+
+
+  def promote(id: String) = promoteAction(id) { item => implicit userOpt => implicit request =>
+    Ok(views.html.permissions.promote(item, controllers.linking.routes.Links.promotePost(id)))
+  }
+
+  def promotePost(id: String) = promotePostAction(id) { item => bool => implicit userOpt => implicit request =>
+    Redirect(controllers.linking.routes.Links.get(id))
+      .flashing("success" -> Messages("confirmations.itemWasPromoted"))
+  }
+
+  def demote(id: String) = demoteAction(id) { item => implicit userOpt => implicit request =>
+    Ok(views.html.permissions.demote(item,
+      controllers.linking.routes.Links.demotePost(id)))
+  }
+
+  def demotePost(id: String) = demotePostAction(id) { item => bool => implicit userOpt => implicit request =>
+    Redirect(controllers.linking.routes.Links.get(id))
+      .flashing("success" -> Messages("confirmations.itemWasDemoted"))
+  }
 }

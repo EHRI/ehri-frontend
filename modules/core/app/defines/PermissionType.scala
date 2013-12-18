@@ -8,6 +8,7 @@ object PermissionType extends Enumeration {
 	val Owner = Value("owner")
 	val Grant = Value("grant")
 	val Annotate = Value("annotate")
+  val Promote = Value("promote")
 
   implicit val format = defines.EnumUtils.enumFormat(this)
 
@@ -25,6 +26,7 @@ object PermissionType extends Enumeration {
     case Annotate => 8
     case Owner => 15 // C,U,D,A
     case Grant => 16
+    case Promote => 17
   }
 
   /**

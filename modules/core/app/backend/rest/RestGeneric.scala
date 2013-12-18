@@ -10,7 +10,7 @@ import play.api.cache.Cache
 import models.base.AnyModel
 import utils.{PageParams,ListParams}
 import backend.{Generic, EventHandler, ApiUser, Page}
-
+import play.api.http.Status
 
 
 /**
@@ -109,7 +109,7 @@ trait RestGeneric extends Generic with RestDAO {
       checkError(response)
       eventHandler.handleDelete(id)
       Cache.remove(id)
-      true
+      response.status == Status.OK
     }
   }
 

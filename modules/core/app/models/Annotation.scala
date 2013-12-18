@@ -57,6 +57,7 @@ object Annotation {
     (__ \ "target").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       (__ \ "targetPart").lazyFormatNullable[Entity](models.json.entityFormat) and
       nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      nullableListFormat(__ \ "promotedBy")(UserProfile.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(Annotation.apply _, unlift(Annotation.unapply _))
@@ -93,9 +94,10 @@ case class Annotation(
   target: Option[AnyModel] = None,
   targetParts: Option[Entity] = None,
   accessors: List[Accessor] = Nil,
+  promotors: List[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends MetaModel[AnnotationF] with Accessible {
+) extends MetaModel[AnnotationF] with Accessible with Promotable {
 
   def isOwnedBy(userOpt: Option[UserProfile]): Boolean = {
     (for {

@@ -112,6 +112,7 @@ permissionTypes.delete=Delete
 permissionTypes.grant=Grant
 permissionTypes.annotate=Annotate
 permissionTypes.owner=Owner
+permissionTypes.promote=Promote
 
 # Permission grant list paginations
 permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission granted|1<Displaying grants {0,number,integer} to {1,number,integer} of {2,number,integer}}
@@ -221,6 +222,8 @@ systemEvents.setVisibility=Visibility modified
 systemEvents.addGroup=Member added to group
 systemEvents.removeGroup=Member removed from group
 systemEvents.ingest=Items imported
+systemEvents.promotion=Item Promoted
+systemEvents.demotion=Item Promotion Removed
 systemEvents.unknown=Unknown action
 systemEvents.scope=Scope
 systemEvents.subjects={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
@@ -256,6 +259,8 @@ actions.deleteAnnotation=Delete Annotation
 actions.updateItem=Edit Item
 actions.createNewItem=Create New Item
 actions.setVisibility=Set Visibility
+actions.promote=Promote Item Publicly
+actions.demote=Remove Item Promotion
 actions.modifyPermissions=Modify Permissions
 actions.listPermissionGrants=Show Per-Item Permissions
 actions.createNewUser=Create New User Profile
@@ -303,6 +308,8 @@ submitButton.updateUserProfile=Update Profile
 submitButton.updateGroup=Update Group
 submitButton.deleteItem=Delete Item
 submitButton.setVisibility=Set Visibility
+submitButton.promote=Promote Item
+submitButton.demote=Remove Promotion
 submitButton.addItemToGroup=Add Item to Group
 submitButton.removeItemFromGroup=Remove Item from Group
 submitButton.annotate=Annotate Item
@@ -331,6 +338,8 @@ confirmations.profileUpdated=Profile successfully updated
 confirmations.itemWasCreated=Item successfully created
 confirmations.itemWasUpdated=Item successfully updated
 confirmations.itemWasDeleted=Item successfully deleted
+confirmations.itemWasPromoted=Item promoted
+confirmations.itemWasDemoted=Item promotion removed
 
 visibility.visibleToEveryone=Unrestricted visibility
 visibility.visibleToEveryoneMessage=This item currently has no visibility restrictions and is therefore accessible to everyone.
@@ -339,6 +348,8 @@ visibility.restrictedVisibilityMessage=This item is currently visible to the fol
 visibility.visibilityRestrictedTo=Visibility restricted to:
 visibility.chooseUsers=Choose Users
 visibility.chooseGroups=Choose Groups
+visibility.notPromoted=Not Promoted
+visibility.promotedBy=Promoted By
 
 #
 # User Profile Field definitions
