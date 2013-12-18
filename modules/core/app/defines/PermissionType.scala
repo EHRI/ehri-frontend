@@ -26,7 +26,7 @@ object PermissionType extends Enumeration {
     case Annotate => 8
     case Owner => 15 // C,U,D,A
     case Grant => 16
-    case Promote => 17
+    case Promote => 32
   }
 
   /**
