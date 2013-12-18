@@ -7,6 +7,7 @@ import play.api.libs.ws.{WS, Response}
 import play.api.libs.json._
 import play.api.libs.ws.WS.WSRequestHolder
 import backend.{ErrorSet, ApiUser}
+import com.fasterxml.jackson.core.JsonParseException
 
 
 trait RestDAO {
@@ -83,22 +84,30 @@ trait RestDAO {
             }
           )
         }
-        case BAD_REQUEST => response.json.validate[ErrorSet].fold(
-          e => {
-          // Temporary approach to handling random Deserialization errors.
-          // In practice this should happen
-            if ((response.json \ "error").asOpt[String] == Some("DeserializationError")) {
-              Logger.logger.error("Derialization error! : {}", response.json)
-              throw DeserializationError()
-            } else {
-              throw sys.error(s"Unexpected BAD REQUEST: $e \n${response.body}")
+        case BAD_REQUEST => try {
+          response.json.validate[ErrorSet].fold(
+            e => {
+              // Temporary approach to handling random Deserialization errors.
+              // In practice this should happen
+              if ((response.json \ "error").asOpt[String] == Some("DeserializationError")) {
+                Logger.logger.error("Derialization error! : {}", response.json)
+                throw DeserializationError()
+              } else {
+                Logger.error("Bad request: " + response.body)
+                throw sys.error(s"Unexpected BAD REQUEST: $e \n${response.body}")
+              }
+            },
+            errorSet => {
+              Logger.logger.warn("ValidationError ! : {}", response.json)
+              throw ValidationError(errorSet)
             }
-          },
-          errorSet => {
-            Logger.logger.warn("ValidationError ! : {}", response.json)
-            throw ValidationError(errorSet)
+          )
+        } catch {
+          case e: JsonParseException => {
+            Logger.error(response.body)
+            throw new BadRequest(response.body)
           }
-        )
+        }
         case NOT_FOUND => {
           Logger.logger.error("404: {} -> {}", Array(response.ahcResponse.getUri, response.body))
           response.json.validate[ItemNotFound].fold(
