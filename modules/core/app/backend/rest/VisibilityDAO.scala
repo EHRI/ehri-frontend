@@ -34,14 +34,15 @@ trait RestVisibility extends Visibility with RestDAO {
 
   def promote(id: String)(implicit apiUser: ApiUser): Future[Boolean] = {
     userCall(enc(requestUrl, "promote", id)).post("").map { response =>
+      checkError(response)
       Cache.remove(id)
-      assert(Cache.get(id).isEmpty)
       response.status == Status.OK
     }
   }
 
   def demote(id: String)(implicit apiUser: ApiUser): Future[Boolean] = {
     userCall(enc(requestUrl, "promote", id)).delete().map { response =>
+      checkError(response)
       Cache.remove(id)
       response.status == Status.OK
     }

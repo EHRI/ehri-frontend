@@ -11,6 +11,7 @@ import scala.Some
 import play.api.libs.functional.syntax._
 import scala.Some
 import backend.Visibility
+import eu.ehri.project.definitions.Ontology
 
 
 object AnnotationF {
@@ -18,7 +19,7 @@ object AnnotationF {
   val FIELD = "field"
   val ANNOTATION_TYPE = "annotationType"
   val COMMENT = "comment"
-  val ALLOW_PUBLIC = "public"
+  val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
 
   object AnnotationType extends Enumeration {
     type Type = Value
@@ -41,7 +42,7 @@ case class AnnotationF(
   body: String,
   field: Option[String] = None,
   comment: Option[String] = None,
-  allowPublic: Boolean = false
+  isPromotable: Boolean = false
 ) extends Model with Persistable
 
 

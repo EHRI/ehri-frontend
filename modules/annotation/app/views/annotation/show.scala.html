@@ -19,7 +19,9 @@
         }
     }
 } {
-    @common.promotion(item, controllers.annotation.routes.Annotations.promote(item.id), controllers.annotation.routes.Annotations.demote(item.id), ContentTypes.Annotation)
+    @if(item.model.isPromotable) {
+        @common.promotion(item, controllers.annotation.routes.Annotations.promote(item.id), controllers.annotation.routes.Annotations.demote(item.id), ContentTypes.Annotation)
+    }
     @common.visibility(item, controllers.annotation.routes.Annotations.visibility(item.id), ContentTypes.Annotation)
     @common.latestAction(item, controllers.annotation.routes.Annotations.history(item.id))
 

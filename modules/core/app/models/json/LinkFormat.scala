@@ -23,7 +23,8 @@ object LinkFormat {
         TYPE -> d.isA,
         DATA -> Json.obj(
           LINK_TYPE -> d.linkType,
-          DESCRIPTION -> d.description
+          DESCRIPTION -> d.description,
+          IS_PROMOTABLE -> d.isPromotable
         )
       )
     }
@@ -34,7 +35,8 @@ object LinkFormat {
     (__ \ ID).readNullable[String] and
       ((__ \ DATA \ LINK_TYPE).read[LinkType.Value]
           orElse Reads.pure(LinkType.Associative)) and
-      (__ \ DATA \ DESCRIPTION).readNullable[String]
+      (__ \ DATA \ DESCRIPTION).readNullable[String] and
+      (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
     )(LinkF.apply _)
 
   implicit val restFormat: Format[LinkF] = Format(linkReads,linkWrites)

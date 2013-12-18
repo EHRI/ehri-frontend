@@ -6,12 +6,14 @@ import play.api.libs.json._
 import models.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Lang
+import eu.ehri.project.definitions.Ontology
 
 
 object LinkF {
 
   val LINK_TYPE = "type"
   val DESCRIPTION = "description"
+  val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
 
   object LinkType extends Enumeration {
     type Type = Value
@@ -33,7 +35,8 @@ case class LinkF(
   isA: EntityType.Value = EntityType.Link,
   id: Option[String],
   linkType: LinkF.LinkType.Type,
-  description: Option[String]
+  description: Option[String],
+  isPromotable: Boolean = false
 ) extends Model with Persistable
 
 
