@@ -186,7 +186,7 @@ jQuery(function ($) {
         .toggleClass("glyphicon-chevron-down")
       .end()
         .closest(".item-text-field-annotations, .description-annotations")
-        .find(".other-annotation").toggle();
+        .find(".other").toggle();
   });
 
   function insertAnnotationForm($elem, data) {
