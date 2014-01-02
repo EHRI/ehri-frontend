@@ -234,8 +234,8 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     import com.typesafe.plugin._
     use[MailerPlugin].email
       .setSubject("EHRI Password Reset")
-      .addRecipient(email) //NB: Method renamed in trunk
-      .addFrom("EHRI Password Reset <noreply@ehri-project.eu>")
+      .setRecipient(email) //NB: Method renamed in trunk
+      .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
       .send(views.txt.admin.mail.forgotPassword(uuid).body,
           views.html.admin.mail.forgotPassword(uuid).body)
   }
