@@ -196,6 +196,38 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       contentAsString(doc2) must contain(testBody)
     }
 
+    "allow annotation promotion to increase visibility" in new FakeApp {
+      val testBody = "Test Annotation!!!"
+      val testData = Map(
+        AnnotationF.BODY -> Seq(testBody),
+        AnnotationF.ALLOW_PUBLIC -> Seq("true"),
+        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
+      )
+
+      val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        portalRoutes.annotateFieldPost(
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
+      status(post) must equalTo(CREATED)
+      contentAsString(post) must contain(testBody)
+
+      // Ensure the unprivileged user can't see the annotation...
+      val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+        portalRoutes.browseDocument("c4").url)).get
+      status(doc) must equalTo(OK)
+      contentAsString(doc) must not contain(testBody)
+
+      // Get a id via faff method and promote the item...
+      implicit val apiUser = ApiUser(Some(privilegedUser.id))
+      val aid = await(testBackend.getAnnotationsForItem("c4")).head.id
+      await(testBackend.promote(aid))
+
+      // Ensure the unprivileged user CAN now see the annotation...
+      val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+        portalRoutes.browseDocument("c4").url)).get
+      status(doc2) must equalTo(OK)
+      contentAsString(doc2) must contain(testBody)
+    }
+
     "allow deleting annotations" in new FakeApp {
 
     }
