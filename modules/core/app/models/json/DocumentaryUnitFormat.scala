@@ -28,6 +28,7 @@ object DocumentaryUnitFormat {
         TYPE -> d.isA,
         DATA -> Json.obj(
           IDENTIFIER -> d.identifier,
+          OTHER_IDENTIFIERS -> d.otherIdentifiers,
           PUBLICATION_STATUS -> d.publicationStatus,
           COPYRIGHT -> d.copyrightStatus.orElse(Some(CopyrightStatus.Unknown)),
           SCOPE -> d.scope
@@ -42,13 +43,15 @@ object DocumentaryUnitFormat {
   implicit val documentaryUnitReads: Reads[DocumentaryUnitF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnit)) and
     (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
-      (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-      (__ \ RELATIONSHIPS \ Ontology.DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
-        Reads.list[DocumentaryUnitDescriptionF]).map(_.getOrElse(List.empty[DocumentaryUnitDescriptionF]))
-    )(DocumentaryUnitF.apply _)
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    ((__ \ DATA \ OTHER_IDENTIFIERS).readNullable[List[String]] orElse
+      (__ \ DATA \ OTHER_IDENTIFIERS).readNullable[String].map(os => os.map(List(_))) ) and
+    (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
+    ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
+    (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
+    (__ \ RELATIONSHIPS \ Ontology.DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
+      Reads.list[DocumentaryUnitDescriptionF]).map(_.getOrElse(List.empty[DocumentaryUnitDescriptionF]))
+  )(DocumentaryUnitF.apply _)
 
   implicit val restFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
 

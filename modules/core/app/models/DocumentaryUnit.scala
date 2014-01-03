@@ -29,6 +29,7 @@ object DocumentaryUnitF {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
+  val OTHER_IDENTIFIERS = "otherIdentifiers"
   val PUBLICATION_STATUS = "publicationStatus"
   final val SCOPE = "scope"
   final val COPYRIGHT = "copyright"
@@ -45,6 +46,7 @@ case class DocumentaryUnitF(
   isA: EntityType.Value = EntityType.DocumentaryUnit,
   id: Option[String] = None,
   identifier: String,
+  otherIdentifiers: Option[List[String]] = None,
   publicationStatus: Option[PublicationStatus.Value] = None,
   copyrightStatus: Option[DocumentaryUnitF.CopyrightStatus.Value] = Some(DocumentaryUnitF.CopyrightStatus.Unknown),
   scope: Option[DocumentaryUnitF.Scope.Value] = Some(DocumentaryUnitF.Scope.Low),
