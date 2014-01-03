@@ -18,6 +18,7 @@ object DocumentaryUnitForm {
       Entity.ISA -> ignored(EntityType.DocumentaryUnit),
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText,
+      OTHER_IDENTIFIERS -> optional(list(nonEmptyText)),
       PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
       COPYRIGHT -> optional(models.forms.enum(CopyrightStatus)),
       SCOPE -> optional(models.forms.enum(Scope)),

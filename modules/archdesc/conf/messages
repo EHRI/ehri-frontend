@@ -89,7 +89,8 @@ For supplied titles, at the higher level, include the name of the creator of the
 Distinguish between formal and supplied titles according to national or language\
  conventions. (3.1.2)
 
-isadg.identifier=Reference code
+isadg.identifier=Reference Code
+isadg.otherIdentifiers=Other Ref. Codes
 isadg.identifier.description=To identify uniquely the unit of description and to provide a\
  link to the description that represents it.\n\n\
 A specific local reference code, control number, or other unique identifier within the scope\
