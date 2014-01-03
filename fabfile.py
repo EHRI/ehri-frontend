@@ -127,5 +127,5 @@ def current_version():
 
 def current_version_log():
     "Output git log between HEAD and the current deployed version."
-    _, revision = current()
+    _, revision = current_version()
     local("git log %s..HEAD" % revision)
