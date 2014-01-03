@@ -12,11 +12,5 @@
         @item.model.primaryDescription.map { desc =>
             @alternateNames(item, desc)
         }
-
-        <small>
-            @item.model.primaryDescription.map { desc =>
-                @conciseAddress(item, desc, includeCountry = true)
-            }
-        </small>
     </div>
 }

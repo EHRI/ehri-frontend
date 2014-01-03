@@ -1,0 +1,39 @@
+@(item: Repository, desc: RepositoryDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+<ul class="list-unstyled text-muted list-inline inline-separator">
+    @desc.addresses.headOption.map { address =>
+        <address>
+            @address.streetAddress.map { s =>
+                @s<br>
+            }
+            @address.city.map { s =>
+                @s<br>
+            }
+            @address.region.map { s =>
+                @s<br>
+            }
+            @item.country.map { c =>
+                @p.helpers.linkTo(c)
+            }
+        </address>
+
+        <address>
+            @address.telephone.map { t =>
+                <span class="glyphicon glyphicon-phone" title="@Messages("portal.repository.phone")"></span>
+                @t<br>
+            }
+            @address.fax.map { t =>
+                <span class="glyphicon glyphicon-print" title="@Messages("portal.repository.fax")"></span>
+                @t<br>
+            }
+            @address.email.map { t =>
+                <span class="glyphicon glyphicon-envelope" title="Email"></span>
+                <a href="mailto:@t">@Messages("portal.repository.email")</a><br>
+            }
+            @address.url.map { t =>
+                <span class="glyphicon glyphicon-globe" title="Web"></span>
+                <a href="@t" title="Website">@Messages("portal.repository.url")</a><br>
+            }
+        </address>
+    }
+</ul>

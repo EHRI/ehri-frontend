@@ -17,6 +17,12 @@
             @item.model.descriptions.map { desc =>
                 @renderDescription(item, desc, links, annotations)
             }
+        } {
+            @p.common.panel(Messages("portal.repository.contact")) {
+                @item.model.descriptions.map { desc =>
+                    @address(item, desc)
+                }
+            }
         }
     }
 
