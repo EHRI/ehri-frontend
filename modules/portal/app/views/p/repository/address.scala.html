@@ -1,6 +1,6 @@
 @(item: Repository, desc: RepositoryDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-<ul class="list-unstyled text-muted list-inline inline-separator">
+<div class="item-details">
     @desc.addresses.headOption.map { address =>
         <address>
             @address.streetAddress.map { s =>
@@ -36,4 +36,4 @@
             }
         </address>
     }
-</ul>
+</div>

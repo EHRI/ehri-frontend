@@ -38,6 +38,14 @@ portal.repository.fax=Fax
 portal.repository.url=Web
 portal.item.details=Details
 portal.historicalAgent.set=Authority
+
+portal.documentaryUnit.identifier=Identifier
+portal.documentaryUnit.extentAndMedium=Extent & Medium
+portal.documentaryUnit.dates=Dates
+portal.documentaryUnit.levelOfDescription=Level of Description
+portal.documentaryUnit.languageOfMaterials=Languages
+portal.documentaryUnit.scriptOfMaterials=Scripts
+
 portal.facet.location=Location
 portal.facet.placeholder.holder=Filter by Repository
 portal.facet.placeholder.country=Filter Country

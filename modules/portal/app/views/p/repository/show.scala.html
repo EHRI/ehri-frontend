@@ -18,6 +18,8 @@
                 @renderDescription(item, desc, links, annotations)
             }
         } {
+            @* FIXME: This will list addresses for multiple descriptions
+                regardless of which one is being displayed *@
             @p.common.panel(Messages("portal.repository.contact")) {
                 @item.model.descriptions.map { desc =>
                     @address(item, desc)
