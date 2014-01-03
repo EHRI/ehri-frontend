@@ -21,7 +21,11 @@
                 @renderDescription(item, desc, links, annotations)
             }
         } {
-
+            @p.common.tablePanel(Messages("portal.item.details")) {
+                @item.model.descriptions.map { desc =>
+                    @details(item, desc)
+                }
+            }
         }
 
         @p.common.relatedItemsContainer(item) {

@@ -26,12 +26,11 @@
                 @renderDescription(item, desc, links, annotations)
             }
         } {
-            <div class="panel panel-default">
-                <div class="panel-heading">@Messages("portal.item.details")</div>
+            @p.common.tablePanel(Messages("portal.item.details")) {
                 @item.model.descriptions.map { desc =>
                     @details(item, desc)
                 }
-            </div>
+            }
         }
 
         @p.common.relatedItemsContainer(item) {

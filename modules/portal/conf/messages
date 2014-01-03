@@ -46,6 +46,13 @@ portal.documentaryUnit.levelOfDescription=Level of Description
 portal.documentaryUnit.languageOfMaterials=Languages
 portal.documentaryUnit.scriptOfMaterials=Scripts
 
+portal.historicalAgent.identifier=Identifier
+portal.historicalAgent.dates=Dates
+portal.historicalAgent.entityType=Type of Entity
+portal.historicalAgent.entityType.person=Person
+portal.historicalAgent.entityType.family=Family
+portal.historicalAgent.entityType.corporateBody=Corporate Body
+
 portal.facet.location=Location
 portal.facet.placeholder.holder=Filter by Repository
 portal.facet.placeholder.country=Filter Country

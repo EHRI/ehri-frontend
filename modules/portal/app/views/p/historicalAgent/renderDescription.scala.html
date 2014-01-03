@@ -7,8 +7,6 @@
 @p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
-            @common.renderDates(desc, DATES_OF_EXISTENCE)
-            @textField(item, descId,   Some(desc.entityType.toString), ENTITY_TYPE)
         
             @descriptionSection(DESCRIPTION_AREA) {
                 @textField(item, descId,   desc.details.datesOfExistence, DATES_OF_EXISTENCE)
