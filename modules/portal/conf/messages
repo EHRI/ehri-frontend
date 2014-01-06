@@ -36,10 +36,11 @@ portal.repository.phone=Phone
 portal.repository.email=Email
 portal.repository.fax=Fax
 portal.repository.url=Web
-portal.item.details=Details
+portal.item.details=Item Details
 portal.historicalAgent.set=Authority
 
 portal.documentaryUnit.identifier=Identifier
+portal.documentaryUnit.otherIdentifiers=Alt. Identifiers
 portal.documentaryUnit.extentAndMedium=Extent & Medium
 portal.documentaryUnit.dates=Dates
 portal.documentaryUnit.levelOfDescription=Level of Description

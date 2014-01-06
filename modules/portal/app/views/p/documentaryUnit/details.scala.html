@@ -5,6 +5,16 @@
         <td>@Messages("portal.documentaryUnit.identifier")</td>
         <td>@item.model.identifier</td>
     </tr>
+    @item.model.otherIdentifiers.map { idents =>
+        <td>@Messages("portal.documentaryUnit.otherIdentifiers")</td>
+        <td>
+            <ul class="list-unstyled">
+            @idents.map { ident =>
+                <li>@ident</li>
+            }
+            </ul>
+        </td>
+    }
     @if(!desc.dates.isEmpty) {
         <tr>
             <td>@Messages("portal.documentaryUnit.dates")</td>
