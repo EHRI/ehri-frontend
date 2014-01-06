@@ -52,6 +52,16 @@
 @documentaryUnit.itemPage(item, scripts = extrascripts, sidebar = sidebar) {
     @common.annotated(item, annotations) {
 
+        @item.model.otherIdentifiers.map { idents =>
+            <h4 class="muted">
+                <ul class="unstyled">
+                    @idents.map { ident =>
+                        <li>@ident</li>
+                    }
+                </ul>
+            </h4>
+        }
+
         <div class="header-actions clearfix">
             @item.holder.map { holder =>
             <h4>@Messages("documentaryUnit.heldBy"): <a href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
