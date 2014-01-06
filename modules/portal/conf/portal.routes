@@ -26,6 +26,7 @@ GET         /dev/browse/link/:id         @controllers.portal.Portal.browseLink(i
 GET         /dev/browse/annotation/:id   @controllers.portal.Portal.browseAnnotation(id: String)
 GET         /dev/activity                @controllers.portal.Portal.personalisedActivity
 GET         /dev/activityMore/:offset    @controllers.portal.Portal.personalisedActivityMore(offset: Int)
+GET         /dev/activity/:id            @controllers.portal.Portal.itemHistory(id: String)
 GET         /dev/newsFeed                @controllers.portal.Portal.newsFeed
 
 # Annotations...

@@ -6,6 +6,7 @@ portal.search=Search
 portal.profile=Profile
 portal.profile.updateProfile=Edit Profile
 portal.globalSearch=Search Everything
+portal.close=Close
 portal.browse.countries=Country Reports
 portal.browse.repositoriesByCountry=Institutions By Country
 portal.browse.repositories=Archival Institutions
@@ -37,6 +38,7 @@ portal.repository.email=Email
 portal.repository.fax=Fax
 portal.repository.url=Web
 portal.item.details=Item Details
+portal.item.history=Online History
 portal.historicalAgent.set=Authority
 
 portal.documentaryUnit.identifier=Identifier

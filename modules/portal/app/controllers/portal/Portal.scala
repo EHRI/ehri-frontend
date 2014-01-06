@@ -22,6 +22,7 @@ import jp.t2v.lab.play2.auth.LoginLogout
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import play.api.Logger
+import utils.PageParams
 
 
 @Singleton
@@ -202,6 +203,16 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def browseAnnotation(id: String) = getAction[Annotation](EntityType.Annotation, id) {
       ann => details => implicit userOpt => implicit request =>
     Ok(p.annotation.show(ann))
+  }
+
+  def itemHistory(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
+    backend.history(id, PageParams.fromRequest(request)).map { data =>
+      if (isAjax) {
+        Ok(p.activity.activityModal(data))
+      } else {
+        Ok(p.activity.activityModal(data))
+      }
+    }
   }
 
   def placeholder = Cached("pages:portalPlaceholder") {
