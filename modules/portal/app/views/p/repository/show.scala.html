@@ -25,6 +25,8 @@
                     @address(item, desc)
                 }
             }
+
+            @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
         }
     }
 
