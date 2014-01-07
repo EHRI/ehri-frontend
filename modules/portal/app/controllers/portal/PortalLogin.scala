@@ -8,7 +8,7 @@ import jp.t2v.lab.play2.auth.LoginLogout
 import controllers.base.{ControllerHelpers, AuthController}
 import controllers.core.{OpenIDLoginHandler}
 import play.api.Logger
-import controllers.core.auth.oauth2.{FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
+import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -31,7 +31,8 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler {
   def openIDLogin = optionalUserAction { implicit maybeUser => implicit request =>
     val oauthProviders = Map(
       "facebook" -> controllers.portal.routes.Portal.facebookLogin,
-      "google" -> controllers.portal.routes.Portal.googleLogin
+      "google" -> controllers.portal.routes.Portal.googleLogin,
+      "linkedin" -> controllers.portal.routes.Portal.linkedInLogin
     )
 
     Ok(views.html.openIDLogin(openidForm, action = controllers.portal.routes.Portal.openIDLoginPost, oauthProviders))
@@ -53,6 +54,11 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler {
   }
 
   def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, controllers.portal.routes.Portal.facebookLogin) { account => implicit request =>
+    gotoLoginSucceeded(account.id)
+      .map(_.withSession("access_uri" -> controllers.portal.routes.Portal.index.url))
+  }
+
+  def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, controllers.portal.routes.Portal.linkedInLogin) { account => implicit request =>
     gotoLoginSucceeded(account.id)
       .map(_.withSession("access_uri" -> controllers.portal.routes.Portal.index.url))
   }

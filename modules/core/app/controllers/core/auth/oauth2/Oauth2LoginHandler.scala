@@ -41,9 +41,7 @@ trait Oauth2LoginHandler {
   }
 
   private def getUserData[A](provider: OAuth2Provider, info: OAuth2Info)(implicit request: Request[A]):Future[UserData] = {
-    WS.url(provider.settings.userInfoUrl)
-      .withQueryString(OAuth2Constants.AccessToken -> info.accessToken)
-      .get()
+    WS.url(provider.settings.userInfoUrl + info.accessToken).get()
       .map(provider.getUserData)
   }
 

@@ -10,6 +10,7 @@ GET 	    /dev/openidLogin  			 @controllers.portal.Portal.openIDLogin
 POST	    /dev/openidLogin   			 @controllers.portal.Portal.openIDLoginPost
 GET  	    /authenticate/google    	 @controllers.portal.Portal.googleLogin
 GET  	    /authenticate/facebook    	 @controllers.portal.Portal.facebookLogin
+GET  	    /authenticate/linkedin    	 @controllers.portal.Portal.linkedInLogin
 GET         /dev/logout                  @controllers.portal.Portal.logout
 
 GET         /dev/search                  @controllers.portal.Portal.search
