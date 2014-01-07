@@ -26,6 +26,8 @@ import utils.forms.checkRecapture
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
+import controllers.core.auth.openid.OpenIDLoginHandler
+import controllers.core.auth.userpass.UserPasswordLoginHandler
 
 /**
  * Controller for handling user admin actions.
@@ -34,6 +36,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   extends Controller
   with AuthController
   with OpenIDLoginHandler
+  with UserPasswordLoginHandler
   with LoginLogout
   with ControllerHelpers {
 
@@ -43,14 +46,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   // Login functions are unrestricted
   override val staffOnly = false
 
-  private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
-
-  private val passwordLoginForm = Form(
-    tuple(
-      "email" -> email,
-      "password" -> nonEmptyText
-    )
-  )
+  lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>
     implicit val accountOpt: Option[Account] = None
@@ -88,27 +84,14 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     }
   }
 
-  /**
-   * Check password and store credentials.
-   * @return
-   */
-  def loginPost = Action.async { implicit request =>
-    val action = controllers.core.routes.Admin.loginPost
-    passwordLoginForm.bindFromRequest.fold(
-      errorForm => {
-        immediate(BadRequest(views.html.admin.pwLogin(errorForm, action)))
-      },
-      data => {
-        val (email, pw) = data
-        userDAO.authenticate(email, pw).map { account =>
-          Logger.logger.info("User '{}' logged in via password", account.id)
-          gotoLoginSucceeded(account.id)
-        } getOrElse {
-          immediate(Redirect(controllers.core.routes.Admin.login)
-            .flashing("error" -> Messages("login.badUsernameOrPassword")))
-        }
-      }
-    )
+  def loginPost = loginPostAction.async { accountOrErr => implicit request =>
+    accountOrErr match {
+      case Left(errorForm) =>
+        immediate(BadRequest(views.html.admin.pwLogin(errorForm,
+          controllers.core.routes.Admin.loginPost)))
+      case Right(account) =>
+        gotoLoginSucceeded(account.id)
+    }
   }
 
   def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
@@ -125,16 +108,6 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       "confirm" -> nonEmptyText(minLength = 6)
     ) verifying("login.passwordsDoNotMatch", f => f match {
       case (_, _, _, pw, pwc) => pw == pwc
-    })
-  )
-
-  private val changePasswordForm = Form(
-    tuple(
-      "current" -> nonEmptyText,
-      "password" -> nonEmptyText(minLength = 6),
-      "confirm" -> nonEmptyText(minLength = 6)
-    ) verifying("login.passwordsDoNotMatch", f => f match {
-      case (_, pw, pwc) => pw == pwc
     })
   )
 
@@ -227,8 +200,6 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       }
     )
   }
-
-  private val forgotPasswordForm = Form(Forms.single("email" -> email))
 
   private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
     import com.typesafe.plugin._

@@ -27,7 +27,7 @@ trait Oauth2LoginHandler {
 
   val backend: Backend
 
-  private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
+  val userDAO: AccountDAO
 
   val SSLEnabled = current.configuration.getBoolean("securesocial.ssl").getOrElse(true)
   val SessionKey = "sid"

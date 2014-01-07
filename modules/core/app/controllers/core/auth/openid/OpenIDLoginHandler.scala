@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.core.auth.openid
 
 import models.sql.OpenIDAssociation
 import models.{Account, AccountDAO}
@@ -26,7 +26,7 @@ trait OpenIDLoginHandler {
   val backend: Backend
   val globalConfig: global.GlobalConfig
 
-  private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
+  val userDAO: AccountDAO
 
   val openidForm = Form(single(
     "openid_identifier" -> nonEmptyText

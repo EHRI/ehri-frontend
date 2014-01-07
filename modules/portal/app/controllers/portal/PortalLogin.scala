@@ -1,14 +1,14 @@
 package controllers.portal
 
 import play.api.mvc.Controller
-import models.Account
+import models.{AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import controllers.base.{ControllerHelpers, AuthController}
-import controllers.core.{OpenIDLoginHandler}
 import play.api.Logger
 import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
+import controllers.core.auth.openid.OpenIDLoginHandler
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -16,6 +16,8 @@ import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provi
 trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler {
 
   self: Controller with AuthController with LoginLogout =>
+
+  lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>
     implicit val accountOpt: Option[Account] = None
