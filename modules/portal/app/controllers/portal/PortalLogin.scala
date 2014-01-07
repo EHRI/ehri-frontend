@@ -8,7 +8,7 @@ import jp.t2v.lab.play2.auth.LoginLogout
 import controllers.base.{ControllerHelpers, AuthController}
 import controllers.core.{OpenIDLoginHandler}
 import play.api.Logger
-import controllers.core.oauth2.{FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
+import controllers.core.auth.oauth2.{FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -29,7 +29,12 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler {
   }
 
   def openIDLogin = optionalUserAction { implicit maybeUser => implicit request =>
-    Ok(views.html.openIDLogin(openidForm, action = controllers.portal.routes.Portal.openIDLoginPost))
+    val oauthProviders = Map(
+      "facebook" -> controllers.portal.routes.Portal.facebookLogin,
+      "google" -> controllers.portal.routes.Portal.googleLogin
+    )
+
+    Ok(views.html.openIDLogin(openidForm, action = controllers.portal.routes.Portal.openIDLoginPost, oauthProviders))
   }
 
   def openIDLoginPost = openIDLoginPostAction(controllers.portal.routes.Portal.openIDCallback) { formError => implicit request =>
@@ -42,20 +47,12 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler {
     gotoLogoutSucceeded
   }
 
-  def googleLogin = optionalUserAction { implicit maybeUser => implicit request =>
-    Ok(views.html.p.oauth2Login(action = controllers.portal.routes.Portal.googleLoginPost))
-  }
-
-  def googleLoginPost = oauth2LoginPostAction.async(GoogleOAuth2Provider, controllers.portal.routes.Portal.googleLoginPost) { account => implicit request =>
+  def googleLogin = oauth2LoginPostAction.async(GoogleOAuth2Provider, controllers.portal.routes.Portal.googleLogin) { account => implicit request =>
     gotoLoginSucceeded(account.id)
       .map(_.withSession("access_uri" -> controllers.portal.routes.Portal.index.url))
   }
 
-  def facebookLogin = optionalUserAction { implicit maybeUser => implicit request =>
-    Ok(views.html.p.oauth2Login(action = controllers.portal.routes.Portal.facebookLoginPost))
-  }
-
-  def facebookLoginPost = oauth2LoginPostAction.async(FacebookOauth2Provider, controllers.portal.routes.Portal.facebookLoginPost) { account => implicit request =>
+  def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, controllers.portal.routes.Portal.facebookLogin) { account => implicit request =>
     gotoLoginSucceeded(account.id)
       .map(_.withSession("access_uri" -> controllers.portal.routes.Portal.index.url))
   }

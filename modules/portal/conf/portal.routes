@@ -8,10 +8,8 @@ GET         /dev                         @controllers.portal.Portal.index
 GET         /dev/openid                  @controllers.portal.Portal.openIDCallback
 GET 	    /dev/openidLogin  			 @controllers.portal.Portal.openIDLogin
 POST	    /dev/openidLogin   			 @controllers.portal.Portal.openIDLoginPost
-GET 	    /dev/googleLogin  			 @controllers.portal.Portal.googleLogin
-GET  	    /authenticate/google    	 @controllers.portal.Portal.googleLoginPost
-GET 	    /dev/facebookLogin  		 @controllers.portal.Portal.facebookLogin
-GET  	    /authenticate/facebook    	 @controllers.portal.Portal.facebookLoginPost
+GET  	    /authenticate/google    	 @controllers.portal.Portal.googleLogin
+GET  	    /authenticate/facebook    	 @controllers.portal.Portal.facebookLogin
 GET         /dev/logout                  @controllers.portal.Portal.logout
 
 GET         /dev/search                  @controllers.portal.Portal.search
