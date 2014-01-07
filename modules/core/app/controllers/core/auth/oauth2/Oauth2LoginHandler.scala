@@ -16,7 +16,10 @@ import play.api.mvc.SimpleResult
 import play.api.mvc.Call
 
 /**
- * Oauth2 login handler implementation.
+ * Oauth2 login handler implementation, cribbed extensively
+ * from SecureSocial.
+ *
+ * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Oauth2LoginHandler {
 
@@ -46,17 +49,18 @@ trait Oauth2LoginHandler {
   }
 
   private def getOrCreateAccount(userData: UserData): Future[Account] = {
+    val profileData = Map(
+      UserProfileF.NAME -> userData.name,
+      UserProfileF.IMAGE_URL -> userData.imageUrl
+    )
     userDAO.findByEmail(userData.email).map { account =>
+      // TODO: Update user account with new details
       immediate(account)
     } getOrElse {
       // Create a new account!
       implicit val apiUser = ApiUser(Some("admin"))
-      for {
-        user <- backend.createNewUserProfile
-        updated = user.model.copy(name = userData.name)
-        withData <- backend.update[UserProfile,UserProfileF](user.id, updated)
-      } yield {
-        userDAO.create(user.id, userData.email, staff = false) getOrElse {
+      backend.createNewUserProfile(profileData).map { userProfile =>
+        userDAO.create(userProfile.id, userData.email, staff = false) getOrElse {
           sys.error("Unable to create user account!")
         }
       }
@@ -76,11 +80,12 @@ trait Oauth2LoginHandler {
   object oauth2LoginPostAction {
     def async(provider: OAuth2Provider, handler: Call)(f: Account => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
       Action.async { implicit request =>
-        request.queryString.get(OAuth2Constants.Code).flatMap(_.headOption) match {
+        val sessionId = request.session.get(SessionKey).getOrElse(UUID.randomUUID().toString)
+
+        request.getQueryString(OAuth2Constants.Code) match {
           // First stage of request...
           case None => {
             val state = UUID.randomUUID().toString
-            val sessionId = request.session.get(SessionKey).getOrElse(UUID.randomUUID().toString)
             Cache.set(sessionId, state)
 
             val params: Seq[(String, String)] = buildRequestParams(provider, handler, state)
@@ -91,12 +96,13 @@ trait Oauth2LoginHandler {
           }
 
           case Some(code) => {
+            val newStateOpt = request.getQueryString(OAuth2Constants.State)
             (for {
               // check if the state we sent is equal to the one we're receiving now before continuing the flow.
-              sessionId <- request.session.get(SessionKey)
               originalState <- Cache.getAs[String](sessionId)
-              currentState <- request.getQueryString(OAuth2Constants.State) if originalState == currentState
+              currentState <- newStateOpt if originalState == currentState
             } yield {
+              Cache.remove(sessionId)
 
               for {
                 info <- getAccessToken(provider, handler, code)
@@ -107,8 +113,11 @@ trait Oauth2LoginHandler {
 
             }).getOrElse {
               // Session key or states didn't match - throw an error
-              Logger.error("OAuth2 state mismatch: ")
-              throw new OAuth2Error("Invalid session keys and/or")
+              Logger.error("OAuth2 state mismatch!")
+              Logger.debug("Session id: " + sessionId)
+              Logger.debug("Orig state: " + Cache.getAs[String](sessionId))
+              Logger.debug("New state:  " + newStateOpt)
+              throw new OAuth2Error("Invalid session keys")
             }
           }
         }

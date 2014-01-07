@@ -14,5 +14,5 @@ trait Backend extends Generic with Permissions with Descriptions with Links with
   def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser): Future[Response]
 
   // Helpers
-  def createNewUserProfile(implicit apiUser: ApiUser = ApiUser()): Future[UserProfile]
+  def createNewUserProfile(data: Map[String,String] = Map.empty)(implicit apiUser: ApiUser = ApiUser()): Future[UserProfile]
 }

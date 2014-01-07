@@ -9,6 +9,7 @@ import play.api.Play._
 import scala.Some
 import play.api.libs.ws.WS
 import play.api.Logger
+import java.net.{MalformedURLException, URL}
 
 /**
  * Form-related utilities
@@ -16,6 +17,20 @@ import play.api.Logger
  * @author Mike Bryant (http://github.com/mikesname)
  */
 package object forms {
+
+  /**
+   * Check if a string is a valid URL.
+   * @param s url string
+   * @return
+   */
+  def isValidOpenIDUrl(s: String): Boolean = {
+    try {
+      new URL(s)
+      true
+    } catch {
+      case s: MalformedURLException => false
+    }
+  }
 
   /**
    * Check a capture form.

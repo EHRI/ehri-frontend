@@ -28,6 +28,6 @@ case class RestBackend(eventHandler: EventHandler)
       = api.get(urlpart, headers, params)
 
   // Helpers
-  def createNewUserProfile(implicit apiUser: ApiUser = ApiUser()): Future[UserProfile]
-    = admin.createNewUserProfile
+  def createNewUserProfile(data: Map[String,String] = Map.empty)(implicit apiUser: ApiUser = ApiUser()): Future[UserProfile]
+    = admin.createNewUserProfile(data)
  }

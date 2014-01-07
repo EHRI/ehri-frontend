@@ -5,9 +5,9 @@ GET        /        @controllers.portal.Portal.placeholder
 
 GET         /dev                         @controllers.portal.Portal.index
 
-GET         /dev/openid                  @controllers.portal.Portal.openIDCallback
-GET 	    /dev/openidLogin  			 @controllers.portal.Portal.openIDLogin
-POST	    /dev/openidLogin   			 @controllers.portal.Portal.openIDLoginPost
+GET 	    /dev/login        			 @controllers.portal.Portal.openIDLogin
+POST	    /dev/login   	    		 @controllers.portal.Portal.openIDLoginPost
+GET         /authenticate/openid         @controllers.portal.Portal.openIDCallback
 GET  	    /authenticate/google    	 @controllers.portal.Portal.googleLogin
 GET  	    /authenticate/facebook    	 @controllers.portal.Portal.facebookLogin
 GET  	    /authenticate/linkedin    	 @controllers.portal.Portal.linkedInLogin

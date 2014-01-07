@@ -13,7 +13,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.SimpleResult
 import play.api.i18n.Messages
-import java.net.{MalformedURLException, URL, ConnectException}
+import utils.forms.isValidOpenIDUrl
+import java.net.ConnectException
 
 /**
  * OpenID login handler implementation.
@@ -32,15 +33,6 @@ trait OpenIDLoginHandler {
   ) verifying("OpenID URL is invalid", f => f match  {
     case s => isValidOpenIDUrl(s)
   }))
-
-  private def isValidOpenIDUrl(s: String): Boolean = {
-    try {
-      new URL(s)
-      true
-    } catch {
-      case s: MalformedURLException => false
-    }
-  }
 
   object openIDLoginPostAction {
     def async(handler: Call)(f: Form[String] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
@@ -97,7 +89,7 @@ trait OpenIDLoginHandler {
               Logger.logger.info("User '{}' created OpenID association", acc.id)
               f(Right(acc))(request)
             } getOrElse {
-              backend.createNewUserProfile.flatMap { up =>
+              backend.createNewUserProfile().flatMap { up =>
                 userDAO.create(up.id, email.toLowerCase).map { account =>
                   OpenIDAssociation.addAssociation(account, info.id)
                   Logger.logger.info("User '{}' created OpenID account", account.id)

@@ -48,7 +48,7 @@ trait PersonaLoginHandler {
               userDAO.findByEmail(email) match {
                 case Some(account) => f(Right(account))(request)
                 case None => {
-                  backend.createNewUserProfile.flatMap { up =>
+                  backend.createNewUserProfile().flatMap { up =>
                     userDAO.create(up.id, email).map { acc =>
                       f(Right(acc))(request)
                     } getOrElse {
