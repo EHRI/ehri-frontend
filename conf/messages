@@ -54,6 +54,7 @@ footer.footerText=This is a development version of the EHRI data entry interface
 login.login=Sign In
 login.openid=With OpenID
 login.existingAccount=With an existing account
+login.withPassword=Using a password
 login.changePassword=Change Password
 login.adminLoginMessage=Note: only EHRI partners are given passwords.\
    To sign up normally, please use the ''Sign In'' link at the top of the page and login with your OpenID account.

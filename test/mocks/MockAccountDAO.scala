@@ -11,6 +11,7 @@ case class MockAccount(id: String, email: String, staff: Boolean = false) extend
     true
   }
   def createResetToken(token: UUID) = MockAccountDAO.tokens += token.toString -> id
+  def createValidationToken(token: UUID) = MockAccountDAO.tokens += token.toString -> id
   def expireTokens() = {  // Bit gross this, dealing with Mutable state...
     val indicesToDelete = for {
       (t, i) <- MockAccountDAO.tokens.zipWithIndex if t._2 == id

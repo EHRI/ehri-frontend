@@ -1,6 +1,13 @@
 portal.welcome=Welcome to EHRI
 portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
+
+portal.signup=Create an Account
+portal.mail.confirmEmailHeading=Please confirm your email address
+portal.mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
+portal.mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\
+  be deactivated.
+
 portal.browse=Browse
 portal.search=Search
 portal.profile=Profile

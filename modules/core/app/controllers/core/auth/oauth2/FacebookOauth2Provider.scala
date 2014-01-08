@@ -22,11 +22,14 @@ object FacebookOauth2Provider extends OAuth2Provider {
     }
   }
 
-  def getUserData(response: Response): UserData = response.json.as[UserData]((
-    (__ \ Email).read[String] and
-    (__ \ Name).read[String] and
-    (__ \ Picture \ "data" \ "url").read[String]
-  )(UserData.apply _))
+  def getUserData(response: Response): UserData = {
+    Logger.debug("Facebook user info: " + Json.prettyPrint(response.json))
+    response.json.as[UserData]((
+      (__ \ Email).read[String] and
+        (__ \ Name).read[String] and
+        (__ \ Picture \ "data" \ "url").read[String]
+      )(UserData.apply _))
+  }
 
   val Error = "error"
   val Message = "message"

@@ -1,7 +1,7 @@
 package controllers.portal
 
-import play.api.mvc.Controller
-import models.{AccountDAO, Account}
+import play.api.mvc.{RequestHeader, Action, Controller}
+import models.{UserProfileF, AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
@@ -9,15 +9,92 @@ import controllers.base.{ControllerHelpers, AuthController}
 import play.api.Logger
 import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
 import controllers.core.auth.openid.OpenIDLoginHandler
+import controllers.core.auth.userpass.UserPasswordLoginHandler
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.data.validation.Constraints
+import play.api.Play._
+import utils.forms._
+import java.util.UUID
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler {
+trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPasswordLoginHandler {
 
   self: Controller with AuthController with LoginLogout =>
 
   lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
+
+  val signupForm = Form(
+    tuple(
+      "name" -> nonEmptyText,
+      "email" -> email,
+      "password" -> nonEmptyText,
+      "confirm" -> nonEmptyText
+    ) verifying("login.passwordsDoNotMatch", f => f match {
+      case (_, _, pw, pwc) => pw == pwc
+    })
+  )
+
+  def signup = Action { implicit request =>
+    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+      .getOrElse("fakekey")
+    Ok(views.html.p.account.signup(signupForm, controllers.portal.routes.Portal.signupPost, recaptchaKey))
+  }
+
+  def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
+    import com.typesafe.plugin._
+    use[MailerPlugin].email
+      .setSubject("Please confirm your EHRI Account Email")
+      .setRecipient(email)
+      .setFrom("EHRI Email Validation <noreply@ehri-project.eu>")
+      .send(views.txt.p.account.mail.confirmEmail(uuid).body,
+      views.html.p.account.mail.confirmEmail(uuid).body)
+  }
+
+  def signupPost = Action.async { implicit request =>
+    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+      .getOrElse("fakekey")
+    checkRecapture.flatMap { ok =>
+      if (!ok) {
+        val form = signupForm.bindFromRequest
+            .discardingErrors.withGlobalError("error.badRecaptcha")
+        immediate(BadRequest(views.html.p.account.signup(form,
+          controllers.portal.routes.Portal.signupPost, recaptchaKey)))
+      } else {
+        signupForm.bindFromRequest.fold(
+          errForm => immediate(BadRequest(views.html.p.account.signup(errForm,
+            controllers.portal.routes.Portal.signupPost, recaptchaKey))),
+          data => {
+            val (name, email, pw, _) = data
+            userDAO.findByEmail(email).map { _ =>
+              val form = signupForm.withGlobalError("error.emailExists")
+              immediate(BadRequest(views.html.p.account.signup(form,
+                controllers.portal.routes.Portal.signupPost, recaptchaKey)))
+            } getOrElse {
+
+              backend.createNewUserProfile(Map(UserProfileF.NAME -> name)).flatMap { userProfile =>
+                userDAO.create(userProfile.id, email, staff = false).map { account =>
+                  account.setPassword(Account.hashPassword(pw))
+                  val uuid = UUID.randomUUID()
+                  account.createValidationToken(uuid)
+                  sendValidationEmail(email, uuid)
+                  gotoLoginSucceeded(userProfile.id)
+                } getOrElse {
+                  sys.error("User account creation failed...")
+                }
+              }
+            }
+          }
+        )
+      }
+    }
+  }
+
+  def confirmEmail(token: String) = Action { implicit request =>
+    ???
+  }
 
   def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>
     implicit val accountOpt: Option[Account] = None
@@ -30,20 +107,31 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler {
     }
   }
 
-  def openIDLogin = optionalUserAction { implicit maybeUser => implicit request =>
+  def login = optionalUserAction { implicit maybeUser => implicit request =>
     val oauthProviders = Map(
       "facebook" -> controllers.portal.routes.Portal.facebookLogin,
       "google" -> controllers.portal.routes.Portal.googleLogin,
       "linkedin" -> controllers.portal.routes.Portal.linkedInLogin
     )
 
-    Ok(views.html.openIDLogin(openidForm, action = controllers.portal.routes.Portal.openIDLoginPost, oauthProviders))
+    Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
   }
 
   def openIDLoginPost = openIDLoginPostAction(controllers.portal.routes.Portal.openIDCallback) { formError => implicit request =>
     implicit val accountOpt: Option[Account] = None
     BadRequest(views.html.openIDLogin(formError, action = controllers.portal.routes.Portal.openIDLoginPost))
   }
+
+  def passwordLoginPost = loginPostAction.async { accountOrErr => implicit request =>
+    accountOrErr match {
+      case Left(errorForm) =>
+        immediate(BadRequest(views.html.admin.pwLogin(errorForm,
+          controllers.portal.routes.Portal.passwordLoginPost)))
+      case Right(account) =>
+        gotoLoginSucceeded(account.id)
+    }
+  }
+  
 
   def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
     Logger.logger.info("Portal User '{}' logged out", maybeUser.map(_.id).getOrElse("?"))

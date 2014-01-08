@@ -1,6 +1,0 @@
-@(action: Call)(implicit token: play.filters.csrf.CSRF.Token)
-
-@helper.form(action = action) {
-    @formHelpers.csrfToken()
-    <input type="submit" value="Login via Google" />
-}

@@ -21,7 +21,8 @@ CREATE TABLE user_auth (
 CREATE TABLE token (
   id          VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   token       VARCHAR(255) NOT NULL PRIMARY KEY,
-  expires     TIMESTAMP NOT NULL
+  expires     TIMESTAMP NOT NULL,
+  is_sign_up  BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 

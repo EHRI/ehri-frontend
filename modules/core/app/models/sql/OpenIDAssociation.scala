@@ -30,7 +30,7 @@ object OpenIDAssociation {
   val simple = {
     get[String]("openid_association.id") ~
     get[String]("openid_association.openid_url") map {
-      case id ~ url => OpenIDAssociation(id, url, None)
+      case id ~ url => OAuth2Association(id, url, None)
     }
   }
 
@@ -40,22 +40,22 @@ object OpenIDAssociation {
     }
   }
 
-  def findAll: Seq[OpenIDAssociation] = DB.withConnection { implicit connection =>
+  def findAll: Seq[OAuth2Association] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from openid_association join users on openid_association.id =  users.id
       """
-    ).as(OpenIDAssociation.withUser *)
+    ).as(OAuth2Association.withUser *)
   }
 
-  def findByUrl(url: String): Option[OpenIDAssociation] = DB.withConnection { implicit connection =>
+  def findByUrl(url: String): Option[OAuth2Association] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from openid_association
           join users on openid_association.id =  users.id where
         openid_association.openid_url = {url} LIMIT 1
       """
-    ).on('url -> url).as(OpenIDAssociation.withUser.singleOpt)
+    ).on('url -> url).as(OAuth2Association.withUser.singleOpt)
   }
 
   def addAssociation(acc: Account, assoc: String): Unit = DB.withConnection { implicit connection =>

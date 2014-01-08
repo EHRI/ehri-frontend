@@ -27,6 +27,7 @@ trait Account {
   def setPassword(hashed: HashedPassword): Account
   def delete(): Boolean
   def createResetToken(uuid: UUID): Unit
+  def createValidationToken(uuid: UUID): Unit
   def expireTokens(): Unit
 }
 
