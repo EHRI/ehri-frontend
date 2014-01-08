@@ -16,6 +16,12 @@ object Constants {
   val LOG_MESSAGE_HEADER_NAME = "logMessage"
 
   /**
+   * Name of the header for specifying partial item merge (placeholder
+   * for lack of explicit HTTP PATCH support.
+   */
+  val PATCH_HEADER_NAME = "Patch"
+
+  /**
    * Parameter for specifying allowed accessors to resources.
    */
   val ACCESSOR_PARAM = "accessibleTo"

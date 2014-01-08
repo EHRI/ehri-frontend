@@ -10,6 +10,7 @@ import backend.rest.cypher.CypherDAO
 import scala.Some
 import backend.rest.ValidationError
 import backend.ApiUser
+import play.api.libs.json.Json
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -54,6 +55,15 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       val udata = entity.model.copy(location = Some("London"))
       val res = await(testBackend.update[UserProfile,UserProfileF](entity.id, udata))
       res.model.location must equalTo(Some("London"))
+    }
+
+    "patch an item by id" in new FakeApp {
+      val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
+      val testVal = "http://example.com/"
+      val patchData = Json.obj(UserProfileF.IMAGE_URL -> testVal)
+      val entity = await(testBackend.create[UserProfile,UserProfileF](user))
+      val res = await(testBackend.patch[UserProfile](entity.id, patchData))
+      res.model.imageUrl must equalTo(Some(testVal))
     }
 
     "error when creating an item with a non-unique id" in new FakeApp {

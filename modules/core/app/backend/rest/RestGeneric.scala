@@ -11,6 +11,7 @@ import models.base.AnyModel
 import utils.{PageParams,ListParams}
 import backend.{Generic, EventHandler, ApiUser, Page}
 import play.api.http.Status
+import models.Entity
 
 
 /**
@@ -96,6 +97,19 @@ trait RestGeneric extends Generic with RestDAO {
     val url = enc(requestUrl, rs.entityType, id)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
+      val item = checkErrorAndParse(response)(rd.restReads)
+      eventHandler.handleUpdate(id)
+      Cache.remove(id)
+      item
+    }
+  }
+
+  def patch[MT](id: String, data: JsObject, logMsg: Option[String] = None)(
+      implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
+    val item = Json.obj(Entity.TYPE -> rs.entityType, Entity.DATA -> data)
+    val url = enc(requestUrl, rs.entityType, id)
+    userCall(url).withHeaders((PATCH_HEADER_NAME -> true.toString) +: msgHeader(logMsg): _*)
+        .put(item).map { response =>
       val item = checkErrorAndParse(response)(rd.restReads)
       eventHandler.handleUpdate(id)
       Cache.remove(id)
