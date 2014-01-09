@@ -5,7 +5,7 @@ import anorm._
 import anorm.SqlParser._
 import helpers.WithFixures
 import models.{Account, AccountDAO}
-import models.sql.OpenIDAssociation
+import models.sql.{OAuth2Association, OpenIDAssociation}
 import play.api.test.PlaySpecification
 
 
@@ -46,7 +46,7 @@ class AccountSpec extends PlaySpecification {
     }
   }
 
-  "openid dao" should {
+  "openid assoc" should {
     "find accounts by openid_url and allow adding another" in new WithFixures {
       val assoc = OpenIDAssociation.findByUrl(mocks.privilegedUser.id + "-openid-test-url")
       assoc must beSome
@@ -57,6 +57,23 @@ class AccountSpec extends PlaySpecification {
 
       OpenIDAssociation.addAssociation(user, "another-test-url")
       val assoc2 = OpenIDAssociation.findByUrl("another-test-url")
+      assoc2 must beSome
+      assoc2.get.user must beSome
+      assoc2.get.user.get must equalTo(user)
+    }
+  }
+
+  "oauth2 assoc" should {
+    "find accounts by oauth2 provider info and allow adding another" in new WithFixures {
+      val assoc = OAuth2Association.findByProviderInfo("1234", "google")
+      assoc must beSome
+      assoc.get.user must beSome
+      assoc.get.user.get.email must beEqualTo(mocks.privilegedUser.email)
+
+      val user = assoc.get.user.get
+
+      OAuth2Association.addAssociation(user, "4321", "facebook")
+      val assoc2 = OAuth2Association.findByProviderInfo("4321", "facebook")
       assoc2 must beSome
       assoc2.get.user must beSome
       assoc2.get.user.get must equalTo(user)

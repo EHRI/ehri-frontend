@@ -20,6 +20,16 @@ CREATE TABLE openid_association (
 
 ALTER TABLE openid_association ADD CONSTRAINT openid_association_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
+CREATE TABLE oauth2_association (
+  id            VARCHAR(50) NOT NULL,
+  provider_id   VARCHAR(255) NOT NULL,
+  provider      VARCHAR(255) NOT NULL,
+  created       TIMESTAMP NOT NULL,
+  PRIMARY KEY (id, provider_id, provider)
+);
+
+ALTER TABLE oauth2_association ADD CONSTRAINT oauth2_association_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
+
 CREATE TABLE user_auth (
     id          VARCHAR(50) NOT NULL PRIMARY KEY,
     `data`     VARCHAR(255) NOT NULL

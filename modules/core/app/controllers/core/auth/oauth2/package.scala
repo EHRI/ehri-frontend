@@ -38,6 +38,7 @@ package object oauth2 {
   class OAuth2Error(msg: String) extends AuthenticationError(msg)
 
   case class UserData(
+    providerId: String,
     email: String,
     name: String,
     imageUrl: String

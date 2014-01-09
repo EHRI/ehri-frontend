@@ -13,6 +13,13 @@ CREATE TABLE openid_association (
     PRIMARY KEY(id, openid_url)
 );
 
+CREATE TABLE oauth2_association (
+    id           VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    provider_id  VARCHAR(255) NOT NULL,
+    provider     VARCHAR(255) NOT NULL,
+    PRIMARY KEY(id, provider_id, provider)
+);
+
 CREATE TABLE user_auth (
     id         VARCHAR(50) NOT NULL PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
     data       VARCHAR(255) NOT NULL

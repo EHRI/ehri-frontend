@@ -1,6 +1,6 @@
 package controllers.core.auth.openid
 
-import models.sql.OAuth2Association
+import models.sql.OpenIDAssociation
 import models.{Account, AccountDAO}
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -77,7 +77,7 @@ trait OpenIDLoginHandler {
       Action.async { implicit request =>
         OpenID.verifiedId.flatMap { info =>
         // check if there's a user with the right id
-          OAuth2Association.findByUrl(info.id).map { assoc =>
+          OpenIDAssociation.findByUrl(info.id).map { assoc =>
             // NOTE: If this user exists in the auth DB but not on the REST
             // server we have a bit of a problem at present...
             Logger.logger.info("User '{}' logged in via OpenId", assoc.user.get.id)
@@ -85,13 +85,13 @@ trait OpenIDLoginHandler {
           } getOrElse {
             val email = extractEmail(info.attributes).getOrElse(sys.error("No openid email"))
             userDAO.findByEmail(email).map { acc =>
-              OAuth2Association.addAssociation(acc, info.id)
+              OpenIDAssociation.addAssociation(acc, info.id)
               Logger.logger.info("User '{}' created OpenID association", acc.id)
               f(Right(acc))(request)
             } getOrElse {
               backend.createNewUserProfile().flatMap { up =>
                 userDAO.create(up.id, email.toLowerCase).map { account =>
-                  OAuth2Association.addAssociation(account, info.id)
+                  OpenIDAssociation.addAssociation(account, info.id)
                   Logger.logger.info("User '{}' created OpenID account", account.id)
                   f(Right(account))(request)
                 } getOrElse {

@@ -1,5 +1,5 @@
 import models.AccountDAO
-import models.sql.{OpenIDAssociation, SqlAccountDAOPlugin}
+import models.sql.{OAuth2Association, OpenIDAssociation, SqlAccountDAOPlugin}
 import org.specs2.execute.{Result, AsResult}
 import org.specs2.mutable.Around
 import org.specs2.specification.Scope
@@ -29,6 +29,7 @@ package object helpers {
     mocks.users.map { case (profile, account) =>
       userDAO.create(account.id, account.email).map { acc =>
         OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")
+        OAuth2Association.addAssociation(acc, "1234", "google")
       }
     }
   }
