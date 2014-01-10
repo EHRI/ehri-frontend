@@ -98,7 +98,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // TESTING MAGIC!!! We have to create an account for subsequent logins...
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
-      val fakeAccount = MockAccount(userId, "test-user@example.com", staff = true)
+      val fakeAccount = MockAccount(userId, "test-user@example.com", verified = true, staff = true)
       mocks.userFixtures.put(fakeAccount.id, fakeAccount)
 
       // Check the user can read their profile as themselves...

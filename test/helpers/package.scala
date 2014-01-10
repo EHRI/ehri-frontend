@@ -1,5 +1,5 @@
 import models.AccountDAO
-import models.sql.{OAuth2Association, OpenIDAssociation, SqlAccountDAOPlugin}
+import models.sql.{MockAccount, OAuth2Association, OpenIDAssociation, SqlAccountDAOPlugin}
 import org.specs2.execute.{Result, AsResult}
 import org.specs2.mutable.Around
 import org.specs2.specification.Scope
@@ -27,10 +27,9 @@ package object helpers {
   def loadFixtures(implicit app: play.api.Application) = {
     val userDAO: SqlAccountDAOPlugin = new SqlAccountDAOPlugin(app)
     mocks.users.map { case (profile, account) =>
-      userDAO.create(account.id, account.email).map { acc =>
-        OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")
-        OAuth2Association.addAssociation(acc, "1234", "google")
-      }
+      val acc = userDAO.create(account.id, account.email, verified = true, staff = true)
+      OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")
+      OAuth2Association.addAssociation(acc, "1234", "google")
     }
   }
 

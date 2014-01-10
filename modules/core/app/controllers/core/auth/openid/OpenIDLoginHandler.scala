@@ -1,6 +1,6 @@
 package controllers.core.auth.openid
 
-import models.sql.OpenIDAssociation
+import models.sql.{SqlAccount, OpenIDAssociation}
 import models.{Account, AccountDAO}
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -90,13 +90,10 @@ trait OpenIDLoginHandler {
               f(Right(acc))(request)
             } getOrElse {
               backend.createNewUserProfile().flatMap { up =>
-                userDAO.create(up.id, email.toLowerCase).map { account =>
-                  OpenIDAssociation.addAssociation(account, info.id)
-                  Logger.logger.info("User '{}' created OpenID account", account.id)
-                  f(Right(account))(request)
-                } getOrElse {
-                  sys.error("Creation of user db failed!")
-                }
+                val account = userDAO.create(up.id, email.toLowerCase, verified = true, staff = false)
+                OpenIDAssociation.addAssociation(account, info.id)
+                Logger.logger.info("User '{}' created OpenID account", account.id)
+                f(Right(account))(request)
               }
             }
           }

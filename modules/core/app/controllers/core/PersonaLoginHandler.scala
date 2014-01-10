@@ -11,6 +11,7 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import scala.concurrent.Future
+import models.sql.SqlAccount
 
 /**
  * Handler for Mozilla Persona-based login.
@@ -49,11 +50,8 @@ trait PersonaLoginHandler {
                 case Some(account) => f(Right(account))(request)
                 case None => {
                   backend.createNewUserProfile().flatMap { up =>
-                    userDAO.create(up.id, email).map { acc =>
-                      f(Right(acc))(request)
-                    } getOrElse {
-                      f(Left("Creation of user db failed!"))(request)
-                   }
+                    val account = userDAO.create(up.id, email, verified = true, staff = false)
+                    f(Right(account))(request)
                   }
                 }
               }

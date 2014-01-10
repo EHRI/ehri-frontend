@@ -3,6 +3,8 @@ portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
 
 portal.signup=Create an Account
+portal.signup.emailConfirmed=Your email is now confirmed and you have been signed in.
+portal.signup.invalidSignupToken=Confirmation URL is invalid or has expired.
 portal.mail.confirmEmailHeading=Please confirm your email address
 portal.mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
 portal.mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\

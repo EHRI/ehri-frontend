@@ -305,6 +305,7 @@ actions.deleteLink=Delete Link
 actions.save=Save
 
 # Submit buttons
+submitButton.signup=Submit
 submitButton.createUserProfile=Create User
 submitButton.createGroup=Create Group
 submitButton.updateUserProfile=Update Profile
@@ -390,6 +391,9 @@ priority.unknown=-
 
 identifier=Identifier
 name=Name
+email=Email
+password=Password
+confirm=Confirm Password
 administrationArea=Administration Area
 publicationStatus=Publication Status
 

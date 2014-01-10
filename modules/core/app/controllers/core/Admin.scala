@@ -26,6 +26,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
+import models.sql.SqlAccount
 
 /**
  * Controller for handling user admin actions.
@@ -280,13 +281,10 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
 
       createUserProfile(user, groups, allGroups) { profile =>
-        userDAO.createWithPassword(profile.id, email.toLowerCase,
-            true, Account.hashPassword(pw)).map { account =>
-          grantOwnerPerms(profile) {
-            Redirect(controllers.core.routes.UserProfiles.search)
-          }
-        }.getOrElse {
-          sys.error("Unable to create user profile on database. Probably a programming error...")
+        userDAO.createWithPassword(profile.id, email.toLowerCase, verified = true,
+            staff = true, Account.hashPassword(pw))
+        grantOwnerPerms(profile) {
+          Redirect(controllers.core.routes.UserProfiles.search)
         }
       }
     }

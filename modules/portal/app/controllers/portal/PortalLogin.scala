@@ -16,6 +16,8 @@ import play.api.data.validation.Constraints
 import play.api.Play._
 import utils.forms._
 import java.util.UUID
+import models.sql.SqlAccount
+import play.api.i18n.Messages
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -75,15 +77,12 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
             } getOrElse {
 
               backend.createNewUserProfile(Map(UserProfileF.NAME -> name)).flatMap { userProfile =>
-                userDAO.create(userProfile.id, email, staff = false).map { account =>
-                  account.setPassword(Account.hashPassword(pw))
-                  val uuid = UUID.randomUUID()
-                  account.createValidationToken(uuid)
-                  sendValidationEmail(email, uuid)
-                  gotoLoginSucceeded(userProfile.id)
-                } getOrElse {
-                  sys.error("User account creation failed...")
-                }
+                val account = userDAO.createWithPassword(userProfile.id, email.toLowerCase,
+                    verified = false, staff = false, Account.hashPassword(pw))
+                val uuid = UUID.randomUUID()
+                account.createValidationToken(uuid)
+                sendValidationEmail(email, uuid)
+                gotoLoginSucceeded(userProfile.id)
               }
             }
           }
@@ -92,8 +91,15 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     }
   }
 
-  def confirmEmail(token: String) = Action { implicit request =>
-    ???
+  def confirmEmail(token: String) = Action.async { implicit request =>
+    userDAO.findByResetToken(token, isSignUp = true).map { account =>
+      account.verify(token)
+      gotoLoginSucceeded(account.id)
+        .map(_.flashing("success" -> "portal.email.validated"))
+    } getOrElse {
+      immediate(BadRequest(
+          views.html.errors.itemNotFound(Some(Messages("portal.signup.invalidSignupToken")))))
+    }
   }
 
   def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>

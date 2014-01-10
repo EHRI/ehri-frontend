@@ -3,7 +3,9 @@
 CREATE TABLE users (
     id          VARCHAR(50) NOT NULL PRIMARY KEY,
     email       VARCHAR(255) NOT NULL,
-    staff       BOOLEAN NOT NULL
+    verified    BOOLEAN NOT NULL DEFAULT FALSE,
+    staff       BOOLEAN NOT NULL DEFAULT FALSE,
+    created     TIMESTAMP NOT NULL
 );
 
 

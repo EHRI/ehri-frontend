@@ -21,10 +21,12 @@ private[models] case class HashedPassword private(s: String) {
 trait Account {
 	def email: String
 	def id: String
+  val verified: Boolean
   val staff: Boolean
   def password: Option[HashedPassword] = None
   def updatePassword(hashed: HashedPassword): Account
   def setPassword(hashed: HashedPassword): Account
+  def verify(token: String): Account
   def delete(): Boolean
   def createResetToken(uuid: UUID): Unit
   def createValidationToken(uuid: UUID): Unit
@@ -44,13 +46,13 @@ object Account {
 }
 
 trait AccountDAO extends Plugin {
-  def authenticate(email: String, pw: String): Option[Account] = for {
+  def authenticate(email: String, pw: String, verified: Boolean = true): Option[Account] = for {
       acc <- findByEmail(email)
-      hashed <- acc.password if (Account.checkPassword(pw, hashed))
+      hashed <- acc.password if Account.checkPassword(pw, hashed) && acc.verified
   } yield acc
-	def findByProfileId(id: String): Option[Account]
-  def findByEmail(email: String): Option[Account]
-  def create(id: String, email: String, staff: Boolean = false): Option[Account]
-  def createWithPassword(id: String, email: String, staff: Boolean = false, hashed: HashedPassword): Option[Account]
-  def findByResetToken(token: String): Option[Account]
+	def findByProfileId(id: String, verified: Boolean = true): Option[Account]
+  def findByEmail(email: String, verified: Boolean = true): Option[Account]
+  def create(id: String, email: String, verified: Boolean, staff: Boolean): Account
+  def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, hashed: HashedPassword): Account
+  def findByResetToken(token: String, isSignUp: Boolean = false): Option[Account]
 }

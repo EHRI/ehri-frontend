@@ -160,8 +160,11 @@ trait TestRealLoginHelper extends TestLoginHelper {
 
       // Initialize user fixtures
       userFixtures.values.map { user =>
-        SqlAccount.findByProfileId(user.id) orElse SqlAccount.create(user.email, user.id).map { u =>
+        SqlAccount.findByProfileId(user.id).map { u =>
           u.setPassword(Account.hashPassword(testPassword))
+        } getOrElse {
+          SqlAccount.createWithPassword(user.email, user.id, true, true,
+            Account.hashPassword(testPassword))
         }
       }
     }

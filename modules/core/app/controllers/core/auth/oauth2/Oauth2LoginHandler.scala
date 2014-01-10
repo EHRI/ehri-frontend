@@ -14,7 +14,8 @@ import java.net.URLEncoder
 import play.api.Play._
 import play.api.mvc.SimpleResult
 import play.api.mvc.Call
-import models.sql.OAuth2Association
+import models.sql.{SqlAccount, OAuth2Association}
+import play.api.db.DB
 
 /**
  * Oauth2 login handler implementation, cribbed extensively
@@ -68,12 +69,9 @@ trait Oauth2LoginHandler {
         // Create a new account!
         implicit val apiUser = ApiUser(Some("admin"))
         backend.createNewUserProfile(profileData).map { userProfile =>
-          userDAO.create(userProfile.id, userData.email, staff = false).map { account =>
-            OAuth2Association.addAssociation(account, userData.providerId, provider.name)
-            account
-          } getOrElse {
-            sys.error("Unable to create user account!")
-          }
+          val account = userDAO.create(userProfile.id, userData.email.toLowerCase, verified = true, staff = false)
+          OAuth2Association.addAssociation(account, userData.providerId, provider.name)
+          account
         }
       }
     }
