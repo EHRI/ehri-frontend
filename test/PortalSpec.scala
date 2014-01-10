@@ -2,21 +2,19 @@ package test
 
 import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._
-import play.api.i18n.Messages
 import play.api.test.FakeRequest
-import play.api.test.Helpers.await
-import play.api.http.{MimeTypes, HeaderNames}
-import backend.rest.PermissionDenied
 import utils.ContributionVisibility
-import backend.ApiUser
-import scala.concurrent.Future
 import controllers.portal.ReversePortal
+import backend.ApiUser
+import mocks.MockBufferedMailer
 
 
 class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
+
+  override def getConfig = Map("recaptcha.skip" -> true)
 
   "Portal views" should {
     "view docs" in new FakeApp {
@@ -242,6 +240,31 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
 
     "allow changing link visibility" in new FakeApp {
 
+    }
+  }
+
+  "Signup process" should {
+    "create a validation token and send a mail on signup" in new FakeApp {
+      val testEmail: String = "test@example.com"
+      val numSentMails = MockBufferedMailer.mailBuffer.size
+      val numAccounts = mocks.userFixtures.size
+      val data: Map[String,Seq[String]] = Map(
+        "name" -> Seq("Test Name"),
+        "email" -> Seq(testEmail),
+        "password" -> Seq("testpass"),
+        "confirm" -> Seq("testpass"),
+        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+      )
+      val signup = route(FakeRequest(POST, portalRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      println(contentAsString(signup))
+      status(signup) must equalTo(SEE_OTHER)
+      MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
+      MockBufferedMailer.mailBuffer.last.to must contain(testEmail)
+      mocks.userFixtures.size must equalTo(numAccounts + 1)
+      val userOpt = mocks.userFixtures.values.find(u => u.email == testEmail)
+      userOpt must beSome
+      userOpt.get.verified must beFalse
     }
   }
 }
