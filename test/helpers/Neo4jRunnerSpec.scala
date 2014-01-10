@@ -25,7 +25,7 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with Bef
   sequential
 
   val testPort = 7575
-  val config = Map("neo4j.server.port" -> testPort)
+  def config = Map("neo4j.server.port" -> testPort) ++ getConfig
 
   val runner: ServerRunner = ServerRunner.getInstance(cls.getName, testPort)
   runner.getConfigurator
