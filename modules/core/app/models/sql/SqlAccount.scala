@@ -61,9 +61,6 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
          VAlUES ({id}, {token}, DATE_ADD(NOW(), INTERVAL 1 DAY), 1)""")
       .on('id -> id, 'token -> token.toString).executeInsert()
   }
-
-  def isStaff = false // STUB
-
 }
 
 object SqlAccount extends AccountDAO {
