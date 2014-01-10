@@ -412,6 +412,9 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
     if (type.match(/(?:creator|person)Access/)) {
       return ["historicalAgent"];
     }
+    if (type.match(/(?:place)Access/)) {
+      return ["cvocConcept"];
+    }
     return [];
   }
 
