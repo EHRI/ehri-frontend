@@ -42,7 +42,7 @@ CREATE TABLE token (
   id          VARCHAR(50) NOT NULL,
   token       VARCHAR(255) NOT NULL PRIMARY KEY,
   expires     TIMESTAMP NOT NULL,
-  is_sign_up  TINYINT NOT NULL DEFAULT 0
+  is_sign_up  BOOLEAN NOT NULL DEFAULT 0
 );
 
 ALTER TABLE token ADD CONSTRAINT token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
@@ -54,5 +54,6 @@ ALTER TABLE token ADD CONSTRAINT token_profile_id FOREIGN KEY (id) REFERENCES us
 DROP TABLE IF EXISTS token;
 DROP TABLE IF EXISTS user_auth;
 DROP TABLE IF EXISTS openid_association;
+DROP TABLE IF EXISTS oauth2_association;
 DROP TABLE IF EXISTS users;
 
