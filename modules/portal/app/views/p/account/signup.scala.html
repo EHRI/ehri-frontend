@@ -11,6 +11,8 @@
     @helper.form(action = action, 'class -> "openid login-form form-horizontal") {
         @formHelpers.csrfToken()
 
+        @formHelpers.globalErrors(signupForm)
+
         @helper.inputText(signupForm("name"))
         @helper.inputText(signupForm("email"))
         @helper.inputPassword(signupForm("password"))
