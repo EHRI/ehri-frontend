@@ -5,18 +5,16 @@ import models.{UserProfileF, AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
-import controllers.base.{ControllerHelpers, AuthController}
+import controllers.base.AuthController
 import play.api.Logger
 import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.validation.Constraints
 import play.api.Play._
 import utils.forms._
 import java.util.UUID
-import models.sql.SqlAccount
 import play.api.i18n.Messages
 
 /**
@@ -27,6 +25,8 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   self: Controller with AuthController with LoginLogout =>
 
   lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
+
+  private val portalRoutes = controllers.portal.routes.Portal
 
   val signupForm = Form(
     tuple(
@@ -42,7 +42,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   def signup = Action { implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-    Ok(views.html.p.account.signup(signupForm, controllers.portal.routes.Portal.signupPost, recaptchaKey))
+    Ok(views.html.p.account.signup(signupForm, portalRoutes.signupPost, recaptchaKey))
   }
 
   def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
@@ -63,17 +63,17 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
         val form = signupForm.bindFromRequest
             .discardingErrors.withGlobalError("error.badRecaptcha")
         immediate(BadRequest(views.html.p.account.signup(form,
-          controllers.portal.routes.Portal.signupPost, recaptchaKey)))
+          portalRoutes.signupPost, recaptchaKey)))
       } else {
         signupForm.bindFromRequest.fold(
           errForm => immediate(BadRequest(views.html.p.account.signup(errForm,
-            controllers.portal.routes.Portal.signupPost, recaptchaKey))),
+            portalRoutes.signupPost, recaptchaKey))),
           data => {
             val (name, email, pw, _) = data
             userDAO.findByEmail(email).map { _ =>
               val form = signupForm.withGlobalError("error.emailExists")
               immediate(BadRequest(views.html.p.account.signup(form,
-                controllers.portal.routes.Portal.signupPost, recaptchaKey)))
+                portalRoutes.signupPost, recaptchaKey)))
             } getOrElse {
 
               backend.createNewUserProfile(Map(UserProfileF.NAME -> name)).flatMap { userProfile =>
@@ -106,35 +106,37 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     implicit val accountOpt: Option[Account] = None
     formOrAccount match {
       case Right(account) => gotoLoginSucceeded(account.id)
-        .map(_.withSession("access_uri" -> controllers.portal.routes.Portal.index.url))
+        .map(_.withSession("access_uri" -> portalRoutes.index.url))
       case Left(formError) =>
         immediate(BadRequest(views.html.openIDLogin(formError,
-          action = controllers.portal.routes.Portal.openIDLoginPost)))
+          action = portalRoutes.openIDLoginPost)))
     }
   }
 
-  def login = optionalUserAction { implicit maybeUser => implicit request =>
-    val oauthProviders = Map(
-      "facebook" -> controllers.portal.routes.Portal.facebookLogin,
-      "google" -> controllers.portal.routes.Portal.googleLogin,
-      "linkedin" -> controllers.portal.routes.Portal.linkedInLogin
-    )
+  val oauthProviders = Map(
+    "facebook" -> portalRoutes.facebookLogin,
+    "google" -> portalRoutes.googleLogin,
+    "linkedin" -> portalRoutes.linkedInLogin
+  )
 
+  def login = optionalUserAction { implicit maybeUser => implicit request =>
     Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
   }
 
-  def openIDLoginPost = openIDLoginPostAction(controllers.portal.routes.Portal.openIDCallback) { formError => implicit request =>
+  def openIDLoginPost = openIDLoginPostAction(portalRoutes.openIDCallback) { formError => implicit request =>
     implicit val accountOpt: Option[Account] = None
-    BadRequest(views.html.openIDLogin(formError, action = controllers.portal.routes.Portal.openIDLoginPost))
+    BadRequest(views.html.openIDLogin(formError, action = portalRoutes.openIDLoginPost))
   }
 
   def passwordLoginPost = loginPostAction.async { accountOrErr => implicit request =>
     accountOrErr match {
       case Left(errorForm) =>
-        immediate(BadRequest(views.html.admin.pwLogin(errorForm,
-          controllers.portal.routes.Portal.passwordLoginPost)))
+        implicit val accountOpt: Option[Account] = None
+        immediate(BadRequest(views.html.p.account.login(
+            openidForm, errorForm, oauthProviders)))
       case Right(account) =>
         gotoLoginSucceeded(account.id)
+          .map(_.withSession("access_uri" -> portalRoutes.index.url))
     }
   }
   
@@ -144,18 +146,18 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     gotoLogoutSucceeded
   }
 
-  def googleLogin = oauth2LoginPostAction.async(GoogleOAuth2Provider, controllers.portal.routes.Portal.googleLogin) { account => implicit request =>
+  def googleLogin = oauth2LoginPostAction.async(GoogleOAuth2Provider, portalRoutes.googleLogin) { account => implicit request =>
     gotoLoginSucceeded(account.id)
-      .map(_.withSession("access_uri" -> controllers.portal.routes.Portal.index.url))
+      .map(_.withSession("access_uri" -> portalRoutes.index.url))
   }
 
-  def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, controllers.portal.routes.Portal.facebookLogin) { account => implicit request =>
+  def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, portalRoutes.facebookLogin) { account => implicit request =>
     gotoLoginSucceeded(account.id)
-      .map(_.withSession("access_uri" -> controllers.portal.routes.Portal.index.url))
+      .map(_.withSession("access_uri" -> portalRoutes.index.url))
   }
 
-  def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, controllers.portal.routes.Portal.linkedInLogin) { account => implicit request =>
+  def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, portalRoutes.linkedInLogin) { account => implicit request =>
     gotoLoginSucceeded(account.id)
-      .map(_.withSession("access_uri" -> controllers.portal.routes.Portal.index.url))
+      .map(_.withSession("access_uri" -> portalRoutes.index.url))
   }
 }

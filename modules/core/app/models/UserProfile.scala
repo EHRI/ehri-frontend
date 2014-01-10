@@ -10,11 +10,7 @@ import play.api.libs.json._
 import defines.EnumUtils.enumWrites
 import models.json._
 import play.api.i18n.Lang
-import scala.Some
-import scala.Some
-import scala.Some
 import play.api.libs.functional.syntax._
-import scala.Some
 
 
 object UserProfileF {

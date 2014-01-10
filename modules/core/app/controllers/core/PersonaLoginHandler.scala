@@ -1,8 +1,6 @@
 package controllers.core
 
-import controllers.base.LoginHandler
 import models.{Account, AccountDAO}
-import play.api._
 import play.api.mvc._
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
@@ -11,7 +9,6 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import scala.concurrent.Future
-import models.sql.SqlAccount
 
 /**
  * Handler for Mozilla Persona-based login.

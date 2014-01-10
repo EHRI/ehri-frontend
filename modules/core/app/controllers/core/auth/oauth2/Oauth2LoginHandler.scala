@@ -14,8 +14,7 @@ import java.net.URLEncoder
 import play.api.Play._
 import play.api.mvc.SimpleResult
 import play.api.mvc.Call
-import models.sql.{SqlAccount, OAuth2Association}
-import play.api.db.DB
+import models.sql.OAuth2Association
 
 /**
  * Oauth2 login handler implementation, cribbed extensively
