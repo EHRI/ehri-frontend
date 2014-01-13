@@ -160,4 +160,78 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     gotoLoginSucceeded(account.id)
       .map(_.withSession("access_uri" -> portalRoutes.index.url))
   }
+
+  /**
+   * Allow a logged in user to change their password.
+   * @return
+   */
+  def changePassword = userProfileAction { implicit user => implicit request =>
+    Ok(views.html.p.account.pwChangePassword(
+      changePasswordForm, controllers.portal.routes.Portal.changePasswordPost))
+  }
+
+  /**
+   * Store a changed password.
+   * @return
+   */
+  def changePasswordPost = changePasswordPostAction { boolOrErr => implicit userOpt => implicit request =>
+    boolOrErr match {
+      case Right(true) =>
+        Redirect(globalConfig.routeRegistry.default)
+          .flashing("success" -> Messages("login.passwordChanged"))
+      case Right(false) =>
+        Redirect(controllers.portal.routes.Portal.changePassword)
+          .flashing("error" -> Messages("login.badUsernameOrPassword"))
+      case Left(errForm) =>
+        BadRequest(views.html.p.account.pwChangePassword(errForm,
+          controllers.portal.routes.Portal.changePasswordPost))
+    }
+  }
+
+  def forgotPassword = Action { implicit request =>
+    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+      .getOrElse("fakekey")
+    Ok(views.html.p.account.forgotPassword(forgotPasswordForm,
+      recaptchaKey, controllers.portal.routes.Portal.forgotPasswordPost))
+  }
+
+  def forgotPasswordPost = forgotPasswordPostAction { okOrErr => implicit request =>
+    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+      .getOrElse("fakekey")
+    okOrErr match {
+      case Right(ok) =>
+        Redirect(controllers.portal.routes.Portal.passwordReminderSent)
+      case Left(errForm) =>
+        BadRequest(views.html.p.account.forgotPassword(errForm,
+          recaptchaKey, controllers.portal.routes.Portal.forgotPasswordPost))
+    }
+  }
+
+  def passwordReminderSent = Action { implicit request =>
+    Ok(views.html.p.account.passwordReminderSent())
+  }
+
+  def resetPassword(token: String) = Action { implicit request =>
+    userDAO.findByResetToken(token).map { account =>
+      Ok(views.html.p.account.resetPassword(resetPasswordForm,
+        controllers.portal.routes.Portal.resetPasswordPost(token)))
+    }.getOrElse {
+      Redirect(controllers.portal.routes.Portal.forgotPassword)
+        .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
+    }
+  }
+
+  def resetPasswordPost(token: String) = resetPasswordPostAction(token) { boolOrForm => implicit request =>
+    boolOrForm match {
+      case Left(errForm) =>
+        BadRequest(views.html.p.account.resetPassword(errForm,
+          controllers.portal.routes.Portal.resetPasswordPost(token)))
+      case Right(true) =>
+        Redirect(globalConfig.routeRegistry.login)
+          .flashing("warning" -> "login.passwordResetNowLogin")
+      case Right(false) =>
+        Redirect(controllers.portal.routes.Portal.forgotPassword)
+          .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
+    }
+  }
 }

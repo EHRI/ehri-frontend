@@ -1,26 +1,20 @@
 @(elements: helper.FieldElements)
 
-@* Temporary fix for Bootstrap3 field constructor
- *
- * https://groups.google.com/d/msg/play-framework/fVQbxZIC8vE/iEDTyN3mU1sJ
- *
- *@
+<div class="form-group @if(elements.hasErrors) {has-error}">
 
-@inputType = @{ elements.args.toMap.get('type).map(_.toString).getOrElse("text") }
-
-<div class="form-group @if(elements.hasErrors) {error}">
-	@defining(Messages("constraint.required")) { required =>
-	    <label for="@elements.id">
-	    	@elements.label
-	    	@if(elements.infos.exists(s => s == required)) {
-	    		<span class="required-input">@required</span>
-	    	}
-	    </label>
-        <input class="form-control" type="@inputType" id="@elements.id" name="@elements.field.name" value="@elements.field.value" @toHtmlArgs(elements.args.filter(arg => !arg._1.name.startsWith("_") && arg._1 != 'id).toMap)>
-        @if(elements.hasErrors) {
-            <span class="help-inline errors">@elements.errors</span>
+    <label for="@elements.id" class="col-md-2 control-label">@elements.label</label>
+    <div class="@elements.args.toMap.get('inputDivClass).getOrElse("col-md-4")">
+        @if(elements.input.toString().contains("class=")) {
+            @Html(elements.input.toString().replaceFirst("(class=[\"'])", "$1form-control "))
         } else {
-            <span class="help-inline">@elements.infos.filter(_ != required).map(i => Messages(i)).mkString(", ")</span>
+            @Html(elements.input.toString().replaceFirst("(<\\w+ )", "$1class=\"form-control\" "))
         }
-	}
+
+        <span class="help-block text-muted">@elements.infos.mkString(", ")</span>
+        @if(elements.hasErrors) {
+            <span class="help-block">@elements.errors.mkString(", ")</span>
+        }
+
+    </div>
+
 </div>

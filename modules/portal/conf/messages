@@ -2,6 +2,8 @@ portal.welcome=Welcome to EHRI
 portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
 
+portal.login=Sign In
+portal.logout=Sign Out
 portal.signup=Create an Account
 portal.signup.emailConfirmed=Your email is now confirmed and you have been signed in.
 portal.signup.invalidSignupToken=Confirmation URL is invalid or has expired.

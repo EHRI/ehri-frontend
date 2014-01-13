@@ -17,6 +17,13 @@ GET         /dev/logout                  @controllers.portal.Portal.logout
 GET 	    /dev/signup        			 @controllers.portal.Portal.signup
 POST 	    /dev/signup        			 @controllers.portal.Portal.signupPost
 GET         /dev/confirmEmail/:token     @controllers.portal.Portal.confirmEmail(token: String)
+GET         /dev/changePassword          @controllers.portal.Portal.changePassword
+POST        /dev/changePassword          @controllers.portal.Portal.changePasswordPost
+GET         /dev/forgot                  @controllers.portal.Portal.forgotPassword
+POST        /dev/forgot                  @controllers.portal.Portal.forgotPasswordPost
+GET         /dev/prs                     @controllers.portal.Portal.passwordReminderSent
+GET         /dev/rstp/:token             @controllers.portal.Portal.resetPassword(token: String)
+POST        /dev/rstp/:token             @controllers.portal.Portal.resetPasswordPost(token: String)
 
 
 GET         /dev/search                  @controllers.portal.Portal.search

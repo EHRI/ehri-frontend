@@ -1,6 +1,6 @@
 @(openIdForm: Form[String], pwForm: Form[(String,String)], oauthProviders: Map[String,Call] = Map.empty)(implicit userOpt: Option[Account], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplate.f) }
 
 @openIdJquery = {
     <script src="@controllers.core.routes.Assets.at("js/jquery-1.7.1.min.js")" type="text/javascript"></script>
@@ -18,93 +18,91 @@
     <link href="@controllers.core.routes.Assets.at("css/zocial.css")" rel="stylesheet">
 }
 
-@layout.noSidebarSimple(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
+@p.layout.portalLayoutSimple(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
 
-    <h3>@Messages("login.openid")</h3>
-    @helper.form(action = controllers.portal.routes.Portal.openIDLoginPost, 'class -> "openid login-form form-horizontal") {
-        @formHelpers.csrfToken()
-        <div>
-            <ul class="providers">
-                <li class="openid" title="OpenID">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/openidW.png")" alt="icon" />
-                    <span><strong>http://{your-openid-url}</strong></span>
-                </li>
-                <li class="direct" title="Google">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/googleW.png")" alt="icon" />
-                    <span>https://www.google.com/accounts/o8/id</span>
-                </li>
-                <li class="direct" title="Yahoo">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/yahooW.png")" alt="icon" />
-                    <span>http://me.yahoo.com/</span>
-                </li>
-                <li class="username" title="AOL screen name">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/aolW.png")" alt="icon" />
-                    <span>http://openid.aol.com/<strong>username</strong></span>
-                </li>
-                <li class="username" title="Flickr user name">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/flickr.png")" alt="icon" />
-                    <span>http://flickr.com/<strong>username</strong>/</span>
-                </li>
-                <li class="username" title="Wordpress blog name">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/wordpress.png")" alt="icon" />
-                    <span>http://<strong>username</strong>.wordpress.com</span>
-                </li>
-                <li class="username" title="Blogger blog name">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/blogger.png")" alt="icon" />
-                    <span>http://<strong>username</strong>.blogspot.com/</span>
-                </li>
-            </ul>
-        </div>
-        <fieldset>
-            <label for="openid_username">Enter your <span>Provider user name</span></label>
+    <div class="container main-content">
+        <h3>@Messages("login.openid")</h3>
+        @helper.form(action = controllers.portal.routes.Portal.openIDLoginPost, 'class -> "openid login-form form-horizontal") {
+            @formHelpers.csrfToken()
             <div>
-                <span></span>
-                    <input type="text" name="openid_username" />
-                <span></span>
-                <input type="submit" value="Login" />
+                <ul class="providers">
+                    <li class="openid" title="OpenID">
+                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/openidW.png")" alt="icon" />
+                        <span><strong>http://{your-openid-url}</strong></span>
+                    </li>
+                    <li class="direct" title="Google">
+                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/googleW.png")" alt="icon" />
+                        <span>https://www.google.com/accounts/o8/id</span>
+                    </li>
+                    <li class="direct" title="Yahoo">
+                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/yahooW.png")" alt="icon" />
+                        <span>http://me.yahoo.com/</span>
+                    </li>
+                    <li class="username" title="AOL screen name">
+                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/aolW.png")" alt="icon" />
+                        <span>http://openid.aol.com/<strong>username</strong></span>
+                    </li>
+                    <li class="username" title="Flickr user name">
+                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/flickr.png")" alt="icon" />
+                        <span>http://flickr.com/<strong>username</strong>/</span>
+                    </li>
+                    <li class="username" title="Wordpress blog name">
+                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/wordpress.png")" alt="icon" />
+                        <span>http://<strong>username</strong>.wordpress.com</span>
+                    </li>
+                    <li class="username" title="Blogger blog name">
+                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/blogger.png")" alt="icon" />
+                        <span>http://<strong>username</strong>.blogspot.com/</span>
+                    </li>
+                </ul>
             </div>
-        </fieldset>
-        <fieldset>
-            <label for="openid_identifier">Enter your <a class="openid_logo" href="http://openid.net">OpenID</a></label>
-        </fieldset>
-        @formHelpers.globalErrors(openIdForm)
-        <div>
-            <input type="text" name="openid_identifier" />
-            <input type="submit" class="zocial openid" value="@Messages("submitButton.loginWithOpenid")" />
-        </div>
-    }
-
-    @if(!oauthProviders.isEmpty) {
-        <hr />
-        <h3>@Messages("login.existingAccount")</h3>
-        @oauthProviders.map { case (name, call) =>
-            <a class="zocial @name" href="@call">@name</a>
+            <fieldset>
+                <label for="openid_username">Enter your <span>Provider user name</span></label>
+                <div>
+                    <span></span>
+                        <input type="text" name="openid_username" />
+                    <span></span>
+                    <input type="submit" value="Login" />
+                </div>
+            </fieldset>
+            <fieldset>
+                <label for="openid_identifier">Enter your <a class="openid_logo" href="http://openid.net">OpenID</a></label>
+            </fieldset>
+            @formHelpers.globalErrors(openIdForm)
+            <div>
+                <input type="text" name="openid_identifier" />
+                <input type="submit" class="zocial openid" value="@Messages("submitButton.loginWithOpenid")" />
+            </div>
         }
-    }
 
-    <hr />
-    <h3>@Messages("login.withPassword")</h3>
+        @if(!oauthProviders.isEmpty) {
+            <hr />
+            <h3>@Messages("login.existingAccount")</h3>
+            @oauthProviders.map { case (name, call) =>
+                <a class="zocial @name" href="@call">@name</a>
+            }
+        }
 
-    @formHelpers.globalErrors(pwForm)
+        <hr />
+        <h3>@Messages("login.withPassword")</h3>
 
-    @helper.form(action = controllers.portal.routes.Portal.passwordLoginPost, 'class -> "login-form form-horizontal") {
-        @formHelpers.csrfToken()
+        @formHelpers.globalErrors(pwForm)
 
-        @helper.inputText(pwForm("email"), 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"))
-        @helper.inputPassword(pwForm("password"), 'placeholder -> Messages("login.password"))
+        @helper.form(action = controllers.portal.routes.Portal.passwordLoginPost, 'class -> "login-form form-horizontal") {
+            @formHelpers.csrfToken()
 
-        <div>
-            <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
-        </div>
-    }
+            @helper.inputText(pwForm("email"), 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"))
+            @helper.inputPassword(pwForm("password"), 'placeholder -> Messages("login.password"))
 
-    <p>
-        <a href="@controllers.core.routes.Admin.forgotPassword">@Messages("login.forgotPasswordLink")</a>
-    </p>
-    <p>
-        <a href="@controllers.core.routes.Admin.openIDLogin">@Messages("login.linkToOpenIDLogin")</a>
-    </p>
+            <div>
+                <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
+            </div>
+        }
 
+        <p>
+            <a href="@controllers.portal.routes.Portal.forgotPassword">@Messages("login.forgotPasswordLink")</a>
+        </p>
+    </div>
 
 }(None, request, globalConfig, flash, lang)
 
