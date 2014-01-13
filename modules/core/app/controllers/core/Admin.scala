@@ -27,6 +27,7 @@ import backend.Backend
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import models.sql.SqlAccount
+import java.util.UUID
 
 /**
  * Controller for handling user admin actions.
@@ -196,11 +197,12 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
   }
 
-  def forgotPasswordPost = forgotPasswordPostAction { okOrErr => implicit request =>
+  def forgotPasswordPost = forgotPasswordPostAction { uuidOrErr => implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
           .getOrElse("fakekey")
-    okOrErr match {
-      case Right(ok) =>
+    uuidOrErr match {
+      case Right((account,uuid)) =>
+        sendResetEmail(account.email, uuid)
         Redirect(controllers.core.routes.Admin.passwordReminderSent)
       case Left(errForm) =>
         BadRequest(views.html.admin.forgotPassword(errForm,
@@ -288,5 +290,15 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
         }
       }
     }
+  }
+
+  private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
+    import com.typesafe.plugin._
+    use[MailerPlugin].email
+      .setSubject("EHRI Password Reset")
+      .setRecipient(email)
+      .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
+      .send(views.txt.admin.mail.forgotPassword(uuid).body,
+      views.html.admin.mail.forgotPassword(uuid).body)
   }
 }

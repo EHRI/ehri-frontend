@@ -77,18 +77,8 @@ trait UserPasswordLoginHandler {
     }
   }
 
-  def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
-    import com.typesafe.plugin._
-    use[MailerPlugin].email
-      .setSubject("EHRI Password Reset")
-      .setRecipient(email)
-      .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
-      .send(views.txt.admin.mail.forgotPassword(uuid).body,
-      views.html.admin.mail.forgotPassword(uuid).body)
-  }
-
   object forgotPasswordPostAction {
-    def async(f: Either[Form[String],Boolean] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(f: Either[Form[String],(Account,UUID)] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
       Action.async { implicit request =>
         checkRecapture.flatMap { ok =>
           if (!ok) {
@@ -101,8 +91,7 @@ trait UserPasswordLoginHandler {
               userDAO.findByEmail(email).map { account =>
                 val uuid = UUID.randomUUID()
                 account.createResetToken(uuid)
-                sendResetEmail(account.email, uuid)
-                f(Right(true))(request)
+                f(Right((account, uuid)))(request)
               }.getOrElse {
                 val form = forgotPasswordForm.withError("email", "error.emailNotFound")
                 f(Left(form))(request)
@@ -113,7 +102,7 @@ trait UserPasswordLoginHandler {
       }
     }
 
-    def apply(f: Either[Form[String],Boolean] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(f: Either[Form[String],(Account,UUID)] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
       async(f.andThen(_.andThen(t => immediate(t))))
     }
   }
@@ -135,7 +124,7 @@ trait UserPasswordLoginHandler {
               account <- user.account
               hashedPw <- account.password if Account.checkPassword(current, hashedPw)
             } yield {
-              account.updatePassword(Account.hashPassword(newPw))
+              account.setPassword(Account.hashPassword(newPw))
               f(Right(true))(userOpt)(request)
             }) getOrElse {
               f(Right(false))(userOpt)(request)
@@ -157,7 +146,7 @@ trait UserPasswordLoginHandler {
           f(Left(errForm))(request)
         }, { case (pw, _) =>
           userDAO.findByResetToken(token).map { account =>
-            account.updatePassword(Account.hashPassword(pw))
+            account.setPassword(Account.hashPassword(pw))
             account.expireTokens()
             f(Right(true))(request)
           }.getOrElse {

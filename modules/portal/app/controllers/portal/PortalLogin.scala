@@ -167,7 +167,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
    */
   def changePassword = userProfileAction { implicit user => implicit request =>
     Ok(views.html.p.account.pwChangePassword(
-      changePasswordForm, controllers.portal.routes.Portal.changePasswordPost))
+      changePasswordForm, portalRoutes.changePasswordPost))
   }
 
   /**
@@ -180,11 +180,11 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
         Redirect(globalConfig.routeRegistry.default)
           .flashing("success" -> Messages("login.passwordChanged"))
       case Right(false) =>
-        Redirect(controllers.portal.routes.Portal.changePassword)
+        Redirect(portalRoutes.changePassword)
           .flashing("error" -> Messages("login.badUsernameOrPassword"))
       case Left(errForm) =>
         BadRequest(views.html.p.account.pwChangePassword(errForm,
-          controllers.portal.routes.Portal.changePasswordPost))
+          portalRoutes.changePasswordPost))
     }
   }
 
@@ -192,18 +192,20 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     Ok(views.html.p.account.forgotPassword(forgotPasswordForm,
-      recaptchaKey, controllers.portal.routes.Portal.forgotPasswordPost))
+      recaptchaKey, portalRoutes.forgotPasswordPost))
   }
 
-  def forgotPasswordPost = forgotPasswordPostAction { okOrErr => implicit request =>
+  def forgotPasswordPost = forgotPasswordPostAction { uuidOrErr => implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-    okOrErr match {
-      case Right(ok) =>
-        Redirect(controllers.portal.routes.Portal.passwordReminderSent)
+    uuidOrErr match {
+      case Right((account,uuid)) =>
+        sendResetEmail(account.email, uuid)
+        Redirect(portalRoutes.index)
+          .flashing("warning" -> "login.sentPasswordResetLink")
       case Left(errForm) =>
         BadRequest(views.html.p.account.forgotPassword(errForm,
-          recaptchaKey, controllers.portal.routes.Portal.forgotPasswordPost))
+          recaptchaKey, portalRoutes.forgotPasswordPost))
     }
   }
 
@@ -214,9 +216,9 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   def resetPassword(token: String) = Action { implicit request =>
     userDAO.findByResetToken(token).map { account =>
       Ok(views.html.p.account.resetPassword(resetPasswordForm,
-        controllers.portal.routes.Portal.resetPasswordPost(token)))
+        portalRoutes.resetPasswordPost(token)))
     }.getOrElse {
-      Redirect(controllers.portal.routes.Portal.forgotPassword)
+      Redirect(portalRoutes.forgotPassword)
         .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
     }
   }
@@ -225,13 +227,23 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     boolOrForm match {
       case Left(errForm) =>
         BadRequest(views.html.p.account.resetPassword(errForm,
-          controllers.portal.routes.Portal.resetPasswordPost(token)))
+          portalRoutes.resetPasswordPost(token)))
       case Right(true) =>
-        Redirect(globalConfig.routeRegistry.login)
+        Redirect(portalRoutes.login)
           .flashing("warning" -> "login.passwordResetNowLogin")
       case Right(false) =>
-        Redirect(controllers.portal.routes.Portal.forgotPassword)
+        Redirect(portalRoutes.forgotPassword)
           .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
     }
+  }
+
+  private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
+    import com.typesafe.plugin._
+    use[MailerPlugin].email
+      .setSubject("EHRI Password Reset")
+      .setRecipient(email)
+      .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
+      .send(views.txt.p.account.mail.forgotPassword(uuid).body,
+      views.html.p.account.mail.forgotPassword(uuid).body)
   }
 }

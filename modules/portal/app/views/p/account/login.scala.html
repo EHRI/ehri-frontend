@@ -20,7 +20,7 @@
 
 @p.layout.portalLayoutSimple(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
 
-    <div class="container main-content">
+    @p.layout.mainContent {
         <h3>@Messages("portal.login")</h3>
         <hr />
         <p>
@@ -108,8 +108,7 @@
             @Messages("portal.recoverAccount")
         </p>
         <a href="@controllers.portal.routes.Portal.forgotPassword">@Messages("portal.forgotPasswordLink")</a>
-
-    </div>
+    }
 
 }(None, request, globalConfig, flash, lang)
 

@@ -26,7 +26,7 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
   }
 
   def setPassword(data: HashedPassword): Account = DB.withConnection{ implicit connection =>
-    SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data})")
+    SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data}) ON DUPLICATE KEY UPDATE id = {id}")
       .on('id -> id, 'data -> data.toString).executeInsert()
     this
   }
@@ -36,12 +36,6 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
       .on('id -> id, 'verified -> true).executeUpdate()
     SQL("""DELETE FROM token WHERE token = {token}""").on('token -> token).execute()
     this.copy(verified = true)
-  }
-
-  def updatePassword(data: HashedPassword): Account = DB.withConnection{ implicit connection =>
-    SQL("UPDATE user_auth SET data={data} WHERE id={id}")
-      .on('id -> id, 'data -> data.toString).executeUpdate()
-    this
   }
 
   def expireTokens(): Unit = DB.withConnection { implicit connection =>

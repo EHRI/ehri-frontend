@@ -1,5 +1,6 @@
-@(content: Html)
+@(content: Html)(implicit flash: Flash)
 
 <div class="container main-content">
+    @common.flash(flash)
     @content
 </div>
