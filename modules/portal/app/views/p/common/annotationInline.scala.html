@@ -11,7 +11,11 @@
                 <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Portal.editAnnotation(annotation.id)">edit</a>
                 <a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Portal.deleteAnnotation(annotation.id)">delete</a>
             }
-
+            @userOpt.map { user =>
+                @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
+                    <a data-item="@annotation.id" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">promote</a>
+                }
+            }
         </small>
     }
 </div>
