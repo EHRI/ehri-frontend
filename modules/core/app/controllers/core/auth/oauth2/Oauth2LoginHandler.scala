@@ -14,6 +14,7 @@ import java.net.URLEncoder
 import play.api.Play._
 import play.api.mvc.SimpleResult
 import play.api.mvc.Call
+import models.sql.OAuth2Association
 
 /**
  * Oauth2 login handler implementation, cribbed extensively
@@ -48,20 +49,28 @@ trait Oauth2LoginHandler {
       .map(provider.getUserData)
   }
 
-  private def getOrCreateAccount(userData: UserData): Future[Account] = {
+  private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData): Future[Account] = {
     val profileData = Map(
       UserProfileF.NAME -> userData.name,
       UserProfileF.IMAGE_URL -> userData.imageUrl
     )
-    userDAO.findByEmail(userData.email).map { account =>
-      // TODO: Update user account with new details
+    OAuth2Association.findByProviderInfo(userData.providerId, provider.name).flatMap(_.user).map { account =>
+      Logger.info(s"Found existing association for $userData/${provider.name}")
       immediate(account)
-    } getOrElse {
-      // Create a new account!
-      implicit val apiUser = ApiUser(Some("admin"))
-      backend.createNewUserProfile(profileData).map { userProfile =>
-        userDAO.create(userProfile.id, userData.email, staff = false) getOrElse {
-          sys.error("Unable to create user account!")
+    } getOrElse{
+      // User has an account already, so try and find them by email. If so, add an association...
+      userDAO.findByEmail(userData.email).map { account =>
+        Logger.info(s"Creating new association for $userData/${provider.name}")
+        OAuth2Association.addAssociation(account, userData.providerId, provider.name)
+        immediate(account)
+      } getOrElse {
+        Logger.info(s"Creating new account for $userData/${provider.name}")
+        // Create a new account!
+        implicit val apiUser = ApiUser(Some("admin"))
+        backend.createNewUserProfile(profileData).map { userProfile =>
+          val account = userDAO.create(userProfile.id, userData.email.toLowerCase, verified = true, staff = false)
+          OAuth2Association.addAssociation(account, userData.providerId, provider.name)
+          account
         }
       }
     }
@@ -107,7 +116,7 @@ trait Oauth2LoginHandler {
               for {
                 info <- getAccessToken(provider, handler, code)
                 userData <- getUserData(provider, info)
-                account <- getOrCreateAccount(userData)
+                account <- getOrCreateAccount(provider, userData)
                 result <- f(account)(request)
               } yield result
 

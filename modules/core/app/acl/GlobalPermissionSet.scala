@@ -30,16 +30,24 @@ object GlobalPermissionSet {
   private def extract(pd: PermDataRaw): PermData = {
     pd.flatMap { pmap =>
       pmap.headOption.map { case (user, perms) =>
-		(user, perms.map {
-		  case (et, plist) =>
-		    try {
-		      (ContentTypes.withName(et), plist.map(PermissionType.withName(_)))
-		    } catch {
-		      case e: NoSuchElementException =>
-		      // If we get an expected permission, fail fast!
-		    sys.error("Unable to extract permissions: Entity: '%s', elements: %s".format(et, plist))
-		  }
-		})
+        (user, perms.flatMap {
+          case (et, plist) =>
+            val perms = plist.flatMap { ps =>
+              try {
+                Some(PermissionType.withName(ps))
+              } catch {
+                case e: NoSuchElementException => None
+              }
+            }
+
+            try {
+              Some((ContentTypes.withName(et), perms))
+            } catch {
+              // If we get an expected permission, just ignore it... this makes
+              // for less painful server upgrades!
+              case e: NoSuchElementException => None
+          }
+        })
       }
     }
   }

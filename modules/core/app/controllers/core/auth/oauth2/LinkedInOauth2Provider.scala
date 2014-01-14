@@ -12,6 +12,7 @@ object LinkedInOauth2Provider extends OAuth2Provider {
   val name = "linkedin"
 
   def getUserData(response: Response): UserData = response.json.as[UserData]((
+    (__ \ Id).read[String] and
     (__ \ Email).read[String] and
     (__ \ Name).read[String] and
     (__ \ Picture \ "data" \ "url").read[String]

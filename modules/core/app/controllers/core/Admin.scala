@@ -3,7 +3,7 @@ package controllers.core
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 
-import play.api.data.{Forms, Form}
+import play.api.data.Form
 import play.api.data.Forms._
 import defines.{EntityType, PermissionType, ContentTypes}
 import play.api.i18n.Messages
@@ -12,7 +12,6 @@ import controllers.base.{ControllerHelpers, AuthController}
 
 import com.google.inject._
 import jp.t2v.lab.play2.auth.LoginLogout
-import java.util.UUID
 import play.api.Play.current
 import scala.concurrent.Await
 import play.api.Logger
@@ -21,13 +20,14 @@ import java.util.concurrent.TimeUnit
 import models.json.RestResource
 import backend.rest.{RestHelpers, ValidationError}
 import play.api.data.FormError
-import utils.forms.checkRecapture
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
+import models.sql.SqlAccount
+import java.util.UUID
 
 /**
  * Controller for handling user admin actions.
@@ -176,39 +176,18 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    * Store a changed password.
    * @return
    */
-  def changePasswordPost = userProfileAction { implicit userOpt => implicit request =>
-    changePasswordForm.bindFromRequest.fold(
-      errorForm => {
-        BadRequest(views.html.admin.pwChangePassword(errorForm,
+  def changePasswordPost = changePasswordPostAction { boolOrErr => implicit userOpt => implicit request =>
+    boolOrErr match {
+      case Right(true) =>
+        Redirect(globalConfig.routeRegistry.default)
+          .flashing("success" -> Messages("login.passwordChanged"))
+      case Right(false) =>
+        Redirect(controllers.core.routes.Admin.changePassword)
+          .flashing("error" -> Messages("login.badUsernameOrPassword"))
+      case Left(errForm) =>
+        BadRequest(views.html.admin.pwChangePassword(errForm,
           controllers.core.routes.Admin.changePasswordPost))
-      },
-      data => {
-        val (current, newPw, _) = data
-
-        (for {
-          user <- userOpt
-          account <- user.account
-          hashedPw <- account.password if Account.checkPassword(current, hashedPw)
-        } yield {
-          account.updatePassword(Account.hashPassword(newPw))
-          Redirect(globalConfig.routeRegistry.default)
-            .flashing("success" -> Messages("login.passwordChanged"))
-        }) getOrElse {
-          Redirect(controllers.core.routes.Admin.changePassword)
-            .flashing("error" -> Messages("login.badUsernameOrPassword"))
-        }
-      }
-    )
-  }
-
-  private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
-    import com.typesafe.plugin._
-    use[MailerPlugin].email
-      .setSubject("EHRI Password Reset")
-      .setRecipient(email) //NB: Method renamed in trunk
-      .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
-      .send(views.txt.admin.mail.forgotPassword(uuid).body,
-          views.html.admin.mail.forgotPassword(uuid).body)
+    }
   }
 
   def forgotPassword = Action { implicit request =>
@@ -218,47 +197,22 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
   }
 
-  def forgotPasswordPost = Action.async { implicit request =>
+  def forgotPasswordPost = forgotPasswordPostAction { uuidOrErr => implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
           .getOrElse("fakekey")
-
-    checkRecapture.map { ok =>
-      if (!ok) {
-        val form = forgotPasswordForm.withGlobalError("error.badRecaptcha")
-        BadRequest(views.html.admin.forgotPassword(form,
+    uuidOrErr match {
+      case Right((account,uuid)) =>
+        sendResetEmail(account.email, uuid)
+        Redirect(controllers.core.routes.Admin.passwordReminderSent)
+      case Left(errForm) =>
+        BadRequest(views.html.admin.forgotPassword(errForm,
           recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
-      } else {
-        forgotPasswordForm.bindFromRequest.fold({ errForm =>
-          BadRequest(views.html.admin.forgotPassword(errForm,
-            recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
-        }, { email =>
-          userDAO.findByEmail(email).map { account =>
-            val uuid = UUID.randomUUID()
-            account.createResetToken(uuid)
-            sendResetEmail(account.email, uuid)
-            Redirect(controllers.core.routes.Admin.passwordReminderSent)
-          }.getOrElse {
-            val form = forgotPasswordForm.withError("email", "error.emailNotFound")
-            BadRequest(views.html.admin.forgotPassword(form,
-              recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
-          }
-        })
-      }
     }
   }
 
   def passwordReminderSent = Action { implicit request =>
     Ok(views.html.admin.passwordReminderSent())
   }
-
-  private val resetPasswordForm = Form(
-    tuple(
-      "password" -> nonEmptyText(minLength = 6),
-      "confirm" -> nonEmptyText(minLength = 6)
-    ) verifying("login.passwordsDoNotMatch", f => f match {
-      case (pw, pwc) => pw == pwc
-    })
-  )
 
   def resetPassword(token: String) = Action { implicit request =>
     userDAO.findByResetToken(token).map { account =>
@@ -270,21 +224,18 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     }
   }
 
-  def resetPasswordPost(token: String) = Action { implicit request =>
-    resetPasswordForm.bindFromRequest.fold({ errForm =>
-      BadRequest(views.html.admin.resetPassword(errForm,
-        controllers.core.routes.Admin.resetPasswordPost(token)))
-    }, { case (pw, _) =>
-      userDAO.findByResetToken(token).map { account =>
-        account.updatePassword(Account.hashPassword(pw))
-        account.expireTokens()
+  def resetPasswordPost(token: String) = resetPasswordPostAction(token) { boolOrForm => implicit request =>
+    boolOrForm match {
+      case Left(errForm) =>
+        BadRequest(views.html.admin.resetPassword(errForm,
+          controllers.core.routes.Admin.resetPasswordPost(token)))
+      case Right(true) =>
         Redirect(globalConfig.routeRegistry.login)
           .flashing("warning" -> "login.passwordResetNowLogin")
-      }.getOrElse {
+      case Right(false) =>
         Redirect(controllers.core.routes.Admin.forgotPassword)
           .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
-      }
-    })
+    }
   }
 
   /**
@@ -332,15 +283,22 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
 
       createUserProfile(user, groups, allGroups) { profile =>
-        userDAO.createWithPassword(profile.id, email.toLowerCase,
-            true, Account.hashPassword(pw)).map { account =>
-          grantOwnerPerms(profile) {
-            Redirect(controllers.core.routes.UserProfiles.search)
-          }
-        }.getOrElse {
-          sys.error("Unable to create user profile on database. Probably a programming error...")
+        userDAO.createWithPassword(profile.id, email.toLowerCase, verified = true,
+            staff = true, Account.hashPassword(pw))
+        grantOwnerPerms(profile) {
+          Redirect(controllers.core.routes.UserProfiles.search)
         }
       }
     }
+  }
+
+  private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
+    import com.typesafe.plugin._
+    use[MailerPlugin].email
+      .setSubject("EHRI Password Reset")
+      .setRecipient(email)
+      .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
+      .send(views.txt.admin.mail.forgotPassword(uuid).body,
+      views.html.admin.mail.forgotPassword(uuid).body)
   }
 }

@@ -413,7 +413,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
       return ["historicalAgent"];
     }
     if (type.match(/(?:place)Access/)) {
-      return ["cvocConcept"];
+      return ["cvocConcept", "country"];
     }
     return [];
   }

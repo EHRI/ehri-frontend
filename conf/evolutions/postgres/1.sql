@@ -3,7 +3,9 @@
 CREATE TABLE users (
     id          VARCHAR(50) NOT NULL PRIMARY KEY,
     email       VARCHAR(255) NOT NULL,
-    staff       BOOLEAN NOT NULL
+    verified    BOOLEAN NOT NULL DEFAULT FALSE,
+    staff       BOOLEAN NOT NULL DEFAULT FALSE,
+    created     TIMESTAMP NOT NULL
 );
 
 
@@ -11,6 +13,13 @@ CREATE TABLE openid_association (
     id           VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     openid_url   VARCHAR(255) NOT NULL,
     PRIMARY KEY(id, openid_url)
+);
+
+CREATE TABLE oauth2_association (
+    id           VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    provider_id  VARCHAR(255) NOT NULL,
+    provider     VARCHAR(255) NOT NULL,
+    PRIMARY KEY(id, provider_id, provider)
 );
 
 CREATE TABLE user_auth (
@@ -21,7 +30,8 @@ CREATE TABLE user_auth (
 CREATE TABLE token (
   id          VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   token       VARCHAR(255) NOT NULL PRIMARY KEY,
-  expires     TIMESTAMP NOT NULL
+  expires     TIMESTAMP NOT NULL,
+  is_sign_up  BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 

@@ -1,4 +1,4 @@
-@(user: UserProfile, users: utils.search.ItemPage[UserProfile], params: utils.search.SearchParams, following: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+@(user: UserProfile, users: utils.search.ItemPage[UserProfile], params: utils.search.SearchParams, following: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
 
 @import utils.search.SearchParams
 

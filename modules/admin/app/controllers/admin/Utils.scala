@@ -7,12 +7,15 @@ import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
 import play.api.mvc.Action
 import backend.{ApiUser, Backend}
+import play.api.libs.ws.WS
+import backend.rest.RestDAO
 
 /**
  * Controller for various monitoring functions.
  */
 @Singleton
-case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends AuthController with ControllerHelpers {
+case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend)
+    extends AuthController with ControllerHelpers with RestDAO {
 
   override val staffOnly = false
 
@@ -21,10 +24,8 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    */
   val checkDb = Action.async { implicit request =>
     // Not using the EntityDAO directly here to avoid caching
-    // TODO: Make caching configurable...
-    implicit val apiUser = new ApiUser
-
-    backend.query("group/admin", request.headers).map { r =>
+    // and logging
+    WS.url("http://%s:%d/%s/group/admin".format(host, port, mount)).get().map { r =>
       r.json.validate[Group](Group.Converter.restReads).fold(
         _ => ServiceUnavailable("ko\nbad json"),
         _ => Ok("ok")

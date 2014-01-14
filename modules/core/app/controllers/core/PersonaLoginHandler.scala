@@ -1,8 +1,6 @@
 package controllers.core
 
-import controllers.base.LoginHandler
 import models.{Account, AccountDAO}
-import play.api._
 import play.api.mvc._
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
@@ -49,11 +47,8 @@ trait PersonaLoginHandler {
                 case Some(account) => f(Right(account))(request)
                 case None => {
                   backend.createNewUserProfile().flatMap { up =>
-                    userDAO.create(up.id, email).map { acc =>
-                      f(Right(acc))(request)
-                    } getOrElse {
-                      f(Left("Creation of user db failed!"))(request)
-                   }
+                    val account = userDAO.create(up.id, email, verified = true, staff = false)
+                    f(Right(account))(request)
                   }
                 }
               }

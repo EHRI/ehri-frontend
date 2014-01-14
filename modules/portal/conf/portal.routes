@@ -5,13 +5,26 @@ GET        /        @controllers.portal.Portal.placeholder
 
 GET         /dev                         @controllers.portal.Portal.index
 
-GET 	    /dev/login        			 @controllers.portal.Portal.openIDLogin
-POST	    /dev/login   	    		 @controllers.portal.Portal.openIDLoginPost
+GET 	    /dev/login        			 @controllers.portal.Portal.login
+POST 	    /dev/login        			 @controllers.portal.Portal.passwordLoginPost
+POST	    /dev/openid   	    		 @controllers.portal.Portal.openIDLoginPost
 GET         /authenticate/openid         @controllers.portal.Portal.openIDCallback
 GET  	    /authenticate/google    	 @controllers.portal.Portal.googleLogin
 GET  	    /authenticate/facebook    	 @controllers.portal.Portal.facebookLogin
 GET  	    /authenticate/linkedin    	 @controllers.portal.Portal.linkedInLogin
 GET         /dev/logout                  @controllers.portal.Portal.logout
+
+GET 	    /dev/signup        			 @controllers.portal.Portal.signup
+POST 	    /dev/signup        			 @controllers.portal.Portal.signupPost
+GET         /dev/confirmEmail/:token     @controllers.portal.Portal.confirmEmail(token: String)
+GET         /dev/changePassword          @controllers.portal.Portal.changePassword
+POST        /dev/changePassword          @controllers.portal.Portal.changePasswordPost
+GET         /dev/forgot                  @controllers.portal.Portal.forgotPassword
+POST        /dev/forgot                  @controllers.portal.Portal.forgotPasswordPost
+GET         /dev/prs                     @controllers.portal.Portal.passwordReminderSent
+GET         /dev/rstp/:token             @controllers.portal.Portal.resetPassword(token: String)
+POST        /dev/rstp/:token             @controllers.portal.Portal.resetPasswordPost(token: String)
+
 
 GET         /dev/search                  @controllers.portal.Portal.search
 GET         /dev/browse                  @controllers.portal.Portal.browseCountries

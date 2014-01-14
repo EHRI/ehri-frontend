@@ -1,0 +1,7 @@
+@(token: java.util.UUID)(implicit req: RequestHeader, lang: Lang)
+
+@Messages("portal.mail.confirmEmailMessage")
+
+    @controllers.portal.routes.Portal.confirmEmail(token.toString).absoluteURL(false)
+
+@Messages("portal.mail.confirmEmailFooter")

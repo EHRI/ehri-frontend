@@ -39,53 +39,17 @@
                         @userOpt.flatMap(_.account).map { account =>
                             <li><a href="@controllers.portal.routes.Portal.logout">@account.email (@Messages("portal.logout"))</a></li>
                         }.getOrElse {
-                            <li>
-                                <a href="@controllers.portal.routes.Portal.login">@Messages("portal.login")</a>
-                            </li>
+                            <li><a href="@controllers.portal.routes.Portal.login">@Messages("portal.login")</a></li>
                         }
                     </ul>
                 </div>
                 <div class="navigation clearfix">
                     <div>
                         <ul class="list-unstyled list-inline">
-                            @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "navbar-form navbar-right", 'role -> "search") {
-                            <div class="form-group">
-                                <input type="text" name="q" class="form-control" placeholder="@Messages("portal.globalSearch")" />
-                            </div>
-                            }
-                        </ul>
-                        <ul class="list-unstyled list-inline">
                             <li id="navbar-logo" >
                                 <a href="@controllers.portal.routes.Portal.index">
                                     <img src="@controllers.portal.routes.Assets.at("img/logo-bw.png")" rel="logo" />
                                 </a>
-                            </li>
-                            <li class="@maybeActive(controllers.portal.routes.Portal.personalisedActivity.url)">
-                                <a href="@controllers.portal.routes.Portal.personalisedActivity">@Messages("portal.activity")</a>
-                            </li>
-                            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseUsers.url)">
-                                <a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.users")</a>
-                            </li>
-                            @userOpt.map { _ =>
-                            <li class="@maybeActive(controllers.portal.routes.Portal.profile.url)">
-                                <a href="@controllers.portal.routes.Portal.profile">@Messages("portal.profile")</a>
-                            </li>
-                            }
-                        </ul>
-                    </div>
-                    <div class="nav-secondary clearfix">
-                        <ul class="list-unstyled list-inline">
-                            <li>
-                                <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a>
-                            </li>
-                            <li>
-                                <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
-                            </li>
-                            <li>
-                                <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
-                            </li>
-                            <li>
-                                <a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
                             </li>
                         </ul>
                     </div>
@@ -102,9 +66,7 @@
         <script src="@controllers.core.routes.Assets.at("js/jquery.history.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.validate.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.autosize.min.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("js/jquery.hoverIntent.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("bootstrap-custom/js/bootstrap.min.js")"></script>
-        <script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
         <script src="@controllers.portal.routes.Assets.at("select2/select2.js")"></script>
         <!-- core common js -->
         <script src="@controllers.core.routes.Assets.at("js/common.js")" type="text/javascript"></script>
