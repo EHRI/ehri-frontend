@@ -201,21 +201,10 @@ jQuery(function ($) {
     });
   });
 
-  $(document).on("click", ".annotate-item-form .close", function(e) {
-    e.preventDefault();
-    var $form = $(e.target).parents(".annotate-item-form");
-    var hasData = $("textarea[name='body']", $form).val().trim() !== "";
-    if (!hasData || confirm("Discard comment?")) {
-      $form.prev().find(".annotate-field, .annotate-item").show();
-      $form.remove()
-    }
-  });
-
-
 
   // POST back an annotation form and then replace it with the returned
   // data.
-  $(document).on("submit", ".annotate-item-form, .annotate-field-form", function(e) {
+  $(document).on("submit", ".annotate-item-form", function(e) {
     e.preventDefault();
     var $form = $(this);
     var action = $form.attr("action");
@@ -256,6 +245,16 @@ jQuery(function ($) {
     var hasData = $("textarea[name='body']", $form).val().trim() !== "";
     if (!hasData || confirm("Discard comment?")) {
       $form.prev(".annotation").show();
+      $form.remove()
+    }
+  });
+
+  $(document).on("click", ".annotate-item-form .close", function(e) {
+    e.preventDefault();
+    var $form = $(e.target).parents(".annotate-item-form");
+    var hasData = $("textarea[name='body']", $form).val().trim() !== "";
+    if (!hasData || confirm("Discard comment?")) {
+      $form.prev().find(".annotate-field, .annotate-item").show();
       $form.remove()
     }
   });
