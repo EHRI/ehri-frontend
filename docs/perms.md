@@ -16,7 +16,7 @@ Permission sets are bundles of data that describe a user's permissions for eithe
  - Scoped Permission Sets
  - Item Permission Sets
 
-When it loads a particular page the application (the client) has to gather the user's permissions that are relevant in a given context. For all intents and purposes the client only needs to know the user's permissions for **display purposes** so we don't allow users to perform actions (like updating a particular item) for which they don't have the right privileges. The actual permissions will be **enforced** on the server side but for a good user experience the client also needs to be aware of them.
+When it loads a particular page the application (the client) has to gather the user's permissions that are relevant in a given context. For all intents and purposes the client only needs to know the user's permissions for **display purposes** so we don't allow users to perform actions (like updating a particular item) for which they don't have the right privileges. The actual permissions will be **enforced** on the server side, but for a good user experience the client also needs to be aware of them.
 
 Both **global** and **scoped** permissions have the same structure. The only difference is that when gathering permissions in the context of a given *item*, that item's *scope* (typically it's parent item, if any) comes into play. The data structure, in JSON, looks like:
 
@@ -54,15 +54,15 @@ Item permissions, by contrast, have a simpler structure:
 ```json
 [
     {
-        "bob": {
+        "bob": [
             "create",
             "update",
             "delete"
-        }
+        ]
     }, {
-        "bobs-group": {
+        "bobs-group": [
             "annotate"
-        }
+        ]
     }
 ]
 ```
