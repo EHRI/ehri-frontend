@@ -3,7 +3,7 @@ package acl
 import play.api.libs.json._
 import defines._
 import models.base.Accessor
-import scala.Option.option2Iterable
+
 
 object ItemPermissionSet {
 
@@ -19,12 +19,19 @@ object ItemPermissionSet {
   private def extract(pd: PermDataRaw): PermData = {
     pd.flatMap { userPermMap =>
       userPermMap.headOption.flatMap { case (userId, plist) =>
+        val perms = plist.flatMap { ps =>
+          try {
+            Some(PermissionType.withName(ps))
+          } catch {
+            case e: NoSuchElementException => None
+          }
+        }
+
         try {
-          Some((userId, plist.map(PermissionType.withName(_))))
+          Some((userId, perms))
         } catch {
-          case e: NoSuchElementException =>
-                // If we get an expected permission, fail fast!
-                sys.error("Unable to extract permissions: elements: %s".format(plist))          
+          // If we get an expected permission, ignore it.
+          case e: NoSuchElementException => None
         }
       }
     }
