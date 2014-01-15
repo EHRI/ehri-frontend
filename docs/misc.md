@@ -4,7 +4,8 @@
 
 ### Search Dispatchers
 
-TODO
+Search dispatchers abstract the interface of a particular search engine and provide an asynchronous interface to submit some
+query and retrieve the results. At present the interface is unstable and highly subject to change.
 
 ### Search Resolvers
 
@@ -35,4 +36,5 @@ field from the search result. While testing we use an implementation that uses s
 
 ### Search Indexers
 
-TODO
+Search indexers provide an asynchronous interface to instruct the search engine that some data has changed in the database
+and that it should re-index the relevant items.
