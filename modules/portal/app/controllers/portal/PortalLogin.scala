@@ -1,5 +1,6 @@
 package controllers.portal
 
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{RequestHeader, Action, Controller}
 import models.{UserProfileF, AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
@@ -16,6 +17,7 @@ import play.api.Play._
 import utils.forms._
 import java.util.UUID
 import play.api.i18n.Messages
+import backend.ApiUser
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -75,7 +77,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
               immediate(BadRequest(views.html.p.account.signup(form,
                 portalRoutes.signupPost, recaptchaKey)))
             } getOrElse {
-
+              implicit val apiUser = ApiUser()
               backend.createNewUserProfile(Map(UserProfileF.NAME -> name)).flatMap { userProfile =>
                 val account = userDAO.createWithPassword(userProfile.id, email.toLowerCase,
                     verified = false, staff = false, Account.hashPassword(pw))

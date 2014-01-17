@@ -8,7 +8,7 @@ import play.api._
 import play.api.mvc._
 import concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.{ApiUser, Backend}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.SimpleResult
@@ -89,6 +89,7 @@ trait OpenIDLoginHandler {
               Logger.logger.info("User '{}' created OpenID association", acc.id)
               f(Right(acc))(request)
             } getOrElse {
+              implicit val apiUser = ApiUser()
               backend.createNewUserProfile().flatMap { up =>
                 val account = userDAO.create(up.id, email.toLowerCase, verified = true, staff = false)
                 OpenIDAssociation.addAssociation(account, info.id)

@@ -1,5 +1,7 @@
 package test
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import helpers._
 import models.UserProfile
 import defines._
@@ -32,7 +34,6 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
   "The application" should {
 
     "support read/write on Repositories and Doc Units with country scope" in new FakeApp {
-
       // Target country
       val countryId = "gb"
       // Country we should NOT be able to write in...

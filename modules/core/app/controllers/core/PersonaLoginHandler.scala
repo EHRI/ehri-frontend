@@ -7,7 +7,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsString
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.{ApiUser, Backend}
 import scala.concurrent.Future
 
 /**
@@ -32,7 +32,6 @@ trait PersonaLoginHandler {
   object personaLoginPost {
     def async(f: Either[String,Account] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
       Action.async { implicit request =>
-
         val assertion: String = request.body.asFormUrlEncoded.map(
           _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("")
 
@@ -46,6 +45,7 @@ trait PersonaLoginHandler {
               userDAO.findByEmail(email) match {
                 case Some(account) => f(Right(account))(request)
                 case None => {
+                  implicit val apiUser = ApiUser()
                   backend.createNewUserProfile().flatMap { up =>
                     val account = userDAO.create(up.id, email, verified = true, staff = false)
                     f(Right(account))(request)

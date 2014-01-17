@@ -1,6 +1,7 @@
 package test
 
-import helpers.{formPostHeaders,Neo4jRunnerSpec}
+import scala.concurrent.ExecutionContext.Implicits.global
+import helpers.Neo4jRunnerSpec
 import models._
 import play.api.test.FakeRequest
 import utils.ContributionVisibility

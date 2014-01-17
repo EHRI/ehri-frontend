@@ -1,7 +1,6 @@
 package backend.rest
 
-import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import acl._
 import models.base.Accessor
 import defines._
@@ -25,22 +24,22 @@ trait RestPermissions extends Permissions with RestDAO {
   private def baseUrl = "http://%s:%d/%s".format(host, port, mount)
   private def requestUrl = "%s/permission".format(baseUrl)
 
-  def listPermissionGrants[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] =
+  def listPermissionGrants[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "page", user.id), params)
 
-  def listItemPermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] =
+  def listItemPermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "pageForItem", id), params)
 
-  def listScopePermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] =
+  def listScopePermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "pageForScope", id), params)
 
-  private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser): Future[Page[PermissionGrant]] = {
+  private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] = {
     userCall(url).withQueryString(params.toSeq: _*).get().map { response =>
       checkErrorAndParse[Page[PermissionGrant]](response)
     }
   }
 
-  def getGlobalPermissions[T <: Accessor](user: T)(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
+  def getGlobalPermissions[T <: Accessor](user: T)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id)
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
@@ -53,7 +52,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def setGlobalPermissions[T <: Accessor](user: T, data: Map[String, List[String]])(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
+  def setGlobalPermissions[T <: Accessor](user: T, data: Map[String, List[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id)
     userCall(url).post(Json.toJson(data)).map { response =>
       val gperms = GlobalPermissionSet[T](user, checkError(response).json)
@@ -62,7 +61,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def getItemPermissions[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String)(implicit apiUser: ApiUser): Future[ItemPermissionSet[T]] = {
+  def getItemPermissions[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[ItemPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, id)
     val cached = Cache.getAs[ItemPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
@@ -75,7 +74,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def setItemPermissions[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String, data: List[String])(implicit apiUser: ApiUser): Future[ItemPermissionSet[T]] = {
+  def setItemPermissions[T <: Accessor](user: T, contentType: ContentTypes.Value, id: String, data: List[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[ItemPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, id)
     userCall(url).post(Json.toJson(data)).map { response =>
       val iperms = ItemPermissionSet[T](user, contentType, checkError(response).json)
@@ -84,7 +83,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def getScopePermissions[T <: Accessor](user: T, id: String)(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
+  def getScopePermissions[T <: Accessor](user: T, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, "scope", id)
     var cached = Cache.getAs[GlobalPermissionSet[T]](url)
     if (cached.isDefined) Future.successful(cached.get)
@@ -97,7 +96,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def setScopePermissions[T <: Accessor](user: T, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser): Future[GlobalPermissionSet[T]] = {
+  def setScopePermissions[T <: Accessor](user: T, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet[T]] = {
     val url = enc(requestUrl, user.id, "scope", id)
     userCall(url).post(Json.toJson(data)).map { response =>
       val sperms = GlobalPermissionSet[T](user, checkError(response).json)
@@ -106,7 +105,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def addGroup(groupId: String, userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+  def addGroup(groupId: String, userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, List[String]]()).map { response =>
       checkError(response)
       Cache.remove(userId)
@@ -116,7 +115,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def removeGroup(groupId: String, userId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+  def removeGroup(groupId: String, userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
       checkError(response)
       Cache.remove(userId)

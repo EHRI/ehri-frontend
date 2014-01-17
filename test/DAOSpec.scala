@@ -1,13 +1,11 @@
 package test
 
-import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.ExecutionContext.Implicits.global
 import models._
 import defines.{EntityType, ContentTypes, PermissionType}
 import utils.{ListParams, PageParams}
-import backend.ApiUser
-import backend.rest.{ItemNotFound, ValidationError}
+import backend.rest.ItemNotFound
 import backend.rest.cypher.CypherDAO
-import scala.Some
 import backend.rest.ValidationError
 import backend.ApiUser
 import play.api.libs.json.Json
