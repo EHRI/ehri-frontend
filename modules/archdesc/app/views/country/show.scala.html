@@ -6,7 +6,7 @@
     @common.annotated(item, annotations) {
         @item.model.report.map { report =>
             <div class="national-report">
-                @Html(report)
+                @Html(views.Helpers.renderMarkdown(report))
             </div>
         }
     }
