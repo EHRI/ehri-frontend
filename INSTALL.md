@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-For development, you need a version of the EHRI Neo4j REST server installed both as libraries and running standalone. This can be done by following the instructions [here](https://github.com/mikesname/neo4j-ehri-plugin/blob/master/docs/INSTALL.md).
+For development, you need a version of the EHRI Neo4j REST server installed both as libraries and running standalone. This can be done by following the instructions [here](https://github.com/mikesname/ehri-rest/blob/master/docs/INSTALL.md).
 
 ### Install and set up Solr
 
@@ -141,7 +141,7 @@ mysql> select * from users;
 Now add one corresponding to your user + email:
 
 ```SQL
-mysql> INSERT INTO users (id, email) VALUES ('example', 'example@example.com');
+mysql> INSERT INTO users (id, email, verified, staff) VALUES ('example', 'example@example.com', 1, 1);
 Query OK, 1 row affected (0.00 sec)
 ```
 
