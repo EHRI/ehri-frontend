@@ -3,7 +3,10 @@
 //
 
 import backend.rest._
+import backend.rest.BadJson
 import backend.rest.RestBackend
+import backend.rest.RestBackend
+import backend.rest.SearchResolver
 import backend.{EventHandler, Backend}
 import defines.EntityType
 import java.util.concurrent.TimeUnit
@@ -12,12 +15,14 @@ import play.api.libs.json.{Json, JsPath, JsError}
 import play.api.mvc._
 
 import play.api.mvc.SimpleResult
+import play.api.mvc.SimpleResult
 import play.api.Play.current
 import play.filters.csrf._
 import scala.concurrent.duration.Duration
 
 import com.tzavellas.sse.guice.ScalaModule
-import utils.search.{Resolver, Indexer, Dispatcher}
+import scala.Some
+import utils.search._
 import global.GlobalConfig
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -76,7 +81,9 @@ package globalConfig {
 
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
-  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher
+  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder
+  private def responseParser: ResponseParser = solr.SolrXmlQueryResponse
+  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(queryBuilder, responseParser)
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
   private def searchResolver: Resolver = new SearchResolver
 

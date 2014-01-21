@@ -1,15 +1,12 @@
 package solr
 
-import com.github.seratch.scalikesolr.request.QueryRequest
 import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType,
-    Sort,StartRow,MaximumRowsReturned,IsDebugQueryEnabled}
+    Sort,StartRow,MaximumRowsReturned}
 import com.github.seratch.scalikesolr.request.query.FieldsToReturn
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
-import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetParam,Param,Value}
+import com.github.seratch.scalikesolr.request.query.facet.FacetParams
 import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupField,GroupFormat,WithNumberOfGroups}
-
-import solr.facet._
 
 import defines.EntityType
 import models.UserProfile
@@ -27,7 +24,7 @@ import solr.facet.QueryFacetClass
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-object SolrQueryBuilder {
+class SolrQueryBuilder() extends QueryBuilder {
 
   import SolrConstants._
 
@@ -119,7 +116,7 @@ object SolrQueryBuilder {
     if (!entities.isEmpty) {
       val filter = entities.map(_.toString).mkString(" OR ")
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq(s"$TYPE:($filter)")))
+        FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq(s"$TYPE:($filter)")))
     }
   }
 
@@ -132,7 +129,7 @@ object SolrQueryBuilder {
   private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfile]): Unit = {
     if (userOpt.isEmpty) {
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++
+        FilterQuery(multiple = request.filterQuery.getMultiple ++
           Seq("%s:%s".format(ACCESSOR_FIELD, ACCESSOR_ALL_PLACEHOLDER))))
     } else if (!userOpt.get.isAdmin) {
       // Create a boolean or query starting with the ALL placeholder, which
@@ -141,7 +138,7 @@ object SolrQueryBuilder {
       val accessors = ACCESSOR_ALL_PLACEHOLDER :: userOpt.map(
           u => (u.id :: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq("%s:(%s)".format(
+        FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq("%s:(%s)".format(
           ACCESSOR_FIELD, accessors.mkString(" OR ")))))
     }
   }
@@ -156,7 +153,7 @@ object SolrQueryBuilder {
       enabled=true,
       field=GroupField(ITEM_ID),
       format=GroupFormat("simple"),
-      ngroups=WithNumberOfGroups(true)
+      ngroups=WithNumberOfGroups(ngroups = true)
     ))
 
     // Not yet supported by scalikesolr
@@ -229,7 +226,7 @@ object SolrQueryBuilder {
     // Highlight, which will at some point be implemented...
     req.setHighlighting(HighlightingParams(
         enabled=true,
-        isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
+        isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(usePhraseHighlighter = true)))
 
     // Set result ordering, defaulting to the solr default 'score asc'
     // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
@@ -273,7 +270,7 @@ object SolrQueryBuilder {
         case s: String => "%s:\"%s\"".format(key, s)
         case _ => "%s:%s".format(key, value)
       }
-      req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(filter)))
+      req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple ++ Seq(filter)))
     }
 
     // Debug query for now

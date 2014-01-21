@@ -20,7 +20,7 @@ class SolrQueryParserSpec extends PlaySpecification {
 
   "Solr XML Query Parser" should {
     "parse the correct number of docs with the right IDs" in {
-      val qp = SolrQueryParser(responseString)
+      val qp = SolrXmlQueryResponse(responseString)
       val docs = qp.items
       docs.size must equalTo(2)
       docs.find(d => d.itemId == "ehri-cb-638") must beSome
@@ -28,7 +28,7 @@ class SolrQueryParserSpec extends PlaySpecification {
     }
 
     "parse facets correctly" in {
-      val qp = SolrQueryParser(responseString)
+      val qp = SolrXmlQueryResponse(responseString)
       val allFacets = List(
         FieldFacetClass(
           key=IsadG.LANG_CODE,
@@ -44,7 +44,7 @@ class SolrQueryParserSpec extends PlaySpecification {
     }
 
     "parse highlighting correctly" in {
-      val qp = SolrQueryParser(responseString)
+      val qp = SolrXmlQueryResponse(responseString)
       val highlightMap: Map[String, Map[String, Seq[String]]] = qp.highlightMap
       highlightMap.size must equalTo(2)
       val itemMap = highlightMap.get("ehri-cb-638-eng-292")

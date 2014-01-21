@@ -3,21 +3,24 @@ package solr
 import solr.facet.{QueryFacetClass, FieldFacetClass}
 import scala.xml.{Node, Elem}
 import defines.EntityType
-import utils.search.{AppliedFacet, SearchHit, FacetClassList}
+import utils.search._
 import play.api.Logger
+import utils.search.SearchHit
+import solr.facet.FieldFacetClass
+import solr.facet.QueryFacetClass
 
 /**
  * User: michaelb
  */
-object SolrQueryParser {
-  def apply(responseString: String) = new SolrQueryParser(xml.XML.loadString(responseString))
+object SolrXmlQueryResponse extends ResponseParser {
+  def apply(responseString: String) = new SolrXmlQueryResponse(xml.XML.loadString(responseString))
 }
 
 /**
  * Helper class for parsing a Solr XML Response.
  * @param response The XML response from Solr
  */
-case class SolrQueryParser(response: Elem) {
+case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
 
   import SolrConstants._
 
@@ -76,7 +79,7 @@ case class SolrQueryParser(response: Elem) {
     nodes.toMap
   }.getOrElse(Map.empty)
 
-  def highlighting: Option[Node] = (response \ "lst").find(hasAttr("name", "highlighting"))
+  private def highlighting: Option[Node] = (response \ "lst").find(hasAttr("name", "highlighting"))
 
   /**
    * Count the number of search descriptions returned in this response.
