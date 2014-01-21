@@ -72,7 +72,6 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
   )
 
-
   val otherSettings = Seq(
     templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
 
@@ -80,7 +79,10 @@ object ApplicationBuild extends Build {
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
-    resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
+    resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+
+    // SBT magic: http://stackoverflow.com/a/12772739/285374
+    resourceDirectory in Test <<= baseDirectory apply {(baseDir: File) => baseDir / "test/resources"}
   )
 
   lazy val core = play.Project(

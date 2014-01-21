@@ -3,7 +3,7 @@ package solr
 import solr.facet.{QueryFacetClass, FieldFacetClass}
 import scala.xml.{Node, Elem}
 import defines.EntityType
-import utils.search.{FacetDisplay, AppliedFacet, SearchDescription, FacetClassList}
+import utils.search.{AppliedFacet, SearchHit, FacetClassList}
 import play.api.Logger
 
 /**
@@ -15,7 +15,7 @@ object SolrQueryParser {
 
 /**
  * Helper class for parsing a Solr XML Response.
- * @param response
+ * @param response The XML response from Solr
  */
 case class SolrQueryParser(response: Elem) {
 
@@ -24,13 +24,21 @@ case class SolrQueryParser(response: Elem) {
   /**
    * Fetch the search description items returned in this response.
    */
-  lazy val items: Seq[SearchDescription] = (response \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
-    SearchDescription(
-      id = (doc \\ "str").filter(hasAttr("name", ID)).text,
-      itemId = (doc \\ "str").filter(hasAttr("name", ITEM_ID)).text,
-      name = (doc \\ "str").filter(hasAttr("name", NAME_EXACT)).text,
-      `type` = EntityType.withName((doc \\ "str").filter(hasAttr("name", TYPE)).text.trim),
-      gid = (doc \\ "long").filter(hasAttr("name", DB_ID)).text.toLong
+  lazy val items: Seq[SearchHit] = (response \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
+    val id = (doc \\ "str").filter(hasAttr("name", ID)).text
+    val itemId = (doc \\ "str").filter(hasAttr("name", ITEM_ID)).text
+    val name = (doc \\ "str").filter(hasAttr("name", NAME_EXACT)).text
+    val entityType = EntityType.withName((doc \\ "str").filter(hasAttr("name", TYPE)).text.trim)
+    val gid = (doc \\ "long").filter(hasAttr("name", DB_ID)).text.toLong
+    val highlights: Map[String,Seq[String]] = highlightMap.getOrElse(id, Map.empty)
+
+    SearchHit(
+      id = id,
+      itemId = itemId,
+      name = name,
+      `type` = entityType,
+      gid = gid,
+      highlights = highlights
     )
   }
 
@@ -40,12 +48,35 @@ case class SolrQueryParser(response: Elem) {
    */
   lazy val spellcheckSuggestion: Option[(String,String)] = {
     for {
-      suggestion <- (response \ "lst" \ "lst").filter(hasAttr("name", "suggestions")).headOption
+      suggestion <- (response \ "lst" \ "lst").find(hasAttr("name", "suggestions"))
       name <- (suggestion \ "lst" \ "@name").headOption
-      word <- (suggestion \ "lst" \ "arr" \ "lst" \ "str").filter(hasAttr("name", "word")).headOption
+      word <- (suggestion \ "lst" \ "arr" \ "lst" \ "str").find(hasAttr("name", "word"))
     } yield (name.text, word.text)
   }
 
+  /**
+   * Parse highlight data of the form:
+   *
+   * <lst name="highlighting">
+   *   <lst name="item-id">
+   *     <arr name="field-name">
+   *       <str>Some text with <em>emphasis</em></str>
+   *       ...
+   *     </arr>
+   */
+  lazy val highlightMap: Map[String,Map[String,Seq[String]]] = highlighting.map { hl =>
+    val nodes = (hl \ "lst").map { hlnode =>
+      val id = (hlnode \ "@name").text
+      val highlights = (hlnode \ "arr").map { arr =>
+        val field = (arr \ "@name").text
+        field -> (arr \ "str").map(_.text)
+      }
+      id -> highlights.toMap
+    }
+    nodes.toMap
+  }.getOrElse(Map.empty)
+
+  def highlighting: Option[Node] = (response \ "lst").find(hasAttr("name", "highlighting"))
 
   /**
    * Count the number of search descriptions returned in this response.
@@ -62,20 +93,20 @@ case class SolrQueryParser(response: Elem) {
   /**
    * Extract the facet data from this response, given a list of the facets
    * used to constrain the response, and the complete set of facet info requested.
-   * @param appliedFacets
-   * @param allFacets
+   * @param appliedFacets Facets that were applied to the request
+   * @param allFacets All relevant facets for the request
    * @return
    */
   def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: FacetClassList): FacetClassList = {
     val tags = allFacets.filter(_.tagExclude).map(_.key)
-    allFacets.flatMap { fc => fc match {
+    allFacets.flatMap {
       case ffc: FieldFacetClass => List(extractFieldFacet(ffc, appliedFacets, tags))
       case qfc: QueryFacetClass => List(extractQueryFacet(qfc, appliedFacets, tags))
       case e => {
         Logger.logger.warn("Unknown facet class type: {}", e)
         Nil
       }
-    }}
+    }
   }
 
   private def tagFunc(tags: List[String]): String = tags match {
@@ -96,12 +127,12 @@ case class SolrQueryParser(response: Elem) {
    *   ...
    */
   private def extractFieldFacet(fc: solr.facet.FieldFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): solr.facet.FieldFacetClass = {
-    val applied: List[String] = appliedFacets.filter(_.name == fc.key).headOption.map(_.values).getOrElse(List[String]())
-    val nodeOpt = response.descendant.filter(n => (n \ "@name").text == "facet_fields").headOption
+    val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
+    val nodeOpt = response.descendant.find(n => (n \ "@name").text == "facet_fields")
     val facets = nodeOpt.toList.flatMap { node =>
       val children = node.descendant.filter(n => (n \ "@name").text == fc.key)
       children.flatMap(_.descendant).flatMap { c =>
-        val nameNode = (c \ "@name")
+        val nameNode = c \ "@name"
         if (nameNode.length == 0) Nil
         else
            List(solr.facet.SolrFieldFacet(
@@ -117,10 +148,10 @@ case class SolrQueryParser(response: Elem) {
    * Extract query facets from Solr XML response.
    */
   private def extractQueryFacet(fc: solr.facet.QueryFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): solr.facet.QueryFacetClass = {
-    val applied: List[String] = appliedFacets.filter(_.name == fc.key).headOption.map(_.values).getOrElse(List[String]())
+    val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
     val facets = fc.facets.flatMap{ f =>
-      var nameval = "%s%s:%s".format(tagFunc(tags), fc.key, f.solrValue)
-      response.descendant.filter(n => (n \\ "@name").text == nameval).text match {
+      var nameValue = s"${tagFunc(tags)}${fc.key}:${f.solrValue}"
+      response.descendant.filter(n => (n \\ "@name").text == nameValue).text match {
         case "" => Nil
         case v => List(
           f.copy(count = v.toInt, applied = applied.contains(f.value))

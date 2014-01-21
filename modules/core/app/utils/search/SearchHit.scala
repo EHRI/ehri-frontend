@@ -5,10 +5,11 @@ import defines.EntityType
 /**
  * User: michaelb
  */
-case class SearchDescription(
+case class SearchHit(
   id: String,
   itemId: String,
   name: String,
   `type`: EntityType.Value,
-  gid: Long
+  gid: Long,
+  highlights: Map[String,Seq[String]] = Map.empty
 )

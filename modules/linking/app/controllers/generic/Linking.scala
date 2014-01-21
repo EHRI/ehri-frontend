@@ -8,11 +8,10 @@ import models._
 import play.api.data.Form
 import models.forms.LinkForm
 import play.api.libs.json.{Writes, JsError, Json}
-import utils.search.AppliedFacet
+import utils.search.{SearchHit, AppliedFacet, SearchParams, ItemPage}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
-import utils.search.{SearchParams, ItemPage}
 import scala.concurrent.Future.{successful => immediate}
 
 /**
@@ -44,7 +43,7 @@ object AccessPointLink {
 trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   def linkSelectAction(id: String, toType: String)(
-      f: MT => ItemPage[(AnyModel,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)

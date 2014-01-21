@@ -7,7 +7,7 @@ import play.api.Logger
 import defines.EntityType
 import scala.concurrent.Future
 import utils.search._
-import utils.search.SearchDescription
+import utils.search.SearchHit
 import com.github.seratch.scalikesolr.request.QueryRequest
 
 
@@ -66,7 +66,7 @@ case class SolrDispatcher() extends backend.rest.RestDAO with Dispatcher {
    */
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass[Facet]],
              filters: Map[String,Any] = Map.empty, mode: SearchMode.Value = SearchMode.DefaultAll)(
-      implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchDescription]] = {
+      implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
     val limit = params.limit.getOrElse(20)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
