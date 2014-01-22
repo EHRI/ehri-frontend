@@ -24,6 +24,8 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
 
   import SolrConstants._
 
+  lazy val phrases: Seq[String] = (response \ "lst" \ "str").filter(hasAttr("name", "q")).map(_.text)
+
   /**
    * Fetch the search description items returned in this response.
    */
@@ -41,7 +43,8 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
       name = name,
       `type` = entityType,
       gid = gid,
-      highlights = highlights
+      highlights = highlights,
+      phrases = phrases
     )
   }
 

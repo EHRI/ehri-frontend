@@ -7,6 +7,7 @@ package utils.search
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait QueryResponse {
+  def phrases: Seq[String]
   def items: Seq[SearchHit]
   def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: FacetClassList): FacetClassList
   def count: Int
