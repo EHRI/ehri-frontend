@@ -20,7 +20,7 @@
             }
         }
         <div class="indented-search-item">
-            @listItem(doc, Some(hit), watched.exists(_.id == doc.id), showRepository=false)
+            @searchItem(doc, hit, watched.exists(_.id == doc.id), showRepository=false)
         </div>
     }
     @if(!docs.isEmpty) {

@@ -5,7 +5,7 @@
         @defining(Some(hit.id)) { implicit descriptionId =>
             @defining(watching.exists(_.id == item.id)) { watched =>
             <li>
-                @searchItem(item, Some(hit), watched)
+                @searchItem(item, hit, watched)
             </li>
             }
         }

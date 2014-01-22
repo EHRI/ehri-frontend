@@ -223,10 +223,12 @@ class SolrQueryBuilder() extends QueryBuilder {
     // Use edismax to parse the user query
     req.setQueryParserType(QueryParserType("edismax"))
 
-    // Highlight, which will at some point be implemented...
-    req.setHighlighting(HighlightingParams(
-        enabled=true,
-        isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(usePhraseHighlighter = true)))
+    // Highlight, but only if we have a query...
+    if (params.query.isDefined) {
+      req.setHighlighting(HighlightingParams(
+          enabled=true,
+          isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(usePhraseHighlighter = true)))
+    }
 
     // Set result ordering, defaulting to the solr default 'score asc'
     // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
@@ -256,10 +258,8 @@ class SolrQueryBuilder() extends QueryBuilder {
     // if we're using a specific index, constrain on that as well
     constrainEntities(req, params.entities)
 
-    // Only return what we immediately need to build a SearchDescription. We
-    // ignore nearly everything currently stored in Solr, instead fetching the
-    // data from the DB, but this might change in future.
-    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE $DB_ID"))
+    // Currently returning all the fields, but this might change...
+    //req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE $DB_ID"))
 
     // Return only fields we care about...
     applyAccessFilter(req, userOpt)

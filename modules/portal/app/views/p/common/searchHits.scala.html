@@ -1,11 +1,14 @@
-@(hit: utils.search.SearchHit)
+@(hit: utils.search.SearchHit)(fallback: Html)
 
-<div class="search-hits">
-    @hit.highlights.headOption.map { case (field, vals) =>
-        <div class="search-hit data-field="@field">
-            @vals.headOption.map { v =>
-                @Html(v)
-            }
+@if(hit.bestHitText.isEmpty) {
+    @fallback
+} else {
+    <div class="search-hits">
+        @hit.bestHitText.map { text =>
+        <div class="search-hit">
+            @Html(text)
         </div>
-    }
-</div>
+        }
+    </div>
+}
+

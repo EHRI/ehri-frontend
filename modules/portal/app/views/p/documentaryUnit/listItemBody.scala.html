@@ -1,0 +1,49 @@
+@(item: DocumentaryUnit, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+
+@import org.apache.commons.lang3.StringUtils
+
+@item.model.primaryDescription(descriptionId).map { desc =>
+
+    @if(!item.ancestors.isEmpty) {
+    <small>
+        <ul class="list-unstyled text-muted list-inline inline-separator">
+            @item.ancestors.reverse.map { parent =>
+            <li class="type-highlight @item.isA">
+                <a href="@controllers.portal.routes.Portal.browseDocument(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
+            </li>
+            }
+        </ul>
+    </small>
+    }
+    <small>
+        <ul class="list-unstyled text-muted list-inline inline-separator">
+            @if(showRepository) {
+            @item.holder.map { holder =>
+            <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>
+            }
+            }
+            <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+
+            @desc.dates.headOption.map { dp =>
+            <li>@dp.years</li>
+            }
+            @desc.extentAndMedium.map { s =>
+            <li>@s</li>
+            }
+            @item.latestEvent.map { event =>
+            <li title="@common.eventTitle(event)">
+                <time datetime="@event.model.timestamp">
+                    @Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
+                </time>
+            </li>
+            }
+        </ul>
+    </small>
+
+    @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
+    <p>@sc</p>
+    }
+}.getOrElse {
+    <small>@Messages("describedEntity.noDescriptions")</small>
+}
+

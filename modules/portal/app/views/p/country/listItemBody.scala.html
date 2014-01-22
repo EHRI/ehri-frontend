@@ -1,0 +1,5 @@
+@(item: Country)(implicit req: RequestHeader, lang: Lang)
+
+@item.model.abs.map { abs =>
+    <div class="national-report">@Html(abs)</div>
+}

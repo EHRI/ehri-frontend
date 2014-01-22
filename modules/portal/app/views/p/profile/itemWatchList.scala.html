@@ -4,7 +4,7 @@
     <ul class="list-unstyled watched-items">
         @items.map { item =>
             <li>
-                @p.searchItem(item, None, true)
+                @p.listItem(item, true)
             </li>
         }
     </ul>

@@ -30,12 +30,19 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
    * Fetch the search description items returned in this response.
    */
   lazy val items: Seq[SearchHit] = (response \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
-    val id = (doc \\ "str").filter(hasAttr("name", ID)).text
-    val itemId = (doc \\ "str").filter(hasAttr("name", ITEM_ID)).text
-    val name = (doc \\ "str").filter(hasAttr("name", NAME_EXACT)).text
-    val entityType = EntityType.withName((doc \\ "str").filter(hasAttr("name", TYPE)).text.trim)
-    val gid = (doc \\ "long").filter(hasAttr("name", DB_ID)).text.toLong
+    val id = (doc \ "str").filter(hasAttr("name", ID)).text
+    val itemId = (doc \ "str").filter(hasAttr("name", ITEM_ID)).text
+    val name = (doc \ "str").filter(hasAttr("name", NAME_EXACT)).text
+    val entityType = EntityType.withName((doc \ "str").filter(hasAttr("name", TYPE)).text.trim)
+    val gid = (doc \ "long").filter(hasAttr("name", DB_ID)).text.toLong
     val highlights: Map[String,Seq[String]] = highlightMap.getOrElse(id, Map.empty)
+
+    val handledFields = Seq(ID, ITEM_ID, NAME_EXACT, TYPE, DB_ID, NAME_MATCH)
+    val fields = (for {
+      strn <- (doc \ "str").filter(hasAttr("name"))
+      attrs <- strn.attributes.get("name")
+      name <- attrs.headOption if !handledFields.contains(name.text)
+    } yield name.text -> strn.text).toMap
 
     SearchHit(
       id = id,
@@ -43,6 +50,7 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
       name = name,
       `type` = entityType,
       gid = gid,
+      fields = fields,
       highlights = highlights,
       phrases = phrases
     )
@@ -166,6 +174,9 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
     }
 
     fc.copy(facets = facets)
+  }
+  private def hasAttr(name: String)(node: Node): Boolean = {
+    node.attributes.exists(attr => attr.key == name)
   }
 
   private def hasAttr(name: String, value: String)(node: Node): Boolean = {
