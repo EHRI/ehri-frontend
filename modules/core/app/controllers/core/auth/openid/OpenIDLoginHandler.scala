@@ -13,7 +13,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.SimpleResult
 import play.api.i18n.Messages
-import utils.forms.isValidOpenIDUrl
+import utils.forms.isValidUrl
 import java.net.ConnectException
 
 /**
@@ -31,7 +31,7 @@ trait OpenIDLoginHandler {
   val openidForm = Form(single(
     "openid_identifier" -> nonEmptyText
   ) verifying("OpenID URL is invalid", f => f match  {
-    case s => isValidOpenIDUrl(s)
+    case s => isValidUrl(s)
   }))
 
   object openIDLoginPostAction {

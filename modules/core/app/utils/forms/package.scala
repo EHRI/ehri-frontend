@@ -23,7 +23,7 @@ package object forms {
    * @param s url string
    * @return
    */
-  def isValidOpenIDUrl(s: String): Boolean = {
+  def isValidUrl(s: String): Boolean = {
     try {
       new URL(s)
       true
