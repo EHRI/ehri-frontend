@@ -24,6 +24,14 @@ object Accessor {
       }
     }
   }
+
+  /**
+   * This function allows getting a dynamic Resource for an Accessor given
+   * the entity type.
+   */
+  def resourceFor(t: EntityType.Value): RestResource[Accessor] = new RestResource[Accessor] {
+    def entityType: EntityType.Value = t
+  }
 }
 
 trait Accessor extends AnyModel {

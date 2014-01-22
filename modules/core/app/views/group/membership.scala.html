@@ -8,7 +8,7 @@
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;
 	  @item.groups.map { group =>
 	    <a href="@controllers.core.routes.Groups.get(group.id)">@group.toStringLang</a>
-        (<a href="@controllers.core.routes.Groups.removeMember(group.id, item.isA.toString, item.id)">@Messages("accessor.removeGroup")</a>)
+        (<a href="@controllers.core.routes.Groups.removeMember(group.id, item.isA, item.id)">@Messages("accessor.removeGroup")</a>)
 	  }	  
 	}
     
@@ -21,7 +21,7 @@
 	  <ul>
 	  @groups.map { case (identifier, name) =>
 	  	<li>
-	    	<a href="@controllers.core.routes.Groups.addMember(identifier, item.isA.toString, item.id)">@name</a>
+	    	<a href="@controllers.core.routes.Groups.addMember(identifier, item.isA, item.id)">@name</a>
 	  	</li>
 	  }	  
 	  </ul>

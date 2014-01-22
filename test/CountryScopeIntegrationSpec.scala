@@ -68,7 +68,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         EntityType.DocumentaryUnit.toString -> permissionsToGrant.map(_.toString)
       )
       val permSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.archdesc.routes.Countries.setScopedPermissionsPost(countryId, EntityType.Group.toString, groupId).url)
+          controllers.archdesc.routes.Countries.setScopedPermissionsPost(countryId, EntityType.Group, groupId).url)
       .withHeaders(formPostHeaders.toSeq: _*), permData).get
       status(permSetPost) must equalTo(SEE_OTHER)
 

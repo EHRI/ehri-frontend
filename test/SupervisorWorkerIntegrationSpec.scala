@@ -97,7 +97,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         EntityType.DocumentaryUnit.toString -> haPermissionsToGrant.map(_.toString)
       )
       val haPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group.toString, headArchivistsGroupId).url)
+          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, headArchivistsGroupId).url)
       .withHeaders(formPostHeaders.toSeq: _*), haPermData).get
       status(haPermSetPost) must equalTo(SEE_OTHER)
 
@@ -111,7 +111,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         EntityType.DocumentaryUnit.toString -> aPermissionsToGrant.map(_.toString)
       )
       val aPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group.toString, archivistsGroupId).url)
+          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, archivistsGroupId).url)
       .withHeaders(formPostHeaders.toSeq: _*), aPermData).get
       status(aPermSetPost) must equalTo(SEE_OTHER)
 

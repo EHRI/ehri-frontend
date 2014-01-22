@@ -3,7 +3,7 @@ package controllers.base
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.{UserProfileF, UserProfile}
-import models.json.RestReadable
+import models.json.{RestResource, RestReadable}
 import play.api.mvc._
 import play.api.i18n.Lang
 import jp.t2v.lab.play2.auth.AsyncAuth
@@ -87,7 +87,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             implicit val maybeUser = Some(fakeProfile)
 
             for {
-              user <- backend.get[UserProfile](EntityType.UserProfile, account.id)
+              user <- backend.get[UserProfile](UserProfile.Resource, account.id)
               globalPerms <- backend.getGlobalPermissions(fakeProfile)
               up = user.copy(account = Some(account), globalPermissions = Some(globalPerms.copy(user=user)))
               r <- f(Some(up))(request)
@@ -112,18 +112,18 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Given an item ID fetch the item.
    */
   object itemAction {
-    def async[MT](entityType: EntityType.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+    def async[MT](resource: RestResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
         implicit rd: RestReadable[MT]): Action[AnyContent] = {
       userProfileAction.async { implicit userOpt => implicit request =>
-        backend.get(entityType, id).flatMap { item =>
+        backend.get(resource, id).flatMap { item =>
           f(item)(userOpt)(request)
         }
       }
     }
 
-    def apply[MT](entityType: EntityType.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+    def apply[MT](resource: RestResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]): Action[AnyContent] = {
-      async(entityType, id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
+      async(resource, id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
     }
   }
 
@@ -135,9 +135,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    */
   object itemPermissionAction {
     def async[MT](contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
-        implicit rd: RestReadable[MT]): Action[AnyContent] = {
+        implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] = {
       userProfileAction.async { implicit userOpt => implicit request =>
-        val entityType = EntityType.withName(contentType.toString)
         userOpt.map { user =>
 
           // NB: We have to re-fetch the global perms here because they need to be
@@ -147,12 +146,12 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           for {
             globalPerms <- backend.getScopePermissions(user, id)
             itemPerms <- backend.getItemPermissions(user, contentType, id)
-            item <- backend.get(entityType, id)
+            item <- backend.get(rs, id)
             up = user.copy(globalPermissions = Some(globalPerms), itemPermissions = Some(itemPerms))
             r <- f(item)(Some(up))(request)
           } yield r
         } getOrElse {
-          backend.get(entityType, id).flatMap { item =>
+          backend.get(rs, id).flatMap { item =>
             f(item)(None)(request)
           }
         }
@@ -160,7 +159,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     }
 
     def apply[MT](contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
-        implicit rd: RestReadable[MT]): Action[AnyContent] = {
+        implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] = {
       async(contentType, id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
     }
   }
@@ -212,7 +211,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    */
   object withItemPermission {
     def async[MT](id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
-        f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+        f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] = {
       itemPermissionAction.async[MT](contentType, id) { entity => implicit maybeUser => implicit request =>
         maybeUser.flatMap { user =>
           if (user.hasPermission(permContentType.getOrElse(contentType), perm)) Some(f(entity)(maybeUser)(request))
@@ -224,7 +223,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     }
 
     def apply[MT](id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
-        f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+        f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] = {
       async(id, perm, contentType, permContentType)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
     }
   }

@@ -1,6 +1,6 @@
 package defines
 
-object EntityType extends Enumeration() {
+object EntityType extends BindableEnum {
   type Type = Value
   val DocumentaryUnit = Value("documentaryUnit")
   val DocumentaryUnitDescription = Value("documentDescription")

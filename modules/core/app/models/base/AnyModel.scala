@@ -3,7 +3,7 @@ package models.base
 import play.api.libs.json._
 import defines.EntityType
 import play.api.i18n.Lang
-import models.json.{Utils, ClientConvertable, RestReadable}
+import models.json.{RestResource, Utils, ClientConvertable, RestReadable}
 import models._
 import play.api.Logger
 import play.api.data.validation.ValidationError
@@ -70,6 +70,13 @@ object AnyModel {
     }
   }
 
+  /**
+   * This function allows getting a dynamic Resource for an Accessor given
+   * the entity type.
+   */
+  def resourceFor(t: EntityType.Value): RestResource[AnyModel] = new RestResource[AnyModel] {
+    def entityType: EntityType.Value = t
+  }
 }
 
 trait Named {

@@ -9,6 +9,7 @@ import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
+import backend.rest.Constants
 
 
 object DocumentaryUnitF {
@@ -100,6 +101,14 @@ object DocumentaryUnit {
 
   implicit object Resource extends RestResource[DocumentaryUnit] {
     val entityType = EntityType.DocumentaryUnit
+
+    /**
+     * When displaying doc units we need the
+     * repositories urlPattern to create an external link. However this
+     * is not a mandatory property and thus not returned by the REST
+     * interface by default, unless we specify it explicitly.
+     */
+    override def defaultParams = Seq(Constants.INCLUDE_PROPERTIES_PARAM -> RepositoryF.URL_PATTERN)
   }
 }
 

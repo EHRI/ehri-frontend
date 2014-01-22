@@ -27,13 +27,13 @@ trait RestGeneric extends Generic with RestDAO {
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
-  def get[MT](entityType: EntityType.Value, id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+  def get[MT](resource: RestResource[MT], id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     val cached = Cache.getAs[JsValue](id)
     if (cached.isDefined) {
       Future.successful(jsonReadToRestError(cached.get, rd.restReads))
     } else {
-      val url = enc(requestUrl, entityType, id)
-      userCall(url).get().map { response =>
+      val url = enc(requestUrl, resource.entityType, id)
+      userCall(url, resource.defaultParams).get().map { response =>
         Cache.set(id, response.json, cacheTime)
         checkErrorAndParse(response)(rd.restReads)
       }
@@ -41,19 +41,12 @@ trait RestGeneric extends Generic with RestDAO {
   }
 
   def get[MT](id: String)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
-    get(rs.entityType, id)
+    get(rs, id)
   }
 
   def getJson[MT](id: String)(implicit apiUser: ApiUser, rs: RestResource[MT], executionContext: ExecutionContext): Future[JsObject] = {
     userCall(enc(requestUrl, rs.entityType, id)).get().map { response =>
       checkErrorAndParse[JsObject](response)
-    }
-  }
-
-  def get[MT](key: String, value: String)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
-    userCall(enc(requestUrl, rs.entityType)).withQueryString("key" -> key, "value" -> value)
-        .get().map { response =>
-      checkErrorAndParse(response)(rd.restReads)
     }
   }
 

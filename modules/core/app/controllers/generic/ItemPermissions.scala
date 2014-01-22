@@ -36,25 +36,25 @@ trait ItemPermissions[MT] extends Read[MT] {
   }
 
 
-  def setItemPermissionsAction(id: String, userType: String, userId: String)(
+  def setItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(
       f: MT => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
-        accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
+        accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
         perms <- backend.getItemPermissions(accessor, contentType, id)
       } yield f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
     }
   }
 
-  def setItemPermissionsPostAction(id: String, userType: String, userId: String)(
+  def setItemPermissionsPostAction(id: String, userType: EntityType.Value, userId: String)(
       f: acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      val data = request.body.asFormUrlEncoded.getOrElse(Map())
+      val data = request.body.asFormUrlEncoded.getOrElse(Map.empty)
       val perms: List[String] = data.get(contentType.toString).map(_.toList).getOrElse(List())
       for {
-        accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
+        accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
         perms <- backend.setItemPermissions(accessor, contentType, id, perms)
       } yield f(perms)(userOpt)(request)
     }

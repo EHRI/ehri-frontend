@@ -28,17 +28,17 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     }
   }
 
-  def setScopedPermissionsAction(id: String, userType: String, userId: String)(
+  def setScopedPermissionsAction(id: String, userType: EntityType.Value, userId: String)(
       f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
-        accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
+        accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
         perms <- backend.getScopePermissions(accessor, id)
       } yield f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
     }
   }
 
-  def setScopedPermissionsPostAction(id: String, userType: String, userId: String)(
+  def setScopedPermissionsPostAction(id: String, userType: EntityType.Value, userId: String)(
       f: acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
@@ -47,7 +47,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
       }.toMap
 
       for {
-        accessor <- backend.get[Accessor](EntityType.withName(userType), userId)
+        accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
         perms <- backend.setScopePermissions(accessor, id, perms)
       } yield f(perms)(userOpt)(request)
     }

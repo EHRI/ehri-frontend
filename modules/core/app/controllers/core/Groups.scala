@@ -3,16 +3,16 @@ package controllers.core
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import forms.VisibilityForm
-import models.{Group,GroupF}
+import models.{Group, GroupF}
 import models.base.Accessor
 import play.api.i18n.Messages
-import defines.{ContentTypes, PermissionType }
-import global.GlobalConfig
+import defines.{EntityType, ContentTypes, PermissionType}
 import com.google.inject._
 import utils.search.{Resolver, Dispatcher}
 import scala.concurrent.Future
 import backend.Backend
 import backend.rest.RestHelpers
+import models.json.RestResource
 
 case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends PermissionHolder[Group]
   with Visibility[Group]
@@ -122,7 +122,8 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /**
    * Present a list of groups to which the current user can be added.
    */
-  def membership(userType: String, userId: String) = {
+  def membership(userType: EntityType.Value, userId: String) = {
+    implicit val resource = Accessor.resourceFor(userType)
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       for {
@@ -150,7 +151,8 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /**
    * Confirm adding the given user to the specified group.
    */
-  def addMember(id: String, userType: String, userId: String) = {
+  def addMember(id: String, userType: EntityType.Value, userId: String) = {
+    implicit val resource = Accessor.resourceFor(userType)
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       backend.get[Group](id).map { group =>
@@ -163,7 +165,8 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /**
    * Add the user to the group and redirect to the show view.
    */
-  def addMemberPost(id: String, userType: String, userId: String) = {
+  def addMemberPost(id: String, userType: EntityType.Value, userId: String) = {
+    implicit val resource = Accessor.resourceFor(userType)
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       backend.addGroup(id, userId).map { ok =>
@@ -176,7 +179,8 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /**
    * Confirm adding the given user to the specified group.
    */
-  def removeMember(id: String, userType: String, userId: String) = {
+  def removeMember(id: String, userType: EntityType.Value, userId: String) = {
+    implicit val resource = Accessor.resourceFor(userType)
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       backend.get[Group](id).map { group =>
@@ -189,7 +193,8 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /**
    * Add the user to the group and redirect to the show view.
    */
-  def removeMemberPost(id: String, userType: String, userId: String) = {
+  def removeMemberPost(id: String, userType: EntityType.Value, userId: String) = {
+    implicit val resource = Accessor.resourceFor(userType)
     withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
         item => implicit userOpt => implicit request =>
       backend.removeGroup(id, userId).map { ok =>

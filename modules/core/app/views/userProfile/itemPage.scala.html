@@ -18,7 +18,7 @@
             <li><a href="@controllers.core.routes.UserProfiles.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
         }
         @if(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
-            <li><a href="@controllers.core.routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>
+            <li><a href="@controllers.core.routes.Groups.membership(item.isA, item.id)">@Messages("actions.modifyGroups")</a></li>
         }
         @if(user.isAdmin) {
             <li><a href="@controllers.core.routes.UserProfiles.delete(item.id)">@Messages("actions.deleteItem")</a></li>

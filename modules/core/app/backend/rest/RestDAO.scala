@@ -48,23 +48,11 @@ trait RestDAO {
   }
 
   /**
-   * FIXME: Disgraceful hack. When displaying doc units we need the
-   * repositories urlPattern to create an external link. However this
-   * is not a mandatory property and thus not returned by the REST
-   * interface by default, unless we specify it explicitly. Ultimately
-   * what we want is an extensible mechanism to specify common REST
-   * params for different data types. This should perhaps be done via
-   * the implicit RestResource[T] required for many REST calls, but there
-   * are currently complications to implementing this.
-   */
-  def commonParams: Seq[(String,String)] = Seq("_ip" -> "urlPattern")
-
-  /**
    * Create a web request with correct auth parameters for the REST API.
    */
-  def userCall(url: String)(implicit apiUser: ApiUser): WSRequestHolder = {
+  def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): WSRequestHolder = {
     Logger.logger.debug("[{} {}] {}", apiUser, this.getClass.getCanonicalName, url)
-    WS.url(url).withHeaders(authHeaders.toSeq: _*).withQueryString(commonParams: _*)
+    WS.url(url).withHeaders(authHeaders.toSeq: _*).withQueryString(params: _*)
   }
 
   /**
