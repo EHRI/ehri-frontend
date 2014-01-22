@@ -18,6 +18,7 @@ object RepositoryF {
 
   val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
+  final val URL_PATTERN = "urlPattern"
 
   implicit object Converter extends RestConvertable[RepositoryF] with ClientConvertable[RepositoryF] {
     val restFormat = models.json.RepositoryFormat.restFormat
@@ -36,7 +37,8 @@ case class RepositoryF(
   @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: List[RepositoryDescriptionF] = Nil,
 
-  priority: Option[Int] = None
+  priority: Option[Int] = None,
+  urlPattern: Option[String] = None
 ) extends Model
   with Persistable
   with Described[RepositoryDescriptionF]

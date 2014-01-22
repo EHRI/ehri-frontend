@@ -6,6 +6,9 @@
 
 @common.descriptionOutline(desc, desc.languageCode) {
     <h2>@desc.name</h2>
+    @desc.externalLink(item).map { link =>
+        <a href="@link">@link</a>
+    }
 
     @descriptionSection(IDENTITY_AREA) {
         @common.stringValue(desc.`abstract`, ABSTRACT)

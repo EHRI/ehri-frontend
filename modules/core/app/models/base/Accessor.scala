@@ -3,7 +3,7 @@ package models.base
 import defines.EntityType
 import models._
 import play.api.libs.json._
-import models.json.{ClientConvertable, RestReadable}
+import models.json.{RestResource, ClientConvertable, RestReadable}
 
 object Accessor {
   final val BELONGS_REL = "belongsTo"

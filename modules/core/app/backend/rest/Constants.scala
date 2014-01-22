@@ -27,6 +27,11 @@ object Constants {
   val ACCESSOR_PARAM = "accessibleTo"
 
   /**
+   * Properties serialization params.
+   */
+  val INCLUDE_PROPERTIES_PARAM = "_ip"
+
+  /**
    * Time to cache rest requests for...
    */
   val cacheTime = 60 * 5 // 5 minutes

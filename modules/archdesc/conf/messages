@@ -1,5 +1,8 @@
 # Messages for archival descriptions (Isdiah & IsadG)
 
+errors.badUrlPattern=Invalid URL pattern. The pattern must contain the substitution variable '''{'identifer'}'''\
+  and be an otherwise valid URL.
+
 actions.updateCountry=Update Country
 actions.updateDocumentaryUnit=Update Collection
 actions.updateRepository=Update Repository
