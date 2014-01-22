@@ -33,6 +33,9 @@ object RepositoryForm {
       PRIORITY -> optional(number(min = -1, max = 5)),
       URL_PATTERN -> optional(nonEmptyText verifying("errors.badUrlPattern", fields => fields match {
         case pattern => validateUrlPattern(pattern)
+      })),
+      LOGO_URL -> optional(nonEmptyText verifying("error.badUrl", fields => fields match {
+        case url => utils.forms.isValidUrl(url)
       }))
     )(RepositoryF.apply)(RepositoryF.unapply)
   )

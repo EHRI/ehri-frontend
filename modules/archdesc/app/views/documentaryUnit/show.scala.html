@@ -25,6 +25,9 @@
 }
 
 @sidebar = {
+
+    @logoAndLink(item)
+
     @if(!item.model.descriptions.isEmpty) {
         <div class="well well-small">
             <h4>@Messages("describedEntity.availableDescriptions")</h4>
@@ -87,8 +90,6 @@
                 <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
             }
         }
-
-        @link.externalLinks(item, links)
 
         @link.annotationLinks(item, links)
     }

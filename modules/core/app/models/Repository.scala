@@ -12,6 +12,7 @@ import models.base._
 import models.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
+import java.net.URL
 
 
 object RepositoryF {
@@ -19,6 +20,7 @@ object RepositoryF {
   val PUBLICATION_STATUS = "publicationStatus"
   final val PRIORITY = "priority"
   final val URL_PATTERN = "urlPattern"
+  final val LOGO_URL = "logoUrl"
 
   implicit object Converter extends RestConvertable[RepositoryF] with ClientConvertable[RepositoryF] {
     val restFormat = models.json.RepositoryFormat.restFormat
@@ -38,7 +40,8 @@ case class RepositoryF(
   descriptions: List[RepositoryDescriptionF] = Nil,
 
   priority: Option[Int] = None,
-  urlPattern: Option[String] = None
+  urlPattern: Option[String] = None,
+  logoUrl: Option[String] = None
 ) extends Model
   with Persistable
   with Described[RepositoryDescriptionF]
@@ -72,4 +75,11 @@ case class Repository(
   with MetaModel[RepositoryF]
   with DescribedMeta[RepositoryDescriptionF,RepositoryF]
   with Accessible
-  with Holder[DocumentaryUnit]
+  with Holder[DocumentaryUnit] {
+
+  def url: Option[URL] = (for {
+    desc <- descriptions
+    address <- desc.addresses
+    url <- address.url if utils.forms.isValidUrl(url)
+  } yield url).headOption.map(new URL(_))
+}

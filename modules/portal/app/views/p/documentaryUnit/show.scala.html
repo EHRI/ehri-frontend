@@ -26,6 +26,9 @@
                 @renderDescription(item, desc, links, annotations)
             }
         } {
+
+            @logoAndLink(item)
+
             @p.common.tablePanel(Messages("portal.item.details")) {
                 @item.model.descriptions.map { desc =>
                     @details(item, desc)

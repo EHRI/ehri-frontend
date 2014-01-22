@@ -1,0 +1,9 @@
+@(item: DocumentaryUnit)(implicit req: RequestHeader)
+
+@item.holder.flatMap(_.model.logoUrl).map { logo =>
+    @defining(item.url.getOrElse(new java.net.URL(req.path))) { url =>
+        <a href="@url">
+            <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
+        </a>
+    }
+}

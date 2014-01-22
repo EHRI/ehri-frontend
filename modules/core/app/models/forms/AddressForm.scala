@@ -25,9 +25,11 @@ object AddressForm {
       POSTAL_CODE -> optional(nonEmptyText),
       COUNTRY_CODE -> optional(nonEmptyText),
       EMAIL -> list(email),
-      TELEPHONE -> list(text),
-      FAX -> list(text),
-      URL -> list(text)
+      TELEPHONE -> list(nonEmptyText),
+      FAX -> list(nonEmptyText),
+      URL -> list(nonEmptyText verifying("error.badUrl", fields => fields match {
+        case url => utils.forms.isValidUrl(url)
+      }))
     )(AddressF.apply)(AddressF.unapply)
   )
 }
