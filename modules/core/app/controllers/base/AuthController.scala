@@ -77,22 +77,19 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           if (staffOnly && secured && !account.staff) {
             immediate(Unauthorized(views.html.errors.staffOnly()))
           } else {
-            val fakeProfile = UserProfile(UserProfileF(id=Some(account.id), identifier="", name=""))
-            implicit val maybeUser = Some(fakeProfile)
-
             // For the permissions to be properly initialized they must
             // recieve a completely-constructed instance of the UserProfile
             // object, complete with the groups it belongs to. Since this isn't
             // available initially, and we don't want to block for it to become
             // available, we should probably add the account to the permissions when
             // we have both items from the server.
-            val getProf = backend.get[UserProfile](EntityType.UserProfile, account.id)
-            val getGlobalPerms = backend.getGlobalPermissions(fakeProfile)
-            // These requests should execute in parallel...
+            val fakeProfile = UserProfile(UserProfileF(id=Some(account.id), identifier="", name=""))
+            implicit val maybeUser = Some(fakeProfile)
+
             for {
-              entity <- getProf
-              gperms <- getGlobalPerms
-              up = entity.copy(account = Some(account), globalPermissions = Some(gperms))
+              user <- backend.get[UserProfile](EntityType.UserProfile, account.id)
+              globalPerms <- backend.getGlobalPermissions(fakeProfile)
+              up = user.copy(account = Some(account), globalPermissions = Some(globalPerms.copy(user=user)))
               r <- f(Some(up))(request)
             } yield r
           }
@@ -146,15 +143,12 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           // NB: We have to re-fetch the global perms here because they need to be
           // within the scope of the particular item. This could be optimised, but
           // it would involve some duplication of code.
-          val getGlobalPerms = backend.getScopePermissions(user, id)
-          val getItemPerms = backend.getItemPermissions(user, contentType, id)
-          val getEntity = backend.get(entityType, id)
           // These requests should execute in parallel...
           for {
-            gperms <- getGlobalPerms
-            iperms <- getItemPerms
-            item <- getEntity
-            up = user.copy(globalPermissions = Some(gperms), itemPermissions = Some(iperms))
+            globalPerms <- backend.getScopePermissions(user, id)
+            itemPerms <- backend.getItemPermissions(user, contentType, id)
+            item <- backend.get(entityType, id)
+            up = user.copy(globalPermissions = Some(globalPerms), itemPermissions = Some(itemPerms))
             r <- f(item)(Some(up))(request)
           } yield r
         } getOrElse {
@@ -242,11 +236,10 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   object withContentPermission {
     def async(perm: PermissionType.Value, contentType: ContentTypes.Value)(
         f: Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
-      userProfileAction.async { implicit maybeUser => implicit request =>
-        maybeUser.flatMap { user =>
-          if (user.hasPermission(contentType, perm)) Some(f(maybeUser)(request))
-          else None
-        } getOrElse {
+      withUserAction.async { implicit user => implicit request =>
+        if (user.hasPermission(contentType, perm)) {
+          f(Some(user))(request)
+        } else {
           immediate(Unauthorized(views.html.errors.permissionDenied()))
         }
       }
