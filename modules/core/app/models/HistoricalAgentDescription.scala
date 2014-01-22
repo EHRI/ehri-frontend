@@ -66,4 +66,25 @@ case class HistoricalAgentDescriptionF(
 ) extends Model
   with Persistable
   with Description
-  with Temporal
+  with Temporal {
+
+  import Isaar._
+
+  def toSeq = Seq(
+    DATES_OF_EXISTENCE -> details.datesOfExistence,
+    HISTORY -> details.history,
+    PLACES -> details.places,
+    LEGAL_STATUS -> details.legalStatus,
+    FUNCTIONS -> details.functions,
+    MANDATES -> details.mandates,
+    INTERNAL_STRUCTURE -> details.internalStructure,
+    GENERAL_CONTEXT -> details.generalContext,
+    DESCRIPTION_IDENTIFIER -> control.descriptionIdentifier,
+    INSTITUTION_IDENTIFIER -> control.institutionIdentifier,
+    RULES_CONVENTIONS -> control.rulesAndConventions,
+    STATUS -> control.status,
+    LEVEL_OF_DETAIL -> control.levelOfDetail,
+    DATES_CVD -> control.datesCDR,
+    MAINTENANCE_NOTES -> control.maintenanceNotes
+  )
+}

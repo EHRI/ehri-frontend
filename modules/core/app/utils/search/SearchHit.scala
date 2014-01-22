@@ -11,5 +11,6 @@ case class SearchHit(
   name: String,
   `type`: EntityType.Value,
   gid: Long,
-  highlights: Map[String,Seq[String]] = Map.empty
+  highlights: Map[String,Seq[String]] = Map.empty,
+  phrases: Seq[String] = Seq.empty
 )

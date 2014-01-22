@@ -49,7 +49,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    * @return
    */
   private implicit val anyModelReads = AnyModel.Converter.restReads
-  private val defaultSearchTypes = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent)
+  private val defaultSearchTypes = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent,
+    EntityType.Country)
   private val defaultSearchParams = SearchParams(entities = defaultSearchTypes, sort = Some(SearchOrder.Score))
 
 
@@ -81,7 +82,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def index = userProfileAction.async { implicit userOpt => implicit request =>
     searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
-      entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent))),
+      entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent, EntityType.Country))),
       entityFacets = entityMetrics) {
       page => params => facets => implicit userOpt => _ =>
         Ok(p.portal(Stats(page.facets)))

@@ -1,0 +1,11 @@
+@(hit: utils.search.SearchHit)
+
+<div class="search-hits">
+    @hit.highlights.headOption.map { case (field, vals) =>
+        <div class="search-hit data-field="@field">
+            @vals.headOption.map { v =>
+                @Html(v)
+            }
+        </div>
+    }
+</div>

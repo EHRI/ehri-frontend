@@ -1,10 +1,10 @@
-@(them: UserProfile, items: utils.AbstractPage[models.base.AnyModel])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
+@(them: UserProfile, items: utils.AbstractPage[AnyModel])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
 
 @if(!items.isEmpty) {
     <ul class="list-unstyled watched-items">
         @items.map { item =>
             <li>
-                @p.searchItem(item, true)
+                @p.searchItem(item, None, true)
             </li>
         }
     </ul>

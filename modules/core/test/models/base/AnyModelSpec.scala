@@ -18,7 +18,9 @@ case class TestDescriptionF(
   @Relation(Ontology.HAS_ACCESS_POINT)
   unknownProperties: List[Entity] = Nil
 ) extends Model
-  with Description
+  with Description {
+  def toSeq = Seq.empty
+}
 
 case class TestModelF(
   id: Option[String] = None,

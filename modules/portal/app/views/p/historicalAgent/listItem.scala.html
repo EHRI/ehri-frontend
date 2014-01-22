@@ -1,4 +1,4 @@
-@(item: HistoricalAgent, watched: Boolean = false)(implicit req: RequestHeader, lang: Lang)
+@(item: HistoricalAgent, hit: Option[utils.search.SearchHit], watched: Boolean = false)(implicit req: RequestHeader, lang: Lang)
 
 @import Isaar._
 
@@ -44,4 +44,5 @@
     }.getOrElse {
         <small>@Messages("describedEntity.noDescriptions")</small>
     }
+    @hit.map(h => p.common.searchHits(h))
 }

@@ -8,6 +8,7 @@ import models._
 import play.api.Logger
 import play.api.data.validation.ValidationError
 import play.api.libs.json.KeyPathNode
+import scala.collection.SortedMap
 
 
 trait AnyModel {
@@ -147,7 +148,7 @@ trait Hierarchical[+T] extends AnyModel {
   /**
    * The parent item of this item.
    */
-  val parent: Option[Hierarchical[T]]
+  def parent: Option[Hierarchical[T]]
 
   /**
    * List of ancestor items 'above' this one, including the parent.
@@ -157,10 +158,13 @@ trait Hierarchical[+T] extends AnyModel {
 }
 
 trait Description extends Model {
-  val name: String
-  val languageCode: String
-  val accessPoints: List[AccessPointF]
-  val unknownProperties: List[Entity] // Unknown, unparsed data
+  def name: String
+  def languageCode: String
+  def accessPoints: List[AccessPointF]
+  def unknownProperties: List[Entity] // Unknown, unparsed data
+  def toSeq: Seq[(String,Option[String])]
+  def toMap: SortedMap[String,Option[String]]
+      = scala.collection.immutable.TreeMap(toSeq: _*)
 }
 
 object Description {

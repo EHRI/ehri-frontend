@@ -20,6 +20,8 @@
 @shadow-color: @dark-gray;
 @shadow-opacity: 0.7;
 
+@search-hit-highlight: #FFFF80;
+
 @gravitar-size: 48px;
 
 @footer-height: 100px;
@@ -212,6 +214,11 @@ footer .container {
 /** Heading which divides a set of search results */
 .search-group-heading {
   margin-bottom: 30px;
+}
+
+.search-hits em {
+  background-color: @search-hit-highlight;
+  font-weight: bold;
 }
 
 a.alt {

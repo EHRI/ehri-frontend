@@ -80,6 +80,38 @@ case class DocumentaryUnitDescriptionF(
   accessPoints: List[AccessPointF] = Nil,
   unknownProperties: List[Entity] = Nil
 ) extends Model with Persistable with Description with Temporal {
+  import IsadG._
 
   def displayText = `abstract` orElse content.scopeAndContent
+
+  def externalLink(item: DocumentaryUnit): Option[String] = ref orElse {
+    for {
+      holder <- item.holder
+      pattern <- holder.model.urlPattern
+    } yield pattern.replaceAll("\\{identifier\\}", item.model.identifier)
+  }
+
+  def toSeq = Seq(
+    ABSTRACT -> `abstract`,
+    LEVEL_OF_DESCRIPTION -> levelOfDescription,
+    EXTENT_MEDIUM -> extentAndMedium,
+    ADMIN_BIOG -> context.biographicalHistory,
+    ARCH_HIST -> context.archivalHistory,
+    ACQUISITION -> context.acquisition,
+    SCOPE_CONTENT -> content.scopeAndContent,
+    APPRAISAL -> content.appraisal,
+    ACCRUALS -> content.accruals,
+    SYS_ARR -> content.systemOfArrangement,
+    ACCESS_COND -> conditions.conditionsOfAccess,
+    REPROD_COND -> conditions.conditionsOfReproduction,
+    PHYSICAL_CHARS -> conditions.physicalCharacteristics,
+    FINDING_AIDS -> conditions.findingAids,
+    LOCATION_ORIGINALS -> materials.locationOfOriginals,
+    LOCATION_COPIES -> materials.locationOfCopies,
+    RELATED_UNITS -> materials.relatedUnitsOfDescription,
+    PUBLICATION_NOTE -> materials.publicationNote,
+    ARCHIVIST_NOTE -> control.archivistNote,
+    RULES_CONVENTIONS -> control.rulesAndConventions,
+    DATES_DESCRIPTIONS -> control.datesOfDescriptions
+  )
 }

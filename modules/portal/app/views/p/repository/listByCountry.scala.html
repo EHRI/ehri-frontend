@@ -21,7 +21,7 @@
             }
         }
         <div class="indented-search-item">
-            @listItem(repo, watched.exists(_.id == repo.id), showCountry=false)
+            @listItem(repo, Some(hit), watched.exists(_.id == repo.id), showCountry=false)
         </div>
     }
     @if(!repos.isEmpty) {

@@ -74,5 +74,32 @@ case class RepositoryDescriptionF(
   accessPoints: List[AccessPointF] = Nil,
   maintenanceEvents: List[Entity] = Nil,
   unknownProperties: List[Entity] = Nil
-) extends Model with Persistable with Description
+) extends Model with Persistable with Description {
+
+  import Isdiah._
+
+  def toSeq = Seq(
+    HISTORY -> details.history,
+    GEOCULTURAL_CONTEXT -> details.generalContext,
+    MANDATES -> details.mandates,
+    ADMINISTRATIVE_STRUCTURE -> details.administrativeStructure,
+    RECORDS -> details.records,
+    BUILDINGS -> details.buildings,
+    HOLDINGS -> details.holdings,
+    FINDING_AIDS -> details.findingAids,
+    OPENING_TIMES -> access.openingTimes,
+    CONDITIONS -> access.conditions,
+    ACCESSIBILITY -> access.accessibility,
+    RESEARCH_SERVICES -> services.researchServices,
+    REPROD_SERVICES -> services.reproductionServices,
+    PUBLIC_AREAS -> services.publicAreas,
+    DESCRIPTION_IDENTIFIER -> control.descriptionIdentifier,
+    INSTITUTION_IDENTIFIER -> control.institutionIdentifier,
+    RULES_CONVENTIONS -> control.rulesAndConventions,
+    STATUS -> control.status,
+    LEVEL_OF_DETAIL -> control.levelOfDetail,
+    DATES_CVD -> control.datesCDR,
+    MAINTENANCE_NOTES -> control.maintenanceNotes
+  )
+}
 

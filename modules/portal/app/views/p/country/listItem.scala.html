@@ -1,8 +1,9 @@
-@(item: Country, watched: Boolean = false)(implicit req: RequestHeader, lang: Lang)
+@(item: Country, hit: Option[utils.search.SearchHit], watched: Boolean = false)(implicit req: RequestHeader, lang: Lang)
 
 @p.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.Portal.browseCountry(item.id)">@item.toStringLang</a>
 } {
+    @hit.map(h => p.common.searchHits(h))
     @item.model.abs.map { abs =>
         <div class="national-report">@Html(abs)</div>
     }

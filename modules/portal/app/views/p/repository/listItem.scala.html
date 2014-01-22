@@ -1,4 +1,4 @@
-@(item: Repository, watched: Boolean, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: Repository, hit: Option[utils.search.SearchHit], watched: Boolean, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @import Isdiah._
 
@@ -29,4 +29,6 @@
     }.getOrElse {
         <small>@Messages("describedEntity.noDescriptions")</small>
     }
+
+    @hit.map(h => p.common.searchHits(h))
 }

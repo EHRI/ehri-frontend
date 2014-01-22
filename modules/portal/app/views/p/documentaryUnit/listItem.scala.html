@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: DocumentaryUnit, hit: Option[utils.search.SearchHit], watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @import org.apache.commons.lang3.StringUtils
 
@@ -49,4 +49,5 @@
     }.getOrElse {
         <small>@Messages("describedEntity.noDescriptions")</small>
     }
+    @hit.map(h => p.common.searchHits(h))
 }
