@@ -2,21 +2,16 @@
 
 @p.layout.portalLayout(them.toStringLang) {
 
-    @p.layout.breadcrumbs() {
+    @p.layout.infobar {
         <li><a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.browseUsers")</a></li>
         <li><a href="@controllers.portal.routes.Portal.browseUser(them.id)">@them.toStringLang</a></li>
         <li>@Messages("portal.social.followers")</li>
-    }
-
-    @p.layout.infobar {
-        @userOpt.map { user =>
-            @if(user.id != them.id) {
-                <div class="pull-right">
-                @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
-                </div>
-            }
-        }
+    } {
         <h1>@them.toStringLang</h1>
+    } {
+        @for(user <- userOpt if user.id != them.id) {
+            @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
+        }
     }
 
     <div class="row">

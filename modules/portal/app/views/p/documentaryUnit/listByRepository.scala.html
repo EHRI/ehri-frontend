@@ -29,10 +29,6 @@
 }
 
 @p.layout.portalLayout(Messages("actions.listRepositories"), EntityType.DocumentaryUnit.toString) {
-    @p.layout.breadcrumbs(defines.EntityType.Repository.toString) {
-        @p.helpers.breadcrumbCurrent(Messages("portal.browse.documentsByRepository"))
-    }
-
     @p.searchForm(page, params, action, autofocus = false) {
         @itemByHolderList(page.items, None)
     } {

@@ -1,30 +1,20 @@
 @(item: DocumentaryUnit, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @p.layout.infobar {
-    @userOpt.map { user =>
-        <div class="pull-right">
-            @p.common.watchButtons(item, watched)
-        </div>
+    @item.holder.flatMap(_.country).map { country =>
+        <li>@p.helpers.linkTo(country)</li>
     }
-    <h1>@item.toStringLang</h1>
-
     @item.holder.map { repo =>
-        <h4>@p.helpers.linkTo(repo)</h4>
+        <li>@p.helpers.linkTo(repo, views.Helpers.ellipsize(repo.toStringLang, 100))</li>
     }
-
-    @if(!item.ancestors.isEmpty) {
-        <ul class="list-unstyled inline-separator">
-            @item.ancestors.map { ann =>
-                <li>@p.helpers.linkTo(ann)</li>
-            }
-        </ul>
+    @item.ancestors.map { ann =>
+        <li>@p.helpers.linkTo(ann, views.Helpers.ellipsize(ann.toStringLang, 100))</li>
     }
-    <small>
-        @item.latestEvent.map { event =>
-            <time datetime="@event.model.timestamp">
-                @Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
-            </time>
-        }
-    </small>
+} {
+    <h1>@item.toStringLang</h1>
+} {
+    @userOpt.map { user =>
+        @p.common.watchButtons(item, watched)
+    }
 }
 

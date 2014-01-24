@@ -28,9 +28,6 @@
 
 
 @p.layout.portalLayout(Messages("forms.search"), scripts = extrascripts, styles = extrastyles) {
-    @layout.breadcrumbs(showHome = false) {
-        <li>&nbsp;</li>
-    }
 
     @views.html.common.flash(flash)
 
@@ -69,24 +66,6 @@
             <div class="col-md-12">
                 <div class="row tertiary-content">
                     <div class="col-md-8 col-md-offset-2">
-                        <h3 class="landing-header @EntityType.Repository">
-                            <a class="" href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
-                        </h3>
-
-                        <div class="landing-blurb">
-                            @{Html(Messages(
-                            "portal.landingBlurb.repositories",
-                            countLink(controllers.portal.routes.Portal.browseRepositories.url,
-                            "portal.landingBlurb.repositoryLink", stats.repositoryCount).body.trim,
-                            countLink(controllers.portal.routes.Portal.browseCountries.url, "portal.landingBlurb.inCountryLink",
-                            stats.inCountryCount).body.trim
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row tertiary-content">
-                    <div class="col-md-8 col-md-offset-2">
                         <h3 class="landing-header @EntityType.DocumentaryUnit">
                             <a class="" href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
                         </h3>
@@ -98,6 +77,24 @@
                             "portal.landingBlurb.documentLink", stats.documentaryUnitCount).body.trim,
                             countLink(controllers.portal.routes.Portal.browseDocumentsByRepository.url,
                             "portal.landingBlurb.inRepositoryLink", stats.inRepositoryCount).body.trim
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row tertiary-content">
+                    <div class="col-md-8 col-md-offset-2">
+                        <h3 class="landing-header @EntityType.Repository">
+                            <a class="" href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
+                        </h3>
+
+                        <div class="landing-blurb">
+                            @{Html(Messages(
+                            "portal.landingBlurb.repositories",
+                            countLink(controllers.portal.routes.Portal.browseRepositories.url,
+                            "portal.landingBlurb.repositoryLink", stats.repositoryCount).body.trim,
+                            countLink(controllers.portal.routes.Portal.browseCountries.url, "portal.landingBlurb.inCountryLink",
+                            stats.inCountryCount).body.trim
                             ))}
                         </div>
                     </div>

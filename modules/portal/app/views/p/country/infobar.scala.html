@@ -1,11 +1,12 @@
 @(item: Country, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @p.layout.infobar {
-    @userOpt.map { user =>
-        <div class="pull-right">
-            @p.common.watchButtons(item, watched)
-        </div>
-    }
+
+} {
     <h1>@item.toStringLang</h1>
+} {
+    @userOpt.map { user =>
+        @p.common.watchButtons(item, watched)
+    }
 }
 

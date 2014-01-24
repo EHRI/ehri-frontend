@@ -54,16 +54,16 @@
             </li>
         </ul>
         <ul class="list-unstyled list-inline">
-            <li>
+            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseCountries.url)">
                 <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a>
             </li>
-            <li>
+            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseRepositories.url)">
                 <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
             </li>
-            <li>
+            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseDocuments.url)">
                 <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
             </li>
-            <li>
+            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseHistoricalAgents.url)">
                 <a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
             </li>
         </ul>
