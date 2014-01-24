@@ -37,11 +37,10 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
     val gid = (doc \ "long").filter(hasAttr("name", DB_ID)).text.toLong
     val highlights: Map[String,Seq[String]] = highlightMap.getOrElse(id, Map.empty)
 
-    val handledFields = Seq(ID, ITEM_ID, NAME_EXACT, TYPE, DB_ID, NAME_MATCH)
     val fields = (for {
       strn <- (doc \ "str").filter(hasAttr("name"))
       attrs <- strn.attributes.get("name")
-      name <- attrs.headOption if !handledFields.contains(name.text)
+      name <- attrs.headOption
     } yield name.text -> strn.text).toMap
 
     SearchHit(

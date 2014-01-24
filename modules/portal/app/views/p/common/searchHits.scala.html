@@ -1,14 +1,5 @@
-@(hit: utils.search.SearchHit)(fallback: Html)
+@(hit: utils.search.SearchHit)(unhighlighted: Html)
 
-@if(hit.bestHitText.isEmpty) {
-    @fallback
-} else {
-    <div class="search-hits">
-        @hit.bestHitText.map { text =>
-        <div class="search-hit">
-            @Html(text)
-        </div>
-        }
-    </div>
+@defining(hit.highlight(unhighlighted.body)) { highlighted =>
+    @Html(highlighted)
 }
-
