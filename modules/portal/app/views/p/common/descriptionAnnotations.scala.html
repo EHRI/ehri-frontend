@@ -1,10 +1,8 @@
 @(item: AnyModel, desc: Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 <div class="description-annotations annotation-set clearfix">
-    @if(!annotations.isEmpty) {
-        @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
-            @p.common.inlineAnnotationList(annotations)
-        }
+    @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
+        @p.common.inlineAnnotationList(annotations)
     }
     @if(userOpt.isDefined) {
         <div class="annotate-item-controls">
