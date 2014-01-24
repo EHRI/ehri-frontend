@@ -1,25 +1,19 @@
 @(itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
 
-<header>
-    <div class="navigation pull-right account-admin">
-        <ul class="list-unstyled list-inline">
-
-            @userOpt.flatMap(_.account).map { account =>
-            <li><a href="@controllers.portal.routes.Portal.logout">@account.email (@Messages("portal.logout"))</a></li>
-            }.getOrElse {
-            <li><a href="@controllers.portal.routes.Portal.login">@Messages("portal.login")</a></li>
-            }
-        </ul>
+<header id="header" class="navigation">
+    <div id="loader-bar">
+        <span style="width:100%">
+            <span/>
+        </span>
     </div>
-    <div class="navigation clearfix">
-        <div>
-            <ul class="list-unstyled list-inline">
-                <li id="navbar-logo" >
-                    <a href="@controllers.portal.routes.Portal.index">
-                        <img src="@controllers.portal.routes.Assets.at("img/logo-bw.png")" rel="logo" />
-                    </a>
-                </li>
-            </ul>
-        </div>
+    <div class="nav-primary clearfix">
+        @p.layout.headerAccountAdmin()
+        <ul class="list-unstyled list-inline">
+            <li id="navbar-logo" >
+                <a href="@controllers.portal.routes.Portal.index">
+                    <img src="@controllers.portal.routes.Assets.at("img/logo-rect-bw.png")" rel="logo" />
+                </a>
+            </li>
+        </ul>
     </div>
 </header>

@@ -17,15 +17,7 @@
         </span>
     </div>
     <div class="nav-primary clearfix">
-        <ul class="list-unstyled list-inline  pull-right account-admin">
-            @userOpt.flatMap(_.account).map { account =>
-            <li><a href="@controllers.portal.routes.Portal.logout">@account.email (@Messages("portal.logout"))</a></li>
-            }.getOrElse {
-            <li>
-                <a href="@controllers.portal.routes.Portal.login">@Messages("portal.login")</a>
-            </li>
-            }
-        </ul>
+        @p.layout.headerAccountAdmin()
         <ul class="list-unstyled list-inline">
             <li id="navbar-logo" >
                 <a href="@controllers.portal.routes.Portal.index">
@@ -38,11 +30,6 @@
             <li class="@maybeActivePath(controllers.portal.routes.Portal.browseUsers.url)">
                 <a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.users")</a>
             </li>
-            @userOpt.map { _ =>
-            <li class="@maybeActive(controllers.portal.routes.Portal.profile.url)">
-                <a href="@controllers.portal.routes.Portal.profile">@Messages("portal.profile")</a>
-            </li>
-            }
         </ul>
     </div>
     <div class="nav-secondary clearfix @itemClass">
