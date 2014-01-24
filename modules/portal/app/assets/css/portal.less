@@ -67,18 +67,30 @@ body {
   margin-right: auto;
 }
 
-div.navigation {
+#header.navigation {
   color: white;
 
   li {
     padding: 0px;
   }
 
-  padding-top: @medium-padding;
+  //padding-top: @medium-padding;
 
-  a {
-    color: white;
-    padding: @medium-padding;
+  .nav-primary {
+    background-color: @almost-black;
+
+    ul {
+      margin-bottom: 0;
+      padding: 0
+    }
+    a {
+      color: white;
+      padding: @medium-padding;
+    }
+
+    li.active a {
+      background-color: #000;
+    }
   }
 
   .nav-secondary {
@@ -111,7 +123,21 @@ div.navigation {
 }
 
 header {
-  background-image: url("/assets/img/debut_dark.png");
+  //background-image: url("/assets/img/debut_dark.png");
+}
+
+#header #loader-bar {
+  height: @small-padding;
+  position: relative;
+  background: #FFF;
+
+  span {
+    display: block;
+    height: 100%;
+    background-color: @primary-highlight;
+    position: relative;
+    overflow: hidden;
+  }
 }
 
 footer {
@@ -128,7 +154,7 @@ footer .container {
 
 #navbar-logo {
   a {
-    padding: @small-padding;
+    //padding: @small-padding;
     img {
       height: @menu-height - @medium-padding;
     }
@@ -157,12 +183,12 @@ footer .container {
 }
 
 .top-bar {
-  background-color: @primary-highlight;
+  color: @primary-highlight;
   padding: @small-padding;
 }
 
 .top-bar.documentaryUnit {
-  background-color: @doc-color;
+  color: @doc-color;
 }
 
 .country a, a.country {
@@ -170,7 +196,7 @@ footer .container {
 }
 
 .top-bar.country {
-  background-color: @country-color;
+  color: @country-color;
 }
 
 .repository a, a.repository {
@@ -183,7 +209,7 @@ img.repository-logo {
 }
 
 .top-bar.repository {
-  background-color: @repo-color;
+  color: @repo-color;
 }
 
 .historicalAgent a, a.historicalAgent {
@@ -191,7 +217,68 @@ img.repository-logo {
 }
 
 .top-bar.historicalAgent {
+  color: @agent-color;
+}
+
+.top-bar {
+  //.downward-shadow();
+  //color: @pale-gray;
+  font-size: 1.1em;
+}
+
+.breadcrumb {
+  background-color: inherit;
+  //color: inherit;
+  font-size: inherit;
+  margin-bottom: 0px;
+}
+
+.breadcrumb a {
+  text-decoration: underline;
+  //color: @pale-gray;
+}
+
+.nav-secondary.documentaryUnit {
+  background-color: @doc-color;
+}
+
+.country a, a.country {
+  color: @country-color;
+}
+
+.nav-secondary.country {
+  background-color: @country-color;
+}
+
+.repository a, a.repository {
+  color: @repo-color;
+}
+
+img.repository-logo {
+  max-width: 100%;
+  margin-bottom: @large-margin;
+}
+
+.nav-secondary.repository {
+  background-color: @repo-color;
+}
+
+.historicalAgent a, a.historicalAgent {
+  color: @agent-color;
+}
+
+.nav-secondary.historicalAgent {
   background-color: @agent-color;
+}
+
+.nav-secondary {
+  a {
+    font-size: 1.1em;
+    color: #FFF;
+    margin: 0 @small-margin 0 @small-margin;
+  }
+  background-color: @primary-highlight;
+  padding: @small-padding;
 }
 
 .landing-header {
@@ -242,24 +329,6 @@ a.alt {
 
 .sidebar {
   //padding: @large-padding;
-}
-
-.top-bar {
-  //.downward-shadow();
-  color: @pale-gray;
-  font-size: 1.1em;
-}
-
-.breadcrumb {
-  background-color: inherit;
-  color: inherit;
-  font-size: inherit;
-  margin-bottom: 0px;
-}
-
-.breadcrumb a {
-  text-decoration: underline;
-  color: @pale-gray;
 }
 
 .search-bar {

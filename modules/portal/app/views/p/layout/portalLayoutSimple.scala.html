@@ -1,4 +1,4 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
 
 <!DOCTYPE html>
 
@@ -22,39 +22,8 @@
 
     </head>
     <body>
-
-        @maybeActive(url: String) = {
-            @(if(req.path.equals(url)) "active" else "")
-        }
-
-        @maybeActivePath(url: String) = {
-            @(if(req.path.startsWith(url)) "active" else "")
-        }
-
+        @p.layout.simpleHeader(itemClass)
         <div id="wrap">
-            <header>
-                <div class="navigation pull-right account-admin">
-                    <ul class="list-unstyled list-inline">
-
-                        @userOpt.flatMap(_.account).map { account =>
-                            <li><a href="@controllers.portal.routes.Portal.logout">@account.email (@Messages("portal.logout"))</a></li>
-                        }.getOrElse {
-                            <li><a href="@controllers.portal.routes.Portal.login">@Messages("portal.login")</a></li>
-                        }
-                    </ul>
-                </div>
-                <div class="navigation clearfix">
-                    <div>
-                        <ul class="list-unstyled list-inline">
-                            <li id="navbar-logo" >
-                                <a href="@controllers.portal.routes.Portal.index">
-                                    <img src="@controllers.portal.routes.Assets.at("img/logo-bw.png")" rel="logo" />
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </header>
 
             <div class="page-content">
                 @content

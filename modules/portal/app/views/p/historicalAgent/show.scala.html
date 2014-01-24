@@ -1,6 +1,6 @@
 @(item: HistoricalAgent, annotations: Seq[Annotation], links: List[Link], watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@p.layout.portalLayout(item.toStringLang) {
+@p.layout.portalLayout(item.toStringLang, EntityType.HistoricalAgent.toString) {
     @p.layout.breadcrumbs(item.isA.toString) {
         <li><a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a></li>
         @p.helpers.breadcrumbCurrent(item.toStringLang)
