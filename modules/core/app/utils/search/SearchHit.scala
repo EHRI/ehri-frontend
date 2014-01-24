@@ -4,7 +4,6 @@ import defines.EntityType
 import scala.annotation.tailrec
 import scala._
 import solr.SolrConstants._
-import scala.Some
 
 /**
  * User: michaelb
@@ -32,18 +31,23 @@ case class SearchHit(
     } yield text.replace(stripTags(firstHit), firstHit)).toSeq
   }
 
-  def highlight(text: String): String = {
+  /**
+   * Try and highlight some text according to the highlights.
+   * @param text Some input text
+   * @return  The text and a boolean indicating if highlighting was successful
+   */
+  def highlight(text: String): (String, Boolean) = {
     def canHighlightWith(raw: String, text: String): Option[String] = {
       val stripped = stripTags(raw)
       if (text.contains(stripped)) Some(text.replace(stripped, raw)) else None
     }
-    @tailrec def tryHighlight(texts: List[String], input: String): String = texts match {
+    @tailrec def tryHighlight(texts: List[String], input: String, ok: Boolean): (String, Boolean) = texts match {
       case t :: rest => canHighlightWith(t, text) match {
-        case rep@Some(replace) => tryHighlight(rest, replace)
-        case None => tryHighlight(rest, input)
+        case rep@Some(replace) => tryHighlight(rest, replace, true)
+        case None => tryHighlight(rest, input, ok)
       }
-      case Nil => input
+      case Nil => (input,ok)
     }
-    tryHighlight(highlights.values.flatten.toList, text)
+    tryHighlight(highlights.values.flatten.toList, text, false)
   }
 }

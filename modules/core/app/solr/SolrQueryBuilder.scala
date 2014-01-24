@@ -1,8 +1,6 @@
 package solr
 
-import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType,
-    Sort,StartRow,MaximumRowsReturned}
-import com.github.seratch.scalikesolr.request.query.FieldsToReturn
+import com.github.seratch.scalikesolr.request.query._
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 import com.github.seratch.scalikesolr.request.query.facet.FacetParams
@@ -225,6 +223,7 @@ class SolrQueryBuilder() extends QueryBuilder {
 
     // Highlight, but only if we have a query...
     if (params.query.isDefined) {
+      //req.set("highlight.q", params.query)
       req.setHighlighting(HighlightingParams(
           enabled=true,
           isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(usePhraseHighlighter = true)))
@@ -243,7 +242,7 @@ class SolrQueryBuilder() extends QueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", s"$ITEM_ID^5 $NAME_EXACT^4 $NAME_MATCH^4 $OTHER_NAMES^4 $PARALLEL_NAMES^3 $NAME_SORT^2 $TEXT")
+      req.set("qf", s"$ITEM_ID^5 $NAME_EXACT^4 $NAME_MATCH^4 $OTHER_NAMES^4 $PARALLEL_NAMES^4 $NAME_SORT^3 $TEXT")
     }
 
     // Mmmn, speckcheck
@@ -274,7 +273,7 @@ class SolrQueryBuilder() extends QueryBuilder {
     }
 
     // Debug query for now
-    //req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
+    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
 
     // Setup start and number of objects returned
     val limit = params.limit.getOrElse(DEFAULT_SEARCH_LIMIT)
