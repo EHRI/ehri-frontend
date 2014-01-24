@@ -243,7 +243,7 @@ class SolrQueryBuilder() extends QueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", s"$ITEM_ID^0.5 $NAME_EXACT^0.4 $NAME_MATCH^0.4 $OTHER_NAMES^0.3 $PARALLEL_NAMES^0.3 $NAME_SORT^0.2 $TEXT")
+      req.set("qf", s"$ITEM_ID^5 $NAME_EXACT^4 $NAME_MATCH^4 $OTHER_NAMES^4 $PARALLEL_NAMES^3 $NAME_SORT^2 $TEXT")
     }
 
     // Mmmn, speckcheck
