@@ -15,11 +15,11 @@ GET     /visibility/:id                    @controllers.authorities.Authoritativ
 POST    /visibility/:id                    @controllers.authorities.AuthoritativeSets.visibilityPost(id: String)
 GET     /permissions/:id/manage            @controllers.authorities.AuthoritativeSets.managePermissions(id: String)
 GET     /permissions/:id/add               @controllers.authorities.AuthoritativeSets.addItemPermissions(id: String)
-GET     /permissions/:id/:userType/:userId @controllers.authorities.AuthoritativeSets.setItemPermissions(id: String, userType: String, userId: String)
-POST    /permissions/:id/:userType/:userId @controllers.authorities.AuthoritativeSets.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /permissions/:id/:userType/:userId @controllers.authorities.AuthoritativeSets.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /permissions/:id/:userType/:userId @controllers.authorities.AuthoritativeSets.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 GET     /scope/:id/add                     @controllers.authorities.AuthoritativeSets.addScopedPermissions(id: String)
-GET     /scope/:id/:userType/:userId       @controllers.authorities.AuthoritativeSets.setScopedPermissions(id: String, userType: String, userId: String)
-POST    /scope/:id/:userType/:userId       @controllers.authorities.AuthoritativeSets.setScopedPermissionsPost(id: String, userType: String, userId: String)
+GET     /scope/:id/:userType/:userId       @controllers.authorities.AuthoritativeSets.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /scope/:id/:userType/:userId       @controllers.authorities.AuthoritativeSets.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 
 GET     /cpf                               @controllers.authorities.HistoricalAgents.search
 GET     /cpf/list                          @controllers.authorities.HistoricalAgents.list
@@ -33,11 +33,11 @@ GET     /cpf/visibility/:id                @controllers.authorities.HistoricalAg
 POST    /cpf/visibility/:id                @controllers.authorities.HistoricalAgents.visibilityPost(id: String)
 GET     /cpf/perms/:id/manage              @controllers.authorities.HistoricalAgents.managePermissions(id: String)
 GET     /cpf/perms/:id/add                 @controllers.authorities.HistoricalAgents.addItemPermissions(id: String)
-GET     /cpf/perms/:id/:userType/:userId   @controllers.authorities.HistoricalAgents.setItemPermissions(id: String, userType: String, userId: String)
-POST    /cpf/perms/:id/:userType/:userId   @controllers.authorities.HistoricalAgents.setItemPermissionsPost(id: String, userType: String, userId: String)
+GET     /cpf/perms/:id/:userType/:userId   @controllers.authorities.HistoricalAgents.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /cpf/perms/:id/:userType/:userId   @controllers.authorities.HistoricalAgents.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 GET     /cpf/link/:id                      @controllers.authorities.HistoricalAgents.linkTo(id: String)
-GET     /cpf/link/:id/:toType              @controllers.authorities.HistoricalAgents.linkAnnotateSelect(id: String, toType: String)
-GET     /cpf/link/:id/:toType/:to          @controllers.authorities.HistoricalAgents.linkAnnotate(id: String, toType: String, to: String)
-POST    /cpf/link/:id/:toType/:to          @controllers.authorities.HistoricalAgents.linkAnnotatePost(id: String, toType: String, to: String)
+GET     /cpf/link/:id/:toType              @controllers.authorities.HistoricalAgents.linkAnnotateSelect(id: String, toType: EntityType.Value)
+GET     /cpf/link/:id/:toType/:to          @controllers.authorities.HistoricalAgents.linkAnnotate(id: String, toType: EntityType.Value, to: String)
+POST    /cpf/link/:id/:toType/:to          @controllers.authorities.HistoricalAgents.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
 
 GET /assets/*file       controllers.authorities.Assets.at(path="/public", file)

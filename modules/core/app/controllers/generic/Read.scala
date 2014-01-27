@@ -3,7 +3,7 @@ package controllers.generic
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models._
-import models.json.{RestReadable, ClientConvertable}
+import models.json.{RestResource, RestReadable, ClientConvertable}
 import utils.{ListParams, PageParams}
 import backend.Page
 
@@ -36,15 +36,15 @@ trait Read[MT] extends Generic[MT] {
   }
 
   object getEntityT {
-    def async[T](otherType: defines.EntityType.Type, id: String)(f: T => Future[SimpleResult])(
+    def async[T](resource: RestResource[T], id: String)(f: T => Future[SimpleResult])(
         implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]): Future[SimpleResult] = {
-      backend.get[T](otherType, id).flatMap { item =>
+      backend.get[T](resource, id).flatMap { item =>
         f(item)
       }
     }
-    def apply[T](otherType: defines.EntityType.Type, id: String)(f: T => SimpleResult)(
+    def apply[T](resource: RestResource[T], id: String)(f: T => SimpleResult)(
       implicit rd: RestReadable[T], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
-      async(otherType, id)(f.andThen(t => Future.successful(t)))
+      async(resource, id)(f.andThen(t => Future.successful(t)))
     }
   }
 

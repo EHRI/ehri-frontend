@@ -61,7 +61,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None,
                         entityFacets: FacetBuilder = emptyFacets, mode: SearchMode.Value = SearchMode.DefaultAll)(
-      f: ItemPage[(MT, String)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+      f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
 
@@ -79,7 +79,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
             Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
               (ids, list))
           }
-          val page = res.copy(items = list.zip(ids))
+          val page = res.copy(items = list.zip(res.items))
           render {
             case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
               "page" -> Json.toJson(res.copy(items = list))(ItemPage.itemPageWrites),

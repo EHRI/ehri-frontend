@@ -5,28 +5,5 @@
 @p.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.Portal.browseRepository(item.id)">@item.toStringLang</a>
 } {
-    @item.model.primaryDescription.map { desc =>
-
-        @defining((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten) { ofn =>
-            @if(!ofn.isEmpty) {
-                <small>
-                    <strong>
-                        <ul class="list-unstyled list-inline inline-separator">
-                            @ofn.map { on =>
-                                <li>@on</li>
-                            }
-                        </ul>
-                    </strong>
-                </small>
-            }
-         }
-        <small>
-            @conciseAddress(item, desc, includeCountry = showCountry)
-        </small>
-        @desc.details.generalContext.map { gc =>
-            <p>@gc</p>
-        }
-    }.getOrElse {
-        <small>@Messages("describedEntity.noDescriptions")</small>
-    }
+    @listItemBody(item, showCountry)
 }

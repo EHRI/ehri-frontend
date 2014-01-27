@@ -50,9 +50,9 @@ trait RestDAO {
   /**
    * Create a web request with correct auth parameters for the REST API.
    */
-  def userCall(url: String)(implicit apiUser: ApiUser): WSRequestHolder = {
+  def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): WSRequestHolder = {
     Logger.logger.debug("[{} {}] {}", apiUser, this.getClass.getCanonicalName, url)
-    WS.url(url).withHeaders(authHeaders.toSeq: _*)
+    WS.url(url).withHeaders(authHeaders.toSeq: _*).withQueryString(params: _*)
   }
 
   /**

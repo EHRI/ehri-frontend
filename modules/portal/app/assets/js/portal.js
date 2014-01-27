@@ -1,5 +1,27 @@
 jQuery(function ($) {
 
+  // Make global search box show up when focused..
+  $(".global-search input").focusin(function() {
+    $(this).parent().removeClass("inactive");
+  }).focusout(function() {
+    $(this).parent().addClass("inactive");
+  });
+
+  // Make top menu adhere to top of screen...
+  var $pmenu = $(".nav-primary");
+  var $smenu = $(".nav-secondary");
+  var menuHeight = $smenu.height();
+  $(window).scroll(function(e) {
+
+    if ($(window).scrollTop() > ($pmenu.offset().top + $pmenu.height() + menuHeight)) {
+      $smenu.addClass("float-nav").css({
+        width: $(window).width()
+      })
+    } else {
+      $smenu.removeClass("float-nav").css("width", $pmenu.outerWidth());
+    }
+  });
+
   // jQuery history plugin... initialise
   // Bind to StateChange Event
   History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate

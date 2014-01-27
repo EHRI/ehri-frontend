@@ -9,7 +9,7 @@
 @almost-black: #333;
 @glow-color: #FFF9C0;
 
-@doc-color: #360f4f;
+@doc-color: @primary-highlight;
 @repo-color: #034153;
 @country-color: #864300;
 @agent-color: #517C00;
@@ -19,6 +19,8 @@
 @shadow-blur: 5px;
 @shadow-color: @dark-gray;
 @shadow-opacity: 0.7;
+
+@search-hit-highlight: #FFFFDD;
 
 @gravitar-size: 48px;
 
@@ -65,29 +67,136 @@ body {
   margin-right: auto;
 }
 
-div.navigation {
+#header {
   color: white;
+  font-weight: 700;
+
+  .account-admin {
+    font-size: 12px;
+  }
+
+  .global-search input {
+    border: 0px;
+  }
+
+  .right-inner-addon {
+    position: relative;
+
+    input {
+      padding: 1px 25px 1px 3px;
+    }
+
+    .glyphicon {
+      position: absolute;
+      right: 0px;
+      padding: 3px 7px;
+      pointer-events: none;
+      color: @almost-black;
+    }
+  }
+  .global-search.inactive {
+    .glyphicon {
+      color: white;
+    }
+
+    input {
+      background-color: inherit;
+      cursor: default;
+    }
+  }
+
+  #loader-bar {
+    height: @small-padding;
+    position: relative;
+    background: #FFF;
+
+    span {
+      display: block;
+      height: 100%;
+      background-color: @primary-highlight;
+      position: relative;
+      overflow: hidden;
+    }
+  }
 
   li {
     padding: 0px;
   }
 
-  padding-top: @medium-padding;
+  //padding-top: @medium-padding;
 
-  a {
-    color: white;
-    padding: @medium-padding;
+  .nav-primary {
+    background-color: @almost-black;
+    padding: @small-padding;
+
+    ul {
+      margin-bottom: 0;
+      padding: 0
+    }
+    a {
+      color: #d6d6d6;
+      padding: @medium-padding;
+    }
+
+    a:hover {
+      text-decoration: none;
+      color: #FFF;
+    }
+
+    li.active a {
+      color: #FFF;
+    }
   }
 
   .nav-secondary {
-    padding-top: @large-padding;
-    padding-bottom: @large-padding;
+    padding: @small-padding;
+
     ul {
       margin: @medium-margin;
     }
 
-    padding: @small-padding;
     font-size: 0.9em;
+
+    a {
+      font-size: 1.1em;
+      color: #FFF;
+      margin: 0 @small-margin 0 @small-margin;
+    }
+    background-color: @primary-highlight;
+  }
+
+  .nav-secondary.documentaryUnit {
+    background-color: @doc-color;
+  }
+
+  .nav-secondary.country {
+    background-color: @country-color;
+  }
+
+  .nav-secondary.repository {
+    background-color: @repo-color;
+  }
+
+  .nav-secondary.historicalAgent {
+    background-color: @agent-color;
+  }
+
+  .float-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 0.9;
+    z-index: 1000;
+    box-shadow: 0px 3px 4px rgba(68, 68, 68, 0.51);
+  }
+
+  #navbar-logo {
+    a {
+      //padding: @small-padding;
+      img {
+        height: @menu-height - @medium-padding;
+      }
+    }
   }
 }
 
@@ -108,28 +217,15 @@ div.navigation {
   height: @footer-height - 1;
 }
 
-header {
-  background-image: url("/assets/img/debut_dark.png");
-}
-
 footer {
   background-color: @pale-gray;
   border-left: 1px solid @dark-gray;
   border-right: 1px solid @dark-gray;
   padding-left: @large-padding;
   padding-right: @large-padding;
-}
 
-footer .container {
-  padding-top: @large-padding;
-}
-
-#navbar-logo {
-  a {
-    padding: @small-padding;
-    img {
-      height: @menu-height - @medium-padding;
-    }
+  .container {
+    padding-top: @large-padding;
   }
 }
 
@@ -141,50 +237,42 @@ footer .container {
   max-width: 400px;
 }
 
-.dropdown-menu>li > a:hover, .dropdown-menu > li > a:focus {
-  background-color: @dark-gray;
-}
-
-/** Type highlights */
-.type-highlight {
-
-}
-
 .documentaryUnit a, a.documentaryUnit {
   color: @doc-color;
-}
-
-.top-bar {
-  background-color: @primary-highlight;
-  padding: @small-padding;
-}
-
-.top-bar.documentaryUnit {
-  background-color: @doc-color;
 }
 
 .country a, a.country {
   color: @country-color;
 }
 
-.top-bar.country {
-  background-color: @country-color;
-}
-
 .repository a, a.repository {
   color: @repo-color;
-}
-
-.top-bar.repository {
-  background-color: @repo-color;
 }
 
 .historicalAgent a, a.historicalAgent {
   color: @agent-color;
 }
 
-.top-bar.historicalAgent {
-  background-color: @agent-color;
+img.repository-logo {
+  max-width: 100%;
+  margin-bottom: @large-margin;
+}
+
+.breadcrumb {
+  background-color: inherit;
+  //color: inherit;
+  font-size: inherit;
+  margin-bottom: 0px;
+}
+
+.breadcrumb a {
+  text-decoration: underline;
+  //color: @pale-gray;
+}
+
+img.repository-logo {
+  max-width: 100%;
+  margin-bottom: @large-margin;
 }
 
 .landing-header {
@@ -214,6 +302,11 @@ footer .container {
   margin-bottom: 30px;
 }
 
+.search-hits em, .search-item em {
+  //background-color: @search-hit-highlight;
+  font-weight: bolder;
+}
+
 a.alt {
   color: @almost-black;
   font-weight: bolder;
@@ -230,24 +323,6 @@ a.alt {
 
 .sidebar {
   //padding: @large-padding;
-}
-
-.top-bar {
-  //.downward-shadow();
-  color: @pale-gray;
-  font-size: 1.1em;
-}
-
-.breadcrumb {
-  background-color: inherit;
-  color: inherit;
-  font-size: inherit;
-  margin-bottom: 0px;
-}
-
-.breadcrumb a {
-  text-decoration: underline;
-  color: @pale-gray;
 }
 
 .search-bar {

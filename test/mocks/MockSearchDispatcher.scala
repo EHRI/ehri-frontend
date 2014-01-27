@@ -37,18 +37,18 @@ case class MockSearchDispatcher() extends Dispatcher {
 
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
              filters: Map[String,Any] = Map.empty, mode: SearchMode.Value = SearchMode.DefaultAll)(
-      implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchDescription]] = {
+      implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
     paramBuffer += ParamLog(params, facets, allFacets, filters)
-    val items = params.entities.foldLeft(List[SearchDescription]()) { case (listOfItems, et) =>
+    val items = params.entities.foldLeft(List[SearchHit]()) { case (listOfItems, et) =>
       et match {
         case EntityType.DocumentaryUnit => listOfItems ++ List(
-          SearchDescription(itemId = "c1", id = "cd1", name = "Collection 1", `type` = EntityType.DocumentaryUnit, gid = 1L),
-          SearchDescription(itemId = "c2", id = "cd2", name = "Collection 2", `type` = EntityType.DocumentaryUnit, gid = 2L),
-          SearchDescription(itemId = "c3", id = "cd3", name = "Collection 3", `type` = EntityType.DocumentaryUnit, gid = 3L),
-          SearchDescription(itemId = "c4", id = "cd4", name = "Collection 4", `type` = EntityType.DocumentaryUnit, gid = 4L))
+          SearchHit(itemId = "c1", id = "cd1", name = "Collection 1", `type` = EntityType.DocumentaryUnit, gid = 1L),
+          SearchHit(itemId = "c2", id = "cd2", name = "Collection 2", `type` = EntityType.DocumentaryUnit, gid = 2L),
+          SearchHit(itemId = "c3", id = "cd3", name = "Collection 3", `type` = EntityType.DocumentaryUnit, gid = 3L),
+          SearchHit(itemId = "c4", id = "cd4", name = "Collection 4", `type` = EntityType.DocumentaryUnit, gid = 4L))
         case EntityType.Repository => listOfItems ++ List(
-          SearchDescription(itemId = "r1", id = "rd1", name = "Repository 1", `type` = EntityType.Repository, gid = 5L),
-          SearchDescription(itemId = "r2", id = "rd2", name = "Repository 2", `type` = EntityType.Repository, gid = 6L))
+          SearchHit(itemId = "r1", id = "rd1", name = "Repository 1", `type` = EntityType.Repository, gid = 5L),
+          SearchHit(itemId = "r2", id = "rd2", name = "Repository 2", `type` = EntityType.Repository, gid = 6L))
         case _ => listOfItems // TODO: Implement other types
       }
     }
@@ -57,7 +57,7 @@ case class MockSearchDispatcher() extends Dispatcher {
     }
   }
 
-  def facet(facet: String, sort: String, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
+  def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
 
     // UNIMPLEMENTED

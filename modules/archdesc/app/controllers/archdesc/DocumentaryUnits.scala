@@ -265,25 +265,25 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         docRoutes.setScopedPermissions _))
   }
 
-  def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
         docRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
-  def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(docRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
+  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         docRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
-  def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
+  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(docRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
@@ -294,20 +294,20 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     Ok(views.html.documentaryUnit.linkTo(item))
   }
 
-  def linkAnnotateSelect(id: String, toType: String) = linkSelectAction(id, toType) {
+  def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType) {
     item => page => params => facets => etype => implicit userOpt => implicit request =>
       Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
           docRoutes.linkAnnotateSelect(id, toType),
           docRoutes.linkAnnotate _))
   }
 
-  def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.link.link(target, source,
         LinkForm.form, docRoutes.linkAnnotatePost(id, toType, to)))
   }
 
-  def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {

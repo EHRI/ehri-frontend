@@ -1,15 +1,10 @@
 package solr
 
-import com.github.seratch.scalikesolr.request.QueryRequest
-import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType,
-    Sort,StartRow,MaximumRowsReturned,IsDebugQueryEnabled}
-import com.github.seratch.scalikesolr.request.query.FieldsToReturn
+import com.github.seratch.scalikesolr.request.query._
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
-import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetParam,Param,Value}
+import com.github.seratch.scalikesolr.request.query.facet.FacetParams
 import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupField,GroupFormat,WithNumberOfGroups}
-
-import solr.facet._
 
 import defines.EntityType
 import models.UserProfile
@@ -27,7 +22,7 @@ import solr.facet.QueryFacetClass
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-object SolrQueryBuilder {
+class SolrQueryBuilder() extends QueryBuilder {
 
   import SolrConstants._
 
@@ -119,7 +114,7 @@ object SolrQueryBuilder {
     if (!entities.isEmpty) {
       val filter = entities.map(_.toString).mkString(" OR ")
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq(s"$TYPE:($filter)")))
+        FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq(s"$TYPE:($filter)")))
     }
   }
 
@@ -132,7 +127,7 @@ object SolrQueryBuilder {
   private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfile]): Unit = {
     if (userOpt.isEmpty) {
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++
+        FilterQuery(multiple = request.filterQuery.getMultiple ++
           Seq("%s:%s".format(ACCESSOR_FIELD, ACCESSOR_ALL_PLACEHOLDER))))
     } else if (!userOpt.get.isAdmin) {
       // Create a boolean or query starting with the ALL placeholder, which
@@ -141,7 +136,7 @@ object SolrQueryBuilder {
       val accessors = ACCESSOR_ALL_PLACEHOLDER :: userOpt.map(
           u => (u.id :: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq("%s:(%s)".format(
+        FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq("%s:(%s)".format(
           ACCESSOR_FIELD, accessors.mkString(" OR ")))))
     }
   }
@@ -156,7 +151,7 @@ object SolrQueryBuilder {
       enabled=true,
       field=GroupField(ITEM_ID),
       format=GroupFormat("simple"),
-      ngroups=WithNumberOfGroups(true)
+      ngroups=WithNumberOfGroups(ngroups = true)
     ))
 
     // Not yet supported by scalikesolr
@@ -226,10 +221,13 @@ object SolrQueryBuilder {
     // Use edismax to parse the user query
     req.setQueryParserType(QueryParserType("edismax"))
 
-    // Highlight, which will at some point be implemented...
-//    req.setHighlighting(HighlightingParams(
-//        enabled=true,
-//        isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
+    // Highlight, but only if we have a query...
+    if (params.query.isDefined) {
+      //req.set("highlight.q", params.query)
+      req.setHighlighting(HighlightingParams(
+          enabled=true,
+          isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(usePhraseHighlighter = true)))
+    }
 
     // Set result ordering, defaulting to the solr default 'score asc'
     // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
@@ -244,7 +242,7 @@ object SolrQueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", s"$ITEM_ID^0.5 $NAME_EXACT^0.4 $NAME_MATCH^0.4 $OTHER_NAMES^0.3 $PARALLEL_NAMES^0.3 $NAME_SORT^0.2 $TEXT")
+      req.set("qf", s"$ITEM_ID^5 $NAME_EXACT^4 $NAME_MATCH^4 $OTHER_NAMES^4 $PARALLEL_NAMES^4 $NAME_SORT^3 $TEXT")
     }
 
     // Mmmn, speckcheck
@@ -259,10 +257,8 @@ object SolrQueryBuilder {
     // if we're using a specific index, constrain on that as well
     constrainEntities(req, params.entities)
 
-    // Only return what we immediately need to build a SearchDescription. We
-    // ignore nearly everything currently stored in Solr, instead fetching the
-    // data from the DB, but this might change in future.
-    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE $DB_ID"))
+    // Currently returning all the fields, but this might change...
+    //req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE $DB_ID"))
 
     // Return only fields we care about...
     applyAccessFilter(req, userOpt)
@@ -273,11 +269,11 @@ object SolrQueryBuilder {
         case s: String => "%s:\"%s\"".format(key, s)
         case _ => "%s:%s".format(key, value)
       }
-      req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(filter)))
+      req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple ++ Seq(filter)))
     }
 
     // Debug query for now
-    //req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
+    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
 
     // Setup start and number of objects returned
     val limit = params.limit.getOrElse(DEFAULT_SEARCH_LIMIT)

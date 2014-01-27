@@ -1,9 +1,6 @@
-@(page: utils.search.ItemPage[(Country,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, watched: List[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(page: utils.search.ItemPage[(Country,utils.search.SearchHit)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, watched: List[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@p.layout.portalLayout(Messages("actions.listCountries")) {
-    @p.layout.breadcrumbs(defines.EntityType.Country.toString) {
-        @p.helpers.breadcrumbCurrent(Messages("portal.browse.countries"))
-    }
+@p.layout.portalLayout(Messages("actions.listCountries"), EntityType.Country.toString) {
     @p.searchForm(page, params, action, autofocus = false) {
         @p.searchItemList(page, watched)
     } {

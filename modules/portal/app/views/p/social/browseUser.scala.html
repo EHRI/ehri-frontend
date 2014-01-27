@@ -1,21 +1,14 @@
 @(them: UserProfile, events: List[SystemEvent], followed: Boolean)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
 
 @p.layout.portalLayout(them.toStringLang) {
-
-    @p.layout.breadcrumbs() {
-        <li><a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.browseUsers")</a></li>
-        <li>@them.toStringLang</li>
-    }
-
     @p.layout.infobar {
-        @userOpt.map { user =>
-            @if(user.id != them.id) {
-                <div class="pull-right">
-                    @p.common.followingButtons(them, followed)
-                </div>
-            }
-        }
+        <li><a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.browseUsers")</a></li>
+    } {
         <h1>@them.toStringLang</h1>
+    } {
+        @for(user <- userOpt if user.id != them.id) {
+            @p.common.followingButtons(them, followed)
+        }
     }
 
     <div class="container main-content">

@@ -27,7 +27,9 @@ object RepositoryFormat {
         DATA -> Json.obj(
           IDENTIFIER -> d.identifier,
           PUBLICATION_STATUS -> d.publicationStatus,
-          PRIORITY -> d.priority
+          PRIORITY -> d.priority,
+          URL_PATTERN -> d.urlPattern,
+          LOGO_URL -> d.logoUrl
         ),
         RELATIONSHIPS -> Json.obj(
           DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
@@ -46,7 +48,9 @@ object RepositoryFormat {
       // is not.
       (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[RepositoryDescriptionF]](
         Reads.list[RepositoryDescriptionF]).map(_.getOrElse(List.empty[RepositoryDescriptionF])) and
-      (__ \ DATA \ PRIORITY).readNullable[Int]
+      (__ \ DATA \ PRIORITY).readNullable[Int] and
+      (__ \ DATA \ URL_PATTERN).readNullable[String] and
+      (__ \ DATA \ LOGO_URL).readNullable[String]
     )(RepositoryF.apply _)
 
   implicit val restFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)

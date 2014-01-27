@@ -1,11 +1,11 @@
-@(result: utils.search.ItemPage[(models.base.AnyModel,String)], watching: List[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(result: utils.search.ItemPage[(models.base.AnyModel,utils.search.SearchHit)], watching: List[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <ul class="list-unstyled search-result-list">
-    @result.items.map { case(item, id) =>
-        @defining(Some(id)) { implicit descriptionId =>
+    @result.items.map { case(item, hit) =>
+        @defining(Some(hit.id)) { implicit descriptionId =>
             @defining(watching.exists(_.id == item.id)) { watched =>
             <li>
-                @searchItem(item, watched)
+                @searchItem(item, hit, watched)
             </li>
             }
         }

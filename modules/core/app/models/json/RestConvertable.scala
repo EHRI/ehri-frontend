@@ -8,7 +8,15 @@ import defines.EntityType
  */
 
 trait RestResource[T] {
-  val entityType: EntityType.Value
+  /**
+   * The type of entity that informs the REST URL Path.
+   */
+  def entityType: EntityType.Value
+
+  /**
+   * Default serialization params for specific types.
+   */
+  def defaultParams: Seq[(String, String)] = Seq.empty
 }
 
 trait RestReadable[T] {

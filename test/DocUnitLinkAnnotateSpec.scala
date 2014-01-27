@@ -31,7 +31,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
         LinkF.DESCRIPTION -> Seq(body)
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.linkAnnotatePost(testItem, EntityType.Concept.toString, linkSrc).url)
+        controllers.archdesc.routes.DocumentaryUnits.linkAnnotatePost(testItem, EntityType.Concept, linkSrc).url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get

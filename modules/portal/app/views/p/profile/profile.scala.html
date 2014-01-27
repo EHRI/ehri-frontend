@@ -3,19 +3,14 @@
 @* user should always be defined here *@
 @userOpt.map { user =>
     @p.layout.portalLayout(user.toStringLang) {
-        @p.layout.breadcrumbs(showHome = false) {
-            <li>&nbsp;</li>
-        }
-
         @p.layout.infobar {
-            <div class="header-controls pull-right">
-                <a class="btn btn-sm btn-info" href="@controllers.portal.routes.Portal.updateProfile">
-                    <span class="glyphicon glyphicon-wrench"></span>
-                    @Messages("portal.profile.updateProfile")
-                </a>
-            </div>
-
+        } {
             <h1>@Messages("portal.profile")</h1>
+        } {
+            <a class="btn btn-sm btn-info" href="@controllers.portal.routes.Portal.updateProfile">
+                <span class="glyphicon glyphicon-wrench"></span>
+                @Messages("portal.profile.updateProfile")
+            </a>
         }
 
         <div class="container main-content">

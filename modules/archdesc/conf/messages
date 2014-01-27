@@ -1,5 +1,17 @@
 # Messages for archival descriptions (Isdiah & IsadG)
 
+error.badUrlPattern=Invalid URL pattern. The pattern must contain the substitution variable '''{'identifer'}'''\
+  and be an otherwise valid URL.
+
+urlPattern=Item URL Pattern
+urlPattern.description=The URL pattern is used to provide automatic linking from items on EHRI to the \
+  source institution''s website, providing that EHRI identifiers are also used to identify the items on the \
+  other institution''s site. The given URL must be a valid except for the substitution of '''{'identifier'}''' \
+  where the item''s identifier should go.
+
+logoUrl=Logo URL
+logoUrl.description=A URL to a logo image for the repository.
+
 actions.updateCountry=Update Country
 actions.updateDocumentaryUnit=Update Collection
 actions.updateRepository=Update Repository

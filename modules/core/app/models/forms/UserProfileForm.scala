@@ -22,7 +22,7 @@ object UserProfileForm {
       LOCATION -> optional(text),
       ABOUT -> optional(text),
       LANGUAGES -> list(nonEmptyText),
-      IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidOpenIDUrl(s))))
+      IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))))
     (UserProfileF.apply)(UserProfileF.unapply)
   )
 }

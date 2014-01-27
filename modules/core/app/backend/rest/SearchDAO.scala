@@ -6,7 +6,7 @@ import play.api.libs.ws.WS
 import play.api.libs.json.{Reads, Json}
 import models.json.RestReadable
 import backend.ApiUser
-import utils.search.{Resolver, SearchDescription}
+import utils.search.{Resolver, SearchHit}
 
 trait SearchDAO extends RestDAO {
 
@@ -43,7 +43,7 @@ trait SearchDAO extends RestDAO {
 }
 
 case class SearchResolver() extends RestDAO with SearchDAO with Resolver {
-  def resolve[MT](docs: Seq[SearchDescription])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[List[MT]] = {
+  def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[List[MT]] = {
     listByGid(docs.map(_.gid))
   }
 }

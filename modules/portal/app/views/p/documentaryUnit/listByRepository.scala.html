@@ -1,4 +1,4 @@
-@(page: utils.search.ItemPage[(DocumentaryUnit,String)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, watched: List[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(page: utils.search.ItemPage[(DocumentaryUnit,utils.search.SearchHit)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, watched: List[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @headerLink(r: Repository) = {
     <h2 class="search-group-heading">
@@ -6,9 +6,9 @@
     </h2>
 }
 
-@itemByHolderList(docs: Seq[(DocumentaryUnit,String)], lastOpt: Option[(DocumentaryUnit,String)]) = {
-    @docs.headOption.map { case (doc, did) =>
-        @lastOpt.map { case (last, ldid) =>
+@itemByHolderList(docs: Seq[(DocumentaryUnit,utils.search.SearchHit)], lastOpt: Option[(DocumentaryUnit,utils.search.SearchHit)]) = {
+    @docs.headOption.map { case (doc, hit) =>
+        @lastOpt.map { case (last, lhit) =>
             @if(last.holder != doc.holder) {
                 @doc.holder.map { repo =>
                     @headerLink(repo)
@@ -20,7 +20,7 @@
             }
         }
         <div class="indented-search-item">
-            @listItem(doc, watched.exists(_.id == doc.id), showRepository=false)
+            @searchItem(doc, hit, watched.exists(_.id == doc.id), showRepository=false)
         </div>
     }
     @if(!docs.isEmpty) {
@@ -28,11 +28,7 @@
     }
 }
 
-@p.layout.portalLayout(Messages("actions.listRepositories")) {
-    @p.layout.breadcrumbs(defines.EntityType.Repository.toString) {
-        @p.helpers.breadcrumbCurrent(Messages("portal.browse.documentsByRepository"))
-    }
-
+@p.layout.portalLayout(Messages("actions.listRepositories"), EntityType.DocumentaryUnit.toString) {
     @p.searchForm(page, params, action, autofocus = false) {
         @itemByHolderList(page.items, None)
     } {

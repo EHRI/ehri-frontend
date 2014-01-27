@@ -1,0 +1,21 @@
+@()(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+
+<ul class="list-unstyled list-inline  pull-right account-admin">
+    @userOpt.map { user =>
+    <li>
+        <a href="@controllers.portal.routes.Portal.profile" class="gravitar">
+            @defining(user.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
+            <img height="24" width="24" class="img-rounded img-thumbnail" src="@src" />
+            }
+            @user.model.name
+        </a>
+    </li>
+    <li>
+        <a href="@controllers.portal.routes.Portal.logout">@Messages("portal.logout")</a>
+    </li>
+    }.getOrElse {
+    <li>
+        <a href="@controllers.portal.routes.Portal.login">@Messages("portal.login")</a>
+    </li>
+    }
+</ul>

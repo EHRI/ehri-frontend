@@ -1,6 +1,7 @@
 package utils
 
 import play.api.libs.json.Json
+import defines.EnumUtils
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -20,6 +21,12 @@ package object search {
     implicit val appliedFacetWrites = Json.writes[AppliedFacet]
   }
 
+  object FacetQuerySort extends Enumeration {
+    val Name = Value("name")
+    val Count = Value("count")
+
+    implicit val format = EnumUtils.enumFormat(FacetQuerySort)
+  }
 
   private def joinPath(path: String, qs: Map[String, Seq[String]]): String = {
     List(path, joinQueryString(qs)).filterNot(_=="").mkString("?")

@@ -8,11 +8,10 @@ import models._
 import play.api.data.Form
 import models.forms.LinkForm
 import play.api.libs.json.{Writes, JsError, Json}
-import utils.search.AppliedFacet
+import utils.search.{SearchHit, AppliedFacet, SearchParams, ItemPage}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
-import utils.search.{SearchParams, ItemPage}
 import scala.concurrent.Future.{successful => immediate}
 
 /**
@@ -44,7 +43,7 @@ object AccessPointLink {
 trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   def linkSelectAction(id: String, toType: String)(
-      f: MT => ItemPage[(AnyModel,String)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
@@ -55,17 +54,17 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     }
   }
 
-  def linkAction(id: String, toType: String, to: String)(f: MT => AnyModel => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def linkAction(id: String, toType: EntityType.Value, to: String)(f: MT => AnyModel => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
 
-      getEntityT[AnyModel](EntityType.withName(toType), to) { srcitem =>
+      getEntityT[AnyModel](AnyModel.resourceFor(toType), to) { srcitem =>
         f(item)(srcitem)(userOpt)(request)
       }
     }
   }
 
-  def linkPostAction(id: String, toType: String, to: String)(
+  def linkPostAction(id: String, toType: EntityType.Value, to: String)(
       f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
 
     implicit val linkWrites: Writes[LinkF] = models.json.LinkFormat.linkWrites
@@ -74,7 +73,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         item => implicit userOpt => implicit request =>
       LinkForm.form.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
-          getEntityT[AnyModel](EntityType.withName(toType), to) { srcitem =>
+          getEntityT[AnyModel](AnyModel.resourceFor(toType), to) { srcitem =>
             f(Left((item,srcitem,errorForm)))(userOpt)(request)
           }
         },

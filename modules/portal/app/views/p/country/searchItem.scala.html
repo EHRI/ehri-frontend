@@ -1,0 +1,9 @@
+@(item: Country, hit: utils.search.SearchHit, watched: Boolean = false)(implicit req: RequestHeader, lang: Lang)
+
+@p.common.searchHits(hit) {
+    @p.layout.searchItemOutline(item, watched) {
+        <a href="@controllers.portal.routes.Portal.browseCountry(item.id)">@item.toStringLang</a>
+    } {
+        @listItemBody(item)
+    }
+}

@@ -26,4 +26,9 @@ case class ConceptDescriptionF(
   scopeNote: Option[List[String]] = None,
   accessPoints: List[AccessPointF] = Nil,
   unknownProperties: List[Entity] = Nil
-) extends Model with Persistable with Description
+) extends Model with Persistable with Description {
+
+  // NA - no single valued optional text fields
+  // here...
+  def toSeq = Seq()
+}

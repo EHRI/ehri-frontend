@@ -150,37 +150,37 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
         conceptRoutes.setScopedPermissions _))
   }
 
-  def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
         conceptRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
-  def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
+  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         conceptRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
-  def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
+  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def linkAnnotate(id: String, toType: String, to: String) = linkAction(id, toType, to) {
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.link.link(target, source,
             LinkForm.form, conceptRoutes.linkAnnotatePost(id, toType, to)))
   }
 
-  def linkAnnotatePost(id: String, toType: String, to: String) = linkPostAction(id, toType, to) {
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {

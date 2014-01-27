@@ -3,14 +3,11 @@
 @* user should always be defined here *@
 @userOpt.map { user =>
     @p.layout.portalLayout(Messages("portal.social.watchedItems")) {
-        @p.layout.breadcrumbs(showHome = true) {
-            <li>@Messages("portal.social.watchedItems")</li>
-        }
-
         @p.layout.infobar {
+        } {
             <h1>@Messages("portal.social.watchedItems")</h1>
+        } {
         }
-
 
         <div class="container main-content">
             <div class="row">

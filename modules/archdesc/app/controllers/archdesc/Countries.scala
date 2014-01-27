@@ -193,25 +193,25 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
         countryRoutes.setScopedPermissions _))
   }
 
-  def setItemPermissions(id: String, userType: String, userId: String) = setItemPermissionsAction(id, userType, userId) {
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
         countryRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
-  def setItemPermissionsPost(id: String, userType: String, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(countryRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
   }
 
-  def setScopedPermissions(id: String, userType: String, userId: String) = setScopedPermissionsAction(id, userType, userId) {
+  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         countryRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
-  def setScopedPermissionsPost(id: String, userType: String, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
+  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(countryRoutes.managePermissions(id))
         .flashing("success" -> Messages("confirmations.itemWasUpdated", id))

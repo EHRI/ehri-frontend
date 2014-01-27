@@ -27,7 +27,7 @@ POST        /dev/rstp/:token                    @controllers.portal.Portal.reset
 
 
 GET         /dev/search                         @controllers.portal.Portal.search
-GET         /dev/browse                         @controllers.portal.Portal.browseCountries
+GET         /dev/browse/ct                      @controllers.portal.Portal.browseCountries
 GET         /dev/browse/c                       @controllers.portal.Portal.browseRepositoriesByCountry
 GET         /dev/browse/c/:id                   @controllers.portal.Portal.browseCountry(id: String)
 GET         /dev/browse/r/d                     @controllers.portal.Portal.browseDocumentsByRepository
