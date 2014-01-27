@@ -206,6 +206,26 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Ok(p.annotation.show(ann))
   }
 
+  def browseConcept(id: String) = getAction.async[Concept](EntityType.Concept, id) {
+    item => details => implicit userOpt => implicit request =>
+      searchAction[Concept](Map("parentId" -> item.id),
+        entityFacets = conceptFacets,
+        defaultParams = Some(SearchParams(entities = List(EntityType.Concept)))) {
+        page => params => facets => _ => _ =>
+          Ok(p.concept.show(item, page, params, facets,
+            portalRoutes.browseConcept(id), details.annotations, details.links, details.watched))
+      }.apply(request)
+  }
+
+  def browseConcepts = userBrowseAction.async { implicit userDetails => implicit request =>
+    searchAction[Concept](defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
+      entityFacets = conceptFacets) {
+        page => params => facets => _ => _ =>
+      Ok(p.concept.list(page, params, facets, portalRoutes.browseConcepts,
+        userDetails.watchedItems))
+    }.apply(request)
+  }
+
   def itemHistory(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
     backend.history(id, PageParams.fromRequest(request)).map { data =>
       if (isAjax) {

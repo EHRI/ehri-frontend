@@ -161,5 +161,15 @@ trait FacetConfig extends Search {
     )
   }
 
-
+  protected val conceptFacets: FacetBuilder = { implicit lang =>
+    List(
+      FieldFacetClass(
+        key="holderName",
+        name=Messages("concept.inVocabulary"),
+        param="vocab",
+        render=s => s,
+        display = FacetDisplay.Choice
+      )
+    )
+  }
 }

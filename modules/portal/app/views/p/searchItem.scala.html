@@ -13,6 +13,9 @@
     case d: Country => {
         @country.searchItem(d, hit, watched)
     }
+    case d: Concept => {
+        @concept.searchItem(d, hit, watched)
+    }
     case _ => {
         @views.html.common.searchItem(item)
     }

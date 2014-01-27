@@ -27,8 +27,8 @@ POST        /dev/rstp/:token                    @controllers.portal.Portal.reset
 
 
 GET         /dev/search                         @controllers.portal.Portal.search
-GET         /dev/browse/ct                      @controllers.portal.Portal.browseCountries
-GET         /dev/browse/c                       @controllers.portal.Portal.browseRepositoriesByCountry
+GET         /dev/browse/ct                      @controllers.portal.Portal.browseRepositoriesByCountry
+GET         /dev/browse/c                       @controllers.portal.Portal.browseCountries
 GET         /dev/browse/c/:id                   @controllers.portal.Portal.browseCountry(id: String)
 GET         /dev/browse/r/d                     @controllers.portal.Portal.browseDocumentsByRepository
 GET         /dev/browse/r                       @controllers.portal.Portal.browseRepositories
@@ -38,6 +38,8 @@ GET         /dev/browse/d/:id                   @controllers.portal.Portal.brows
 GET         /dev/browse/a                       @controllers.portal.Portal.browseHistoricalAgents
 GET         /dev/browse/a/:id                   @controllers.portal.Portal.browseHistoricalAgent(id: String)
 GET         /dev/browse/s/:id                   @controllers.portal.Portal.browseAuthoritativeSet(id: String)
+GET         /dev/browse/keyword/:id             @controllers.portal.Portal.browseConcept(id: String)
+GET         /dev/browse/keyword                 @controllers.portal.Portal.browseConcepts
 GET         /dev/browse/link/:id                @controllers.portal.Portal.browseLink(id: String)
 GET         /dev/browse/annotation/:id          @controllers.portal.Portal.browseAnnotation(id: String)
 GET         /dev/activity                       @controllers.portal.Portal.personalisedActivity

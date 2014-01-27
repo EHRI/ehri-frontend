@@ -3,6 +3,7 @@
 @url(item: models.base.AnyModel) = {
     @item match {
         case m: Country => { @controllers.portal.routes.Portal.browseCountry(m.id).url }
+        case m: Concept => { @controllers.portal.routes.Portal.browseConcept(m.id).url }
         case m: DocumentaryUnit => { @controllers.portal.routes.Portal.browseDocument(m.id).url }
         case m: Repository => { @controllers.portal.routes.Portal.browseRepository(m.id).url }
         case m: HistoricalAgent => { @controllers.portal.routes.Portal.browseHistoricalAgent(m.id).url }
