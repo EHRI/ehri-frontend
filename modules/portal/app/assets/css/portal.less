@@ -68,6 +68,7 @@ body {
 }
 
 #header {
+  position: relative;
   color: white;
   font-weight: 700;
 
@@ -149,10 +150,31 @@ body {
   }
 
   .nav-secondary {
-    padding: @small-padding;
+    //padding: @small-padding;
 
     ul {
       margin: @medium-margin;
+    }
+
+    li {
+      // This is needed for the pointer trick below...
+      position: relative;
+    }
+
+    // Pinched from Guardian website... thanks folks...
+    // This puts a little triangle pointer below the
+    // active menu item. Depends on parent item having
+    // relative position...
+    li.active:after {
+      content: " ";
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 5px solid;
+      border-bottom-color: white;
+      position: absolute;
+      bottom: -10px;
+      margin-left: -10px;
+      left: 50%;
     }
 
     font-size: 0.9em;
