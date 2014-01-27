@@ -12,8 +12,8 @@ Download Solr and extract it to the location of your choice (using ~/apps for th
 
 For now, re-use the example Solr core (named "collection1", inside the example/solr direction).  As a shortcut, you can just grab the `schema.xml` and `solrconfig.xml` from Github:
 
-	curl https://raw.github.com/mikesname/docview/master/etc/schema.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/schema.xml
-	curl https://raw.github.com/mikesname/docview/master/etc/solrconfig.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/solrconfig.xml
+	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/schema.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/schema.xml
+	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/solrconfig.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/solrconfig.xml
 
 You should now able able to start the Solr server in another shell:
 
