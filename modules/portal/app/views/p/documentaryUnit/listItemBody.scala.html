@@ -28,7 +28,7 @@
             <li>@dp.years</li>
             }
             @desc.extentAndMedium.map { s =>
-            <li>@s</li>
+            <li>@StringUtils.abbreviate(s, 25)</li>
             }
             @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">
