@@ -1,6 +1,8 @@
 jQuery(function ($) {
 
-  // Make global search box show up when focused..
+  // Make global search box show up when focused...
+  // This could be done with plain CSS if we didn't also
+  // want to toggle the color of the search icon...
   $(".global-search input").focusin(function() {
     $(this).parent().removeClass("inactive");
   }).focusout(function() {

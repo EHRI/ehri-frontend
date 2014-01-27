@@ -10,8 +10,11 @@
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
-            @textField(item, descId, desc.`abstract`, ABSTRACT)
-            
+            @descriptionSection(IDENTITY_AREA) {
+                @textField(item, descId, desc.`abstract`, ABSTRACT)
+                @textField(item, descId, desc.extentAndMedium, EXTENT_MEDIUM)
+            }
+
             @descriptionSection(CONTEXT_AREA) {
                 @textField(item, descId, desc.context.biographicalHistory, ADMIN_BIOG)
                 @textField(item, descId, desc.context.archivalHistory, ARCH_HIST)

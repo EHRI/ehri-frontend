@@ -32,9 +32,6 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-3 sidebar">
-            @facets
-        </div>
         <div class="col-md-9">
             <h4>
                 @Messages(headerKey, result.offset + 1, result.offset + result.items.size, result.total)
@@ -57,6 +54,9 @@
 
             @html
             @helpers.pagination(result)
+        </div>
+        <div class="col-md-3 sidebar">
+            @facets
         </div>
     </div>
     }

@@ -21,12 +21,6 @@
             <td>@desc.dates.map(_.years).mkString(", ")</td>
         </tr>
     }
-    @desc.extentAndMedium.map { e =>
-        <tr>
-            <td>@Messages("portal.documentaryUnit.extentAndMedium")</td>
-            <td>@e</td>
-        </tr>
-    }
     @desc.levelOfDescription.map { e =>
         <tr>
             <td>@Messages("portal.documentaryUnit.levelOfDescription")</td>
