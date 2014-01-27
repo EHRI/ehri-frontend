@@ -20,7 +20,7 @@
 @shadow-color: @dark-gray;
 @shadow-opacity: 0.7;
 
-@search-hit-highlight: #FFFF80;
+@search-hit-highlight: #FFFFDD;
 
 @gravitar-size: 48px;
 
@@ -67,8 +67,57 @@ body {
   margin-right: auto;
 }
 
-#header.navigation {
+#header {
   color: white;
+  font-weight: 700;
+
+  .account-admin {
+    font-size: 12px;
+  }
+
+  .global-search input {
+    border: 0px;
+  }
+
+  .right-inner-addon {
+    position: relative;
+
+    input {
+      padding: 1px 25px 1px 3px;
+    }
+
+    .glyphicon {
+      position: absolute;
+      right: 0px;
+      padding: 3px 7px;
+      pointer-events: none;
+      color: @almost-black;
+    }
+  }
+  .global-search.inactive {
+    .glyphicon {
+      color: white;
+    }
+
+    input {
+      background-color: inherit;
+      cursor: default;
+    }
+  }
+
+  #loader-bar {
+    height: @small-padding;
+    position: relative;
+    background: #FFF;
+
+    span {
+      display: block;
+      height: 100%;
+      background-color: @primary-highlight;
+      position: relative;
+      overflow: hidden;
+    }
+  }
 
   li {
     padding: 0px;
@@ -100,14 +149,54 @@ body {
   }
 
   .nav-secondary {
-    padding-top: @large-padding;
-    padding-bottom: @large-padding;
+    padding: @small-padding;
+
     ul {
       margin: @medium-margin;
     }
 
-    padding: @small-padding;
     font-size: 0.9em;
+
+    a {
+      font-size: 1.1em;
+      color: #FFF;
+      margin: 0 @small-margin 0 @small-margin;
+    }
+    background-color: @primary-highlight;
+  }
+
+  .nav-secondary.documentaryUnit {
+    background-color: @doc-color;
+  }
+
+  .nav-secondary.country {
+    background-color: @country-color;
+  }
+
+  .nav-secondary.repository {
+    background-color: @repo-color;
+  }
+
+  .nav-secondary.historicalAgent {
+    background-color: @agent-color;
+  }
+
+  .float-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 0.9;
+    z-index: 1000;
+    box-shadow: 0px 3px 4px rgba(68, 68, 68, 0.51);
+  }
+
+  #navbar-logo {
+    a {
+      //padding: @small-padding;
+      img {
+        height: @menu-height - @medium-padding;
+      }
+    }
   }
 }
 
@@ -128,52 +217,15 @@ body {
   height: @footer-height - 1;
 }
 
-#header {
-  font-weight: 700;
-  //background-image: url("/assets/img/debut_dark.png");
-
-  input {
-    border: 1px solid @dark-gray;
-    padding: 1px 3px 1px 3px;
-  }
-
-  .account-admin {
-    font-size: 12px;
-  }
-}
-
-#header #loader-bar {
-  height: @small-padding;
-  position: relative;
-  background: #FFF;
-
-  span {
-    display: block;
-    height: 100%;
-    background-color: @primary-highlight;
-    position: relative;
-    overflow: hidden;
-  }
-}
-
 footer {
   background-color: @pale-gray;
   border-left: 1px solid @dark-gray;
   border-right: 1px solid @dark-gray;
   padding-left: @large-padding;
   padding-right: @large-padding;
-}
 
-footer .container {
-  padding-top: @large-padding;
-}
-
-#navbar-logo {
-  a {
-    //padding: @small-padding;
-    img {
-      height: @menu-height - @medium-padding;
-    }
+  .container {
+    padding-top: @large-padding;
   }
 }
 
@@ -185,25 +237,7 @@ footer .container {
   max-width: 400px;
 }
 
-.dropdown-menu>li > a:hover, .dropdown-menu > li > a:focus {
-  background-color: @dark-gray;
-}
-
-/** Type highlights */
-.type-highlight {
-
-}
-
 .documentaryUnit a, a.documentaryUnit {
-  color: @doc-color;
-}
-
-.top-bar {
-  color: @primary-highlight;
-  padding: @small-padding;
-}
-
-.top-bar.documentaryUnit {
   color: @doc-color;
 }
 
@@ -211,20 +245,7 @@ footer .container {
   color: @country-color;
 }
 
-.top-bar.country {
-  color: @country-color;
-}
-
 .repository a, a.repository {
-  color: @repo-color;
-}
-
-img.repository-logo {
-  max-width: 100%;
-  margin-bottom: @large-margin;
-}
-
-.top-bar.repository {
   color: @repo-color;
 }
 
@@ -232,14 +253,9 @@ img.repository-logo {
   color: @agent-color;
 }
 
-.top-bar.historicalAgent {
-  color: @agent-color;
-}
-
-.top-bar {
-  //.downward-shadow();
-  //color: @pale-gray;
-  font-size: 1.1em;
+img.repository-logo {
+  max-width: 100%;
+  margin-bottom: @large-margin;
 }
 
 .breadcrumb {
@@ -254,47 +270,9 @@ img.repository-logo {
   //color: @pale-gray;
 }
 
-.nav-secondary.documentaryUnit {
-  background-color: @doc-color;
-}
-
-.country a, a.country {
-  color: @country-color;
-}
-
-.nav-secondary.country {
-  background-color: @country-color;
-}
-
-.repository a, a.repository {
-  color: @repo-color;
-}
-
 img.repository-logo {
   max-width: 100%;
   margin-bottom: @large-margin;
-}
-
-.nav-secondary.repository {
-  background-color: @repo-color;
-}
-
-.historicalAgent a, a.historicalAgent {
-  color: @agent-color;
-}
-
-.nav-secondary.historicalAgent {
-  background-color: @agent-color;
-}
-
-.nav-secondary {
-  a {
-    font-size: 1.1em;
-    color: #FFF;
-    margin: 0 @small-margin 0 @small-margin;
-  }
-  background-color: @primary-highlight;
-  padding: @small-padding;
 }
 
 .landing-header {
@@ -325,8 +303,8 @@ img.repository-logo {
 }
 
 .search-hits em, .search-item em {
-  background-color: @search-hit-highlight;
-  font-weight: bold;
+  //background-color: @search-hit-highlight;
+  font-weight: bolder;
 }
 
 a.alt {

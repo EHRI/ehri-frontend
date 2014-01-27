@@ -35,8 +35,9 @@
     <div class="nav-secondary clearfix @itemClass">
         <ul class="list-unstyled list-inline pull-right">
             <li>
-                @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "", 'role -> "search") {
-                <input type="text" name="q" placeholder="@Messages("portal.globalSearch")" />
+                @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "global-search inactive right-inner-addon", 'role -> "search") {
+                <input type="text" name="q" />
+                <span class="glyphicon glyphicon-search"></span>
                 }
             </li>
         </ul>

@@ -4,6 +4,9 @@
     @if(highlighted) {
         @Html(text)
     } else {
+        @unhighlighted
+
+        @*
         @defining(hit.bestHitText.headOption) { highlight =>
             <div class="search-hits">
                 @unhighlighted
@@ -12,5 +15,6 @@
                 }
             </div>
         }
+        *@
     }
 }
