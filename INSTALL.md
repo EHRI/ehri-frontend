@@ -8,16 +8,24 @@ For development, you need a version of the EHRI Neo4j REST server installed both
 
 Download Solr and extract it to the location of your choice (using ~/apps for this example):
 
-	curl -0 http://mirrors.ukfast.co.uk/sites/ftp.apache.org/lucene/solr/4.2.1/solr-4.2.1.tgz | tar -zx -C ~/apps
+    export SOLR_VERS=4.6.0
+	curl -0 http://mirror.ox.ac.uk/sites/rsync.apache.org/lucene/solr/$SOLR_VERS/solr-$SOLR_VERS.tgz | tar -zx -C ~/apps
 
 For now, re-use the example Solr core (named "collection1", inside the example/solr direction).  As a shortcut, you can just grab the `schema.xml` and `solrconfig.xml` from Github:
 
-	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/schema.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/schema.xml
-	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/solrconfig.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/solrconfig.xml
+    cd ~/apps/solr-$SOLR_VERS/example
+    mkdir -p solr/collection1/lib
+	mkdir -p solr/collection1/conf/lang
+	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/schema.xml > solr/collection1/conf/schema.xml
+	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/solrconfig.xml > solr/collection1/conf/solrconfig.xml
+	curl https://raw2.github.com/mikesname/ehri-indexer/master/solrconf/lang/stopwords_pl.txt > solr/collection1/conf/lang/stopwords_pl.txt
+
+The search config needs some additional Solr libs and language files, all except one of which (the Polish stopwords we copied above) ship with the main distribution. The easiest thing is just to copy these from contrib into the {core}/lib directory:
+
+    find ../contrib/{analysis-extras,langid} -type f -name "*.jar" -exec cp {} solr/collection1/lib \;
 
 You should now able able to start the Solr server in another shell:
 
-	cd ~/apps/solr-4.2.1/example
 	java -jar start.jar
 
 If that starts without spewing out any dodgy-looking stack traces all should be well. You can verify this by going to http://localhost:8983/solr which should display the Solr admin page.
