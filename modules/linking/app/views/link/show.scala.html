@@ -21,6 +21,10 @@
 
     }
 } {
+
+
+
+    @common.promotion(item, controllers.linking.routes.Links.promote(item.id), controllers.linking.routes.Links.demote(item.id), ContentTypes.Link)
     @common.visibility(item, controllers.linking.routes.Links.visibility(item.id), ContentTypes.Link)
     @common.latestAction(item, controllers.linking.routes.Links.history(item.id))
 

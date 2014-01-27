@@ -1,22 +1,21 @@
 package test
 
-import helpers.{formPostHeaders,Neo4jRunnerSpec}
+import scala.concurrent.ExecutionContext.Implicits.global
+import helpers.Neo4jRunnerSpec
 import models._
-import play.api.i18n.Messages
 import play.api.test.FakeRequest
-import play.api.test.Helpers.await
-import play.api.http.{MimeTypes, HeaderNames}
-import backend.rest.PermissionDenied
 import utils.ContributionVisibility
-import backend.ApiUser
-import scala.concurrent.Future
 import controllers.portal.ReversePortal
+import backend.ApiUser
+import mocks.MockBufferedMailer
 
 
 class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
+
+  override def getConfig = Map("recaptcha.skip" -> true)
 
   "Portal views" should {
     "view docs" in new FakeApp {
@@ -196,6 +195,38 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       contentAsString(doc2) must contain(testBody)
     }
 
+    "allow annotation promotion to increase visibility" in new FakeApp {
+      val testBody = "Test Annotation!!!"
+      val testData = Map(
+        AnnotationF.BODY -> Seq(testBody),
+        AnnotationF.ALLOW_PUBLIC -> Seq("true"),
+        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
+      )
+
+      val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        portalRoutes.annotateFieldPost(
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
+      status(post) must equalTo(CREATED)
+      contentAsString(post) must contain(testBody)
+
+      // Ensure the unprivileged user can't see the annotation...
+      val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+        portalRoutes.browseDocument("c4").url)).get
+      status(doc) must equalTo(OK)
+      contentAsString(doc) must not contain(testBody)
+
+      // Get a id via faff method and promote the item...
+      implicit val apiUser = ApiUser(Some(privilegedUser.id))
+      val aid = await(testBackend.getAnnotationsForItem("c4")).head.id
+      await(testBackend.promote(aid))
+
+      // Ensure the unprivileged user CAN now see the annotation...
+      val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+        portalRoutes.browseDocument("c4").url)).get
+      status(doc2) must equalTo(OK)
+      contentAsString(doc2) must contain(testBody)
+    }
+
     "allow deleting annotations" in new FakeApp {
 
     }
@@ -210,6 +241,31 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
 
     "allow changing link visibility" in new FakeApp {
 
+    }
+  }
+
+  "Signup process" should {
+    "create a validation token and send a mail on signup" in new FakeApp {
+      val testEmail: String = "test@example.com"
+      val numSentMails = MockBufferedMailer.mailBuffer.size
+      val numAccounts = mocks.userFixtures.size
+      val data: Map[String,Seq[String]] = Map(
+        "name" -> Seq("Test Name"),
+        "email" -> Seq(testEmail),
+        "password" -> Seq("testpass"),
+        "confirm" -> Seq("testpass"),
+        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+      )
+      val signup = route(FakeRequest(POST, portalRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      println(contentAsString(signup))
+      status(signup) must equalTo(SEE_OTHER)
+      MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
+      MockBufferedMailer.mailBuffer.last.to must contain(testEmail)
+      mocks.userFixtures.size must equalTo(numAccounts + 1)
+      val userOpt = mocks.userFixtures.values.find(u => u.email == testEmail)
+      userOpt must beSome
+      userOpt.get.verified must beFalse
     }
   }
 }

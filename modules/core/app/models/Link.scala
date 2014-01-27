@@ -6,12 +6,14 @@ import play.api.libs.json._
 import models.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Lang
+import eu.ehri.project.definitions.Ontology
 
 
 object LinkF {
 
   val LINK_TYPE = "type"
   val DESCRIPTION = "description"
+  val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
 
   object LinkType extends Enumeration {
     type Type = Value
@@ -33,7 +35,8 @@ case class LinkF(
   isA: EntityType.Value = EntityType.Link,
   id: Option[String],
   linkType: LinkF.LinkType.Type,
-  description: Option[String]
+  description: Option[String],
+  isPromotable: Boolean = false
 ) extends Model with Persistable
 
 
@@ -48,6 +51,7 @@ object Link {
         (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
         nullableListFormat(__ \ "accessPoints")(AccessPointF.Converter.clientFormat) and
         nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+        nullableListFormat(__ \ "promotedBy")(UserProfile.Converter.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
         (__ \ "meta").format[JsObject]
     )(Link.apply _, unlift(Link.unapply _))
@@ -64,10 +68,11 @@ case class Link(
   user: Option[UserProfile] = None,
   bodies: List[AccessPointF] = Nil,
   accessors: List[Accessor] = Nil,
+  promotors: List[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[LinkF] with Accessible {
+  with MetaModel[LinkF] with Accessible with Promotable {
   def opposingTarget(item: AnyModel): Option[AnyModel] = opposingTarget(item.id)
   def opposingTarget(itemId: String): Option[AnyModel] = targets.find(_.id != itemId)
 

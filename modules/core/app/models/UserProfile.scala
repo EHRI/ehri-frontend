@@ -10,11 +10,7 @@ import play.api.libs.json._
 import defines.EnumUtils.enumWrites
 import models.json._
 import play.api.i18n.Lang
-import scala.Some
-import scala.Some
-import scala.Some
 import play.api.libs.functional.syntax._
-import scala.Some
 
 
 object UserProfileF {
@@ -27,6 +23,7 @@ object UserProfileF {
   val LOCATION = "location"
   val ABOUT = "about"
   val LANGUAGES = "languages"
+  val IMAGE_URL = "imageUrl"
 
   implicit object Converter extends RestConvertable[UserProfileF] with ClientConvertable[UserProfileF] {
     lazy val restFormat = models.json.UserProfileFormat.restFormat
@@ -41,7 +38,8 @@ case class UserProfileF(
   name: String,
   location: Option[String] = None,
   about: Option[String] = None,
-  languages: List[String] = Nil
+  languages: List[String] = Nil,
+  imageUrl: Option[String] = None
 ) extends Model with Persistable
 
 
@@ -91,14 +89,11 @@ case class UserProfile(
   override def toStringLang(implicit lang: Lang) = model.name
 
   def hasPermission(ct: ContentTypes.Value, p: PermissionType.Value): Boolean = {
-    globalPermissions.map { gp =>
+    globalPermissions.exists(gp =>
       if (gp.has(ct, p)) true
       else {
-        itemPermissions.map { ip =>
-          ip.contentType == ct && ip.has(p)
-        }.getOrElse(false)
-      }
-    }.getOrElse(false)
+        itemPermissions.exists(ip => ip.contentType == ct && ip.has(p))
+      })
   }
 
   def followerCount = meta.fields.find(_._1 == "followers").flatMap(_._2.asOpt[Int]).getOrElse(0)

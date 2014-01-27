@@ -2,11 +2,9 @@
 
 <div class="description-annotations annotation-set clearfix">
     @if(!annotations.isEmpty) {
-        <ul class="list-unstyled item-annotation-list">
-            @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
-                @p.common.inlineAnnotationList(annotations)
-            }
-        </ul>
+        @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
+            @p.common.inlineAnnotationList(annotations)
+        }
     }
     @if(userOpt.isDefined) {
         <div class="annotate-item-controls">

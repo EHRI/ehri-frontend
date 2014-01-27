@@ -1,4 +1,4 @@
-@(annotation: Annotation)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(annotation: Annotation)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
 
 @* TODO *@
 @p.layout.portalLayout(annotation.toStringLang) {

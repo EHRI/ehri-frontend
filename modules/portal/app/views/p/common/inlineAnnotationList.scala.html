@@ -1,17 +1,17 @@
 @(annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-@isOwnAnnotation(annotation: Annotation) = @{
-    (for {
-        user <- userOpt
-        annotator <- annotation.user
-    } yield annotator.id == user.id).getOrElse(false)
-}
+@import views.p.AnnotationViewType._
 
-<ul class="list-unstyled">
-    @for(ann <- annotations if isOwnAnnotation(ann)) {
-        <li class="personal-annotation">@p.common.annotationInline(ann, true)</li>
-    }
-    @for(ann <- annotations if !isOwnAnnotation(ann)) {
-        <li class="other-annotation" style="display: none;">@p.common.annotationInline(ann, false)</li>
+<ul class="list-unstyled annotation-list">
+    @defining(views.p.Helpers.sortAnnotations(annotations)) { sortedMap =>
+        @for(ann <- sortedMap.getOrElse(Mine, Seq.empty)) {
+            <li class="personal">@p.common.annotationInline(ann, true)</li>
+        }
+        @for(ann <- sortedMap.getOrElse(Promoted, Seq.empty)) {
+            <li class="promoted">@p.common.annotationInline(ann, false)</li>
+        }
+        @for(ann <- sortedMap.getOrElse(Other, Seq.empty)) {
+            <li class="other" style="display: none;">@p.common.annotationInline(ann, false)</li>
+        }
     }
 </ul>

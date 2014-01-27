@@ -2,7 +2,9 @@
 
 <div class="user-profile">
     <a href="#" class="gravitar">
-        <img height="200" width="200" class="img-responsive img-thumbnail" src="@controllers.portal.routes.Assets.at("img/default-gravitar.png")" />
+        @defining(user.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
+            <img height="200" width="200" class="img-responsive img-thumbnail" src="@src" />
+        }
     </a>
     <p>
     <ul class="list-unstyled user-profile-info">

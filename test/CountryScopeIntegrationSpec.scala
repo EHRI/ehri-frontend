@@ -1,5 +1,7 @@
 package test
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import helpers._
 import models.UserProfile
 import defines._
@@ -32,7 +34,6 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
   "The application" should {
 
     "support read/write on Repositories and Doc Units with country scope" in new FakeApp {
-
       // Target country
       val countryId = "gb"
       // Country we should NOT be able to write in...
@@ -98,7 +99,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // TESTING MAGIC!!! We have to create an account for subsequent logins...
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
-      val fakeAccount = MockAccount(userId, "test-user@example.com", staff = true)
+      val fakeAccount = MockAccount(userId, "test-user@example.com", verified = true, staff = true)
       mocks.userFixtures.put(fakeAccount.id, fakeAccount)
 
       // Check the user can read their profile as themselves...

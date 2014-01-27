@@ -1,4 +1,4 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
 
 <!DOCTYPE html>
 
@@ -37,41 +37,37 @@
                     <ul class="list-unstyled list-inline">
 
                         @userOpt.flatMap(_.account).map { account =>
-                            <li><a href="@controllers.portal.routes.Portal.logout">@Messages("logout " + account.email)</a></li>
+                            <li><a href="@controllers.portal.routes.Portal.logout">@account.email (@Messages("portal.logout"))</a></li>
                         }.getOrElse {
-                            <li><a href="@controllers.portal.routes.Portal.openIDLogin">@Messages("login")</a></li>
+                            <li>
+                                <a href="@controllers.portal.routes.Portal.login">@Messages("portal.login")</a>
+                            </li>
                         }
                     </ul>
                 </div>
                 <div class="navigation clearfix">
-                    <div>
-                        <ul class="list-unstyled list-inline">
-                            @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "navbar-form navbar-right", 'role -> "search") {
-                            <div class="form-group">
-                                <input type="text" name="q" class="form-control" placeholder="@Messages("portal.globalSearch")" />
-                            </div>
-                            }
-                        </ul>
-                        <ul class="list-unstyled list-inline">
-                            <li id="navbar-logo" >
-                                <a href="@controllers.portal.routes.Portal.index">
-                                    <img src="@controllers.portal.routes.Assets.at("img/logo-bw.png")" rel="logo" />
-                                </a>
-                            </li>
-                            <li class="@maybeActive(controllers.portal.routes.Portal.personalisedActivity.url)">
-                                <a href="@controllers.portal.routes.Portal.personalisedActivity">@Messages("portal.activity")</a>
-                            </li>
-                            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseUsers.url)">
-                                <a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.users")</a>
-                            </li>
-                            @userOpt.map { _ =>
-                            <li class="@maybeActive(controllers.portal.routes.Portal.profile.url)">
-                                <a href="@controllers.portal.routes.Portal.profile">@Messages("portal.profile")</a>
-                            </li>
-                            }
-                        </ul>
-                    </div>
+                    <ul class="list-unstyled list-inline">
+                        <li id="navbar-logo" >
+                            <a href="@controllers.portal.routes.Portal.index">
+                                <img src="@controllers.portal.routes.Assets.at("img/logo-bw.png")" rel="logo" />
+                            </a>
+                        </li>
+                        <li class="@maybeActive(controllers.portal.routes.Portal.personalisedActivity.url)">
+                            <a href="@controllers.portal.routes.Portal.personalisedActivity">@Messages("portal.activity")</a>
+                        </li>
+                        <li class="@maybeActivePath(controllers.portal.routes.Portal.browseUsers.url)">
+                            <a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.users")</a>
+                        </li>
+                        @userOpt.map { _ =>
+                        <li class="@maybeActive(controllers.portal.routes.Portal.profile.url)">
+                            <a href="@controllers.portal.routes.Portal.profile">@Messages("portal.profile")</a>
+                        </li>
+                        }
+                    </ul>
                     <div class="nav-secondary clearfix">
+                        @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "navbar-form navbar-right", 'role -> "search") {
+                            <input type="text" name="q" placeholder="@Messages("portal.globalSearch")" />
+                        }
                         <ul class="list-unstyled list-inline">
                             <li>
                                 <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a>
@@ -95,26 +91,7 @@
                 <div id="push"></div>
             </div>
         </div>
-        <footer class="footer sticky text-center">
-            <div class="container">
-                <p class="text-muted">@Messages("portal.footerText")</p>
-                <small>
-                    <ul class="text-muted lang-switcher pull-right list-inline list-unstyled">
-                    @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
-                    <li>
-                        @if(lang.toString.toLowerCase.contains(changeLang)) {
-                            @locale.getDisplayName(locale).toLowerCase
-                        } else {
-                            <a href="@controllers.core.routes.Application.changeLocale(changeLang)">
-                                @locale.getDisplayName(locale).toLowerCase
-                            </a>
-                        }
-                    </li>
-                    }
-                    </ul>
-                </small>
-            </div>
-        </footer>
+        @p.layout.footer()
         <script src="//code.jquery.com/jquery.js"></script>
         <script src="@controllers.core.routes.Assets.at("js/jquery.history.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.validate.min.js")"></script>

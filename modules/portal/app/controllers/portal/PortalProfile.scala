@@ -75,4 +75,18 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
       }
     }
   }
+
+  def deleteProfile = withUserAction { implicit user => implicit request =>
+    // Make sure the users knows where they're doing...
+    ???
+  }
+
+  def deleteProfilePost = withUserAction.async { implicit user => implicit request =>
+    val anonymous = UserProfileF(id = Some(user.id),
+      identifier = user.model.identifier, name = user.model.identifier)
+    backend.update(user.id, anonymous).map { bool =>
+      user.account.get.delete()
+      ???
+    }
+  }
 }

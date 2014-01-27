@@ -1,8 +1,7 @@
 package backend.rest
 
-import play.api.libs.concurrent.Execution.Implicits._
 import backend.{Page, EventHandler, Social, ApiUser}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import utils.{PageParams, ListParams}
 import models.{Link, Annotation, UserProfile}
 import defines.EntityType
@@ -29,7 +28,7 @@ trait RestSocial extends Social with RestDAO {
   private def isFollowingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isFollowing", otherId)
   private def isWatchingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isWatching", otherId)
 
-  def follow(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
+  def follow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(followUrl(userId, otherId)).post("").map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
@@ -37,7 +36,7 @@ trait RestSocial extends Social with RestDAO {
       Cache.remove(userId)
     }
   }
-  def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
+  def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(followUrl(userId, otherId)).delete().map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
@@ -45,7 +44,7 @@ trait RestSocial extends Social with RestDAO {
       Cache.remove(userId)
     }
   }
-  def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+  def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = isWatchingUrl(userId, otherId)
     val cached = Cache.getAs[Boolean](url)
     if (cached.isDefined) {
@@ -59,49 +58,49 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def isFollower(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+  def isFollower(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     userCall(enc(requestUrl, userId, "isFollower", otherId)).get().map { r =>
       checkErrorAndParse[Boolean](r)
     }
   }
 
-  def listFollowers(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
+  def listFollowers(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[List[UserProfile]] = {
     userCall(enc(requestUrl, userId, "followers")).withQueryString(params.toSeq: _*).get().map { r =>
       checkErrorAndParse(r)(Reads.list(rd.restReads))
     }
   }
 
-  def pageFollowers(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[Page[UserProfile]] = {
+  def pageFollowers(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
     userCall(enc(requestUrl, userId, "followers", "page")).withQueryString(params.toSeq: _*).get().map { r =>
       checkErrorAndParse(r)(Page.pageReads(rd.restReads))
     }
   }
 
-  def listFollowing(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[List[UserProfile]] = {
+  def listFollowing(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[List[UserProfile]] = {
     userCall(enc(requestUrl, userId, "following")).withQueryString(params.toSeq: _*).get().map { r =>
       checkErrorAndParse(r)(Reads.list(rd.restReads))
     }
   }
 
-  def pageFollowing(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile]): Future[Page[UserProfile]] = {
+  def pageFollowing(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
     userCall(enc(requestUrl, userId, "following", "page")).withQueryString(params.toSeq: _*).get().map { r =>
       checkErrorAndParse(r)(Page.pageReads(rd.restReads))
     }
   }
 
-  def listWatching(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel]): Future[List[AnyModel]] = {
+  def listWatching(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[List[AnyModel]] = {
     userCall(enc(requestUrl, userId, "watching")).withQueryString(params.toSeq: _*).get().map { r =>
       checkErrorAndParse(r)(Reads.list(rd.restReads))
     }
   }
 
-  def pageWatching(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel]): Future[Page[AnyModel]] = {
+  def pageWatching(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
     userCall(enc(requestUrl, userId, "watching", "page")).withQueryString(params.toSeq: _*).get().map { r =>
       checkErrorAndParse(r)(Page.pageReads(rd.restReads))
     }
   }
 
-  def watch(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
+  def watch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(watchUrl(userId, otherId)).post("").map { r =>
       Cache.set(isWatchingUrl(userId, otherId), true, cacheTime)
       Cache.remove(watchingUrl(userId))
@@ -109,7 +108,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def unwatch(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Unit] = {
+  def unwatch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(watchUrl(userId, otherId)).delete().map { r =>
       Cache.set(isWatchingUrl(userId, otherId), false, cacheTime)
       Cache.remove(watchingUrl(userId))
@@ -117,7 +116,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def isWatching(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+  def isWatching(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = isWatchingUrl(userId, otherId)
     val cached = Cache.getAs[Boolean](url)
     if (cached.isDefined) {
@@ -131,13 +130,13 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser): Future[Page[Annotation]] = {
+  def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Annotation]] = {
     userCall(enc(requestUrl, userId, EntityType.Annotation, "page")).get().map { r =>
       checkErrorAndParse(r)(Page.pageReads(Annotation.Converter.restReads))
     }
   }
 
-  def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser): Future[Page[Link]] = {
+  def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]] = {
     userCall(enc(requestUrl, userId, EntityType.Link, "page")).get().map { r =>
       checkErrorAndParse(r)(Page.pageReads(Link.Converter.restReads))
     }

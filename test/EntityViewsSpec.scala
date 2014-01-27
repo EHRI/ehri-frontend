@@ -1,5 +1,6 @@
 package test
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import helpers._
 import models.{Group, UserProfileF, UserProfile}
 import defines._

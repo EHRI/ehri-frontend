@@ -1,12 +1,14 @@
 package test
 
-import play.api.libs.concurrent.Execution.Implicits._
-import models.{Repository, DocumentaryUnit, UserProfile, DocumentaryUnitF, UserProfileF}
+import scala.concurrent.ExecutionContext.Implicits.global
+import models._
 import defines.{EntityType, ContentTypes, PermissionType}
 import utils.{ListParams, PageParams}
-import backend.ApiUser
-import backend.rest.{ItemNotFound, ValidationError}
+import backend.rest.ItemNotFound
 import backend.rest.cypher.CypherDAO
+import backend.rest.ValidationError
+import backend.ApiUser
+import play.api.libs.json.Json
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -51,6 +53,15 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       val udata = entity.model.copy(location = Some("London"))
       val res = await(testBackend.update[UserProfile,UserProfileF](entity.id, udata))
       res.model.location must equalTo(Some("London"))
+    }
+
+    "patch an item by id" in new FakeApp {
+      val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
+      val testVal = "http://example.com/"
+      val patchData = Json.obj(UserProfileF.IMAGE_URL -> testVal)
+      val entity = await(testBackend.create[UserProfile,UserProfileF](user))
+      val res = await(testBackend.patch[UserProfile](entity.id, patchData))
+      res.model.imageUrl must equalTo(Some(testVal))
     }
 
     "error when creating an item with a non-unique id" in new FakeApp {
@@ -162,6 +173,20 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       val set = await(testBackend.setVisibility[DocumentaryUnit](c1a.id, List("mike", "reto", "admin")))
       val c1b = await(testBackend.get[DocumentaryUnit]("c1"))
       c1b.accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike", "reto"))
+    }
+
+    "promote and demote items" in new FakeApp {
+      val ann1: Annotation = await(testBackend.get[Annotation]("ann1"))
+      ann1.promotors must beEmpty
+      await(testBackend.promote("ann1")) must beTrue
+      val ann1_2: Annotation = await(testBackend.get[Annotation]("ann1"))
+      ann1_2.promotors must not beEmpty
+      private val pid: String = ann1_2.promotors.head.id
+      pid must equalTo(apiUser.id.get)
+
+      await(testBackend.demote("ann1")) must beTrue
+      val ann1_3: Annotation = await(testBackend.get[Annotation]("ann1"))
+      ann1_3.promotors must beEmpty
     }
   }
 

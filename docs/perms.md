@@ -2,13 +2,20 @@
 
 ## Overview
 
-TODO
+The EHRI admin interface has a flexible permission system that is designed to allow several types of privileges:
+
+ - global (super-admin) privileges
+ - global priviliges restricted to a particular content-type
+ - scoped privileges that apply to items within the "permission scope" of other items (e.g. archival units held by repositories)
+ - item-level privileges
+
+Each of these privilege types can be assigned either directly to an individual user or to a group to which they belong.
 
 ## Justification
 
-TODO
+Some of the different scenarios this system was intended to support are outlined in [this document](FIX LINK).
 
-## Permission Sets
+## Permission Sets from the Client Perspective
 
 Permission sets are bundles of data that describe a user's permissions for either a *content type* or a specific entity. All together, there are three different types of permission sets:
 
@@ -74,4 +81,6 @@ Because we presumably know the content type of the item we're fetching permissio
 
 ## Permissions in a request context
 
-TODO
+Typically, for each request the current user's global permissions are fetched from the server. For pages that pertain to a particular item, such as detail pages, we instead fetch the *scoped* global permissions and any item-level permissions that may apply (note: these requests are cached with a short expiry time in order to reduce the number of server round-trips needed.) Once the global, scoped, or item-level permission JSON is retrieved it is parsed into either a `GlobalPermissionSet` or `ItemPermissionSet` instance, which provide methods to verify if a user has a given permission (for instance, **create** on content type **documentaryUnit**) and to retrieve individual `Permission` instances, which allow determining if the given permission was granted directly to the user or inherited from a group to which they belong.
+
+

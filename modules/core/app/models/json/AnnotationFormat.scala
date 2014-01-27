@@ -28,7 +28,7 @@ object AnnotationFormat {
           BODY -> d.body,
           FIELD -> d.field,
           COMMENT -> d.comment,
-          ALLOW_PUBLIC -> d.allowPublic
+          IS_PROMOTABLE -> d.isPromotable
         )
       )
     }
@@ -42,7 +42,7 @@ object AnnotationFormat {
       (__ \ DATA \ BODY).read[String] and
       (__ \ DATA \ FIELD).readNullable[String] and
       (__ \ DATA \ COMMENT).readNullable[String] and
-      (__ \ DATA \ ALLOW_PUBLIC).readNullable[Boolean].map(_.getOrElse(false))
+      (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
     )(AnnotationF.apply _)
 
   implicit val restFormat: Format[AnnotationF] = Format(annotationReads,annotationWrites)
@@ -66,6 +66,8 @@ object AnnotationFormat {
         Reads.list(models.json.entityReads)).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+      (__ \ RELATIONSHIPS \ PROMOTED_BY).lazyReadNullable[List[UserProfile]](
+        Reads.list(UserProfile.Converter.restReads)).map(_.getOrElse(List.empty[UserProfile])) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
     (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))

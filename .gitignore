@@ -26,3 +26,5 @@ fonts
 
 # stupid Mac stuff
 .DS_Store
+
+conf/securesocial.conf

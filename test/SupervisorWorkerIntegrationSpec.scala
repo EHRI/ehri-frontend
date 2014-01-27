@@ -1,5 +1,6 @@
 package test
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import helpers._
 import models.UserProfile
 import defines._
@@ -140,7 +141,8 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val headArchivistProfile = await(testBackend.get[UserProfile](headArchivistUserId))
 
       // Add their account to the mocks
-      val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com", staff = true)
+      val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com",
+          verified = true, staff = true)
       mocks.userFixtures.put(haAccount.id, haAccount)
 
 
@@ -169,7 +171,8 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val archivistProfile = await(testBackend.get[UserProfile](archivistUserId))
 
       // Add the archivists group to the account mocks
-      val aAccount = MockAccount(archivistUserId, "archivist1@example.com", staff = true)
+      val aAccount = MockAccount(archivistUserId, "archivist1@example.com",
+        verified = true, staff = true)
       mocks.userFixtures.put(aAccount.id, aAccount)
 
 

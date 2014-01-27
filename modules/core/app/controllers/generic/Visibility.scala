@@ -27,5 +27,33 @@ trait Visibility[MT] extends Generic[MT] {
       }
     }
   }
+
+  def promoteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Promote, contentType) { item => implicit userOpt => implicit request =>
+      f(item)(userOpt)(request)
+    }
+  }
+
+  def promotePostAction(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Promote, contentType) { item => implicit userOpt => implicit request =>
+      backend.promote(id).map { bool =>
+        f(item)(bool)(userOpt)(request)
+      }
+    }
+  }
+
+  def demoteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission[MT](id, PermissionType.Promote, contentType) { item => implicit userOpt => implicit request =>
+      f(item)(userOpt)(request)
+    }
+  }
+
+  def demotePostAction(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Promote, contentType) { item => implicit userOpt => implicit request =>
+      backend.demote(id).map { bool =>
+        f(item)(bool)(userOpt)(request)
+      }
+    }
+  }
 }
 

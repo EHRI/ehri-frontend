@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models.{LinkF, Entity}
 import defines.EntityType
+import eu.ehri.project.definitions.Ontology
 
 /**
  * User: michaelb
@@ -16,7 +17,8 @@ object LinkForm {
     Entity.ISA -> ignored(EntityType.Link),
     Entity.ID -> optional(nonEmptyText),
     LINK_TYPE -> models.forms.enum(LinkType),
-    DESCRIPTION -> optional(nonEmptyText) // TODO: Validate this server side
+    DESCRIPTION -> optional(nonEmptyText), // TODO: Validate this server side
+    Ontology.IS_PROMOTABLE -> default(boolean, false)
   )(LinkF.apply)(LinkF.unapply))
 
   val multiForm = Form(    single(

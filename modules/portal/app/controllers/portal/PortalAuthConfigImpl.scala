@@ -12,5 +12,5 @@ trait PortalAuthConfigImpl extends AuthConfigImpl {
 
   override def defaultLoginUrl = portalRoutes.profile
   override def defaultLogoutUrl: Call = portalRoutes.index
-  override def defaultAuthFailedUrl: Call = portalRoutes.openIDLogin
+  override def defaultAuthFailedUrl: Call = portalRoutes.login
 }

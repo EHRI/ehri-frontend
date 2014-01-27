@@ -1,5 +1,7 @@
 jQuery(function($) {
 
+  var FB_REDIRECT_HASH = "#_=_";
+
   /**
    * Description viewport code. This fixes a viewport to a list
    * of item descriptions so only the selected one is present
@@ -13,7 +15,10 @@ jQuery(function($) {
    * Determine if the fragment refers to a description element.
    */
   function isDescriptionRef() {
-    return location.hash && $(location.hash).hasClass("description-holder");
+    // NB: The _=_ is what Facebook adds to Oauth login redirects
+    return location.hash
+        && location.hash != FB_REDIRECT_HASH
+        && $(location.hash).hasClass("description-holder");
   }
 
   setTimeout(function() {

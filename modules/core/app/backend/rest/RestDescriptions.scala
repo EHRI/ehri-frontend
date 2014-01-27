@@ -1,7 +1,6 @@
 package backend.rest
 
-import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json._
 import defines.EntityType
 import play.api.Play.current
@@ -23,7 +22,7 @@ trait RestDescriptions extends RestDAO {
   private def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[MT] = {
+        implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     userCall(enc(requestUrl, id)).withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response)
@@ -36,7 +35,7 @@ trait RestDescriptions extends RestDAO {
   }
 
   def updateDescription[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-      implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[MT] = {
+      implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response)
@@ -49,7 +48,7 @@ trait RestDescriptions extends RestDAO {
   }
 
   def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(
-      implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[Boolean] = {
+      implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[Boolean] = {
     userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
           .delete().map { response =>
       checkError(response)
@@ -60,7 +59,7 @@ trait RestDescriptions extends RestDAO {
   }
 
   def createAccessPoint[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT]): Future[(MT,DT)] = {
+        implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[(MT,DT)] = {
     userCall(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
         .withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
@@ -73,7 +72,7 @@ trait RestDescriptions extends RestDAO {
   }
 
   def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT]): Future[MT] = {
+        implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     userCall(enc(requestUrl, id, did, EntityType.AccessPoint.toString, apid)).withHeaders(msgHeader(logMsg): _*).delete().flatMap { response =>
       entities.get(id).map { item =>
         eventHandler.handleUpdate(id)
@@ -83,7 +82,7 @@ trait RestDescriptions extends RestDAO {
     }
   }
 
-  def deleteAccessPoint(id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser): Future[Boolean] = {
+  def deleteAccessPoint(id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = enc(requestUrl, "accessPoint", id)
     userCall(url).withHeaders(msgHeader(logMsg): _*).delete.map { response =>
       checkError(response)

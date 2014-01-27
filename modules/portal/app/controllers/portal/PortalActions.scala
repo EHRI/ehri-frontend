@@ -1,7 +1,7 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import utils.{ListParams, PageParams}
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
@@ -99,8 +99,7 @@ trait PortalActions {
     def async[MT](entityType: EntityType.Value, id: String)(
       f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
                    implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
-      itemAction.async[MT](entityType, id) { item => implicit userOpt => implicit request =>
-
+      itemPermissionAction.async[MT](contentType = ContentTypes.withName(entityType.toString), id) { item => implicit userOpt => implicit request =>
         def isWatching =
           if (userOpt.isDefined)backend.isWatching(userOpt.get.id, id)
           else Future.successful(false)

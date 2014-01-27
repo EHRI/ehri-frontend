@@ -1,4 +1,4 @@
-@(descriptions: List[models.base.Description])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(descriptions: List[models.base.Description])(html: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 <div class="container descriptions">
     <div class="row">
@@ -17,6 +17,8 @@
                 </ul>
             </div>
             }
+
+            @sidebar
         </div>
         <div class="col-md-9 col-md-pull-3 description-viewport">
             @html

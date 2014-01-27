@@ -23,7 +23,8 @@ object LinkFormat {
         TYPE -> d.isA,
         DATA -> Json.obj(
           LINK_TYPE -> d.linkType,
-          DESCRIPTION -> d.description
+          DESCRIPTION -> d.description,
+          IS_PROMOTABLE -> d.isPromotable
         )
       )
     }
@@ -34,7 +35,8 @@ object LinkFormat {
     (__ \ ID).readNullable[String] and
       ((__ \ DATA \ LINK_TYPE).read[LinkType.Value]
           orElse Reads.pure(LinkType.Associative)) and
-      (__ \ DATA \ DESCRIPTION).readNullable[String]
+      (__ \ DATA \ DESCRIPTION).readNullable[String] and
+      (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
     )(LinkF.apply _)
 
   implicit val restFormat: Format[LinkF] = Format(linkReads,linkWrites)
@@ -55,6 +57,8 @@ object LinkFormat {
         Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
       Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).lazyReadNullable[List[UserProfile]](
+      Reads.list(UserProfile.Converter.restReads)).map(_.getOrElse(List.empty[UserProfile])) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
       Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
     (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))

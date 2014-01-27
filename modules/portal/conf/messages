@@ -1,11 +1,30 @@
 portal.welcome=Welcome to EHRI
 portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
+
+portal.login=Sign In
+portal.logout=Sign Out
+portal.signup=Create an Account
+portal.recoverAccount=If you have lost your login details:
+portal.loginByProvider=If you already have an account on one of these sites you can click the logo to log in to EHRI:
+portal.openId=OpenID
+portal.openIdEnterUrl=Enter your OpenID URL
+portal.loginByPassword=If you''ve previously created an account with EHRI, enter your email and password here:
+portal.signup.emailConfirmed=Your email is now confirmed and you have been signed in.
+portal.signup.invalidSignupToken=Confirmation URL is invalid or has expired.
+portal.mail.confirmEmailHeading=Please confirm your email address
+portal.mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
+portal.mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\
+  be deactivated.
+portal.forgotPasswordLink=Click here to recover your account
+portal.signupLink=Click here to sign up
+
 portal.browse=Browse
 portal.search=Search
 portal.profile=Profile
 portal.profile.updateProfile=Edit Profile
 portal.globalSearch=Search Everything
+portal.close=Close
 portal.browse.countries=Country Reports
 portal.browse.repositoriesByCountry=Institutions By Country
 portal.browse.repositories=Archival Institutions
@@ -36,8 +55,25 @@ portal.repository.phone=Phone
 portal.repository.email=Email
 portal.repository.fax=Fax
 portal.repository.url=Web
-portal.item.details=Details
+portal.item.details=Item Details
+portal.item.history=Online History
 portal.historicalAgent.set=Authority
+
+portal.documentaryUnit.identifier=Identifier
+portal.documentaryUnit.otherIdentifiers=Alt. Identifiers
+portal.documentaryUnit.extentAndMedium=Extent & Medium
+portal.documentaryUnit.dates=Dates
+portal.documentaryUnit.levelOfDescription=Level of Description
+portal.documentaryUnit.languageOfMaterials=Languages
+portal.documentaryUnit.scriptOfMaterials=Scripts
+
+portal.historicalAgent.identifier=Identifier
+portal.historicalAgent.dates=Dates
+portal.historicalAgent.entityType=Type of Entity
+portal.historicalAgent.entityType.person=Person
+portal.historicalAgent.entityType.family=Family
+portal.historicalAgent.entityType.corporateBody=Corporate Body
+
 portal.facet.location=Location
 portal.facet.placeholder.holder=Filter by Repository
 portal.facet.placeholder.country=Filter Country

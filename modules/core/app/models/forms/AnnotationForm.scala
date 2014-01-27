@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models.{AnnotationF, Entity}
 import defines.EntityType
+import eu.ehri.project.definitions.Ontology
 
 /**
  * User: michaelb
@@ -19,7 +20,7 @@ object AnnotationForm {
     BODY -> nonEmptyText(minLength = 15, maxLength = 600),
     FIELD -> optional(nonEmptyText),
     COMMENT -> optional(nonEmptyText),
-    ALLOW_PUBLIC -> default(boolean, false)
+    Ontology.IS_PROMOTABLE -> default(boolean, false)
   )(AnnotationF.apply)(AnnotationF.unapply))
 
   val multiForm = Form(    single(

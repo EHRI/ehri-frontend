@@ -1,0 +1,18 @@
+@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+<table class="item-details table table-condensed">
+    <tr>
+        <td>@Messages("portal.historicalAgent.identifier")</td>
+        <td>@item.model.identifier</td>
+    </tr>
+    @if(!desc.dates.isEmpty) {
+        <tr>
+            <td>@Messages("portal.historicalAgent.dates")</td>
+            <td>@desc.dates.map(_.years).mkString(", ")</td>
+        </tr>
+    }
+    <tr>
+        <td>@Messages("portal.historicalAgent.entityType")</td>
+        <td>@Messages("portal.historicalAgent.entityType." + desc.entityType)</td>
+    </tr>
+</table>

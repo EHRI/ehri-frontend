@@ -7,3 +7,7 @@ GET     /visibility/:id                    @controllers.linking.Links.visibility
 POST    /visibility/:id                    @controllers.linking.Links.visibilityPost(id: String)
 GET     /delete/:id                        @controllers.linking.Links.delete(id: String, redirect: Option[String] ?= None)
 POST    /delete/:id                        @controllers.linking.Links.deletePost(id: String, redirect: Option[String] ?= None)
+GET     /promote/:id                       @controllers.linking.Links.promote(id: String)
+POST    /promote/:id                       @controllers.linking.Links.promotePost(id: String)
+GET     /demote/:id                        @controllers.linking.Links.demote(id: String)
+POST    /demote/:id                        @controllers.linking.Links.demotePost(id: String)

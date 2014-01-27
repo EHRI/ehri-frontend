@@ -48,6 +48,13 @@ jQuery(function ($) {
     $(e.target).closest("form").submit();
   });
 
+});
+
+/**
+ * Activity-related functions
+ */
+jQuery(function ($) {
+
   // Fetch more activity...
   $("#activity-stream-fetchmore").click(function (event) {
     var offset = $(event.target).data("offset");
@@ -57,40 +64,6 @@ jQuery(function ($) {
         console.log("Data", data);
         $("#activity-stream").append(data);
         $(event.target).data("offset", offset + limit);
-      }
-    });
-  });
-
-
-  // Editing profile
-  $(document).on("click", "#edit-profile", function (e) {
-    e.preventDefault();
-    jsRoutes.controllers.portal.Portal.updateProfile().ajax({
-      success: function (data) {
-        $("#profile-details").hide().after(data);
-        $("#update-profile-form").submit(function (submitEvent) {
-          submitEvent.preventDefault();
-          var formData = $(submitEvent.target).serialize();
-          if ($(submitEvent.target).valid()) {
-            var url = jsRoutes.controllers.portal.Portal.updateProfilePost().url;
-            var method = jsRoutes.controllers.portal.Portal.updateProfilePost().method;
-            $.ajax({
-              url: url,
-              type: method,
-              data: formData,
-              success: function (data) {
-                $("#update-profile-form").remove();
-                $("#profile-details").replaceWith(data).show();
-              }
-            });
-          }
-        });
-
-        $("#cancel-profile-update").click(function (cancelEvent) {
-          cancelEvent.preventDefault();
-          $("#update-profile-form").remove();
-          $("#profile-details").show();
-        });
       }
     });
   });
@@ -174,9 +147,12 @@ jQuery(function ($) {
     });
   });
 
-  /**
-   * ANNOTATIONS...
-   */
+});
+
+/**
+ * Annotation-related functions
+ */
+jQuery(function ($) {
 
   // Show/hide hidden annotations...
   $(".show-other-annotations").click(function(event) {
@@ -186,7 +162,7 @@ jQuery(function ($) {
         .toggleClass("glyphicon-chevron-down")
       .end()
         .closest(".item-text-field-annotations, .description-annotations")
-        .find(".other-annotation").toggle();
+        .find(".other").toggle();
   });
 
   function insertAnnotationForm($elem, data) {
@@ -225,18 +201,10 @@ jQuery(function ($) {
     });
   });
 
-  $(document).on("click", ".annotate-item-form .close", function(e) {
-    e.preventDefault();
-    var $form = $(e.target).parents(".annotate-item-form");
-    $form.prev().find(".annotate-field, .annotate-item").show();
-    $form.remove();
-  });
-
-
 
   // POST back an annotation form and then replace it with the returned
   // data.
-  $(document).on("submit", ".annotate-item-form, .annotate-field-form", function(e) {
+  $(document).on("submit", ".annotate-item-form", function(e) {
     e.preventDefault();
     var $form = $(this);
     var action = $form.attr("action");
@@ -274,8 +242,21 @@ jQuery(function ($) {
   $(document).on("click", ".edit-annotation-form .close", function(e) {
     e.preventDefault();
     var $form = $(e.target).parents(".edit-annotation-form");
-    $form.prev(".annotation").show();
-    $form.remove()
+    var hasData = $("textarea[name='body']", $form).val().trim() !== "";
+    if (!hasData || confirm("Discard comment?")) {
+      $form.prev(".annotation").show();
+      $form.remove()
+    }
+  });
+
+  $(document).on("click", ".annotate-item-form .close", function(e) {
+    e.preventDefault();
+    var $form = $(e.target).parents(".annotate-item-form");
+    var hasData = $("textarea[name='body']", $form).val().trim() !== "";
+    if (!hasData || confirm("Discard comment?")) {
+      $form.prev().find(".annotate-field, .annotate-item").show();
+      $form.remove()
+    }
   });
 
   // POST back an annotation form and then replace it with the returned
@@ -339,6 +320,5 @@ jQuery(function ($) {
       }
     });
   });
-
 });
 

@@ -25,7 +25,8 @@ object UserProfileFormat {
           NAME -> d.name,
           LOCATION -> d.location,
           ABOUT -> d.about,
-          LANGUAGES -> d.languages
+          LANGUAGES -> d.languages,
+          IMAGE_URL -> d.imageUrl
         )
       )
     }
@@ -38,7 +39,8 @@ object UserProfileFormat {
       (__ \ DATA \ NAME).read[String] and
       (__ \ DATA \ LOCATION).readNullable[String] and
       (__ \ DATA \ ABOUT).readNullable[String] and
-      (__ \ DATA \ LANGUAGES).readNullable[List[String]].map(_.toList.flatten)
+      (__ \ DATA \ LANGUAGES).readNullable[List[String]].map(_.toList.flatten) and
+      (__ \ DATA \ IMAGE_URL).readNullable[String]
     )(UserProfileF.apply _)
 
   implicit val restFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
