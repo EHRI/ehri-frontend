@@ -41,7 +41,7 @@ To set up and build the indexer, do the following:
     cd ehri-indexer
     mvn clean compile assembly:single
 
-If all goes well this will result in a single Jar file called `ehri-indexer-1 .0-SNAPSHOT-jar-with-dependencies.jar` ending up in the `target` directory.
+If all goes well this will result in a single Jar file called `index-helper-1.0.1-jar-with-dependencies.jar` ending up in the `target` directory.
 
 ### Installing Play 2.2.1:
 
