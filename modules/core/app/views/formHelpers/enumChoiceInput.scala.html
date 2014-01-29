@@ -8,6 +8,6 @@
   field = f,
   options = (if(blank) List("" -> "---") else Nil) ::: enum.values.map(m => (m.toString,
         Messages(if (fieldPrefix.isEmpty) m.toString else fieldPrefix + "." + m.toString))).toList,
-  args = '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label), 'class -> "span8"
+  args = '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label), 'class -> "form-control"
 )
 

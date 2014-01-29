@@ -5,7 +5,7 @@
 } {
 
     <small>
-        <ul class="unstyled muted inline inline-separator">
+        <ul class="list-unstyled muted inline inline-separator">
             @item.groups.distinct.map { acc =>
                 <li><a class="alt" href="@controllers.core.routes.Groups.get(acc.id)">@acc.toStringLang</a></li>
             }
@@ -13,7 +13,7 @@
                 <li>@loc</li>
             }
         </ul>
-        <ul class="unstyled muted inline inline-separator">
+        <ul class="list-unstyled muted inline inline-separator">
             @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
             }

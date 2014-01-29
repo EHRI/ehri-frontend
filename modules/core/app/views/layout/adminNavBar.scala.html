@@ -5,60 +5,70 @@
 }
 
 
-<div class="navbar navbar-inverse navbar-fixed-top">
-    <div class="navbar-inner">
-        <ul class="nav">
-            @* Bit hacky - add home link *@
-            <li class="@{if(request.path.equalsIgnoreCase(globalConfig.routeRegistry.default.url)) "active" else ""}">
-                <a href="@globalConfig.routeRegistry.default.url"><i class="icon-home icon-white"></i></a>
-            </li>
-            @globalConfig.menuConfig.mainSection.map { case (key, url) =>
-                @activeIfCurrent(url, Messages(key))
-            }
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    @Messages("pages.more")
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                    @globalConfig.menuConfig.adminSection.map { case (key, url) =>
-                        @if(url == "-") {
-                            <li role="presentation" class="divider"></li>
-                        } else {
-                            @activeIfCurrent(url, Messages(key))
-                        }
-                    }
-                </ul>
-            </li>
-        </ul>
-        <ul class="nav pull-right">
-            @userOpt.flatMap(_.account).map { account =>
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                    <span class="nav-collapse collapse responsive-collapse">
-                                        @account.email
-                                        @if(userOpt.map(_.isAdmin).getOrElse(false)) {
-                                            [@Messages("group.admin")]
-                                        }
-                                    </span>
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-                    @globalConfig.menuConfig.authSection.map { case (key, url) =>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" href="@url">@Messages(key)</a> </li>
-                    }
-                    <li role="presentation" class="divider"></li>
-                    <li>
-                        <a href="@globalConfig.routeRegistry.logout" id="signout">
-                            @Messages("banner.signout")
-                            <i class="icon icon-off"></i>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            }.getOrElse {
-                <li><a href="@globalConfig.routeRegistry.login" id="signin">@Messages("banner.signin")</a></li>
-            }
-        </ul>
+   <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-bar"></span>
+            <span class="glyphicon glyphicon-bar"></span>
+            <span class="glyphicon glyphicon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">EHRI</a>
+        </div>
+        <div class="collapse navbar-collapse">
+		<ul class="nav navbar-nav  navbar-left">
+		    @* Bit hacky - add home link *@
+		    <li class="@{if(request.path.equalsIgnoreCase(globalConfig.routeRegistry.default.url)) "active" else ""}">
+		        <a href="@globalConfig.routeRegistry.default.url"><i class="glyphicon glyphicon-home icon-white"></i></a>
+		    </li>
+		    @globalConfig.menuConfig.mainSection.map { case (key, url) =>
+		        @activeIfCurrent(url, Messages(key))
+		    }
+		    <li class="dropdown">
+		        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		            @Messages("pages.more")
+		            <b class="caret"></b>
+		        </a>
+		        <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+		            @globalConfig.menuConfig.adminSection.map { case (key, url) =>
+		                @if(url == "-") {
+		                    <li role="presentation" class="divider"></li>
+		                } else {
+		                    @activeIfCurrent(url, Messages(key))
+		                }
+		            }
+		        </ul>
+		    </li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+		    @userOpt.flatMap(_.account).map { account =>
+		    <li class="dropdown">
+		        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		                                @account.email
+		                                @if(userOpt.map(_.isAdmin).getOrElse(false)) {
+		                                    [@Messages("group.admin")]
+		                                }
+		            <b class="caret"></b>
+		        </a>
+		        <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+		            @globalConfig.menuConfig.authSection.map { case (key, url) =>
+		                <li role="presentation"><a role="menuitem" tabindex="-1" href="@url">@Messages(key)</a> </li>
+		            }
+		            <li role="presentation" class="divider"></li>
+		            <li>
+		                <a href="@globalConfig.routeRegistry.logout" id="signout">
+		                    @Messages("banner.signout")
+		                    <i class="glyphicon glyphicon-off"></i>
+		                </a>
+		            </li>
+		        </ul>
+		    </li>
+		    }.getOrElse {
+		        <li><a href="@globalConfig.routeRegistry.login" id="signin">@Messages("banner.signin")</a></li>
+		    }
+		</ul>
+	</div>
     </div>
 </div>

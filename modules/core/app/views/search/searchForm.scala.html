@@ -3,32 +3,23 @@
 @import utils.search.{SearchParams,SearchOrder}
 
 @helper.form(action = action, 'class -> "") {
-    <div class="controls-row">
-        <div class="input-append search-query span10">
+<div class="row">
+    <div class="col-md-12">
+        <div class="input-group">
             <input type="text"
-                placeholder="@Messages("search.queryPlaceholder")"
-                class="input-block-level span15" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
-            <button class="btn">
-                <i class="icon-search"></i>
-                @Messages("forms.search")
-            </button>
+                    placeholder="@Messages("search.queryPlaceholder")"
+                    class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
+            <span class="input-group-btn">
+                 <button class="btn btn-default">
+                    <i class="glyphicon glyphicon-search"></i>
+                     @Messages("forms.search")
+                </button>
+            </span>
         </div>
     </div>
-
-    <div class="controls-row">
-        <div class="btn-group pull-right" style="margin-top: 10px">
-        @List(SearchOrder.Score, SearchOrder.Name, SearchOrder.DateNewest).map { sortKey =>
-            @if(params.sort.equals(Some(sortKey))) {
-                <a class="btn btn-mini current-search-sort" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
-                    @Messages("search." + sortKey)
-                </a>
-            } else {
-                <a class="btn btn-mini" href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
-                    @Messages("search." + sortKey)
-                </a>
-            }
-        }
-        </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
         <h4>
             @Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)
 
@@ -44,10 +35,29 @@
             }
         </h4>
     </div>
-    <p>
-        @common.selectedFacets(result)
-    </p>
-
+    <div class="col-md-6">
+        <div class="btn-group pull-right" style="margin-top: 10px">
+        @List(SearchOrder.Score, SearchOrder.Name, SearchOrder.DateNewest).map { sortKey =>
+            @if(params.sort.equals(Some(sortKey))) {
+                <a class="btn btn-sm btn-default btn-active current-search-sort" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
+                    @Messages("search." + sortKey)
+                </a>
+            } else {
+                <a class="btn btn-default btn-sm" href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
+                    @Messages("search." + sortKey)
+                </a>
+            }
+        }
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <p>
+            @common.selectedFacets(result)
+        </p>
+    </div>
+</div>
     @html
     @common.pagination(result)
 }

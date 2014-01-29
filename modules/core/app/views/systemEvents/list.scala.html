@@ -18,7 +18,7 @@
         }
     </div>
 
-	<ul class="unstyled">
+	<ul class="list-unstyled">
 	@list.map { item =>
 	  	<div class="list-item">
 			<h4>
@@ -30,7 +30,7 @@
                 </a>
 			</h4>
             <small>
-                <ul class="unstyled muted inline inline-separator">
+                <ul class="list-unstyled muted inline inline-separator">
                     @item.actioner.map { accessor =>
                         <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
                     }
@@ -49,8 +49,8 @@
 	}
 	</ul>
 
-    <div id="pagination" class="pagination pull-right">
-        <ul>
+    <div id="pagination" class="pull-right">
+        <ul class="pagination">
             @if(params.offset > 0) {
                 <li>
                     <a href="@utils.joinPath(req.path, req.queryString.updated(OFFSET_PARAM, Seq((math.max(0,params.offset - params.limit)).toString)))">

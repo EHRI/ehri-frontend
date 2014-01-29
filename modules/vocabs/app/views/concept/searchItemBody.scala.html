@@ -1,7 +1,7 @@
 @(item: Concept, desc: ConceptDescriptionF)(implicit lang: Lang)
 
 <small>
-<ul class="unstyled muted inline inline-separator">
+<ul class="list-unstyled muted inline inline-separator">
         @item.vocabulary.map { vocab =>
             <li><a class="alt" href="@controllers.vocabs.routes.Vocabularies.get(vocab.id)">@vocab.toStringLang</a></li>
         }
@@ -11,7 +11,7 @@
         }
     </ul>
 @if(item.broaderTerms.size > 0) {
-    <ul class="unstyled inline inline-separator">
+    <ul class="list-unstyled inline inline-separator">
         <li>@Messages("concept.broaderTerms")</li>
         @item.broaderTerms.map { bt =>
             <li>

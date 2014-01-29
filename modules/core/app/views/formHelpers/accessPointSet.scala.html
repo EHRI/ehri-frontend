@@ -1,16 +1,17 @@
 @(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-<div class="inline-formset control-group" data-prefix="@name">
+<div class="control-form" data-prefix="@name">
         <!-- Template for adding inline date forms via JS -->
-    <label class="control-label">@Messages(fieldPrefix + "." + name)</label>
-    <div class="controls controls-row">
+    <label class="col-sm-2 control-label">@Messages(fieldPrefix + "." + name)
         <a href="#" class="add-inline-element btn btn-mini">@Messages("actions.addNew")</a>
-    </div>
+    </label>
     <script type="application/x-js-template" class="inline-element-template">
         @formHelpers.accessPoint(field(name + "[IDX]"))
     </script>
 
-    @helper.repeat(field(name), min = 0) { desc =>
-        @formHelpers.accessPoint(desc)
-    }
+    <div class="col-sm-10">
+        @helper.repeat(field(name), min = 0) { desc =>
+            @formHelpers.accessPoint(desc)
+        }
+    </div>
 </div>

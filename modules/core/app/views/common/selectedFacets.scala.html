@@ -8,10 +8,14 @@
             @if(facet.applied) {
                 <input type="hidden" name="@fclass.param" value="@facet.value" />
                 <span class="label label-info">
-                    @fclass.name: @fclass.pretty(facet) <a class="remove-filter"
+                    @fclass.name: @fclass.pretty(facet) 
+                <a class="remove-filter"
                         href="@pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
-                    <i class="icon-remove"></i></a>
-                </span>
+                    <i class="glyphicon glyphicon-remove"></i>
+                    
+
+                </a>
+                </span> 
             }
         }
     }
