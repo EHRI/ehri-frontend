@@ -17,8 +17,8 @@ CREATE TABLE openid_association (
 
 CREATE TABLE oauth2_association (
     id           VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    provider_id  VARCHAR(255) NOT NULL,
-    provider     VARCHAR(255) NOT NULL,
+    provider_id  VARCHAR(100) NOT NULL,
+    provider     VARCHAR(10) NOT NULL,
     PRIMARY KEY(id, provider_id, provider)
 );
 
