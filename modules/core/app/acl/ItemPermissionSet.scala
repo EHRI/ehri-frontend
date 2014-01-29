@@ -3,7 +3,7 @@ package acl
 import play.api.libs.json._
 import defines._
 import models.base.Accessor
-import scala.Option.option2Iterable
+
 
 object ItemPermissionSet {
 
@@ -19,12 +19,19 @@ object ItemPermissionSet {
   private def extract(pd: PermDataRaw): PermData = {
     pd.flatMap { userPermMap =>
       userPermMap.headOption.flatMap { case (userId, plist) =>
+        val perms = plist.flatMap { ps =>
+          try {
+            Some(PermissionType.withName(ps))
+          } catch {
+            case e: NoSuchElementException => None
+          }
+        }
+
         try {
-          Some((userId, plist.map(PermissionType.withName(_))))
+          Some((userId, perms))
         } catch {
-          case e: NoSuchElementException =>
-                // If we get an expected permission, fail fast!
-                sys.error("Unable to extract permissions: elements: %s".format(plist))          
+          // If we get an expected permission, ignore it.
+          case e: NoSuchElementException => None
         }
       }
     }
@@ -33,7 +40,7 @@ object ItemPermissionSet {
   /**
    * Construct an item permission set from a JSON value.
    */
-  def apply[T <: Accessor](accessor: T, contentType: ContentType.Value, json: JsValue) = json.validate[List[Map[String, List[String]]]].fold(
+  def apply[T <: Accessor](accessor: T, contentType: ContentTypes.Value, json: JsValue) = json.validate[List[Map[String, List[String]]]].fold(
     valid = { pd => new ItemPermissionSet(accessor, contentType, extract(pd)) },
     invalid = { e => sys.error(e.toString) }
   )
@@ -42,7 +49,7 @@ object ItemPermissionSet {
 /**
  * Item-level permissions granted to either a UserProfileF or a GroupF.
  */
-case class ItemPermissionSet[+T <: Accessor](user: T, contentType: ContentType.Value, data: ItemPermissionSet.PermData)
+case class ItemPermissionSet[+T <: Accessor](user: T, contentType: ContentTypes.Value, data: ItemPermissionSet.PermData)
 	extends PermissionSet {
 
   /**

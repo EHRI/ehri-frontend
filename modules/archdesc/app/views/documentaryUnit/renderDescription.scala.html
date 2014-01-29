@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: List[Link])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: List[Link])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import defines._
 @import models.IsadG._
@@ -10,7 +10,7 @@
     @descriptionSection(IDENTITY_AREA) {
         @common.stringValue(desc.`abstract`, ABSTRACT)
         @common.renderDates(desc, DATES)
-        @common.stringValue(Some(desc.levelOfDescription.toString), LEVEL_OF_DESCRIPTION)
+        @common.stringValue(desc.levelOfDescription, LEVEL_OF_DESCRIPTION)
         @common.stringValue(desc.extentAndMedium, EXTENT_MEDIUM)
     }
     @descriptionSection(CONTEXT_AREA) {
@@ -53,7 +53,7 @@
         @common.stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
     }
 
-    @common.relatedLinks(item, desc, links)
+    @link.relatedLinks(item, desc, links)
 
     @desc.unknownProperties.map { e =>
         @common.unknownData(e)

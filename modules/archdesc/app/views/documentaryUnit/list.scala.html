@@ -1,8 +1,6 @@
-@(page: rest.Page[DocumentaryUnit], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(page: backend.Page[DocumentaryUnit], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@import controllers.archdesc.DocumentaryUnits
-
-@noSidebarLayout(Messages("actions.listDocumentaryUnits")) {
+@layout.noSidebar(Messages("actions.listDocumentaryUnits")) {
     @common.filterableList("pagination.displayingItems", page, params) {
         @documentaryUnit.itemList(page)
     }

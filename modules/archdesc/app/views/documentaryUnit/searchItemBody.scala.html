@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import org.apache.commons.lang3.StringUtils
 
@@ -18,7 +18,7 @@
         @item.holder.map { holder =>
             <li><a class="alt" href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
         }
-        <li><span class="muted">@views.Helpers.displayLanguage(desc.languageCode)</span></li>
+        <li><span class="muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
         @desc.dates.headOption.map { dp =>
             <li>@dp.years</li>
@@ -28,12 +28,21 @@
         }
         @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">
-                <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.prettyDate(event.model.timestamp))</time>
+                <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
             </li>
         }
     </ul>
+    @item.childCount.map { count =>
+        @if(count > 0) {
+            <div class="child-count">
+                <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)#search-items">
+                    @Messages("documentaryUnit.childCount", count)</a>
+            </div>
+        }
+    }
 </small>
 @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
     <p>@sc</p>
 }
+
 

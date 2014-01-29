@@ -1,14 +1,9 @@
 package mocks
 
 import defines.EntityType
-import models.UserProfile
-import scala.concurrent.Future
-import rest.RestError
 import utils.search._
-import play.api.libs.json.JsObject
-import models.base.AnyModel
-
-case class MockIndexerResponse() extends IndexerResponse
+import play.api.Logger
+import scala.concurrent.Future
 
 /**
  * User: michaelb
@@ -17,17 +12,40 @@ case class MockIndexerResponse() extends IndexerResponse
  *
  */
 case class MockSearchIndexer() extends Indexer {
-  def commit: Future[IndexerResponse] = Future.successful(MockIndexerResponse())
-
-  def deleteAll(commit: Boolean): Future[IndexerResponse] = Future.successful(MockIndexerResponse())
-
-  def deleteItemsById(items: Stream[String], commit: Boolean): Future[IndexerResponse] = Future.successful(MockIndexerResponse())
-
-  def deleteItemsByType(entityType: EntityType.Value, commit: Boolean): Future[IndexerResponse] = Future.successful(MockIndexerResponse())
-
-  def deleteItems(items: Stream[AnyModel], commit: Boolean): Future[IndexerResponse] = Future.successful(MockIndexerResponse())
-
-  def updateItem(item: JsObject, commit: Boolean): Future[IndexerResponse] = Future.successful(MockIndexerResponse())
-
-  def updateItems(items: Stream[JsObject], commit: Boolean): Future[List[IndexerResponse]] = Future.successful(List(MockIndexerResponse()))
+  val eventBuffer = collection.mutable.ArrayBuffer.empty[String]
+  def indexId(id: String) = {
+    eventBuffer += id
+    Logger.logger.info("Indexing: " + id)
+    Future.successful()
+  }
+  def indexTypes(entityTypes: Seq[EntityType.Value]) = {
+    eventBuffer += entityTypes.toString
+    Logger.logger.info("Indexing: " + entityTypes)
+    Future.successful()
+  }
+  def indexChildren(entityType: EntityType.Value, id: String) = {
+    eventBuffer += id
+    Logger.logger.info("Indexing children: " + entityType + " -> " + id)
+    Future.successful()
+  }
+  def clearAll() = {
+    eventBuffer += "clear-all"
+    Logger.logger.info("Clearing entire index...")
+    Future.successful()
+  }
+  def clearTypes(entityTypes: Seq[EntityType.Value]) = {
+    eventBuffer += "clear-types:" + entityTypes.toString
+    Logger.logger.info("Clearing entity types: " + entityTypes)
+    Future.successful()
+  }
+  def clearId(id: String) = {
+    eventBuffer += id
+    Logger.logger.info("Clearing id: " + id)
+    Future.successful()
+  }
+  def clearKeyValue(key: String, value: String) = {
+    eventBuffer += "clear-key-value " + s"$key=$value"
+    Logger.logger.info("Clearing key-value: " + s"$key=$value")
+    Future.successful()
+  }
 }

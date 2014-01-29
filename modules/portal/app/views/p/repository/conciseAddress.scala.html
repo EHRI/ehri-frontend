@@ -1,0 +1,17 @@
+@(item: Repository, desc: RepositoryDescriptionF, includeCountry: Boolean = true)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+
+<ul class="list-unstyled text-muted list-inline inline-separator">
+    @if(includeCountry) {
+        @item.country.map { ct =>
+            <li><strong><a class="alt" href="@controllers.portal.routes.Portal.browseCountry(ct.id)">@ct.toStringLang</a></strong></li>
+        }
+    }
+    @desc.addresses.headOption.map { address =>
+        @common.propertyList(address.streetAddress, address.city, address.region)
+    }
+    @item.latestEvent.map { event =>
+        <li title="@common.eventTitle(event)">
+            <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+        </li>
+    }
+</ul>

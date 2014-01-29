@@ -1,4 +1,4 @@
-@(item: Option[Repository], f: Form[RepositoryF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: Option[Repository], f: Form[RepositoryF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import Isdiah._
 @import RepositoryF._
@@ -6,9 +6,9 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@lineInput(f(""), IDENTIFIER)(prefix = FIELD_PREFIX)
 
 @defining(FIELD_PREFIX) { implicit fieldPrefix =>
+    @lineInput(f(""), IDENTIFIER)
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
         @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
 
@@ -20,7 +20,7 @@
         }
 
         @descriptionFormSection(ADDRESS_AREA) {
-            <div class="inline-formset">
+            <div class="inline-formset" data-prefix="@ADDRESS_AREA">
                 <label>
                     <a href="#" class="add-inline-element">
                         @Messages(fieldPrefix + "." + ADDRESS_AREA)
@@ -83,11 +83,14 @@
         }
 
         @hiddenAccessPointSet(desc, ACCESS_POINTS)
+        @hiddenUnknownDataSet(desc, MAINTENANCE_EVENTS)
         @hiddenUnknownDataSet(desc, UNKNOWN_DATA)
     }
 }
 
 @descriptionFormSection(ADMINISTRATION_AREA) {
+    @lineInput(f(""), URL_PATTERN)
+    @lineInput(f(""), LOGO_URL)
     @enumChoiceInput(f(PUBLICATION_STATUS), defines.PublicationStatus, PUBLICATION_STATUS)
     @choiceInput(f(PRIORITY), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
 }

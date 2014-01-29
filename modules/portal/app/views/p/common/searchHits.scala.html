@@ -1,0 +1,20 @@
+@(hit: utils.search.SearchHit)(unhighlighted: Html)
+
+@defining(hit.highlight(unhighlighted.body)) { case (text, highlighted) =>
+    @if(highlighted) {
+        @Html(text)
+    } else {
+        @unhighlighted
+
+        @*
+        @defining(hit.bestHitText.headOption) { highlight =>
+            <div class="search-hits">
+                @unhighlighted
+                @highlight.map { hl =>
+                    @Html(hl)
+                }
+            </div>
+        }
+        *@
+    }
+}

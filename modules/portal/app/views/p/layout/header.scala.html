@@ -1,0 +1,59 @@
+@(itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+
+@maybeActive(url: String) = @{
+    if(req.path.equals(url)) "active" else ""
+}
+
+@maybeActivePath(url: String) = @{
+    if(req.path.startsWith(url)) "active" else ""
+}
+
+
+<header id="header" class="navigation">
+    <div id="loader-bar">
+        <span style="width:100%">
+            <span/>
+        </span>
+    </div>
+    <div class="nav-primary clearfix">
+        @p.layout.headerAccountAdmin()
+        <ul class="list-unstyled list-inline">
+            <li id="navbar-logo" >
+                <a href="@controllers.portal.routes.Portal.index">
+                    <img src="@controllers.portal.routes.Assets.at("img/logo-rect-bw.png")" rel="logo" />
+                </a>
+            </li>
+            <li class="@maybeActive(controllers.portal.routes.Portal.personalisedActivity.url)">
+                <a href="@controllers.portal.routes.Portal.personalisedActivity">@Messages("portal.activity")</a>
+            </li>
+            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseUsers.url)">
+                <a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.users")</a>
+            </li>
+        </ul>
+    </div>
+    <div class="nav-secondary clearfix @itemClass">
+        <ul class="list-unstyled list-inline pull-right">
+            <li>
+                @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "global-search inactive right-inner-addon", 'role -> "search") {
+                <input type="text" name="q" />
+                <span class="glyphicon glyphicon-search search-icon"></span>
+                }
+            </li>
+        </ul>
+        <ul class="list-unstyled list-inline">
+            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseCountries.url)">
+                <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a>
+            </li>
+            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseRepositories.url)">
+                <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
+            </li>
+            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseDocuments.url)">
+                <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
+            </li>
+            <li class="@maybeActivePath(controllers.portal.routes.Portal.browseHistoricalAgents.url)">
+                <a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
+            </li>
+        </ul>
+    </div>
+</header>

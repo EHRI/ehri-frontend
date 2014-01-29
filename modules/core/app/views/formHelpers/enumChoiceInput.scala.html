@@ -1,6 +1,4 @@
-@(f: play.api.data.Field, enum: Enumeration, label: String, blank: Boolean = false)(implicit fieldPrefix: String = "")
-
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+@(f: play.api.data.Field, enum: Enumeration, label: String, blank: Boolean = false)(implicit fieldPrefix: String = "", fieldConstructor: views.html.helper.FieldConstructor)
 
 @nameString(enumVal: Enumeration#Value) = {
 

@@ -5,16 +5,13 @@ import models._
 import play.api.test.Helpers._
 import defines._
 import controllers.routes
-import controllers.ListParams
-import play.api.i18n.Messages
-import play.api.test.FakeRequest
 
 
 class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotateSpec]) {
   import mocks.privilegedUser
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -34,7 +31,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
         LinkF.DESCRIPTION -> Seq(body)
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.linkAnnotatePost(testItem, EntityType.Concept.toString, linkSrc).url)
+        controllers.archdesc.routes.DocumentaryUnits.linkAnnotatePost(testItem, EntityType.Concept, linkSrc).url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -83,6 +80,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("This is a second description")
+      mockIndexer.eventBuffer.last must equalTo("c1")
     }
 
     "allow updating individual descriptions" in new FakeApp {
@@ -104,6 +102,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("This is an updated description")
       contentAsString(getR) must not contain ("Some description text for c1")
+      mockIndexer.eventBuffer.last must equalTo("c1")
     }
 
     "allow deleting individual descriptions" in new FakeApp {
@@ -118,10 +117,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must not contain ("Some alternate description text for c1")
+      mockIndexer.eventBuffer.last must equalTo("cd1-2")
     }
-  }
-
-  step {
-    runner.stop()
   }
 }

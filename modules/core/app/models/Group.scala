@@ -42,8 +42,13 @@ object Group {
       __.format[GroupF](GroupF.Converter.clientFormat) and
       lazyNullableListFormat(__ \ "groups")(clientFormat) and
       lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
     )(Group.apply _, unlift(Group.unapply _))
+  }
+
+  implicit object Resource extends RestResource[Group] {
+    val entityType = EntityType.Group
   }
 }
 
@@ -52,7 +57,8 @@ case class Group(
   model: GroupF,
   groups: List[Group] = Nil,
   accessors: List[Accessor] = Nil,
-  latestEvent: Option[SystemEvent] = None
+  latestEvent: Option[SystemEvent] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends MetaModel[GroupF]
   with Accessor
   with Accessible {

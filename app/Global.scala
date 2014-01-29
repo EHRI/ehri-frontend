@@ -2,56 +2,42 @@
 // Global request object
 //
 
-import _root_.controllers.core.OpenIDLoginHandler
-import _root_.models.{HistoricalAgent, Repository, DocumentaryUnit, Concept}
+import backend.rest._
+import backend.rest.BadJson
+import backend.rest.RestBackend
+import backend.rest.RestBackend
+import backend.rest.SearchResolver
+import backend.{EventHandler, Backend}
 import defines.EntityType
-import global.{GlobalConfig, MenuConfig, RouteRegistry}
+import java.util.concurrent.TimeUnit
 import play.api._
+import play.api.libs.json.{Json, JsPath, JsError}
 import play.api.mvc._
 
-import org.apache.commons.codec.binary.Base64
-
+import play.api.mvc.SimpleResult
+import play.api.mvc.SimpleResult
 import play.api.Play.current
-import play.filters.csrf.CSRFFilter
-import rest.EntityDAO
-import solr.{SolrErrorResponse, SolrIndexer}
+import play.filters.csrf._
+import scala.concurrent.duration.Duration
 
 import com.tzavellas.sse.guice.ScalaModule
-import utils.search.{Indexer, Dispatcher}
+import scala.Some
+import utils.search._
 import global.GlobalConfig
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 
 
-/**
- * Filter that applies CSRF protection unless a particular
- * custom header is present. The value of the header is
- * not checked.
- */
-class AjaxCSRFFilter extends EssentialFilter {
-  var csrfFilter = new CSRFFilter()
-
-  val AJAX_HEADER_TOKEN = "ajax-ignore-csrf"
-
-  def apply(next: EssentialAction) = new EssentialAction {
-    def apply(request: RequestHeader) = {
-      if (request.headers.keys.contains(AJAX_HEADER_TOKEN))
-        next(request)
-      else
-        csrfFilter(next)(request)
-    }
-  }
-}
-
-package globalconfig {
+package globalConfig {
 
   import global.RouteRegistry
+  import global.MenuConfig
 
-  object RunConfiguration extends GlobalConfig {
-
-    val searchDispatcher: Dispatcher = solr.SolrDispatcher()
+  trait BaseConfiguration extends GlobalConfig {
 
     implicit lazy val menuConfig: MenuConfig = new MenuConfig {
       val mainSection: Iterable[(String, String)] = Seq(
-        ("pages.search",                  controllers.routes.Search.search.url),
+        ("pages.search",                  controllers.admin.routes.AdminSearch.search.url),
         ("contentTypes.documentaryUnit",  controllers.archdesc.routes.DocumentaryUnits.search.url),
         ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search.url),
         ("contentTypes.repository",       controllers.archdesc.routes.Repositories.search.url),
@@ -66,14 +52,13 @@ package globalconfig {
         ("s1", "-"),
         ("contentTypes.systemEvent",      controllers.core.routes.SystemEvents.list.url),
         ("s2", "-"),
-        ("search.updateIndex",            controllers.routes.Search.updateIndex.url)
+        ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex.url)
+      )
+      val authSection: Iterable[(String,String)] = Seq(
+        ("actions.viewProfile", controllers.admin.routes.Profile.profile.url),
+        ("login.changePassword", controllers.core.routes.Admin.changePassword.url)
       )
     }
-
-    // Implicit 'this' var so we can have a circular reference
-    // to the current global inside the login handler.
-    private implicit lazy val globalConfig = this
-    val loginHandler = new OpenIDLoginHandler
 
     val routeRegistry = new RouteRegistry(Map(
       EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get _,
@@ -82,31 +67,60 @@ package globalconfig {
       EntityType.Repository -> controllers.archdesc.routes.Repositories.get _,
       EntityType.Group -> controllers.core.routes.Groups.get _,
       EntityType.UserProfile -> controllers.core.routes.UserProfiles.get _,
-      EntityType.Annotation -> controllers.core.routes.Annotations.get _,
-      EntityType.Link -> controllers.core.routes.Links.get _,
+      EntityType.Annotation -> controllers.annotation.routes.Annotations.get _,
+      EntityType.Link -> controllers.linking.routes.Links.get _,
       EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get _,
       EntityType.AuthoritativeSet -> controllers.authorities.routes.AuthoritativeSets.get _,
       EntityType.Concept -> controllers.vocabs.routes.Concepts.get _,
       EntityType.Country -> controllers.archdesc.routes.Countries.get _
-    ), default = (s: String) => new Call("GET", "/"))
+    ), default = controllers.admin.routes.Home.index,
+      login = controllers.core.routes.Admin.login,
+      logout = controllers.core.routes.Admin.logout)
   }
 }
 
+object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
-object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
+  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder
+  private def responseParser: ResponseParser = solr.SolrXmlQueryResponse
+  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(queryBuilder, responseParser)
+  private def searchIndexer: Indexer = new indexing.CmdlineIndexer
+  private def searchResolver: Resolver = new SearchResolver
 
-  lazy val searchIndexer = new SolrIndexer(typeRegistry = Map(
-    EntityType.Concept -> models.Concept.toSolr,
-    EntityType.DocumentaryUnit -> models.DocumentaryUnit.toSolr,
-    EntityType.Repository -> models.Repository.toSolr,
-    EntityType.HistoricalAgent -> models.HistoricalAgent.toSolr
-  ))
+  private val eventHandler = new EventHandler {
+
+    // Bind the EntityDAO Create/Update/Delete actions
+    // to the SolrIndexer update/delete handlers. Do this
+    // asyncronously and log any failures...
+    import play.api.libs.concurrent.Execution.Implicits._
+    def logFailure(id: String, func: String => Future[Unit]): Unit = {
+      func(id) onFailure {
+        case t => Logger.logger.error("Indexing error: " + t.getMessage)
+      }
+    }
+
+    def handleCreate(id: String) = logFailure(id, searchIndexer.indexId)
+    def handleUpdate(id: String) = logFailure(id, searchIndexer.indexId)
+
+    // Special case - block when deleting because otherwise we get ItemNotFounds
+    // after redirects
+    def handleDelete(id: String) = logFailure(id, id => Future.successful[Unit] {
+      concurrent.Await.result(searchIndexer.clearId(id), Duration(1, TimeUnit.MINUTES))
+    })
+  }
+
+  private def backend: Backend = new RestBackend(eventHandler)
+
+  object RunConfiguration extends globalConfig.BaseConfiguration
 
 
   class ProdModule extends ScalaModule {
     def configure() {
-      bind[GlobalConfig].toInstance(globalconfig.RunConfiguration)
+      bind[GlobalConfig].toInstance(RunConfiguration)
       bind[Indexer].toInstance(searchIndexer)
+      bind[Dispatcher].toInstance(searchDispatcher)
+      bind[Resolver].toInstance(searchResolver)
+      bind[Backend].toInstance(backend)
     }
   }
 
@@ -118,74 +132,29 @@ object Global extends WithFilters(new AjaxCSRFFilter()) with GlobalSettings {
     injector.getInstance(clazz)
   }
 
-  override def onStart(app: Application) {
+  import play.api.mvc.Results._
 
-    // Hack for bug #845
-    app.routes
+  override def onError(request: RequestHeader, ex: Throwable) = {
+    import views.html.errors._
+    implicit def req = request
 
-    // Register JSON models! This is still currently
-    // operating on mutable state until I can work out
-    // how to inject it without
-    models.json.Utils.registerModels
-
-
-    // Bind the EntityDAO Create/Update/Delete actions
-    // to the SolrIndexer update/delete handlers
-    import play.api.libs.concurrent.Execution.Implicits._
-
-    EntityDAO.addCreateHandler { item =>
-      Logger.logger.info("Binding creation event to Solr create action")
-      searchIndexer.updateItem(item, commit = true).map { r => r match {
-          case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
-          case ok => ok
-        }
-      }
+    def jsonError(err: Seq[(JsPath,Seq[play.api.data.validation.ValidationError])]) = {
+      "Unexpected JSON received from backend at %s (%s)\n\n%s".format(
+        request.path, request.method, Json.prettyPrint(JsError.toFlatJson(err))
+      )
     }
 
-    EntityDAO.addUpdateHandler { item =>
-      Logger.logger.info("Binding update event to Solr update action")
-      searchIndexer.updateItem(item, commit = true).map { r => r match {
-          case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
-          case ok => ok
-        }
-      }
-    }
-
-    EntityDAO.addDeleteHandler { item =>
-      Logger.logger.info("Binding delete event to Solr delete action")
-      searchIndexer.deleteItemsById(Stream(item)).map { r => r match {
-          case e: SolrErrorResponse => Logger.logger.error("Solr update error: " + e.err)
-          case ok => ok
-        }
-      }
+    ex.getCause match {
+      case e: PermissionDenied => immediate(Unauthorized(permissionDenied(Some(e))))
+      case e: ItemNotFound => immediate(NotFound(itemNotFound(e.value)))
+      case e: java.net.ConnectException => immediate(InternalServerError(serverTimeout()))
+      case BadJson(err) => sys.error(jsonError(err))
+      case e => super.onError(request, e)
     }
   }
 
-  private def noAuthAction = Action { request =>
-    play.api.mvc.Results.Unauthorized("This application required authentication")
-      .withHeaders("WWW-Authenticate" -> "Basic")
-  }
-
-  override def onRouteRequest(request: RequestHeader): Option[Handler] = {
-
-    val usernameOpt = current.configuration.getString("auth.basic.username")
-    val passwordOpt = current.configuration.getString("auth.basic.password")
-    if (usernameOpt.isDefined && passwordOpt.isDefined) {
-      for {
-        username <- usernameOpt
-        password <- passwordOpt
-        authstr <- request.headers.get("Authorization")
-        base64 <- authstr.split(" ").drop(1).headOption
-        authvals = new String(Base64.decodeBase64(base64.getBytes))
-      } yield {
-        authvals.split(":").toList match {
-          case u :: p :: Nil if u == username && p == password => super.onRouteRequest(request)
-          case _ => Some(noAuthAction)
-        }
-      }.getOrElse(noAuthAction)
-
-    } else {
-      super.onRouteRequest(request)
-    }
+  override def onHandlerNotFound(request: RequestHeader): Future[SimpleResult] = {
+    implicit def req = request
+    immediate(NotFound(views.html.errors.pageNotFound()))
   }
 }

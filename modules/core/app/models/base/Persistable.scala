@@ -6,7 +6,7 @@ package models.base
  * them on the server. To do this, we have to use reflection (along with the @Relation)
  * annotation that is added to attributes that represent a node -> subnode relationship.
  *
- * This is quite complicated. More complicates is taking a set of field errors that
+ * This is quite complicated. More complicated is taking a set of field errors that
  * the server gave back, and mapping them to form errors.
  *
  * TODO: Improve all of this drastically.
@@ -14,10 +14,8 @@ package models.base
 
 import defines._
 import models.Relation
-import models.Entity
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
-import play.api.libs.json.JsValue
+import backend.ErrorSet
+
 
 object Persistable {
   def getRelationToAttributeMap[T <:Persistable](p: T): Map[String,String] = {
@@ -77,7 +75,7 @@ object Persistable {
    * is inferred by the @Relation annotation on the Persistable case class field.
    */
   def unfurlErrors(        
-      errorSet: rest.ErrorSet,
+      errorSet: ErrorSet,
       relmap: Map[String,String],
       currentMap: Map[String,List[String]] = Map(),
       path: Option[String] = None,
@@ -110,7 +108,7 @@ object Persistable {
       val (rel, errorSets) = kev
       val attrName = relmap.getOrElse(rel, sys.error("Unknown error map relationship for %s: %s (%s)".format(this, rel, relmap)))
       (m /: errorSets.zipWithIndex) { (mm, esi) => esi._1 match {
-          case Some(errorSet) => unfurlErrors(errorSet, relmap, mm, Some(newpath), Some(attrName), Some(esi._2)) 
+          case Some(es) => unfurlErrors(es, relmap, mm, Some(newpath), Some(attrName), Some(esi._2))
           case None => mm
         }
       }
@@ -125,17 +123,22 @@ object Persistable {
 trait Persistable {
 
   import Persistable._
+  import play.api.data.FormError
+  import play.api.data.Form
 
   def id: Option[String]
   def isA: EntityType.Value
 
+  def getFormErrors[T](errorSet: ErrorSet, form: Form[T]): Form[T] = {
+    val serverErrors: Seq[FormError] = errorsToForm(errorSet)
+    form.copy(errors = form.errors ++ serverErrors)
+  }
+
+
   /**
    * Map a tree of errors from the server into form errors.
-   * 
-   * @type {[type]}
    */
-  import play.api.data.FormError
-  def errorsToForm(errorSet: rest.ErrorSet): Seq[FormError] = {
+  private def errorsToForm(errorSet: ErrorSet): Seq[FormError] = {
     unfurlErrors(errorSet, getRelationToAttributeMap(this)).flatMap { case (field, errorList) =>
       errorList.map(FormError(field, _))
     }.toSeq

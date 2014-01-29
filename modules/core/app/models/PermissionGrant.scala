@@ -3,7 +3,7 @@ package models
 import models.base.{AnyModel, Model, MetaModel, Accessor}
 import org.joda.time.DateTime
 import defines.{PermissionType,EntityType}
-import models.json.{ClientConvertable, RestReadable}
+import models.json.{RestResource, ClientConvertable, RestReadable}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
@@ -25,7 +25,7 @@ object PermissionGrantF {
 case class PermissionGrantF(
   isA: EntityType.Value = EntityType.PermissionGrant,
   id: Option[String],
-  timestamp: DateTime,
+  timestamp: Option[DateTime],
   permission: PermissionType.Value
 ) extends Model
 
@@ -36,13 +36,16 @@ object PermissionGrant {
     implicit val restReads = models.json.PermissionGrantFormat.metaReads
     implicit val clientFormat: Format[PermissionGrant] = (
       __.format[PermissionGrantF](PermissionGrantF.Converter.restReads) and
-        (__ \ "accessor").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
-        json.nullableListFormat((__ \ "targets"))(AnyModel.Converter.clientFormat) and
-        (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-        (__ \ "grantedBy").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat)
-      )(PermissionGrant.apply _, unlift(PermissionGrant.unapply _))
+      (__ \ "accessor").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
+      json.nullableListFormat((__ \ "targets"))(AnyModel.Converter.clientFormat) and
+      (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
+      (__ \ "grantedBy").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(PermissionGrant.apply _, unlift(PermissionGrant.unapply _))
+  }
 
-
+  implicit object Resource extends RestResource[PermissionGrant] {
+    val entityType = EntityType.PermissionGrant
   }
 }
 
@@ -51,6 +54,7 @@ case class PermissionGrant(
   accessor: Option[Accessor] = None,
   targets: List[AnyModel] = Nil,
   scope: Option[AnyModel] = None,
-  grantee: Option[UserProfile] = None
+  grantee: Option[UserProfile] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[PermissionGrantF]

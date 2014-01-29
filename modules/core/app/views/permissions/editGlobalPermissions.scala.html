@@ -1,9 +1,9 @@
 @(item: Accessor, perms: GlobalPermissionSet[Accessor], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.updateGlobalPermissions", item), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.updateGlobalPermissions", item), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@if(!item.groups.isEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;
@@ -27,7 +27,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalC
                       }
 					}
 				</tr>
-				@ContentType.values.filterNot(_ == ContentType.SystemEvent).toList.sortBy(_.toString).map { entity =>
+				@ContentTypes.values.filterNot(_ == ContentTypes.SystemEvent).toList.sortBy(_.toString).map { entity =>
 				  	<tr>
 						<td>@Messages("contentTypes." + entity.toString)</td>
 						@PermissionType.values.toList.map { perm =>

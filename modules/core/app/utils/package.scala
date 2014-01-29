@@ -1,4 +1,10 @@
 package object utils {
+
+  import play.api.mvc.RequestHeader
+
+  def isAjax(implicit request: RequestHeader): Boolean =
+    request.headers.get("X-REQUESTED-WITH") .map(_.toUpperCase == "XMLHTTPREQUEST").getOrElse(false)
+
   def joinPath(path: String, qs: Map[String, Seq[String]]): String = {
     List(path, joinQueryString(qs)).filterNot(_=="").mkString("?")
   }

@@ -2,35 +2,47 @@ package views
 
 import java.util.Locale
 
-import views.html.helper.FieldConstructor
-import models.base.AnyModel
 import play.api.i18n.Lang
 
-import com.petebevin.markdown.MarkdownProcessor
 import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
 import models._
-import play.api.mvc.Call
-import defines.EntityType
+import org.pegdown.PegDownProcessor
 
 
 package object Helpers {
 
-  // Pretty date/time handling
+  // Pretty relative date/time handling
   import org.ocpsoft.pretty.time.PrettyTime
-  def prettyDate(d: java.util.Date): String = {
-    val p = new PrettyTime() // TODO: Locale awareness, but not sure how to handle this centrally yet
+  def relativeDate(d: java.util.Date)(implicit lang: Lang): String = {
+    val p = new PrettyTime(lang.toLocale)
     p.format(d)
   }
-  def prettyDate(d: org.joda.time.DateTime): String = prettyDate(d.toDate)
-  def prettyDate(d: Option[org.joda.time.DateTime]): String
-      = d.map(dt => prettyDate(dt.toDate)) getOrElse ""
+  def relativeDate(d: org.joda.time.DateTime)(implicit lang: Lang): String = relativeDate(d.toDate)
+  def relativeDate(d: Option[org.joda.time.DateTime])(implicit lang: Lang): String
+      = d.map(dt => relativeDate(dt.toDate)) getOrElse ""
 
 
-  // Initialize Markdown processor for rendering markdown
-  private val markdownProcessor = new MarkdownProcessor
+  // Initialize Markdown processor for rendering markdown. NB: The
+  // instance is apparently not thread safe, so using a threadlocal
+  // here to be on the safe side.
+  val markdownParser = new ThreadLocal[PegDownProcessor]
+  def getMarkdownProcessor = {
+    // NB: Eventually we want auto-linking. However this seems
+    // to crash pegdown at the moment.
+    //import org.pegdown.{Extensions,Parser,PegDownProcessor}
+    //val pegdownParser = new Parser(Extensions.AUTOLINKS)
+    //new PegDownProcessor//(pegdownParser)
+    Option(markdownParser.get).getOrElse {
+      val parser = new PegDownProcessor
+      markdownParser.set(parser)
+      parser
+    }
+  }
 
-  def renderMarkdown(text: String) = markdownProcessor.markdown(text)
+  private val markdownProcessor = getMarkdownProcessor
+
+  def renderMarkdown(text: String): String = markdownProcessor.markdownToHtml(text)
 
   /**
    * Condense multiple descriptions that are next to each other in a list.
@@ -74,29 +86,19 @@ package object Helpers {
 
   /**
    * Function to truncate and add ellipses to long strings
-   * @param text
-   * @param max
    */
   def ellipsize(text: String, max: Int) = StringUtils.abbreviateMiddle(text, "...", max)
 
   /**
-   * Get the display language of the given code in the current locale.
-   * @param code
-   * @param lang
-   * @return
-   */
-  def displayLanguage(code: String)(implicit lang: Lang) = new java.util.Locale(code).getDisplayLanguage(lang.toLocale)
-
-  /**
    * Get a list of code->name pairs for the given language.
-   * @param lang
-   * @return
    */
   def languagePairList(implicit lang: Lang): List[(String,String)] = {
     val locale = lang.toLocale
-    java.util.Locale.getISOLanguages.map { code =>
-      code -> WordUtils.capitalize(new java.util.Locale(code).getDisplayLanguage(locale))
-    }.toList.sortBy(_._2)
+    val localeLangs = lang3to2lookup.map { case (c3,c2) =>
+      c3 -> WordUtils.capitalize(new java.util.Locale(c2).getDisplayLanguage(locale))
+    }.toList
+
+    (localeLangs ::: utils.Data.additionalLangs).sortBy(_._2)
   }
 
   /**
@@ -104,8 +106,6 @@ package object Helpers {
    *
    * NB: The implicit lang parameter is currently ignored because
    * the script data is not localised.
-   * @param lang
-   * @return
    */
   def scriptPairList(implicit lang: Lang): List[(String,String)] = {
     utils.Data.scripts.sortBy(_._2)
@@ -113,8 +113,6 @@ package object Helpers {
 
   /**
    * Get a list of country->name pairs for the given language.
-   * @param lang
-   * @return
    */
   def countryPairList(implicit lang: Lang): List[(String,String)] = {
     val locale = lang.toLocale
@@ -124,15 +122,35 @@ package object Helpers {
   }
 
   /**
+   * Lazily build a lookup of ISO 639-2 (3-letter) to 639-1 (2-letter) codes
+   */
+  private lazy val lang3to2lookup: Map[String,String] = Locale.getISOLanguages.flatMap { code =>
+    new Locale(code, "").getISO3Language match {
+      case c3 if c3 != "" => Some(c3 -> code)
+      case _ => Nil
+    }
+  }.toMap
+
+  /**
+   * Get the name for a language, if we can find one.
+   */
+  private def languageCode2ToNameOpt(code: String)(implicit lang: Lang): Option[String] = {
+    new Locale(code, "").getDisplayLanguage(lang.toLocale) match {
+      case d if !d.isEmpty => Some(d)
+      case _ => None
+    }
+  }
+
+  /**
    * Get a language name for a given code.
-   * @param code
-   * @param lang
-   * @return
    */
   def languageCodeToName(code: String)(implicit lang: Lang): String = {
-    new Locale(code, "").getDisplayLanguage(lang.toLocale) match {
-      case d if !d.isEmpty => d
-      case _ => code
+    if (code.size == 2) {
+      languageCode2ToNameOpt(code).getOrElse(code)
+    } else {
+      lang3to2lookup.get(code)
+          .flatMap(c2 => languageCode2ToNameOpt(c2))
+          .getOrElse(utils.Data.additionalLangs.toMap.getOrElse(code, code))
     }
   }
 
@@ -145,10 +163,6 @@ package object Helpers {
    *   case d if !d.isEmpty => d
    *   case _ => code
    * }
-   *
-   * @param code
-   * @param lang
-   * @return
    */
   def scriptCodeToName(code: String)(implicit lang: Lang): String = {
     try {
@@ -163,9 +177,6 @@ package object Helpers {
 
   /**
    * Get the country name for a given code.
-   * @param code
-   * @param lang
-   * @return
    */
   def countryCodeToName(code: String)(implicit lang: Lang): String = {
     new Locale("", code).getDisplayCountry(lang.toLocale) match {
@@ -179,8 +190,6 @@ package object Helpers {
    * a repeated form field. There's probably a more correct way of handling this
    * but Play's multi value form support is so maddening it's difficult to figure
    * it out.
-   * @param field
-   * @return
    */
   def fieldValues(field: play.api.data.Field): List[String] = {
     0.until(if (field.indexes.isEmpty) 0 else field.indexes.max + 1).flatMap(i => field("[" + i + "]").value).toList

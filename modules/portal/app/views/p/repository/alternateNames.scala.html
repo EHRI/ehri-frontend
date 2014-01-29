@@ -1,0 +1,15 @@
+@(item: Repository, desc: RepositoryDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+
+@defining((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten) { ofn =>
+    @if(!ofn.isEmpty) {
+    <div class="alternate-names">
+        <strong>
+            <ul class="list-unstyled list-inline inline-separator">
+                @ofn.map { on =>
+                    <li>@on</li>
+                }
+            </ul>
+        </strong>
+    </div>
+    }
+}

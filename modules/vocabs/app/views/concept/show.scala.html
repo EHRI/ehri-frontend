@@ -1,9 +1,9 @@
-@(item: Concept, page: rest.Page[Concept], params: ListParams, annotations: Map[String,List[Annotation]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: Concept, page: backend.Page[Concept], params: utils.PageParams, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import models.ConceptF._
 @import controllers.vocabs.Concepts
 
-@rightSidebarLayout(item.toStringLang, breadcrumbs = concept.breadcrumbs(item)) {
+@layout.rightSidebar(item.toStringLang, breadcrumbs = concept.breadcrumbs(item)) {
     <div class="row-fluid">
         <div class="span8">
 
@@ -12,12 +12,12 @@
                     <ul class="nav nav-tabs">
                         @item.model.descriptions.headOption.map { desc =>
                         <li class="active">
-                            <a href="#tab1" data-toggle="tab">@views.Helpers.displayLanguage(desc.languageCode)</a>
+                            <a href="#tab1" data-toggle="tab">@views.Helpers.languageCodeToName(desc.languageCode)</a>
                         </li>
                         }
                         @item.model.descriptions.zipWithIndex.tail.map { case (desc,i) =>
                         <li>
-                            <a href="#tab@{i+1}" data-toggle="tab">@views.Helpers.displayLanguage(desc.languageCode)</a>
+                            <a href="#tab@{i+1}" data-toggle="tab">@views.Helpers.languageCodeToName(desc.languageCode)</a>
                         </li>
                         }
                     </ul>
@@ -57,7 +57,6 @@
             }
         </div>
     </div>
-
     @common.filterableList("concept.narrowerTermsPageHeader", page, params) {
         <ul>
             @page.items.map(c => concept.listItem(c))
@@ -65,21 +64,21 @@
     }
 } {
 
-    @common.visibility(item, controllers.vocabs.routes.Concepts.visibility(item.id), ContentType.Concept)
+    @common.visibility(item, controllers.vocabs.routes.Concepts.visibility(item.id), ContentTypes.Concept)
     @common.latestAction(item, controllers.vocabs.routes.Concepts.history(item.id))
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @userOpt.map { user =>
-            @if(user.hasPermission(ContentType.Concept, PermissionType.Create)) {
+            @if(user.hasPermission(ContentTypes.Concept, PermissionType.Create)) {
                 <li><a href="@controllers.vocabs.routes.Concepts.createConcept(item.id)">@Messages("actions.createNarrowerConcept")</a></li>
             }
-            @if(user.hasPermission(ContentType.Concept, PermissionType.Update)) {
+            @if(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
                 <li><a href="@controllers.vocabs.routes.Concepts.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.Concept, PermissionType.Delete)) {
+            @if(user.hasPermission(ContentTypes.Concept, PermissionType.Delete)) {
                 <li><a href="@controllers.vocabs.routes.Concepts.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.Concept, PermissionType.Grant)) {
+            @if(user.hasPermission(ContentTypes.Concept, PermissionType.Grant)) {
                 <li><a href="@controllers.vocabs.routes.Concepts.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
             <li><a href="@controllers.vocabs.routes.Concepts.history(item.id)">@Messages("actions.showHistory")</a></li>

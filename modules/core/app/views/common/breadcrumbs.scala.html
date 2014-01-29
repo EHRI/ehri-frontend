@@ -1,6 +1,17 @@
-@(items: List[AnyModel] = Nil)(implicit lang: Lang, globalConfig: GlobalConfig)
-<div>
-<small><span class="alert alert-danger pull-right"><strong>Warning</strong>: Data is for test purposes only.</span></small>
+@(items: List[AnyModel] = Nil)(implicit lang: Lang, globalConfig: global.GlobalConfig)
+
+@if(globalConfig.isStageMode) {
+    <div class="testing-banner alert-info">
+        <H1>STAGING <span class="info"><strong>Warning</strong>: Data is for staging purposes only.</span></H1>
+    </div>
+} else {
+    @if(globalConfig.isTestMode) {
+        <div class="testing-banner alert-danger">
+            <H1>TESTING <span class="info"><strong>Warning</strong>: Data is for test purposes only.</span></H1>
+        </div>
+    }
+}
+
 <ul class="breadcrumb">
     @defining(if (!items.isEmpty) 200 / items.length else 300) { truncateLength =>
         @if(!items.isEmpty) {
@@ -14,7 +25,7 @@
             <li></li>
         }
     }
-	
+
 
 </ul>
-</div>
+

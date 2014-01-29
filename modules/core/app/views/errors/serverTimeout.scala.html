@@ -1,5 +1,9 @@
-@()(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(maintenance: Boolean = false)(implicit req: RequestHeader, lang: Lang)
 
-@noSidebarLayout(Messages("errors.databaseError")) {
-	<p class="text-error">@Messages("errors.databaseErrorExplanation")</p>
+@layout.errorLayout(Messages(if (maintenance) "errors.databaseMaintenance" else "errors.databaseError")) {
+    @if(maintenance) {
+        <p class="alert alert-info">@Messages("errors.databaseMaintenanceExplanation")</p>
+    } else {
+        <p class="alert alert-error">@Messages("errors.databaseErrorExplanation")</p>
+    }
 }

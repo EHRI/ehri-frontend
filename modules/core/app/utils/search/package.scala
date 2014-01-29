@@ -1,6 +1,7 @@
 package utils
 
 import play.api.libs.json.Json
+import defines.EnumUtils
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -13,8 +14,6 @@ package object search {
    * A facet that has been "applied", i.e. a name of the field
    * and the set of values that should be used to constrain
    * a particular search.
-   * @param name
-   * @param values
    */
   case class AppliedFacet(name: String, values: List[String])
 
@@ -22,6 +21,12 @@ package object search {
     implicit val appliedFacetWrites = Json.writes[AppliedFacet]
   }
 
+  object FacetQuerySort extends Enumeration {
+    val Name = Value("name")
+    val Count = Value("count")
+
+    implicit val format = EnumUtils.enumFormat(FacetQuerySort)
+  }
 
   private def joinPath(path: String, qs: Map[String, Seq[String]]): String = {
     List(path, joinQueryString(qs)).filterNot(_=="").mkString("?")
@@ -37,7 +42,7 @@ package object search {
   def pathWithoutFacet[F <: Facet, FC <: FacetClass[F]](fc: FC, f: F, path: String, qs: Map[String, Seq[String]]): String = {
     joinPath(path, qs.map(qv => {
       qv._1 match {
-        case fc.param => (qv._1, qv._2.filter(_!=f.param))
+        case fc.param => (qv._1, qv._2.filter(_!=f.value))
         case _ => qv
       }
     }))
@@ -47,12 +52,11 @@ package object search {
     joinPath(path, if (qs.contains(fc.param)) {
       qs.map(qv => {
         qv._1 match {
-          case fc.param => (qv._1, qv._2.union(Seq(f.param)).distinct)
+          case fc.param => (qv._1, qv._2.union(Seq(f.value)).distinct)
           case _ => qv
         }
       })
-    } else qs.updated(fc.param, Seq(f.param))
+    } else qs.updated(fc.param, Seq(f.value))
     )
   }
-
 }

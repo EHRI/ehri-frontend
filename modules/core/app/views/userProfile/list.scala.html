@@ -1,10 +1,10 @@
-@(items: rest.Page[UserProfile], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(items: backend.Page[UserProfile], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import controllers.core.UserProfiles
 
-@rightSidebarLayout(Messages("actions.listUserProfiles")) {
+@layout.rightSidebar(Messages("actions.listUserProfiles")) {
 
-    @common.filterableList("pagination.displayingItems", items, params, controllers.core.UserProfiles.listFilterMappings.keys, UserProfiles.orderMappings.keys) {
+    @common.filterableList("pagination.displayingItems", items, params) {
         <ul class="unstyled">
         @items.items.map { item =>
             <li>
@@ -17,7 +17,7 @@
     @common.sidebarSection(None) {
         @userOpt.map { user =>
             @if(user.isAdmin) {
-                @if(user.hasPermission(ContentType.UserProfile, PermissionType.Create)) {
+                @if(user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {
                     <a class="btn btn-primary" href="@controllers.core.routes.Admin.createUser">@Messages("actions.createUserProfile")</a>
                 }
             }

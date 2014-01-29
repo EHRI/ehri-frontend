@@ -1,0 +1,13 @@
+@(item: AnyModel, watched: Boolean = false)(heading: Html)(body: Html = Html(""))(implicit lang: Lang)
+
+<div class="search-item" id="@item.id">
+    <div class="search-item-actions">
+        @p.common.watchButtonsSmall(item, watched)
+    </div>
+    <div class="search-item-heading type-highlight @item.isA.toString">
+        @heading
+    </div>
+    <div class="search-item-body">
+        @body
+    </div>
+</div>

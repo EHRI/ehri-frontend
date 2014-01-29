@@ -4,8 +4,11 @@ object EventType extends Enumeration() {
   type Type = Value
   val
     creation,
+    createDependent,
     modification,
+    modifyDependent,
     deletion,
+    deleteDependent,
     link,
     annotation,
     setGlobalPermissions,
@@ -13,7 +16,9 @@ object EventType extends Enumeration() {
     setVisibility,
     addGroup,
     removeGroup,
-    ingest = Value
+    ingest,
+    promotion,
+    demotion = Value
 
   implicit val format = defines.EnumUtils.enumFormat(this)
 }

@@ -1,7 +1,7 @@
 @(item: AnyModel, description: Description, action: Call, cancel: Call)(
-implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@rightSidebarLayout(Messages("actions.deleteItem", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.deleteItem", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 
     <p>@Messages("deleting.deleteDescriptionConfirmationMessage", description.name)</p>
     @helper.form(action = action, 'class -> "form-actions") {

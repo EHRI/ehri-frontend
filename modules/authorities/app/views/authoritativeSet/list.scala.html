@@ -1,6 +1,6 @@
-@(page: rest.Page[AuthoritativeSet], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(page: backend.Page[AuthoritativeSet], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listAuthoritativeSets")) {
+@layout.rightSidebar(Messages("actions.listAuthoritativeSets")) {
 
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 
@@ -17,7 +17,7 @@
 } {
     @common.sidebarSection(None) {
         @userOpt.map { user =>
-            @if(user.hasPermission(ContentType.AuthoritativeSet, PermissionType.Create)) {
+            @if(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Create)) {
                 <a class="btn btn-primary" href="@controllers.authorities.routes.AuthoritativeSets.create">@Messages("actions.createAuthoritativeSet")</a>
             }
         }

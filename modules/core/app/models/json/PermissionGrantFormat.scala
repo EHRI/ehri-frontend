@@ -18,7 +18,7 @@ object PermissionGrantFormat {
   implicit val permissionGrantReads: Reads[PermissionGrantF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.PermissionGrant)) and
       (__ \ ID).readNullable[String] and
-      (__ \ DATA \ TIMESTAMP).read[String].map(new DateTime(_)) and
+      (__ \ DATA \ TIMESTAMP).readNullable[String].map(_.map(new DateTime(_))) and
       (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
     )(PermissionGrantF.apply _)
 
@@ -35,6 +35,7 @@ object PermissionGrantFormat {
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
       Reads.list[AnyModel]).map(_.flatMap(_.headOption)) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).lazyReadNullable[List[UserProfile]](
-      Reads.list[UserProfile]).map(_.flatMap(_.headOption))
+      Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
   )(PermissionGrant.apply _)
 }

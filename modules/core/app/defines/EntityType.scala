@@ -1,6 +1,6 @@
 package defines
 
-object EntityType extends Enumeration() {
+object EntityType extends BindableEnum {
   type Type = Value
   val DocumentaryUnit = Value("documentaryUnit")
   val DocumentaryUnitDescription = Value("documentDescription")
@@ -25,6 +25,7 @@ object EntityType extends Enumeration() {
   val Link = Value("link")
   val Country = Value("country")
   val UnknownProperty = Value("property")
+  val MaintenanceEvent = Value("maintenanceEvent")
 
   implicit val format = defines.EnumUtils.enumFormat(this)
 }

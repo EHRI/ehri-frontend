@@ -2,20 +2,17 @@ package test
 
 import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._
-import play.api.test.Helpers._
-import defines._
-import controllers.routes
-import controllers.ListParams
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.http.{MimeTypes, HeaderNames}
+import backend.rest.PermissionDenied
 
 
 class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
   import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -30,12 +27,13 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.list.url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(oneItemHeader)
-      contentAsString(list) must not contain ("c1")
+      contentAsString(list) must not contain "c1"
       contentAsString(list) must contain("c4")
     }
 
     "list when logged in should get more items" in new FakeApp {
-      val list = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.list.url)).get
+      val list = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.list.url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("c1")
@@ -45,7 +43,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "search should find some items" in new FakeApp {
-      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.search.url)).get
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.search.url)).get
       status(search) must equalTo(OK)
       contentAsString(search) must contain(multipleItemsHeader)
       contentAsString(search) must contain("c1")
@@ -55,7 +54,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "link to other privileged actions when logged in" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.archdesc.routes.DocumentaryUnits.update("c1").url)
       contentAsString(show) must contain(controllers.archdesc.routes.DocumentaryUnits.delete("c1").url)
@@ -65,33 +65,37 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "link to holder" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(controllers.archdesc.routes.Repositories.get("r1").url)
     }
 
     "link to holder when a child item" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(controllers.archdesc.routes.Repositories.get("r1").url)
     }
 
     "give access to c1 when logged in" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("c1")
     }
 
-    "deny access to c1 when logged in as an ordinary user" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
-      status(show) must equalTo(UNAUTHORIZED)
-      contentAsString(show) must not contain ("Collection 2")
+    "deny access to c2 when logged in as an ordinary user" in new FakeApp {
+      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+          controllers.archdesc.routes.DocumentaryUnits.get("c2").url)).get
+      status(show) must throwA[PermissionDenied]
     }
 
     "allow deleting c4 when logged in" in new FakeApp {
-      val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST, controllers.archdesc.routes.DocumentaryUnits.deletePost("c4").url)).get
+      val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+          controllers.archdesc.routes.DocumentaryUnits.deletePost("c4").url)).get
       status(del) must equalTo(SEE_OTHER)
     }
 
@@ -106,8 +110,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      println(contentAsString(cr))
+        controllers.archdesc.routes.Repositories.createDocPost("r1").url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -118,6 +122,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // After having created an item it should contain a 'history' pane
       // on the show page
       contentAsString(show) must contain(controllers.archdesc.routes.DocumentaryUnits.history("nl-r1-hello-kitty").url)
+      mockIndexer.eventBuffer.last must equalTo("nl-r1-hello-kitty")
     }
 
     "give a form error when creating items with the same id as existing ones" in new FakeApp {
@@ -129,7 +134,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
       val call = fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
+        controllers.archdesc.routes.Repositories.createDocPost("r1").url)
+        .withHeaders(formPostHeaders.toSeq: _*)
       val cr1 = route(call, testData).get
       status(cr1) must equalTo(SEE_OTHER)
       // okay the first time
@@ -150,7 +156,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
       val call = fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r1").url).withHeaders(formPostHeaders.toSeq: _*)
+        controllers.archdesc.routes.Repositories.createDocPost("r1").url)
+        .withHeaders(formPostHeaders.toSeq: _*)
       val cr = route(call, testData).get
       status(cr) must equalTo(BAD_REQUEST)
       // If we were doing validating dates we'd use:
@@ -164,6 +171,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         "descriptions[0].name" -> Seq("Collection 1"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c1"),
         "descriptions[0].contextArea.acquistition" -> Seq("Acquisistion info"),
+        "descriptions[0].notes[0]" -> Seq("Test Note"),
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -173,6 +181,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for c1")
+      contentAsString(show) must contain("Test Note")
+      mockIndexer.eventBuffer.last must equalTo("c1")
     }
 
     "allow updating an item with a custom log message" in new FakeApp {
@@ -193,6 +203,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       status(show) must equalTo(OK)
       // Log message should be in the history section...
       contentAsString(show) must contain(msg)
+      mockIndexer.eventBuffer.last must equalTo("c1")
     }
 
     "disallow updating items when logged in as unprivileged user" in new FakeApp {
@@ -211,7 +222,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // We can view the item when not logged in...
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c4").url)).get
       status(show) must equalTo(OK)
-      contentAsString(show) must not contain ("New Content for c4")
+      contentAsString(show) must not contain "New Content for c4"
+      mockIndexer.eventBuffer.last must not equalTo "c4"
     }
 
     "should redirect to login page when permission denied when not logged in" in new FakeApp {
@@ -225,9 +237,5 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         controllers.archdesc.routes.DocumentaryUnits.history("c1").url)).get
       status(show) must equalTo(OK)
     }
-  }
-
-  step {
-    runner.stop()
   }
 }

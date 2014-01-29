@@ -1,0 +1,21 @@
+@(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+<div class="annotation clearfix @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
+    @Html(views.Helpers.renderMarkdown(annotation.model.body))
+    @for(user <- annotation.user ; event <- annotation.latestEvent) {
+        - <small class="text-muted">
+            @p.helpers.linkTo(user)
+            <a class="time-permalink" href="#@annotation.id">@views.Helpers.relativeDate(event.model.timestamp)</a>
+
+            @if(editable) {
+                <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Portal.editAnnotation(annotation.id)">edit</a>
+                <a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Portal.deleteAnnotation(annotation.id)">delete</a>
+            }
+            @userOpt.map { user =>
+                @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
+                    <a data-item="@annotation.id" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">promote</a>
+                }
+            }
+        </small>
+    }
+</div>

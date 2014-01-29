@@ -1,0 +1,23 @@
+@(item: DescribedMeta[_,_], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+@for(apt <- AccessPointF.AccessPointType.values.toSeq) {
+    @defining(AccessPoint.linksOfType(item.externalLinks(links), apt)) { linksOfType =>
+        @if(!linksOfType.isEmpty) {
+            <h5>@Messages("accessPoints.type." + apt.toString)</h5>
+            <ul class="list-unstyled item-links">
+                @for(link <- linksOfType) {
+                <li>
+                    @link.opposingTarget(item).map { t =>
+                        @p.helpers.linkTo(t)
+                    }
+                    @link.model.description.map { desc =>
+                    <small>
+                        @desc
+                    </small>
+                    }
+                </li>
+                }
+            </ul>
+        }
+    }
+}

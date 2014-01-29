@@ -1,25 +1,69 @@
 package utils.search
 
-import concurrent.Future
 import defines.EntityType
-import models.base.AnyModel
-import play.api.libs.json.JsObject
+import scala.concurrent.Future
+import scala.sys.process.ProcessLogger
+import play.api.libs.iteratee.Concurrent
+
+case class IndexingError(msg: String) extends Exception(msg)
 
 /**
- * User: mikebryant
+ * User: www.github.com/mikesname
+ *
+ * Interface to an indexer service.
+ *
  */
 trait Indexer {
-  def commit: Future[IndexerResponse]
-  def deleteAll(commit: Boolean = false): Future[IndexerResponse]
-  def deleteItemsById(items: Stream[String], commit: Boolean = true): Future[IndexerResponse]
-  def deleteItemsByType(entityType: EntityType.Value, commit: Boolean = true): Future[IndexerResponse]
-  def deleteItems(items: Stream[AnyModel], commit: Boolean = true): Future[IndexerResponse]
 
-  def updateItem(item: JsObject, commit: Boolean = true): Future[IndexerResponse]
-  def updateItems(items: Stream[JsObject], commit: Boolean = true): Future[List[IndexerResponse]]
+  def withChannel(channel: Concurrent.Channel[String], formatter: String => String = identity[String]): Indexer = this
 
-}
+  /**
+   * Index a single item by id
+   * @param id
+   * @return
+   */
+  def indexId(id: String): Future[Unit]
 
-trait IndexerResponse {
+  /**
+   * Index all items of a given set of types.
+   * @param entityTypes
+   * @return
+   */
+  def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
 
+  /**
+   * Index all children of a given item.
+   * @param entityType
+   * @param id
+   * @return
+   */
+  def indexChildren(entityType: EntityType.Value, id: String): Future[Unit]
+
+  /**
+   * Clear the index of all items.
+   * @return
+   */
+  def clearAll(): Future[Unit]
+
+  /**
+   * Clear the index of all items of a given type.
+   * @param entityTypes
+   * @return
+   */
+  def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
+
+  /**
+   * Clear a given item from the index.
+   * @param id
+   * @return
+   */
+  def clearId(id: String): Future[Unit]
+
+  /**
+   * Clear a given item from the index.
+   * @param key
+   * @param value
+   * @return
+   */
+  def clearKeyValue(key: String, value: String): Future[Unit]
 }

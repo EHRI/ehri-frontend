@@ -1,4 +1,4 @@
-@(desc: Field)(implicit fieldPrefix: String, lang: Lang)
+@(desc: Field)(implicit fieldPrefix: String, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-element">
     <div class="control-group @{if(desc.hasErrors) "error"}">

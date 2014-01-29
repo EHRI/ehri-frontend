@@ -3,6 +3,13 @@ package utils
 object Data {
 
   /**
+   * Additional languages not supported by Java Locale
+   */
+  val additionalLangs = List(
+    "lad" -> "Ladino"
+  )
+
+  /**
    * Script mappings for ISO15924. NB: These are not localised.
    *
    * Gleaned from: http://unicode.org/iso15924/iso15924-codes.html

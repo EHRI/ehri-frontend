@@ -1,6 +1,6 @@
 package models
 
-import defines.{PermissionType,ContentType}
+import defines.{PermissionType,ContentTypes}
 import acl._
 import models.base._
 
@@ -10,11 +10,7 @@ import play.api.libs.json._
 import defines.EnumUtils.enumWrites
 import models.json._
 import play.api.i18n.Lang
-import scala.Some
-import scala.Some
-import scala.Some
 import play.api.libs.functional.syntax._
-import scala.Some
 
 
 object UserProfileF {
@@ -27,6 +23,7 @@ object UserProfileF {
   val LOCATION = "location"
   val ABOUT = "about"
   val LANGUAGES = "languages"
+  val IMAGE_URL = "imageUrl"
 
   implicit object Converter extends RestConvertable[UserProfileF] with ClientConvertable[UserProfileF] {
     lazy val restFormat = models.json.UserProfileFormat.restFormat
@@ -41,7 +38,8 @@ case class UserProfileF(
   name: String,
   location: Option[String] = None,
   about: Option[String] = None,
-  languages: List[String] = Nil
+  languages: List[String] = Nil,
+  imageUrl: Option[String] = None
 ) extends Model with Persistable
 
 
@@ -53,8 +51,13 @@ object UserProfile {
       __.format[UserProfileF](UserProfileF.Converter.clientFormat) and
       nullableListFormat(__ \ "groups")(Group.Converter.clientFormat) and
       lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat)
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
     )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply _))
+  }
+
+  implicit object Resource extends RestResource[UserProfile] {
+    val entityType = EntityType.UserProfile
   }
 
   // Constructor, sans account and perms
@@ -62,9 +65,10 @@ object UserProfile {
      model: UserProfileF,
      groups: List[Group] = Nil,
      accessors: List[Accessor] = Nil,
-     latestEvent: Option[SystemEvent]) = new UserProfile(model, groups, accessors, latestEvent)
+     latestEvent: Option[SystemEvent],
+     meta: JsObject) = new UserProfile(model, groups, accessors, latestEvent, meta)
 
-  def quickUnapply(up: UserProfile) = Some((up.model, up.groups, up.accessors, up.latestEvent))
+  def quickUnapply(up: UserProfile) = Some((up.model, up.groups, up.accessors, up.latestEvent, up.meta))
 }
 
 
@@ -73,7 +77,8 @@ case class UserProfile(
   groups: List[Group] = Nil,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
-  account: Option[models.sql.User] = None,
+  meta: JsObject = JsObject(Seq()),
+  account: Option[Account] = None,
   globalPermissions: Option[GlobalPermissionSet[UserProfile]] = None,
   itemPermissions: Option[ItemPermissionSet[UserProfile]] = None
 ) extends AnyModel
@@ -83,14 +88,14 @@ case class UserProfile(
 
   override def toStringLang(implicit lang: Lang) = model.name
 
-  def hasPermission(ct: ContentType.Value, p: PermissionType.Value): Boolean = {
-    globalPermissions.map { gp =>
+  def hasPermission(ct: ContentTypes.Value, p: PermissionType.Value): Boolean = {
+    globalPermissions.exists(gp =>
       if (gp.has(ct, p)) true
       else {
-        itemPermissions.map { ip =>
-          ip.contentType == ct && ip.has(p)
-        }.getOrElse(false)
-      }
-    }.getOrElse(false)
+        itemPermissions.exists(ip => ip.contentType == ct && ip.has(p))
+      })
   }
+
+  def followerCount = meta.fields.find(_._1 == "followers").flatMap(_._2.asOpt[Int]).getOrElse(0)
+  def followingCount = meta.fields.find(_._1 == "following").flatMap(_._2.asOpt[Int]).getOrElse(0)
 }

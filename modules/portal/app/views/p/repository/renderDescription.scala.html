@@ -1,0 +1,63 @@
+@(item: Repository, desc: RepositoryDescriptionF, links: List[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
+
+@import Isdiah._
+@import views.html.p.common.descriptionSection
+@import views.html.p.common.textField
+
+@otherNameList(list: Option[List[String]]) = {
+    @defining(list.toList.flatten) { pfn =>
+        @if(!pfn.isEmpty) {
+            <small class="text-muted">
+                <ul class="list-unstyled list-inline comma-sep other-name-list">
+                    @pfn.map { p =>
+                        <li>@p</li>
+                    }
+                </ul>
+            </small>
+        }
+    }
+}
+
+@p.common.descriptionOutline(item, desc, annotations) {
+    @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
+        @desc.id.map { descId =>
+            @descriptionSection(DESCRIPTION_AREA) {        
+                @textField(item, descId, desc.details.history, HISTORY)
+                @textField(item, descId, desc.details.generalContext, GEOCULTURAL_CONTEXT)
+                @textField(item, descId, desc.details.mandates, MANDATES)
+                @textField(item, descId, desc.details.administrativeStructure, ADMINISTRATIVE_STRUCTURE)
+                @textField(item, descId, desc.details.records, RECORDS)
+                @textField(item, descId, desc.details.buildings, BUILDINGS)
+                @textField(item, descId, desc.details.holdings, HOLDINGS)
+                @textField(item, descId, desc.details.findingAids, FINDING_AIDS)
+            }
+    
+            @descriptionSection(ACCESS_AREA) {
+                @textField(item, descId, desc.access.openingTimes, OPENING_TIMES)
+                @textField(item, descId, desc.access.conditions, CONDITIONS)
+                @textField(item, descId, desc.access.accessibility, ACCESSIBILITY)
+            }
+    
+            @descriptionSection(SERVICES_AREA) {
+                @textField(item, descId, desc.services.researchServices, RESEARCH_SERVICES)
+                @textField(item, descId, desc.services.reproductionServices, REPROD_SERVICES)
+                @textField(item, descId, desc.services.publicAreas, PUBLIC_AREAS)
+            }
+    
+            @descriptionSection(CONTROL_AREA) {
+                @textField(item, descId, desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
+                @textField(item, descId, desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
+                @textField(item, descId, desc.control.rulesAndConventions, RULES_CONVENTIONS)
+                @textField(item, descId, desc.control.status, STATUS)
+                @textField(item, descId, desc.control.levelOfDetail, LEVEL_OF_DETAIL)
+                @textField(item, descId, desc.control.datesCDR, DATES_CVD)
+                @common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+                @common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+                @common.listValue(desc.control.sources, SOURCES)
+                @textField(item, descId, desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+            }        
+        }
+
+        @link.relatedLinks(item, desc, links)
+    }
+}

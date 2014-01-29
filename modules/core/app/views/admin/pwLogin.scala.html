@@ -1,0 +1,31 @@
+@(form: Form[(String,String)], action: Call)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@layout.noSidebarSimple(Messages("login.login")) {
+
+    <div class="alert alert-info">
+        @Messages("login.adminLoginMessage")
+    </div>
+
+    @formHelpers.globalErrors(form)
+
+    @helper.form(action = action, 'class -> "login-form form-horizontal") {
+        @formHelpers.csrfToken()
+
+        @helper.inputText(form("email"), 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"))
+        @helper.inputPassword(form("password"), 'placeholder -> Messages("login.password"))
+
+        <div>
+            <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
+        </div>
+    }
+
+    <p>
+        <a href="@controllers.core.routes.Admin.forgotPassword">@Messages("login.forgotPasswordLink")</a>
+    </p>
+    <p>
+        <a href="@controllers.core.routes.Admin.openIDLogin">@Messages("login.linkToOpenIDLogin")</a>
+    </p>
+}(None, request, globalConfig, flash, lang)
+

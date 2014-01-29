@@ -1,4 +1,4 @@
-@(item: Option[Concept], f: play.api.data.Form[models.ConceptF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+@(item: Option[Concept], f: play.api.data.Form[models.ConceptF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import models.ConceptF._
 
@@ -8,7 +8,7 @@
 
 @defining("concept") { implicit prefix =>
     <fieldset id="descriptions-area">
-        <div class="inline-formset">
+        <div class="inline-formset" data-prefix="descriptions">
             <label>
                 <strong>@Messages(prefix + ".descriptions")</strong>
             </label>

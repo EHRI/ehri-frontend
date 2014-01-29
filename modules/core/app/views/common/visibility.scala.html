@@ -1,4 +1,4 @@
-@(item: Accessible, url: Call, contentType: ContentType.Value)(implicit userOpt: Option[UserProfile], globalConfig: GlobalConfig)
+@(item: Accessible, url: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig)
 
 <div class="well well-small">
     @if(!item.accessors.isEmpty) {

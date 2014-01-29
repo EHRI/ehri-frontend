@@ -3,11 +3,12 @@ package forms
 import play.api.data._
 import play.api.data.Forms._
 
-import rest.RestPageParams
+import utils.PageParams
+import utils.PageParams
 
 object VisibilityForm {
 
   val form = Form(single(
-    RestPageParams.ACCESSOR_PARAM -> list(nonEmptyText)
+    backend.rest.Constants.ACCESSOR_PARAM -> list(nonEmptyText)
   ))
 }

@@ -1,9 +1,9 @@
-@(item: Accessible, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,String,String) => Call)(
-    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: Accessible, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,EntityType.Value,String) => Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageItemPermissionsForAccessor", item), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.manageItemPermissionsForAccessor", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
     <div class="well well-small muted">
         <i class="icon-info-sign"></i>
         @Messages("actions.manageItemPermissionsText")

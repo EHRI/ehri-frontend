@@ -1,0 +1,27 @@
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""))(content: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+
+@layout.adminLayout(title, scripts, styles) {
+
+    @if(breadcrumbs.body.trim.isEmpty) {
+        @common.breadcrumbs()
+    }
+
+    <div class="success-pullup pull-right">
+        @common.successFlash(flash)
+    </div>
+    @breadcrumbs
+    <div class="container">
+        <div class="row-fluid">
+            <div class="span9">
+                <h2>@title</h2>
+
+                @common.errorFlash(flash)
+
+                @content
+            </div>
+            <div class="right-sidebar span3">
+                @sidebar
+            </div>
+        </div>
+    </div>
+}

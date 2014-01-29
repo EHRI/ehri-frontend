@@ -1,0 +1,16 @@
+@(item: Repository, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@p.layout.infobar {
+    @item.country.map { country =>
+        <li>@p.helpers.linkTo(country)</li>
+    }
+} {
+    <h1>@item.toStringLang</h1>
+    @item.model.primaryDescription.map { desc =>
+        @alternateNames(item, desc)
+    }
+} {
+    @userOpt.map { user =>
+        @p.common.watchButtons(item, watched)
+    }
+}

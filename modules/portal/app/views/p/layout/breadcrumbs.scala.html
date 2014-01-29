@@ -1,0 +1,9 @@
+@(cls: String = "")(html: Html = Html(""))(implicit userOpt: Option[UserProfile], globalGonfig: global.GlobalConfig, req: RequestHeader, lang: Lang)
+
+<ol class="breadcrumb @(if(!cls.isEmpty) cls else "")">
+    @if(html.body.trim.isEmpty) {
+        <li></li>
+    } else {
+        @html
+    }
+</ol>

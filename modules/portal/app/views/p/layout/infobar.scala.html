@@ -1,0 +1,18 @@
+@(breadcrumbs: Html)(content: Html)(controls: Html = Html(""))
+
+<div class="info-bar">
+    @if(!controls.body.isEmpty) {
+        <div class="header-controls pull-right">
+            @controls
+        </div>
+    }
+    <ol class="breadcrumb">
+        @if(breadcrumbs.body.trim.isEmpty) {
+            <li></li>
+        } else {
+            @breadcrumbs
+        }
+    </ol>
+    @content
+</div>
+

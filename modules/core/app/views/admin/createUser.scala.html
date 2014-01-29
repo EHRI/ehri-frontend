@@ -1,13 +1,17 @@
 @(f: play.api.data.Form[(String, String, String, String, String)], gf: Form[List[String]], groups: Seq[(String,String)], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("admin.createNewUser")) {
+@layout.rightSidebar(Messages("admin.createNewUser")) {
+
+
+    @formHelpers.globalErrors(f)
+
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @helper.inputText(f("email"), 'autofocus -> "autofocus", '_label -> Messages("users.email"))
-        @helper.inputText(f("username"), '_label -> Messages("users.username"))
+        @helper.inputText(f("identifier"), '_label -> Messages("users.username"))
         @helper.inputText(f("name"), '_label -> Messages("users.realname"))
         @helper.inputPassword(f("password"), '_label -> Messages("users.password"))
         @helper.inputPassword(f("confirm"), '_label -> Messages("users.passwordConfirm"))

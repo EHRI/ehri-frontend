@@ -1,13 +1,10 @@
 package test
 
-import play.api.test._
-import play.api.test.Helpers._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{AnnotationF, AccessPointF}
-import controllers.routes
 import helpers._
-import play.api.libs.json.Json
-import controllers.base.{EntityAnnotate, AccessPointLink}
+import play.api.libs.json.{JsValue, Json}
+import controllers.generic.{AccessPointLink, Annotate}
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
@@ -29,14 +26,21 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       Json.parse(contentAsString(cr2)) mustEqual json
     }
 
-    "allow creating new access points" in new FakeApp {
+    "allow creating new access points and deleting them" in new FakeApp {
       val ap = new AccessPointF(id = None, accessPointType=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
-      val json = Json.toJson(ap)(controllers.base.AccessPointLink.accessPointFormat)
+      val json = Json.toJson(ap)(controllers.generic.AccessPointLink.accessPointFormat)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.archdesc.routes.DocumentaryUnits.createAccessPoint("c1", "cd1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
-      println(contentAsString(cr))
+      val jsap: JsValue = contentAsJson(cr)
+      val id = (jsap \ "id").as[String]
+
+      val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
+        controllers.archdesc.routes.DocumentaryUnits.deleteAccessPointAction("c1", "cd1", id).url)
+          .withHeaders(jsonPostHeaders.toSeq: _*), "").get
+      status(del) must equalTo(OK)
+      println(contentAsString(del))
     }
 
     "allow creating new links" in new FakeApp {
@@ -51,24 +55,19 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
   }
 
   "Annotation JSON endpoints" should {
+    "be able to fetch annotations for an item" in new FakeApp {
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.annotation.routes.Annotations.getAnnotationJson("c1").url)).get
+      status(cr) must equalTo(OK)
+    }
+
     "allow creating annotations" in new FakeApp {
       val json = Json.toJson(new AnnotationF(id = None, body = "Hello, world!"))(
-        EntityAnnotate.clientAnnotationFormat)
+        Annotate.clientAnnotationFormat)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Annotations.createAnnotationJsonPost("c1").url)
+        controllers.annotation.routes.Annotations.createAnnotationJsonPost("c1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
     }
-
-    "be able to fetch annotations for an item" in new FakeApp {
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.core.routes.Annotations.getAnnotationJson("c1").url)).get
-      status(cr) must equalTo(OK)
-      println(contentAsString(cr))
-    }
-  }
-
-  step {
-    runner.stop()
   }
 }

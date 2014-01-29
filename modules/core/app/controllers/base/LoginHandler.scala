@@ -1,17 +1,14 @@
 package controllers.base
 
 import play.api.mvc._
-import jp.t2v.lab.play20.auth.{LoginLogout,Auth}
+import jp.t2v.lab.play2.auth.{AsyncAuth, LoginLogout}
+import play.api.libs.concurrent.Execution.Implicits._
 
-trait LoginHandler extends Controller with Auth with LoginLogout with Authorizer {
+trait LoginHandler extends Controller with AsyncAuth with LoginLogout with AuthConfigImpl {
 
   implicit val globalConfig: global.GlobalConfig
 
-  def login: Action[play.api.mvc.AnyContent]
-  def loginPost: Action[play.api.mvc.AnyContent]
-
-  def logout = optionalUserAction { implicit maybeUser =>
-    implicit request =>
-      gotoLogoutSucceeded
+  def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
+    gotoLogoutSucceeded
   }
 }

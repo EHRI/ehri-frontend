@@ -1,0 +1,6 @@
+@(link: Link)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+
+@* TODO *@
+@p.layout.portalLayout(link.toStringLang) {
+    @link.toStringLang
+}

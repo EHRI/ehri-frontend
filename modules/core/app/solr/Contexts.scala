@@ -6,5 +6,5 @@ import play.api.Play.current
 
 object Contexts {
   implicit val searchIndexExecutionContext: ExecutionContext
-      = Akka.system.dispatchers.lookup("index-dispatcher")
+      = Akka.system.dispatchers.lookup("play.akka.actor.indexer-dispatcher")
 }

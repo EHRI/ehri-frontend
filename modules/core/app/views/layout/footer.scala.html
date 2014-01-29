@@ -1,0 +1,18 @@
+@()(implicit req: RequestHeader, lang: Lang)
+
+@footerSimple {
+    @layout.versionInfo()
+    <small>
+        <ul class="muted lang-switcher pull-right inline unstyled">
+        @List("en", "fr", "de", "he").map { changeLang =>
+            <li>
+                @if(lang.toString.toLowerCase.contains(changeLang)) {
+                    @changeLang
+                } else {
+                    <a href="@controllers.core.routes.Application.changeLocale(changeLang)">@changeLang</a>
+                }
+            </li>
+        }
+        </ul>
+    </small>
+}

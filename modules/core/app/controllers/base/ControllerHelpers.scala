@@ -1,110 +1,83 @@
 package controllers.base
 
-import scala.concurrent.Future
-import play.api.mvc.RequestHeader
-import play.api.mvc.Result
 import play.api.libs.concurrent.Execution.Implicits._
-import rest._
-import play.api.mvc.Controller
-import play.api.mvc.AsyncResult
-import java.net.ConnectException
+import scala.concurrent.Future
+import play.api.mvc._
 import models.UserProfile
-import play.api.Play.current
-import play.api.libs.json.Json
-import global.{MenuConfig, GlobalConfig}
+import global.GlobalConfig
+import scala.concurrent.Future.{successful => immediate}
+import backend.rest.RestHelpers
 
-object ControllerHelpers {
-  def isAjax(implicit request: RequestHeader): Boolean =
-    request.headers.get("X-REQUESTED-WITH")
-      .map(_.toUpperCase() == "XMLHTTPREQUEST").getOrElse(false)
-}
 
 trait ControllerHelpers {
   this: Controller with AuthController =>
 
-  implicit val globalConfig: GlobalConfig
+  implicit val globalConfig: global.GlobalConfig
+
+  /**
+   * Some actions **require** a user is logged in.
+   * However the main templates assume it is optional. This helper
+   * to put an optional user in scope for template rendering
+   * when there's definitely one defined.
+   */
+  implicit def userOpt(implicit user: UserProfile): Option[UserProfile] = Some(user)
+
+  /**
+   * Issue a warning about database maintenance when a "dbmaintenance"
+   * file is present in the app root and the DB is offline.
+   * @return
+   */
+  def dbMaintenance: Boolean = new java.io.File("dbmaintenance").exists()
+
+  /**
+   * Extract a log message from an incoming request params
+   */
+  final val LOG_MESSAGE_PARAM = "logMessage"
+
+  def getLogMessage(implicit request: Request[AnyContent]) = {
+    import play.api.data.Form
+    import play.api.data.Forms._
+    Form(single(LOG_MESSAGE_PARAM -> optional(nonEmptyText)))
+      .bindFromRequest.value.getOrElse(None)
+  }
 
 
   /**
-   * Ensure that an action is performed by a logged-in user. This can be globally
-   * disabled by setting ehri.secured = false in the application.conf.
-   * @param res
-   * @param userOpt
-   * @param request
-   * @return
+   * Check if a request is Ajax.
    */
-  def Secured(res: Result)(implicit userOpt: Option[models.UserProfile], request: RequestHeader): Result = {
-    if (current.configuration.getBoolean("ehri.secured").getOrElse(true))
-      if (userOpt.isDefined) res else authenticationFailed(request)
-    else
-      res
-  }
+  def isAjax(implicit request: RequestHeader): Boolean = utils.isAjax
 
   /**
    * Get a complete list of possible groups
-   * @param f
-   * @param userOpt
-   * @param request
-   * @return
    */
-  def getGroups(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader) = {
-    // TODO: Handle REST errors
-    Async {
-      for {
-        groups <- rest.RestHelpers.getGroupList
-      } yield {
+  object getGroups {
+    def async(f: Seq[(String,String)] => Future[SimpleResult])(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+      RestHelpers.getGroupList.flatMap { groups =>
         f(groups)
       }
+    }
+
+    def apply(f: Seq[(String,String)] => SimpleResult)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+      async(f.andThen(t => immediate(t)))
     }
   }
 
   /**
-   * Join params into a query string
+   * Get a list of users and groups.
    */
-  def joinQueryString(qs: Map[String, Seq[String]]): String = {
-    import java.net.URLEncoder
-    qs.map { case (key, vals) => {
-      vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
-    }}.flatten.mkString("&")
-  }
+  object getUsersAndGroups {
+    def async(f: Seq[(String,String)] => Seq[(String,String)] => Future[SimpleResult])(
+      implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+      for {
+        users <- RestHelpers.getUserList
+        groups <- RestHelpers.getGroupList
+        r <- f(users)(groups)
+      } yield r
+    }
 
-
-  /**
-   * Wrapper function which takes a promise of either a result
-   * or a throwable. If the throwable exists it is handled in
-   * an appropriate manner and returned as a AsyncResult
-   */
-  def AsyncRest(promise: Future[Either[Throwable, Result]])(implicit maybeUser: Option[UserProfile], request: RequestHeader): AsyncResult = {
-    Async {
-      promise.map { respOrErr =>
-        respOrErr.fold(
-          err => err match {
-            // TODO: Rethink whether we want to redirect here?  All our
-            // actions should already be permission-secure, so it's really
-            // an error if the server denies permission for something.
-            case e: PermissionDenied => maybeUser.map { user =>
-              Unauthorized(views.html.errors.permissionDenied(Some(e)))
-            } getOrElse {
-              render {
-                case Accepts.Json() => println(e); Unauthorized(Json.toJson(e))
-                case _ => authenticationFailed(request)
-              }
-            }
-            case e: ItemNotFound => {
-              render {
-                case Accepts.Json() => NotFound(Json.toJson(e))
-                case _ => NotFound(views.html.errors.itemNotFound())
-              }
-            }
-            case e: ValidationError => BadRequest(err.toString())
-            case e: ServerError => InternalServerError(views.html.errors.serverTimeout())
-            case e => BadRequest(e.toString())
-          },
-          resp => resp
-        )
-      } recover {
-        case e: ConnectException => InternalServerError(views.html.errors.serverTimeout())
-      }
+    def apply(f: Seq[(String,String)] => Seq[(String,String)] => SimpleResult)(
+      implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+      async(f.andThen(_.andThen(t => immediate(t))))
     }
   }
 }

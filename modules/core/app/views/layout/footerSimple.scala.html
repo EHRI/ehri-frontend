@@ -1,0 +1,8 @@
+@(html: Html = Html(""))(implicit req: RequestHeader, lang: Lang)
+
+<div id="footer">
+    <div class="container">
+        <p class="muted">@Messages("footer.footerText")</p>
+        @html
+    </div>
+</div>

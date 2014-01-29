@@ -1,22 +1,22 @@
-@(item: HistoricalAgent, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: HistoricalAgent, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(item.set.toList ++ List(item)), scripts = scripts, styles = styles) {
+@layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(item.set.toList ++ List(item)), scripts = scripts, styles = styles) {
 
     @html
 
 } {
     @common.latestAction(item, controllers.authorities.routes.HistoricalAgents.history(item.id))
-    @common.visibility(item, controllers.authorities.routes.HistoricalAgents.visibility(item.id), ContentType.HistoricalAgent)
+    @common.visibility(item, controllers.authorities.routes.HistoricalAgents.visibility(item.id), ContentTypes.HistoricalAgent)
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @userOpt.map { user =>
-            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Update)) {
+            @if(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Update)) {
                 <li><a href="@controllers.authorities.routes.HistoricalAgents.update(item.id)">@Messages("actions.updateItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Delete)) {
+            @if(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Delete)) {
                 <li><a href="@controllers.authorities.routes.HistoricalAgents.delete(item.id)">@Messages("actions.deleteItem")</a></li>
             }
-            @if(user.hasPermission(ContentType.HistoricalAgent, PermissionType.Grant)) {
+            @if(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Grant)) {
                 <li><a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
             }
             <li><a href="@controllers.authorities.routes.HistoricalAgents.history(item.id)">@Messages("actions.showHistory")</a></li>
@@ -25,7 +25,7 @@
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         <li>
-            <a href="@controllers.core.routes.ApiController.getItem(ContentType.HistoricalAgent.toString, item.id)">@Messages("actions.exportJson")</a>
+            <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.HistoricalAgent.toString, item.id)">@Messages("actions.exportJson")</a>
         </li>
     </ul>
 }

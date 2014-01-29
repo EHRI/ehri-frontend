@@ -1,7 +1,7 @@
 @()
 
 @import models.IsadG._
-<ul class="nav nav-tabs nav-stacked affix" id="form-nav-sidebar">
+<ul class="nav nav-tabs nav-stacked sidebar" id="form-nav-sidebar">
     @List(IDENTITY_AREA,CONTEXT_AREA,CONTENT_AREA,CONDITIONS_AREA,MATERIALS_AREA,CONTROL_AREA,ADMINISTRATION_AREA).map { s =>
         <li><a href="#@{s}"><i class="icon-chevron-left"></i>@Messages("isadg." + s)</a></li>
     }

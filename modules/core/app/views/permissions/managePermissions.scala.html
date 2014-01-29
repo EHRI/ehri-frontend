@@ -1,8 +1,8 @@
-@(item: Accessible, page: rest.Page[PermissionGrant], itemPermAction: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: Accessible, page: backend.Page[PermissionGrant], itemPermAction: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@rightSidebarLayout(Messages("actions.manageItemPermissionsForItem", item), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.manageItemPermissionsForItem", item), breadcrumbs = common.breadcrumbs(List(item))) {
 
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 

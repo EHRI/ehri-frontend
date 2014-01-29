@@ -1,0 +1,9 @@
+@(item: HistoricalAgent, watched: Boolean = false)(implicit req: RequestHeader, lang: Lang)
+
+@import Isaar._
+
+@p.layout.searchItemOutline(item, watched) {
+    <a href="@controllers.portal.routes.Portal.browseHistoricalAgent(item.id)">@item.toStringLang</a>
+} {
+    @listItemBody(item)
+}

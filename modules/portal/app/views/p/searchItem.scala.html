@@ -1,0 +1,22 @@
+@(item: models.base.AnyModel, hit: utils.search.SearchHit, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@item match {
+    case d: DocumentaryUnit => {
+        @documentaryUnit.searchItem(d, hit, watched)
+    }
+    case d: HistoricalAgent => {
+        @historicalAgent.searchItem(d, hit, watched)
+    }
+    case d: Repository => {
+        @repository.searchItem(d, hit, watched)
+    }
+    case d: Country => {
+        @country.searchItem(d, hit, watched)
+    }
+    case d: Concept => {
+        @concept.searchItem(d, hit, watched)
+    }
+    case _ => {
+        @views.html.common.searchItem(item)
+    }
+}

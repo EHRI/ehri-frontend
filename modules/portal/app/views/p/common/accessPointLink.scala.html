@@ -1,0 +1,21 @@
+@(item: AnyModel, accessPoint: AccessPointF, links: Seq[Link])(implicit userOpt: Option[UserProfile], lang: Lang, req: RequestHeader, globalConfig: global.GlobalConfig)
+
+@*
+ * Render an access point which may or may not have a corresponding
+ * link target.
+ *@
+@accessPoint.target(item, links).map { case (link, other) =>
+    <li class="resolved-access-point" id="@accessPoint.id">
+        @p.helpers.linkTo(other, accessPoint.name)
+        @link.model.description.map { desc =>
+        <small><p class="muted">@desc</p></small>
+        }
+    </li>
+}.getOrElse {
+    <li class="unresolved-access-point" id=" @accessPoint.id">
+        @accessPoint.name
+        @accessPoint.description.filter(_.trim.isEmpty).map { desc =>
+        <small><p class="muted">@desc</p></small>
+        }
+    </li>
+}

@@ -3,7 +3,7 @@ package models.base
 import defines.EntityType
 import models._
 import play.api.libs.json._
-import models.json.{ClientConvertable, RestReadable}
+import models.json.{RestResource, ClientConvertable, RestReadable}
 
 object Accessor {
   final val BELONGS_REL = "belongsTo"
@@ -23,6 +23,14 @@ object Accessor {
         Json.toJson(a)(AnyModel.Converter.clientFormat.asInstanceOf[Format[Accessor]])
       }
     }
+  }
+
+  /**
+   * This function allows getting a dynamic Resource for an Accessor given
+   * the entity type.
+   */
+  def resourceFor(t: EntityType.Value): RestResource[Accessor] = new RestResource[Accessor] {
+    def entityType: EntityType.Value = t
   }
 }
 

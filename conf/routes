@@ -2,25 +2,20 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-POST  /iteratee                         @controllers.Search.testIteratee
-
-GET     /admin/updateIndex              @controllers.Search.updateIndex
-POST    /admin/updateIndex              @controllers.Search.updateIndexPost
-
-# Search testing
-GET /search                             @controllers.Search.search
-
-# Get JSON (id,name) pair for a given type
-GET /filter                             @controllers.Search.filter
-
 # Map static resources from the /public folder to the /assets URL path
+GET     /robots.txt                     controllers.Assets.at(path="/public", file="robots.txt")
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)
 
+GET     /*path/                         controllers.GlobalController.untrail(path)
+
 # Defer other routes to modules
--> /        core.Routes
--> /sets    authorities.Routes
--> /arch    archdesc.Routes
--> /voc     vocabs.Routes
--> /portal  portal.Routes
+-> /admin               core.Routes
+-> /admin               admin.Routes
+-> /admin/link          linking.Routes
+-> /admin/annotation    annotation.Routes
+-> /admin/sets          authorities.Routes
+-> /admin/arch          archdesc.Routes
+-> /admin/voc           vocabs.Routes
 
-
+# Portal is special
+-> /  portal.Routes

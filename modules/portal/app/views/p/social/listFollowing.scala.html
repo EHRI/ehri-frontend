@@ -1,0 +1,26 @@
+@(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], flash: Flash, lang: Lang, globalConfig: global.GlobalConfig)
+
+@p.layout.portalLayout(them.toStringLang) {
+
+    @p.layout.infobar {
+        <li><a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.browseUsers")</a></li>
+        <li><a href="@controllers.portal.routes.Portal.browseUser(them.id)">@them.toStringLang</a></li>
+        <li>@Messages("portal.social.following")</li>
+    } {
+        <h1>@them.toStringLang</h1>
+    } {
+        @for(user <- userOpt if user.id != them.id) {
+            @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
+        }
+    }
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <p>
+            <div class="browse-users-following container">
+                @followingList(them, users, params, myFollowing)
+            </div>
+        </div>
+   </div>
+
+}

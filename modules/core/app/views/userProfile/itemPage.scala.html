@@ -1,8 +1,8 @@
-@(item: UserProfile)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(item: UserProfile)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import UserProfileF._
 
-@rightSidebarLayout(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @html
 } {
@@ -10,15 +10,15 @@
 
     <ul class="item-actions nav nav-tabs nav-stacked">
         @userOpt.map { user =>
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Update)) {
+        @if(user.hasPermission(ContentTypes.UserProfile, PermissionType.Update)) {
             <li><a href="@controllers.core.routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a></li>
         }
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
+        @if(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
             <li><a href="@controllers.core.routes.UserProfiles.permissions(item.id)">@Messages("actions.manageGlobalPermissions")</a></li>
             <li><a href="@controllers.core.routes.UserProfiles.grantList(item.id)">@Messages("actions.listPermissionGrants")</a></li>
         }
-        @if(user.hasPermission(ContentType.UserProfile, PermissionType.Grant)) {
-            <li><a href="@controllers.core.routes.Groups.membership(item.isA.toString, item.id)">@Messages("actions.modifyGroups")</a></li>
+        @if(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
+            <li><a href="@controllers.core.routes.Groups.membership(item.isA, item.id)">@Messages("actions.modifyGroups")</a></li>
         }
         @if(user.isAdmin) {
             <li><a href="@controllers.core.routes.UserProfiles.delete(item.id)">@Messages("actions.deleteItem")</a></li>

@@ -26,24 +26,38 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     jdbc,
     anorm,
+    cache,
     filters,
 
     // Ontology
     "ehri-project" % "ehri-definitions" % "1.0",
 
+    // Solely to satisfy SBT: bit.ly/16bFa4O
+    "com.google.guava" % "guava" % "14.0", 
+    
     // Injection guff
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
 
-    "jp.t2v" %% "play21.auth" % "0.6",
+    "jp.t2v" %% "play2-auth" % "0.11.0",
+    "jp.t2v" %% "play2-auth-test" % "0.11.0" % "test",
+
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "mysql" % "mysql-connector-java" % "5.1.25",
-    "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4",
+
+    // Pegdown. Currently versions higher than 1.1 crash
+    // Play at runtime with an IncompatibleClassChangeError.
+    "org.pegdown" % "pegdown" % "1.1.0",
+
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",
+
+    // Mailer...
+    "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
+
     // Solr stuff
-    "com.github.seratch" %% "scalikesolr" % "4.0.0",
+    "com.github.seratch" %% "scalikesolr" % "[4.3,)",
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
   )
@@ -58,43 +72,57 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
   )
 
-
   val otherSettings = Seq(
-    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._", "global.GlobalConfig"),
+    templatesImport ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+    routesImport += "defines.EntityType",
 
+    resolvers += Resolver.file("Local Repository", file("/home/mike/dev/play/playframework/repository/local"))(Resolver.ivyStylePatterns),
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
-    resolvers += "Codahale" at "http://repo.codahale.com"
+    resolvers += "Codahale" at "http://repo.codahale.com",
+    resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+
+    // SBT magic: http://stackoverflow.com/a/12772739/285374
+    resourceDirectory in Test <<= baseDirectory apply {(baseDir: File) => baseDir / "test/resources"}
   )
 
   lazy val core = play.Project(
-    appName + "-core", appVersion, appDependencies, path = file("modules/core"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-core", appVersion, appDependencies, path = file("modules/core")
   ).settings(otherSettings:_*)
 
-  lazy val archdesc = play.Project(
-    appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+  lazy val annotation = play.Project(
+    appName + "-annotation", appVersion, appDependencies, path = file("modules/annotation")
   ).settings(otherSettings:_*).dependsOn(core)
+
+  lazy val linking = play.Project(
+    appName + "-linking", appVersion, appDependencies, path = file("modules/linking")
+  ).settings(otherSettings:_*).dependsOn(core, annotation)
+
+  lazy val archdesc = play.Project(
+    appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc")
+  ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val authorities = play.Project(
-    appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
-  ).settings(otherSettings:_*).dependsOn(core)
+    appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities")
+  ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val vocabs = play.Project(
-    appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
-  ).settings(otherSettings:_*).dependsOn(core)
+    appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs")
+  ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
 
   lazy val portal = play.Project(
-    appName + "-portal", appVersion, appDependencies, path = file("modules/portal"),
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
+    appName + "-portal", appVersion, appDependencies, path = file("modules/portal"))
+    .settings(otherSettings:_*).dependsOn(core, annotation, linking)
+    .aggregate(core, annotation, linking)
+
+  lazy val admin = play.Project(
+    appName + "-admin", appVersion, appDependencies, path = file("modules/admin")
   ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
     .aggregate(core, archdesc, authorities, vocabs)
 
-  lazy val aaMain = play.Project(appName, appVersion, appDependencies ++ testDependencies,
-    settings = Defaults.defaultSettings ++ play.Project.intellijCommandSettings("SCALA")
-  ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs, portal)
-    .aggregate(core, archdesc, authorities, vocabs, portal)
+  lazy val main = play.Project(appName, appVersion, appDependencies ++ testDependencies
+  ).settings(otherSettings:_*).dependsOn(admin, portal)
+    .aggregate(admin, portal)
+
+  override def rootProject = Some(main)
 }

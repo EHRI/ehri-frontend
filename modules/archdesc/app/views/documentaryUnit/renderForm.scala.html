@@ -1,4 +1,4 @@
-@(f: play.api.data.Form[DocumentaryUnitF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang)
+@(f: play.api.data.Form[DocumentaryUnitF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import models.IsadG._
 @import models.DocumentaryUnitF._
@@ -8,6 +8,7 @@
 @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
 
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+    @formHelpers.inlineNameSet(f(""), OTHER_IDENTIFIERS)
 
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
         @documentaryUnit.renderDescriptionForm(desc)
@@ -16,6 +17,10 @@
 
 @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
     @formHelpers.enumChoiceInput(f(PUB_STATUS), defines.PublicationStatus, Messages(PUB_STATUS))
-    @formHelpers.enumChoiceInput(f(COPYRIGHT), CopyrightStatus, Messages(COPYRIGHT))("copyrightStatus")
-    @formHelpers.enumChoiceInput(f(SCOPE), Scope, Messages(SCOPE))("scope")
+    @defining("copyrightStatus") { implicit fieldPrefix =>
+        @formHelpers.enumChoiceInput(f(COPYRIGHT), CopyrightStatus, Messages(COPYRIGHT))
+    }
+    @defining("scope") { implicit fieldPrefix =>
+        @formHelpers.enumChoiceInput(f(SCOPE), Scope, Messages(SCOPE))
+    }
 }

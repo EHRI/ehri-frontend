@@ -13,6 +13,11 @@ object SolrConstants {
   final val ID = "id"
 
   /**
+   * Field denoting if material is restricted.
+   */
+  final val RESTRICTED_FIELD = "restricted"
+
+  /**
     * Field that holds a documents accessors.
     */
   final val ACCESSOR_FIELD = "accessibleTo"
@@ -24,6 +29,11 @@ object SolrConstants {
    * a given multivalue field is empty.
    */
   final val ACCESSOR_ALL_PLACEHOLDER = "ALLUSERS"
+
+  /**
+   * Items contained by a 'holder' item
+   */
+  final val CHILD_COUNT = "childCount"
 
   /**
    * The canonical "item name"
@@ -62,6 +72,12 @@ object SolrConstants {
   final val ITEM_ID = "itemId"
 
   /**
+   * The field referring to the database internal representation
+   * of the item.
+   */
+  final val DB_ID = "gid"
+
+  /**
    * The type-of-item key
    */
   final val TYPE = "type"
@@ -92,6 +108,11 @@ object SolrConstants {
   final val DEFAULT_FILTER_LIMIT = 100
 
   /**
+   * Parent id for hierarchical items.
+   */
+  final val PARENT_ID = "parentId"
+
+  /**
    * Holder id for hierarchical items.
    */
   final val HOLDER_ID = "holderId"
@@ -101,6 +122,14 @@ object SolrConstants {
    */
   final val HOLDER_NAME = "holderName"
 
+  /**
+   * Items that are are the top level of a hierarchy
+   */
+  final val TOP_LEVEL = "isTopLevel"
 
+  /**
+   * Country code.
+   */
+  final val COUNTRY_CODE = "countryCode"
 
 }

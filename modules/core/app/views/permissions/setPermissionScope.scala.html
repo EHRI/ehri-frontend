@@ -1,9 +1,9 @@
-@(item: Accessible, accessor: Accessor, perms: GlobalPermissionSet[Accessor], contentTypes: Seq[ContentType.Value], action: Call)(
-        implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token
+@(item: Accessible, accessor: Accessor, perms: GlobalPermissionSet[Accessor], contentTypes: Seq[ContentTypes.Value], action: Call)(
+        implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token
         )
 @import defines.PermissionType
 
-@rightSidebarLayout(Messages("actions.grantPermissionsInScope", item, accessor), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.grantPermissionsInScope", item.toStringLang, accessor.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

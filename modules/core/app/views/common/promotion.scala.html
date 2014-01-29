@@ -1,0 +1,31 @@
+@(item: Promotable, promoteUrl: Call, demoteUrl: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig)
+
+@if(!item.promotors.isEmpty || (userOpt.isDefined && userOpt.get.hasPermission(contentType, PermissionType.Promote))) {
+    <div class="well well-small">
+        @if(!item.promotors.isEmpty) {
+            <h4>
+                <i class="icon-star"></i>
+                @Messages("visibility.promotedBy")
+            </h4>
+            <ul>
+                @item.promotors.map { acc =>
+                    <li><a href="@globalConfig.routeRegistry.urlFor(acc)">@acc.toStringLang</a></li>
+                }
+            </ul>
+        }
+
+        @userOpt.map { user =>
+            @if(item.promotors.exists(p => p.id == user.id)) {
+                <p><small><a href="@demoteUrl">@Messages("actions.demote")</a></small></p>
+            } else {
+                @if(user.hasPermission(contentType, PermissionType.Promote)) {
+                    <h4>
+                        <i class="icon-star"></i>
+                        @Messages("visibility.notPromoted")
+                    </h4>
+                    <p><small><a href="@promoteUrl">@Messages("actions.promote")</a></small></p>
+                }
+            }
+        }
+    </div>
+}

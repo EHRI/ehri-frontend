@@ -1,20 +1,22 @@
-import models.sql.User
+import models.Account
+import models.sql.MockAccount
 import play.api.Play.current
 
 package object mocks {
 
-  val MOCK_EMAIL = "example@example.com"
+  val privilegedUser = MockAccount("mike", "example1@example.com", verified = true, staff = true)
+  val unprivilegedUser = MockAccount("reto", "example2@example.com", verified = true, staff = true)
+  val publicUser = MockAccount("joeblogs", "example@aol.com", verified = true, staff = false)
+  val unverifiedUser = MockAccount("bobjohn", "example@yahoo.com", verified = false, staff = false)
 
-  // Profile ID must be passed in configuration
-  def MOCK_USER = MockUser(
-      email=MOCK_EMAIL,
-      profile_id=current.configuration.getString("test.user.profile_id").getOrElse("anonymous"))
-
-  val privilegedUser = MockUser("example1@example.com", "mike")
-  val unprivilegedUser = MockUser("example2@example.com", "reto")
-
-  val userFixtures = collection.mutable.HashMap[String,User] (
-    privilegedUser.profile_id -> privilegedUser,
-    unprivilegedUser.profile_id -> unprivilegedUser
+  // Users...
+  val users = Map(
+    privilegedUser.id -> privilegedUser,
+    unprivilegedUser.id -> unprivilegedUser,
+    publicUser.id -> publicUser,
+    unverifiedUser.id -> unverifiedUser
   )
+
+  // Mutable map that serves as a mock db...
+  val userFixtures = collection.mutable.HashMap[String,Account](users.toSeq: _*)
 }

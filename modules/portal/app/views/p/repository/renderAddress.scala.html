@@ -1,0 +1,53 @@
+@(repo: Repository, address: AddressF)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+<address>
+    <strong>@repo.toStringLang</strong>
+
+    <h4>@Messages("portal.repository.address")</h4>
+    @address.streetAddress.map { street =>
+        @street<br />
+    }
+    @address.city.map { city =>
+        @city<br />
+    }
+    @address.postalCode.map { pc =>
+        @pc<br />
+    }
+    @address.countryCode.map { cc =>
+        <strong>@views.Helpers.countryCodeToName(cc)</strong>
+    }
+
+
+    <h4>@Messages("portal.repository.contact")</h4>
+    <ul class="list-unstyled">
+        @if(!address.telephone.isEmpty) {
+            <li title="@Messages("portal.repository.phone")">
+                <span class="glyphicon glyphicon-phone"></span>
+                <abbr>@Messages("portal.repository.phone"):</abbr>
+                <span>@address.telephone.mkString(", ")</span>
+            </li>
+        }
+        @if(!address.fax.isEmpty) {
+            <li title="@Messages("portal.repository.fax")">
+                <span class="glyphicon glyphicon-print"></span>
+                <abbr>@Messages("portal.repository.fax"):</abbr>
+                <span>@address.fax.mkString(", ")</span>
+            </li>
+        }
+        @if(!address.email.isEmpty) {
+            <li title="@Messages("portal.repository.email")">
+                <span class="glyphicon glyphicon-envelope"></span>
+                <abbr>@Messages("portal.repository.email"):</abbr>
+                <span>@address.email.mkString(", ")</span>
+            </li>
+        }
+        @if(!address.url.isEmpty) {
+            <li title="@Messages("portal.repository.url")">
+                <span class="glyphicon glyphicon-globe"></span>
+                @address.url.map { url =>
+                    <a href="@url"><abbr>@Messages("portal.repository.url")</abbr></a>
+                }
+            </li>
+        }
+    </ul>
+</address>

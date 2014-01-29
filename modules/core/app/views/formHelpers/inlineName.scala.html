@@ -1,4 +1,4 @@
-@(field: play.api.data.Field)(implicit fieldPrefix: String, lang: Lang)
+@(field: play.api.data.Field)(implicit fieldPrefix: String, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-element">
     <div class="control-group @{if(field.hasErrors) "error"}">

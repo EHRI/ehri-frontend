@@ -1,0 +1,12 @@
+@(item: AnyModel, desc: Description, annotations: Seq[Annotation])(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+<div class="description-holder" id="desc-@desc.id">
+    <div class="description @desc.isA" id="@desc.id">
+        @html
+
+        <div class="description-annotations">
+            @descriptionAnnotations(item, desc, Annotation.itemAnnotations(desc.id, annotations))
+        </div>
+        <hr />
+    </div>
+</div>

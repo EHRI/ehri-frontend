@@ -1,15 +1,11 @@
 package models
 
 import play.api.libs.json.{Writes, JsValue, Reads, Json, JsObject}
+import play.api.data.{FormError, Forms, Mapping}
+import play.api.data.format.Formatter
 
 package object forms {
 
-  /*
-   * Enum form binder gratefully borrowed from:
-   * 
-   * https://github.com/leon/play-enumeration.git
-   */
-  
   import play.api.data.format.Formatter
   import play.api.data.{ FormError, Forms, Mapping }
 

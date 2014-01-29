@@ -1,0 +1,11 @@
+@(item: Repository, hit: utils.search.SearchHit, watched: Boolean, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+
+@import Isdiah._
+
+@p.common.searchHits(hit) {
+    @p.layout.searchItemOutline(item, watched) {
+        <a href="@controllers.portal.routes.Portal.browseRepository(item.id)">@item.toStringLang</a>
+    } {
+        @listItemBody(item, showCountry)
+    }
+}

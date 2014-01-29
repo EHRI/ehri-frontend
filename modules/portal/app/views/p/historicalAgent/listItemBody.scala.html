@@ -1,0 +1,41 @@
+@(item: HistoricalAgent)(implicit req: RequestHeader, lang: Lang)
+
+@item.model.descriptions.headOption.map { desc =>
+    @defining((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten) { ofn =>
+        @if(!ofn.isEmpty) {
+            <small>
+                <strong>
+                    <ul class="list-unstyled list-inline inline-separator">
+                        @ofn.map { on =>
+                        <li>@on</li>
+                        }
+                    </ul>
+                </strong>
+            </small>
+        }
+    }
+    <small>
+        <ul class="list-unstyled text-muted list-inline inline-separator">
+            <li>@Messages("isaar." + desc.entityType.toString)</li>
+                @desc.dates.map { dp =>
+            <li>@dp.years</li>
+            }
+            @item.latestEvent.map { event =>
+            <li title="@common.eventTitle(event)">
+                <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+            </li>
+            }
+        </ul>
+    </small>
+    @desc.details.datesOfExistence.map { d =>
+        <p>@d</p>
+    }
+    @desc.details.history.map { d =>
+        <p>@d</p>
+    }
+    @desc.details.generalContext.map { d =>
+        <p>@d</p>
+    }
+}.getOrElse {
+    <small>@Messages("describedEntity.noDescriptions")</small>
+}

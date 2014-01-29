@@ -1,22 +1,16 @@
-@(paginationKey: String, page: rest.Page[AnyModel], params: ListParams, filterNames: Iterable[String] = Nil, orderNames: Iterable[String] = Nil
-)(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(paginationKey: String, page: backend.Page[AnyModel], params: utils.PageParams)(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 
-@if(page.items.isEmpty && params.pfn.isEmpty) {
+<hr />
+<div class="item-list">
+    @if(page.total > 0) {
+        <h3>@Messages(paginationKey, page.offset + 1, page.offset + page.items.size, page.total)</h3>
+    } else {
+        <h3>@Messages(paginationKey, 1, 0, 0)</h3>
+    }
 
-} else {
-    <hr />
-    <div class="item-list">
-        @if(page.total > 0) {
-            <h3>@Messages(paginationKey, page.offset + 1, page.offset + page.items.size, page.total)</h3>
-        } else {
-            <h3>@Messages("search.noItemsFound")</h3>
-        }
-
-        @if(page.total > 0) {
-            @listBody
-            @common.pagination(page)
-        }
-
-    </div>
-}
+    @if(page.total > 0) {
+        @listBody
+        @common.pagination(page)
+    }
+</div>

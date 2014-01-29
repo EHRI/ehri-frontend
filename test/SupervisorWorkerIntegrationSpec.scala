@@ -1,13 +1,12 @@
 package test
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import helpers._
-import models.{GroupF, Group, UserProfileF, UserProfile}
-import controllers.routes
-import play.api.test._
-import play.api.test.Helpers._
+import models.UserProfile
 import defines._
-import rest.EntityDAO
-import mocks.MockUser
+import backend.rest.{PermissionDenied, ItemNotFound, EntityDAO}
+import models.sql.MockAccount
+import backend.ApiUser
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -23,10 +22,7 @@ import mocks.MockUser
 class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[SupervisorWorkerIntegrationSpec]) {
   import mocks.{privilegedUser,unprivilegedUser}
 
-  val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
-  )
+  implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
   /**
    * Get the id from an URL where the ID is the last component...
@@ -68,7 +64,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "description" -> Seq("Group for the Head Archivists in Test Repo")
       )
       val headArchivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Groups.create.url)
+        controllers.core.routes.Groups.create().url)
         .withHeaders(formPostHeaders.toSeq: _*), headArchivistsGroupData).get
       status(headArchivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
@@ -79,7 +75,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "description" -> Seq("Group for the Archivists in Test Repo")
       )
       val archivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Groups.create.url)
+        controllers.core.routes.Groups.create().url)
         .withHeaders(formPostHeaders.toSeq: _*), archivistsGroupData).get
       status(archivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
@@ -101,7 +97,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         EntityType.DocumentaryUnit.toString -> haPermissionsToGrant.map(_.toString)
       )
       val haPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group.toString, headArchivistsGroupId).url)
+          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, headArchivistsGroupId).url)
       .withHeaders(formPostHeaders.toSeq: _*), haPermData).get
       status(haPermSetPost) must equalTo(SEE_OTHER)
 
@@ -115,7 +111,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         EntityType.DocumentaryUnit.toString -> aPermissionsToGrant.map(_.toString)
       )
       val aPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group.toString, archivistsGroupId).url)
+          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, archivistsGroupId).url)
       .withHeaders(formPostHeaders.toSeq: _*), aPermData).get
       status(aPermSetPost) must equalTo(SEE_OTHER)
 
@@ -124,7 +120,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       // in one go using the groups parameter
       val headArchivistUserId = "head-archivist-user"
       val haUserData = Map(
-        "username" -> Seq(headArchivistUserId),
+        "identifier" -> Seq(headArchivistUserId),
         "name" -> Seq("Bob Important"),
         "email" -> Seq("head-archivist@example.com"),
         "password" -> Seq("changeme"),
@@ -132,7 +128,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "group[]" -> Seq(headArchivistsGroupId, archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val haUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Admin.createUserPost.url)
+        controllers.core.routes.Admin.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), haUserData).get
       status(haUserCreatePost) must equalTo(SEE_OTHER)
 
@@ -142,21 +138,19 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val haFetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(headArchivistUserId))
-
-      haFetchProfile must beRight
-      val headArchivistProfile = haFetchProfile.right.get
+      val headArchivistProfile = await(testBackend.get[UserProfile](headArchivistUserId))
 
       // Add their account to the mocks
-      val haAccount = MockUser("head-archivist@example.com", headArchivistUserId)
-      mocks.userFixtures.put(haAccount.profile_id, haAccount)
+      val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com",
+          verified = true, staff = true)
+      mocks.userFixtures.put(haAccount.id, haAccount)
 
 
       // Now create a new user and add them to the archivists group. Do this
       // in one go using the groups parameter
       val archivistUserId = "archivist-user1"
       val aUserData = Map(
-        "username" -> Seq(archivistUserId),
+        "identifier" -> Seq(archivistUserId),
         "name" -> Seq("Jim Nobody"),
         "email" -> Seq("archivist1@example.com"),
         "password" -> Seq("changeme"),
@@ -164,7 +158,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "group[]" -> Seq(archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val aUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Admin.createUserPost.url)
+        controllers.core.routes.Admin.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), aUserData).get
       status(aUserCreatePost) must equalTo(SEE_OTHER)
 
@@ -174,14 +168,12 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val aFetchProfile = await(rest.EntityDAO[UserProfile](EntityType.UserProfile, Some(userProfile)).get(archivistUserId))
-
-      aFetchProfile must beRight
-      val archivistProfile = aFetchProfile.right.get
+      val archivistProfile = await(testBackend.get[UserProfile](archivistUserId))
 
       // Add the archivists group to the account mocks
-      val aAccount = MockUser("archivist1@example.com", archivistUserId)
-      mocks.userFixtures.put(aAccount.profile_id, aAccount)
+      val aAccount = MockAccount(archivistUserId, "archivist1@example.com",
+        verified = true, staff = true)
+      mocks.userFixtures.put(aAccount.id, aAccount)
 
 
       // Check each user can read their profile as themselves...
@@ -237,7 +229,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(doc1DeleteRead) must equalTo(SEE_OTHER)
       val doc1CheckDeleteRead = route(fakeLoggedInHtmlRequest(haAccount, GET,
           controllers.archdesc.routes.DocumentaryUnits.get(doc1Id).url)).get
-      status(doc1CheckDeleteRead) must equalTo(NOT_FOUND)
+      status(doc1CheckDeleteRead) must throwA[ItemNotFound]
 
       // ---------------------------------------------
       //
@@ -285,7 +277,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(doc2DeleteRead) must equalTo(SEE_OTHER)
       val doc2CheckDeleteRead = route(fakeLoggedInHtmlRequest(aAccount, GET,
           controllers.archdesc.routes.DocumentaryUnits.get(doc2Id).url)).get
-      status(doc2CheckDeleteRead) must equalTo(NOT_FOUND)
+      status(doc2CheckDeleteRead) must throwA[ItemNotFound]
 
       // HOORAY! Basic stuff seems to work - now onto the difficult things...
       // Create a doc as the head archivist, then check it can't be deleted
@@ -316,12 +308,12 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val doc3UpdateRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
           controllers.archdesc.routes.DocumentaryUnits.update(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*),
           doc3Data.updated("descriptions[0].name", Seq("Foobar"))).get
-      status(doc3UpdateRead) must equalTo(UNAUTHORIZED)
+      status(doc3UpdateRead) must throwA[PermissionDenied]
 
       // Now ensure the ordinary archivist cannot delete it!
       val doc3DeleteRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
           controllers.archdesc.routes.DocumentaryUnits.delete(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
-      status(doc3DeleteRead) must equalTo(UNAUTHORIZED)
+      status(doc3DeleteRead) must throwA[PermissionDenied]
 
       // Test the ordinary archivist can Create a documentary units within repoId
       // and the head archivist CAN delete it...
@@ -356,9 +348,5 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       status(doc4DeleteRead) must equalTo(SEE_OTHER)
 
     }
-  }
-
-  step {
-    runner.stop()
   }
 }

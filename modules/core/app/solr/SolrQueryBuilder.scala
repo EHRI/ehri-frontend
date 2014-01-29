@@ -1,48 +1,49 @@
 package solr
 
-import com.github.seratch.scalikesolr.request.QueryRequest
-import com.github.seratch.scalikesolr.request.query.{Query, FilterQuery, QueryParserType,
-    Sort,StartRow,MaximumRowsReturned,IsDebugQueryEnabled}
-import com.github.seratch.scalikesolr.request.query.FieldsToReturn
+import com.github.seratch.scalikesolr.request.query._
 import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
-import com.github.seratch.scalikesolr.request.query.facet.{FacetParams,FacetParam,Param,Value}
-
-import solr.facet._
+import com.github.seratch.scalikesolr.request.query.facet.FacetParams
+import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupField,GroupFormat,WithNumberOfGroups}
 
 import defines.EntityType
 import models.UserProfile
-import utils.search.{AppliedFacet, FacetClassList, SearchParams}
+import utils.search._
 import play.api.Logger
+import solr.facet.FieldFacetClass
+import com.github.seratch.scalikesolr.request.query.facet.Value
+import com.github.seratch.scalikesolr.request.QueryRequest
+import com.github.seratch.scalikesolr.request.query.facet.Param
+import com.github.seratch.scalikesolr.request.query.facet.FacetParam
+import solr.facet.QueryFacetClass
 
 
 /**
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-object SolrQueryBuilder {
+class SolrQueryBuilder() extends QueryBuilder {
 
   import SolrConstants._
 
   /**
    * Convert a page value to an offset, given a particular limit.
-   * @param page
-   * @param limit
-   * @return
    */
   private def page2offset(page: Int, limit: Int) = (Math.max(page, 1) - 1) * limit
 
   /**
    * Set a list of facets on a request.
-   * @param request
-   * @param flist
    */
   private def setRequestFacets(request: QueryRequest, flist: FacetClassList): Unit = {
+
+    // Need to tag and exclude all 'choice' facet classes because we want
+    // the counts even if they're excluded...
+    val tags = flist.filter(_.tagExclude).map(_.key)
     request.setFacet(new FacetParams(
       enabled=true,
       params=flist.flatMap {
-        case qf: QueryFacetClass => List(qf.asParams)
-        case ff: FieldFacetClass => List(ff.asParams)
+        case qf: QueryFacetClass => List(qf.asParams(tags))
+        case ff: FieldFacetClass => List(ff.asParams(tags))
         case e => {
           Logger.logger.warn("Unknown facet class type: {}", e)
           Nil
@@ -53,10 +54,6 @@ object SolrQueryBuilder {
 
   /**
    * Apply filters to the request based on a set of applied facets.
-   *
-   * @param request
-   * @param facetClasses
-   * @param appliedFacets
    */
   private def setRequestFilters(request: QueryRequest, facetClasses: FacetClassList,
                                 appliedFacets: List[AppliedFacet]): Unit = {
@@ -64,14 +61,29 @@ object SolrQueryBuilder {
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
     // apparently only have one. So instead of adding multiple
     // fq clauses, we need to join them all with '+'
+
     val fqstrings = facetClasses.flatMap(fclass => {
-      appliedFacets.filter(_.name == fclass.key).map(_.values).map( paramVals =>
+      appliedFacets.filter(_.name == fclass.key).map(_.values).map { paramVals =>
+        // If we get several field parameters for the same facet class we
+        // need to OR them together...
         fclass match {
-          case fc: FieldFacetClass => paramVals.map(v => fc.key + ":\"" + v + "\"") // Grr, interpolation...
+          case fc: FieldFacetClass => {
+            paramVals match {
+              case Nil => Nil
+              case _ => {
+                // Choice facets need a tag in front of the parameter so they can be
+                // excluded from count-limiting filters
+                // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
+                val query = "(" + paramVals.map(v => fc.key + ":\"" + v + "\"").mkString(" OR ") + ")"
+                if (fc.tagExclude) List("{!tag=" + fc.key + "}" + query)
+                else List(query)
+              }
+            }
+          } // Grr, interpolation...
           case fc: QueryFacetClass => {
             fc.facets.flatMap(facet => {
-              if (paramVals.contains(facet.param)) {
-                List(s"${fc.key}:${facet.solr}")
+              if (paramVals.contains(facet.value)) {
+                List(s"{!tag=${fc.key}}${fc.key}:${facet.solrValue}")
               } else Nil
             })
           }
@@ -80,16 +92,14 @@ object SolrQueryBuilder {
             Nil
           }
         }
-      )
+      }
     }).flatten
     request.setFilterQuery(FilterQuery(multiple = fqstrings))
+    request.set("facet.mincount", 1)
   }
 
   /**
    * Constrain a search request with the given facets.
-   * @param request
-   * @param appliedFacets
-   * @param allFacets
    */
   private def constrain(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: FacetClassList): Unit = {
     setRequestFacets(request, allFacets)
@@ -99,14 +109,12 @@ object SolrQueryBuilder {
   /**
    * Constrain the search to entities of a given type, applying an fq
    * parameter to the "type" field.
-   * @param request
-   * @param entities
    */
   private def constrainEntities(request: QueryRequest, entities: List[EntityType.Value]): Unit = {
     if (!entities.isEmpty) {
       val filter = entities.map(_.toString).mkString(" OR ")
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq(s"$TYPE:($filter)")))
+        FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq(s"$TYPE:($filter)")))
     }
   }
 
@@ -114,14 +122,12 @@ object SolrQueryBuilder {
    * Filter docs based on access. If the user is empty, only allow
    * through those which have accessibleTo:ALLUSERS.
    * If we have a user and they're not admin, add a filter against
-   * all their groups
-   * @param request
-   * @param userOpt
+   * all their groups.
    */
   private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfile]): Unit = {
     if (userOpt.isEmpty) {
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++
+        FilterQuery(multiple = request.filterQuery.getMultiple ++
           Seq("%s:%s".format(ACCESSOR_FIELD, ACCESSOR_ALL_PLACEHOLDER))))
     } else if (!userOpt.get.isAdmin) {
       // Create a boolean or query starting with the ALL placeholder, which
@@ -130,32 +136,31 @@ object SolrQueryBuilder {
       val accessors = ACCESSOR_ALL_PLACEHOLDER :: userOpt.map(
           u => (u.id :: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple() ++ Seq("%s:(%s)".format(
+        FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq("%s:(%s)".format(
           ACCESSOR_FIELD, accessors.mkString(" OR ")))))
     }
   }
 
   /**
-   * Group results by item id (as opposed to description id)
-   * @param request
+   * Group results by item id (as opposed to description id). Facet counts
+   * are also set to reflect grouping as opposed to the number of individual
+   * items.
    */
   private def setGrouping(request: QueryRequest): Unit = {
-    request.set("group", true)
-    request.set("group.field", ITEM_ID)
+    request.setGroup(GroupParams(
+      enabled=true,
+      field=GroupField(ITEM_ID),
+      format=GroupFormat("simple"),
+      ngroups=WithNumberOfGroups(ngroups = true)
+    ))
+
+    // Not yet supported by scalikesolr
     request.set("group.facet", true)
-    request.set("group.format", "simple")
-    request.set("group.ngroups", true)
-    //req.set("group.truncate", true)
   }
 
   /**
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
-   * @param params
-   * @param filters
-   * @param alphabetical
-   * @param userOpt
-   * @return
    */
   def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
@@ -168,7 +173,7 @@ object SolrQueryBuilder {
     applyAccessFilter(req, userOpt)
     setGrouping(req)
     req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
-    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE"))
+    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $DB_ID"))
     if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
     req.setQueryParserType(QueryParserType("edismax"))
 
@@ -185,17 +190,25 @@ object SolrQueryBuilder {
 
   /**
    * Build a query given a set of search parameters.
-   * @param params
-   * @return
    */
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty,
+              mode: SearchMode.Value = SearchMode.DefaultAll)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 
     val searchFilters = params.filters.toList.flatten.filter(_.contains(":")).map(f => " +" + f).mkString
 
-    val queryString = params.query.getOrElse("*").trim + excludeIds + searchFilters
+    val defaultQuery = mode match {
+      case SearchMode.DefaultAll => "*"
+      case _ => "PLACEHOLDER_QUERY_RETURNS_NO_RESULTS" // FIXME! This sucks
+    }
+
+    // Child count to boost results seems to have an odd affect in making the
+    // query only work on the default field - disabled for now...
+    val queryString =
+        //s"{!boost b=$CHILD_COUNT}" +
+        params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
 
@@ -208,10 +221,13 @@ object SolrQueryBuilder {
     // Use edismax to parse the user query
     req.setQueryParserType(QueryParserType("edismax"))
 
-    // Highlight, which will at some point be implemented...
-    req.setHighlighting(HighlightingParams(
-        enabled=true,
-        isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(true)))
+    // Highlight, but only if we have a query...
+    if (params.query.isDefined) {
+      //req.set("highlight.q", params.query)
+      req.setHighlighting(HighlightingParams(
+          enabled=true,
+          isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(usePhraseHighlighter = true)))
+    }
 
     // Set result ordering, defaulting to the solr default 'score asc'
     // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
@@ -226,7 +242,7 @@ object SolrQueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", s"$NAME_MATCH^2.0 $OTHER_NAMES^3.0 $PARALLEL_NAMES^3.0 $NAME_SORT^2.0 $TEXT")
+      req.set("qf", s"$ITEM_ID^5 $NAME_EXACT^4 $NAME_MATCH^4 $OTHER_NAMES^4 $PARALLEL_NAMES^4 $NAME_SORT^3 $TEXT")
     }
 
     // Mmmn, speckcheck
@@ -241,10 +257,8 @@ object SolrQueryBuilder {
     // if we're using a specific index, constrain on that as well
     constrainEntities(req, params.entities)
 
-    // Only return what we immediately need to build a SearchDescription. We
-    // ignore nearly everything currently stored in Solr, instead fetching the
-    // data from the DB, but this might change in future.
-    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE"))
+    // Currently returning all the fields, but this might change...
+    //req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE $DB_ID"))
 
     // Return only fields we care about...
     applyAccessFilter(req, userOpt)
@@ -253,13 +267,13 @@ object SolrQueryBuilder {
     filters.map { case (key, value) =>
       val filter = value match {
         case s: String => "%s:\"%s\"".format(key, s)
-        case _: Int => "%s:%s".format(key, value)
+        case _ => "%s:%s".format(key, value)
       }
-      req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple() ++ Seq(filter)))
+      req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple ++ Seq(filter)))
     }
 
     // Debug query for now
-    //req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
+    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
 
     // Setup start and number of objects returned
     val limit = params.limit.getOrElse(DEFAULT_SEARCH_LIMIT)

@@ -13,7 +13,7 @@ import scala.Option.option2Iterable
 object GlobalPermissionSet {
 
   // Type alias for the very verbose permission-set data structure
-  type PermData = List[(String, Map[ContentType.Value, List[PermissionType.Value]])]
+  type PermData = List[(String, Map[ContentTypes.Value, List[PermissionType.Value]])]
   type PermDataRaw = List[Map[String, Map[String, List[String]]]]
 
   /**
@@ -30,16 +30,24 @@ object GlobalPermissionSet {
   private def extract(pd: PermDataRaw): PermData = {
     pd.flatMap { pmap =>
       pmap.headOption.map { case (user, perms) =>
-		(user, perms.map {
-		  case (et, plist) =>
-		    try {
-		      (ContentType.withName(et), plist.map(PermissionType.withName(_)))
-		    } catch {
-		      case e: NoSuchElementException =>
-		      // If we get an expected permission, fail fast!
-		    sys.error("Unable to extract permissions: Entity: '%s', elements: %s".format(et, plist))
-		  }
-		})
+        (user, perms.flatMap {
+          case (et, plist) =>
+            val perms = plist.flatMap { ps =>
+              try {
+                Some(PermissionType.withName(ps))
+              } catch {
+                case e: NoSuchElementException => None
+              }
+            }
+
+            try {
+              Some((ContentTypes.withName(et), perms))
+            } catch {
+              // If we get an expected permission, just ignore it... this makes
+              // for less painful server upgrades!
+              case e: NoSuchElementException => None
+          }
+        })
       }
     }
   }
@@ -62,7 +70,7 @@ case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPerm
   /**
    * Check if this permission set has the given permission.
    */
-  def has(sub: ContentType.Value, permission: PermissionType.Value): Boolean =
+  def has(sub: ContentTypes.Value, permission: PermissionType.Value): Boolean =
     !data.flatMap(_._2.get(sub)).filter( plist => plist.exists( p =>
         PermissionType.in(p, permission))).isEmpty
 
@@ -70,7 +78,7 @@ case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPerm
    * Get the permission grant for a given permission (if any), which contains
    * the accessor to whom the permission was granted.
    */
-  def get(contentType: ContentType.Value, permission: PermissionType.Value): Option[Permission[T]] = {
+  def get(contentType: ContentTypes.Value, permission: PermissionType.Value): Option[Permission[T]] = {
     val accessors = data.flatMap {
       case (user, perms) =>
         perms.get(contentType).flatMap { permSet =>

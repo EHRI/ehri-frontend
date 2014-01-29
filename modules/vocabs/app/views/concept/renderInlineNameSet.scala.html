@@ -1,6 +1,6 @@
 @(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, lang: Lang)
 
-<div class="inline-formset clearfix">
+<div class="inline-formset clearfix" data-prefix="@name">
     <label class="control-label">
         @Messages(fieldPrefix + "." + name)
         <a href="#" class="add-inline-element"><i class="icon-plus-sign"></i></a>

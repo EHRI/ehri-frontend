@@ -1,5 +1,7 @@
 @(f: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)])(implicit req: RequestHeader)
 
+@import backend.rest.Constants.ACCESSOR_PARAM
+
 <fieldset id="visibility-area">
     <legend>@Messages("actions.setVisibility")</legend>
 
@@ -7,7 +9,7 @@
         <label class="control-label" for="visibility_groups">@Messages("contentTypes.group")</label>
         <div class="controls input">
             <select class="chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" multiple
-            name="@(rest.RestPageParams.ACCESSOR_PARAM)[]">
+            name="@(ACCESSOR_PARAM)[]">
             @groups.map{ case(id, name) =>
                 <option value="@id" @(if(f.value.map(_.contains(id)).getOrElse(false)) "selected")>@name</option>
             }
@@ -19,7 +21,7 @@
         <label class="control-label" for="visibility_users">@Messages("contentTypes.userProfile")</label>
         <div class="controls input">
             <select class="chzn-select" data-placeholder="@Messages("visibility.chooseUsers")" multiple
-            name="@(rest.RestPageParams.ACCESSOR_PARAM)[]">
+            name="@(ACCESSOR_PARAM)[]">
             @users.map { case(id, name) =>
                 <option value="@id" @(if(f.value.map(_.contains(id)).getOrElse(false)) "selected")>@name</option>
             }

@@ -1,6 +1,6 @@
-@(page: rest.Page[Country], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(page: backend.Page[Country], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listCountries")) {
+@layout.rightSidebar(Messages("actions.listCountries")) {
 
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 
@@ -19,7 +19,7 @@
 } {
     @common.sidebarSection(None) {
         @userOpt.map { user =>
-            @if(user.hasPermission(ContentType.Country, PermissionType.Create)) {
+            @if(user.hasPermission(ContentTypes.Country, PermissionType.Create)) {
                 <a class="btn btn-primary" href="@controllers.archdesc.routes.Countries.create">@Messages("actions.createCountry")</a>
             }
         }

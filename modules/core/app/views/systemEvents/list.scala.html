@@ -1,11 +1,25 @@
-@(page: rest.Page[SystemEvent], params: ListParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: GlobalConfig, lang: Lang, flash: Flash)
+@(list: List[SystemEvent], params: utils.ListParams, filterForm: Form[utils.SystemEventParams])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@rightSidebarLayout(Messages("actions.listSystemEvents")) {
+@import defines.EventType
+@import backend.rest.Constants._
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }
 
-	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+
+@layout.rightSidebar(Messages("actions.listSystemEvents")) {
+
+    <div class="event-filter">
+        @helper.form(action = controllers.core.routes.SystemEvents.list, 'class -> "form-inline") {
+            <input type="hidden" name="@OFFSET_PARAM" value="@params.offset" />
+            <input type="hidden" name="@LIMIT_PARAM" value="@params.limit" />
+            @defining("systemEvents") { implicit fieldPrefix =>
+                @formHelpers.multiselectInput(filterForm(EVENT_TYPE), EVENT_TYPE, EventType.values.map(e => e.toString -> Messages(fieldPrefix + "." + e.toString)).toList.sorted)
+                <button type="submit">@Messages(fieldPrefix + ".filter")</button>
+            }
+        }
+    </div>
 
 	<ul class="unstyled">
-	@page.items.map { item =>
+	@list.map { item =>
 	  	<div class="list-item">
 			<h4>
                 <a data-timestamp="@item.time" href="@controllers.core.routes.SystemEvents.get(item.id)">
@@ -20,10 +34,13 @@
                     @item.actioner.map { accessor =>
                         <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
                     }
-                    <li>@views.Helpers.prettyDate(item.model.timestamp)</li>
+                    <li>@views.Helpers.relativeDate(item.model.timestamp)</li>
                 </ul>
             </small>
             <small>
+            @item.firstSubject.map { s =>
+                <a href="@controllers.core.routes.SystemEvents.get(item.id)#subjects">@Messages("systemEvents.subjects", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))</a>
+            }
             @item.model.logMessage.map { lm =>
                 <p>@lm</p>
             }
@@ -31,7 +48,25 @@
 		</div>
 	}
 	</ul>
-    @common.pagination(page)
+
+    <div id="pagination" class="pagination pull-right">
+        <ul>
+            @if(params.offset > 0) {
+                <li>
+                    <a href="@utils.joinPath(req.path, req.queryString.updated(OFFSET_PARAM, Seq((math.max(0,params.offset - params.limit)).toString)))">
+                        @Messages("systemEvents.newerEvents")</a>
+                </li>
+            } else {
+                <li class="disabled"><a>@Messages("systemEvents.newerEvents")</a></li>
+            }
+            <li><a href="@utils.joinPath(req.path, req.queryString.updated(OFFSET_PARAM, Seq((params.offset + params.limit).toString)))">
+            @Messages("systemEvents.olderEvents")</a></li>
+        </ul>
+    </div>
+
+    @*
+        @common.pagination(page)
+    *@
 
 } {
 

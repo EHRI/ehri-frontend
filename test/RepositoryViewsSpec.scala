@@ -10,12 +10,12 @@ import defines._
 /**
  * Created by mike on 05/06/13.
  */
-class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
+class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) {
   import mocks.{privilegedUser,unprivilegedUser}
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.profile_id), identifier = "test", name="test user"),
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -54,6 +54,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         "descriptions[0].descriptionArea.history" -> Seq("Some history"),
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("Some content"),
         "descriptions[0].addressArea[0].addressName" -> Seq("An Address"),
+        "descriptions[0].addressArea[0].email[0]" -> Seq("foo@example.com"),
         "descriptions[0].addressArea[0].telephone[0]" -> Seq("12345 546395"),
         "descriptions[0].controlArea[0].sources[0]" -> Seq("ClaimsCon"),
         "descriptions[0].controlArea[0].sources[1]" -> Seq("YV"),
@@ -70,6 +71,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain("Some content")
       contentAsString(show) must contain("An Address")
       contentAsString(show) must contain("12345 546395")
+      mockIndexer.eventBuffer.last must equalTo("nl-wiener-library")
     }
 
     "error if missing mandatory values" in new FakeApp {
@@ -121,6 +123,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for r1")
+      mockIndexer.eventBuffer.last must equalTo("r1")
     }
 
     "disallow updating items when logged in as unprivileged user" in new FakeApp {

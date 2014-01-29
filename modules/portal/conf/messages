@@ -1,0 +1,136 @@
+portal.welcome=Welcome to EHRI
+portal.home=Home
+portal.footerText=This is a development version of the EHRI portal interface.
+
+portal.login=Sign In
+portal.logout=Sign Out
+portal.signup=Create an Account
+portal.recoverAccount=If you have lost your login details:
+portal.loginByProvider=If you already have an account on one of these sites you can click the logo to log in to EHRI:
+portal.openId=OpenID
+portal.openIdEnterUrl=Enter your OpenID URL
+portal.loginByPassword=If you''ve previously created an account with EHRI, enter your email and password here:
+portal.signup.emailConfirmed=Your email is now confirmed and you have been signed in.
+portal.signup.invalidSignupToken=Confirmation URL is invalid or has expired.
+portal.mail.confirmEmailHeading=Please confirm your email address
+portal.mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
+portal.mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\
+  be deactivated.
+portal.forgotPasswordLink=Click here to recover your account
+portal.signupLink=Click here to sign up
+
+portal.browse=Browse
+portal.search=Search
+portal.profile=Profile
+portal.profile.updateProfile=Edit Profile
+portal.globalSearch=Search Everything
+portal.close=Close
+portal.browse.countries=Country Reports
+portal.browse.repositoriesByCountry=Institutions By Country
+portal.browse.repositories=Archival Institutions
+portal.browse.documents=Archival Descriptions
+portal.browse.historicalAgents=Authorities
+portal.browse.documentsByRepository=Archival Descriptions By Repository
+portal.landingBlurb.repositories=Browse {0} in {1}.
+portal.landingBlurb.repositoryLink={0} collection holding institutions
+portal.landingBlurb.inCountryLink={0} countries
+portal.landingBlurb.documentLink={0} archival descriptions
+portal.landingBlurb.inRepositoryLink={0} repositories
+portal.landingBlurb.documents=Browse {0} in {1}.
+portal.landingBlurb.historicalAgents=Browse {0}, comprised of {1}, {2} and {3}.
+portal.landingBlurb.historicalAgentLink={0} authority files
+portal.landingBlurb.corporateBodyLink={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
+portal.landingBlurb.personLink={0} Persons
+portal.landingBlurb.familyLink={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
+portal.search.repositories=Search Archival Institutions
+portal.search.documents=Search Archival Descriptions
+portal.search.historicalAgents=Search Authorities
+
+portal.bookmarkedItems=Bookmarked Items
+portal.newsFeed=Latest News
+portal.latestUpdates=Recent Updates
+portal.repository.address=Address
+portal.repository.contact=Contact
+portal.repository.phone=Phone
+portal.repository.email=Email
+portal.repository.fax=Fax
+portal.repository.url=Web
+portal.item.details=Item Details
+portal.item.history=Online History
+portal.historicalAgent.set=Authority
+
+portal.documentaryUnit.identifier=Identifier
+portal.documentaryUnit.otherIdentifiers=Alt. Identifiers
+portal.documentaryUnit.extentAndMedium=Extent & Medium
+portal.documentaryUnit.dates=Dates
+portal.documentaryUnit.levelOfDescription=Level of Description
+portal.documentaryUnit.languageOfMaterials=Languages
+portal.documentaryUnit.scriptOfMaterials=Scripts
+
+portal.historicalAgent.identifier=Identifier
+portal.historicalAgent.dates=Dates
+portal.historicalAgent.entityType=Type of Entity
+portal.historicalAgent.entityType.person=Person
+portal.historicalAgent.entityType.family=Family
+portal.historicalAgent.entityType.corporateBody=Corporate Body
+
+portal.facet.location=Location
+portal.facet.placeholder.holder=Filter by Repository
+portal.facet.placeholder.country=Filter Country
+portal.facet.placeholder.lang=Filter Language
+portal.facet.placeholder.childCount=Filter Structure
+portal.facet.placeholder.kw=Filter Keyword
+portal.facet.container=Item Structure
+portal.facet.container.hasChildItems=Multi-level (container)
+portal.facet.itemsHeldOnline=Viewable Items
+portal.facet.itemsHeldOnline.yes=Catalogued Material Available
+portal.multipleDescriptions=This item has multiple descriptions. Alternate descriptions may source from different institutions or represent a (partial) translation.
+portal.noDetails=---
+
+# Activity...
+portal.activity=Activity
+portal.activity.latestActivity=Latest Activity
+portal.activity.userCreatedItem={2,choice,0#{0} created item {1}|1#{0} created {1} and 1 more item|1<{0} created {1} and {2,number,integer} more items}
+portal.activity.userUpdatedItem={2,choice,0#{0} updated item {1}|1#{0} updated {1} and 1 more item|1<{0} updated {1} and {2,number,integer} more items}
+portal.activity.userImportedItem={2,choice,0#{0} imported item {1}|1#{0} imported {1} and 1 more item|1<{0} imported {1} and {2,number,integer} more items}
+portal.activity.userLinkedItem={2,choice,0#{0} created a link for item {1}|1#{0} created a link for {1} and 1 more item|1<{0} created a link for {1} and {2,number,integer} more items}
+portal.activity.userAnnotatedItem={2,choice,0#{0} annotated item {1}|1#{0} annotated {1} and 1 more item|1<{0} annotated {1} and {2,number,integer} more items}
+portal.activity.fetchMore=More
+portal.activity.noActivityYet=Activity involving items you''re watching and users you follow will show up here.
+portal.activity.noUserActivityYet=No activity yet.
+portal.activity.modifiedProfile=Updated profile information.
+
+# 'Social' stuff...
+portal.social.users=People
+portal.social.browseUsers=People on EHRI
+portal.social.follow=Follow
+portal.social.unfollow=Unfollow
+portal.social.followers=Followers
+portal.social.following=Following
+portal.social.followedBy=Followed By
+portal.social.noFollowersYet=No one''s following {0} yet.
+portal.social.noFollowingYet={0} isn''t following anyone yet.
+portal.social.noItemsWatchedYet=You''re not watching any items yet.
+
+portal.social.watch=Watch Item
+portal.social.unwatch=Unwatch Item
+portal.social.watchItem=Add item to your watch list
+portal.social.unwatchItem=Remove item from your watch list
+portal.social.watchedItems=Items You''re Watching
+portal.social.annotations=Your Annotations
+portal.social.links=Your Links
+portal.social.noAnnotationsYet=You haven''t made any annotations yet.
+portal.social.noLinksYet=You haven''t made any links yet.
+portal.social.createAnnotation=comment
+portal.social.editAnnotation=Save
+portal.social.createFieldAnnotation=comment
+portal.social.createLink=Create Link
+portal.social.annotationCreatedBy=Created by {0} at {1}
+portal.social.showPublicAnnotations={0,choice,1#Show 1 public comment|1<Show {0} public comments}
+
+portal.contributionVisibility=Choose who can see this
+portal.contributionVisibility.me=Only Me
+portal.contributionVisibility.groups=My Groups
+portal.contributionVisibility.custom=Custom
+portal.contributionVisibility.allowPublic=Allow Promotion
+portal.social.annotation.placeholder=

@@ -1,0 +1,15 @@
+@(annotations: utils.AbstractPage[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+@if(!annotations.isEmpty) {
+    <ul class="list-unstyled user-annotation-list">
+    @annotations.map { ann =>
+        <li class="user-annotation">
+            @p.common.annotation(ann)
+        </li>
+    }
+    </ul>
+} else {
+     <p class="text-muted">
+         @Messages("portal.social.noAnnotationsYet")
+     </p>
+}

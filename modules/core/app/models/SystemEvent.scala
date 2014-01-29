@@ -1,13 +1,14 @@
 package models
 
-import models.base.{Accessor, AnyModel, Model, MetaModel}
+import models.base._
 import org.joda.time.DateTime
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import defines.{EntityType, EventType}
-import models.json.{RestReadable, ClientConvertable}
+import models.json.{RestResource, RestReadable, ClientConvertable}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
+import play.api.libs.json.JsObject
 
 object SystemEventF {
 
@@ -41,17 +42,26 @@ object SystemEvent {
     implicit val clientFormat: Format[SystemEvent] = (
       __.format[SystemEventF](SystemEventF.Converter.clientFormat) and
       (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "user").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat)
+      (__ \ "firstSubject").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
+      (__ \ "user").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
     )(SystemEvent.apply _, unlift(SystemEvent.unapply _))
+  }
+
+  implicit object Resource extends RestResource[SystemEvent] {
+    val entityType = EntityType.SystemEvent
   }
 }
 
 case class SystemEvent(
   model: SystemEventF,
   scope: Option[AnyModel] = None,
-  actioner: Option[Accessor] = None
+  firstSubject: Option[AnyModel] = None,
+  actioner: Option[Accessor] = None,
+  meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[SystemEventF] {
+  with MetaModel[SystemEventF]
+  with Holder[AnyModel] {
 
   def time = DateTimeFormat.forPattern(SystemEventF.FORMAT).print(model.timestamp)
 
