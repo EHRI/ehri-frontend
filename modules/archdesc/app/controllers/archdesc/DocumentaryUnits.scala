@@ -13,7 +13,8 @@ import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import scala.Some
-import backend.Backend
+import backend.{ApiUser, Backend}
+import utils.ListParams
 
 @Singleton
 case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Read[DocumentaryUnit]
@@ -344,6 +345,28 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def manageAccessPoints(id: String, descriptionId: String) = manageAccessPointsAction(id, descriptionId) {
       item => desc => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.editAccessPoints(item, desc))
+  }
+
+  import play.api.libs.concurrent.Execution.Implicits._
+  import utils.ead.DocTree
+
+  def exportEad(id: String) = optionalUserAction.async { implicit userOpt => implicit request =>
+    import scala.concurrent.Future
+    implicit val apiUser = ApiUser(userOpt.map(_.id))
+
+    val params = ListParams(limit = 100) // can't get around large limits yet...
+
+    def fetchTree(id: String): Future[DocTree] = {
+      for {
+        doc <- backend.get[DocumentaryUnit](id)
+        children <- backend.listChildren[DocumentaryUnit,DocumentaryUnit](id, params)
+        trees <- Future.sequence(children.map(c => fetchTree(c.id)))
+      } yield DocTree(doc, trees)
+    }
+
+    fetchTree(id).map { tree =>
+      Ok(views.xml.documentaryUnit.ead(tree)).as("text/xml")
+    }
   }
 }
 

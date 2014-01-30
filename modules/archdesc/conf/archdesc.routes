@@ -9,6 +9,7 @@ GET     /docs/list                                      @controllers.archdesc.Do
 # Testing
 GET     /docs/meta/:id                                  @controllers.archdesc.DocumentaryUnits.getClientJson(id)
 
+GET     /docs/ead/:id                                   @controllers.archdesc.DocumentaryUnits.exportEad(id: String)
 GET     /docs/show/:id                                  @controllers.archdesc.DocumentaryUnits.get(id: String)
 GET     /docs/history/:id                               @controllers.archdesc.DocumentaryUnits.history(id: String)
 GET     /docs/delete/:id                                @controllers.archdesc.DocumentaryUnits.delete(id: String)
@@ -55,6 +56,7 @@ GET     /repository/meta/:id                            @controllers.archdesc.Re
 
 GET     /repository                                     @controllers.archdesc.Repositories.search
 GET     /repository/list                                @controllers.archdesc.Repositories.list
+GET     /repository/ead/:id                             @controllers.archdesc.Repositories.exportEad(id: String)
 GET     /repository/show/:id                            @controllers.archdesc.Repositories.get(id: String)
 GET     /repository/history/:id                         @controllers.archdesc.Repositories.history(id: String)
 GET     /repository/delete/:id                          @controllers.archdesc.Repositories.delete(id: String)
