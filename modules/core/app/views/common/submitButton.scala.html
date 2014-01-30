@@ -1,9 +1,11 @@
 @(buttonText: String, cancel: Option[Call] = None)(implicit extra: Html = Html(""))
 
-<div class="form-actions">
-    <button type="submit" class="btn btn-primary">@buttonText</button>
-    @cancel.map { call =>
-        <a href="@call" class="btn">@Messages("actions.cancel")</a>
-    }
-    @extra
+<div class="form-group">
+	<div class="col-sm-offset-2 col-sm-10">
+	    <button type="submit" class="btn btn-primary">@buttonText</button>
+	    @cancel.map { call =>
+	        <a href="@call" class="btn btn-warning">@Messages("actions.cancel")</a>
+	    }
+	    @extra
+	</div>
 </div>

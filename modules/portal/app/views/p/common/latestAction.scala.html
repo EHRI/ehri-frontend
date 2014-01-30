@@ -3,7 +3,7 @@
 @item.latestEvent.map { ev =>
     @p.common.footerPanel(Messages("portal.item.history")) {
         <strong title="@common.eventTitle(ev)">@views.Helpers.relativeDate(ev.model.timestamp)</strong>
-        <p class="muted">
+        <p class="text-muted">
             <em>@ev.toStringLang</em>
         </p>
     } {

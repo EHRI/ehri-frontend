@@ -4,7 +4,7 @@
 
 @if(!item.ancestors.isEmpty) {
     <small>
-        <ul class="list-unstyled muted inline inline-separator">
+        <ul class="list-unstyled text-muted inline inline-separator">
             @item.ancestors.reverse.map { parent =>
                 <li>
                     <a href="@controllers.archdesc.routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
@@ -14,11 +14,11 @@
     </small>
 }
 <small>
-    <ul class="list-unstyled muted inline inline-separator">
+    <ul class="list-unstyled text-muted inline inline-separator">
         @item.holder.map { holder =>
             <li><a class="alt" href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
         }
-        <li><span class="muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+        <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
         @desc.dates.headOption.map { dp =>
             <li>@dp.years</li>

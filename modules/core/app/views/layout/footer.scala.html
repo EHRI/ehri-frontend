@@ -3,7 +3,7 @@
 @footerSimple {
     @layout.versionInfo()
     <small>
-        <ul class="muted lang-switcher pull-right inline unstyled">
+        <ul class="text-muted lang-switcher pull-right inline unstyled">
         @List("en", "fr", "de", "he").map { changeLang =>
             <li>
                 @if(lang.toString.toLowerCase.contains(changeLang)) {

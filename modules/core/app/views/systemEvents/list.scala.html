@@ -30,7 +30,7 @@
                 </a>
 			</h4>
             <small>
-                <ul class="list-unstyled muted inline inline-separator">
+                <ul class="list-unstyled text-muted inline inline-separator">
                     @item.actioner.map { accessor =>
                         <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
                     }

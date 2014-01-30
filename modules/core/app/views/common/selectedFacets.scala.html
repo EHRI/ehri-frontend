@@ -2,7 +2,7 @@
 
 @import utils.search._
 
-<p class="selected-facets muted">
+<p class="selected-facets text-muted">
     @page.facets.map{ fclass =>
         @fclass.sorted.map{ facet =>
             @if(facet.applied) {

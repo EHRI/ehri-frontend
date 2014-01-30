@@ -56,7 +56,7 @@
     @common.annotated(item, annotations) {
 
         @item.model.otherIdentifiers.map { idents =>
-            <h4 class="muted">
+            <h4 class="text-muted">
                 <ul class="list-unstyled">
                     @idents.map { ident =>
                         <li>@ident</li>
@@ -86,7 +86,7 @@
                     }
                 </div>
             } else {
-                <p class="muted">@Messages("documentaryUnit.noDescriptions")</p>
+                <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
                 <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
             }
         }

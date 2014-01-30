@@ -42,7 +42,7 @@
                 <div class="well well-small">
                 @item.vocabulary.map { v =>
                     <h5>@Messages("concept.inVocabulary")</h5>
-                    <p class="muted"><a href="@controllers.vocabs.routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
+                    <p class="text-muted"><a href="@controllers.vocabs.routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
                 }
                 @if(!item.broaderTerms.isEmpty) {
                     <hr />
