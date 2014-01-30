@@ -6,26 +6,26 @@
     @common.latestAction(item, controllers.archdesc.routes.Repositories.history(item.id))
     @common.visibility(item, controllers.archdesc.routes.Repositories.visibility(item.id), ContentTypes.Repository)
 
-    <ul class="item-actions nav nav-tabs nav-stacked">
+    <div class="item-actions list-group">
         @userOpt.map { user =>
         @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
-            <li><a href="@controllers.archdesc.routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a></li>
+            <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a>
             }
         @if(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
-            <li><a href="@controllers.archdesc.routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a></li>
+            <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a>
             }
         @if(user.hasPermission(ContentTypes.Repository, PermissionType.Delete)) {
-            <li><a href="@controllers.archdesc.routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a></li>
+            <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a>
             }
         @if(user.hasPermission(ContentTypes.Repository, PermissionType.Grant)) {
-            <li><a href="@controllers.archdesc.routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
+            <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
             }
-        <li><a href="@controllers.archdesc.routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a></li>
+        <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a>
         }
-    </ul>
+    </div>
 
-    <ul class="item-actions nav nav-tabs nav-stacked">
-        <li><a href="@controllers.archdesc.routes.Repositories.updateIndex(item.id)">@Messages("search.updateIndex")</a></li>
-        <li><a href="@controllers.core.routes.ApiController.getItem(ContentTypes.Repository.toString, item.id)">@Messages("actions.exportJson")</a></li>
-    </ul>
+    <div class="item-actions list-group">
+        <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.updateIndex(item.id)">@Messages("search.updateIndex")</a>
+        <a class="list-group-item"  href="@controllers.core.routes.ApiController.getItem(ContentTypes.Repository.toString, item.id)">@Messages("actions.exportJson")</a>
+    </div>
 }
