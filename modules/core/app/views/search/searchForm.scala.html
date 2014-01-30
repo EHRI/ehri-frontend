@@ -36,14 +36,14 @@
         </h4>
     </div>
     <div class="col-md-6">
-        <div class="btn-group pull-right" style="margin-top: 10px">
+        <div class="btn-group btn-group-xs pull-right" style="margin-top: 10px">
         @List(SearchOrder.Score, SearchOrder.Name, SearchOrder.DateNewest).map { sortKey =>
             @if(params.sort.equals(Some(sortKey))) {
-                <a class="btn btn-sm btn-default btn-active current-search-sort" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
+                <a class="btn btn-xs btn-default btn-active current-search-sort" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
                     @Messages("search." + sortKey)
                 </a>
             } else {
-                <a class="btn btn-default btn-sm" href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
+                <a class="btn btn-default btn-xs" href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
                     @Messages("search." + sortKey)
                 </a>
             }
