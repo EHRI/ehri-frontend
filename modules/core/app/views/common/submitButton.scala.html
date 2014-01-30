@@ -2,10 +2,12 @@
 
 <div class="form-group">
 	<div class="col-sm-offset-2 col-sm-10">
-	    <button type="submit" class="btn btn-primary">@buttonText</button>
-	    @cancel.map { call =>
-	        <a href="@call" class="btn btn-warning">@Messages("actions.cancel")</a>
-	    }
+		<span class="input-group-btn">
+		    <button type="submit" class="btn btn-primary">@buttonText</button>
+		    @cancel.map { call =>
+		        <a href="@call" class="btn btn-warning">@Messages("actions.cancel")</a>
+		    }
+		</span>
 	    @extra
 	</div>
 </div>
