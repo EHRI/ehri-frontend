@@ -12,6 +12,7 @@ import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
 import utils.ListParams
+import scala.concurrent.ExecutionContext
 
 @Singleton
 case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend) extends Read[Repository]
@@ -214,29 +215,36 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
 
-  import play.api.libs.concurrent.Execution.Implicits._
   import utils.ead.DocTree
 
   def exportEad(id: String) = optionalUserAction.async { implicit userOpt => implicit request =>
 
+    implicit val context = utils.ead.Contexts.exportContext
+
     import scala.concurrent.Future
     implicit val apiUser = ApiUser(userOpt.map(_.id))
 
-    val params = ListParams(limit = 100) // can't get around large limits yet...
+    val params = ListParams(limit = -1) // can't get around large limits yet...
 
     def fetchTree(doc: DocumentaryUnit): Future[DocTree] = {
       for {
         children <- backend.listChildren[DocumentaryUnit,DocumentaryUnit](doc.id, params)
-        trees <- Future.sequence(children.map(c => fetchTree(c)))
+        trees <- Future.sequence(children.map(c => {
+          if (c.childCount.getOrElse(0) > 0) fetchTree(c)
+          else Future.successful(DocTree(c, Seq.empty))
+        }))
       } yield DocTree(doc, trees)
     }
 
     for {
       repo <- backend.get[Repository](id)
       docs <- backend.listChildren[Repository,DocumentaryUnit](id, params)
-      trees <- Future.sequence(docs.map(c => fetchTree(c)))
+      trees <- Future.sequence(docs.map(c => {
+        if (c.childCount.getOrElse(0) > 0) fetchTree(c)
+        else Future.successful(DocTree(c, Seq.empty))
+      }))
     } yield {
       Ok(views.xml.repository.ead(repo, trees)).as("text/xml")
     }
-  }
+  }(play.api.libs.concurrent.Execution.defaultContext)
 }

@@ -354,13 +354,16 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     import scala.concurrent.Future
     implicit val apiUser = ApiUser(userOpt.map(_.id))
 
-    val params = ListParams(limit = 100) // can't get around large limits yet...
+    val params = ListParams(limit = -1) // can't get around large limits yet...
 
     def fetchTree(id: String): Future[DocTree] = {
       for {
         doc <- backend.get[DocumentaryUnit](id)
         children <- backend.listChildren[DocumentaryUnit,DocumentaryUnit](id, params)
-        trees <- Future.sequence(children.map(c => fetchTree(c.id)))
+        trees <- Future.sequence(children.map(c => {
+          if (c.childCount.getOrElse(0) > 0) fetchTree(c.id)
+          else Future.successful(DocTree(c, Seq.empty))
+        }))
       } yield DocTree(doc, trees)
     }
 
