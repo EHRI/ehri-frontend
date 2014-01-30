@@ -368,7 +368,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
 
     fetchTree(id).map { tree =>
-      Ok(views.xml.documentaryUnit.ead(tree)).as("text/xml")
+      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(tree).body)).as("text/xml")
     }
   }
 }

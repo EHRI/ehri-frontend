@@ -1,0 +1,24 @@
+@(cno: Int, tree: utils.ead.DocTree)(implicit lang: Lang)
+
+<c@cno>
+    <did>
+        <unitid>@tree.item.id</unitid>
+        <unittitle>@tree.item.toStringLang</unittitle>
+    </did>
+        @tree.item.model.primaryDescription.map { desc =>
+            @desc.context.biographicalHistory.map { sc =>
+                <biogHist>
+                    @Xml(views.Helpers.renderMarkdown(sc))
+                </biogHist>
+            }
+            @desc.content.scopeAndContent.map { sc =>
+                <scopeContent>
+                    @Xml(views.Helpers.renderMarkdown(sc))
+                </scopeContent>
+            }
+        }
+        @for(t <- tree.children) {
+            @eadLevel(cno + 1, t)
+        }
+</c@cno>
+

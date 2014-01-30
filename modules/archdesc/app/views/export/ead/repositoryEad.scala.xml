@@ -1,0 +1,10 @@
+@(repo: Repository, trees: Seq[utils.ead.DocTree])(implicit lang: Lang)
+
+<ead>
+    <repository>
+        @repo.toStringLang
+    </repository>
+    <archdesc>
+        @trees.map(t => eadLevel(1, t))
+    </archdesc>
+</ead>

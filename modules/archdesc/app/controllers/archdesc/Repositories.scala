@@ -215,11 +215,10 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
 
+  import play.api.libs.concurrent.Execution.Implicits._
   import utils.ead.DocTree
 
   def exportEad(id: String) = optionalUserAction.async { implicit userOpt => implicit request =>
-
-    implicit val context = utils.ead.Contexts.exportContext
 
     import scala.concurrent.Future
     implicit val apiUser = ApiUser(userOpt.map(_.id))
@@ -244,7 +243,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         else Future.successful(DocTree(c, Seq.empty))
       }))
     } yield {
-      Ok(views.xml.repository.ead(repo, trees)).as("text/xml")
+      Ok(views.export.ead.Helpers.tidyXml(
+          views.xml.export.ead.repositoryEad(repo, trees).body)).as("text/xml")
     }
-  }(play.api.libs.concurrent.Execution.defaultContext)
+  }
 }

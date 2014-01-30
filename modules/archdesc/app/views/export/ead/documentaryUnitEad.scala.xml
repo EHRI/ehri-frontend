@@ -1,0 +1,7 @@
+@(tree: utils.ead.DocTree)(implicit lang: Lang)
+
+<ead>
+    <archdesc>
+        @eadLevel(1, tree)
+    </archdesc>
+</ead>
