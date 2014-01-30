@@ -1,0 +1,15 @@
+
+form[method="GET"] {
+	.btn-default, .btn-primary, button[type="submit"], input[type="submit"] {
+		.button-variant(@btn-get-color; @btn-get-bg; @btn-get-border);
+	}
+}
+
+.btn-link, .btn-default, .btn {
+	.button-variant(@btn-get-color; @btn-get-bg; @btn-get-border);
+}
+form[method="POST"] {
+	.btn-default, .btn-primary, button[type="submit"], input[type="submit"] {
+  		.button-variant(@btn-post-color; @btn-post-bg; @btn-post-border);
+	}
+}
