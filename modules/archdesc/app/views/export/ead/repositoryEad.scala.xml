@@ -1,9 +1,21 @@
 @(repo: Repository, trees: Seq[utils.ead.DocTree])(implicit lang: Lang)
 
 <ead>
-    <repository>
-        @repo.toStringLang
-    </repository>
+    <eadheader>
+        <eadid></eadid>
+        <filedesc>
+            <titlestmt>
+                <titleproper>
+
+                </titleproper>
+                <author>
+
+                </author>
+            </titlestmt>
+            @publicationStatement(repo)
+            @profileDesc(repo)
+        </filedesc>
+    </eadheader>
     <archdesc>
         @trees.map(t => eadLevel(1, t))
     </archdesc>

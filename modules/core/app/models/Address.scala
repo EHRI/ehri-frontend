@@ -4,6 +4,7 @@ import defines.EntityType
 import models.base.Model
 import play.api.libs.json.{Format, Json}
 import models.json.{ClientConvertable, RestConvertable}
+import scala.collection.TraversableLike
 
 
 object AddressF {
@@ -31,6 +32,18 @@ case class AddressF(
   fax: List[String] = Nil,
   url: List[String] = Nil
   ) extends Model {
+
+  def toSeq: Seq[String] = Seq(
+    streetAddress,
+    city,
+    region,
+    postalCode,
+    countryCode.map(views.Helpers.countryCodeToName),
+    email.headOption,
+    telephone.headOption,
+    fax.headOption,
+    url.headOption
+  ).flatten
 
   override def toString
       = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
