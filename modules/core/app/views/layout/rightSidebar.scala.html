@@ -11,17 +11,17 @@
     </div>
     @breadcrumbs
     <div class="container">
-        <div class="row">
-            <div class="col-md-9">
+        <article class="double">
+            <section class="main">
                 <h2>@title</h2>
 
                 @common.errorFlash(flash)
 
                 @content
-            </div>
-            <div class="right-sidebar col-md-3">
+            </section>
+            <aside class="right-sidebar">
                 @sidebar
-            </div>
-        </div>
+            </aside>
+        </section>
     </div>
 }
