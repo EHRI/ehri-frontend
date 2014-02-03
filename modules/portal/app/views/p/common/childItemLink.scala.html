@@ -1,0 +1,7 @@
+@(item: Holder[_], link: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+
+@defining(item.childCount.getOrElse(0)) { childCount =>
+    @if(childCount > 0) {
+        <a class="load-in-view" href="@link">@Messages("portal.showItems", childCount)</a>
+    }
+}

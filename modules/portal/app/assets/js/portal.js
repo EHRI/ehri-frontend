@@ -1,5 +1,32 @@
 jQuery(function ($) {
 
+
+  $("a.load-in-view").on("visible", function(e){
+    var $item = $(this);
+    console.log("loading...", this.href)
+    $item.addClass("loading");
+    $.get(this.href, function(data) {
+      $item.replaceWith(data)
+    }, "html")
+  });
+
+  function checkLoadVisibility() {
+    $(".load-in-view").not(".loading").each(function(i) {
+      var $item = $(this);
+      if(!$item.hasClass("loading")) {
+        if (($(window).scrollTop() + $(window).height()) > $item.offset().top) {
+          $item.trigger("visible")
+        }
+      }
+    });
+  }
+
+  checkLoadVisibility()
+  $(window).scroll(function(e) {
+    checkLoadVisibility()
+  });
+
+
   // Make global search box show up when focused...
   // This could be done with plain CSS if we didn't also
   // want to toggle the color of the search icon...

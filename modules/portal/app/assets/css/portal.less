@@ -473,10 +473,14 @@ label.disabled {
   color: @dark-gray;
 }
 
-// Descriptions...
-.descriptions {
-  margin-top: @large-margin;
-  padding: @medium-padding;
+.load-in-view {
+  padding-right: 15px;
+}
+
+.load-in-view.loading {
+  background-repeat: no-repeat;
+  background-image: url('/assets/images/ajax-loader-small.gif');
+  background-position: right;
 }
 
 .activity-stream-wrapper {
