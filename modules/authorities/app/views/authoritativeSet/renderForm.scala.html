@@ -1,5 +1,9 @@
 @(item: Option[AuthoritativeSet], f: Form[models.AuthoritativeSetF])
 
+@import formHelpers._
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
 @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
 @formHelpers.lineInput(f(""), models.AuthoritativeSetF.NAME)
 @formHelpers.textInput(f(""), models.AuthoritativeSetF.DESCRIPTION)

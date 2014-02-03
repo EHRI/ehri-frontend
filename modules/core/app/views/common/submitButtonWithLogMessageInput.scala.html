@@ -2,7 +2,7 @@
 
 <div class="form-actions">
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-12">
 		    <div class="input-group">
 		        <input class="form-control" type="text" name="logMessage" placeholder="@Messages("forms.logMessagePlaceholder")" id="log-message" value="@defaultLogMessage" />
 		        <span class="input-group-btn">
@@ -10,9 +10,9 @@
 				    @cancel.map { call =>
 				        <a href="@call" class="btn btn-default">@Messages("actions.cancel")</a>
 				    }
+			    	@extra
 				</span>
 			</div>
-			    @extra
 		</div>
     </div>
 </div>

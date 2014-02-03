@@ -3,6 +3,6 @@
 @import models.IsadG._
 <ul class="nav nav-tabs nav-stacked sidebar" id="form-nav-sidebar">
     @List(IDENTITY_AREA,CONTEXT_AREA,CONTENT_AREA,CONDITIONS_AREA,MATERIALS_AREA,CONTROL_AREA,ADMINISTRATION_AREA).map { s =>
-        <li><a href="#@{s}"><i class="glyphicon glyphicon-chevron-left"></i>@Messages("isadg." + s)</a></li>
+        <li><a href="#@{s}"><span class="glyphicon glyphicon-chevron-left"></span>@Messages("isadg." + s)</a></li>
     }
 </ul>

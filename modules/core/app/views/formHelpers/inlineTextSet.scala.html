@@ -2,14 +2,14 @@
 
 <div class="inline-formset form-group clearfix" data-prefix="@label">
     <!-- Template for adding inline date forms via JS -->
-    <label class="col-sm-2 control-label">
+    <label class="col-sm-3 control-label">
         @Messages(fieldPrefix + "." + label)
         <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
     </label>
     <div class="inline-element-template form-template ">
         @inlineText(desc(label + "[IDX]"))
     </div>
-    <div class="inline-element-list col-sm-10">
+    <div class="inline-element-list col-sm-9">
         @helper.repeat(desc(label), min = 0) { field =>
             @inlineText(field)
         }
