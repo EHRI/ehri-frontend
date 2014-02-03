@@ -1,6 +1,6 @@
 @(item: AnyModel, watching: Boolean)(implicit lang: Lang)
 
-<div class="watch-controls">
+<div class="watch-controls @item.isA">
     <a data-item="@item.id"
        class="unwatch glyphicon glyphicon-star"
        style="@(if(!watching) "display: none")" href="@controllers.portal.routes.Portal.unwatchItem(item.id)"></a>
