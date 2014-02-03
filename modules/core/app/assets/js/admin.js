@@ -1,4 +1,6 @@
 jQuery(function($) {
+  
+  $('.responsive').collapse()
 
   /**
    * jQuery plugin that makes an element 'stick' to the bottom
@@ -41,6 +43,8 @@ jQuery(function($) {
   }
 
   $(".form-actions").stickyFormFooter();
+
+  $("nav.responsive").stickyFormFooter();
 
   // Add Bootstrap tooltip on input boxes with a title.
   // Filter items with an empty title.

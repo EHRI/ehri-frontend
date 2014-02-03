@@ -41,6 +41,7 @@ isaar.administrationArea=Administration
 isaar.identityArea=Identity Area
 
 isaar.dates=Dates
+isaar.creation=Creation
 
 isaar.identifier=Identifier
 isaar.identifier.description=To identify the authority record uniquely within the\

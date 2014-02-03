@@ -3,7 +3,7 @@
 <h4>@Messages(fieldPrefix + "." + name)</h4>
 <div class="@{name}-section">
     @if(html.toString.trim.isEmpty) {
-        <i><small><p class="muted">@Messages("describedEntity.noData")</p></small></i>
+        <i><small><p class="text-muted">@Messages("describedEntity.noData")</p></small></i>
     } else {
         @html
     }

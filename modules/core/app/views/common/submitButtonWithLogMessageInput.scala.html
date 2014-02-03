@@ -1,12 +1,18 @@
 @(buttonText: String, defaultLogMessage: String = "", cancel: Option[Call] = None)(implicit extra: Html = Html(""))
 
 <div class="form-actions">
-    <div class="control-group">
-        <input class="span8" type="text" name="logMessage" placeholder="@Messages("forms.logMessagePlaceholder")" id="log-message" value="@defaultLogMessage" />
+	<div class="row">
+		<div class="col-md-12">
+		    <div class="input-group">
+		        <input class="form-control" type="text" name="logMessage" placeholder="@Messages("forms.logMessagePlaceholder")" id="log-message" value="@defaultLogMessage" />
+		        <span class="input-group-btn">
+				    <button type="submit" class="btn btn-primary">@buttonText</button>
+				    @cancel.map { call =>
+				        <a href="@call" class="btn btn-default">@Messages("actions.cancel")</a>
+				    }
+			    	@extra
+				</span>
+			</div>
+		</div>
     </div>
-    <button type="submit" class="btn btn-primary">@buttonText</button>
-    @cancel.map { call =>
-        <a href="@call" class="btn">@Messages("actions.cancel")</a>
-    }
-    @extra
 </div>

@@ -6,14 +6,14 @@
     @if(fc.count > 0) {
         <small>
             <h4>@Messages(fc.name)</h4>
-            <ul class="unstyled facet-list">
+            <ul class="list-unstyled facet-list">
             @fc.sorted.filter(_.count > 0).map { f =>
                 @if(f.applied) {
                     <li title="@fc.pretty(f)" class="selected-filter">
                         @views.Helpers.ellipsize(fc.pretty(f), 25)
                         (@f.count)
                         <a class="remove-filter" href="@pathWithoutFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
-                        <i class="icon-remove"></i></a>
+                        <i class="glyphicon glyphicon-remove"></i></a>
                     </li>
                 } else {
                     <li title="@fc.pretty(f)">

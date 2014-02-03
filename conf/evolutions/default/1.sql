@@ -23,8 +23,8 @@ ALTER TABLE openid_association ADD CONSTRAINT openid_association_id FOREIGN KEY 
 
 CREATE TABLE oauth2_association (
   id            VARCHAR(50) NOT NULL,
-  provider_id   VARCHAR(100) NOT NULL,
-  provider      VARCHAR(10) NOT NULL,
+  provider_id   VARCHAR(255) NOT NULL,
+  provider      VARCHAR(255) NOT NULL,
   created       TIMESTAMP NOT NULL,
   PRIMARY KEY (id, provider_id, provider)
 );
