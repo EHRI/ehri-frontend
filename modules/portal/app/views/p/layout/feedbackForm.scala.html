@@ -1,0 +1,20 @@
+@(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
+
+@helper.form(action = controllers.portal.routes.Portal.feedbackPost) {
+    <fieldset>
+        <div class="modal-body">
+            @formHelpers.csrfToken()
+            @if(userOpt.isEmpty) {
+                @helper.inputText(form("name"))
+                @helper.inputText(form("email"))
+            }
+            @helper.textarea(form("text"))
+
+            <div style="display:none"></div>
+        </div>
+        <div class="form-actions modal-footer">
+            <button id="submit-suggestion" type="submit"
+                    class="btn btn-primary">Submit</button>
+        </div>
+    </fieldset>
+}

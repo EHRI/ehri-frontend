@@ -19,9 +19,11 @@
         </style>
 
         @styles
-
     </head>
     <body>
+        <script src="//code.jquery.com/jquery.js"></script>
+        <script src="@controllers.portal.routes.Assets.at("js/feedback.js")"></script>
+        @p.layout.feedback(models.Feedback.form)
 
         <div id="wrap">
             @p.layout.header(itemClass)
@@ -32,7 +34,6 @@
             </div>
         </div>
         @p.layout.footer()
-        <script src="//code.jquery.com/jquery.js"></script>
         <script src="@controllers.core.routes.Assets.at("js/jquery.history.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.validate.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.autosize.min.js")"></script>

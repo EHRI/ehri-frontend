@@ -5,6 +5,9 @@ GET         /                                   @controllers.portal.Portal.place
 
 GET         /dev                                @controllers.portal.Portal.index
 
+GET         /feedback                           @controllers.portal.Portal.feedback
+POST        /feedback                           @controllers.portal.Portal.feedbackPost
+
 GET         /dev/login                          @controllers.portal.Portal.login
 POST        /dev/login                          @controllers.portal.Portal.passwordLoginPost
 POST        /dev/openid                         @controllers.portal.Portal.openIDLoginPost

@@ -32,6 +32,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with ControllerHelpers
   with PortalAuthConfigImpl
   with PortalLogin
+  with PortalFeedback
   with Search
   with FacetConfig
   with PortalActions
@@ -52,7 +53,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   private val defaultSearchTypes = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent,
     EntityType.Country)
   private val defaultSearchParams = SearchParams(entities = defaultSearchTypes, sort = Some(SearchOrder.Score))
-
 
   def search = searchAction[AnyModel](defaultParams = Some(defaultSearchParams),
         entityFacets = globalSearchFacets, mode = SearchMode.DefaultNone) {
