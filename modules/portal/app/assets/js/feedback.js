@@ -21,37 +21,38 @@ jQuery(function($) {
 
   // handle suggestion form submission... this is a bit
   // gross and fragile.
-  var $form = $("#suggestion-form"),
+  var $formContainer = $("#suggestions"),
+      $cancel = $("a#cancel", $formContainer),
+      $form = $("form#suggestion-form")
       $submit = $("button[type='submit']", $form),
-      $thanks = $(".alert-success", $form),
-      $name = $("input[name='name']", $form),
-      $text = $("textarea[name='text']", $form),
-      $email = $("input[name='email']", $form),
-      $emailregexp = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      $thanks = $(".alert-success", $formContainer),
+      $text = $("textarea[name='text']", $form);
 
   $(".slide-out-div").show();
 
-  $name.add($text).add($email).keyup(function(event) {
-    var nameval = $.trim($name.val());
-    var textval = $.trim($text.val());
-    var emailval = $.trim($email.val());
-    // email is not reqired, so only check it if filled in
-    var emailvalid = (emailval === "" || emailval !== "" && emailval.match($emailregexp));
-    //var ok = nameval !== "" && textval !== "" && emailvalid;
-    var ok = textval !== "" && emailvalid;
-    console.log("ok: ", ok)
-    $submit.prop("disabled", !ok);
+  $form.validate({
+    showErrors: function(em, el) {}
+  })
+
+  $form.keyup(function(event) {
+    $submit.prop("disabled", !$form.valid());
   });
 
-  $(".modal-close", $form).click(function() {
+  $(".modal-close", $formContainer).click(function() {
     $(".slide-out-div > .handle").click();
   });
 
-  $submit.prop("disabled", true).click(function(event) {
+  $cancel.click(function(e) {
+    e.preventDefault();
+    $text.val("")
+    $(".slide-out-div > .handle").click();
+  })
+
+  $submit.click(function(event) {
     event.preventDefault();
     $submit.prop("disabled", true);
-    var $formele = $(this).closest("form");
-    $.post($formele.attr("action"), $formele.serialize(), function(data, textStatus) {
+    $.post($form.attr("action"), $form.serialize(), function(data, textStatus) {
+      console.log(data)
       // FIXME: This is rubbish.
       $thanks.width($thanks.parent().width() - ($thanks.outerWidth(true) - $thanks.width()));
       $thanks.slideDown(500, function() {

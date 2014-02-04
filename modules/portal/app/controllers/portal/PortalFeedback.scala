@@ -15,23 +15,30 @@ trait PortalFeedback {
 
   val feedbackDAO: FeedbackDAO
 
-  def feedback = optionalUserAction.async { implicit accountOpt => implicit request =>
-    ???
+  def feedback = userProfileAction { implicit userOpt => implicit request =>
+    Ok(views.html.p.feedback(Feedback.form))
   }
 
-  def feedbackPost = optionalUserAction.async { implicit accountOpt => implicit request =>
+  def feedbackPost = userProfileAction.async { implicit userOpt => implicit request =>
     Feedback.form.bindFromRequest.fold(
-      errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
+      errorForm => {
+        if (isAjax) immediate(BadRequest(errorForm.errorsAsJson))
+        else immediate(BadRequest(views.html.p.feedback(errorForm)))
+      },
       feedback => {
-        val moreFeedback = accountOpt.map { account =>
+        val moreFeedback = userOpt.flatMap(_.account).map { account =>
           feedback
             .copy(name = feedback.name.orElse(Some(account.id)))
             .copy(email = feedback.email.orElse(Some(account.email)))
         }.getOrElse(feedback)
-          .copy(context = Some(FeedbackContext.fromRequest))
+          .copy(
+            context = Some(FeedbackContext.fromRequest),
+            mode = Some(play.api.Play.current.mode))
 
         feedbackDAO.create(moreFeedback).map { id =>
-          Ok(id)
+          if (isAjax) Ok(id)
+          else Redirect(controllers.portal.routes.Portal.index())
+            .flashing("success" -> "Thanks for your feedback!")
         }
       }
     )

@@ -21,9 +21,10 @@
         @styles
     </head>
     <body>
-        <script src="//code.jquery.com/jquery.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src="@controllers.portal.routes.Assets.at("js/feedback.js")"></script>
-        @p.layout.feedback(models.Feedback.form)
+        <script src="@controllers.portal.routes.Assets.at("js/jquery.validate.min.js")"></script>
+        @p.layout.feedback(models.Feedback.form, initiallyHidden = true)
 
         <div id="wrap">
             @p.layout.header(itemClass)
@@ -35,7 +36,6 @@
         </div>
         @p.layout.footer()
         <script src="@controllers.core.routes.Assets.at("js/jquery.history.min.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("js/jquery.validate.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.autosize.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.hoverIntent.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("bootstrap-custom/js/bootstrap.min.js")"></script>

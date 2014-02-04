@@ -11,7 +11,7 @@ import backend.rest.RestDAO
  * DAO for interacting with the Parse REST service.
  *
  * @param objectName Name of the parse object class
- * @tparam T
+ * @tparam T The type of Parse object
  */
 class ParseDAO[T: Format](val objectName: String) extends RestDAO {
 

@@ -39,7 +39,7 @@ trait TestLoginHelper {
   val mockIndexer: MockSearchIndexer = new MockSearchIndexer()
   val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher()
   val mockResolver: MockSearchResolver = new MockSearchResolver
-  val mockFeedback: FeedbackDAO = new MockFeedbackDAO
+  val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)

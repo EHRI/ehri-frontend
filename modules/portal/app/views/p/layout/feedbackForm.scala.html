@@ -1,20 +1,25 @@
 @(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@helper.form(action = controllers.portal.routes.Portal.feedbackPost) {
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
+
+@helper.form(action = controllers.portal.routes.Portal.feedbackPost, 'role -> "form", 'id -> "suggestion-form") {
     <fieldset>
         <div class="modal-body">
             @formHelpers.csrfToken()
             @if(userOpt.isEmpty) {
-                @helper.inputText(form("name"))
-                @helper.inputText(form("email"))
+                <div class="form-group">
+                    <input type="text" class="form-control" name="name" placeholder="Name (optional)" />
+                </div>
+                <div class="form-group">
+                    <input type="email" class="form-control" name="email" placeholder="Email (optional)" />
+                </div>
             }
-            @helper.textarea(form("text"))
 
-            <div style="display:none"></div>
+            <textarea rows="4" class="form-control" name="text" placeholder="Let us know what you think..." required=""></textarea>
         </div>
         <div class="form-actions modal-footer">
-            <button id="submit-suggestion" type="submit"
-                    class="btn btn-primary">Submit</button>
+            <a href="@controllers.portal.routes.Portal.index" id="cancel">@Messages("actions.cancel")</a>
+            <button type="submit" class="submit btn btn-default">Send</button>
         </div>
     </fieldset>
 }
