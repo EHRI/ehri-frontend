@@ -16,7 +16,7 @@ import defines.EntityType
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
-import backend.Backend
+import backend.{FeedbackDAO, Backend}
 import controllers.base.ControllerHelpers
 import jp.t2v.lab.play2.auth.LoginLogout
 import scala.concurrent.Future
@@ -26,7 +26,8 @@ import utils.PageParams
 
 
 @Singleton
-case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend)
+case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
+    feedbackDAO: FeedbackDAO)
   extends Controller
   with LoginLogout
   with ControllerHelpers

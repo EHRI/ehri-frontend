@@ -5,7 +5,7 @@ import play.api.test.FakeRequest
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
 import models.sql.SqlAccount
-import mocks.{MockSearchResolver, MockSearchDispatcher, userFixtures, MockSearchIndexer}
+import mocks._
 import global.GlobalConfig
 import utils.search.{Resolver, Indexer, Dispatcher}
 import play.api.test.FakeApplication
@@ -15,8 +15,14 @@ import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
-import backend.{EventHandler, Backend}
+import backend.{FeedbackDAO, EventHandler, Backend}
 import backend.rest.{RestBackend}
+import mocks.MockSearchResolver
+import backend.rest.RestBackend
+import scala.Some
+import mocks.MockSearchIndexer
+import play.api.test.FakeApplication
+import mocks.MockSearchDispatcher
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -33,6 +39,7 @@ trait TestLoginHelper {
   val mockIndexer: MockSearchIndexer = new MockSearchIndexer()
   val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher()
   val mockResolver: MockSearchResolver = new MockSearchResolver
+  val mockFeedback: FeedbackDAO = new MockFeedbackDAO
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -66,6 +73,7 @@ trait TestLoginHelper {
         bind[Dispatcher].toInstance(mockDispatcher)
         bind[Resolver].toInstance(mockResolver)
         bind[Backend].toInstance(testBackend)
+        bind[FeedbackDAO].toInstance(mockFeedback)
       }
     }
 
