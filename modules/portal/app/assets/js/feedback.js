@@ -14,6 +14,7 @@ jQuery(function($) {
     topPos: '50px',
     fixedPosition: true,
     onSlideOut: function() {
+      $text.focus()
     },
     onSlideIn: function() {
     }
