@@ -731,3 +731,20 @@ select.custom-accessors {
     top: 0;
   }
 }
+
+// Wide buttons with loadable content
+.content-load a.toggle, a.load-in-view {
+  display: block;
+  text-align: center;
+  border: 1px solid @pale-gray;
+  padding: 5px;
+  color: @almost-black;
+  padding-right: 15px;
+  background-color: @pale-gray;
+  margin-bottom: @medium-margin;
+}
+
+.content-load a.toggle:hover, a.load-in-view:hover {
+  text-decoration: none;
+  background-color: darken(@pale-gray, 2);
+}

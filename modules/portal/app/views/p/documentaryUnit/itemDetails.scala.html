@@ -1,24 +1,26 @@
 @(item: DocumentaryUnit, annotations: Seq[Annotation], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
-    @p.common.descriptionContainer(item.model.descriptions) {
-        @item.model.descriptions.map { desc =>
-            @renderDescription(item, desc, links, annotations)
-        }
-    } {
-
-        @logoAndLink(item)
-
-        @p.common.tablePanel(Messages("portal.item.details")) {
+<div id="item-details">
+    @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+        @p.common.descriptionContainer(item.model.descriptions) {
             @item.model.descriptions.map { desc =>
-                @details(item, desc)
+                @renderDescription(item, desc, links, annotations)
             }
+        } {
+
+            @logoAndLink(item)
+
+            @p.common.tablePanel(Messages("portal.item.details")) {
+                @item.model.descriptions.map { desc =>
+                    @details(item, desc)
+                }
+            }
+
+            @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
         }
 
-        @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
+        @p.common.relatedItemsContainer(item) {
+            @p.common.relatedItems(item, links)
+        }
     }
-
-    @p.common.relatedItemsContainer(item) {
-        @p.common.relatedItems(item, links)
-    }
-}
+</div>

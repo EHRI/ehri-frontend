@@ -22,6 +22,7 @@ portal.signupLink=Click here to sign up
 portal.browse=Browse
 portal.search=Search
 portal.showDetails=Show Item Details
+portal.hideDetails=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
 portal.profile=Profile
 portal.profile.updateProfile=Edit Profile

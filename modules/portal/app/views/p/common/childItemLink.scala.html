@@ -2,6 +2,11 @@
 
 @defining(item.childCount.getOrElse(0)) { childCount =>
     @if(childCount > 0) {
-        <a class="load-in-view" href="@link">@Messages("portal.showItems", childCount)</a>
+        <div class="content-load">
+            <div class="content-load-data">
+
+            </div>
+            <a class="load-in-view" href="@link">@Messages("portal.showItems", childCount)</a>
+        </div>
     }
 }
