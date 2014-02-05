@@ -3,9 +3,9 @@
 <div class="form-group">
 	<div class="col-sm-offset-2 col-sm-10">
 		<span class="input-group-btn">
-		    <button type="submit" class="btn btn-primary">@buttonText</button>
+		    <button type="submit" class="button submit">@buttonText</button>
 		    @cancel.map { call =>
-		        <a href="@call" class="btn btn-warning">@Messages("actions.cancel")</a>
+		        <a href="@call" class="button cancel">@Messages("actions.cancel")</a>
 		    }
 		</span>
 	    @extra
