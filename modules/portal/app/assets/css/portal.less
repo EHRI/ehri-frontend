@@ -463,15 +463,59 @@ ul.comma-sep li:last-child:after {
   content: "";
 }
 
+#feedback-tab {
+  position: absolute;
+  top: 50px;
+  left: 0px;
+}
+
+// Suggestions
+.slide-out-div {
+  z-index: 2000;
+  background: inherit;
+
+  .handle:hover {
+    opacity: 1;
+  }
+  .handle {
+    opacity: 0.6;
+  }
+}
+
+.slide-out-div.open .handle {
+  opacity: 1;
+}
+
+.slide-out-div.open #suggestions {
+  -webkit-box-shadow: 2px 2px 15px rgba(50, 50, 50, 0.3);
+  -moz-box-shadow:    2px 2px 15px rgba(50, 50, 50, 0.3);
+  box-shadow:         2px 2px 15px rgba(50, 50, 50, 0.3);
+}
+
+#suggestion-thanks {
+  margin: 10px;
+  box-shadow:         2px 2px 15px rgba(50, 50, 50, 0.3);
+}
+
+#suggestions #cancel {
+  font-weight: bold;
+  margin-right: @small-margin;
+}
+
+
 // Forms
 label.disabled {
   color: @dark-gray;
 }
 
-// Descriptions...
-.descriptions {
-  margin-top: @large-margin;
-  padding: @medium-padding;
+.load-in-view {
+  padding-right: 15px;
+}
+
+.load-in-view.loading {
+  background-repeat: no-repeat;
+  background-image: url('/assets/images/ajax-loader-small.gif');
+  background-position: right;
 }
 
 .activity-stream-wrapper {
@@ -681,4 +725,21 @@ select.custom-accessors {
     right: 0;
     top: 0;
   }
+}
+
+// Wide buttons with loadable content
+.content-load a.toggle, a.load-in-view {
+  display: block;
+  text-align: center;
+  border: 1px solid @pale-gray;
+  padding: 5px;
+  color: @almost-black;
+  padding-right: 15px;
+  background-color: @pale-gray;
+  margin-bottom: @medium-margin;
+}
+
+.content-load a.toggle:hover, a.load-in-view:hover {
+  text-decoration: none;
+  background-color: darken(@pale-gray, 2);
 }

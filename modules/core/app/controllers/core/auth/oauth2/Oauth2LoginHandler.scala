@@ -15,6 +15,7 @@ import play.api.Play._
 import play.api.mvc.SimpleResult
 import play.api.mvc.Call
 import models.sql.OAuth2Association
+import play.api.libs.json.{JsObject, Json}
 
 /**
  * Oauth2 login handler implementation, cribbed extensively
@@ -49,6 +50,11 @@ trait Oauth2LoginHandler {
       .map(provider.getUserData)
   }
 
+  private def updateUserInfo(account: Account, data: Map[String,String]): Future[UserProfile] = {
+    implicit val apiUser = ApiUser(Some(account.id))
+    backend.patch[UserProfile](account.id, Json.toJson(data).as[JsObject])
+  }
+
   private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData): Future[Account] = {
     val profileData = Map(
       UserProfileF.NAME -> userData.name,
@@ -56,13 +62,13 @@ trait Oauth2LoginHandler {
     )
     OAuth2Association.findByProviderInfo(userData.providerId, provider.name).flatMap(_.user).map { account =>
       Logger.info(s"Found existing association for $userData/${provider.name}")
-      immediate(account)
+      updateUserInfo(account, profileData).map(_ => account)
     } getOrElse{
       // User has an account already, so try and find them by email. If so, add an association...
       userDAO.findByEmail(userData.email).map { account =>
         Logger.info(s"Creating new association for $userData/${provider.name}")
         OAuth2Association.addAssociation(account, userData.providerId, provider.name)
-        immediate(account)
+        updateUserInfo(account, profileData).map(_ => account)
       } getOrElse {
         Logger.info(s"Creating new account for $userData/${provider.name}")
         // Create a new account!

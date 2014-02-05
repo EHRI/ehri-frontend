@@ -28,6 +28,16 @@ trait OpenIDLoginHandler {
 
   val userDAO: AccountDAO
 
+  val attributes = Seq(
+    "email" -> "http://schema.openid.net/contact/email",
+    "axemail" -> "http://axschema.org/contact/email",
+    "axname" -> "http://axschema.org/namePerson",
+    "name" -> "http://openid.net/schema/media/spokenname",
+    "firstname" -> "http://openid.net/schema/namePerson/first",
+    "lastname" -> "http://openid.net/schema/namePerson/last",
+    "friendly" -> "http://openid.net/schema/namePerson/friendly"
+  )
+
   val openidForm = Form(single(
     "openid_identifier" -> nonEmptyText
   ) verifying("OpenID URL is invalid", f => f match  {
@@ -42,21 +52,23 @@ trait OpenIDLoginHandler {
             error => {
               Logger.info("bad request " + error.toString)
               f(error)(request)
-            }, openidUrl => OpenID.redirectURL(
-              openidUrl,
-              handler.absoluteURL(),
-              Seq("email" -> "http://schema.openid.net/contact/email",
-                "axemail" -> "http://axschema.org/contact/email")).map(url => Redirect(url))
-            .recoverWith {
-              case t: ConnectException => {
-                Logger.warn("OpenID Login connect exception: {}", t)
-                f(openidForm.fill(openidUrl)
-                  .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
-              }
-              case t => {
-                Logger.warn("OpenID Login argument exception: {}", t)
-                f(openidForm.fill(openidUrl)
-                  .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
+            }, openidUrl => {
+
+              OpenID.redirectURL(
+                openidUrl,
+                handler.absoluteURL(),
+                attributes).map(url => Redirect(url))
+                .recoverWith {
+                case t: ConnectException => {
+                  Logger.warn("OpenID Login connect exception: {}", t)
+                  f(openidForm.fill(openidUrl)
+                    .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
+                }
+                case t => {
+                  Logger.warn("OpenID Login argument exception: {}", t)
+                  f(openidForm.fill(openidUrl)
+                    .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
+                }
               }
             }
           )
@@ -76,21 +88,25 @@ trait OpenIDLoginHandler {
     def async(f: Either[Form[String],Account] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
       Action.async { implicit request =>
         OpenID.verifiedId.flatMap { info =>
-        // check if there's a user with the right id
+
+          // check if there's a user with the right id
           OpenIDAssociation.findByUrl(info.id).map { assoc =>
             // NOTE: If this user exists in the auth DB but not on the REST
             // server we have a bit of a problem at present...
             Logger.logger.info("User '{}' logged in via OpenId", assoc.user.get.id)
             f(Right(assoc.user.get))(request)
           } getOrElse {
-            val email = extractEmail(info.attributes).getOrElse(sys.error("No openid email"))
+            val email = extractEmail(info.attributes)
+              .getOrElse(sys.error("Unable to retrieve email info via OpenID"))
+            val data = Map("name" -> extractName(info.attributes)
+              .getOrElse(sys.error("Unable to retrieve name info via OpenID")))
             userDAO.findByEmail(email).map { acc =>
               OpenIDAssociation.addAssociation(acc, info.id)
               Logger.logger.info("User '{}' created OpenID association", acc.id)
               f(Right(acc))(request)
             } getOrElse {
               implicit val apiUser = ApiUser()
-              backend.createNewUserProfile().flatMap { up =>
+              backend.createNewUserProfile(data).flatMap { up =>
                 val account = userDAO.create(up.id, email.toLowerCase, verified = true, staff = false)
                 OpenIDAssociation.addAssociation(account, info.id)
                 Logger.logger.info("User '{}' created OpenID account", account.id)
@@ -117,4 +133,11 @@ trait OpenIDLoginHandler {
   private def extractEmail(attrs: Map[String, String]): Option[String]
       = attrs.get("email").orElse(attrs.get("axemail"))
 
+  private def extractName(attrs: Map[String,String]): Option[String] = {
+    val fullName = (for {
+      fn <- attrs.get("firstname")
+      ln <- attrs.get("lastname")
+    } yield s"$fn $ln")
+    attrs.get("name").orElse(attrs.get("fullname")).orElse(fullName)
+  }
 }
