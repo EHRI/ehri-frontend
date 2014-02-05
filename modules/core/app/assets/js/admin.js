@@ -1,7 +1,5 @@
 jQuery(function($) {
   
-  $('.responsive').collapse()
-
   /**
    * jQuery plugin that makes an element 'stick' to the bottom
    * of the viewport if it is outside. Used for form action
