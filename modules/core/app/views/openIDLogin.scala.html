@@ -18,10 +18,14 @@
     <link href="@controllers.core.routes.Assets.at("css/zocial.css")" rel="stylesheet">
 }
 
-@layout.noSidebarSimple(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
+@layout.adminLoginLayout(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
+    
+    <h2>@Messages("login.login")</h2>
+    @common.errorFlash(flash)
+
 
     <h3>@Messages("login.openid")</h3>
-    @helper.form(action = action, 'class -> "openid login-form form-horizontal") {
+    @helper.form(action = action, 'class -> "openid form") {
         @formHelpers.csrfToken()
         <div>
             <ul class="providers">
@@ -61,17 +65,20 @@
                 <span></span>
                     <input type="text" name="openid_username" />
                 <span></span>
-                <input type="submit" value="Login" />
+                <input type="submit" class="button xs" value="Login" />
             </div>
         </fieldset>
-        <fieldset>
-            <label for="openid_identifier">Enter your <a class="openid_logo" href="http://openid.net">OpenID</a></label>
-        </fieldset>
+
         @formHelpers.globalErrors(form)
-        <div>
-            <input type="text" name="openid_identifier" />
-            <input type="submit" class="zocial openid" value="@Messages("submitButton.loginWithOpenid")" />
-        </div>
+
+        <div class="clearfix"></div>
+        
+        <input type="text" class="form-control" name="openid_identifier" placeholder="OpenId Identifier" />
+
+        <div class="clearfix"></div>
+
+        <input type="submit" class="login-button" value="@Messages("submitButton.loginWithOpenid")" />
+        
     }
 
     @if(!oauthProviders.isEmpty) {
@@ -84,5 +91,5 @@
 
     <hr />
     <p><a href="@controllers.core.routes.Admin.login">@Messages("login.linkToPasswordLogin")</a></p>
-}(None, request, globalConfig, flash, lang)
+}(None, request, globalConfig, lang)
 

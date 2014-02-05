@@ -2,32 +2,33 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.noSidebarSimple(Messages("login.login")) {
+@layout.adminLoginLayout(Messages("login.login")) {
 
-    <div class="alert alert-info">
-        @Messages("login.adminLoginMessage")
-    </div>
+        <h2>@Messages("login.login")</h2>
 
-    @formHelpers.globalErrors(form)
-
-    @helper.form(action = action, 'class -> "login-form form-horizontal") {
-        @formHelpers.csrfToken()
-
-        @helper.inputText(form("email"), 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"))
-        @helper.inputPassword(form("password"), 'placeholder -> Messages("login.password"))
-
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-                <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
-            </div>
+        <div class="alert alert-info">
+            @Messages("login.adminLoginMessage")
         </div>
-    }
 
-    <p>
-        <a href="@controllers.core.routes.Admin.forgotPassword">@Messages("login.forgotPasswordLink")</a>
-    </p>
-    <p>
-        <a href="@controllers.core.routes.Admin.openIDLogin">@Messages("login.linkToOpenIDLogin")</a>
-    </p>
-}(None, request, globalConfig, flash, lang)
+
+        @common.errorFlash(flash)
+
+        @formHelpers.globalErrors(form)
+
+        @helper.form(action = action, 'class -> "form", 'role -> "form") {
+            @formHelpers.csrfToken()
+
+            <input type="email" id="email" name="email" class="form-control" autofocus="autofocus" placeholder="@Messages("login.email")" />
+            <input type="password" id="password" name="password" class="form-control" placeholder="@Messages("login.password")" />
+
+            <input type="submit" class="login-button" value="@Messages("submitButton.loginWithPassword")" />
+        }
+
+        <p>
+            <a href="@controllers.core.routes.Admin.forgotPassword">@Messages("login.forgotPasswordLink")</a>
+        </p>
+        <p>
+            <a href="@controllers.core.routes.Admin.openIDLogin">@Messages("login.linkToOpenIDLogin")</a>
+        </p>
+}(None, request, globalConfig, lang)
 
