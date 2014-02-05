@@ -1,0 +1,53 @@
+body.login-page {
+
+	background-color:@well-bg;
+
+	#wrap > article {
+		.container;
+		> .login-form {
+			margin-top:20px;
+			.make-md-column(4);
+			.make-md-column-offset(4);
+
+			border: 1px solid transparent;
+			background-color:#fff;
+			border-radius : 10px;
+			.box-shadow(outset 5px 5px 5px rgba(0,0,0,.4));
+		}
+	}
+	h2, h3 {
+		text-align:center;
+	}
+	.login-button {
+		.btn;
+		.btn-lg;
+		.btn-primary;
+		.btn-block;
+
+		margin:15px 0!important;
+	}
+
+	input[type="text"], input[name="openid_identifier"] {
+
+		.form-control;
+		margin:10px auto;
+
+	}
+
+	input[type="email"] {
+		border-bottom-left-radius: 0;
+	    border-bottom-right-radius: 0;
+	    margin-bottom: -1px;
+	}
+
+	input[type="password"] {
+		border-top-left-radius: 0;
+	    border-top-right-radius: 0;
+	    margin-bottom: 10px;
+	}
+
+	.logo {
+		margin:10px auto;
+		display:block;
+	}
+}

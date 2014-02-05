@@ -1,17 +1,17 @@
 @(item: Concept, desc: ConceptDescriptionF)(implicit lang: Lang)
 
 <small>
-<ul class="unstyled muted inline inline-separator">
+<ul class="list-unstyled text-muted inline inline-separator">
         @item.vocabulary.map { vocab =>
             <li><a class="alt" href="@controllers.vocabs.routes.Vocabularies.get(vocab.id)">@vocab.toStringLang</a></li>
         }
-        <li><span class="muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+        <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
         @item.latestEvent.map { event =>
             <li title="@event.time">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
         }
     </ul>
 @if(item.broaderTerms.size > 0) {
-    <ul class="unstyled inline inline-separator">
+    <ul class="list-unstyled inline inline-separator">
         <li>@Messages("concept.broaderTerms")</li>
         @item.broaderTerms.map { bt =>
             <li>

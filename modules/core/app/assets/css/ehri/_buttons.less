@@ -1,0 +1,50 @@
+
+.form-actions {
+	background-color:@well-bg;
+	border-top: 1px solid @well-border;
+	padding:15px 5px;
+
+	&.sticky {
+		.container;
+		bottom:0!important;
+	}
+}
+
+.button {
+	.btn;
+
+	&.post {
+  		.button-variant(@btn-post-color; @btn-post-bg; @btn-post-border);
+	}
+	&.cancel {
+  		.button-variant(@btn-cancel-color; @btn-cancel-bg; @btn-cancel-border);
+	}
+	&.get {
+		.button-variant(@btn-get-color; @btn-get-bg; @btn-get-border);
+	}
+
+	&.xs {
+		.btn-xs;
+	}
+}
+
+form[method="GET"], form:not([method="POST"]) {
+	.btn-default, .btn-primary, button[type="submit"], input[type="submit"], .button.submit {
+		.button.get;
+	}
+}
+
+.btn-link, .btn-default, .btn, .btn-primary {
+	.button.get;
+}
+
+form[method="POST"] {
+	.btn-default, .btn-primary, button[type="submit"], input[type="submit"], .button.submit {
+  		.button.post;
+	}
+}
+
+.remove-inline-element {
+	.btn;
+  	.button-variant(@btn-danger-color; @btn-danger-bg; @btn-danger-border);
+}

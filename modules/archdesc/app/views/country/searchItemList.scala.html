@@ -1,6 +1,6 @@
 @(result: utils.search.ItemPage[(AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-<ul class="unstyled">
+<ul class="list-unstyled">
     @result.items.map { case(item, id) =>
         @defining(Some(id)) { implicit descriptionId =>
             <li>

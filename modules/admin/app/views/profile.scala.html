@@ -18,7 +18,7 @@
 @layout.rightSidebar(item.toStringLang) {
     <div class="pull-right">
         <a class="btn btn-mini" href="@controllers.admin.routes.Profile.updateProfile">
-            <i class="icon icon-wrench"></i>
+            <i class="glyphicon glyphicon-wrench"></i>
             @Messages("actions.edit")
         </a>
     </div>
@@ -55,7 +55,7 @@
         @if(item.groups.isEmpty) {
             <i>@Messages("profile.notInAnyGroups")</i>
         } else {
-            <ul class="unstyled">
+            <ul class="list-unstyled">
                 @item.groups.map { group =>
                     <li></li><a class="badge" href="@controllers.core.routes.Groups.get(group.id)">@group.toStringLang</a></li>
                 }

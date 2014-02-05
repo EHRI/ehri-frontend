@@ -10,7 +10,7 @@
             @if(!ofn.isEmpty) {
                 <small>
                     <strong>
-                        <ul class="unstyled inline inline-separator">
+                        <ul class="list-unstyled inline inline-separator">
                             @ofn.map { on =>
                                 <li>@on</li>
                             }
@@ -20,7 +20,7 @@
             }
         }
         <small>
-            <ul class="unstyled muted inline inline-separator">
+            <ul class="list-unstyled text-muted inline inline-separator">
                 <li>@Messages("isaar." + desc.entityType.toString)</li>
                 @desc.dates.map { dp =>
                     <li>@dp.years</li>

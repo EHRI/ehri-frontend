@@ -8,24 +8,16 @@ For development, you need a version of the EHRI Neo4j REST server installed both
 
 Download Solr and extract it to the location of your choice (using ~/apps for this example):
 
-    export SOLR_VERS=4.6.0
-	curl -0 http://mirror.ox.ac.uk/sites/rsync.apache.org/lucene/solr/$SOLR_VERS/solr-$SOLR_VERS.tgz | tar -zx -C ~/apps
+	curl -0 http://mirrors.ukfast.co.uk/sites/ftp.apache.org/lucene/solr/4.2.1/solr-4.2.1.tgz | tar -zx -C ~/apps
 
 For now, re-use the example Solr core (named "collection1", inside the example/solr direction).  As a shortcut, you can just grab the `schema.xml` and `solrconfig.xml` from Github:
 
-    cd ~/apps/solr-$SOLR_VERS/example
-    mkdir -p solr/collection1/lib
-	mkdir -p solr/collection1/conf/lang
-	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/schema.xml > solr/collection1/conf/schema.xml
-	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/solrconfig.xml > solr/collection1/conf/solrconfig.xml
-	curl https://raw2.github.com/mikesname/ehri-indexer/master/solrconf/lang/stopwords_pl.txt > solr/collection1/conf/lang/stopwords_pl.txt
-
-The search config needs some additional Solr libs and language files, all except one of which (the Polish stopwords we copied above) ship with the main distribution. The easiest thing is just to copy these from contrib into the {core}/lib directory:
-
-    find ../contrib/{analysis-extras,langid} -type f -name "*.jar" -exec cp {} solr/collection1/lib \;
+	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/schema.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/schema.xml
+	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/solrconfig.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/solrconfig.xml
 
 You should now able able to start the Solr server in another shell:
 
+	cd ~/apps/solr-4.2.1/example
 	java -jar start.jar
 
 If that starts without spewing out any dodgy-looking stack traces all should be well. You can verify this by going to http://localhost:8983/solr which should display the Solr admin page.
@@ -41,7 +33,7 @@ To set up and build the indexer, do the following:
     cd ehri-indexer
     mvn clean compile assembly:single
 
-If all goes well this will result in a single Jar file called `index-helper-1.0.1-jar-with-dependencies.jar` ending up in the `target` directory.
+If all goes well this will result in a single Jar file called `ehri-indexer-1 .0-SNAPSHOT-jar-with-dependencies.jar` ending up in the `target` directory.
 
 ### Installing Play 2.2.1:
 
@@ -117,7 +109,7 @@ One setting you definitely should change is the value of the `solr.path` key, wh
 
 Also, we need to put the indexer utility where the interface can find it, in the `bin` directory, named `indexer`. This can be done with a symlink:
 
-    ln -s ~/dev/ehri-indexer/target/index-helper-1.0.1-jar-with-dependencies.jar ~/dev/docview/bin/indexer.jar
+    ln -s ~/dev/ehri-indexer/target/ehri-indexer-1 .0-SNAPSHOT-jar-with-dependencies.jar ~/dev/docview/bin/indexer
 
 Start Neo4j server, if you haven't already:
 
