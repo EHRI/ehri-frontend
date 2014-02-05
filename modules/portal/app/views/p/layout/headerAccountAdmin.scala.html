@@ -5,7 +5,7 @@
     <li>
         <a href="@controllers.portal.routes.Portal.profile" class="gravitar">
             @defining(user.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
-            <img height="24" width="24" class="img-rounded img-thumbnail" src="@src" />
+            <img height="24" width="24" class="user-img-icon" src="@src" />
             }
             @user.model.name
         </a>
