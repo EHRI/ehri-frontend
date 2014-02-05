@@ -6,8 +6,8 @@
     <legend>@Messages("actions.setVisibility")</legend>
 
     <div class="form-group">
-        <label class="col-sm-2 control-label" for="visibility_groups">@Messages("contentTypes.group")</label>
-        <div class="col-sm-10">
+        <label class="col-sm-3 control-label" for="visibility_groups">@Messages("contentTypes.group")</label>
+        <div class="col-sm-9">
             <select class="chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" multiple
             name="@(ACCESSOR_PARAM)[]">
             @groups.map{ case(id, name) =>
@@ -18,8 +18,8 @@
     </div>
 
     <div class="form-group">
-        <label class="col-sm-2 control-label" for="visibility_users">@Messages("contentTypes.userProfile")</label>
-        <div class="col-sm-10">
+        <label class="col-sm-3 control-label" for="visibility_users">@Messages("contentTypes.userProfile")</label>
+        <div class="col-sm-9">
             <select class="chzn-select" data-placeholder="@Messages("visibility.chooseUsers")" multiple
             name="@(ACCESSOR_PARAM)[]">
             @users.map { case(id, name) =>
