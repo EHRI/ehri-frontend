@@ -1,0 +1,44 @@
+
+.sidebar-section {
+  &:extend(.panel all);
+  &:extend(.panel-default all);
+
+  header {
+
+    // FIXME: Can't get this to pull through from
+    // the panel-default defaults
+    background-color: @gray-lighter;
+
+    &:extend(.panel-default all);
+    &:extend(.panel-heading all);
+    h3 {
+      &:extend(.panel-title all);
+    }
+  }
+
+  .sidebar-section-body {
+    &:extend(.panel-body all);
+  }
+
+  .sidebar-section-footer {
+    &:extend(.panel-footer all);
+  }
+}
+
+
+/** Cut off text in description switch without wrap... */
+.description-switcher > li {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 0.8em;
+}
+
+.description-switcher > li.active {
+  background-color: @ehri-purple;
+  a {
+    display: block;
+    color: #ffffff;
+  }
+}
+
