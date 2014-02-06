@@ -238,6 +238,7 @@ systemEvents.filter=Filter Events
 
 
 # Actions
+actions=Actions
 actions.edit=Edit
 actions.delete=Delete
 actions.history=History
