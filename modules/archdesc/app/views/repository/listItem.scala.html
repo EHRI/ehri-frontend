@@ -11,7 +11,7 @@
             @if(!ofn.isEmpty) {
                 <small>
                     <strong>
-                        <ul class="unstyled inline inline-separator">
+                        <ul class="list-unstyled inline inline-separator">
                             @ofn.map { on =>
                                 <li>@on</li>
                             }
@@ -21,7 +21,7 @@
             }
          }
         <small>
-            <ul class="unstyled muted inline inline-separator">
+            <ul class="list-unstyled text-muted inline inline-separator">
                 @item.country.map { ct =>
                     <li><strong><a class="alt" href="@controllers.archdesc.routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
                 }

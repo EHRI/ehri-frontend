@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.updateHistoricalAgent"), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.updateHistoricalAgent"), breadcrumbs = common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @historicalAgent.renderForm(Some(item), f)

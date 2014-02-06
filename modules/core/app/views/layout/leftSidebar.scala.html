@@ -9,16 +9,16 @@
         @common.breadcrumbs()
     }
     <div class="container">
-        <div class="row-fluid">
-            <div class="left-sidebar span3">
+        <article class="bar">
+            <aside class="left-sidebar">
                 @sidebar
-            </div>
-            <div class="span9">
+            </aside>
+            <section class="main">
                 <h2>@title</h2>
 
                 @common.errorFlash(flash)
                 @content
-            </div>
-        </div>
+            </section>
+        </article>
     </div>
 }

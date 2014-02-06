@@ -3,14 +3,14 @@
 @layout.adminLayoutSimple(title, scripts, styles) {
 
     <div class="container">
-        <div class="row-fluid">
-            <div class="span12">
+        <article class="single">
+            <section class="main">
                 <h2>@title</h2>
 
                 @common.errorFlash(flash)
 
                 @content
-            </div>
-        </div>
+            </section>
+        </article>
     </div>
 }

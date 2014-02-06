@@ -6,7 +6,7 @@
 
     @common.pagination(page)
 	
-	<ul class="unstyled">
+	<ul class="list-unstyled">
 	    @page.items.map { item =>
             <li>
                 @vocabulary.listItem(item)
@@ -15,12 +15,9 @@
 	</ul>
 
 } {
-    @common.sidebarSection(None) {
-        @userOpt.map { user =>
-            @if(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@controllers.vocabs.routes.Vocabularies.create">@Messages("actions.createVocabulary")</a>
-            }
+    @common.sidebarActions { user =>
+        @common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Create)) {
+            <a href="@controllers.vocabs.routes.Vocabularies.create">@Messages("actions.createVocabulary")</a>
         }
     }
-
 }

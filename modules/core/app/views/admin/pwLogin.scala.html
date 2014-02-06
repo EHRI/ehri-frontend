@@ -16,8 +16,10 @@
         @helper.inputText(form("email"), 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"))
         @helper.inputPassword(form("password"), 'placeholder -> Messages("login.password"))
 
-        <div>
-            <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
+            </div>
         </div>
     }
 

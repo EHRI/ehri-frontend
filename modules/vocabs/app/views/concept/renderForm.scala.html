@@ -1,10 +1,11 @@
 @(item: Option[Concept], f: play.api.data.Form[models.ConceptF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import models.ConceptF._
+@import formHelpers._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@helper.inputText(f(Entity.IDENTIFIER), '_label -> Messages(Entity.IDENTIFIER))
+@formHelpers.lineInput(f(""), Entity.IDENTIFIER)
 
 @defining("concept") { implicit prefix =>
     <fieldset id="descriptions-area">
@@ -22,11 +23,13 @@
                 }
             </div>
 
-            <div class="pull-right">
-                <a href="#" class="add-inline-element">
-                    <i class="icon-plus-sign"></i>
+            <div class="form-group">
+                <div class="col-sm-9 col-sm-offset-3 text-right">
+                    <a class="add-inline-element btn btn-success btn-xs" tabindex="-1" href="#">
+                        <i class="glyphicon glyphicon-plus"></i>
                     @Messages("actions.addNewConceptDescription")
-                </a>
+                    </a>
+                </div>
             </div>
         </div>
     </fieldset>

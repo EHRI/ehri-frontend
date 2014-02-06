@@ -5,9 +5,9 @@
 <fieldset id="visibility-area">
     <legend>@Messages("actions.setVisibility")</legend>
 
-    <div class="control-group">
-        <label class="control-label" for="visibility_groups">@Messages("contentTypes.group")</label>
-        <div class="controls input">
+    <div class="form-group">
+        <label class="col-sm-3 control-label" for="visibility_groups">@Messages("contentTypes.group")</label>
+        <div class="col-sm-9">
             <select class="chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" multiple
             name="@(ACCESSOR_PARAM)[]">
             @groups.map{ case(id, name) =>
@@ -17,9 +17,9 @@
         </div>
     </div>
 
-    <div class="control-group">
-        <label class="control-label" for="visibility_users">@Messages("contentTypes.userProfile")</label>
-        <div class="controls input">
+    <div class="form-group">
+        <label class="col-sm-3 control-label" for="visibility_users">@Messages("contentTypes.userProfile")</label>
+        <div class="col-sm-9">
             <select class="chzn-select" data-placeholder="@Messages("visibility.chooseUsers")" multiple
             name="@(ACCESSOR_PARAM)[]">
             @users.map { case(id, name) =>

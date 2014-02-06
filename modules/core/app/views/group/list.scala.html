@@ -7,7 +7,7 @@
 
     @common.pagination(items)
 	
-	<ul class="unstyled">
+	<ul class="list-unstyled">
 	@items.items.map { item =>
 	  	<li>
             @group.listItem(item)
@@ -16,11 +16,9 @@
 	</ul>
     
 } {
-    @common.sidebarSection(None) {
-        @userOpt.map { user =>
-            @if(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@controllers.core.routes.Groups.create">@Messages("Create New Group")</a>
-            }
+    @common.sidebarActions { user =>
+        @common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
+            <a href="@controllers.core.routes.Groups.create">@Messages("Create New Group")</a>
         }
     }
 }

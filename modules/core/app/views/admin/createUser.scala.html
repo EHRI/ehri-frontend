@@ -16,11 +16,10 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @helper.inputPassword(f("password"), '_label -> Messages("users.password"))
         @helper.inputPassword(f("confirm"), '_label -> Messages("users.passwordConfirm"))
 
-        <div class="control-group">
-            <label class="control-label" for="@gf("group").id">@Messages("users.groups")</label>
-            <div class="controls controls-row">
-                @{println(gf.value)}
-                <select class="chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" name="@(gf("group").name)[]" id="@gf("group").id" multiple>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="@gf("group").id">@Messages("users.groups")</label>
+            <div class="col-sm-10">
+                <select class="form-control chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" name="@(gf("group").name)[]" id="@gf("group").id" multiple>
                     @groups.map { case(id, name) =>
                         <option value="@id" @{if(gf.value.map(_.contains(id)).getOrElse(false)) "selected"}>@name</option>
                     }
@@ -29,9 +28,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
             </div>
         </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages("submitButton.createUser")</button>
-        </div>
+        @common.submitButton(Messages("submitButton.createUser"))
 	}
 } {
 

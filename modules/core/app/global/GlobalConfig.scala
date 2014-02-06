@@ -10,6 +10,7 @@ trait MenuConfig {
 }
 
 trait GlobalConfig {
+
   val menuConfig: MenuConfig
   val routeRegistry: RouteRegistry
 

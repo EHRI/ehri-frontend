@@ -7,20 +7,20 @@
     }
 
     <div class="container">
-        <div class="row-fluid">
-            <div class="span6">
+        <article class="triple">
+            <section class="main">
                 <h2>@title</h2>
 
                 @common.flash(flash)
 
                 @content
-            </div>
-            <div class="right-sidebar span3">
+            </section>
+            <aside class="right-sidebar">
                 @sidebar1
-            </div>
-            <div class="right-sidebar span3">
+            </aside>
+            <aside class="right-sidebar">
                 @sidebar2
-            </div>
-        </div>
+            </aside>
+        </article>
     </div>
 }

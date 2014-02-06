@@ -1,12 +1,87 @@
 !(function() {
-  var linker = angular.module('AccessPointLinker', ["ngSanitize", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead', 'ui.bootstrap.pagination' ], function($provide) {
+  /*
+  *
+  *
+  *   Migration from 0.5.0 needs to recreate a function for dialomessageBox
+  *
+  *   From : https://github.com/angular-ui/bootstrap/issues/996
+  *
+  *
+  */
+    var dialogModule = angular.module("dialog", [ 'ui.bootstrap']);
+
+
+    dialogModule.factory('$dialog', ['$rootScope', '$modal', function($rootScope, $modal) {
+
+      function dialog(modalOptions, resultFn) {
+        var dialog = $modal.open(modalOptions);
+        if (resultFn) dialog.result.then(resultFn);
+        dialog.values = modalOptions;
+        return dialog;
+      }
+
+      function modalOptions(templateUrl, controller, scope) {
+        return { templateUrl:  templateUrl, controller: controller, scope: scope }; }
+
+      return {
+        /**
+         * Creates and opens dialog.
+         */
+        dialog: dialog,
+
+        /**
+         * Returns 0-parameter function that opens dialog on evaluation.
+         */
+        simpleDialog: function(templateUrl, controller, resultFn) {
+          return function () { return dialog(modalOptions(templateUrl, controller), resultFn); }; },
+
+        /**
+         * Opens simple generic dialog presenting title, message (any html) and provided buttons.
+         */
+        messageBox: function(title, message, buttons, resultFn) {
+          var scope = angular.extend($rootScope.$new(false), { title: title, message: message, buttons: buttons });
+          return dialog(modalOptions("template/messageBox/message.html", 'MessageBoxController', scope), function (result) {
+            var value = resultFn ? resultFn(result) : undefined;
+            scope.$destroy();
+            return value;
+          }); }
+      };
+    }]);
+
+
+    dialogModule.run(["$templateCache", function($templateCache) {
+      $templateCache.put("template/messageBox/message.html",
+          '<div class="modal-header"><h3>{{ title }}</h3></div>\n' +
+          '<div class="modal-body"><p ng-bind-html="message"></p></div>\n' +
+          '<div class="modal-footer"><button ng-repeat="btn in buttons" ng-click="close(btn.result)" class="btn" ng-class="btn.cssClass">{{ btn.label }}</button></div>\n');
+    }]);
+
+
+    dialogModule.controller('MessageBoxController', ['$scope', '$modalInstance', function ($scope, $modalInstance) {
+      $scope.close = function (result) { $modalInstance.close(result); }
+    }]);
+
+  /*
+  *
+  *
+  *     PROPER APPLICATION
+  *
+  *
+  */
+
+
+  var linker = angular.module('AccessPointLinker', ["ngSanitize", "dialog", 'ui.bootstrap.modal', 'ui.bootstrap.typeahead', 'ui.bootstrap.pagination' ], function($provide) {
     $provide.factory('$search', function($http, $log, $service) {
       var search = function(types, searchTerm, page) {
         var params = "?limit=10&q=" + (searchTerm || "");
         if (types && types.length > 0) {
-          params = params + "&" + (types.map(function(t) { return "st[]=" + t }).join("&"));
+          if(Array.isArray(types)) {
+            params = params + "&" + (types.map(function(t) { return "st[]=" + t }).join("&"));
+          } else {
+            params = params + "&st[]=" + types;
+          }
         }
-        if (page) {
+        if (page > 0) {
           params = params + "&page=" + page;
         }
         return $http.get($service.filter().url + params);
@@ -88,22 +163,24 @@
 }).call(this);
 
 
-function LinkCtrl($scope, $window, $search, dialog, $names, $rootScope) {
-// Items data
+function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, q) {
+  // Items data
   // FIXME: Retrieving the passed-in query should be easier!
-  $scope.q = dialog.options.resolve.q();
+  $scope.q = q;
   $scope.item = null; // Preview item
   $scope.type = ''; // Type of query
   $scope.results = []; // Results from query
 
-  $scope.currentPage = 1; //Current page of pagination
-  $scope.maxSize = 5; // Number of pagination buttons shown
-  $scope.numPages = false; // Number of pages (get from query)
+  $scope.pageInfos = {
+    currentPage : 1, //Current page of pagination
+    maxSize : 5, // Number of pagination buttons shown
+    numPages : false  // Number of pages (get from query)
+  }
 
   // Trigger moreResults if current page changes
-  $scope.$watch("currentPage", function(newValue, oldValue) {
+  $scope.$watch("pageInfos.currentPage", function(newValue, oldValue) {
     if (!$scope.results[newValue]) {
-      $scope.moreResults($scope.q);
+      $scope.moreResults();
     }
   });
 
@@ -120,9 +197,10 @@ function LinkCtrl($scope, $window, $search, dialog, $names, $rootScope) {
   $scope.doSearch = function(searchTerm, page) {
     return $search.search($scope.type, searchTerm, page).then(function(response) {
       $scope.results = [];
-      $scope.currentPage = response.data.page;
-      $scope.results[$scope.currentPage] = response.data.items;
-      $scope.numPages = response.data.numPages;
+      $scope.pageInfos.currentPage = parseInt(response.data.page);
+      $scope.results[$scope.pageInfos.currentPage] = response.data.items;
+      $scope.pageInfos.numPages = parseInt( response.data.numPages);
+
     });
   }
 
@@ -132,12 +210,13 @@ function LinkCtrl($scope, $window, $search, dialog, $names, $rootScope) {
    * @returns {*}
    */
   $scope.moreResults = function(searchTerm) {
-    return $search.search($scope.type, searchTerm, $scope.currentPage).then(function(response) {
+    return $search.search($scope.type, $scope.q, $scope.pageInfos.currentPage).then(function(response) {
       // Append results instead of replacing them...
-      $scope.currentPage = response.data.page;
-      $scope.results[$scope.currentPage] = response.data.items;
-      $scope.numPages = response.data.numPages;
-      $scope.currentPage = response.data.page;
+      $scope.pageInfos.currentPage = parseInt(response.data.page);
+      $scope.results[$scope.pageInfos.currentPage] = response.data.items;
+      $scope.pageInfos.numPages = parseInt(response.data.numPages);
+      $scope.pageInfos.currentPage = parseInt(response.data.page);
+
     });
   }
 
@@ -163,7 +242,6 @@ function LinkCtrl($scope, $window, $search, dialog, $names, $rootScope) {
       $scope.item = item;
       return $search.detail(item[2], item[0]).then(function(response) {
         $scope.itemData = response.data;
-        console.log($scope.itemData)
       });
     }
   }
@@ -181,12 +259,12 @@ function LinkCtrl($scope, $window, $search, dialog, $names, $rootScope) {
    * @param result
    */
   $scope.close = function(result) {
-    dialog.close(result);
+    $modalInstance.close(result);
   };
 }
 
 
-function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $window) {
+function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $window, $modal) {
 
   /**
    * Headers for ajax calls.
@@ -286,9 +364,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
       {result: 1, label: 'OK', cssClass: 'btn-primary'}
     ];
 
-    $dialog.messageBox(title, msg, btns)
-      .open()
-      .then(function(result) {
+    $dialog.messageBox(title, msg, btns, function(result) {
         if (result == 1) {
           $service.deleteLink($scope.itemId, accessLinkId).ajax({
             headers: {"Accept": "application/json; charset=utf-8"},
@@ -316,8 +392,8 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
    * Open a dialog to browse for specific items.
    */
   $scope.openBrowseDialog = function() {
-    var d = $dialog.dialog($scope.modalLink);
-    d.open().then(function(result) {
+    var d = $modal.open($scope.modalLink);
+    d.result.then(function(result) {
       if (result) {
         $scope.selectLinkMatch(result);
       }
@@ -357,9 +433,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
       {result: 1, label: 'OK', cssClass: 'btn-primary'}
     ];
 
-    $dialog.messageBox(title, msg, btns)
-      .open()
-      .then(function(result) {
+    $dialog.messageBox(title, msg, btns, function(result) {
         if (result == 1) {
           console.log("Deleting access point", accessPointId);
 

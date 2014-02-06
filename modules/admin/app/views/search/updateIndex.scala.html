@@ -29,19 +29,14 @@
 @layout.rightSidebar(Messages("search.updateIndex"), scripts=extraScript, styles = extraStyle) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
+        
         @helper.checkbox(form("all"), '_label -> Messages("search.clearEntireIndex"))
 
-        <div class="control-group">
-            <label class="control-label">@Messages("search.selectAllTypes")</label>
-            <div class="controls">
-                <input type="checkbox" id="select-all" />
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">@Messages("search.typesToUpdate")</label>
-            <div class="controls">
-
+        <div class="form-group">
+            <label class="col-sm-3 form-label">@Messages("search.typesToUpdate")</label>
+            <div class="col-sm-9">
+                <label class="checkbox"><input type="checkbox" id="select-all" /> @Messages("search.selectAllTypes")</label>
+                <hr />
                 @List(EntityType.Country, EntityType.DocumentaryUnit, EntityType.HistoricalAgent, EntityType.Repository, EntityType.Concept,EntityType.Vocabulary, EntityType.AuthoritativeSet, EntityType.UserProfile,EntityType.Group).map { et =>
                     <label class="checkbox">
                         <input type="checkbox" name="type[]" value="@et" />

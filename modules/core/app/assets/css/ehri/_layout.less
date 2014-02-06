@@ -1,0 +1,32 @@
+body {
+	> .page-container {
+		> header {
+			> section {
+				.container;
+			}
+		}
+		article {
+			.make-row();
+
+			&.double {
+				> aside {
+					.make-md-column(3);
+				}
+				> section.main {
+					.make-md-column(9);
+				}
+			}
+			&.triple {
+				> aside {
+					.make-md-column(3);
+				}
+				> section.main {
+					.make-md-column(6);
+				}
+			}
+			> section.main {
+				.make-md-column(12);
+			}
+		}
+	}
+}

@@ -242,6 +242,19 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
     "allow changing link visibility" in new FakeApp {
 
     }
+
+    "allow anon feedback" in new FakeApp {
+      val fbCount = mockFeedback.buffer.size
+      val fb = Map("text" -> Seq("it doesn't work"))
+      val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+          portalRoutes.feedbackPost.url), fb).get
+      status(post) must equalTo(SEE_OTHER)
+      val newCount = mockFeedback.buffer.size
+      newCount must equalTo(fbCount + 1)
+      mockFeedback.buffer.get(newCount) must beSome.which { f =>
+        f.text must equalTo("it doesn't work")
+      }
+    }
   }
 
   "Signup process" should {

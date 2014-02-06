@@ -21,21 +21,21 @@
     @common.visibility(item, controllers.archdesc.routes.Countries.visibility(item.id), ContentTypes.Country)
     @common.latestAction(item, controllers.archdesc.routes.Countries.history(item.id))
 
-    <ul class="item-actions nav nav-tabs nav-stacked">
-        @userOpt.map { user =>
-            @if(user.hasPermission(ContentTypes.Repository, PermissionType.Create)) {
-                <li><a href="@controllers.archdesc.routes.Countries.createRepository(item.id)">@Messages("actions.createRepository")</a></li>
-            }
-            @if(user.hasPermission(ContentTypes.Country, PermissionType.Update)) {
-                <li><a href="@controllers.archdesc.routes.Countries.update(item.id)">@Messages("actions.updateItem")</a></li>
-            }
-            @if(user.hasPermission(ContentTypes.Country, PermissionType.Delete)) {
-                <li><a href="@controllers.archdesc.routes.Countries.delete(item.id)">@Messages("actions.deleteItem")</a></li>
-            }
-            @if(user.hasPermission(ContentTypes.Country, PermissionType.Grant)) {
-                <li><a href="@controllers.archdesc.routes.Countries.managePermissions(item.id)">@Messages("actions.managePermissions")</a></li>
-            }
-            <li><a href="@controllers.archdesc.routes.Countries.history(item.id)">@Messages("actions.showHistory")</a></li>
+    @common.sidebarActions { user =>
+        @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Create)) {
+            <a href="@controllers.archdesc.routes.Countries.createRepository(item.id)">@Messages("actions.createRepository")</a>
         }
-    </ul>
+        @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Update)) {
+            <a href="@controllers.archdesc.routes.Countries.update(item.id)">@Messages("actions.updateItem")</a>
+        }
+        @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Delete)) {
+            <a href="@controllers.archdesc.routes.Countries.delete(item.id)">@Messages("actions.deleteItem")</a>
+        }
+        @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Grant)) {
+            <a href="@controllers.archdesc.routes.Countries.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+        }
+        @common.sidebarAction() {
+            <a href="@controllers.archdesc.routes.Countries.history(item.id)">@Messages("actions.showHistory")</a>
+        }
+    }
 }

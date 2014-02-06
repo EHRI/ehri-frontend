@@ -6,8 +6,10 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 @layout.rightSidebar(Messages("actions.removeUserFromGroup", item.toStringLang, group.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-		<div class="form-actions">
-            <button type="submit" class="btn btn-primary">@Messages("submitButton.removeItemFromGroup")</button>
+		<div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+            	<button type="submit" class="btn btn-primary">@Messages("submitButton.removeItemFromGroup")</button>
+       		</div>
         </div>
 	}		
 } {

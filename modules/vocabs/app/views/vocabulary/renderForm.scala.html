@@ -1,5 +1,9 @@
 @(item: Option[Vocabulary], f: Form[models.VocabularyF])
 
+@import formHelpers._
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
 @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
 @formHelpers.lineInput(f(""), models.VocabularyF.NAME)
 @formHelpers.textInput(f(""), models.VocabularyF.DESCRIPTION)

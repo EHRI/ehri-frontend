@@ -6,11 +6,9 @@
         @country.searchItemList(result)
     }
 } {
-    @common.sidebarSection(None) {
-        @userOpt.map { user =>
-            @if(user.hasPermission(ContentTypes.Country, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@controllers.archdesc.routes.Countries.create">@Messages("actions.createCountry")</a>
-            }
+    @common.sidebarActions { user =>
+        @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Create)) {
+            <a href="@controllers.archdesc.routes.Countries.create">@Messages("actions.createCountry")</a>
         }
     }
     @common.facetList(result.facets, action)

@@ -1,7 +1,7 @@
 @(e: Entity)(implicit userOpt: Option[UserProfile], lang: Lang, req: RequestHeader)
 
 @if(!e.data.isEmpty) {
-    <small class="unknown-data-section muted">
+    <small class="unknown-data-section text-muted">
         <h5>
             <a class="alt unknown-data-toggle collapsed" data-toggle="collapse" data-target="#@(e.id)-unknown-data">
                 @Messages("describedEntity.additionalData")

@@ -28,3 +28,4 @@ fonts
 .DS_Store
 
 conf/securesocial.conf
+conf/parse-keys.conf
