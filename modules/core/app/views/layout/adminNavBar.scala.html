@@ -15,7 +15,9 @@
 	        <span class="icon-bar"></span>
 	      </button>
 		    @* Bit hacky - add home link *@
-	      <a class="navbar-brand @{if(request.path.equalsIgnoreCase(globalConfig.routeRegistry.default.url)) "active" else ""}" href="@globalConfig.routeRegistry.default.url"><i class="glyphicon glyphicon-home icon-white"></i></a>
+	      <a class="navbar-brand" href="@globalConfig.routeRegistry.default.url">
+              <i class="glyphicon glyphicon-home @{if(request.path.equalsIgnoreCase(globalConfig.routeRegistry.default.url)) "white" else ""}"></i>
+          </a>
 	    </aside>
 	    <nav class="collapse navbar-collapse" id="navbar-header">
 			<ul class="nav navbar-nav navbar-left" role="navigation">
