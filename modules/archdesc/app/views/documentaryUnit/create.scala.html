@@ -1,4 +1,4 @@
-@(item: AnyModel, f: Form[DocumentaryUnitF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+@(item: AnyModel, f: Form[DocumentaryUnitF], defaults: Option[play.api.Configuration], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
@@ -23,7 +23,7 @@
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-		@documentaryUnit.renderForm(f)
+		@documentaryUnit.renderForm(f, defaults)
 
         @permissions.renderVisibilityForm(vf, users, groups)
 		@common.submitButtonWithLogMessageInput(Messages("submitButton.createDocumentaryUnit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))

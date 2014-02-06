@@ -12,8 +12,9 @@ import utils.search.{Resolver, Dispatcher, SearchParams, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
-import scala.Some
 import backend.Backend
+import play.api.Play.current
+import play.api.Configuration
 
 @Singleton
 case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Read[DocumentaryUnit]
@@ -74,6 +75,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   implicit val resource = DocumentaryUnit.Resource
 
+  val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
+  val descDefaults: Option[Configuration] = formDefaults.flatMap(_.getConfig(IsadG.FIELD_PREFIX))
+
   val contentType = ContentTypes.DocumentaryUnit
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
@@ -97,7 +101,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
         entityFacets = entityFacets) {
         page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search))
+      Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search()))
     }.apply(request)
   }
 
@@ -106,7 +110,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
     searchAction[DocumentaryUnit](Map("parentId" -> item.id), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search))
+        Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search()))
     }.apply(request)
   }
 
@@ -152,7 +156,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(
-      item, childForm, VisibilityForm.form, users, groups,
+      item, childForm, formDefaults, VisibilityForm.form, users, groups,
       docRoutes.createDocPost(id)))
   }
 
@@ -161,26 +165,26 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.documentaryUnit.create(item,
-          errorForm, accForm, users, groups,
+          errorForm, formDefaults, accForm, users, groups,
           docRoutes.createDocPost(id)))
       }
-      case Right(item) => immediate(Redirect(docRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
+      case Right(doc) => immediate(Redirect(docRoutes.get(doc.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", doc.id)))
     }
   }
 
   def createDescription(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.createDescription(item,
-        descriptionForm, docRoutes.createDescriptionPost(id)))
+        descriptionForm, descDefaults, docRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => {
-        Ok(views.html.documentaryUnit.editDescription(item,
-          errorForm, docRoutes.createDescriptionPost(id)))
+        Ok(views.html.documentaryUnit.createDescription(item,
+          errorForm, descDefaults, docRoutes.createDescriptionPost(id)))
       }
       case Right(updated) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
@@ -256,13 +260,13 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        docRoutes.setItemPermissions _))
+        docRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        docRoutes.setScopedPermissions _))
+        docRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
@@ -298,7 +302,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     item => page => params => facets => etype => implicit userOpt => implicit request =>
       Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
           docRoutes.linkAnnotateSelect(id, toType),
-          docRoutes.linkAnnotate _))
+          docRoutes.linkAnnotate))
   }
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {

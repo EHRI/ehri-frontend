@@ -12,7 +12,10 @@ import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 import backend.Backend
 import backend.rest.cypher.CypherDAO
+import play.api.Configuration
 import play.api.libs.json.JsString
+import play.api.Play.current
+import play.api.mvc.SimpleResult
 
 @Singleton
 case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[CountryF,Country]
@@ -36,6 +39,9 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   val contentType = ContentTypes.Country
   val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
+  private val childFormDefaults: Option[Configuration]
+      = current.configuration.getConfig(EntityType.Repository)
+
   private val form = models.forms.CountryForm.form
   private val childForm = models.forms.RepositoryForm.form
 
@@ -46,11 +52,6 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   private val cypher = new CypherDAO
 
-  /**
-   * Search repositories inside this country.
-   * @param id
-   * @return
-   */
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
         page => params => facets => _ => _ =>
@@ -72,13 +73,13 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.country.create(form, VisibilityForm.form, users, groups, countryRoutes.createPost))
+    Ok(views.html.country.create(form, VisibilityForm.form, users, groups, countryRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.country.create(errorForm, accForm, users, groups, countryRoutes.createPost))
+        BadRequest(views.html.country.create(errorForm, accForm, users, groups, countryRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(countryRoutes.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
@@ -137,7 +138,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     getNextRepositoryId { newid =>
       val form = childForm.bind(Map("identifier" -> newid))
       Ok(views.html.repository.create(
-        item, form, VisibilityForm.form, users, groups, countryRoutes.createRepositoryPost(id)))
+        item, form, childFormDefaults, VisibilityForm.form, users, groups, countryRoutes.createRepositoryPost(id)))
     }
   }
 
@@ -146,7 +147,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.repository.create(item,
-          errorForm, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
+          errorForm, childFormDefaults, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.archdesc.routes.Repositories.get(citem.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
@@ -184,13 +185,13 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        countryRoutes.setItemPermissions _))
+        countryRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        countryRoutes.setScopedPermissions _))
+        countryRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
