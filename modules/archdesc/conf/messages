@@ -57,6 +57,14 @@ country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repositor
 country.search=Search Countries
 country.searchInside=Search Repositories
 country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
+country.items=Repositories
+country.identifier=Country Code
+country.identifier.description=The ISO-3166-1 2-letter code for this country
+country.abstract=Abstract
+country.abstract.description=An abstract of the report for this country
+country.report=Report
+country.report.description=The report describing this country''s archival situation
+
 
 #
 # Repositories
