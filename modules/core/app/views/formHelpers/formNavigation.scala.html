@@ -1,0 +1,12 @@
+@(fieldPrefix: String, targets: String*)
+
+<ul class="nav nav-tabs nav-pills nav-stacked affix" id="form-nav-sidebar">
+    @targets.map { s =>
+    <li>
+        <a href="#@{s}">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+            @Messages(fieldPrefix + "." + s)
+        </a>
+    </li>
+    }
+</ul>
