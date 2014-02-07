@@ -15,7 +15,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
             }
 		</fieldset>
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.linkAnnotate"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.linkAnnotate"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
 

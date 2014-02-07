@@ -6,7 +6,7 @@
         @formHelpers.csrfToken()
         @userProfile.renderForm(None, f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createUserProfile"))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createUserProfile"))
 	}
 } {
 

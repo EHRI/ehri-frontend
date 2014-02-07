@@ -51,7 +51,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 		</fieldset>
 	  			
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateGlobalPermissions"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateGlobalPermissions"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 
 	}
 } {

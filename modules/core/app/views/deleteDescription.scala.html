@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: glo
     <p>@Messages("deleting.deleteDescriptionConfirmationMessage", description.name)</p>
     @helper.form(action = action, 'class -> "form-actions") {
         @formHelpers.csrfToken()
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.deleteItem"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.deleteItem"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
     }
 } {
 

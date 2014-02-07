@@ -18,7 +18,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
             @formHelpers.textInput(f(""), ABOUT)
         }
 
-        @common.submitButton(Messages("submitButton.updateUserProfile"), cancel = Some(controllers.admin.routes.Profile.profile))
+        @formHelpers.submitButton(Messages("submitButton.updateUserProfile"), cancel = Some(controllers.admin.routes.Profile.profile))
 	}
 } {
 

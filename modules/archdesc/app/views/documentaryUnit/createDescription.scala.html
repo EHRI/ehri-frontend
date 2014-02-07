@@ -12,7 +12,7 @@
                 @documentaryUnit.renderDescriptionForm(f(""))
             }
 
-            @common.submitButtonWithLogMessageInput(Messages("submitButton.createDescription"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+            @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createDescription"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
         }
     }
 } {

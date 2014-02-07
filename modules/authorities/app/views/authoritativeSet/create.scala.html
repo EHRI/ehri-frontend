@@ -7,7 +7,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @authoritativeSet.renderForm(None, f)
         @permissions.renderVisibilityForm(vf, users, groups)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createAuthoritativeSet"))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createAuthoritativeSet"))
 	}
 } {
 

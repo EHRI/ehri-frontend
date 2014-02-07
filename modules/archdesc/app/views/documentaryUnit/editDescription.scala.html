@@ -10,7 +10,7 @@
             @formHelpers.csrfToken()
             @documentaryUnit.renderDescriptionForm(f(""))
 
-            @common.submitButtonWithLogMessageInput(Messages("submitButton.updateDescription"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+            @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateDescription"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
         }
     }
 } {

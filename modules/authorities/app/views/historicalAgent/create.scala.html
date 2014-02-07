@@ -15,7 +15,7 @@
             @permissions.renderVisibilityForm(vf, users, groups)
         </fieldset>
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createHistoricalAgent"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createHistoricalAgent"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
     @formNav()

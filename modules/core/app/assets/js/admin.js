@@ -61,8 +61,9 @@ jQuery(function($) {
       });
   });
 
-  // Chosen selects - makes multi-select pretty
-  $(".chzn-select:visible").chosen();
+  // Make multi-selects pretty
+  $("select.select2:visible").select2();
+
 
   // Fade success flash message after 3 seconds
   $(".success-pullup").fadeOut(3000);
@@ -91,8 +92,8 @@ jQuery(function($) {
     //container.append(elem);
     set.append(elem);
 
-    // Add chosen support to loaded content...
-    elem.find(".chzn-select").chosen();
+    // Add select2 support...
+    elem.find("select.select2").select2();
     event.preventDefault();
   });
 

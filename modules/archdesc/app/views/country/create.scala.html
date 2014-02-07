@@ -7,7 +7,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @country.renderForm(None, f)
         @permissions.renderVisibilityForm(vf, users, groups)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createCountry"))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createCountry"))
 	}
 } {
 

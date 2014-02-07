@@ -26,7 +26,7 @@
 		@documentaryUnit.renderForm(f, defaults)
 
         @permissions.renderVisibilityForm(vf, users, groups)
-		@common.submitButtonWithLogMessageInput(Messages("submitButton.createDocumentaryUnit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+		@formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createDocumentaryUnit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
    @documentaryUnit.formNav()
