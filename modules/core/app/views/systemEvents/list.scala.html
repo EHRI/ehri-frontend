@@ -1,4 +1,4 @@
-@(list: List[SystemEvent], params: utils.ListParams, filterForm: Form[utils.SystemEventParams])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(list: List[SystemEvent], params: utils.ListParams, filterForm: Form[utils.SystemEventParams], users: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import defines.EventType
 @import backend.rest.Constants._
@@ -8,12 +8,13 @@
 @layout.rightSidebar(Messages("actions.listSystemEvents")) {
 
     <div class="event-filter">
-        @helper.form(action = controllers.core.routes.SystemEvents.list, 'class -> "form-inline") {
+        @helper.form(action = controllers.core.routes.SystemEvents.list, 'class -> "form-inline", 'role -> "form") {
             <input type="hidden" name="@OFFSET_PARAM" value="@params.offset" />
             <input type="hidden" name="@LIMIT_PARAM" value="@params.limit" />
             @defining("systemEvents") { implicit fieldPrefix =>
-                @formHelpers.multiselectInput(filterForm(EVENT_TYPE), EVENT_TYPE, EventType.values.map(e => e.toString -> Messages(fieldPrefix + "." + e.toString)).toList.sorted)
-                <button type="submit">@Messages(fieldPrefix + ".filter")</button>
+                @formHelpers.multiselectInput(filterForm(EVENT_TYPE), EVENT_TYPE, EventType.values.map(e => e.toString -> Messages(fieldPrefix + "." + e.toString)).toSeq.sorted)
+                @formHelpers.multiselectInput(filterForm(USERS), USERS, users)
+                <button class="btn get" type="submit">@Messages(fieldPrefix + ".filter")</button>
             }
         }
     </div>

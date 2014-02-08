@@ -238,6 +238,7 @@ systemEvents.newerEvents=More recent events
 systemEvents.olderEvents=Older events
 systemEvents.et=Event Type
 systemEvents.filter=Filter Events
+systemEvents.user=Users
 
 
 # Actions
