@@ -56,8 +56,8 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
 
 
   private lazy val raw: SolrData = response.as[SolrData]
-  def rawFieldFacets: Map[String,JsValue] = raw.rawFacets.get("facet_fields").getOrElse(Map.empty)
-  def rawQueryFacets: Map[String,JsValue] = raw.rawFacets.get("facet_queries").getOrElse(Map.empty)
+  private def rawFieldFacets: Map[String,JsValue] = raw.rawFacets.get("facet_fields").getOrElse(Map.empty)
+  private def rawQueryFacets: Map[String,JsValue] = raw.rawFacets.get("facet_queries").getOrElse(Map.empty)
 
 
   lazy val spellcheckSuggestion: Option[(String, String)] = for {
@@ -101,39 +101,36 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
     case _ => "{!ex=" + tags.mkString(",") + "}"
   }
 
-  private def extractFieldFacet(fc: FieldFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): Option[FacetClass[Facet]] = {
-    val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
-    rawFieldFacets.get(fc.key).flatMap { jsval =>
-      jsval.validate(fieldFacetValueReader).fold(
-        err => None,
-        fields => {
-          val facets = fields.map { case (text, count) =>
-            SolrFieldFacet(
-              text, text, None,
-              count, applied.contains(text))
-          }.toList
-          Some(fc.copy(facets = facets))
-        }
-      )
-    }
+  private def appliedFacetValues(fc: FacetClass[_], appliedFacets: Seq[AppliedFacet]): Seq[String]
+    = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(Seq.empty)
+
+  private def extractFieldFacet(fc: FieldFacetClass, applied: Seq[String], tags: List[String] = Nil): FacetClass[Facet] = {
+    rawFieldFacets.get(fc.key).map(_.validate(fieldFacetValueReader)).collect {
+      case JsSuccess(fields, path) =>
+        val facets = fields.map { case (text, count) =>
+          SolrFieldFacet(
+            text, text, None,
+            count, applied.contains(text))
+        }.toList
+        fc.copy(facets = facets)
+    }.getOrElse(fc)
   }
 
-  private def extractQueryFacet(fc: QueryFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): Option[FacetClass[Facet]] = {
-    val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
+  private def extractQueryFacet(fc: QueryFacetClass, applied: Seq[String], tags: List[String] = Nil): FacetClass[Facet] = {
     val facetsWithCount: List[SolrQueryFacet] = fc.facets.flatMap { qf =>
       val nameValue = s"${tagFunc(tags)}${fc.key}:${qf.solrValue}"
       rawQueryFacets.get(nameValue).map { v =>
         qf.copy(count = v.as[Int], applied = applied.contains(qf.value))
       }
     }
-    Some(fc.copy(facets = facetsWithCount.toList))
+    fc.copy(facets = facetsWithCount.toList)
   }
 
   def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: utils.search.FacetClassList): utils.search.FacetClassList = {
     val tags = allFacets.filter(_.tagExclude).map(_.key)
     allFacets.flatMap {
-      case ffc: FieldFacetClass => extractFieldFacet(ffc, appliedFacets, tags)
-      case qfc: QueryFacetClass => extractQueryFacet(qfc, appliedFacets, tags)
+      case ffc: FieldFacetClass => Some(extractFieldFacet(ffc, appliedFacetValues(ffc, appliedFacets), tags))
+      case qfc: QueryFacetClass => Some(extractQueryFacet(qfc, appliedFacetValues(qfc, appliedFacets), tags))
       case e => {
         Logger.logger.warn("Unknown facet class type: {}", e)
         None
