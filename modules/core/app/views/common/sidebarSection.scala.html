@@ -2,11 +2,7 @@
 
 <div class="sidebar-section">
     @name.map { n =>
-        <div class="sidebar-section-header">
-            @n
-        </div>
+        <header><h3>@n</h3></header>
     }
-    <div class="sidebar-section-body">
-        @html
-    </div>
+    @html
 </div>

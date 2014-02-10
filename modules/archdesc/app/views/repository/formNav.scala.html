@@ -1,8 +1,5 @@
 @()
 
 @import models.Isdiah._
-<ul class="nav nav-tabs nav-stacked affix" id="form-nav-sidebar">
-    @List(IDENTITY_AREA,ADDRESS_AREA,DESCRIPTION_AREA,ACCESS_AREA,SERVICES_AREA,CONTROL_AREA,ADMINISTRATION_AREA).map { s =>
-        <li><a href="#@{s}"><i class="glyphicon glyphicon-chevron-left"></i>@Messages(FIELD_PREFIX + "." + s)</a></li>
-    }
-</ul>
+
+@formHelpers.formNavigation(FIELD_PREFIX, IDENTITY_AREA,ADDRESS_AREA,DESCRIPTION_AREA,ACCESS_AREA,SERVICES_AREA,CONTROL_AREA,ADMINISTRATION_AREA)

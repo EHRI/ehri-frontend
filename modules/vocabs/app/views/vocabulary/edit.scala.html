@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @formHelpers.csrfToken()
         @vocabulary.renderForm(Some(item), f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateVocabulary"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateVocabulary"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
 

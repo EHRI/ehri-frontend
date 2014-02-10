@@ -1,6 +1,6 @@
 @(descriptions: List[models.base.Description])(html: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-<div class="container descriptions">
+<div class="descriptions">
     <div class="row">
         <div class="col-md-3 col-md-push-9">
             @if(descriptions.size > 1) {

@@ -3,6 +3,6 @@
 @helper.select(
   field = f,
   options = (if(blank) List("" -> "---") else Nil) ::: options,
-  args = '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label), 'class -> "span8 chzn-select"
+  args = '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label), 'class -> "form-control select2"
 )
 

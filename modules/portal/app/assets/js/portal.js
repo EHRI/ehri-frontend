@@ -1,5 +1,59 @@
 jQuery(function ($) {
 
+  $(".content-load a.toggle").click(function(e){
+    e.preventDefault();
+    var $link = $(this)
+        $text = $(".text", $link),
+        $inverse = $link.data("inverse-text");
+    var $container = $link.parent(),
+        $data = $(".content-load-data", $container);
+    if ($container.hasClass("loaded")) {
+      $data.toggle(300)
+      $link.data("inverse-text", $text.text())
+      $text.text($inverse)
+    } else {
+      $link.addClass("loading");
+      $.get(this.href, function(data) {
+        $data.append(data).show(300)
+        $container.addClass("loaded")
+        $link.removeClass("loading")
+        $link.data("inverse-text", $text.text())
+        $text.text($inverse)
+      }, "html")
+    }
+  });
+
+
+  $(".content-load a.load-in-view").on("visible", function(e){
+    var $link = $(this),
+        $container = $link.parent(),
+        $data = $(".content-load-data", $container);
+    $link.addClass("loading");
+    $data.load(this.href, function() {
+      $data.find("select").each(function(i) {
+        $(this).select2(select2Opts);
+        $link.hide();
+      });
+    })
+  });
+
+  function checkLoadVisibility() {
+    $(".load-in-view").not(".loading").each(function(i) {
+      var $item = $(this);
+      if(!$item.hasClass("loading")) {
+        if (($(window).scrollTop() + $(window).height()) > $item.offset().top) {
+          $item.trigger("visible")
+        }
+      }
+    });
+  }
+
+  checkLoadVisibility()
+  $(window).scroll(function(e) {
+    checkLoadVisibility()
+  });
+
+
   // Make global search box show up when focused...
   // This could be done with plain CSS if we didn't also
   // want to toggle the color of the search icon...
@@ -345,4 +399,3 @@ jQuery(function ($) {
     });
   });
 });
-

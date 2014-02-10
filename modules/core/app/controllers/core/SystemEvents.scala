@@ -8,6 +8,7 @@ import global.GlobalConfig
 import utils.{ListParams, SystemEventParams, PageParams}
 import controllers.generic.Read
 import backend.Backend
+import backend.rest.RestHelpers
 
 case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Read[SystemEvent] {
 
@@ -30,8 +31,10 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
     val listParams = ListParams.fromRequest(request)
     val eventFilter = SystemEventParams.fromRequest(request)
     val filterForm = SystemEventParams.form.fill(eventFilter)
-    backend.listEvents(listParams, eventFilter).map { list =>
-      Ok(views.html.systemEvents.list(list, listParams, filterForm))
-    }
+
+    for {
+      users <- RestHelpers.getUserList
+      events <- backend.listEvents(listParams, eventFilter)
+    } yield Ok(views.html.systemEvents.list(events, listParams, filterForm, users))
   }
 }

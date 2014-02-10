@@ -202,8 +202,11 @@ users.search=Search Users
 #
 group.admin=Admin
 group.identifier=Group Identifier
+group.identifier.description=A short, lower-case, 1-word identifier
 group.name=Group Name
+group.name.description=A title-case display for the group
 group.description=Group Description
+group.description.description=A description of this group''s purpose
 group.members=Group Members
 group.membersPageHeader={2,choice,0#No members found|1#One member|1<Group Members {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
@@ -235,9 +238,11 @@ systemEvents.newerEvents=More recent events
 systemEvents.olderEvents=Older events
 systemEvents.et=Event Type
 systemEvents.filter=Filter Events
+systemEvents.user=Users
 
 
 # Actions
+actions=Actions
 actions.edit=Edit
 actions.delete=Delete
 actions.history=History

@@ -3,6 +3,8 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
+@import formHelpers._
+
 @layout.rightSidebar(Messages("admin.createNewUser")) {
 
 
@@ -10,17 +12,16 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @helper.inputText(f("email"), 'autofocus -> "autofocus", '_label -> Messages("users.email"))
-        @helper.inputText(f("identifier"), '_label -> Messages("users.username"))
-        @helper.inputText(f("name"), '_label -> Messages("users.realname"))
-        @helper.inputPassword(f("password"), '_label -> Messages("users.password"))
-        @helper.inputPassword(f("confirm"), '_label -> Messages("users.passwordConfirm"))
+        @helper.inputText(f("email"), 'autofocus -> "autofocus", 'class -> "form-control", '_label -> Messages("users.email"))
+        @helper.inputText(f("identifier"), 'class -> "form-control", '_label -> Messages("users.username"))
+        @helper.inputText(f("name"), 'class -> "form-control", '_label -> Messages("users.realname"))
+        @helper.inputPassword(f("password"), 'class -> "form-control", '_label -> Messages("users.password"))
+        @helper.inputPassword(f("confirm"), 'class -> "form-control", '_label -> Messages("users.passwordConfirm"))
 
         <div class="form-group">
             <label class="col-sm-2 control-label" for="@gf("group").id">@Messages("users.groups")</label>
             <div class="col-sm-10">
-                @{println(gf.value)}
-                <select class="form-control chzn-select" data-placeholder="@Messages("visibility.chooseGroups")" name="@(gf("group").name)[]" id="@gf("group").id" multiple>
+                <select class="form-control select2" data-placeholder="@Messages("visibility.chooseGroups")" name="@(gf("group").name)[]" id="@gf("group").id" multiple>
                     @groups.map { case(id, name) =>
                         <option value="@id" @{if(gf.value.map(_.contains(id)).getOrElse(false)) "selected"}>@name</option>
                     }
@@ -29,11 +30,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
             </div>
         </div>
 
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-                <button type="submit" class="btn btn-primary">@Messages("submitButton.createUser")</button>
-            </div>
-        </div>
+        @formHelpers.submitButton(Messages("submitButton.createUser"), cancel = Some(controllers.core.routes.UserProfiles.search))
 	}
 } {
 

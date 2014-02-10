@@ -13,12 +13,24 @@ submitButton.updateVocabulary=Update Vocabulary
 submitButton.updateConcept=Update Term
 
 #
+# Vocabularies
+#
+cvocVocabulary.items=Concepts
+cvocVocabulary.identifier=Identifier
+cvocVocabulary.identifier.description=A short, lowercase, 1-word identifier
+cvocVocabulary.name=Name
+cvocVocabulary.name.description=A title-case display name for this vocabulary
+cvocVocabulary.description=Description
+cvocVocabulary.description.description=A description of this vocabulary''s purpose
+
+
+#
 # Concepts
 #
 concept.descriptions=Descriptions
 concept.languageCode=Language
 concept.name=Preferred Label
-concept.altLabel=Alternative Label(s)
+concept.altLabel=Alt. Label(s)
 concept.scopeNote=Scope Note
 concept.definition=Definition
 concept.inVocabulary=Vocabulary

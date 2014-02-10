@@ -2,12 +2,13 @@
 // Global request object
 //
 
+import backend.parse.ParseFeedbackDAO
 import backend.rest._
 import backend.rest.BadJson
 import backend.rest.RestBackend
 import backend.rest.RestBackend
 import backend.rest.SearchResolver
-import backend.{EventHandler, Backend}
+import backend.{FeedbackDAO, EventHandler, Backend}
 import defines.EntityType
 import java.util.concurrent.TimeUnit
 import play.api._
@@ -86,6 +87,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(queryBuilder, responseParser)
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
   private def searchResolver: Resolver = new SearchResolver
+  private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
 
   private val eventHandler = new EventHandler {
 
@@ -121,6 +123,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind[Dispatcher].toInstance(searchDispatcher)
       bind[Resolver].toInstance(searchResolver)
       bind[Backend].toInstance(backend)
+      bind[FeedbackDAO].toInstance(feedbackDAO)
     }
   }
 

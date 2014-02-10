@@ -44,6 +44,23 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
       contentAsString(list) must contain("r2")
     }
 
+    "show correct default values in the form when creating new items" in new FakeApp(
+      Map("repository.isdiah.holdings" -> "SOME RANDOM VALUE")) {
+      val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.archdesc.routes.Countries.createRepository(COUNTRY).url)).get
+      status(form) must equalTo(OK)
+      contentAsString(form) must contain("SOME RANDOM VALUE")
+    }
+
+    "NOT show default values in the form when editing items" in new FakeApp(
+      Map("repository.isdiah.holdings" -> "SOME RANDOM VALUE")) {
+      val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.archdesc.routes.Repositories.update("r1").url)).get
+      status(form) must equalTo(OK)
+      contentAsString(form) must not contain("SOME RANDOM VALUE")
+    }
+
+
     "allow creating new items when logged in as privileged user" in new FakeApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("wiener-library"),

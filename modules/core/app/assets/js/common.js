@@ -14,45 +14,53 @@ jQuery(function($) {
   /**
    * Determine if the fragment refers to a description element.
    */
-  function isDescriptionRef() {
+  function isDescriptionRef(descId) {
     // NB: The _=_ is what Facebook adds to Oauth login redirects
-    return location.hash
-        && location.hash != FB_REDIRECT_HASH
-        && $(location.hash).hasClass("description-holder");
+    return descId
+        && descId != FB_REDIRECT_HASH
+        && $(descId).hasClass("description-holder");
   }
 
   setTimeout(function() {
-    if (isDescriptionRef()) {
+    if (isDescriptionRef(location.hash)) {
       window.scrollTo(0, 0);
     }
   }, 0);
 
-  function collapseDescriptions() {
-    if (!isDescriptionRef()) {
-      return;
-    }
+  $(".description-switch").click(function(e) {
+    switchDescription(this.href);
+  })
 
-    var hash = location.hash;
-
+  function switchDescription(descId) {
     $(".description-viewport").each(function(i, elem) {
 
       var $vp = $(elem);
       var $descs = $vp.find(".description-holder");
 
       // If the hash isn't set, default to the first element
-      if (!hash) {
-        hash = "#" + $descs.first().attr("id");
+      if (!descId) {
+        descId = "#" + $descs.first().attr("id");
       }
 
-      var $theitem = $(hash, $vp);
+      var $theitem = $(descId, $vp);
 
       $theitem.show();
+
       $descs.not($theitem).hide();
 
       // Set the active class on the current description
-      $(".description-switch[href='" + hash + "']").parent().addClass("active")
-      $(".description-switch[href!='" + hash + "']").parent().removeClass("active")
+      $(".description-switch[href='" + descId + "']").parent().addClass("active")
+      $(".description-switch[href!='" + descId + "']").parent().removeClass("active")
     });
+
+  }
+
+  function collapseDescriptions() {
+    if (isDescriptionRef(location.hash)) {
+      switchDescription(location.hash);
+    } else {
+      switchDescription();
+    }
   }
 
   History.Adapter.bind(window, 'hashchange', collapseDescriptions);

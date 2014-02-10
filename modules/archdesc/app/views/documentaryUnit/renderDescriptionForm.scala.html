@@ -1,4 +1,4 @@
-@(desc: Field)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(desc: Field)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import models.IsadG._
 @import models.DatePeriodF._
@@ -25,11 +25,11 @@
                 <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
             </label>
             <div class="inline-element-template form-template">
-                @common.renderDateSetForm(desc(DATES + "[IDX]"))
+                @inlineDateSet(desc(DATES + "[IDX]"))
             </div>
             <div class="col-sm-9 inline-element-list">
                 @helper.repeat(desc(DATES), min = 0) { desc =>
-                    @common.renderDateSetForm(desc)
+                    @inlineDateSet(desc)
                 }
             </div>
         </div>

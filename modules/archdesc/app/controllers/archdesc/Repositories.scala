@@ -11,6 +11,8 @@ import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
+import play.api.Play.current
+import play.api.Configuration
 
 @Singleton
 case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend) extends Read[Repository]
@@ -50,7 +52,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         key="priority",
         name=Messages("priority"),
         param="priority",
-        render=s => s match {
+        render= {
           case s if s == "0" => Messages("priority.zero")
           case s if s == "1" => Messages("priority.one")
           case s if s == "2" => Messages("priority.two")
@@ -70,6 +72,9 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
   private val form = models.forms.RepositoryForm.form
+
+  val childFormDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
+
   private val childForm = models.forms.DocumentaryUnitForm.form
 
   private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
@@ -79,7 +84,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = repositoryFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search))
+    Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search()))
   }
 
   /**
@@ -116,14 +121,14 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.repository.edit(item, errorForm, repositoryRoutes.updatePost(id)))
-      case Right(item) => Redirect(repositoryRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
+      case Right(doc) => Redirect(repositoryRoutes.get(doc.id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", doc.id))
     }
   }
 
   def createDoc(id: String) = childCreateAction(id, ContentTypes.DocumentaryUnit) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.create(item, childForm,
+    Ok(views.html.documentaryUnit.create(item, childForm, childFormDefaults,
         VisibilityForm.form, users, groups, repositoryRoutes.createDocPost(id)))
   }
 
@@ -132,7 +137,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.documentaryUnit.create(item,
-          errorForm, accForm, users, groups, repositoryRoutes.createDocPost(id)))
+          errorForm, childFormDefaults, accForm, users, groups, repositoryRoutes.createDocPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.archdesc.routes.DocumentaryUnits.get(citem.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
@@ -171,13 +176,13 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        repositoryRoutes.setItemPermissions _))
+        repositoryRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        repositoryRoutes.setScopedPermissions _))
+        repositoryRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {

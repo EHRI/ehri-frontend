@@ -6,11 +6,9 @@
         @userProfile.searchItemList(result)
     }
 } {
-    @userOpt.map { user =>
-        @if(user.isAdmin) {
-            @if(user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {
-                <a class="btn btn-primary" href="@controllers.core.routes.Admin.createUser">@Messages("actions.createUserProfile")</a>
-            }
+    @common.sidebarActions { user =>
+        @common.sidebarAction(user.isAdmin && user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {
+            <a href="@controllers.core.routes.Admin.createUser">@Messages("actions.createUserProfile")</a>
         }
     }
     @common.facetList(result.facets, action)

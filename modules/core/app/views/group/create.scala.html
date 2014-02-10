@@ -6,7 +6,7 @@
         @formHelpers.csrfToken()
         @group.renderForm(None, f)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createGroup"))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createGroup"))
 	}
 } {
 

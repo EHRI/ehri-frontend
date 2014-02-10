@@ -33,7 +33,15 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with Bef
     .add(new ThirdPartyJaxRsPackage(
     classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"));
 
-  class FakeApp extends WithApplication(fakeApplication(additionalConfiguration = config, global = getGlobal))
+  /**
+   * Test running Fake Application. We have general all-test configuration,
+   * handled in `config`, and per-test configuration (`specificConfig`) that
+   * will be merged.
+   * @param specificConfig A map of config values for this test
+   */
+  case class FakeApp(specificConfig: Map[String,Any] = Map.empty) extends WithApplication(
+    fakeApplication(additionalConfiguration = config ++ specificConfig, global = getGlobal)
+  )
 
   def before = {
     runner.tearDown()

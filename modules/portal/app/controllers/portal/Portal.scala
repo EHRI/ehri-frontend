@@ -16,7 +16,7 @@ import defines.EntityType
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
-import backend.Backend
+import backend.{FeedbackDAO, Backend}
 import controllers.base.ControllerHelpers
 import jp.t2v.lab.play2.auth.LoginLogout
 import scala.concurrent.Future
@@ -26,12 +26,14 @@ import utils.PageParams
 
 
 @Singleton
-case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend)
+case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
+    feedbackDAO: FeedbackDAO)
   extends Controller
   with LoginLogout
   with ControllerHelpers
   with PortalAuthConfigImpl
   with PortalLogin
+  with PortalFeedback
   with Search
   with FacetConfig
   with PortalActions
@@ -52,7 +54,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   private val defaultSearchTypes = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent,
     EntityType.Country)
   private val defaultSearchParams = SearchParams(entities = defaultSearchTypes, sort = Some(SearchOrder.Score))
-
 
   def search = searchAction[AnyModel](defaultParams = Some(defaultSearchParams),
         entityFacets = globalSearchFacets, mode = SearchMode.DefaultNone) {
@@ -130,15 +131,24 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       item => details => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
-    watchedItems.flatMap { watched =>
-      searchAction[DocumentaryUnit](filters,
-          defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-          entityFacets = docSearchFacets) {
-          page => params => facets => _ => _ =>
-        Ok(p.repository.show(item, page, params, facets,
-            portalRoutes.browseRepository(id), details.annotations, details.links, details.watched))
-      }.apply(request)
+    watchedItems.map { watched =>
+      Ok(p.repository.show(item, details.annotations, details.links, details.watched))
     }
+  }
+
+  def searchRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
+      item => details => implicit userOpt => implicit request =>
+    val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
+      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
+    searchAction[DocumentaryUnit](filters,
+      defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+      entityFacets = docSearchFacets) {
+      page => params => facets => _ => _ =>
+        if(isAjax) Ok(p.repository.childItemSearch(item, page, params, facets,
+          portalRoutes.searchRepository(id), details.watched))
+        else Ok(p.repository.search(item, page, params, facets,
+          portalRoutes.searchRepository(id), details.watched))
+    }.apply(request)
   }
 
   def browseDocuments = userBrowseAction.async { implicit userDetails => implicit request =>
@@ -158,17 +168,26 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }.apply(request)
   }
 
-  def browseDocument(id: String) = getAction.async[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+  def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+      item => details => implicit userOpt => implicit request =>
+    if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links))
+    else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
+  }
+
+  def searchDocument(id: String) = getAction.async[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
       item => details => implicit userOpt => implicit request =>
     val filters = Map(SolrConstants.PARENT_ID -> item.id)
     searchAction[DocumentaryUnit](filters,
       defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
       entityFacets = docSearchFacets) {
       page => params => facets => _ => _ =>
-        Ok(p.documentaryUnit.show(item, page, params, facets,
-          portalRoutes.browseDocument(id), details.annotations, details.links, details.watched))
+        if (isAjax) Ok(p.documentaryUnit.childItemSearch(item, page, params, facets,
+            portalRoutes.searchDocument(id), details.watched))
+        else Ok(p.documentaryUnit.search(item, page, params, facets,
+          portalRoutes.searchDocument(id), details.watched))
     }.apply(request)
   }
+
 
   def browseHistoricalAgents = userBrowseAction.async { implicit userDetails => implicit request =>
     searchAction[HistoricalAgent](defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent))),

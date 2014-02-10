@@ -6,26 +6,27 @@
     @common.latestAction(item, controllers.archdesc.routes.Repositories.history(item.id))
     @common.visibility(item, controllers.archdesc.routes.Repositories.visibility(item.id), ContentTypes.Repository)
 
-    <div class="item-actions list-group">
-        @userOpt.map { user =>
-        @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
-            <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a>
-            }
-        @if(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
-            <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a>
-            }
-        @if(user.hasPermission(ContentTypes.Repository, PermissionType.Delete)) {
-            <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a>
-            }
-        @if(user.hasPermission(ContentTypes.Repository, PermissionType.Grant)) {
-            <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
-            }
-        <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a>
+    @common.sidebarActions { user =>
+        @common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
+            <a href="@controllers.archdesc.routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a>
         }
-    </div>
-
-    <div class="item-actions list-group">
-        <a class="list-group-item"  href="@controllers.archdesc.routes.Repositories.updateIndex(item.id)">@Messages("search.updateIndex")</a>
-        <a class="list-group-item"  href="@controllers.core.routes.ApiController.getItem(ContentTypes.Repository.toString, item.id)">@Messages("actions.exportJson")</a>
-    </div>
+        @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
+            <a href="@controllers.archdesc.routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a>
+        }
+        @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Delete)) {
+            <a href="@controllers.archdesc.routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a>
+        }
+        @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Grant)) {
+            <a href="@controllers.archdesc.routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+        }
+        @common.sidebarAction() {
+            <a  href="@controllers.archdesc.routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a>
+        }
+        @common.sidebarAction(user.isAdmin) {
+            <a href="@controllers.archdesc.routes.Repositories.updateIndex(item.id)">@Messages("search.updateIndex")</a>
+        }
+        @common.sidebarAction() {
+            <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.Repository.toString, item.id)">@Messages("actions.exportJson")</a>
+        }
+    }
 }
