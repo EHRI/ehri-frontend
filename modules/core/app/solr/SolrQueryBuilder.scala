@@ -5,6 +5,7 @@ import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 import com.github.seratch.scalikesolr.request.query.facet.FacetParams
 import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupField,GroupFormat,WithNumberOfGroups}
+import com.github.seratch.scalikesolr.WriterType
 
 import defines.EntityType
 import models.UserProfile
@@ -22,7 +23,7 @@ import solr.facet.QueryFacetClass
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-class SolrQueryBuilder() extends QueryBuilder {
+case class SolrQueryBuilder(writerType: WriterType) extends QueryBuilder {
 
   import SolrConstants._
 
@@ -183,6 +184,7 @@ class SolrQueryBuilder() extends QueryBuilder {
       req.setStartRow(StartRow(page2offset(page, limit)))
     }
     req.setMaximumRowsReturned(MaximumRowsReturned(limit))
+    req.setWriterType(writerType)
 
     req
   }
@@ -272,8 +274,9 @@ class SolrQueryBuilder() extends QueryBuilder {
       req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple ++ Seq(filter)))
     }
 
+
     // Debug query for now
-    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
+    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(debugQuery = true))
 
     // Setup start and number of objects returned
     val limit = params.limit.getOrElse(DEFAULT_SEARCH_LIMIT)
@@ -286,6 +289,9 @@ class SolrQueryBuilder() extends QueryBuilder {
     // description (for non-multi-description entities this will
     // be the same)
     setGrouping(req)
+
+    // Set JSON writer type!
+    req.setWriterType(writerType)
 
     req
   }
