@@ -16,25 +16,30 @@ body.login-page {
 		}
 	}
 
-	section.login {
-		.container-fluid;
-		> div.wrap {
-			.row;
+}
 
-			.form {
-				.make-md-column(6);
-				height:100%;
-				&:first-child {
-					border-right:1px solid @well-bg;
-				}
+section.login {
+	> div.wrap {
+		.row;
 
-				.form-block {
-					height:102px;
-				}
+		.form {
+			.make-md-column(6);
+			height:100%;
+			&:first-child {
+				border-right:1px solid @well-bg;
+			}
+
+			.form-block {
+				height:102px;
 			}
 		}
 	}
 
+	ul.providers {
+		span {
+			display:none;
+		}
+	}
 	h2, h3 {
 		text-align:center;
 	}
@@ -75,6 +80,8 @@ body.login-page {
 		display:none;
 	}
 	fieldset {
+		display:none;
 		margin:10px 0;
 	}
+
 }

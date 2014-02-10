@@ -14,8 +14,6 @@
 }
 
 @openIdStyles = {
-    <link href="@controllers.core.routes.Assets.at("jquery-openid/openid.css")" rel="stylesheet">
-    <link href="@controllers.core.routes.Assets.at("css/zocial.css")" rel="stylesheet">
 }
 
 @p.layout.portalLayoutSimple(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
@@ -23,84 +21,88 @@
     @p.layout.mainContent {
         <h3>@Messages("portal.login")</h3>
         <hr />
-        <p>
-            @Messages("portal.loginByProvider")
-        </p>
-        @if(!oauthProviders.isEmpty) {
-            @oauthProviders.map { case (name, call) =>
-                <a class="zocial @name" href="@call">@name</a>
-            }
-        }
 
-        <p></p>
-
-        @helper.form(action = controllers.portal.routes.Portal.openIDLoginPost, 'class -> "openid login-form form-inline") {
+<section class="login">
+    <div class="wrap">
+        @helper.form(action = controllers.portal.routes.Portal.openIDLoginPost, 'class -> "openid form") {
+            <p>
+                @Messages("portal.loginByProvider")
+            </p>
             @formHelpers.csrfToken()
-            <div>
-                <ul class="providers">
+            <div class="form-block">
+                <ul class="providers nav nav-tabs nav-justified text-center">
+                    @if(!oauthProviders.isEmpty) {
+                        @oauthProviders.map { case (name, call) =>
+                            <li class="notOpenId">
+                                <a href="@call" title="@name"><i  class="icon-social @name"></i></a>
+                            </li>
+                        }
+                    }
+
                     <li class="openid" title="OpenID">
-                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/openidW.png")" alt="icon" />
+                        <a><i class="icon-social openid"></i></a>
                         <span><strong>http://{your-openid-url}</strong></span>
                     </li>
                     <li class="direct" title="Yahoo">
-                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/yahooW.png")" alt="icon" />
+                        <a><i class="icon-social yahoo"></i></a>
                         <span>http://me.yahoo.com/</span>
                     </li>
                     <li class="username" title="Flickr user name">
-                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/flickr.png")" alt="icon" />
+                        <a><i class="icon-social flickr"></i></a>
                         <span>http://flickr.com/<strong>username</strong>/</span>
                     </li>
                     <li class="username" title="Wordpress blog name">
-                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/wordpress.png")" alt="icon" />
+                        <a><i class="icon-social wordpress"></i></a>
                         <span>http://<strong>username</strong>.wordpress.com</span>
                     </li>
                     <li class="username" title="Blogger blog name">
-                        <img src="@controllers.core.routes.Assets.at("jquery-openid/images/blogger.png")" alt="icon" />
+                        <a><i class="icon-social blogger"></i></a>
                         <span>http://<strong>username</strong>.blogspot.com/</span>
                     </li>
                 </ul>
+
+                <fieldset>
+                    <label for="openid_username">Or manually enter your <span>Provider user name</span> URL:</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-addon"></span>
+                        <input type="text" class="form-control" name="openid_username" />
+                        <span class="input-group-addon"></span>
+                    </div>
+                </fieldset>
+                <div class="clearfix"></div>
+                            
+                <fieldset class="identifier">
+                    <label for="openid_identifier">Enter your <a class="openid_logo" href="http://openid.net">OpenID</a></label>
+                 <input class="form-control" type="text" name="openid_identifier" id="openid_identifier" placeholder="@Messages("portal.openIdEnterUrl")" />
+                </fieldset>
             </div>
-            <fieldset>
-                <label for="openid_username">Or manually enter your <span>Provider user name</span> URL:</label>
-                <div>
-                    <span></span>
-                        <input type="text" name="openid_username" id="openid_username" />
-                    <span></span>
-                    <input type="submit" value="Login" />
-                </div>
-            </fieldset>
-            <fieldset>
-                <label for="openid_identifier">Enter your <a class="openid_logo" href="http://openid.net">OpenID</a></label>
-            </fieldset>
             @formHelpers.globalErrors(openIdForm)
-            <div class="form-group">
-                <label class="sr-only" for="openid_identifier">@Messages("login.openId")</label>
-                <input class="form-control" type="text" name="openid_identifier" id="openid_identifier" placeholder="@Messages("portal.openIdEnterUrl")" />
-            </div>
-            <input type="submit" class="btn btn-default openid" value="@Messages("submitButton.loginWithOpenid")" />
+
+            <input type="submit" class="login-button openid" value="@Messages("submitButton.loginWithOpenid")" />
         }
+        @helper.form(action = controllers.portal.routes.Portal.passwordLoginPost, 'class -> "login-form form") {
+            <p>@Messages("portal.loginByPassword")</p>
 
-        <hr />
-        <p>@Messages("portal.loginByPassword")</p>
+            @formHelpers.globalErrors(pwForm)
 
-        @formHelpers.globalErrors(pwForm)
-
-        @helper.form(action = controllers.portal.routes.Portal.passwordLoginPost, 'class -> "login-form form-inline") {
             @formHelpers.csrfToken()
 
-            <div class="form-group">
-                <label class="sr-only" for="pw-email">@Messages("login.email")</label>
-                <input type="text" class="form-control" name="email" id="pw-email" placeholder="@Messages("login.email")" />
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="pw-pw">@Messages("login.password")</label>
+            <div class="form-block">
+                <input type="email" class="form-control" name="email" id="pw-email" placeholder="@Messages("login.email")" />
                 <input type="password" class="form-control" name="password" id="pw-pw" placeholder="@Messages("login.password")" />
             </div>
-            <input type="submit" class="btn btn-default" value="@Messages("submitButton.loginWithPassword")" />
-            <em style="margin-left: 5px; margin-right:  5px"><strong>or</strong></em>
-            <a class="btn btn-primary" href="@controllers.portal.routes.Portal.signup">@Messages("portal.signup")</a>
+
+            <input type="submit" class="login-button" value="@Messages("submitButton.loginWithPassword")" />
+            <p class="text-center">
+                <em><strong>or</strong></em>
+            </p>
+            <p class="text-center">
+                <a class="btn btn-primary" href="@controllers.portal.routes.Portal.signup">@Messages("portal.signup")</a>
+            </p>
 
         }
+    </div>
+</section>
 
         <hr />
 
