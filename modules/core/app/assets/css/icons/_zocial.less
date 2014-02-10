@@ -1,0 +1,143 @@
+@charset "UTF-8";
+
+/*!
+	Zocial Butons
+	http://zocial.smcllns.com
+	by Sam Collins (@smcllns)
+	License: http://opensource.org/licenses/mit-license.php
+	
+	You are free to use and modify, as long as you keep this license comment intact or link back to zocial.smcllns.com on your site.
+*/
+
+
+.icon-social {
+	.glyphicon;
+	&:before {
+		font: 100%/1.35 zocial;
+		content: "";		
+	}
+	
+	&.acrobat:before {content: "\00E3"; color: #FB0000;}
+	&.amazon:before {content: "a";}
+	&.android:before {content: "&";}
+	&.angellist:before {content: "\00D6";}
+	&.aol:before {content: "\"";}
+	&.appnet:before {content: "\00E1";}
+	&.appstore:before {content: "A";}
+	&.bitbucket:before {content: "\00E9";}
+	&.bitcoin:before {content: "2"; color: #f7931a;}
+	&.blogger:before {content: "B";}
+	&.buffer:before {content: "\00E5";}
+	&.call:before {content: "7";}
+	&.cal:before {content: ".";}
+	&.cart:before {content: "\00C9";}
+	&.chrome:before {content: "[";}
+	&.cloudapp:before {content: "c";}
+	&.creativecommons:before {content: "C";}
+	&.delicious:before {content: "#";}
+	&.digg:before {content: ";";}
+	&.disqus:before {content: "Q";}
+	&.dribbble:before {content: "D";}
+	&.dropbox:before {content: "d"; color: #1f75cc;}
+	&.drupal:before {content: "\00E4"; color: #fff;}
+	&.dwolla:before {content: "\00E0";}
+	&.email:before {content: "]"; color: #312c2a;}
+	&.eventasaurus:before {content: "v"; color: #9de428;}
+	&.eventbrite:before {content: "|";}
+	&.eventful:before {content: "'"; color: #0066CC;}
+	&.evernote:before {content: "E";}
+	&.facebook:before {content: "f";}
+	&.fivehundredpx:before {content: "0"; color: #29b6ff;}
+	&.flattr:before {content: "%";}
+	&.flickr:before {content: "F";}
+	&.forrst:before {content: ":"; color: #50894f;}
+	&.foursquare:before {content: "4";}
+	&.github:before {content: "\00E8";}
+	&.gmail:before {content: "m"; color: #f00;}
+	&.google:before {content: "G";}
+	&.googleplay:before {content: "h";}
+	&.googleplus:before {content: "+";}
+	&.gowalla:before {content: "@";}
+	&.grooveshark:before {content: "8";}
+	&.guest:before {content: "?";}
+	&.html5:before {content: "5";}
+	&.ie:before {content: "6";}
+	&.instagram:before {content: "\00DC";}
+	&.instapaper:before {content: "I";}
+	&.intensedebate:before {content: "{";}
+	&.itunes:before {content: "i"; color: #1a6dd2;}
+	&.klout:before {content: "K"; }
+	&.lanyrd:before {content: "-";}
+	&.lastfm:before {content: "l";}
+	&.lego:before {content: "\00EA"; color:#fff900;}
+	&.linkedin:before {content: "L";}
+	&.lkdto:before {content: "\00EE";}
+	&.logmein:before {content: "\00EB";}
+	&.macstore:before {content: "^";}
+	&.meetup:before {content: "M";}
+	&.myspace:before {content: "_";}
+	&.ninetyninedesigns:before {content: "9"; color: #f50;}
+	&.openid:before {content: "o"; color: #ff921d;}
+	&.opentable:before {content: "\00C7";}
+	&.paypal:before {content: "$";}
+	&.pinboard:before {content: "n";}
+	&.pinterest:before {content: "1";}
+	&.plancast:before {content: "P";}
+	&.plurk:before {content: "j";}
+	&.pocket:before {content: "\00E7"; color:#ee4056;}
+	&.podcast:before {content: "`";}
+	&.posterous:before {content: "~";}
+	&.print:before {content: "\00D1";}
+	&.quora:before {content: "q";}
+	&.reddit:before {content: ">"; color: red;}
+	&.rss:before {content: "R";}
+	&.scribd:before {content: "}"; color: #00d5ea;}
+	&.skype:before {content: "S";}
+	&.smashing:before {content: "*";}
+	&.songkick:before {content: "k";}
+	&.soundcloud:before {content: "s";}
+	&.spotify:before {content: "=";}
+	&.stackoverflow:before {content: "\00EC"; color: #ff7a15;}
+	&.statusnet:before {content: "\00E2"; color: #fff;}
+	&.steam:before {content: "b";}
+	&.stripe:before {content: "\00A3";}
+	&.stumbleupon:before {content: "/";}
+	&.tumblr:before {content: "t";}
+	&.twitter:before {content: "T";}
+	&.viadeo:before {content: "H"; color: #f59b20;}
+	&.vimeo:before {content: "V";}
+	&.vk:before {content: "N";}
+	&.weibo:before {content: "J"; color: #e6162d;}
+	&.wikipedia:before {content: ",";}
+	&.windows:before {content: "W";}
+	&.wordpress:before {content: "w";}
+	&.xing:before {content: "X"}
+	&.yahoo:before {content: "Y";}
+	&.ycombinator:before {content: "\00ED";}
+	&.yelp:before {content: "y";}
+	&.youtube:before {content: "U";}
+	
+}
+
+
+.btn, .button {
+	.icon-social {
+		&:before {
+			text-align:center;
+		}
+	}
+}
+/* Reference icons from font-files
+** Base 64-encoded version recommended to resolve cross-site font-loading issues
+*/
+
+@font-face {
+    font-family: 'zocial';
+    src : ~"url('@{icon-font-path}@{icon-zocial-name}.eot')";
+    src : ~"url('@{icon-font-path}@{icon-zocial-name}.woff') format('woff')",
+		~"url('@{icon-font-path}@{icon-zocial-name}.ttf') format('truetype')",
+       ~"url('@{icon-font-path}@{icon-zocial-name}.svg##zocialregular') format('svg')";
+    
+    font-weight: normal;
+    font-style: normal;
+}
