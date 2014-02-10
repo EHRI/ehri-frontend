@@ -6,8 +6,8 @@ body.login-page {
 		.container;
 		> .login-form {
 			margin-top:20px;
-			.make-md-column(4);
-			.make-md-column-offset(4);
+			.make-md-column(8);
+			.make-md-column-offset(2);
 
 			border: 1px solid transparent;
 			background-color:#fff;
@@ -15,6 +15,26 @@ body.login-page {
 			.box-shadow(outset 5px 5px 5px rgba(0,0,0,.4));
 		}
 	}
+
+	section.login {
+		.container-fluid;
+		> div.wrap {
+			.row;
+
+			.form {
+				.make-md-column(6);
+				height:100%;
+				&:first-child {
+					border-right:1px solid @well-bg;
+				}
+
+				.form-block {
+					height:102px;
+				}
+			}
+		}
+	}
+
 	h2, h3 {
 		text-align:center;
 	}
