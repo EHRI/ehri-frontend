@@ -23,7 +23,7 @@ import solr.facet.QueryFacetClass
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-case class SolrQueryBuilder(writerType: WriterType) extends QueryBuilder {
+case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false) extends QueryBuilder {
 
   import SolrConstants._
 
@@ -276,7 +276,7 @@ case class SolrQueryBuilder(writerType: WriterType) extends QueryBuilder {
 
 
     // Debug query for now
-    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(debugQuery = true))
+    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(debugQuery = debugQuery))
 
     // Setup start and number of objects returned
     val limit = params.limit.getOrElse(DEFAULT_SEARCH_LIMIT)
