@@ -1,10 +1,9 @@
 package solr
 
 import utils.search._
-import play.api.libs.json.{Reads, JsObject, Json, JsValue}
+import play.api.libs.json.{Json, JsValue}
 import defines.EntityType
 import utils.search.SearchHit
-import play.api.libs.json.JsObject
 import solr.facet.{SolrQueryFacet, QueryFacetClass, SolrFieldFacet, FieldFacetClass}
 import play.api.Logger
 
@@ -13,6 +12,8 @@ object SolrJsonQueryResponse extends ResponseParser {
 }
 
 /**
+ * Extracts useful data from a Solr JSON response.
+ *
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
@@ -21,15 +22,19 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
   import play.api.libs.json._
   import play.api.libs.functional.syntax._
 
-  case class SolrData(
+  private case class Suggestion(word: String, freq: Int)
+  private object Suggestion {
+    implicit val suggestionReads: Reads[Suggestion] = Json.reads[Suggestion]
+  }
+
+  private case class SolrData(
     count: Int,
     rawDocs: Seq[JsObject],
     highLights: Option[Map[String,Map[String,Seq[String]]]],
     rawFacets: Map[String,Map[String,JsValue]]
   )
 
-  object SolrData {
-
+  private object SolrData {
     implicit val reads: Reads[SolrData] = (
       (__ \ "grouped" \ ITEM_ID \ "matches").read[Int] and
       (__ \ "grouped" \ ITEM_ID \ "doclist" \ "docs").read[Seq[JsObject]] and
@@ -51,25 +56,31 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
 
 
   private lazy val raw: SolrData = response.as[SolrData]
-  private lazy val rawFieldFacets: Map[String,JsValue] = raw.rawFacets.get("facet_fields").getOrElse(Map.empty)
-  private lazy val rawQueryFacets: Map[String,JsValue] = raw.rawFacets.get("facet_queries").getOrElse(Map.empty)
+  def rawFieldFacets: Map[String,JsValue] = raw.rawFacets.get("facet_fields").getOrElse(Map.empty)
+  def rawQueryFacets: Map[String,JsValue] = raw.rawFacets.get("facet_queries").getOrElse(Map.empty)
 
-  def phrases: Seq[String] = Seq.empty
 
-  def items: Seq[SearchHit] = raw.rawDocs.flatMap { jsObj =>
+  lazy val spellcheckSuggestion: Option[(String, String)] = for {
+    suggest <- (response \ "spellcheck"\ "suggestions").asOpt[Seq[JsValue]] if suggest.size == 4
+    word <- suggest.headOption.flatMap(_.asOpt[String])
+    correct <- (suggest(1) \ "suggestion").asOpt(Reads.seq(Suggestion.suggestionReads))
+    first <- correct.headOption
+  } yield (word, first.word)
+
+  lazy val phrases: Seq[String] = (response \ "responseHeader" \ "params" \ "q").asOpt[String].toSeq
+
+  lazy val items: Seq[SearchHit] = raw.rawDocs.flatMap { jsObj =>
     jsObj.validate(hitReads).asOpt.map { hit =>
       val highlights: Map[String,Seq[String]] = (for {
         hl <- raw.highLights
         fhl <- hl.get(hit.id)
       } yield fhl).getOrElse(Map.empty)
 
-      val fields = jsObj.value.map { case (field,js) =>
-        field -> js.validate[String]
-      }.collect {
-        case (f, JsSuccess(v, p)) => f -> v
+      val fields = jsObj.value.collect {
+        case (field, JsString(str)) => field -> str
       }.toMap
 
-      hit.copy(fields = fields, highlights = highlights)
+      hit.copy(fields = fields, highlights = highlights, phrases = phrases)
     }
   }
 
@@ -133,6 +144,4 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
   def count: Int = raw.count
 
   def highlightMap: Map[String, Map[String, Seq[String]]] = raw.highLights.getOrElse(Map.empty)
-
-  def spellcheckSuggestion: Option[(String, String)] = None
 }
