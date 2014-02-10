@@ -8,11 +8,6 @@ import solr.facet.{SolrQueryFacet, QueryFacetClass, SolrFieldFacet, FieldFacetCl
 import play.api.Logger
 import com.github.seratch.scalikesolr.WriterType
 
-object SolrJsonQueryResponse extends ResponseParser {
-  def apply(responseString: String) = new SolrJsonQueryResponse(Json.parse(responseString))
-  def writerType = WriterType.JSON
-}
-
 /**
  * Extracts useful data from a Solr JSON response.
  *
@@ -24,53 +19,25 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
   import play.api.libs.json._
   import play.api.libs.functional.syntax._
 
-  private case class Suggestion(word: String, freq: Int)
-  private object Suggestion {
-    implicit val suggestionReads: Reads[Suggestion] = Json.reads[Suggestion]
-  }
-
-  private case class SolrData(
-    count: Int,
-    rawDocs: Seq[JsObject],
-    highLights: Option[Map[String,Map[String,Seq[String]]]],
-    rawFacets: Map[String,Map[String,JsValue]]
-  )
-
-  private object SolrData {
-    implicit val reads: Reads[SolrData] = (
-      (__ \ "grouped" \ ITEM_ID \ "matches").read[Int] and
-      (__ \ "grouped" \ ITEM_ID \ "doclist" \ "docs").read[Seq[JsObject]] and
-      (__ \ "highlighting").readNullable[Map[String,Map[String,Seq[String]]]] and
-      (__ \ "facet_counts").read[Map[String,Map[String,JsValue]]]
-    )(SolrData.apply _)
-  }
-
-  private def hitBuilder(id: String, itemId: String, name: String, entityType: EntityType.Value, gid: Long): SearchHit
-      = new SearchHit(id, itemId, name, entityType, gid)
-
-  private def hitReads: Reads[SearchHit] = (
-    (__ \ ID).read[String] and
-    (__ \ ITEM_ID).read[String] and
-    (__ \ NAME_EXACT).read[String] and
-    (__ \ TYPE).read[EntityType.Value] and
-    (__ \ "gid").read[Long]
-  )(hitBuilder _)
-
-
-  private lazy val raw: SolrData = response.as[SolrData]
-  private def rawFieldFacets: Map[String,JsValue] = raw.rawFacets.get("facet_fields").getOrElse(Map.empty)
-  private def rawQueryFacets: Map[String,JsValue] = raw.rawFacets.get("facet_queries").getOrElse(Map.empty)
-
-
+  /**
+   * Fetch the first available spellcheck suggestion.
+   */
   lazy val spellcheckSuggestion: Option[(String, String)] = for {
-    suggest <- (response \ "spellcheck"\ "suggestions").asOpt[Seq[JsValue]] if suggest.size == 4
-    word <- suggest.headOption.flatMap(_.asOpt[String])
+    suggest <- (response \ "spellcheck"\ "suggestions").asOpt[Seq[JsValue]] if suggest.size > 2
+    word <- suggest(0).asOpt[String]
     correct <- (suggest(1) \ "suggestion").asOpt(Reads.seq(Suggestion.suggestionReads))
     first <- correct.headOption
   } yield (word, first.word)
 
-  lazy val phrases: Seq[String] = (response \ "responseHeader" \ "params" \ "q").asOpt[String].toSeq
+  /**
+   * Extract query phrases from the 'q' parameter.
+   */
+  lazy val phrases: Seq[String]
+      = (response \ "responseHeader" \ "params" \ "q").asOpt[String].toSeq
 
+  /**
+   * Extract items, along with their highlighting snippets.
+   */
   lazy val items: Seq[SearchHit] = raw.rawDocs.flatMap { jsObj =>
     jsObj.validate(hitReads).asOpt.map { hit =>
       val highlights: Map[String,Seq[String]] = (for {
@@ -86,15 +53,60 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
     }
   }
 
-  private val fieldFacetValueReader: Reads[List[(String,Int)]] = {
-    __.read[List[JsValue]].map {
-      list =>
-        list.grouped(2).flatMap {
-          case item :: count :: Nil => {
-            Some((item.as[String], count.as[Int]))
-          }
-          case _ => Nil
-        }.toList
+  /**
+   * Get number of items.
+   */
+  def count: Int = raw.count
+
+  /**
+   * Get highlight map.
+   */
+  def highlightMap: Map[String, Map[String, Seq[String]]] = raw.highLights.getOrElse(Map.empty)
+
+  private case class Suggestion(word: String, freq: Int)
+  private object Suggestion {
+    implicit val suggestionReads: Reads[Suggestion] = Json.reads[Suggestion]
+  }
+
+  // Intermediate structures...
+
+  private case class SolrData(
+    count: Int,
+    rawDocs: Seq[JsObject],
+    highLights: Option[Map[String,Map[String,Seq[String]]]],
+    rawFacets: Map[String,Map[String,JsValue]]
+    )
+
+  private object SolrData {
+    implicit val reads: Reads[SolrData] = (
+      (__ \ "grouped" \ ITEM_ID \ "matches").read[Int] and
+        (__ \ "grouped" \ ITEM_ID \ "doclist" \ "docs").read[Seq[JsObject]] and
+        (__ \ "highlighting").readNullable[Map[String,Map[String,Seq[String]]]] and
+        (__ \ "facet_counts").read[Map[String,Map[String,JsValue]]]
+      )(SolrData.apply _)
+  }
+
+  private def hitBuilder(id: String, itemId: String, name: String, entityType: EntityType.Value, gid: Long): SearchHit
+  = new SearchHit(id, itemId, name, entityType, gid)
+
+  private def hitReads: Reads[SearchHit] = (
+    (__ \ ID).read[String] and
+      (__ \ ITEM_ID).read[String] and
+      (__ \ NAME_EXACT).read[String] and
+      (__ \ TYPE).read[EntityType.Value] and
+      (__ \ "gid").read[Long]
+    )(hitBuilder _)
+
+
+  private lazy val raw: SolrData = response.as[SolrData]
+  private def rawFieldFacets: Map[String,JsValue] = raw.rawFacets.get("facet_fields").getOrElse(Map.empty)
+  private def rawQueryFacets: Map[String,JsValue] = raw.rawFacets.get("facet_queries").getOrElse(Map.empty)
+
+  private val fieldFacetValueReader: Reads[Seq[(String,Int)]] = {
+    JsPath.read[List[JsValue]].map { list =>
+      list.grouped(2).collect {
+        case JsString(item) :: JsNumber(count) :: Nil => item -> count.toIntExact
+      }.toSeq
     }
   }
 
@@ -139,8 +151,9 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
       }
     }
   }
+}
 
-  def count: Int = raw.count
-
-  def highlightMap: Map[String, Map[String, Seq[String]]] = raw.highLights.getOrElse(Map.empty)
+object SolrJsonQueryResponse extends ResponseParser {
+  def apply(responseString: String) = new SolrJsonQueryResponse(Json.parse(responseString))
+  def writerType = WriterType.JSON
 }
