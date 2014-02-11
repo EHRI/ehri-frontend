@@ -1,33 +1,104 @@
-@(form: Form[(String,String)], action: Call)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(formPw: Form[(String,String)], formOpenId: Form[String], actionPw: Call, actionOpenId: Call)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.noSidebarSimple(Messages("login.login")) {
+@loginScripts = {
+    <script src="@controllers.core.routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
+    <script type="application/javascript">
+        jQuery(function($) {
+        // Openid
+            $("form.openid").openid();
+        });
+    </script>
+}
+@layout.adminLoginLayout(Messages("login.login"), scripts=loginScripts) {
 
-    <div class="alert alert-info">
-        @Messages("login.adminLoginMessage")
-    </div>
+        <h2>@Messages("login.login")</h2>
 
-    @formHelpers.globalErrors(form)
+        <div class="alert alert-info">
+            @Messages("login.adminLoginMessage")
+        </div>
 
-    @helper.form(action = action, 'class -> "login-form form-horizontal") {
-        @formHelpers.csrfToken()
+        <section class="login">
+            <div class="wrap">
+                @helper.form(action = actionPw, 'class -> "form", 'role -> "form") {
+                    <h3>With email</h3>
+                    @common.errorFlash(flash)
 
-        @helper.inputText(form("email"), 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"))
-        @helper.inputPassword(form("password"), 'placeholder -> Messages("login.password"))
+                    @formHelpers.globalErrors(formPw)
 
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-                <input type="submit" class="btn btn-primary" value="@Messages("submitButton.loginWithPassword")" />
+                    @formHelpers.csrfToken()
+                    <div class="form-block">
+                        <input type="email" id="email" name="email" class="form-control" autofocus="autofocus" placeholder="@Messages("login.email")" />
+                        <input type="password" id="password" name="password" class="form-control" placeholder="@Messages("login.password")" />
+                    </div>
+
+                    <input type="submit" class="login-button" value="@Messages("submitButton.loginWithPassword")" />
+
+                    
+                    <p>
+                        <a href="@controllers.core.routes.Admin.forgotPassword">@Messages("login.forgotPasswordLink")</a>
+                    </p>
+                }
+
+                @helper.form(action = actionOpenId, 'class -> "openid form") {
+                    <h3>@Messages("login.openid")</h3>
+                    @formHelpers.csrfToken()
+                    <div class="form-block">
+                        <ul class="providers nav nav-tabs nav-justified text-center">
+                            <li class="openid active" title="OpenID">
+                                <i class="icon-social openid"></i>
+                                <span><strong>http://{your-openid-url}</strong></span>
+                            </li>
+                            <li class="direct" title="Google">
+                                <i class="icon-social google"></i>
+                                <span>https://www.google.com/accounts/o8/id</span>
+                            </li>
+                            <li class="direct" title="Yahoo">
+                                <i class="icon-social yahoo"></i>
+                                <span>http://me.yahoo.com/</span>
+                            </li>
+                            <li class="username" title="AOL screen name">
+                                <i class="icon-social aol"></i>
+                                <span>http://openid.aol.com/<strong>username</strong></span>
+                            </li>
+                            <li class="username" title="Flickr user name">
+                                <i class="icon-social flickr"></i>
+                                <span>http://flickr.com/<strong>username</strong>/</span>
+                            </li>
+                            <li class="username" title="Wordpress blog name">
+                                <i class="icon-social wordpress"></i>
+                                <span>http://<strong>username</strong>.wordpress.com</span>
+                            </li>
+                            <li class="username" title="Blogger blog name">
+                                <i class="icon-social blogger"></i>
+                                <span>http://<strong>username</strong>.blogspot.com/</span>
+                            </li>
+                        </ul>
+
+                        <fieldset>
+                            <label for="openid_username">Enter your <span>Provider user name</span></label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-addon"></span>
+                                <input type="text" class="form-control" name="openid_username" />
+                                <span class="input-group-addon"></span>
+                            </div>
+                        </fieldset>
+
+                        @formHelpers.globalErrors(formOpenId)
+
+                        <div class="clearfix"></div>
+                        
+                        <fieldset class="identifier">
+                            <input type="text" class="form-control" name="openid_identifier" placeholder="OpenId Identifier" />
+                        </fieldset>
+
+                    </div>
+
+                    <input type="submit" class="login-button" value="@Messages("submitButton.loginWithOpenid")" />
+                    
+                }
             </div>
         </div>
-    }
-
-    <p>
-        <a href="@controllers.core.routes.Admin.forgotPassword">@Messages("login.forgotPasswordLink")</a>
-    </p>
-    <p>
-        <a href="@controllers.core.routes.Admin.openIDLogin">@Messages("login.linkToOpenIDLogin")</a>
-    </p>
-}(None, request, globalConfig, flash, lang)
+}(None, request, globalConfig, lang)
 

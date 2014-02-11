@@ -54,14 +54,21 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       case Right(account) => gotoLoginSucceeded(account.id)
         .map(_.withSession("access_uri" -> globalConfig.routeRegistry.default.url))
       case Left(formError) =>
-        immediate(BadRequest(views.html.openIDLogin(formError,
-          action = routes.Admin.openIDLoginPost)))
+        immediate(BadRequest(views.html.admin.pwLogin(
+          formPw = passwordLoginForm,
+          formOpenId = formError, 
+          actionPw = routes.Admin.loginPost,
+          actionOpenId = routes.Admin.openIDLoginPost)))
     }
   }
 
   def openIDLogin = optionalUserAction { implicit maybeUser => implicit request =>
     if (maybeUser.isEmpty) {
-      Ok(views.html.openIDLogin(openidForm, action = routes.Admin.openIDLoginPost))
+      Ok(views.html.admin.pwLogin(
+          formPw = passwordLoginForm,
+          formOpenId = openidForm, 
+          actionPw = routes.Admin.loginPost,
+          actionOpenId = routes.Admin.openIDLoginPost))
     } else {
       Redirect(defaultLoginUrl)
     }
@@ -69,7 +76,11 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
   def openIDLoginPost = openIDLoginPostAction(routes.Admin.openIDCallback) { formError => implicit request =>
     implicit val accountOpt: Option[Account] = None
-    BadRequest(views.html.openIDLogin(formError, action = routes.Admin.openIDLoginPost))
+    BadRequest(views.html.admin.pwLogin(
+          formPw = passwordLoginForm,
+          formOpenId = formError, 
+          actionPw = routes.Admin.loginPost,
+          actionOpenId = routes.Admin.openIDLoginPost))
   }
 
   /**
@@ -78,7 +89,11 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    */
   def login = optionalUserAction { implicit maybeUser => implicit request =>
     if (maybeUser.isEmpty) {
-      Ok(views.html.admin.pwLogin(passwordLoginForm, controllers.core.routes.Admin.loginPost))
+      Ok(views.html.admin.pwLogin(
+          formPw = passwordLoginForm, 
+          formOpenId = openidForm, 
+          actionPw = routes.Admin.loginPost,
+          actionOpenId = routes.Admin.openIDLoginPost))
     } else {
       Redirect(defaultLoginUrl)
     }
@@ -87,8 +102,11 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   def loginPost = loginPostAction.async { accountOrErr => implicit request =>
     accountOrErr match {
       case Left(errorForm) =>
-        immediate(BadRequest(views.html.admin.pwLogin(errorForm,
-          controllers.core.routes.Admin.loginPost)))
+        immediate(BadRequest(views.html.admin.pwLogin(
+          formPw = errorForm,
+          formOpenId = openidForm, 
+          actionPw = routes.Admin.loginPost,
+          actionOpenId = routes.Admin.openIDLoginPost)))
       case Right(account) =>
         gotoLoginSucceeded(account.id)
     }

@@ -10,15 +10,21 @@
 }
 
 .button {
-  &.post {
-    .button-variant(@btn-post-color, @btn-post-bg, @btn-post-border);
-  }
-  &.cancel {
-    .button-variant(@btn-cancel-color, @btn-cancel-bg, @btn-cancel-border);
-  }
-  &.get {
-    .button-variant(@btn-get-color, @btn-get-bg, @btn-get-border);
-  }
+	.btn;
+
+	&.post {
+  		.button-variant(@btn-post-color; @btn-post-bg; @btn-post-border);
+	}
+	&.cancel {
+  		.button-variant(@btn-cancel-color; @btn-cancel-bg; @btn-cancel-border);
+	}
+	&.get {
+		.button-variant(@btn-get-color; @btn-get-bg; @btn-get-border);
+	}
+
+	&.xs {
+		.btn-xs;
+	}
 }
 
 form[method="GET"], form:not([method="POST"]) {

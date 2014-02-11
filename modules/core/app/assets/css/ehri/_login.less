@@ -1,0 +1,87 @@
+body.login-page {
+
+	background-color:@well-bg;
+
+	#wrap > article {
+		.container;
+		> .login-form {
+			margin-top:20px;
+			.make-md-column(8);
+			.make-md-column-offset(2);
+
+			border: 1px solid transparent;
+			background-color:#fff;
+			border-radius : 10px;
+			.box-shadow(outset 5px 5px 5px rgba(0,0,0,.4));
+		}
+	}
+
+}
+
+section.login {
+	> div.wrap {
+		.row;
+
+		.form {
+			.make-md-column(6);
+			height:100%;
+			&:first-child {
+				border-right:1px solid @well-bg;
+			}
+
+			.form-block {
+				height:102px;
+			}
+		}
+	}
+
+	ul.providers {
+		span {
+			display:none;
+		}
+	}
+	h2, h3 {
+		text-align:center;
+	}
+	.login-button {
+		.btn;
+		.btn-lg;
+		.btn-primary;
+		.btn-block;
+
+		margin:15px 0!important;
+	}
+
+	input.login, input[name="openid_identifier"] {
+
+		.form-control;
+		margin:10px auto;
+
+	}
+
+	input[type="email"] {
+		border-bottom-left-radius: 0;
+	    border-bottom-right-radius: 0;
+	    margin-bottom: -1px;
+	}
+
+	input[type="password"] {
+		border-top-left-radius: 0;
+	    border-top-right-radius: 0;
+	    margin-bottom: 10px;
+	}
+
+	.logo {
+		margin:10px auto;
+		display:block;
+	}
+
+	fieldset.identifier {
+		display:none;
+	}
+	fieldset {
+		display:none;
+		margin:10px 0;
+	}
+
+}
