@@ -29,7 +29,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   // Documentary unit facets
   import solr.facet._
 
-  private val repositoryFacets: FacetBuilder = { implicit lang =>
+  private val repositoryFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
         key="childCount",

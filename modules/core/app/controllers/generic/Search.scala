@@ -22,7 +22,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   def searchDispatcher: utils.search.Dispatcher
   def searchResolver: utils.search.Resolver
 
-  type FacetBuilder = Lang => FacetClassList
+  type FacetBuilder = RequestHeader => FacetClassList
   private val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]] }
 
   case class SearchConfiguration(
@@ -70,7 +70,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
           .value.getOrElse(SearchParams())
           .setDefault(params)
 
-      val allFacets = entityFacets(lang)
+      val allFacets = entityFacets(request)
       val facets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)
       searchDispatcher.search(sp, facets, allFacets, filters, mode).flatMap { res =>
         val ids = res.items.map(_.id)

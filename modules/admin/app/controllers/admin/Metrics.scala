@@ -34,7 +34,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   // so set the result limit to be zero.
   private val defaultParams = SearchParams(limit=Some(0))
 
-  private val langCountFacets: FacetBuilder = { implicit lang =>
+  private val langCountFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key=IsadG.LANG_CODE,
@@ -57,7 +57,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
 
-  private val holdingRepoFacets: FacetBuilder = { implicit lang =>
+  private val holdingRepoFacets: FacetBuilder = { implicit request =>
     List(
       // Holding repository
       FieldFacetClass(
@@ -79,7 +79,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     }
   }
 
-  private val countryRepoFacets: FacetBuilder = { implicit lang =>
+  private val countryRepoFacets: FacetBuilder = { implicit request =>
     List(
 
       // Repositories by country
@@ -103,7 +103,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     }
   }
 
-  private val restrictedFacets: FacetBuilder = { implicit lang =>
+  private val restrictedFacets: FacetBuilder = { implicit request =>
     List(
       // Historical agent type
       FieldFacetClass(
@@ -129,7 +129,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
 
-  private val agentTypeFacets: FacetBuilder = { implicit lang =>
+  private val agentTypeFacets: FacetBuilder = { implicit request =>
     List(
       // Historical agent type
       FieldFacetClass(

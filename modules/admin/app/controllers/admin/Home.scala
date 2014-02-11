@@ -27,7 +27,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     EntityType.HistoricalAgent
   )
 
-  private val entityFacets: FacetBuilder = { implicit lang =>
+  private val entityFacets: FacetBuilder = { implicit request =>
     List(
 
       FieldFacetClass(

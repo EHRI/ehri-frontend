@@ -4,18 +4,76 @@ import solr.facet.{SolrQueryFacet, QueryFacetClass, FieldFacetClass}
 import models.{Isaar, IsadG}
 import play.api.i18n.Messages
 import views.Helpers
-import utils.search.{Facet, FacetClass, FacetSort, FacetDisplay}
+import utils.search.{FacetSort, FacetDisplay}
 import solr.SolrConstants
-import defines.EntityType
 import controllers.generic.Search
+import play.api.mvc.{RequestHeader, Controller}
+import org.joda.time.DateTime
+import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat, DateTimeFormat}
+
+object FacetConfig {
+  val formatter: DateTimeFormatter
+      = ISODateTimeFormat.dateTime().withZoneUTC()
+}
 
 /**
+ * Facet configuration for various kinds of searches.
+ *
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait FacetConfig extends Search {
 
+  this: Controller =>
+
+  /**
+   * Return a date query facet if valid start/end params have been given.
+   */
+  private def dateQuery(implicit request: RequestHeader): Option[QueryFacetClass] = {
+
+    import FacetConfig.formatter
+    import play.api.data.Form
+    import play.api.data.Forms._
+    val dateQueryForm = Form(
+      tuple(
+        "start" -> number(min=0, max=DateTime.now().getYear),
+        "end" -> number(min = 0, max=DateTime.now().getYear)
+      ) verifying("date.startAfterEnd", f => f match {
+        case (s, e) => s < e
+      })
+    )
+
+    def start(year: Int): String = formatter.print(new DateTime(year, 1, 1, 0, 0))
+    def end(year: Int): String = formatter.print(new DateTime(year, 12, 12, 23, 59))
+
+    for {
+      (startYearInt, endYearInt) <- dateQueryForm.bindFromRequest(request.queryString).value
+    } yield QueryFacetClass(
+      key = "dateRange",
+      name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.DATES),
+      param = "date_range",
+      sort = FacetSort.Fixed,
+      facets=List(
+        SolrQueryFacet(
+          value = "before",
+          solrValue = s"[* TO ${start(startYearInt)}]",
+          name = Some(Messages(IsadG.DATES + ".before", startYearInt))
+        ),
+        SolrQueryFacet(
+          value = "during",
+          solrValue = s"[${start(startYearInt)} TO ${end(endYearInt)}]",
+          name = Some(Messages(IsadG.DATES + ".between", startYearInt, endYearInt))
+        ),
+        SolrQueryFacet(
+          value = "after",
+          solrValue = s"[${end(endYearInt+1)} TO *]",
+          name = Some(Messages(IsadG.DATES + ".after", endYearInt))
+        )
+      )
+    )
+  }
+
   // i.e. Everything
-  protected val globalSearchFacets: FacetBuilder = { implicit lang =>
+  protected val globalSearchFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,
@@ -37,7 +95,7 @@ trait FacetConfig extends Search {
 
   // i.e. Metrics to count number and type of repos, docs, authorities
   // for display on the landing page.
-  protected val entityMetrics: FacetBuilder = { implicit lang =>
+  protected val entityMetrics: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key = SolrConstants.TYPE,
@@ -71,7 +129,8 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val historicalAgentFacets: FacetBuilder = { implicit lang =>
+  protected val historicalAgentFacets: FacetBuilder = { implicit request =>
+    dateQuery(request).toList ++
     List(
       FieldFacetClass(
         key=Isaar.ENTITY_TYPE,
@@ -83,11 +142,11 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val countryFacets: FacetBuilder = { implicit lang =>
+  protected val countryFacets: FacetBuilder = { implicit request =>
     List() // TODO?
   }
 
-  protected val repositorySearchFacets: FacetBuilder = { implicit lang =>
+  protected val repositorySearchFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
         key="childCount",
@@ -110,7 +169,8 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val docSearchFacets: FacetBuilder = { implicit lang =>
+  protected val docSearchFacets: FacetBuilder = { implicit request =>
+    dateQuery(request).toList ++
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,
@@ -149,8 +209,8 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val docSearchRepositoryFacets: FacetBuilder = { implicit lang =>
-    docSearchFacets(lang) ++ List(
+  protected val docSearchRepositoryFacets: FacetBuilder = { implicit request =>
+    docSearchFacets(request) ++ List(
       FieldFacetClass(
         key="holderName",
         name=Messages("documentaryUnit.heldBy"),
@@ -161,7 +221,7 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val conceptFacets: FacetBuilder = { implicit lang =>
+  protected val conceptFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key="holderName",

@@ -19,6 +19,11 @@ forms.adminArea=Administration Area
 forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
 forms.search=Search
 
+# Dates
+dates.before=Before {0,number,#}
+dates.between=Between {0,number,#} and {1,number,#}
+dates.after=After {0,number,#}
+
 # Form errors.
 error.globalErrors=There were problems with that form:
 error.date=Date is incorrect or badly formatted

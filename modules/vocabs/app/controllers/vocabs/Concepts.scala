@@ -36,13 +36,13 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   private val childForm = models.forms.ConceptForm.form
   private val conceptRoutes = controllers.vocabs.routes.Concepts
 
-  private def entityFacets: FacetBuilder = { implicit lang =>
+  private def entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key="languageCode", // FIXME - define elsewhere
         name=Messages("concept.languageCode"),
         param="lang",
-        render=(s: String) => Helpers.languageCodeToName(s)(lang)
+        render=(s: String) => Helpers.languageCodeToName(s)
       ),
       FieldFacetClass(
         key="holderName",

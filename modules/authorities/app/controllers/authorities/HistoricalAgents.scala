@@ -28,7 +28,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   // Documentary unit facets
   import solr.facet._
-  private val entityFacets: FacetBuilder = { implicit lang =>
+  private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key=models.Isaar.ENTITY_TYPE,

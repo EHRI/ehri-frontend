@@ -24,7 +24,7 @@ import scala.util.Success
 case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend) extends Search {
 
   // i.e. Everything
-  private val entityFacets: FacetBuilder = { implicit lang =>
+  private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,
