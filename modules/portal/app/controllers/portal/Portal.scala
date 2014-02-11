@@ -17,12 +17,10 @@ import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
 import backend.{FeedbackDAO, Backend}
-import controllers.base.ControllerHelpers
+import controllers.base.{SessionPreferences, ControllerHelpers}
 import jp.t2v.lab.play2.auth.LoginLogout
-import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
 import play.api.Logger
-import utils.PageParams
+import utils.{SessionPrefs, PageParams}
 
 
 @Singleton
@@ -39,7 +37,10 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with PortalActions
   with PortalProfile
   with PortalSocial
-  with PortalAnnotations {
+  with PortalAnnotations
+  with SessionPreferences[SessionPrefs] {
+
+  val defaultPreferences = new SessionPrefs
 
   // This is a publically-accessible site, but not just yet.
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
