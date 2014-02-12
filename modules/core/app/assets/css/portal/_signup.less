@@ -1,0 +1,31 @@
+.signup-form {
+  #recaptcha_widget_div div#recaptcha_area {
+    margin:0 auto 15px!important ;
+  }
+
+  .field {
+    .row;
+
+    .alert-block {
+      .make-md-column-offset(3);
+      .make-md-column(6);
+      &.alert-error {
+        .alert-danger;
+      }
+    }
+
+    > label {
+      display:none;
+    }
+    .input {
+      .make-md-column-offset(3);
+      .make-md-column(6);
+      > input {
+        .form-control;
+        &.btn-primary {
+          .btn-primary;
+        }
+      }
+    }
+  }
+}

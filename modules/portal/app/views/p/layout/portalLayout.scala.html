@@ -5,15 +5,10 @@
 <html lang="@lang.code">
     <head>
         <title>@title</title>
-        <!-- CND Bootstrap...
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css"> -->
-
-        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("bootstrap-custom/css/bootstrap.min.css")">
         <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("select2/select2.css")" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("select2/select2-bootstrap.css")" rel="stylesheet" type="text/css" />
 
-        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("css/portal.css")">
+        <link rel="stylesheet" href="@controllers.core.routes.Assets.at("css/portal.css")">
 
         <style type="text/css">
         </style>
@@ -35,10 +30,14 @@
             </div>
         </div>
         @p.layout.footer()
+
         <script src="@controllers.core.routes.Assets.at("js/jquery.history.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.autosize.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.hoverIntent.min.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("bootstrap-custom/js/bootstrap.min.js")"></script>
+        <script src="@controllers.portal.routes.Assets.at("js/jquery.cookie.js")"></script>
+        <script src="@controllers.portal.routes.Assets.at("js/jquery.cookiecuttr.js")"></script>
+
+        <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
         <script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
         <script src="@controllers.core.routes.Assets.at("select2/select2.js")"></script>
         <!-- core common js -->
@@ -46,6 +45,16 @@
 
         <!-- portal-specific js -->
         <script src="@controllers.portal.routes.Assets.at("js/portal.js")"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                // activate cookie cutter
+                $.cookieCuttr({
+                    cookieDeclineButton: false,
+                    cookieAnalyticsMessage: "We use cookies, just to track visits to our website, we store no personal details."
+                });
+            });  
+        </script>
 
         @scripts
     </body>
