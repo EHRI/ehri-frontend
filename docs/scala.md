@@ -24,7 +24,7 @@ Scala is a language that provides some very powerful abstraction facilities that
 
 ### Implicit classes and extension methods
 
-Scala allows you to "extend" existing classes using existing wrapper classes. We try and avoid this pattern because it can be confusing when you see a method being called on an object that doesn't appear to be defined in that object's class. Exceptions to this general rule, however, exist in the following places:
+Scala allows you to "extend" existing classes using implicit wrapper classes. We try and avoid this pattern because it can be confusing when you see a method being called on an object that doesn't appear to be defined in that object's class. Exceptions to this general rule, however, exist in the following places:
 
  - The `RequestHeader` class is extended with a `preferences` method that extracts a preferences object of type `T` from the current session. The extension method is defined in `SessionPreferences.scala` and will be added to `RequestHeader` in any class that extends the `SessionPreferences` trait with preferences type `T`.
 
@@ -34,7 +34,7 @@ An example of this mechanism is available in the `SessionPreferencesSpec.scala` 
 
 ### Implicit method parameters
 
-An implicit parameter is one that the Scala compiler automatically adds to method calls if it can find an object of the appropriate type in the current scope (though the rules of where it searches for implicit parameters is a bit [complex](http://stackoverflow.com/a/5598107/285374).
+An implicit parameter is one that the Scala compiler automatically adds to method calls if it can find an object of the appropriate type in the current scope (though the rules of where it searches for implicit parameters is a bit [complex](http://stackoverflow.com/a/5598107/285374).)
 
 We use implicit parameter lists in several places, most notably in templates. Nearly every time we render a template in the app there are several bits of context it needs:
 
@@ -44,7 +44,7 @@ We use implicit parameter lists in several places, most notably in templates. Ne
  - the current flash (data that displays on the *next* page render only)
  - global application configuration
 
-Since there are hundreds of calls to render templates functions in this app, specifying all these parameters manually would be exceedingly tediuous. For this reason these parameters are almost always in the implicit part of the template argument list so the compiler will fill them in for use. In a typical controller action which renders a template the various context objects come from the following places:
+Since there are hundreds of calls to render templates functions in this app, specifying all these parameters manually would be exceedingly tediuous. For this reason these parameters are almost always in the implicit part of the template argument list so the compiler will fill them in for us. In a typical controller action which renders a template the various context objects come from the following places:
 
  - request: In a Play `Action` the incoming request is always marked as `implicit`
  - optional user: This is available if we use the `optionalUserProfile` wrapper for `Action` (which is almost always the case)
