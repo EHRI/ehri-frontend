@@ -224,7 +224,68 @@ jQuery(function ($) {
       }
     });
   });
+});
 
+/**
+ * Handle cookie pref loading/saving
+ */
+jQuery(function ($) {
+  // Default pref path
+  var cookieName = "userPrefs";
+
+  // Default structure: this should match `SessionPrefs.scala`
+  var defaultPrefs = {
+    showUserContent: true
+  };
+
+  window.Preferences = {
+    load: function() {
+      try {
+        return JSON.parse($.cookie(cookieName, {path: '/'}));
+      } catch (e) {
+        return defaultPrefs;
+      }
+    },
+
+    save: function(prefs) {
+      var prefs = prefs || defaultPrefs;
+      $.cookie(cookieName, JSON.stringify(prefs), {path: '/'});
+    },
+
+    get: function(key) {
+      return this.load()[key];
+    },
+
+    set: function(key, value) {
+      var prefs = this.load();
+      prefs[key] = value;
+      this.save(prefs);
+    }
+  };
+});
+
+/**
+ * Handle updating global preferences when certain
+ * items are clicked.
+ */
+jQuery(function($) {
+  $(document).on("click", ".toggle-user-preference", function(e) {
+    var $item = $(this),
+        name = $item.data("preference-name"),
+        value = $item.data("preference-value");
+    Preferences.set(name, !value);
+    $item.data("preference-value", !value);
+    $(window.Preferences).trigger(name, !value);
+  })
+});
+
+/**
+ * Preference events
+ */
+jQuery(function($) {
+  $(window.Preferences).bind("showUserContent", function(event, doShow) {
+    $(".user-content").toggle(doShow);
+  })
 });
 
 /**

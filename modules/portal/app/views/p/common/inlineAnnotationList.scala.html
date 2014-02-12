@@ -1,4 +1,4 @@
-@(annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
 
 @import views.p.AnnotationViewType._
 
@@ -8,10 +8,10 @@
             <li class="personal">@p.common.annotationInline(ann, true)</li>
         }
         @for(ann <- sortedMap.getOrElse(Promoted, Seq.empty)) {
-            <li class="promoted user-content">@p.common.annotationInline(ann, false)</li>
+            <li class="promoted user-content" style="@{if(!prefs.showUserContent) "display: none;"}">@p.common.annotationInline(ann, false)</li>
         }
         @for(ann <- sortedMap.getOrElse(Other, Seq.empty)) {
-            <li class="other user-content" style="display: none;">@p.common.annotationInline(ann, false)</li>
+            <li class="other user-content" style="@{if(!prefs.showUserContent) "display: none;"}">@p.common.annotationInline(ann, false)</li>
         }
     </ul>
 }
