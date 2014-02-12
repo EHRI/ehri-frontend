@@ -28,6 +28,8 @@ trait SessionPreferences[T] {
     case _: Throwable => defaultPreferences
   }
 
+  implicit def preferences(implicit request: RequestHeader, rds: Reads[T]): T = request.preferences
+
   /**
    * Implicit extension method on RequestHeader to allow preferences
    * class to be straightforwardly loaded.
