@@ -239,27 +239,20 @@ jQuery(function ($) {
   };
 
   window.Preferences = {
-    load: function() {
-      try {
-        return JSON.parse($.cookie(cookieName, {path: '/'}));
-      } catch (e) {
-        return defaultPrefs;
-      }
+    update: function(prefsObj) {
+      var prefs = prefsObj || {};
+      jsRoutes.controllers.portal.Portal.updatePrefs().ajax({
+        data: prefsObj,
+        success: function(d) {
+          console.log(d)
+        }
+      })
     },
-
-    save: function(prefs) {
-      var prefs = prefs || defaultPrefs;
-      $.cookie(cookieName, JSON.stringify(prefs), {path: '/'});
-    },
-
-    get: function(key) {
-      return this.load()[key];
-    },
-
-    set: function(key, value) {
-      var prefs = this.load();
-      prefs[key] = value;
-      this.save(prefs);
+    updateValue: function(key, value) {
+      // fffff...
+      var tmp = {};
+      tmp[key] = value;
+      return this.update(tmp);
     }
   };
 });
@@ -273,7 +266,7 @@ jQuery(function($) {
     var $item = $(this),
         name = $item.data("preference-name"),
         value = $item.data("preference-value");
-    Preferences.set(name, !value);
+    Preferences.updateValue(name, !value);
     $item.data("preference-value", !value);
     $(window.Preferences).trigger(name, !value);
   })

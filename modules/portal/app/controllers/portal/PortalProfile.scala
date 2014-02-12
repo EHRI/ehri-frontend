@@ -22,6 +22,22 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
   val contentType = ContentTypes.UserProfile
   val form = models.forms.UserProfileForm.form
 
+  def prefs = Action { implicit request =>
+    Ok(Json.toJson(preferences))
+  }
+
+  def updatePrefs() = Action { implicit request =>
+    println(request.body)
+    SessionPrefs.updateForm(request.preferences).bindFromRequest.fold(
+      errors => BadRequest(errors.errorsAsJson),
+      updated => {
+        (if (isAjax) Ok(Json.toJson(updated))
+        else Redirect(controllers.portal.routes.Portal.prefs()))
+          .withPreferences(updated)
+      }
+    )
+  }
+
   def profile = withUserAction.async { implicit user => implicit request =>
     val watchParams = PageParams.fromRequest(request, namespace = "watch")
     val linkParams = PageParams.fromRequest(request, namespace = "link")
@@ -41,17 +57,17 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
     }
   }
 
-  def updateProfile = withUserAction { implicit user => implicit request =>
+  def updateProfile() = withUserAction { implicit user => implicit request =>
     if (isAjax) {
       Ok(views.html.p.profile.editProfileForm(
-        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
+        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost()))
     } else {
       Ok(views.html.p.profile.editProfile(
-        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost))
+        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost()))
     }
   }
 
-  def updateProfilePost = withUserAction.async { implicit user => implicit request =>
+  def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
     // This action is more-or-less the same as in UserProfiles update, except
     // we don't allow the user to update their own identifier.
     val transform: UserProfileF => UserProfileF = { newDetails =>
@@ -65,23 +81,23 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
             BadRequest(errorForm.errorsAsJson)
           } else {
             BadRequest(views.html.p.profile.editProfile(
-                errorForm, controllers.portal.routes.Portal.updateProfilePost))
+                errorForm, controllers.portal.routes.Portal.updateProfilePost()))
           }
         }
-        case Right(item) => {
-          Redirect(controllers.portal.routes.Portal.profile)
+        case Right(_) => {
+          Redirect(controllers.portal.routes.Portal.profile())
             .flashing("success" -> Messages("confirmations.profileUpdated"))
         }
       }
     }
   }
 
-  def deleteProfile = withUserAction { implicit user => implicit request =>
+  def deleteProfile() = withUserAction { implicit user => implicit request =>
     // Make sure the users knows where they're doing...
     ???
   }
 
-  def deleteProfilePost = withUserAction.async { implicit user => implicit request =>
+  def deleteProfilePost() = withUserAction.async { implicit user => implicit request =>
     val anonymous = UserProfileF(id = Some(user.id),
       identifier = user.model.identifier, name = user.model.identifier)
     backend.update(user.id, anonymous).map { bool =>

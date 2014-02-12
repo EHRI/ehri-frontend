@@ -1,5 +1,7 @@
 package utils
 
+import play.api.data.Form
+
 /**
  * Helper class for encapsulating session-backed user
  * preferences.
@@ -26,4 +28,19 @@ object SessionPrefs {
 
   implicit val writes: Writes[SessionPrefs] = Json.writes[SessionPrefs]
   implicit val fmt: Format[SessionPrefs] = Format(reads, writes)
+
+  /**
+   * Update the session preferences from form values in the
+   * current request, returning the new object.
+   */
+  def updateForm(current: SessionPrefs): Form[SessionPrefs] = {
+    import play.api.data.Forms._
+
+    Form(
+      mapping(
+        SHOW_USER_CONTENT -> default(boolean, current.showUserContent),
+        DEFAULT_LANGUAGES -> default(optional(seq(nonEmptyText(minLength = 3))), current.defaultLanguages)
+      )(SessionPrefs.apply)(SessionPrefs.unapply)
+    )
+  }
 }

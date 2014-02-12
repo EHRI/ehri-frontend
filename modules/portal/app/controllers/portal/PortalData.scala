@@ -14,6 +14,7 @@ object PortalData extends Controller {
   def jsRoutes = Action { implicit request =>
     Ok(
       Routes.javascriptRouter("jsRoutes")(
+        controllers.portal.routes.javascript.Portal.updatePrefs,
         controllers.portal.routes.javascript.Portal.personalisedActivityMore,
         controllers.portal.routes.javascript.Portal.profile,
         controllers.portal.routes.javascript.Portal.updateProfile,

@@ -28,6 +28,8 @@ GET         /dev/prs                            @controllers.portal.Portal.passw
 GET         /dev/rstp/:token                    @controllers.portal.Portal.resetPassword(token: String)
 POST        /dev/rstp/:token                    @controllers.portal.Portal.resetPasswordPost(token: String)
 
+GET         /prefs                              @controllers.portal.Portal.prefs
+POST        /prefs                              @controllers.portal.Portal.updatePrefs
 
 GET         /dev/search                         @controllers.portal.Portal.search
 GET         /dev/browse/ct                      @controllers.portal.Portal.browseRepositoriesByCountry

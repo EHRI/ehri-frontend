@@ -128,13 +128,10 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
+  def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
       item => details => implicit userOpt => implicit request =>
-    val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
-    watchedItems.map { watched =>
-      Ok(p.repository.show(item, details.annotations, details.links, details.watched))
-    }
+    println(preferences)
+    Ok(p.repository.show(item, details.annotations, details.links, details.watched))
   }
 
   def searchRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
