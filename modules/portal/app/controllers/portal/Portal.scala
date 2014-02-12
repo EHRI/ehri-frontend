@@ -130,7 +130,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
       item => details => implicit userOpt => implicit request =>
-    println(preferences)
     Ok(p.repository.show(item, details.annotations, details.links, details.watched))
   }
 

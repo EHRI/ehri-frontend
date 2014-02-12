@@ -27,7 +27,6 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
   }
 
   def updatePrefs() = Action { implicit request =>
-    println(request.body)
     SessionPrefs.updateForm(request.preferences).bindFromRequest.fold(
       errors => BadRequest(errors.errorsAsJson),
       updated => {
