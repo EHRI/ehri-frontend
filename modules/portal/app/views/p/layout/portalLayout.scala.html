@@ -5,13 +5,8 @@
 <html lang="@lang.code">
     <head>
         <title>@title</title>
-        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("select2/select2.css")" rel="stylesheet" type="text/css" />
-        <link rel="stylesheet" href="@controllers.portal.routes.Assets.at("select2/select2-bootstrap.css")" rel="stylesheet" type="text/css" />
 
         <link rel="stylesheet" href="@controllers.core.routes.Assets.at("css/portal.css")">
-
-        <style type="text/css">
-        </style>
 
         @styles
     </head>
@@ -51,7 +46,9 @@
                 // activate cookie cutter
                 $.cookieCuttr({
                     cookieDeclineButton: false,
-                    cookieAnalyticsMessage: "We use cookies, just to track visits to our website, we store no personal details."
+                    cookieAnalyticsMessage: "@Messages("cuttr.message")",
+                    cookieAcceptButtonText: "@Messages("cuttr.accept")",
+                    cookieWhatAreLinkText: "@Messages("cuttr.what")"
                 });
             });  
         </script>

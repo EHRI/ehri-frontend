@@ -1,6 +1,13 @@
 /* To be used with cookieCuttr by Chris Wharton (http://cookiecuttr.com) */
 
-.cc-cookies { 
+body.cc-cookies {
+	padding-top:50px;
+}
+
+div.cc-cookies { 
+	min-height:50px;
+	line-height:18px;
+	.box-sizing(border-box);
 	position:fixed; 
 	width: 100%; 
 	left: 0; 
@@ -12,17 +19,17 @@
 	font-size: 13px; 
 	font-weight: 700; 
 	text-shadow: 0 -1px 0 rgba(0,0,0,0.35); 
-	z-index: 99999; 
+	z-index: auto; 
 	text-align: center; 
 	color: #fff; 
-}
 
-.cc-cookies a{ 
-	color: #fff; 
-	text-decoration: underline; 
-	&:hover {
+	a { 
 		color: #fff; 
-		text-decoration: none;
+		text-decoration: underline; 
+		&:hover {
+			color: #fff; 
+			text-decoration: none;
+		}
 	}
 }
 .cc-overlay { 
@@ -42,7 +49,7 @@
 	color: #333; 
 }
 .cc-cookies a.cc-cookie-accept, .cc-cookies-error a.cc-cookie-accept, .cc-cookies a.cc-cookie-decline, .cc-cookies-error a.cc-cookie-decline, .cc-cookies a.cc-cookie-reset {
-	.btn; 
+	.btn-xs; 
 	text-shadow: none; 
 	text-decoration: none;
 
@@ -60,9 +67,24 @@
 }
 
 @media screen and (max-width: @screen-sm) {
-.cc-cookies a.cc-cookie-accept, .cc-cookies a.cc-cookie-decline, .cc-cookies a.cc-cookie-reset { display: block; margin: 1em 0; }
+	body.cc-cookies {
+		padding-top:0;
+	}
+	div.cc-cookies {
+		position:static;
+		height:auto;
+		z-index:auto;
+	}
+	.cc-cookies a.cc-cookie-accept, .cc-cookies a.cc-cookie-decline, .cc-cookies a.cc-cookie-reset { display: block; margin: 1em 0; }
 }
 
 @media screen and (max-width: @screen-xs) {
-.cc-cookies { position: relative; float: left; }
+	body.cc-cookies {
+		padding-top:0;
+	}
+	.cc-cookies { 
+		position: static; 
+		z-index:auto;
+		height:auto;
+	}
 }

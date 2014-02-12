@@ -451,3 +451,9 @@ metrics.holdingRepository=Archival Descriptions - Holding Repository
 metrics.repositoryCountries=Repositories by Country
 metrics.agentTypes=Authority Files by Entity Type
 metrics.restrictedMaterial=Restricted Material
+
+
+#CookieCuttr
+cuttr.message=We use cookies for storing logins and view preferences.
+cuttr.what=What are cookies?
+cuttr.accept=Accept Cookies
