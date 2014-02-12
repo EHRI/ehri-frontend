@@ -7,10 +7,6 @@
     font-size: 12px;
   }
 
-  .global-search input {
-    border: 0px;
-  }
-
   .right-inner-addon {
     position: relative;
 
@@ -26,14 +22,21 @@
       color: @almost-black;
     }
   }
-  .global-search.inactive {
-    .search-icon {
-      color: white;
-    }
-
+  .global-search {
     input {
-      background-color: inherit;
-      cursor: default;
+      border: 0px;
+      color: @almost-black;
+    }
+    &.inactive {
+      .search-icon {
+        color: white;
+      }
+
+      input {
+        color: white;
+        background-color: inherit;
+        cursor: default;
+      }
     }
   }
 

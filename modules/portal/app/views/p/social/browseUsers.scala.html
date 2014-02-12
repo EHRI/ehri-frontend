@@ -9,7 +9,7 @@
     } {
     }
 
-    <div class="container main-content">
+    <div class="main-content">
 
     @if(params.isFiltered || !users.items.isEmpty) {
         @helper.form(action = controllers.portal.routes.Portal.browseUsers, 'role -> "form", 'class -> "form-horizontal") {
