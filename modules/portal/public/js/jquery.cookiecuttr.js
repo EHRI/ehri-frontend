@@ -158,6 +158,7 @@
                 if (appOrPre) {
                     $('body').append('<div class="cc-cookies cc-discreet"><a href="' + cookiePolicyLinkIn + '" title="' + cookieDiscreetLinkText + '">' + cookieDiscreetLinkText + '</a></div>');
                 } else {
+                    $('body').addClass("cc-cookies");
                     $('body').prepend('<div class="cc-cookies cc-discreet"><a href="' + cookiePolicyLinkIn + '" title="' + cookieDiscreetLinkText + '">' + cookieDiscreetLinkText + '</a></div>');
                 }
                 //add appropriate CSS depending on position chosen
@@ -179,9 +180,11 @@
                 }
             } else if (cookieAnalytics) { // show analytics overlay
                 if (appOrPre) {
-                    $('body').append('<div class="cc-cookies ' + cookieOverlay + '">' + cookieAnalyticsMessage + cookieAccept + cookieDecline + '<a href="' + cookieWhatAreTheyLink + '" title="Visit All about cookies (External link)">' + cookieWhatAreLinkText + '</a></div>');
+                    $('body').append('<div class="cc-cookies ' + cookieOverlay + '">' + cookieAnalyticsMessage + ' <a href="' + cookieWhatAreTheyLink + '" title="Visit All about cookies (External link)">' + cookieWhatAreLinkText + '</a><div>' + cookieAccept + cookieDecline + '</div></div>');
                 } else {
-                    $('body').prepend('<div class="cc-cookies ' + cookieOverlay + '">' + cookieAnalyticsMessage + cookieAccept + cookieDecline + '<a href="' + cookieWhatAreTheyLink + '" title="Visit All about cookies (External link)">' + cookieWhatAreLinkText + '</a></div>');
+                    //The one we use
+                    $('body').addClass("cc-cookies");
+                    $('body').prepend('<div class="cc-cookies ' + cookieOverlay + '">' + cookieAnalyticsMessage + ' <a href="' + cookieWhatAreTheyLink + '" title="Visit All about cookies (External link)">' + cookieWhatAreLinkText + '</a><div>' + cookieAccept + cookieDecline + '</div></div>');
                 }
             }
             if (cookiePolicyPage) { // show policy page overlay
@@ -194,6 +197,7 @@
                 if (appOrPre) {
                     $('body').append('<div class="cc-cookies ' + cookieOverlay + '">' + cookieMessage + cookieAccept + cookieDecline + '</div>');
                 } else {
+                    $('body').addClass("cc-cookies");
                     $('body').prepend('<div class="cc-cookies ' + cookieOverlay + '">' + cookieMessage + cookieAccept + cookieDecline + '</div>');
                 }
             }
@@ -253,6 +257,7 @@
                     expires: cookieExpires,
                     path: '/'
                 });
+                $('body').removeClass("cc-cookies");
             }
             $(".cc-cookies").fadeOut(function () {
                 // reload page to activate cookies
