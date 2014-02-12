@@ -213,8 +213,8 @@ $.reject = function(options) {
 	// Load background overlay (jr_overlay) + Main wrapper (jr_wrap) +
 	// Inner Wrapper (jr_inner) w/ opts.header (jr_header) +
 	// opts.paragraph1/opts.paragraph2 if set
-	var html = '<div id="jr_overlay"></div><div id="jr_wrap"><div id="jr_inner">'+
-		'<h1 id="jr_header">'+opts.header+'</h1>'+
+	var html = '<div id="jr_container" class="in"><div id="jr_wrap"><div id="jr_inner">'+
+		'<div id="jr_header">'+opts.header+'</div><div id="jr_content">'+
 		(opts.paragraph1 === '' ? '' : '<p>'+opts.paragraph1+'</p>')+
 		(opts.paragraph2 === '' ? '' : '<p>'+opts.paragraph2+'</p>');
 
@@ -248,12 +248,12 @@ $.reject = function(options) {
 	}
 
 	// Close list and #jr_list
-	html += '<div id="jr_close">'+
+	html += '</div><div id="jr_close">'+
 	// Display close links/message if set
 	(opts.close ? '<a href="'+opts.closeURL+'">'+opts.closeLink+'</a>'+
 		'<p>'+opts.closeMessage+'</p>' : '')+'</div>'+
 	// Close #jr_inner and #jr_wrap
-	'</div></div>';
+	'</div></div></div><div id="jr_overlay"></div>';
 
 	var element = $('<div>'+html+'</div>'); // Create element
 	var size = _pageSize(); // Get page size
@@ -277,7 +277,7 @@ $.reject = function(options) {
 		$(this).unbind('closejr');
 
 		// Fade out background and modal wrapper
-		$('#jr_overlay,#jr_wrap').fadeOut(opts.fadeOutTime,function() {
+		$('#jr_overlay,#jr_wrap,#jr_container').fadeOut(opts.fadeOutTime,function() {
 			$(this).remove(); // Remove element from DOM
 
 			// afterClose: Customized Function
@@ -338,41 +338,16 @@ $.reject = function(options) {
 	 */
 
 	// Creates 'background' (div)
+	/*
 	element.find('#jr_overlay').css({
 		width: size[0],
-		height: size[1],
-		background: opts.overlayBgColor,
-		opacity: opts.overlayOpacity
+		height: size[1]
 	});
-
-	// Wrapper for our pop-up (div)
-	element.find('#jr_wrap').css({
-		top: scroll[1]+(size[3]/4),
-		left: scroll[0]
-	});
-
-	// Wrapper for inner centered content (div)
-	element.find('#jr_inner').css({
-		minWidth: displayNum*100,
-		maxWidth: displayNum*140,
-		// min/maxWidth not supported by IE
-		width: $.layout.name == 'trident' ? displayNum*155 : 'auto'
-	});
-
-	element.find('#jr_inner li').css({ // Browser list items (li)
-		background: 'transparent url("'+opts.imagePath+'background_browser.gif")'+
-					'no-repeat scroll left top'
-	});
+*/
 
 	element.find('#jr_inner li .jr_icon').each(function() {
-		// Dynamically sets the icon background image
-		var self = $(this);
-		self.css('background','transparent url('+opts.imagePath+'browser_'+
-				(self.parent('li').attr('id').replace(/jr_/,''))+'.gif)'+
-					' no-repeat scroll left top');
-
 		// Send link clicks to openBrowserLinks
-		self.click(function () {
+		$(this).click(function () {
 			var url = $(this).next('div').children('a').attr('href');
 			openBrowserLinks(url);
 		});
@@ -381,6 +356,11 @@ $.reject = function(options) {
 	element.find('#jr_inner li a').click(function() {
 		openBrowserLinks($(this).attr('href'));
 		return false;
+	});
+
+	element.find('#jr_wrap').css({
+		top: scroll[1] + (size[3]/4),
+		left: scroll[0]
 	});
 
 	// Bind closing event to trigger closejr
@@ -410,12 +390,6 @@ $.reject = function(options) {
 	// Handle window resize/scroll events and update overlay dimensions
 	$(window).bind('resize scroll',function() {
 		var size = _pageSize(); // Get size
-
-		// Update overlay dimensions based on page size
-		$('#jr_overlay').css({
-			width: size[0],
-			height: size[1]
-		});
 
 		var scroll = _scrollSize(); // Get page scroll
 

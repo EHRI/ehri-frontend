@@ -1,0 +1,49 @@
+#jr_overlay {
+	.modal;
+	.modal-backdrop;
+	opacity:0.7;
+	.box-sizing(border-box);
+	display:block;
+	overflow:hidden;
+}
+
+#jr_container {
+	.make-md-column-offset(3);
+	.make-md-column(6);
+	.modal;
+	.fade;
+	display:block;
+	overflow:hidden;
+	#jr_wrap {
+		.modal-dialog;
+
+		display:block;
+
+		#jr_inner {
+			.modal-content;
+
+			#jr_header {
+				.modal-header;
+			}
+			#jr_content {
+				.modal-body;
+
+				ul {
+					.nav;
+					.nav-justified;
+					li {
+						text-align:center;
+					}
+				}
+			}
+			#jr_close {
+				.modal-footer;
+				a {
+					.btn;
+					.btn-sm;
+					.btn-danger;
+				}
+			}
+		}
+	}
+}
