@@ -20,7 +20,7 @@ trait SessionPreferences[T] {
   private def load(implicit request: RequestHeader, rds: Reads[T]): T = try {
     (for {
       prefString <- request.session.get("userPrefs")
-      prefs <- Json.toJson(prefString).validate(rds).asOpt
+      prefs <- Json.parse(prefString).validate(rds).asOpt
     } yield prefs).getOrElse(defaultPreferences)
   } catch {
     // Ensure that we *never* throw an exception on missing
