@@ -241,13 +241,10 @@ jQuery(function ($) {
   window.Preferences = {
     update: function(prefsObj) {
       var prefs = prefsObj || {};
-      jsRoutes.controllers.portal.Portal.updatePrefs().ajax({
-        data: prefsObj,
-        success: function(d) {
-          console.log(d)
-        }
-      })
+      // Fire and forget!
+      jsRoutes.controllers.portal.Portal.updatePrefs().ajax({ data: prefsObj })
     },
+
     updateValue: function(key, value) {
       // fffff...
       var tmp = {};
@@ -262,12 +259,14 @@ jQuery(function ($) {
  * items are clicked.
  */
 jQuery(function($) {
-  $(document).on("click", ".toggle-user-preference", function(e) {
+  $(document).on("click", ".toggle-boolean-preference", function(e) {
     var $item = $(this),
         name = $item.data("preference-name"),
         value = $item.data("preference-value");
+    $item
+      .addClass("boolean-" + !value).removeClass("boolean-" + value)
+      .data("preference-value", !value);
     Preferences.updateValue(name, !value);
-    $item.data("preference-value", !value);
     $(window.Preferences).trigger(name, !value);
   })
 });

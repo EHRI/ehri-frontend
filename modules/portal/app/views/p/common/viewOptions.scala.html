@@ -4,10 +4,9 @@
     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
         <span class="glyphicon glyphicon-wrench"></span>
     </a>
-    <ul class="dropdown-menu navbar-inverse pull-right" role="menu">
+    <ul class="boolean-preferences dropdown-menu navbar-inverse pull-right" role="menu">
         <li>
-            <a href="#" class="toggle-user-preference" data-preference-name="showUserContent" data-preference-value="@prefs.showUserContent">
-                <span style="@{if(!prefs.showUserContent) "display:none"}" class="glyphicon glyphicon-ok"></span>
+            <a href="#" class="toggle-boolean-preference boolean-@prefs.showUserContent" data-preference-name="showUserContent" data-preference-value="@prefs.showUserContent">
                 @Messages("portal.viewOptions.showUserContent")
             </a>
         </li>

@@ -1,0 +1,18 @@
+
+// Ugh, using !important to over-ride
+// values set in the menu. Should probably
+// fix this another way!
+ul.boolean-preferences {
+  margin: 0 !important;
+  background-color: white;
+
+  li {
+    a {
+      font-size: 0.9em !important;
+      color: @almost-black !important;
+      &.boolean-true:before {
+        content: "✓";
+      }
+    }
+  }
+}
