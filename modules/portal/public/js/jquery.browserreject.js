@@ -237,7 +237,7 @@ $.reject = function(options) {
 			var url = info.url || '#'; // URL to link text/icon to
 
 			// Generate HTML for this browser option
-			html += '<li id="jr_'+browser+'"><div class="jr_icon"></div>'+
+			html += '<li id="jr_'+browser+'"><div class="icon-social jr_icon '+browser+'"></div>'+
 					'<div><a href="'+url+'">'+(info.text || 'Unknown')+'</a>'+
 					'</div></li>';
 
