@@ -1,12 +1,12 @@
-@(itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(itemClass: String = "")(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
 
 
 @maybeActive(url: String) = @{
-    if(req.path.equals(url)) "active" else ""
+    if(request.path.equals(url)) "active" else ""
 }
 
 @maybeActivePath(url: String) = @{
-    if(req.path.startsWith(url)) "active" else ""
+    if(request.path.startsWith(url)) "active" else ""
 }
 
 
@@ -39,6 +39,9 @@
                 <input type="text" name="q" />
                 <span class="glyphicon glyphicon-search search-icon"></span>
                 }
+            </li>
+            <li>
+                @p.common.viewOptions(true)
             </li>
         </ul>
         <ul class="list-unstyled list-inline">

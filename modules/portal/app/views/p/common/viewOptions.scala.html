@@ -1,13 +1,17 @@
 @(hasUserContent: Boolean)(implicit userOpt: Option[UserProfile], prefs: utils.SessionPrefs, request: RequestHeader, lang: Lang)
 
+@println(prefs)
+
 <div class="btn-group">
-    <button type="button" class="view-options">
-        <span class="glyphicon glyphicon-eye-open"></span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <span class="glyphicon glyphicon-wrench"></span>
+    </a>
+    <ul class="dropdown-menu navbar-inverse pull-right" role="menu">
         <li>
-            <span style="@{if(!prefs.showUserContent) "display:none"}" class="gylphicon gylphicon-ok"></span>
-            <a href="#">@Messages("portal.viewOptions.showUserContent")</a>
+            <a href="#">
+                <span style="@{if(!prefs.showUserContent) "display:none"}" class="glyphicon glyphicon-ok"></span>
+                @Messages("portal.viewOptions.showUserContent")
+            </a>
         </li>
     </ul>
 </div>
