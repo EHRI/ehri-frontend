@@ -44,6 +44,10 @@
                     cookieAcceptButtonText: "@Messages("cuttr.accept")",
                     cookieWhatAreLinkText: "@Messages("cuttr.what")"
                 });
+                $.reject({  
+                    reject: { all: true }, // Reject all renderers for demo  
+                    closeCookie: false // Set cookie to remember close for this session  
+                });
             });  
         </script>
 
