@@ -1,6 +1,6 @@
 @(signupForm: Form[(String,String,String,String)], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateSignUp.f) }
 
 @validationJs = {
 
@@ -21,26 +21,40 @@
 @p.layout.portalLayoutSimple(Messages("portal.signup"), scripts=validationJs, styles = styles) {
 
     @p.layout.mainContent {
-        @helper.form(action = action, 'class -> "login-form form-horizontal") {
+        @helper.form(action = action, 'class -> "login-form signup-form form form-horizontal") {
+            <h1 class="text-center">@Messages("portal.signup")</h1>
             @formHelpers.csrfToken()
-
-            @formHelpers.globalErrors(signupForm)
+            <div class="field">
+                <div class="input">
+                    <p>
+                        A nice little text which could be changed at anytime.
+                    </p>
+                </div>
+            </div>
+            <div class="field">
+                @formHelpers.globalErrors(signupForm)
+            </div>
 
             @helper.inputText(signupForm("name"))
             @helper.inputText(signupForm("email"))
             @helper.inputPassword(signupForm("password"))
             @helper.inputPassword(signupForm("confirm"))
 
-            <div class="controls-row">
-                <div class="controls reset">
-
+            <div class="field">
+                <div class="text-center input">
                     @common.recaptcha(recaptchaKey)
                 </div>
             </div>
 
-            <input type="submit" class="btn btn-primary" value="@Messages("submitButton.signup")" />
+            <div class="field">
+                <div class="input">
+                    <input type="submit" class="btn btn-primary" value="@Messages("submitButton.signup")" />
+                </div>
+            </div>
+
 
         }
+        <div class="clearfix"></div>
     }
 }(None, request, globalConfig, flash, lang)
 

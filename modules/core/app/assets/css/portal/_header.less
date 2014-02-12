@@ -1,0 +1,154 @@
+#header {
+  position: relative;
+  color: white;
+  font-weight: 700;
+
+  .account-admin {
+    font-size: 12px;
+  }
+
+  .global-search input {
+    border: 0px;
+  }
+
+  .right-inner-addon {
+    position: relative;
+
+    input {
+      padding: 1px 25px 1px 3px;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0px;
+      padding: 3px 7px;
+      pointer-events: none;
+      color: @almost-black;
+    }
+  }
+  .global-search.inactive {
+    .search-icon {
+      color: white;
+    }
+
+    input {
+      background-color: inherit;
+      cursor: default;
+    }
+  }
+
+  #loader-bar {
+    height: @small-padding;
+    position: relative;
+    background: #FFF;
+
+    span {
+      display: block;
+      height: 100%;
+      background-color: @primary-highlight;
+      position: relative;
+      overflow: hidden;
+    }
+  }
+
+  li {
+    padding: 0px;
+  }
+
+  //padding-top: @medium-padding;
+
+  .nav-primary {
+    background-color: @almost-black;
+    padding: @small-padding;
+
+    ul {
+      margin-bottom: 0;
+      padding: 0
+    }
+    a {
+      color: #d6d6d6;
+      padding: @medium-padding;
+    }
+
+    a:hover {
+      text-decoration: none;
+      color: #FFF;
+    }
+
+    li.active a {
+      color: #FFF;
+    }
+  }
+
+  .nav-secondary {
+    //padding: @small-padding;
+
+    ul {
+      margin: @medium-margin;
+    }
+
+    li {
+      // This is needed for the pointer trick below...
+      position: relative;
+    }
+
+    // Pinched from Guardian website... thanks folks...
+    // This puts a little triangle pointer below the
+    // active menu item. Depends on parent item having
+    // relative position...
+    li.active:after {
+      content: " ";
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 5px solid;
+      border-bottom-color: white;
+      position: absolute;
+      bottom: -10px;
+      margin-left: -10px;
+      left: 50%;
+    }
+
+    font-size: 0.9em;
+
+    a {
+      font-size: 1.1em;
+      color: #FFF;
+      margin: 0 @small-margin 0 @small-margin;
+    }
+    background-color: @primary-highlight;
+  }
+
+  .nav-secondary.documentaryUnit {
+    background-color: @doc-color;
+  }
+
+  .nav-secondary.country {
+    background-color: @country-color;
+  }
+
+  .nav-secondary.repository {
+    background-color: @repo-color;
+  }
+
+  .nav-secondary.historicalAgent {
+    background-color: @agent-color;
+  }
+
+  .float-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 0.9;
+    z-index: 1000;
+    box-shadow: 0px 3px 4px rgba(68, 68, 68, 0.51);
+  }
+
+  #navbar-logo {
+    a {
+      //padding: @small-padding;
+      img {
+        height: @menu-height - @medium-padding;
+      }
+    }
+  }
+}
