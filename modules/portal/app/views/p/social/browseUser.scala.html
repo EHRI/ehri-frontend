@@ -1,4 +1,4 @@
-@(them: UserProfile, events: List[SystemEvent], followed: Boolean)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+@(them: UserProfile, events: List[SystemEvent], followed: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(them.toStringLang) {
     @p.layout.infobar {

@@ -6,7 +6,7 @@ import models.{UserProfileF, AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
-import controllers.base.AuthController
+import controllers.base.{SessionPreferences, AuthController}
 import play.api.Logger
 import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
 import controllers.core.auth.openid.OpenIDLoginHandler
@@ -18,13 +18,14 @@ import utils.forms._
 import java.util.UUID
 import play.api.i18n.Messages
 import backend.ApiUser
+import utils.SessionPrefs
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPasswordLoginHandler {
 
-  self: Controller with AuthController with LoginLogout =>
+  self: Controller with AuthController with LoginLogout with SessionPreferences[SessionPrefs] =>
 
   lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 

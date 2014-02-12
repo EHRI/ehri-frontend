@@ -1,21 +1,21 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.base.{AuthController, ControllerHelpers}
+import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.{UserProfile, UserProfileF}
 import controllers.generic.Update
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json.{Format, Json}
-import utils.{PageParams, ListParams}
+import utils.{SessionPrefs, PageParams, ListParams}
 import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait PortalProfile extends Update[UserProfileF,UserProfile] {
-  self: Controller with ControllerHelpers with AuthController =>
+  self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile

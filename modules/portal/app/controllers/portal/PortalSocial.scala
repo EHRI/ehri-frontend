@@ -2,10 +2,10 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.Controller
-import controllers.base.{AuthController, ControllerHelpers}
+import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.UserProfile
 import views.html.p
-import utils.{PageParams, SystemEventParams, ListParams}
+import utils.{SessionPrefs, PageParams, SystemEventParams, ListParams}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
 import play.api.Play._
@@ -20,7 +20,7 @@ import scala.Some
  * just lists of IDs.
  */
 trait PortalSocial {
-  self: Controller with ControllerHelpers with AuthController =>
+  self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
 
   val searchDispatcher: Dispatcher
   val searchResolver: Resolver

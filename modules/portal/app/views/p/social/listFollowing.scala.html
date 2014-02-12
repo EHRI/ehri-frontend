@@ -1,4 +1,4 @@
-@(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], flash: Flash, lang: Lang, globalConfig: global.GlobalConfig)
+@(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: List[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(them.toStringLang) {
 

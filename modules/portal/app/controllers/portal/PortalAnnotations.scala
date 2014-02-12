@@ -2,10 +2,10 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import controllers.base.{AuthController, ControllerHelpers}
+import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.{AnnotationF, Annotation, UserProfile}
 import views.html.p
-import utils.ContributionVisibility
+import utils.{SessionPrefs, ContributionVisibility}
 import models.forms.AnnotationForm
 import scala.concurrent.Future.{successful => immediate}
 import defines.{ContentTypes, PermissionType}
@@ -21,7 +21,7 @@ import scala.collection.Set
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait PortalAnnotations {
-  self: Controller with ControllerHelpers with AuthController =>
+  self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
 
   private val portalRoutes = controllers.portal.routes.Portal
 
