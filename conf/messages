@@ -457,3 +457,10 @@ metrics.restrictedMaterial=Restricted Material
 cuttr.message=We use cookies for storing logins and view preferences.
 cuttr.what=What are cookies?
 cuttr.accept=Accept Cookies
+
+#Browser
+browser.header=Did you know that your Internet Browser is out of date?
+browser.p1=Your browser is out of date, and may not be compatible with our website. A list of the most popular web browsers can be found below.
+browser.p2=Just click on the icons to get to the download page
+browser.close=Close this window
+browser.closing=By closing this window you acknowledge that your experience on this website may be degraded

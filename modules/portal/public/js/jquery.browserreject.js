@@ -47,15 +47,15 @@ $.reject = function(options) {
 				url: 'http://www.google.com/chrome/'
 			},
 			safari: {
-				text: 'Safari 5',
+				text: 'Safari',
 				url: 'http://www.apple.com/safari/download/'
 			},
 			opera: {
-				text: 'Opera 12',
+				text: 'Opera',
 				url: 'http://www.opera.com/download/'
 			},
 			msie: {
-				text: 'Internet Explorer 9',
+				text: 'Internet Explorer',
 				url: 'http://www.microsoft.com/windows/Internet-explorer/'
 			},
 			gcf: {

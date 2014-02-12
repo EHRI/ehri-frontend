@@ -52,8 +52,20 @@
                     cookieWhatAreLinkText: "@Messages("cuttr.what")"
                 });
                 $.reject({  
-                    reject: { all: true }, // Reject all renderers for demo  
-                    closeCookie: false // Set cookie to remember close for this session  
+                    reject: { 
+                        all: false,
+                        msie5: true,
+                        msie6: true,
+                        msie7: true,
+                        msie8: true,
+                        msie9: true
+                    }, // Reject all renderers for demo  
+                    header : "@Messages("browser.header")",
+                    paragraph1 : "@Messages("browser.p1")",
+                    paragraph2 : "@Messages("browser.p2")",
+                    closeLink : "@Messages("browser.close")",
+                    closeMessage : "@Messages("browser.closing")",
+                    closeCookie: true // Set cookie to remember close for this session  
                 });
        
             });  
