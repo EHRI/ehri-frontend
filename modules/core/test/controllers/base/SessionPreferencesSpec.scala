@@ -28,8 +28,7 @@ trait PrefTest extends SessionPreferences[TestPrefs] {
   val defaultPreferences = TestPrefs.default
 
   def testGetPrefs() = Action { implicit request =>
-    val prefs = request.preferences
-    Ok(prefs.toString)
+    Ok(request.preferences.toString)
   }
 
   def testSavePrefs(langs: List[String]) = Action { implicit request =>
@@ -52,6 +51,17 @@ class SessionPreferencesSpec extends PlaySpecification with Results {
       val result: Future[SimpleResult] = controller.testGetPrefs().apply(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must be equalTo TestPrefs.default.toString
+    }
+
+    "fetch correct set value" in new FakeApp {
+      val controller = new PrefTestController()
+      val prefs = TestPrefs("marty", List("mcfly"))
+      val req = FakeRequest().withSession(
+        SessionPreferences.DEFAULT_STORE_KEY -> Json.stringify(Json.toJson(prefs))
+      )
+      val result: Future[SimpleResult] = controller.testGetPrefs().apply(req)
+      val bodyText: String = contentAsString(result)
+      bodyText must be equalTo prefs.toString
     }
 
     "update correctly" in new FakeApp {

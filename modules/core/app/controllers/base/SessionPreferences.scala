@@ -2,6 +2,7 @@ package controllers.base
 
 import play.api.mvc.{SimpleResult, RequestHeader}
 import play.api.libs.json.{Writes, Reads, Json}
+import play.api.Logger
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -19,7 +20,7 @@ trait SessionPreferences[T] {
    */
   private def load(implicit request: RequestHeader, rds: Reads[T]): T = try {
     (for {
-      prefString <- request.session.get("userPrefs")
+      prefString <- request.session.get(storeKey)
       prefs <- Json.parse(prefString).validate(rds).asOpt
     } yield prefs).getOrElse(defaultPreferences)
   } catch {
