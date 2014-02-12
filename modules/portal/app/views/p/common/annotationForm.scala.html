@@ -23,7 +23,7 @@
 
     <span class="custom-visibility" style="@{if(visForm.value != Some(Custom)) "display:none"}">
         @defining(views.Helpers.fieldValues(accessorsForm(ACCESSOR_PARAM))) { values =>
-            <select class="select2 custom-accessors" style="width:300px" multiple name="@(ACCESSOR_PARAM)[]">
+            <select class="form-control select2 custom-accessors" style="width:300px" multiple name="@(ACCESSOR_PARAM)[]">
                 <option></option>
                 <optgroup label="Groups">
                     @for((id, name) <- groups) {
