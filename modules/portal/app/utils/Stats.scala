@@ -1,4 +1,4 @@
-package controllers.portal
+package utils
 
 import defines.EntityType
 import models.Isaar

@@ -20,7 +20,7 @@ import backend.{FeedbackDAO, Backend}
 import controllers.base.{SessionPreferences, ControllerHelpers}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.Logger
-import utils.{SessionPrefs, PageParams}
+import utils.{SessionPrefs, Stats, PageParams}
 
 
 @Singleton

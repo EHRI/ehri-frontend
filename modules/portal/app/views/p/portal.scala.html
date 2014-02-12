@@ -1,4 +1,4 @@
-@(stats: controllers.portal.Stats)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(stats: utils.Stats)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import utils.search.SearchParams
 @import defines.EntityType
