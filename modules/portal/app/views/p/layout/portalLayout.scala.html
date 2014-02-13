@@ -26,50 +26,7 @@
         </div>
         @p.layout.footer()
 
-        <script src="@controllers.core.routes.Assets.at("js/jquery.history.min.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("js/jquery.autosize.min.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("js/jquery.hoverIntent.min.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("js/jquery.cookie.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("js/jquery.cookiecuttr.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("js/jquery.browserreject.js")"></script>
-
-        <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
-        <script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
-        <script src="@controllers.core.routes.Assets.at("select2/select2.js")"></script>
-        <!-- core common js -->
-        <script src="@controllers.core.routes.Assets.at("js/common.js")" type="text/javascript"></script>
-
-        <!-- portal-specific js -->
-        <script src="@controllers.portal.routes.Assets.at("js/portal.js")"></script>
-
-        <script type="text/javascript">
-            $(document).ready(function () {
-                // activate cookie cutter
-                $.cookieCuttr({
-                    cookieDeclineButton: false,
-                    cookieAnalyticsMessage: "@Messages("cuttr.message")",
-                    cookieAcceptButtonText: "@Messages("cuttr.accept")",
-                    cookieWhatAreLinkText: "@Messages("cuttr.what")"
-                });
-                $.reject({  
-                    reject: { 
-                        all: false,
-                        msie5: true,
-                        msie6: true,
-                        msie7: true,
-                        msie8: true,
-                        msie9: true
-                    }, // Reject all renderers for demo  
-                    header : "@Messages("browser.header")",
-                    paragraph1 : "@Messages("browser.p1")",
-                    paragraph2 : "@Messages("browser.p2")",
-                    closeLink : "@Messages("browser.close")",
-                    closeMessage : "@Messages("browser.closing")",
-                    closeCookie: true // Set cookie to remember close for this session  
-                });
-       
-            });  
-        </script>
+        @p.layout.javascripts()
 
         @scripts
     </body>
