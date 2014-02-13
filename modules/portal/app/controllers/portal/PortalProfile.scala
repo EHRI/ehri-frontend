@@ -2,24 +2,23 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
-import models.{UserProfile, UserProfileF}
-import controllers.generic.Update
+import models.{ProfileData, UserProfile, UserProfileF}
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import utils.{SessionPrefs, PageParams}
+import scala.concurrent.Future.{successful => immediate}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalProfile extends Update[UserProfileF,UserProfile] {
+trait PortalProfile {
   self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile
   val contentType = ContentTypes.UserProfile
-  val form = models.forms.UserProfileForm.form
 
   def prefs = Action { implicit request =>
     Ok(Json.toJson(preferences))
@@ -56,38 +55,25 @@ trait PortalProfile extends Update[UserProfileF,UserProfile] {
   }
 
   def updateProfile() = withUserAction { implicit user => implicit request =>
+    val form = ProfileData.form.fill(ProfileData.fromUser(user))
     if (isAjax) {
       Ok(views.html.p.profile.editProfileForm(
-        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost()))
+        form, controllers.portal.routes.Portal.updateProfilePost()))
     } else {
       Ok(views.html.p.profile.editProfile(
-        form.fill(user.model), controllers.portal.routes.Portal.updateProfilePost()))
+        form, controllers.portal.routes.Portal.updateProfilePost()))
     }
   }
 
   def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
-    // This action is more-or-less the same as in UserProfiles update, except
-    // we don't allow the user to update their own identifier.
-    val transform: UserProfileF => UserProfileF = { newDetails =>
-      newDetails.copy(identifier = user.model.identifier)
-    }
-
-    updateAction(user, form, transform) { item => formOrItem => up => r =>
-      formOrItem match {
-        case Left(errorForm) => {
-          if (isAjax) {
-            BadRequest(errorForm.errorsAsJson)
-          } else {
-            BadRequest(views.html.p.profile.editProfile(
-                errorForm, controllers.portal.routes.Portal.updateProfilePost()))
-          }
-        }
-        case Right(_) => {
-          Redirect(controllers.portal.routes.Portal.profile())
-            .flashing("success" -> Messages("confirmations.profileUpdated"))
-        }
+    ProfileData.form.bindFromRequest.fold(
+      errForm => immediate(BadRequest(views.html.p.profile.editProfile(
+        errForm, controllers.portal.routes.Portal.updateProfilePost()))),
+      profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
+        Redirect(controllers.portal.routes.Portal.profile())
+          .flashing("success" -> Messages("confirmations.profileUpdated"))
       }
-    }
+    )
   }
 
   def deleteProfile() = withUserAction { implicit user => implicit request =>
