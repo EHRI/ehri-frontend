@@ -1,0 +1,39 @@
+@**
+* Render annotation comments around some HTML content
+*
+*@
+@(item: DescribedMeta[Description, Described[Description]], desc: models.base.Description, links: List[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
+
+@relatedLinks(list: List[AccessPointF], accessPointType: AccessPointF.AccessPointType.Value) = {
+    @if(!list.isEmpty) {
+        <ul class="item-annotation-links list-unstyled">
+            @list.map { accessPoint =>
+                @accessPoint.target(item, links).map { case (link, other) =>
+                    <li class="resolved-access-point" id="@accessPoint.id">
+                         @p.helpers.linkTo(other, accessPoint.name) [<a href="@controllers.linking.routes.Links.get(link.id)">*</a>]
+                        @link.model.description.map { desc =>
+                            <small><p class="text-muted">@desc</p></small>
+                        }
+                    </li>
+                }.getOrElse {
+                    <li class="unresolved-access-point" id=" @accessPoint.id">
+                        @accessPoint.name
+                        @accessPoint.description.filter(_.trim.isEmpty).map { desc =>
+                            <small><p class="text-muted">@desc</p></small>
+                        }
+                    </li>
+                }
+            }
+        </ul>
+    }
+}
+
+
+@if(!desc.accessPoints.isEmpty) {
+    <div class="access-points description-section">
+        <h4>@Messages(prefix + ".accessPoints")</h4>
+        @AccessPointF.AccessPointType.values.toList.map { accessPointType =>
+            @relatedLinks(desc.accessPoints.filter(_.accessPointType == accessPointType), accessPointType)
+        }
+    </div>
+}
