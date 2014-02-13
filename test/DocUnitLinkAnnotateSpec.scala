@@ -68,7 +68,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       val testItem = "c1"
       val testData: Map[String, Seq[String]] = Map(
         "languageCode" -> Seq("en"),
-        "name" -> Seq("A Second Description"),
+        "identityArea.name" -> Seq("A Second Description"),
         "contentArea.scopeAndContent" -> Seq("This is a second description")
       )
       // Now try again to update the item, which should succeed
@@ -89,7 +89,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       val testData: Map[String, Seq[String]] = Map(
         "languageCode" -> Seq("en"),
         "id" -> Seq("cd1"),
-        "name" -> Seq("An Updated Description"),
+        "identityArea.name" -> Seq("An Updated Description"),
         "contentArea.scopeAndContent" -> Seq("This is an updated description")
       )
       // Now try again to update the item, which should succeed

@@ -147,7 +147,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       val docData = Map(
         "identifier" -> Seq("testdoc"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("A new document"),
+        "descriptions[0].identityArea.name" -> Seq("A new document"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots...")
       )
 

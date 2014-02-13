@@ -1,16 +1,15 @@
 package models.forms
 
-import play.api.data.Form
-import play.api.data.Forms._
 import models._
 import defines.EntityType
-import play.api.libs.json.Json
 
 /**
  * Isdiah description form.
  */
 object IsdiahForm {
 
+  import play.api.data.Form
+  import play.api.data.Forms._
   import Isdiah._
 
   val form = Form(

@@ -6,13 +6,15 @@
 
 @common.descriptionOutline(desc, desc.languageCode) {
     <h2>@desc.name</h2>
+    @common.listValue(desc.identity.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
 
     @descriptionSection(IDENTITY_AREA) {
-        @common.stringValue(desc.`abstract`, ABSTRACT)
+        @common.stringValue(desc.identity.`abstract`, ABSTRACT)
         @common.renderDates(desc, DATES)
-        @common.stringValue(desc.levelOfDescription, LEVEL_OF_DESCRIPTION)
-        @common.stringValue(desc.extentAndMedium, EXTENT_MEDIUM)
+        @common.stringValue(desc.identity.levelOfDescription, LEVEL_OF_DESCRIPTION)
+        @common.stringValue(desc.identity.extentAndMedium, EXTENT_MEDIUM)
     }
+
     @descriptionSection(CONTEXT_AREA) {
         @common.stringValue(desc.context.biographicalHistory, ADMIN_BIOG)
         @common.stringValue(desc.context.archivalHistory, ARCH_HIST)

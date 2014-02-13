@@ -21,7 +21,7 @@
             <td>@desc.dates.map(_.years).mkString(", ")</td>
         </tr>
     }
-    @desc.levelOfDescription.map { e =>
+    @desc.identity.levelOfDescription.map { e =>
         <tr>
             <td>@Messages("portal.documentaryUnit.levelOfDescription")</td>
             <td>@e</td>

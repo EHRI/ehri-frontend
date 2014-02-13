@@ -11,8 +11,8 @@
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
             @descriptionSection(IDENTITY_AREA) {
-                @textField(item, descId, desc.`abstract`, ABSTRACT)
-                @textField(item, descId, desc.extentAndMedium, EXTENT_MEDIUM)
+                @textField(item, descId, desc.identity.`abstract`, ABSTRACT)
+                @textField(item, descId, desc.identity.extentAndMedium, EXTENT_MEDIUM)
             }
 
             @descriptionSection(CONTEXT_AREA) {

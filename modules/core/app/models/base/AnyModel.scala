@@ -12,8 +12,8 @@ import scala.collection.SortedMap
 
 
 trait AnyModel {
-  val id: String
-  val isA: EntityType.Value
+  def id: String
+  def isA: EntityType.Value
 
   def toStringLang(implicit lang: Lang): String = this match {
     case e: MetaModel[_] => e.toStringLang(Lang.defaultLang)
@@ -24,8 +24,8 @@ trait AnyModel {
 }
 
 trait Model {
-  val id: Option[String]
-  val isA: EntityType.Value
+  def id: Option[String]
+  def isA: EntityType.Value
 }
 
 object AnyModel {
@@ -99,8 +99,8 @@ trait MetaModel[+T <: Model] extends AnyModel {
   val meta: JsObject
 
   // Convenience helpers
-  val id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
-  val isA = model.isA
+  def id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
+  def isA = model.isA
 
   override def toStringLang(implicit lang: Lang) = model match {
     case d: Described[Description] =>
@@ -208,7 +208,7 @@ object Description {
 }
 
 trait Described[+T <: Description] extends Model {
-  val descriptions: List[T]
+  def descriptions: List[T]
 
   def description(id: String) = descriptions.find(_.id == Some(id)): Option[T]
 
@@ -227,5 +227,5 @@ trait Described[+T <: Description] extends Model {
 }
 
 trait Temporal {
-  val dates: List[DatePeriodF]
+  def dates: List[DatePeriodF]
 }

@@ -1,21 +1,12 @@
 package models.forms
 
-import play.api.data.Form
-import play.api.data.Forms._
 import models._
 import defines.EntityType
-import models.IsadG._
 import models.IsadGConditions
 import models.IsadGContext
 import models.IsadGContent
 import models.IsadGMaterials
 import models.IsadGControl
-import models.IsadGConditions
-import models.IsadGContext
-import models.IsadGContent
-import models.IsadGMaterials
-import models.IsadGControl
-import play.api.libs.json.Json
 
 /**
  * IsadG description form.
@@ -23,19 +14,24 @@ import play.api.libs.json.Json
 object IsadGForm {
 
   import IsadG._
+  import play.api.data.Form
+  import play.api.data.Forms._
 
   val form = Form(
     mapping(
       Entity.ISA -> ignored(EntityType.DocumentaryUnitDescription),
       Entity.ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
-      TITLE -> nonEmptyText,
-      Entity.IDENTIFIER -> optional(nonEmptyText),
-      REF -> optional(text),
-      ABSTRACT -> optional(nonEmptyText),
-      DATES -> list(DatePeriodForm.form.mapping),
-      LEVEL_OF_DESCRIPTION -> optional(text),
-      EXTENT_MEDIUM -> optional(nonEmptyText),
+      IDENTITY_AREA -> mapping(
+        TITLE -> nonEmptyText,
+        PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
+        Entity.IDENTIFIER -> optional(nonEmptyText),
+        REF -> optional(text),
+        ABSTRACT -> optional(nonEmptyText),
+        DATES -> list(DatePeriodForm.form.mapping),
+        LEVEL_OF_DESCRIPTION -> optional(text),
+        EXTENT_MEDIUM -> optional(nonEmptyText)
+      )(IsadGIdentity.apply)(IsadGIdentity.unapply),
       CONTEXT_AREA -> mapping(
         ADMIN_BIOG -> optional(text),
         ARCH_HIST -> optional(text),

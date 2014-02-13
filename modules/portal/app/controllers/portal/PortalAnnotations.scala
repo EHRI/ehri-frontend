@@ -154,7 +154,7 @@ trait PortalAnnotations {
    */
   private def getContributionVisibility(annotation: Annotation, user: UserProfile): ContributionVisibility.Value = {
     annotation.accessors.map(_.id).sorted match {
-      case user.id :: Nil => ContributionVisibility.Me
+      case id :: Nil if id == user.id => ContributionVisibility.Me
       case g if g.sorted == user.groups.map(_.id).sorted => ContributionVisibility.Groups
       case _ => ContributionVisibility.Custom
     }

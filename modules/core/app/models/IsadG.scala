@@ -25,6 +25,7 @@ case object IsadG {
 
   /* ISAD(G)-based field set */
   val TITLE = "name"
+  val PARALLEL_FORMS_OF_NAME = "parallelFormsOfName"
   val REF = "ref"
   val DATES = "dates"
   val LEVEL_OF_DESCRIPTION = "levelOfDescription"

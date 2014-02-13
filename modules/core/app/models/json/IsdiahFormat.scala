@@ -4,9 +4,6 @@ import play.api.libs.json._
 import models._
 import play.api.libs.functional.syntax._
 import defines.EntityType
-import defines.EnumUtils._
-import models.base.Description
-
 
 object IsdiahFormat {
 
@@ -60,8 +57,6 @@ object IsdiahFormat {
       )
     }
   }
-
-  import RepositoryDescriptionF._
 
   implicit val isdiahReads: Reads[RepositoryDescriptionF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.RepositoryDescription)) and

@@ -119,10 +119,10 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("hello-kitty"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Hello Kitty"),
+        "descriptions[0].identityArea.name" -> Seq("Hello Kitty"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
-        "descriptions[0].dates[0].startDate" -> Seq("1939-01-01"),
-        "descriptions[0].dates[0].endDate" -> Seq("1945-01-01"),
+        "descriptions[0].identityArea.dates[0].startDate" -> Seq("1939-01-01"),
+        "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-01-01"),
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -165,8 +165,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     "give a form error when saving an item with with a bad date" in new FakeApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
-        "descriptions[0].dates[0].startDate" -> Seq("1945-01-01"),
-        "descriptions[0].dates[0].endDate" -> Seq("1945-12-32") // BAD!
+        "descriptions[0].identityArea.dates[0].startDate" -> Seq("1945-01-01"),
+        "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-12-32") // BAD!
       )
       // Since the item id is derived from the identifier field,
       // a form error should result from using the same identifier
@@ -184,7 +184,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Collection 1"),
+        "descriptions[0].identityArea.name" -> Seq("Collection 1"),
+        "descriptions[0].identityArea.parallelFormsOfName[0]" -> Seq("Collection 1 Parallel Name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c1"),
         "descriptions[0].contextArea.acquistition" -> Seq("Acquisistion info"),
         "descriptions[0].notes[0]" -> Seq("Test Note"),
@@ -196,6 +197,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
+      contentAsString(show) must contain("Collection 1 Parallel Name")
       contentAsString(show) must contain("New Content for c1")
       contentAsString(show) must contain("Test Note")
       mockIndexer.eventBuffer.last must equalTo("c1")
@@ -206,7 +208,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Collection 1 - Updated"),
+        "descriptions[0].identityArea.name" -> Seq("Collection 1 - Updated"),
         "logMessage" -> Seq(msg)
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -226,7 +228,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c4"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Collection 4"),
+        "descriptions[0].identityArea.name" -> Seq("Collection 4"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c4"),
         "publicationStatus" -> Seq("Draft")
       )

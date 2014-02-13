@@ -190,7 +190,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val doc1Data = Map(
         "identifier" -> Seq("testdoc1"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("A new document, made by the head archivist"),
+        "descriptions[0].identityArea.name" -> Seq("A new document, made by the head archivist"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
@@ -209,7 +209,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val doc1UpdateData = Map(
         "identifier" -> Seq("testdoc1"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("A different name"),
+        "descriptions[0].identityArea.name" -> Seq("A different name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
@@ -238,7 +238,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val doc2Data = Map(
         "identifier" -> Seq("testdoc2"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("A new document, made by an ordinary schmo archivist"),
+        "descriptions[0].identityArea.name" -> Seq("A new document, made by an ordinary schmo archivist"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
@@ -257,7 +257,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val doc2UpdateData = Map(
         "identifier" -> Seq("testdoc2"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("A different name"),
+        "descriptions[0].identityArea.name" -> Seq("A different name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
@@ -288,7 +288,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val doc3Data = Map(
         "identifier" -> Seq("testdoc3"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Another new document, made by the head archivist"),
+        "descriptions[0].identityArea.name" -> Seq("Another new document, made by the head archivist"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
@@ -307,7 +307,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       // Now ensure the ordinary archivist cannot update it!
       val doc3UpdateRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
           controllers.archdesc.routes.DocumentaryUnits.update(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*),
-          doc3Data.updated("descriptions[0].name", Seq("Foobar"))).get
+          doc3Data.updated("descriptions[0].identityArea.name", Seq("Foobar"))).get
       status(doc3UpdateRead) must throwA[PermissionDenied]
 
       // Now ensure the ordinary archivist cannot delete it!
@@ -320,7 +320,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val doc4Data = Map(
         "identifier" -> Seq("testdoc4"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Another new document, made by the head archivist"),
+        "descriptions[0].identityArea.name" -> Seq("Another new document, made by the head archivist"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
@@ -339,7 +339,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       // Now ensure the head archivist CAN update it!
       val doc4UpdateRead = route(fakeLoggedInHtmlRequest(haAccount, POST,
           controllers.archdesc.routes.DocumentaryUnits.update(doc4Id).url).withHeaders(formPostHeaders.toSeq: _*),
-          doc4Data.updated("descriptions[0].name", Seq("A different name"))).get
+          doc4Data.updated("descriptions[0].identityArea.name", Seq("A different name"))).get
       status(doc4UpdateRead) must equalTo(SEE_OTHER)
 
      // Now ensure the head archivist CAN delete it!

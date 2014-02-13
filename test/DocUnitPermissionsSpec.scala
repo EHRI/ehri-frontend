@@ -25,7 +25,7 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsS
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("test"),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Test Item"),
+        "descriptions[0].identityArea.name" -> Seq("Test Item"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
       )
@@ -61,7 +61,7 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsS
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq(testItem),
         "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].name" -> Seq("Changed Name"),
+        "descriptions[0].identityArea.name" -> Seq("Changed Name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
       )

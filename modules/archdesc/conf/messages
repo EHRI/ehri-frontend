@@ -108,15 +108,17 @@ For supplied titles, at the higher level, include the name of the creator of the
  appropriate, a phrase reflecting function, activity, subject, location, or theme.\n\n\
 Distinguish between formal and supplied titles according to national or language\
  conventions. (3.1.2)
+isadg.parallelFormsOfName=Parallel Names
+isadg.parallelFormsOfName.description=
 
-isadg.identifier=Reference Code
-isadg.otherIdentifiers=Other Ref. Codes
+isadg.identifier=Description Code
 isadg.identifier.description=To identify uniquely the unit of description and to provide a\
  link to the description that represents it.\n\n\
 A specific local reference code, control number, or other unique identifier within the scope\
   of the holding repository.\n\n\
 NB: Contra ISAD(G) 3.1.1 do not include the country and repository\
   code here.
+isadg.otherIdentifiers=Other Ref. Codes
 
 isadg.dates=Dates
 isadg.dates.description=To identify and record the date(s) of the unit of description.\n\n\

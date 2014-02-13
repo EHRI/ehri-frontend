@@ -6,6 +6,18 @@ import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
 import eu.ehri.project.definitions.Ontology
 
+case class IsadGIdentity(
+  name: String,
+  parallelFormsOfName: Option[List[String]] = None,
+  identifier: Option[String] = None,
+  ref: Option[String] = None,
+  `abstract`: Option[String] = None,
+  @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
+  dates: List[DatePeriodF] = Nil,
+  levelOfDescription: Option[String] = None,
+  extentAndMedium: Option[String] = None
+)
+
 case class IsadGContext(
   biographicalHistory: Option[String] = None,
   archivalHistory: Option[String] = None,
@@ -50,6 +62,7 @@ object DocumentaryUnitDescriptionF {
     private implicit val entityFormat = json.entityFormat
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
     private implicit val datePeriodFormat = DatePeriodF.Converter.clientFormat
+    private implicit val isadGIdentityFormat = Json.format[IsadGIdentity]
     private implicit val isadGContextFormat = Json.format[IsadGContext]
     private implicit val isadGContentFormat = Json.format[IsadGContent]
     private implicit val isadGConditionsFormat = Json.format[IsadGConditions]
@@ -63,14 +76,7 @@ case class DocumentaryUnitDescriptionF(
   isA: EntityType.Value = EntityType.DocumentaryUnitDescription,
   id: Option[String],
   languageCode: String,
-  name: String,
-  identifier: Option[String] = None,
-  ref: Option[String] = None,
-  `abstract`: Option[String] = None,
-  @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
-  dates: List[DatePeriodF] = Nil,
-  levelOfDescription: Option[String] = None,
-  extentAndMedium: Option[String] = None,
+  identity: IsadGIdentity,
   context: IsadGContext,
   content: IsadGContent,
   conditions: IsadGConditions,
@@ -82,9 +88,12 @@ case class DocumentaryUnitDescriptionF(
 ) extends Model with Persistable with Description with Temporal {
   import IsadG._
 
-  def displayText = `abstract` orElse content.scopeAndContent
+  def name = identity.name
+  def dates = identity.dates
 
-  def externalLink(item: DocumentaryUnit): Option[String] = ref orElse {
+  def displayText = identity.`abstract` orElse content.scopeAndContent
+
+  def externalLink(item: DocumentaryUnit): Option[String] = identity.ref orElse {
     for {
       holder <- item.holder
       pattern <- holder.model.urlPattern
@@ -92,9 +101,9 @@ case class DocumentaryUnitDescriptionF(
   }
 
   def toSeq = Seq(
-    ABSTRACT -> `abstract`,
-    LEVEL_OF_DESCRIPTION -> levelOfDescription,
-    EXTENT_MEDIUM -> extentAndMedium,
+    ABSTRACT -> identity.`abstract`,
+    LEVEL_OF_DESCRIPTION -> identity.levelOfDescription,
+    EXTENT_MEDIUM -> identity.extentAndMedium,
     ADMIN_BIOG -> context.biographicalHistory,
     ARCH_HIST -> context.archivalHistory,
     ACQUISITION -> context.acquisition,

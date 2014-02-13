@@ -6,6 +6,11 @@ import play.api.libs.functional.syntax._
 import defines.EntityType
 import defines.EnumUtils._
 import eu.ehri.project.definitions.Ontology
+import models.IsadGContext
+import models.IsadGContent
+import models.IsadGMaterials
+import models.IsadGControl
+import models.IsadGConditions
 
 
 object IsadGFormat {
@@ -22,13 +27,14 @@ object IsadGFormat {
         ID -> d.id,
         TYPE -> d.isA,
         DATA -> Json.obj(
-          IDENTIFIER -> d.identifier,
-          TITLE -> d.name,
-          REF -> d.ref,
-          ABSTRACT -> d.`abstract`,
+          IDENTIFIER -> d.identity.identifier,
+          TITLE -> d.identity.name,
+          PARALLEL_FORMS_OF_NAME -> d.identity.parallelFormsOfName,
+          REF -> d.identity.ref,
+          ABSTRACT -> d.identity.`abstract`,
           LANG_CODE -> d.languageCode,
-          LEVEL_OF_DESCRIPTION -> d.levelOfDescription,
-          EXTENT_MEDIUM -> d.extentAndMedium,
+          LEVEL_OF_DESCRIPTION -> d.identity.levelOfDescription,
+          EXTENT_MEDIUM -> d.identity.extentAndMedium,
           ADMIN_BIOG -> d.context.biographicalHistory,
           ARCH_HIST -> d.context.archivalHistory,
           ACQUISITION -> d.context.acquisition,
@@ -60,8 +66,6 @@ object IsadGFormat {
     }
   }
 
-  import DocumentaryUnitDescriptionF._
-
   private implicit val levelOfDescriptionReads = enumReads(LevelOfDescription)
   implicit val datePeriodReads = DatePeriodFormat.restFormat
 
@@ -69,14 +73,18 @@ object IsadGFormat {
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnitDescription)) and
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ LANG_CODE).read[String] and
+      __.read[IsadGIdentity]((
       (__ \ DATA \ TITLE).read[String] and
-      (__ \ DATA \ IDENTIFIER).readNullable[String] and
-      (__ \ DATA \ REF).readNullable[String] and
-      (__ \ DATA \ ABSTRACT).readNullable[String] and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).lazyReadNullable[List[DatePeriodF]](
-        Reads.list[DatePeriodF](datePeriodReads)).map(_.toList.flatten) and
-      (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
-      (__ \ DATA \ EXTENT_MEDIUM).readNullable[String] and
+        ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
+        (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
+        (__ \ DATA \ IDENTIFIER).readNullable[String] and
+        (__ \ DATA \ REF).readNullable[String] and
+        (__ \ DATA \ ABSTRACT).readNullable[String] and
+        (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).lazyReadNullable[List[DatePeriodF]](
+          Reads.list[DatePeriodF](datePeriodReads)).map(_.toList.flatten) and
+        (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
+        (__ \ DATA \ EXTENT_MEDIUM).readNullable[String]
+        )(IsadGIdentity.apply _)) and
       (__ \ DATA).read[IsadGContext]((
         (__ \ ADMIN_BIOG).readNullable[String] and
           (__ \ ARCH_HIST).readNullable[String] and
