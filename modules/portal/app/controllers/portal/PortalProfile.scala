@@ -7,9 +7,8 @@ import controllers.generic.Update
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
-import play.api.libs.json.{Format, Json}
-import utils.{SessionPrefs, PageParams, ListParams}
-import scala.concurrent.Future
+import play.api.libs.json.Json
+import utils.{SessionPrefs, PageParams}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

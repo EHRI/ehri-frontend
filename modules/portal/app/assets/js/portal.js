@@ -285,6 +285,16 @@ jQuery(function($) {
  */
 jQuery(function ($) {
 
+  // Hide annotate field links unless we hover the field...
+  $(".item-text-field").hoverIntent(function(inEvent) {
+    $(".item-text-field").not(this).find(".annotate-field")
+        .addClass("inactive");
+    $(".annotate-field", this).removeClass("inactive");
+  }, function(outEvent) {
+    $(".annotate-field", this).addClass("inactive");
+  });
+
+
   // Show/hide hidden annotations...
   $(".show-other-annotations").click(function(event) {
     event.preventDefault();
