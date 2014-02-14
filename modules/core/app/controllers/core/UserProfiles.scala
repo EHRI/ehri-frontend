@@ -1,12 +1,14 @@
 package controllers.core
 
 import controllers.generic._
-import models.{UserProfile,UserProfileF}
+import models.{IsadG, UserProfile, UserProfileF}
 import play.api.i18n.Messages
 import defines.ContentTypes
-import utils.search.{Resolver, SearchParams, Dispatcher}
+import utils.search.{FacetSort, Resolver, SearchParams, Dispatcher}
 import com.google.inject._
 import backend.Backend
+import solr.facet.{FieldFacetClass, SolrQueryFacet, QueryFacetClass}
+import views.Helpers
 
 @Singleton
 case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends PermissionHolder[UserProfile]
@@ -14,6 +16,17 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Update[UserProfileF,UserProfile]
   with Delete[UserProfile]
   with Search {
+
+  private val entityFacets: FacetBuilder = { implicit request =>
+    List(
+      FieldFacetClass(
+        key="groupName",
+        name=Messages("contentTypes.group"),
+        param="group",
+        sort = FacetSort.Name
+      )
+    )
+  }
 
   implicit val resource = UserProfile.Resource
 
@@ -33,7 +46,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def search = {
-    searchAction[UserProfile](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+    searchAction[UserProfile](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
         page => params => facets => implicit userOpt => implicit request =>
       Ok(views.html.userProfile.search(page, params, facets, userRoutes.search))
     }
