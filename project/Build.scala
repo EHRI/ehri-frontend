@@ -120,9 +120,15 @@ object ApplicationBuild extends Build {
   ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
     .aggregate(core, archdesc, authorities, vocabs)
 
+  lazy val guides = play.Project(
+    appName + "-guides", appVersion, appDependencies, path = file("modules/guides")
+  ).settings(otherSettings:_*).dependsOn(core)
+    .aggregate(core)
+
   lazy val main = play.Project(appName, appVersion, appDependencies ++ testDependencies
-  ).settings(otherSettings:_*).dependsOn(admin, portal)
-    .aggregate(admin, portal)
+  ).settings(otherSettings:_*).dependsOn(admin, portal, guides)
+    .aggregate(admin, portal, guides)
+
 
   override def rootProject = Some(main)
 }
