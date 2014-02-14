@@ -69,12 +69,12 @@ jQuery(function($) {
   $(".success-pullup").fadeOut(3000);
 
   // Delete inline date period tables
-  $(".remove-inline-element").live("click", function(event) {
+  $(".remove-inline-element").on("click", function(event) {
     $(this).closest(".inline-element").remove();
     event.preventDefault();
   });
 
-  $(".add-inline-element").live("click", function(event) {
+  $(".add-inline-element").on("click", function(event) {
     var container = $(event.target).closest(".inline-formset");
     var set = container.children(".inline-element-list");
     var prefix = container.data("prefix");
