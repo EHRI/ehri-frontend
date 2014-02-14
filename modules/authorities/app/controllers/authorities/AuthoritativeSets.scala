@@ -1,17 +1,20 @@
 package controllers.authorities
 
-import forms.VisibilityForm
+import play.api.libs.concurrent.Execution.Implicits._
+import _root_.forms.VisibilityForm
 import controllers.generic._
-import models.{HistoricalAgent,HistoricalAgentF,AuthoritativeSet,AuthoritativeSetF}
+import models._
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import utils.search.{Resolver, Dispatcher, SearchOrder, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.{IdGenerator, Backend}
+import scala.Some
 
 @Singleton
-case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
+            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]
@@ -76,11 +79,14 @@ case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfi
     }
   }
 
-  def createHistoricalAgent(id: String) = childCreateAction(id, ContentTypes.HistoricalAgent) {
+  def createHistoricalAgent(id: String) = childCreateAction.async(id, ContentTypes.HistoricalAgent) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.create(
-      item, childForm, VisibilityForm.form, users, groups,
-        setRoutes.createHistoricalAgentPost(id)))
+    idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent).map { newid =>
+      Ok(views.html.historicalAgent.create(
+        item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
+          VisibilityForm.form, users, groups,
+          setRoutes.createHistoricalAgentPost(id)))
+    }
   }
 
   def createHistoricalAgentPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.HistoricalAgent) {

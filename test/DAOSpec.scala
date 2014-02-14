@@ -4,9 +4,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import models._
 import defines.{EntityType, ContentTypes, PermissionType}
 import utils.{ListParams, PageParams}
-import backend.rest.ItemNotFound
+import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
-import backend.rest.ValidationError
 import backend.ApiUser
 import play.api.libs.json.Json
 
@@ -224,6 +223,19 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       // It should return one list value in the data section
       val list = (res \ "data").as[List[List[String]]]
       list(0)(0) mustEqual "admin"
+    }
+  }
+
+  "CypherIdGenerator" should {
+    "get the right next ID for repositories" in new FakeApp {
+      val idGen = new CypherIdGenerator("%06d")
+      await(idGen.getNextNumericIdentifier(EntityType.Repository)) must equalTo("000005")
+    }
+
+    "get the right next ID for collections in scope" in new FakeApp {
+      // There a 4 collections in the fixtures c1-c4
+      val idGen = new CypherIdGenerator("c%01d")
+      await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit)) must equalTo("c5")
     }
   }
 }

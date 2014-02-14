@@ -7,7 +7,7 @@ import backend.rest._
 import backend.rest.BadJson
 import backend.rest.RestBackend
 import backend.rest.SearchResolver
-import backend.{FeedbackDAO, EventHandler, Backend}
+import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
 import defines.EntityType
 import java.util.concurrent.TimeUnit
 import play.api._
@@ -85,6 +85,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
   private def searchResolver: Resolver = new SearchResolver
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
+  private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
 
   private val eventHandler = new EventHandler {
 
@@ -121,6 +122,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind[Resolver].toInstance(searchResolver)
       bind[Backend].toInstance(backend)
       bind[FeedbackDAO].toInstance(feedbackDAO)
+      bind[IdGenerator].toInstance(idGenerator)
     }
   }
 

@@ -1,34 +1,26 @@
 package controllers.archdesc
 
-import play.api.mvc._
-import forms.VisibilityForm
+import play.api.libs.concurrent.Execution.Implicits._
+import _root_.forms.VisibilityForm
 import controllers.generic._
-import models.{Country,CountryF,Repository,RepositoryF,UserProfile}
+import models._
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import utils.search.{Resolver, SearchParams, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
-import scala.concurrent.Future
-import backend.Backend
-import backend.rest.cypher.CypherDAO
+import backend.{IdGenerator, Backend}
 import play.api.Configuration
-import play.api.libs.json.JsString
 import play.api.Play.current
-import play.api.mvc.SimpleResult
+import scala.Some
 
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[CountryF,Country]
+case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator) extends CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
   with Visibility[Country]
   with ScopePermissions[Country]
   with Annotate[Country]
   with Search {
-
-  /**
-   * Since we generate repository IDs ourselves, set the format.
-   */
-  private final val repoIdFormat = "%06d"
 
   /**
    * Content types that relate to this controller.
@@ -49,8 +41,6 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
   private final val countryRoutes = controllers.archdesc.routes.Countries
-
-  private val cypher = new CypherDAO
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
@@ -100,34 +90,6 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
   }
 
-  /**
-   * Fetch the existing set of repository ids. Remove the non-numeric (country code)
-   * prefix, and increment to form a new id.
-   */
-  private def getNextRepositoryId(f: String => SimpleResult)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
-    import play.api.libs.concurrent.Execution.Implicits._
-    import play.api.libs.json.Json
-    import play.api.libs.json.JsValue
-
-    def safeInt(s : String) : Option[Int] = try {
-      Some(s.toInt)
-    } catch {
-      case _ : java.lang.NumberFormatException => None
-    }
-
-    val allIds = """START n = node:entities(__ISA__ = {isA}) RETURN n.__ID__"""
-    var params = Map("isA" -> JsString(EntityType.Repository))
-    cypher.cypher(allIds, params).map { json =>
-      val result = json.as[Map[String,JsValue]]
-      val data: JsValue = result.getOrElse("data", Json.arr())
-      val id = data.as[List[List[String]]].flatten.flatMap { rid =>
-        rid.split("\\D+").filterNot(_ == "").headOption.flatMap(safeInt)
-      }.padTo(1, 0).max + 1 // ensure we get '1' with an empty list
-
-      f(repoIdFormat.format(id))
-    }
-  }
-
   def createRepository(id: String) = childCreateAction.async(id, ContentTypes.Repository) {
       item => users => groups => implicit userOpt => implicit request =>
 
@@ -135,8 +97,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     // if two repositories get created at the same time.
     // Currently there is not way to notify the user that they should just
     // reset the form or increment the ID manually.
-    getNextRepositoryId { newid =>
-      val form = childForm.bind(Map("identifier" -> newid))
+    idGenerator.getNextNumericIdentifier(EntityType.Repository).map { newid =>
+      val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
       Ok(views.html.repository.create(
         item, form, childFormDefaults, VisibilityForm.form, users, groups, countryRoutes.createRepositoryPost(id)))
     }

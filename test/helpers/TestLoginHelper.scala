@@ -15,10 +15,9 @@ import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
-import backend.{FeedbackDAO, EventHandler, Backend}
-import backend.rest.{RestBackend}
+import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
+import backend.rest.{CypherIdGenerator, RestBackend}
 import mocks.MockSearchResolver
-import backend.rest.RestBackend
 import scala.Some
 import mocks.MockSearchIndexer
 import play.api.test.FakeApplication
@@ -40,6 +39,7 @@ trait TestLoginHelper {
   val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher()
   val mockResolver: MockSearchResolver = new MockSearchResolver
   val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
+  val idGenerator: IdGenerator = new CypherIdGenerator("%06d")
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -74,6 +74,7 @@ trait TestLoginHelper {
         bind[Resolver].toInstance(mockResolver)
         bind[Backend].toInstance(testBackend)
         bind[FeedbackDAO].toInstance(mockFeedback)
+        bind[IdGenerator].toInstance(idGenerator)
       }
     }
 
