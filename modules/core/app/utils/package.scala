@@ -1,9 +1,19 @@
+import play.api.i18n.Messages
+import play.api.templates.Html
+import views.html.layout.errorLayout
+
 package object utils {
 
   import play.api.mvc.RequestHeader
 
   def isAjax(implicit request: RequestHeader): Boolean =
     request.headers.get("X-REQUESTED-WITH") .map(_.toUpperCase == "XMLHTTPREQUEST").getOrElse(false)
+
+  def renderError(titleKey: String, body: Html)(implicit request: RequestHeader): Html = {
+    if (isAjax(request)) body
+    else errorLayout(Messages(titleKey))(body)
+  }
+
 
   def joinPath(path: String, qs: Map[String, Seq[String]]): String = {
     List(path, joinQueryString(qs)).filterNot(_=="").mkString("?")

@@ -1,12 +1,9 @@
 @(str: Option[String] = None)(implicit req: RequestHeader, lang: Lang)
 
-@layout.errorLayout(Messages("errors.itemNotFound")) {
+<p>
+    @Messages("errors.itemNotFoundExplanation")
+</p>
 
-    <p>
-        @Messages("errors.itemNotFoundExplanation")
-    </p>
-
-    @str.map { s =>
-        <i>@s</i>
-    }
+@str.map { s =>
+    <i>@s</i>
 }

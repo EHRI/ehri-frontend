@@ -75,7 +75,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       optionalUserAction.async[AnyContent](BodyParsers.parse.anyContent) { implicit maybeAccount => implicit request =>
         maybeAccount.map { account =>
           if (staffOnly && secured && !account.staff) {
-            immediate(Unauthorized(views.html.errors.staffOnly()))
+            immediate(Unauthorized(utils.renderError("errors.staffOnly",
+              views.html.errors.staffOnly())))
           } else {
             // For the permissions to be properly initialized they must
             // recieve a completely-constructed instance of the UserProfile

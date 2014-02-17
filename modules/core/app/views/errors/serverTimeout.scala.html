@@ -1,9 +1,7 @@
 @(maintenance: Boolean = false)(implicit req: RequestHeader, lang: Lang)
 
-@layout.errorLayout(Messages(if (maintenance) "errors.databaseMaintenance" else "errors.databaseError")) {
-    @if(maintenance) {
-        <p class="alert alert-info">@Messages("errors.databaseMaintenanceExplanation")</p>
-    } else {
-        <p class="alert alert-error">@Messages("errors.databaseErrorExplanation")</p>
-    }
+@if(maintenance) {
+    <p class="alert alert-info">@Messages("errors.databaseMaintenanceExplanation")</p>
+} else {
+    <p class="alert alert-error">@Messages("errors.databaseErrorExplanation")</p>
 }

@@ -16,6 +16,7 @@ import play.api.mvc._
 
 import play.api.mvc.SimpleResult
 import play.api.Play.current
+import play.api.templates.Html
 import play.filters.csrf._
 import scala.concurrent.duration.Duration
 
@@ -24,6 +25,8 @@ import utils.search._
 import global.GlobalConfig
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import views.html.errors.itemNotFound
+import views.html.layout.errorLayout
 
 
 package globalConfig {
@@ -135,9 +138,10 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   }
 
   import play.api.mvc.Results._
+  import views.html.errors._
+  import utils.renderError
 
   override def onError(request: RequestHeader, ex: Throwable) = {
-    import views.html.errors._
     implicit def req = request
 
     def jsonError(err: Seq[(JsPath,Seq[play.api.data.validation.ValidationError])]) = {
@@ -147,9 +151,13 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     }
 
     ex.getCause match {
-      case e: PermissionDenied => immediate(Unauthorized(permissionDenied(Some(e))))
-      case e: ItemNotFound => immediate(NotFound(itemNotFound(e.value)))
-      case e: java.net.ConnectException => immediate(InternalServerError(serverTimeout()))
+      case e: PermissionDenied => immediate(Unauthorized(
+        renderError("errors.permissionDenied", permissionDenied(Some(e)))))
+      case e: ItemNotFound => immediate(NotFound(
+        renderError("errors.itemNotFound", itemNotFound(e.value))))
+      case e: java.net.ConnectException => immediate(InternalServerError(
+          renderError("errors.databaseError", serverTimeout())))
+
       case BadJson(err) => sys.error(jsonError(err))
       case e => super.onError(request, e)
     }
@@ -157,6 +165,6 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   override def onHandlerNotFound(request: RequestHeader): Future[SimpleResult] = {
     implicit def req = request
-    immediate(NotFound(views.html.errors.pageNotFound()))
+    immediate(NotFound(renderError("errors.pageNotFound", pageNotFound())))
   }
 }
