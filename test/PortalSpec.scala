@@ -38,7 +38,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
 
     "allow viewing profile" in new FakeApp {
       val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.profile.url)).get
+        portalRoutes.profile().url)).get
       status(prof) must equalTo(OK)
     }
 
@@ -49,13 +49,40 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
         UserProfileF.NAME -> Seq(testName)
       )
       val update = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        portalRoutes.updateProfilePost.url), data).get
+        portalRoutes.updateProfilePost().url), data).get
       status(update) must equalTo(SEE_OTHER)
 
       val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.profile.url)).get
+        portalRoutes.profile().url)).get
       status(prof) must equalTo(OK)
       contentAsString(prof) must contain(testName)
+    }
+
+    "allow deleting profile with correct confirmation" in new FakeApp {
+      // Fetch the current name
+      implicit val apiUser = ApiUser(Some(privilegedUser.id))
+      val cname = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
+      val data = Map("confirm" -> Seq(cname))
+      val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        portalRoutes.deleteProfilePost().url), data).get
+      status(delete) must equalTo(SEE_OTHER)
+
+      // Check user has been anonymised...
+      val cnameAfter = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
+      cname must not equalTo cnameAfter
+
+      // FIXME: Since we actually delete the account here we have to
+      // rebuild the fixtures - test isolation fail...
+      // Ugh - fix the DB
+      mocks.userFixtures += privilegedUser.id -> privilegedUser
+    }
+
+    "disallow deleting profile without correct confirmation" in new FakeApp {
+      val data = Map("confirm" -> Seq("THE WRONG CONFIRMATION"))
+      val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        portalRoutes.deleteProfilePost().url), data).get
+      status(delete) must equalTo(BAD_REQUEST)
+
     }
 
     "allow following and unfollowing users" in new FakeApp {
@@ -88,7 +115,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
 
       // Watched items show up on the profile - maybe change this?
       val watching = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.watching.url)).get
+        portalRoutes.watching().url)).get
       // Check the following page contains a link to the user we just followed
       contentAsString(watching) must contain(
         portalRoutes.browseDocument("c1").url)
@@ -99,7 +126,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       status(unwatch) must equalTo(SEE_OTHER)
 
       val watching2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.watching.url)).get
+        portalRoutes.watching().url)).get
       // Check the profile contains no links to the item we just unwatched
       contentAsString(watching2) must not contain(
         portalRoutes.browseDocument("c1").url)

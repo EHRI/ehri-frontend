@@ -9,12 +9,13 @@ import defines.{ContentTypes, EntityType}
 import play.api.libs.json.{JsObject, Json}
 import utils.{SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
+import jp.t2v.lab.play2.auth.LoginLogout
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait PortalProfile {
-  self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
+  self: Controller with ControllerHelpers with LoginLogout with AuthController with SessionPreferences[SessionPrefs] =>
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile
@@ -76,17 +77,38 @@ trait PortalProfile {
     )
   }
 
+  import play.api.data.Form
+  import play.api.data.Forms._
+  private def deleteForm(user: UserProfile): Form[String] = Form(
+    single(
+      "confirm" -> nonEmptyText.verifying("portal.profile.deleteProfile.badConfirmation", f => f match {
+        case name =>
+          user.model.name.toLowerCase.trim == name.toLowerCase.trim
+      })
+    )
+  )
+
+
   def deleteProfile() = withUserAction { implicit user => implicit request =>
-    // Make sure the users knows where they're doing...
-    ???
+    Ok(views.html.p.profile.deleteProfile(deleteForm(user),
+      controllers.portal.routes.Portal.deleteProfilePost()))
   }
 
   def deleteProfilePost() = withUserAction.async { implicit user => implicit request =>
-    val anonymous = UserProfileF(id = Some(user.id),
-      identifier = user.model.identifier, name = user.model.identifier)
-    backend.update(user.id, anonymous).map { bool =>
-      user.account.get.delete()
-      ???
-    }
+    deleteForm(user).bindFromRequest.fold(
+      errForm => immediate(BadRequest(views.html.p.profile.deleteProfile(
+        errForm.withGlobalError("portal.profile.deleteProfile.badConfirmation"),
+        controllers.portal.routes.Portal.deleteProfilePost()))),
+
+      _ => {
+        val anonymous = UserProfileF(id = Some(user.id),
+          identifier = user.model.identifier, name = user.model.identifier)
+        backend.update(user.id, anonymous).flatMap { bool =>
+          user.account.get.delete()
+          gotoLogoutSucceeded
+            .map(_.flashing("success" -> "portal.profile.profileDeleted"))
+        }
+      }
+    )
   }
 }

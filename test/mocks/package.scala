@@ -1,6 +1,4 @@
-import models.Account
 import models.sql.MockAccount
-import play.api.Play.current
 
 package object mocks {
 
@@ -18,5 +16,5 @@ package object mocks {
   )
 
   // Mutable map that serves as a mock db...
-  val userFixtures = collection.mutable.HashMap[String,Account](users.toSeq: _*)
+  var userFixtures = users
 }

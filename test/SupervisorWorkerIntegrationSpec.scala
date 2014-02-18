@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import helpers._
 import models.UserProfile
 import defines._
-import backend.rest.{PermissionDenied, ItemNotFound, EntityDAO}
+import backend.rest.{PermissionDenied, ItemNotFound}
 import models.sql.MockAccount
 import backend.ApiUser
 
@@ -143,7 +143,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       // Add their account to the mocks
       val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com",
           verified = true, staff = true)
-      mocks.userFixtures.put(haAccount.id, haAccount)
+      mocks.userFixtures += haAccount.id -> haAccount
 
 
       // Now create a new user and add them to the archivists group. Do this
@@ -173,7 +173,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       // Add the archivists group to the account mocks
       val aAccount = MockAccount(archivistUserId, "archivist1@example.com",
         verified = true, staff = true)
-      mocks.userFixtures.put(aAccount.id, aAccount)
+      mocks.userFixtures += aAccount.id -> aAccount
 
 
       // Check each user can read their profile as themselves...

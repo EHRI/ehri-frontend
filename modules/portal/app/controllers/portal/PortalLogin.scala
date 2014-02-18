@@ -85,7 +85,9 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
                 val uuid = UUID.randomUUID()
                 account.createValidationToken(uuid)
                 sendValidationEmail(email, uuid)
-                gotoLoginSucceeded(userProfile.id)
+
+                immediate(Redirect(defaultLogoutUrl)
+                  .flashing("success" -> "portal.signup.needToConfirmEmail"))
               }
             }
           }

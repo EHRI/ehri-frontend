@@ -1,9 +1,8 @@
-import models.AccountDAO
-import models.sql.{MockAccount, OAuth2Association, OpenIDAssociation, SqlAccountDAOPlugin}
+
+import models.sql.{OAuth2Association, OpenIDAssociation, SqlAccountDAOPlugin}
 import org.specs2.execute.{Result, AsResult}
 import org.specs2.mutable.Around
 import org.specs2.specification.Scope
-import play.api.db.DB
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.test.FakeApplication
 import play.api.test.Helpers._

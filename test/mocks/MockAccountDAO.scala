@@ -8,7 +8,7 @@ case class MockAccount(id: String, email: String, verified: Boolean = false, sta
   def setPassword(data: HashedPassword): Account = this
   def verify(token: String): Account = this.copy(verified = true)
   def delete(): Boolean = {
-    mocks.userFixtures.remove(id)
+    mocks.userFixtures -= id
     true
   }
   def createResetToken(token: UUID) = MockAccountDAO.tokens += ((token.toString, id, false))
@@ -42,7 +42,7 @@ class MockAccountDAO(app: play.api.Application) extends AccountDAO {
 
   def create(id: String, email: String, verified: Boolean = false, staff: Boolean = false): Account = {
     val user = MockAccount(id, email, staff)
-    mocks.userFixtures.put(id, user)
+    mocks.userFixtures += id -> user
     user
   }
 

@@ -31,9 +31,8 @@
                     </p>
                 </div>
             </div>
-            <div class="field">
-                @formHelpers.globalErrors(signupForm)
-            </div>
+
+            @formHelpers.globalErrors(signupForm)
 
             @helper.inputText(signupForm("name"))
             @helper.inputText(signupForm("email"))
