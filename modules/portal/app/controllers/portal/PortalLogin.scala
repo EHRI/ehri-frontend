@@ -1,6 +1,5 @@
 package controllers.portal
 
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{RequestHeader, Action, Controller}
 import models.{UserProfileF, AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
@@ -45,7 +44,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   def signup = Action { implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-    Ok(views.html.p.account.signup(signupForm, portalRoutes.signupPost, recaptchaKey))
+    Ok(views.html.p.account.signup(signupForm, portalRoutes.signupPost(), recaptchaKey))
   }
 
   def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
@@ -66,17 +65,17 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
         val form = signupForm.bindFromRequest
             .discardingErrors.withGlobalError("error.badRecaptcha")
         immediate(BadRequest(views.html.p.account.signup(form,
-          portalRoutes.signupPost, recaptchaKey)))
+          portalRoutes.signupPost(), recaptchaKey)))
       } else {
         signupForm.bindFromRequest.fold(
           errForm => immediate(BadRequest(views.html.p.account.signup(errForm,
-            portalRoutes.signupPost, recaptchaKey))),
+            portalRoutes.signupPost(), recaptchaKey))),
           data => {
             val (name, email, pw, _) = data
             userDAO.findByEmail(email).map { _ =>
               val form = signupForm.withGlobalError("error.emailExists")
               immediate(BadRequest(views.html.p.account.signup(form,
-                portalRoutes.signupPost, recaptchaKey)))
+                portalRoutes.signupPost(), recaptchaKey)))
             } getOrElse {
               implicit val apiUser = ApiUser()
               backend.createNewUserProfile(Map(UserProfileF.NAME -> name)).flatMap { userProfile =>
@@ -111,10 +110,10 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     implicit val accountOpt: Option[Account] = None
     formOrAccount match {
       case Right(account) => gotoLoginSucceeded(account.id)
-        .map(_.withSession("access_uri" -> portalRoutes.index.url))
+        .map(_.withSession("access_uri" -> portalRoutes.index().url))
       case Left(formError) =>
         immediate(BadRequest(views.html.openIDLogin(formError,
-          action = portalRoutes.openIDLoginPost)))
+          action = portalRoutes.openIDLoginPost())))
     }
   }
 
@@ -128,9 +127,9 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
   }
 
-  def openIDLoginPost = openIDLoginPostAction(portalRoutes.openIDCallback) { formError => implicit request =>
+  def openIDLoginPost = openIDLoginPostAction(portalRoutes.openIDCallback()) { formError => implicit request =>
     implicit val accountOpt: Option[Account] = None
-    BadRequest(views.html.openIDLogin(formError, action = portalRoutes.openIDLoginPost))
+    BadRequest(views.html.openIDLogin(formError, action = portalRoutes.openIDLoginPost()))
   }
 
   def passwordLoginPost = loginPostAction.async { accountOrErr => implicit request =>
@@ -141,7 +140,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
             openidForm, errorForm, oauthProviders)))
       case Right(account) =>
         gotoLoginSucceeded(account.id)
-          .map(_.withSession("access_uri" -> portalRoutes.index.url))
+          .map(_.withSession("access_uri" -> portalRoutes.index().url))
     }
   }
   
@@ -164,33 +163,6 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, portalRoutes.linkedInLogin) { account => implicit request =>
     gotoLoginSucceeded(account.id)
       .map(_.withSession("access_uri" -> portalRoutes.index.url))
-  }
-
-  /**
-   * Allow a logged in user to change their password.
-   * @return
-   */
-  def changePassword = userProfileAction { implicit user => implicit request =>
-    Ok(views.html.p.account.pwChangePassword(
-      changePasswordForm, portalRoutes.changePasswordPost))
-  }
-
-  /**
-   * Store a changed password.
-   * @return
-   */
-  def changePasswordPost = changePasswordPostAction { boolOrErr => implicit userOpt => implicit request =>
-    boolOrErr match {
-      case Right(true) =>
-        Redirect(globalConfig.routeRegistry.default)
-          .flashing("success" -> Messages("login.passwordChanged"))
-      case Right(false) =>
-        Redirect(portalRoutes.changePassword)
-          .flashing("error" -> Messages("login.badUsernameOrPassword"))
-      case Left(errForm) =>
-        BadRequest(views.html.p.account.pwChangePassword(errForm,
-          portalRoutes.changePasswordPost))
-    }
   }
 
   def forgotPassword = Action { implicit request =>

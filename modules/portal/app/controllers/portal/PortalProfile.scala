@@ -14,12 +14,14 @@ import jp.t2v.lab.play2.auth.LoginLogout
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalProfile {
+trait PortalProfile extends PortalLogin {
   self: Controller with ControllerHelpers with LoginLogout with AuthController with SessionPreferences[SessionPrefs] =>
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile
   val contentType = ContentTypes.UserProfile
+
+  private val portalRoutes = controllers.portal.routes.Portal
 
   def prefs = Action { implicit request =>
     Ok(Json.toJson(preferences))
@@ -55,28 +57,6 @@ trait PortalProfile {
     }
   }
 
-  def updateProfile() = withUserAction { implicit user => implicit request =>
-    val form = ProfileData.form.fill(ProfileData.fromUser(user))
-    if (isAjax) {
-      Ok(views.html.p.profile.editProfileForm(
-        form, controllers.portal.routes.Portal.updateProfilePost()))
-    } else {
-      Ok(views.html.p.profile.editProfile(
-        form, controllers.portal.routes.Portal.updateProfilePost()))
-    }
-  }
-
-  def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
-    ProfileData.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(views.html.p.profile.editProfile(
-        errForm, controllers.portal.routes.Portal.updateProfilePost()))),
-      profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
-        Redirect(controllers.portal.routes.Portal.profile())
-          .flashing("success" -> Messages("confirmations.profileUpdated"))
-      }
-    )
-  }
-
   import play.api.data.Form
   import play.api.data.Forms._
   private def deleteForm(user: UserProfile): Form[String] = Form(
@@ -87,6 +67,42 @@ trait PortalProfile {
       })
     )
   )
+
+  /**
+   * Store a changed password.
+   * @return
+   */
+  def changePasswordPost = changePasswordPostAction { boolOrErr => implicit userOpt => implicit request =>
+    boolOrErr match {
+      case Right(true) =>
+        Redirect(defaultLoginUrl)
+          .flashing("success" -> Messages("login.passwordChanged"))
+      case Right(false) =>
+        BadRequest(views.html.p.profile.editProfile(
+          ProfileData.form, changePasswordForm
+            .withGlobalError("login.badUsernameOrPassword")))
+      case Left(errForm) =>
+        BadRequest(views.html.p.profile.editProfile(
+          ProfileData.form, errForm))
+    }
+  }
+
+  def updateProfile() = withUserAction { implicit user => implicit request =>
+    val form = ProfileData.form.fill(ProfileData.fromUser(user))
+      Ok(views.html.p.profile.editProfile(
+        form, changePasswordForm))
+  }
+
+  def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
+    ProfileData.form.bindFromRequest.fold(
+      errForm => immediate(BadRequest(views.html.p.profile.editProfile(
+        errForm, changePasswordForm))),
+      profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
+        Redirect(controllers.portal.routes.Portal.profile())
+          .flashing("success" -> Messages("confirmations.profileUpdated"))
+      }
+    )
+  }
 
 
   def deleteProfile() = withUserAction { implicit user => implicit request =>

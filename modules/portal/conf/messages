@@ -33,9 +33,11 @@ portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
 portal.profile=Profile
 portal.profile.updateProfile=Edit Profile
 portal.profile.deleteProfile=Delete Account
+portal.profile.deleteProfileLink=Click here to delete your profile
 portal.warning=Warning
-portal.profile.deleteProfileConfirmation=Are you sure you want to remove your account? This action \
-  will also anonymise (but not remove) any publicly-visible annotations and links you may have \
+portal.profile.changePassword=Change Password
+portal.profile.deleteProfileConfirmation=Deleting your account will \
+  will anonymise (but not remove) any publicly-visible annotations and links you may have \
   contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
 portal.profile.deleteProfileCheck=Type your name as displayed above.
 portal.profile.deleteProfile.badConfirmation=Profile deletion was not confirmed correctly.

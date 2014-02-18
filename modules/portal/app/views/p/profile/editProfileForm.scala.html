@@ -26,11 +26,9 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
     }
     <div class="form-group">
         <div class="col-sm-offset-4 col-sm-8">
-            <button type="submit" id="submit-profile-update" class="btn btn-primary">
-                <span class="glyphicon glyphicon-ok"></span>
+            <button type="submit" class="btn btn-primary">
                 @Messages("submitButton.updateUserProfile")
             </button>
-            <a  id="cancel-profile-update" class="btn btn-default" href="@controllers.portal.routes.Portal.profile">@Messages("actions.cancel")</a>
         </div>
     </div>
 }

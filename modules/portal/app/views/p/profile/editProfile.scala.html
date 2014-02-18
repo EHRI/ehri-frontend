@@ -1,4 +1,4 @@
-@(f: play.api.data.Form[ProfileData], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(profileForm: play.api.data.Form[ProfileData], pwForm: Form[(String,String,String)])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @p.layout.portalLayout(Messages("portal.profile.updateProfile")) {
     @p.layout.infobar {
@@ -8,8 +8,22 @@
     }
 
     @p.layout.mainContent {
-        <div class="col-sm-10">
-            @editProfileForm(f, action)
-        </div>
+        <fieldset>
+            <legend>@Messages("portal.profile.updateProfile")</legend>
+            @editProfileForm(profileForm, controllers.portal.routes.Portal.updateProfilePost)
+        </fieldset>
+
+        <fieldset>
+            <legend>@Messages("portal.profile.changePassword")</legend>
+            @p.account.changePasswordForm(pwForm, controllers.portal.routes.Portal.changePasswordPost)
+        </fieldset>
+
+        <fieldset>
+            <legend>@Messages("portal.profile.deleteProfile")</legend>
+            <div class="form-group">
+                <a href="@controllers.portal.routes.Portal.deleteProfile" class="btn btn-danger">@Messages("portal.profile.deleteProfileLink")</a>
+            </div>
+
+        </fieldset>
     }
 }

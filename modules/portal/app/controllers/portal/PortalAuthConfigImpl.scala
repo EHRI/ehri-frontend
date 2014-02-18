@@ -15,9 +15,9 @@ trait PortalAuthConfigImpl extends AuthConfigImpl {
 
   private val portalRoutes = controllers.portal.routes.Portal
 
-  override def defaultLoginUrl = portalRoutes.profile
-  override def defaultLogoutUrl: Call = portalRoutes.index
-  override def defaultAuthFailedUrl: Call = portalRoutes.login
+  override def defaultLoginUrl = portalRoutes.profile()
+  override def defaultLogoutUrl: Call = portalRoutes.index()
+  override def defaultAuthFailedUrl: Call = portalRoutes.login()
 
   /**
    * A redirect target after a successful user login.
