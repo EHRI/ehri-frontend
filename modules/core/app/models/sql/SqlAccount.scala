@@ -26,7 +26,7 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
   }
 
   def setPassword(data: HashedPassword): Account = DB.withConnection{ implicit connection =>
-    SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data}) ON DUPLICATE KEY UPDATE id = {id}")
+    SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data}) ON DUPLICATE KEY UPDATE id = {id}, data = {data}")
       .on('id -> id, 'data -> data.toString).executeInsert()
     this
   }
