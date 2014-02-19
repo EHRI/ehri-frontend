@@ -298,14 +298,14 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       )
       val signup = route(FakeRequest(POST, portalRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
-      println(contentAsString(signup))
       status(signup) must equalTo(SEE_OTHER)
       MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
       MockBufferedMailer.mailBuffer.last.to must contain(testEmail)
       mocks.userFixtures.size must equalTo(numAccounts + 1)
       val userOpt = mocks.userFixtures.values.find(u => u.email == testEmail)
-      userOpt must beSome
-      userOpt.get.verified must beFalse
+      userOpt must beSome.which { user =>
+        user.verified must beFalse
+      }
     }
   }
 }
