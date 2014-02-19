@@ -13,10 +13,12 @@
             @editProfileForm(profileForm, controllers.portal.routes.Portal.updateProfilePost)
         </fieldset>
 
-        <fieldset>
-            <legend>@Messages("portal.profile.changePassword")</legend>
-            @p.account.changePasswordForm(pwForm, controllers.portal.routes.Portal.changePasswordPost)
-        </fieldset>
+        @if(userOpt.flatMap(_.account).flatMap(_.password).isDefined) {
+            <fieldset>
+                <legend>@Messages("portal.profile.changePassword")</legend>
+                @p.account.changePasswordForm(pwForm, controllers.portal.routes.Portal.changePasswordPost)
+            </fieldset>
+        }
 
         <fieldset>
             <legend>@Messages("portal.profile.deleteProfile")</legend>
