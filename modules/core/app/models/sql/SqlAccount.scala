@@ -7,6 +7,7 @@ import anorm.SqlParser._
 import anorm.~
 import play.api.Play.current
 import java.util.UUID
+import play.api.Logger
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -25,10 +26,33 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
     ).on('id -> id).as(str("data").singleOpt).map(HashedPassword.fromHashed)
   }
 
-  def setPassword(data: HashedPassword): Account = DB.withConnection{ implicit connection =>
-    SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data}) ON DUPLICATE KEY UPDATE id = {id}, data = {data}")
-      .on('id -> id, 'data -> data.toString).executeInsert()
-    this
+  def hasPassword: Boolean = DB.withConnection { implicit  connection =>
+    try {
+    SQL("select count(data) from user_auth WHERE id = {id}")
+      .on('id -> id).as(scalar[Long].single) > 0
+    } catch {
+      case c: Throwable => Logger.error("Error checking password: {}", c); throw c
+    }
+  }
+
+  def setPassword(data: HashedPassword): Account = DB.withTransaction { implicit connection =>
+    if (hasPassword) updatePassword(data) else try {
+      SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data})")
+        .on('id -> id, 'data -> data.toString).executeInsert()
+      this
+    } catch {
+      case c: Throwable => Logger.error("Error setting password: {}", c); throw c
+    }
+  }
+
+  def updatePassword(data: HashedPassword): Account = DB.withConnection{ implicit connection =>
+    try {
+      SQL("UPDATE user_auth SET data = {data} WHERE id = {id}")
+        .on('id -> id, 'data -> data.toString).executeUpdate()
+      this
+    } catch {
+      case c: Throwable => Logger.error("Error updating password: {}", c); throw c
+    }
   }
 
   def verify(token: String): Account = DB.withTransaction { implicit connection =>
