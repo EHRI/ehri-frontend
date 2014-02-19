@@ -48,7 +48,7 @@ package object helpers {
     override def around[T: AsResult](t: => T): Result = {
       running(app) {
         loadFixtures
-        AsResult(t)
+        AsResult.effectively(t)
       }
     }
   }
