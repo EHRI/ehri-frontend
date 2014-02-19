@@ -18,6 +18,8 @@
 @medium-padding: 10px;
 @large-padding: 20px;
 
+@navigation-height: 50px;
+
 
 
 /* Sticky footer styles
@@ -64,7 +66,7 @@ body {
 }
 
 #footer .container {
-    margin-top: 20px;
+    margin-top: @large-margin;
 }
 
 #footer {
@@ -72,8 +74,8 @@ body {
 }
 
 #footer {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: @large-padding;
+    padding-right: @large-padding;
 }
 
 /** Experimental! Collapse username under 900px */
@@ -122,8 +124,8 @@ img.repository-logo {
 
 /** Boxes used for overview facts on the index page */
 .overview-box {
-    padding-right: 30px;
-    padding-top: 30px;
+    padding-right: 3 * @medium-padding;
+    padding-top: 3 * @medium-padding;
 }
 
 .overview-item {
@@ -295,8 +297,8 @@ a.alt {
 }
 
 .page-content {
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding-top: @navigation-height;
+    padding-bottom: @navigation-height;
 }
 
 .sidebar affix {

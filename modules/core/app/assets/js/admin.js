@@ -62,7 +62,7 @@ jQuery(function($) {
   });
 
   // Make multi-selects pretty
-  $("select.select2:visible").select2();
+  $("select.select2").select2();
 
 
   // Fade success flash message after 3 seconds
