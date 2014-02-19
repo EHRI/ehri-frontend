@@ -21,9 +21,10 @@
         <fieldset>
             <legend>@Messages("portal.profile.deleteProfile")</legend>
             <div class="form-group">
-                <a href="@controllers.portal.routes.Portal.deleteProfile" class="btn btn-danger">@Messages("portal.profile.deleteProfileLink")</a>
+                <div class="col-sm-offset-4 col-sm-8">
+                    <a href="@controllers.portal.routes.Portal.deleteProfile" class="btn btn-danger">@Messages("portal.profile.deleteProfileLink")</a>
+                </div>
             </div>
-
         </fieldset>
     }
 }
