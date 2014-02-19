@@ -18,22 +18,19 @@
 				.make-md-column(3);
 				margin-top:0;
 				margin-bottom:0;
-				text-align:justify;
+				text-algign:left;
 			}
 			.item-text-field-value {
 				.make-md-column(9);
-				text-align:justify;
-				p {
-					text-align:justify;
-				}
 
 				@media (min-width: @screen-xs-min)  and (max-width: @screen-sm-max) {
 					text-indent:1em;
 				}
 			}
 			.item-text-field-annotation-container {
-				.make-md-column(12);
-				position:static;
+				.make-md-column-offset(3);
+				.make-md-column(9);
+				position:relative;
 				.item-text-field-annotations {
 					.make-row();
 
@@ -56,7 +53,7 @@
 						display: block;
 						position: absolute;
 						right: 0;
-						top: 0;
+						top: -30px;
 
 						opacity: 0.8;
 
@@ -70,6 +67,7 @@
 							margin-right:0;
 							width: 20px;
 							text-align: center;
+							color:@ehri-purple;
 						}
 
 					}
@@ -83,18 +81,43 @@
 					input[type="radio"],input[type="checkbox"] {
 						margin-top:-0px;
 					}
+					button[type="submit"] {
+						margin:0 auto;
+						.btn-xs;
+						&:first-letter {
+							text-transform: uppercase;
+						}
+					}
+
+					.form-group {
+						margin-top:2px;
+						margin-bottom:2px;
+						margin-right:15px;
+					}
+
+
+					text-area {
+						max-width:100%;
+					}
+					.checkbox {
+						margin:0 0;
+					}
+					.custom-visibility {
+						margin:5px 0;
+					}
 				}
 				.annotation-right {
 					position:relative;
 					
 					.close {
+						position:absolute;
 						display:block;
 						width:20px;
 						height:20px;
 						line-height:20px;
-						text-algin:center;
+						text-align:center;
 						top:0;
-						right:0;
+						right:10px;
 					}
 				}
 			}
