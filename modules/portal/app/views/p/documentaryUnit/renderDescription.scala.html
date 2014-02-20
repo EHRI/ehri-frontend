@@ -4,6 +4,7 @@
 @import models.IsadG._
 @import p.common.descriptionSection
 @import p.common.textField
+@import p.common.listField
 
 
 @p.common.descriptionOutline(item, desc, annotations) {
@@ -43,7 +44,7 @@
             }
             
             @descriptionSection(NOTES_AREA) {
-                @common.listValue(desc.notes, NOTES)
+                @listField(item, descId, desc.notes, NOTES)
             }
             
             @descriptionSection(CONTROL_AREA) {

@@ -4,20 +4,24 @@
 @import utils.ContributionVisibility.{Me,Groups}
 @import backend.rest.Constants.ACCESSOR_PARAM
 
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateCheckbox.f) }
 
-@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'class -> "annotation-form annotate-item-form validate-form") {
+@helper.form(action = action, 'role -> "form", 'class -> "form validate-form", 'class -> "annotation-form annotate-item-form validate-form") {
 <div>
-    <div class="row">
-        <div class="col-md-10">
+    <div class="row annotation-right">
+        <div class="col-md-12">
             @annotationForm(f, visForm, accessorsForm, users, groups)
         </div>
-        <div class="col-md-2">
-            <a class="close" href="#">&times;</a>
-
-            @helper.checkbox(f(ALLOW_PUBLIC), '_label -> Messages("portal.contributionVisibility.allowPublic"))
-
-            <button class="btn btn-xs btn-default pull-right" type="submit" class="submit-annotation">
+        <a class="close" href="#">&times;</a>
+    </div>
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="checkbox">
+                @helper.checkbox(f(ALLOW_PUBLIC), '_label -> Messages("portal.contributionVisibility.allowPublic"))
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <button class="btn btn-primary" type="submit" class="submit-annotation">
                 @Messages("portal.social.createAnnotation")
             </button>
         </div>
