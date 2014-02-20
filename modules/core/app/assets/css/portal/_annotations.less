@@ -6,7 +6,10 @@
 .annotate-field-controls, .annotate-item-controls {
   opacity: 0.5;
   a {
-    float: right;
+    display:block;
+    position:absolute;
+    top:0;
+    right:0;
     color: @muted-gray;
     font-size: 0.8em;
     margin-right: @medium-margin;
@@ -79,9 +82,11 @@ select.custom-accessors {
 }
 
 .annotation-form {
-  background-color: @glow-color;
+  background-color:@well-bg;
+  font-size:12px;
+  line-height:1.2;
   padding: @small-padding;
-  font-size: 0.9em;
+
   label {
     font-weight: inherit;
   }
@@ -109,5 +114,51 @@ select.custom-accessors {
     position: absolute;
     right: 0;
     top: 0;
+  }
+
+  input[type="radio"],input[type="checkbox"] {
+    margin-top:-0px;
+  }
+  button[type="submit"] {
+    margin:0 auto;
+    .btn-xs;
+    &:first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+  .form-group {
+    margin-top:2px;
+    margin-bottom:2px;
+    margin-right:15px;
+  }
+
+  text-area {
+    max-width:100%;
+  }
+  .checkbox {
+    margin:0 0;
+  }
+  .custom-visibility {
+    margin:5px 0;
+  }
+  .checkbox-inline {
+    input[type="checkbox"] {
+      margin-left:-5px;
+    }
+  }
+}
+.annotation-right {
+  position:relative;
+  
+  .close {
+    position:absolute;
+    display:block;
+    width:20px;
+    height:20px;
+    line-height:20px;
+    text-align:center;
+    top:0;
+    right:10px;
   }
 }
