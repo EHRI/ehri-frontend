@@ -13,6 +13,14 @@ object AddressForm {
   // TODO: Move field defs to AddressF object?
   import Isdiah._
 
+  def isValidWebsite(s: String): Boolean = {
+    import utils.forms.isValidUrl
+    // FIXME: This is lame...
+    if (!s.trim.startsWith("http://") && s.contains("."))
+      isValidUrl("http://" + s)
+    else isValidUrl(s)
+  }
+
   val form = Form(
     mapping(
       Entity.ISA -> ignored(EntityType.Address),
@@ -28,7 +36,7 @@ object AddressForm {
       TELEPHONE -> list(nonEmptyText),
       FAX -> list(nonEmptyText),
       URL -> list(nonEmptyText verifying("error.badUrl", fields => fields match {
-        case url => utils.forms.isValidUrl(url)
+        case url => isValidWebsite(url)
       }))
     )(AddressF.apply)(AddressF.unapply)
   )
