@@ -2,7 +2,7 @@ package controllers.linking
 
 import defines.ContentTypes
 import forms.VisibilityForm
-import models.Link
+import models.{AccountDAO, Link}
 import play.api.i18n.Messages
 
 import com.google.inject._
@@ -10,7 +10,7 @@ import global.GlobalConfig
 import controllers.generic.{Annotate, Delete, Read, Visibility}
 import backend.Backend
 
-case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Read[Link]
+case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[Link]
   with Visibility[Link]
   with Delete[Link]
   with Annotate[Link] {

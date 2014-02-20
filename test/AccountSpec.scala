@@ -5,7 +5,7 @@ import anorm._
 import anorm.SqlParser._
 import helpers.WithFixures
 import models.{Account, AccountDAO}
-import models.sql.{OAuth2Association, OpenIDAssociation}
+import models.sql.{SqlAccount, OAuth2Association, OpenIDAssociation}
 import play.api.test.PlaySpecification
 
 
@@ -13,6 +13,8 @@ import play.api.test.PlaySpecification
  * Spec for testing individual data access components work as expected.
  */
 class AccountSpec extends PlaySpecification {
+
+  def userDAO: AccountDAO = SqlAccount
 
   "account db" should {
     "load fixtures with the right number of accounts" in new WithFixures {
@@ -23,14 +25,12 @@ class AccountSpec extends PlaySpecification {
 
     "find accounts by id and email" in new WithFixures {
       DB.withConnection { implicit connection =>
-        val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
         userDAO.findByProfileId(mocks.privilegedUser.id) must beSome
         userDAO.findByEmail(mocks.privilegedUser.email) must beSome
       }
     }
 
     "allow setting and updating user's passwords" in new WithFixures {
-      val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
       val userOpt: Option[Account] = userDAO.findByEmail(mocks.privilegedUser.email)
       userOpt must beSome.which { user =>
         val hashedPw = Account.hashPassword("foobar")

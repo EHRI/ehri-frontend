@@ -32,7 +32,7 @@ import java.util.UUID
 /**
  * Controller for handling user admin actions.
  */
-case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend)
+case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
   extends Controller
   with AuthController
   with OpenIDLoginHandler
@@ -45,8 +45,6 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   }
   // Login functions are unrestricted
   override val staffOnly = false
-
-  lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
 
   def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>
     implicit val accountOpt: Option[Account] = None

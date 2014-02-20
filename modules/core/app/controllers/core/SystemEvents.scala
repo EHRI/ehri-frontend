@@ -1,7 +1,7 @@
 package controllers.core
 
 import defines._
-import models.SystemEvent
+import models.{AccountDAO, SystemEvent}
 import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
 import global.GlobalConfig
@@ -10,7 +10,7 @@ import controllers.generic.Read
 import backend.Backend
 import backend.rest.RestHelpers
 
-case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Read[SystemEvent] {
+case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[SystemEvent] {
 
   implicit val resource = SystemEvent.Resource
 

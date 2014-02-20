@@ -25,7 +25,7 @@ import utils.{SessionPrefs, Stats, PageParams}
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    feedbackDAO: FeedbackDAO)
+    feedbackDAO: FeedbackDAO, userDAO: AccountDAO)
   extends Controller
   with LoginLogout
   with ControllerHelpers

@@ -1,6 +1,6 @@
 package controllers.admin
 
-import models.{UserProfileF, UserProfile}
+import models.{AccountDAO, UserProfileF, UserProfile}
 
 import controllers.generic.Update
 import play.api._
@@ -16,7 +16,7 @@ import backend.Backend
  * @param globalConfig
  */
 @Singleton
-case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Update[UserProfileF,UserProfile] {
+case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Update[UserProfileF,UserProfile] {
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile

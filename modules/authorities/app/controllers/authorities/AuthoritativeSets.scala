@@ -14,7 +14,7 @@ import scala.Some
 
 @Singleton
 case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
-            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]

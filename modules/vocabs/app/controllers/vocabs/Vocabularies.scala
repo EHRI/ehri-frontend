@@ -1,17 +1,18 @@
 package controllers.vocabs
 
-import forms.VisibilityForm
+import _root_.forms.VisibilityForm
 import controllers.generic._
-import models.{Vocabulary,Concept,VocabularyF,ConceptF}
+import models._
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import utils.search.{Resolver, Dispatcher, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
+import scala.Some
 
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[VocabularyF,Vocabulary]
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]

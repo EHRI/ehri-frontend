@@ -11,8 +11,9 @@ import global.GlobalConfig
 import backend.Backend
 import play.api.Routes
 import play.api.http.MimeTypes
+import models.AccountDAO
 
-case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Controller with AuthController with ControllerHelpers {
+case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AuthController with ControllerHelpers {
 
   def listItems(contentType: String) = Action.async { implicit request =>
     get(s"$contentType/list")(request)

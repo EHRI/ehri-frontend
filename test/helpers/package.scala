@@ -1,5 +1,6 @@
 
-import models.sql.{OAuth2Association, OpenIDAssociation, SqlAccountDAOPlugin}
+import models.AccountDAO
+import models.sql.{SqlAccount, OAuth2Association, OpenIDAssociation}
 import org.specs2.execute.{Result, AsResult}
 import org.specs2.mutable.Around
 import org.specs2.specification.Scope
@@ -24,7 +25,7 @@ package object helpers {
    * Load database fixtures.
    */
   def loadFixtures(implicit app: play.api.Application) = {
-    val userDAO: SqlAccountDAOPlugin = new SqlAccountDAOPlugin(app)
+    val userDAO: AccountDAO = SqlAccount
     mocks.users.map { case (profile, account) =>
       val acc = userDAO.create(account.id, account.email, verified = true, staff = true)
       OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")

@@ -135,14 +135,3 @@ object SqlAccount extends AccountDAO {
     ).on('token -> token, 'is_sign_up -> isSignUp).as(SqlAccount.simple.singleOpt)
   }
 }
-
-class SqlAccountDAOPlugin(app: play.api.Application) extends AccountDAO {
-  def findByProfileId(id: String, verified: Boolean = true) = SqlAccount.findByProfileId(id, verified)
-  def findByEmail(email: String, verified: Boolean = true) = SqlAccount.findByEmail(email, verified)
-  def findByResetToken(token: String, isSignUp: Boolean = false) = SqlAccount.findByResetToken(token, isSignUp)
-  def create(id: String, email: String, verified: Boolean, staff: Boolean)
-      = SqlAccount.create(id: String, email: String, verified: Boolean, staff: Boolean)
-  def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, hashed: HashedPassword)
-      = SqlAccount.createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, hashed)
-}
-

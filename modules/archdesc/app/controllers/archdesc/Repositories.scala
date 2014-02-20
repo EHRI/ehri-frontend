@@ -1,8 +1,8 @@
 package controllers.archdesc
 
-import forms.VisibilityForm
+import _root_.forms.VisibilityForm
 import controllers.generic._
-import models.{Repository,RepositoryF,DocumentaryUnit,DocumentaryUnitF}
+import models._
 import play.api.i18n.Messages
 import defines.{EntityType,ContentTypes}
 import views.Helpers
@@ -13,9 +13,10 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Play.current
 import play.api.Configuration
+import scala.Some
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend) extends Read[Repository]
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[Repository]
   with Update[RepositoryF, Repository]
   with Delete[Repository]
   with Creator[DocumentaryUnitF,DocumentaryUnit, Repository]

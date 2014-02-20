@@ -1,7 +1,7 @@
 package controllers.admin
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{Isaar, IsadG}
+import models.{AccountDAO, Isaar, IsadG}
 import models.base.AnyModel
 import controllers.generic.Search
 import play.api._
@@ -19,7 +19,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 
 @Singleton
-case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Search {
+case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

@@ -21,14 +21,11 @@ case class MockAccount(id: String, email: String, verified: Boolean = false, sta
   }
 }
 
-object MockAccountDAO {
-  val tokens = collection.mutable.ListBuffer.empty[(String,String,Boolean)]
-}
-
 /**
  * Find a user given their profile from the fixture store.
  */
-class MockAccountDAO(app: play.api.Application) extends AccountDAO {
+object MockAccountDAO extends AccountDAO {
+  val tokens = collection.mutable.ListBuffer.empty[(String,String,Boolean)]
 
   // Mock authentication
   override def authenticate(email: String, pw: String, verified: Boolean = true)

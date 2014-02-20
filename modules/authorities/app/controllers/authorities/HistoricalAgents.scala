@@ -2,7 +2,7 @@ package controllers.authorities
 
 import controllers.generic._
 import forms.VisibilityForm
-import models.{HistoricalAgent,HistoricalAgentF,Isaar}
+import models.{AccountDAO, HistoricalAgent, HistoricalAgentF, Isaar}
 import models.forms.LinkForm
 import play.api.i18n.Messages
 import defines.{EntityType, ContentTypes, PermissionType}
@@ -12,7 +12,7 @@ import solr.SolrConstants
 import backend.Backend
 
 @Singleton
-case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[HistoricalAgentF,HistoricalAgent]
+case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]

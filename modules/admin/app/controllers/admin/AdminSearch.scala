@@ -2,7 +2,7 @@ package controllers.admin
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
-import models.IsadG
+import models.{AccountDAO, IsadG}
 import concurrent.Future
 import play.api.i18n.Messages
 import views.Helpers
@@ -21,7 +21,7 @@ import scala.util.Success
 
 
 @Singleton
-case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend) extends Search {
+case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend, userDAO: AccountDAO) extends Search {
 
   // i.e. Everything
   private val entityFacets: FacetBuilder = { implicit request =>

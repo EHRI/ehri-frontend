@@ -1,7 +1,7 @@
 package controllers.archdesc
 
-import forms.VisibilityForm
-import models.{DocumentaryUnit,DocumentaryUnitF,DocumentaryUnitDescriptionF,IsadG}
+import _root_.forms.VisibilityForm
+import models._
 import controllers.generic._
 import models.forms.LinkForm
 import play.api.mvc._
@@ -15,9 +15,10 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Play.current
 import play.api.Configuration
+import scala.Some
 
 @Singleton
-case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Read[DocumentaryUnit]
+case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
   with Creator[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
   with Update[DocumentaryUnitF, DocumentaryUnit]

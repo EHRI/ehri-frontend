@@ -2,7 +2,7 @@ package controllers.vocabs
 
 import forms.VisibilityForm
 import controllers.generic._
-import models.{Concept,ConceptF}
+import models.{AccountDAO, Concept, ConceptF}
 import models.forms.LinkForm
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
@@ -16,7 +16,7 @@ import scala.Some
 import backend.Backend
 
 @Singleton
-case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Creator[ConceptF, Concept, Concept]
+case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]
   with Read[Concept]
   with Update[ConceptF, Concept]

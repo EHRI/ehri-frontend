@@ -26,7 +26,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
 
   self: Controller with AuthController with LoginLogout with SessionPreferences[SessionPrefs] =>
 
-  lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
+  val userDAO: AccountDAO
 
   private val portalRoutes = controllers.portal.routes.Portal
 

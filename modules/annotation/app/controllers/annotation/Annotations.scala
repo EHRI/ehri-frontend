@@ -1,7 +1,7 @@
 package controllers.annotation
 
 import defines.ContentTypes
-import models.Annotation
+import models.{AccountDAO, Annotation}
 import play.api.i18n.Messages
 import com.google.inject._
 import global.GlobalConfig
@@ -9,7 +9,7 @@ import controllers.generic.{Annotate, Delete, Read, Visibility}
 import backend.Backend
 
 
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Read[Annotation]
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[Annotation]
   with Visibility[Annotation]
   with Delete[Annotation]
   with Annotate[Annotation] {

@@ -4,7 +4,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{AuthController, AuthConfigImpl}
 import models.base.AnyModel
 import models.json.RestReadable
-import global.GlobalConfig
 import play.api.mvc._
 import jp.t2v.lab.play2.auth.AsyncAuth
 import play.api.libs.json.Json
@@ -14,8 +13,9 @@ import play.api.http.ContentTypes
 import java.util.Locale
 import backend.Backend
 import backend.rest.SearchDAO
+import models.AccountDAO
 
-case class Application @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
+case class Application @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
 
   implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
 
@@ -30,13 +30,10 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
    */
   def get(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
     implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
-    searchDao.list(List(id)).map { list =>
-      list match {
-        case Nil => NotFound(views.html.errors.itemNotFound())
-        case mm :: _ =>
-          globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id)
-            .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
-      }
+    searchDao.list(List(id)).map {
+      case Nil => NotFound(views.html.errors.itemNotFound())
+      case mm :: _ => globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id)
+          .map(Redirect) getOrElse NotFound(views.html.errors.itemNotFound())
     }
   }
 
@@ -55,7 +52,8 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
     globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
-      .map(Redirect(_)) getOrElse NotFound(views.html.errors.itemNotFound())
+      .map(Redirect)
+      .getOrElse(NotFound(views.html.errors.itemNotFound()))
   }
 
   def localeData(lang: String) = Action { request =>

@@ -1,6 +1,6 @@
 package controllers.admin
 
-import models.{Isaar, IsadG}
+import models.{AccountDAO, Isaar, IsadG}
 import models.base.AnyModel
 import controllers.generic.Search
 import play.api.Play.current
@@ -20,7 +20,7 @@ import backend.Backend
 
 
 @Singleton
-case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Search {
+case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
 

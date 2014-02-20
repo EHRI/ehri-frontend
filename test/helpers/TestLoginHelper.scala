@@ -4,13 +4,12 @@ import play.api.http.{MimeTypes, HeaderNames}
 import play.api.test.FakeRequest
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
-import models.sql.SqlAccount
+import models.sql.{MockAccountDAO, SqlAccount}
 import mocks._
 import global.GlobalConfig
 import utils.search.{Resolver, Indexer, Dispatcher}
-import play.api.test.FakeApplication
 import com.tzavellas.sse.guice.ScalaModule
-import models.Account
+import models.{AccountDAO, Account}
 import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
@@ -40,6 +39,7 @@ trait TestLoginHelper {
   val mockResolver: MockSearchResolver = new MockSearchResolver
   val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
   val idGenerator: IdGenerator = new CypherIdGenerator("%06d")
+  val mockUserDAO: AccountDAO = MockAccountDAO
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -59,6 +59,7 @@ trait TestLoginHelper {
   // Dummy auth config for play-2-auth
   object AuthConfig extends AuthConfigImpl {
     val globalConfig = TestConfig
+    val userDAO = mockUserDAO
   }
 
 
@@ -75,6 +76,7 @@ trait TestLoginHelper {
         bind[Backend].toInstance(testBackend)
         bind[FeedbackDAO].toInstance(mockFeedback)
         bind[IdGenerator].toInstance(idGenerator)
+        bind[AccountDAO].toInstance(mockUserDAO)
       }
     }
 
@@ -150,7 +152,6 @@ trait TestLoginHelper {
  */
 trait TestMockLoginHelper extends TestLoginHelper {
 
-  override def getPlugins = super.getPlugins ++ Seq("models.sql.MockAccountDAO")
 }
 
 /**
@@ -172,7 +173,8 @@ trait TestRealLoginHelper extends TestLoginHelper {
         SqlAccount.findByProfileId(user.id).map { u =>
           u.setPassword(Account.hashPassword(testPassword))
         } getOrElse {
-          SqlAccount.createWithPassword(user.email, user.id, true, true,
+          SqlAccount.createWithPassword(user.email, user.id,
+              verified = true, staff = true,
             Account.hashPassword(testPassword))
         }
       }

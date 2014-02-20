@@ -1,7 +1,7 @@
 package controllers.core
 
 import controllers.generic._
-import models.{IsadG, UserProfile, UserProfileF}
+import models.{AccountDAO, IsadG, UserProfile, UserProfileF}
 import play.api.i18n.Messages
 import defines.ContentTypes
 import utils.search.{FacetSort, Resolver, SearchParams, Dispatcher}
@@ -11,7 +11,7 @@ import solr.facet.{FieldFacetClass, SolrQueryFacet, QueryFacetClass}
 import views.Helpers
 
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends PermissionHolder[UserProfile]
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[UserProfile]
   with Read[UserProfile]
   with Update[UserProfileF,UserProfile]
   with Delete[UserProfile]
@@ -84,7 +84,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     // For the users we need to clean up by deleting their profile id, if any...
-    userFinder.findByProfileId(id).map(_.delete())
+    userDAO.findByProfileId(id).map(_.delete())
     Redirect(userRoutes.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
