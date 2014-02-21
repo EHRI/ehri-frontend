@@ -25,7 +25,7 @@ object DateFacetUtils {
 
   private def startDate(year: Int): String = formatter.print(new DateTime(year, 1, 1, 0, 0))
   private def endDate(year: Int): String = formatter.print(new DateTime(year, 12, 12, 23, 59))
-  private val dateParamValueMatcher = new scala.util.matching.Regex("""^(\d{4})?_(\d{4})?$""", "start", "end")
+  private val dateParamValueMatcher = new scala.util.matching.Regex("""^(\d{4})?-(\d{4})?$""", "start", "end")
 
   /**
    * Convert the format to a Solr query.
