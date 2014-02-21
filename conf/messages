@@ -20,9 +20,11 @@ forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
 forms.search=Search
 
 # Dates
+dates.exact={0,number,#}
 dates.before=Before {0,number,#}
 dates.between=Between {0,number,#} and {1,number,#}
 dates.after=After {0,number,#}
+dates.all=All
 
 # Form errors.
 error.globalErrors=There were problems with that form:

@@ -8,13 +8,8 @@ import utils.search.{FacetSort, FacetDisplay}
 import solr.SolrConstants
 import controllers.generic.Search
 import play.api.mvc.{RequestHeader, Controller}
-import org.joda.time.DateTime
-import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat, DateTimeFormat}
+import utils.DateFacetUtils
 
-object FacetConfig {
-  val formatter: DateTimeFormatter
-      = ISODateTimeFormat.dateTime().withZoneUTC()
-}
 
 /**
  * Facet configuration for various kinds of searches.
@@ -24,49 +19,27 @@ object FacetConfig {
 trait FacetConfig extends Search {
 
   this: Controller =>
+  
+  import DateFacetUtils._
 
   /**
    * Return a date query facet if valid start/end params have been given.
    */
   private def dateQuery(implicit request: RequestHeader): Option[QueryFacetClass] = {
 
-    import FacetConfig.formatter
-    import play.api.data.Form
-    import play.api.data.Forms._
-    val dateQueryForm = Form(
-      tuple(
-        "start" -> number(min=0, max=DateTime.now().getYear),
-        "end" -> number(min = 0, max=DateTime.now().getYear)
-      ) verifying("date.startAfterEnd", f => f match {
-        case (s, e) => s < e
-      })
-    )
-
-    def start(year: Int): String = formatter.print(new DateTime(year, 1, 1, 0, 0))
-    def end(year: Int): String = formatter.print(new DateTime(year, 12, 12, 23, 59))
-
     for {
-      (startYearInt, endYearInt) <- dateQueryForm.bindFromRequest(request.queryString).value
+      dateString <- dateQueryForm.bindFromRequest(request.queryString).value
+      solrQuery = formatAsSolrQuery(dateString)
     } yield QueryFacetClass(
       key = "dateRange",
-      name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.DATES),
-      param = "date_range",
+      name = Messages(IsadG.FIELD_PREFIX + "." + DATE_PARAM),
+      param = DATE_PARAM,
       sort = FacetSort.Fixed,
       facets=List(
         SolrQueryFacet(
-          value = "before",
-          solrValue = s"[* TO ${start(startYearInt)}]",
-          name = Some(Messages(IsadG.DATES + ".before", startYearInt))
-        ),
-        SolrQueryFacet(
-          value = "during",
-          solrValue = s"[${start(startYearInt)} TO ${end(endYearInt)}]",
-          name = Some(Messages(IsadG.DATES + ".between", startYearInt, endYearInt))
-        ),
-        SolrQueryFacet(
-          value = "after",
-          solrValue = s"[${end(endYearInt+1)} TO *]",
-          name = Some(Messages(IsadG.DATES + ".after", endYearInt))
+          value = dateString,
+          solrValue = solrQuery,
+          name = formatReadable(dateString)
         )
       )
     )
