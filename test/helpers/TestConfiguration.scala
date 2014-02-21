@@ -4,7 +4,7 @@ import play.api.http.{MimeTypes, HeaderNames}
 import play.api.test.FakeRequest
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
-import models.sql.{MockAccountDAO, SqlAccount}
+import models.sql.MockAccountDAO
 import mocks._
 import global.GlobalConfig
 import utils.search.{Resolver, Indexer, Dispatcher}
@@ -26,7 +26,7 @@ import mocks.MockSearchDispatcher
  * Mixin trait that provides some handy methods to test actions that
  * have authorisation, such as fakeApplication and fakeLoggedInHtmlRequest.
  */
-trait TestLoginHelper {
+trait TestConfiguration {
 
   val CSRF_TOKEN_NAME = "csrfToken"
   val CSRF_HEADER_NAME = "Csrf-Token"
@@ -144,42 +144,4 @@ trait TestLoginHelper {
     fakeLoggedInRequest(user, rtype, path)
       .withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON)
   }
-
-}
-
-/**
- * Implementation that uses various mocks to create the auth cookie.
- */
-trait TestMockLoginHelper extends TestLoginHelper {
-
-}
-
-/**
- * Login helper that users the fixtures and creates the auth cookie via
- * a real login with a password.
- */
-trait TestRealLoginHelper extends TestLoginHelper {
-
-  /**
-   * Global which loads fixtures on start
-   */
-  object FakeGlobal extends WithFilters(CSRFFilter()) with GlobalSettings {
-    override def onStart(app: play.api.Application) = {
-      // Initialize routes to fix #845
-      app.routes
-
-      // Initialize user fixtures
-      userFixtures.values.map { user =>
-        SqlAccount.findByProfileId(user.id).map { u =>
-          u.setPassword(Account.hashPassword(testPassword))
-        } getOrElse {
-          SqlAccount.createWithPassword(user.email, user.id,
-              verified = true, staff = true,
-            Account.hashPassword(testPassword))
-        }
-      }
-    }
-  }
-
-  override def getGlobal = FakeGlobal
 }

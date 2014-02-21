@@ -4,7 +4,7 @@ import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
 
-import helpers.TestMockLoginHelper
+import helpers.TestConfiguration
 import play.api.i18n.Messages
 import play.filters.csrf.CSRF
 import mocks.MockBufferedMailer
@@ -15,7 +15,7 @@ import models.sql.MockAccountDAO
  * You can mock out a whole application including requests, plugins etc.
  * For more information, consult the wiki.
  */
-class ApplicationSpec extends Specification with TestMockLoginHelper {
+class ApplicationSpec extends Specification with TestConfiguration {
   sequential
 
   // Settings specific to this spec...
