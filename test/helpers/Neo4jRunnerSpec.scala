@@ -7,6 +7,9 @@ import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import play.api.test.{PlaySpecification, WithApplication}
 
+/**
+ * Specs2 magic to provide equivalent of JUnit's beforeClass/afterClass.
+ */
 trait BeforeAllAfterAll extends Specification {
   // see http://bit.ly/11I9kFM (specs2 User Guide)
   override def map(fragments: =>Fragments) =
@@ -43,12 +46,21 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with Bef
     fakeApplication(additionalConfiguration = config ++ specificConfig, global = getGlobal)
   )
 
-  def before() = {
+  /**
+   * Tear down and setup fixtures before every test
+   */
+  def before = {
     runner.tearDown()
     runner.setUp()
   }
 
+  /**
+   * Start the server before every class test
+   */
   def beforeAll() = runner.start()
 
+  /**
+   * Stop the server after every class test
+   */
   def afterAll() = runner.stop()
 }
