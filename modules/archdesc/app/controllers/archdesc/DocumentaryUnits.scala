@@ -3,7 +3,6 @@ package controllers.archdesc
 import _root_.forms.VisibilityForm
 import models._
 import controllers.generic._
-import models.forms.LinkForm
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines.{ContentTypes,EntityType,PermissionType}
@@ -82,9 +81,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   val contentType = ContentTypes.DocumentaryUnit
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
-  val form = models.forms.DocumentaryUnitForm.form
-  val childForm = models.forms.DocumentaryUnitForm.form
-  val descriptionForm = models.forms.IsadGForm.form
+  val form = models.DocumentaryUnit.form
+  val childForm = models.DocumentaryUnit.form
+  val descriptionForm = models.DocumentaryUnitDescription.form
 
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(resource.entityType))
 
@@ -309,7 +308,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.link.link(target, source,
-        LinkForm.form, docRoutes.linkAnnotatePost(id, toType, to)))
+        Link.form, docRoutes.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
@@ -329,7 +328,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def linkMultiAnnotate(id: String) = linkMultiAction(id) {
       target => implicit userOpt => implicit request =>
     Ok(views.html.link.linkMulti(target,
-        LinkForm.multiForm, docRoutes.linkMultiAnnotatePost(id)))
+        Link.multiForm, docRoutes.linkMultiAnnotatePost(id)))
   }
 
   def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {

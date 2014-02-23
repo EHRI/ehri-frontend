@@ -8,6 +8,8 @@ import models.json._
 import play.api.i18n.Lang
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.data.Form
+import play.api.data.Forms._
 
 
 object AuthoritativeSetF {
@@ -45,6 +47,18 @@ object AuthoritativeSet {
   implicit object Resource extends RestResource[AuthoritativeSet] {
     val entityType = EntityType.AuthoritativeSet
   }
+
+  import AuthoritativeSetF._
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.AuthoritativeSet),
+      Entity.ID -> optional(nonEmptyText),
+      Entity.IDENTIFIER -> nonEmptyText(minLength=3),
+      NAME -> optional(nonEmptyText),
+      DESCRIPTION -> optional(nonEmptyText)
+    )(AuthoritativeSetF.apply)(AuthoritativeSetF.unapply)
+  )
 }
 
 

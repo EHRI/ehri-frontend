@@ -13,7 +13,7 @@ import eu.ehri.project.definitions.Ontology
 
 
 object DocumentaryUnitFormat {
-  import models.json.IsadGFormat._
+  import models.json.DocumentaryUnitDescriptionFormat._
   import models.Entity._
   import models.DocumentaryUnitF._
 

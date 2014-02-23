@@ -13,7 +13,7 @@ import models.IsadGControl
 import models.IsadGConditions
 
 
-object IsadGFormat {
+object DocumentaryUnitDescriptionFormat {
 
   import Entity._
   import IsadG._

@@ -11,6 +11,13 @@ import defines.EnumUtils.enumWrites
 import models.json._
 import play.api.i18n.Lang
 import play.api.libs.functional.syntax._
+import play.api.data.Form
+import play.api.data.Forms._
+import scala.Some
+import play.api.libs.json.JsObject
+import utils.forms._
+import scala.Some
+import play.api.libs.json.JsObject
 
 
 object UserProfileF {
@@ -69,6 +76,21 @@ object UserProfile {
      meta: JsObject) = new UserProfile(model, groups, accessors, latestEvent, meta)
 
   def quickUnapply(up: UserProfile) = Some((up.model, up.groups, up.accessors, up.latestEvent, up.meta))
+
+  import UserProfileF._
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.UserProfile),
+      Entity.ID -> optional(nonEmptyText),
+      Entity.IDENTIFIER -> nonEmptyText(minLength=3),
+      NAME -> nonEmptyText,
+      LOCATION -> optional(text),
+      ABOUT -> optional(text),
+      LANGUAGES -> list(nonEmptyText),
+      IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))))
+      (UserProfileF.apply)(UserProfileF.unapply)
+  )
 }
 
 

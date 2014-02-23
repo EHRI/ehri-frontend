@@ -3,8 +3,11 @@ package models
 import models.base._
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
-import play.api.libs.json.{Json, JsObject, JsValue}
+import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
+import play.api.data.Form
+import play.api.data.Forms._
+import models.forms._
 
 case class IsaarDetail(
   datesOfExistence: Option[String] = None,
@@ -34,10 +37,10 @@ case class IsaarControl(
 
 object HistoricalAgentDescriptionF {
 
-  lazy implicit val historicalAgentDescriptionFormat = json.IsaarFormat.restFormat
+  lazy implicit val historicalAgentDescriptionFormat = json.HistoricalAgentDescriptionFormat.restFormat
 
   implicit object Converter extends RestConvertable[HistoricalAgentDescriptionF] with ClientConvertable[HistoricalAgentDescriptionF] {
-    val restFormat = models.json.IsaarFormat.restFormat
+    val restFormat = models.json.HistoricalAgentDescriptionFormat.restFormat
 
     private implicit val entityFormat = json.entityFormat
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
@@ -86,5 +89,46 @@ case class HistoricalAgentDescriptionF(
     LEVEL_OF_DETAIL -> control.levelOfDetail,
     DATES_CVD -> control.datesCDR,
     MAINTENANCE_NOTES -> control.maintenanceNotes
+  )
+}
+
+object HistoricalAgentDescription {
+  import Isaar._
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.HistoricalAgentDescription),
+      Entity.ID -> optional(nonEmptyText),
+      LANG_CODE -> nonEmptyText,
+      ENTITY_TYPE -> enum(HistoricalAgentType),
+      AUTHORIZED_FORM_OF_NAME -> nonEmptyText,
+      OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
+      PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
+      DATES -> list(DatePeriod.form.mapping),
+      DESCRIPTION_AREA -> mapping(
+        DATES_OF_EXISTENCE -> optional(text),
+        HISTORY -> optional(text),
+        PLACES -> optional(text),
+        LEGAL_STATUS -> optional(text),
+        FUNCTIONS -> optional(text),
+        MANDATES -> optional(text),
+        INTERNAL_STRUCTURE -> optional(text),
+        GENERAL_CONTEXT -> optional(text)
+      )(IsaarDetail.apply)(IsaarDetail.unapply),
+      CONTROL_AREA -> mapping(
+        DESCRIPTION_IDENTIFIER -> optional(text),
+        INSTITUTION_IDENTIFIER -> optional(text),
+        RULES_CONVENTIONS -> optional(text),
+        STATUS -> optional(text),
+        LEVEL_OF_DETAIL -> optional(text),
+        DATES_CVD -> optional(text),
+        LANGUAGES_USED -> optional(list(nonEmptyText)),
+        SCRIPTS_USED -> optional(list(nonEmptyText)),
+        SOURCES -> optional(list(nonEmptyText)),
+        MAINTENANCE_NOTES -> optional(text)
+      )(IsaarControl.apply)(IsaarControl.unapply),
+      ACCESS_POINTS -> list(AccessPoint.form.mapping),
+      UNKNOWN_DATA -> list(entity)
+    )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )
 }

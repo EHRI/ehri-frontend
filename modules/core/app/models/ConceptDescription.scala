@@ -4,6 +4,9 @@ import defines.EntityType
 import models.base._
 import models.json.{ClientConvertable, RestConvertable}
 import play.api.libs.json.{Json, JsObject, JsValue}
+import play.api.data.Form
+import play.api.data.Forms._
+import models.forms._
 
 object ConceptDescriptionF {
 
@@ -31,4 +34,20 @@ case class ConceptDescriptionF(
   // NA - no single valued optional text fields
   // here...
   def toSeq = Seq()
+}
+
+object ConceptDescription {
+  import ConceptF._
+
+  val form = Form(mapping(
+    Entity.ISA -> ignored(EntityType.ConceptDescription),
+    Entity.ID -> optional(nonEmptyText),
+    LANGUAGE -> nonEmptyText,
+    PREFLABEL -> nonEmptyText,
+    ALTLABEL -> optional(list(nonEmptyText)),
+    DEFINITION -> optional(list(nonEmptyText)),
+    SCOPENOTE -> optional(list(nonEmptyText)),
+    ACCESS_POINTS -> list(AccessPoint.form.mapping),
+    UNKNOWN_DATA -> list(entity)
+  )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))
 }

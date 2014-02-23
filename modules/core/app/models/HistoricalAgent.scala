@@ -5,13 +5,16 @@ package models
  */
 
 import defines.{EntityType, PublicationStatus}
-import defines.EnumUtils._
 import base._
 
 import play.api.libs.json._
 import models.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
+import play.api.data.Form
+import play.api.data.Forms._
+import models.forms._
+import play.api.libs.json.JsObject
 
 object HistoricalAgentF {
 
@@ -57,6 +60,18 @@ object HistoricalAgent {
   implicit object Resource extends RestResource[HistoricalAgent] {
     val entityType = EntityType.HistoricalAgent
   }
+
+  import HistoricalAgentF._
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.HistoricalAgent),
+      Entity.ID -> optional(nonEmptyText),
+      Entity.IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures,
+      PUBLICATION_STATUS -> optional(enum(defines.PublicationStatus)),
+      "descriptions" -> list(HistoricalAgentDescription.form.mapping)
+    )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)
+  )
 }
 
 

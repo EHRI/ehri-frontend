@@ -7,6 +7,9 @@ import models.json.{RestReadable, ClientConvertable, RestConvertable}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Lang
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.JsObject
 
 
 object AccessPointF {
@@ -87,6 +90,16 @@ object AccessPoint {
 
   def linksOfType(links: Seq[Link], `type`: AccessPointF.AccessPointType.Value): Seq[Link]
       = links.filter(_.bodies.exists(body => body.accessPointType == `type`))
+
+  import AccessPointF._
+
+  val form = Form(mapping(
+    Entity.ISA -> ignored(EntityType.AccessPoint),
+    Entity.ID -> optional(nonEmptyText),
+    TYPE -> models.forms.enum(AccessPointType),
+    TARGET -> nonEmptyText, // TODO: Validate this server side
+    DESCRIPTION -> optional(nonEmptyText)
+  )(AccessPointF.apply)(AccessPointF.unapply))
 }
 
 

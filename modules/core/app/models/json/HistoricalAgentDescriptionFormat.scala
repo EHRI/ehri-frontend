@@ -8,7 +8,7 @@ import defines.EnumUtils._
 import models.base.{Described,Description}
 
 
-object IsaarFormat {
+object HistoricalAgentDescriptionFormat {
   import Entity._
   import HistoricalAgentF._
   import AccessPointFormat._

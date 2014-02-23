@@ -2,17 +2,14 @@ package controllers.vocabs
 
 import forms.VisibilityForm
 import controllers.generic._
-import models.{AccountDAO, Concept, ConceptF}
-import models.forms.LinkForm
+import models.{Link, AccountDAO, Concept, ConceptF}
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
-import solr.facet.FieldFacetClass
 import views.Helpers
 import utils.search.{Resolver, SearchParams, FacetSort, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import solr.facet.FieldFacetClass
-import scala.Some
 import backend.Backend
 
 @Singleton
@@ -32,8 +29,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   val contentType = ContentTypes.Concept
   val targetContentTypes = Seq(ContentTypes.Concept)
 
-  private val form = models.forms.ConceptForm.form
-  private val childForm = models.forms.ConceptForm.form
+  private val form = models.Concept.form
+  private val childForm = models.Concept.form
   private val conceptRoutes = controllers.vocabs.routes.Concepts
 
   private def entityFacets: FacetBuilder = { implicit request =>
@@ -64,7 +61,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def search = searchAction[Concept](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.concept.search(page, params, facets, conceptRoutes.search))
+    Ok(views.html.concept.search(page, params, facets, conceptRoutes.search()))
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
@@ -141,13 +138,13 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        conceptRoutes.setItemPermissions _))
+        conceptRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        conceptRoutes.setScopedPermissions _))
+        conceptRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
@@ -177,7 +174,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.link.link(target, source,
-            LinkForm.form, conceptRoutes.linkAnnotatePost(id, toType, to)))
+            Link.form, conceptRoutes.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {

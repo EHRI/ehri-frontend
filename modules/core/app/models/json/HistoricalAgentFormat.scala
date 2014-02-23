@@ -13,7 +13,7 @@ import eu.ehri.project.definitions.Ontology
 
 
 object HistoricalAgentFormat {
-  import models.json.IsaarFormat._
+  import models.json.HistoricalAgentDescriptionFormat._
   import models.Entity._
   import models.HistoricalAgentF._
   import Ontology._

@@ -1,7 +1,6 @@
 package models
 
 import defines._
-import defines.EnumUtils._
 import models.base._
 
 import models.base.Persistable
@@ -11,6 +10,10 @@ import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import backend.rest.Constants
 import java.net.URL
+import play.api.data.Form
+import play.api.data.Forms._
+import scala.Some
+import play.api.libs.json.JsObject
 
 
 object DocumentaryUnitF {
@@ -114,6 +117,21 @@ object DocumentaryUnit {
       Constants.INCLUDE_PROPERTIES_PARAM -> RepositoryF.LOGO_URL
     )
   }
+
+  import DocumentaryUnitF._
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.DocumentaryUnit),
+      Entity.ID -> optional(nonEmptyText),
+      Entity.IDENTIFIER -> nonEmptyText,
+      OTHER_IDENTIFIERS -> optional(list(nonEmptyText)),
+      PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
+      COPYRIGHT -> optional(models.forms.enum(CopyrightStatus)),
+      SCOPE -> optional(models.forms.enum(Scope)),
+      "descriptions" -> list(DocumentaryUnitDescription.form.mapping)
+    )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
+  )
 }
 
 case class DocumentaryUnit(

@@ -1,11 +1,9 @@
 package models
 
-import play.api.libs.json.{Writes, JsValue, Reads, Json, JsObject}
-import play.api.data.{FormError, Forms, Mapping}
-import play.api.data.format.Formatter
 
 package object forms {
 
+  import play.api.libs.json.Json
   import play.api.data.format.Formatter
   import play.api.data.{ FormError, Forms, Mapping }
 

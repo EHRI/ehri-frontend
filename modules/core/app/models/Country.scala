@@ -8,6 +8,8 @@ import models.json._
 import play.api.i18n.Lang
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.data.Form
+import play.api.data.Forms._
 
 object CountryF {
 
@@ -44,6 +46,18 @@ object Country {
   implicit object Resource extends RestResource[Country] {
     val entityType = EntityType.Country
   }
+
+  import CountryF._
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.Country),
+      Entity.ID -> optional(nonEmptyText),
+      Entity.IDENTIFIER -> nonEmptyText(minLength=2,maxLength=2), // ISO 2-letter field
+      ABSTRACT -> optional(nonEmptyText),
+      REPORT -> optional(nonEmptyText)
+    )(CountryF.apply)(CountryF.unapply)
+  )
 }
 
 

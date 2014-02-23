@@ -20,12 +20,12 @@ trait FacetConfig extends Search {
 
   this: Controller =>
   
-  import DateFacetUtils._
-
   /**
    * Return a date query facet if valid start/end params have been given.
    */
   private def dateQuery(implicit request: RequestHeader): Option[QueryFacetClass] = {
+
+    import DateFacetUtils._
 
     for {
       dateString <- dateQueryForm.bindFromRequest(request.queryString).value

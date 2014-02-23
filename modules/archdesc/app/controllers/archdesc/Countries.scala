@@ -34,8 +34,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   private val childFormDefaults: Option[Configuration]
       = current.configuration.getConfig(EntityType.Repository)
 
-  private val form = models.forms.CountryForm.form
-  private val childForm = models.forms.RepositoryForm.form
+  private val form = models.Country.form
+  private val childForm = models.Repository.form
 
   // Search memebers
   private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))

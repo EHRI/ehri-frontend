@@ -6,6 +6,9 @@ import play.api.libs.json._
 import models.json._
 import play.api.i18n.Lang
 import play.api.libs.functional.syntax._
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.JsObject
 
 object GroupF {
 
@@ -50,6 +53,18 @@ object Group {
   implicit object Resource extends RestResource[Group] {
     val entityType = EntityType.Group
   }
+
+  import GroupF._
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.Group),
+      Entity.ID -> optional(text),
+      Entity.IDENTIFIER -> nonEmptyText,
+      NAME -> nonEmptyText,
+      DESCRIPTION -> optional(nonEmptyText)
+    )(GroupF.apply)(GroupF.unapply)
+  )
 }
 
 

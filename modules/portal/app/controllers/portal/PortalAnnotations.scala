@@ -6,16 +6,14 @@ import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.{AnnotationF, Annotation, UserProfile}
 import views.html.p
 import utils.{SessionPrefs, ContributionVisibility}
-import models.forms.AnnotationForm
 import scala.concurrent.Future.{successful => immediate}
 import defines.{ContentTypes, PermissionType}
 import backend.rest.cypher.CypherDAO
-import play.api.libs.json.{Json, JsString}
+import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
 import scala.concurrent.Future
 import play.api.mvc.SimpleResult
 import forms.VisibilityForm
-import scala.collection.Set
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -30,7 +28,7 @@ trait PortalAnnotations {
     getCanShareWith(user) { users => groups =>
       Ok(
         p.common.createAnnotation(
-          AnnotationForm.form.bindFromRequest,
+          Annotation.form.bindFromRequest,
           ContributionVisibility.form.bindFromRequest,
           VisibilityForm.form.bindFromRequest,
           portalRoutes.annotatePost(id, did),
@@ -42,7 +40,7 @@ trait PortalAnnotations {
 
   // Ajax
   def annotatePost(id: String, did: String) = withUserAction.async { implicit user => implicit request =>
-    AnnotationForm.form.bindFromRequest.fold(
+    Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         val accessors: List[String] = getAccessors(user)
@@ -58,7 +56,7 @@ trait PortalAnnotations {
       item => implicit userOpt => implicit request =>
     val vis = getContributionVisibility(item, userOpt.get)
     getCanShareWith(userOpt.get) { users => groups =>
-      Ok(p.common.editAnnotation(AnnotationForm.form.fill(item.model),
+      Ok(p.common.editAnnotation(Annotation.form.fill(item.model),
         ContributionVisibility.form.fill(vis),
         VisibilityForm.form.fill(item.accessors.map(_.id)),
         portalRoutes.editAnnotationPost(aid),
@@ -70,7 +68,7 @@ trait PortalAnnotations {
       item => implicit userOpt => implicit request =>
     // save an override field, becuase it's not possible to change it.
     val field = item.model.field
-    AnnotationForm.form.bindFromRequest.fold(
+    Annotation.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
       edited => {
         backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
@@ -105,7 +103,7 @@ trait PortalAnnotations {
   def annotateField(id: String, did: String, field: String) = withUserAction.async { implicit user => implicit request =>
     getCanShareWith(user) { users => groups =>
       Ok(p.common.createAnnotation(
-        AnnotationForm.form.bindFromRequest,
+        Annotation.form.bindFromRequest,
         ContributionVisibility.form.bindFromRequest,
         VisibilityForm.form.bindFromRequest,
         portalRoutes.annotateFieldPost(id, did, field),
@@ -117,7 +115,7 @@ trait PortalAnnotations {
 
   // Ajax
   def annotateFieldPost(id: String, did: String, field: String) = withUserAction.async { implicit user => implicit request =>
-    AnnotationForm.form.bindFromRequest.fold(
+    Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         // Add the field to the model!

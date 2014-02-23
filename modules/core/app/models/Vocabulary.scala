@@ -5,10 +5,12 @@ import base._
 import models.base.Persistable
 import defines.EntityType
 import play.api.libs.json._
-import defines.EnumUtils.enumWrites
 import models.json._
 import play.api.i18n.Lang
 import play.api.libs.functional.syntax._
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.JsObject
 
 object VocabularyType extends Enumeration {
   type Type = Value
@@ -51,6 +53,18 @@ object Vocabulary {
   implicit object Resource extends RestResource[Vocabulary] {
     val entityType = EntityType.Vocabulary
   }
+
+  import VocabularyF._
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.Vocabulary),
+      Entity.ID -> optional(nonEmptyText),
+      Entity.IDENTIFIER -> nonEmptyText(minLength=3),
+      NAME -> optional(nonEmptyText),
+      DESCRIPTION -> optional(nonEmptyText)
+    )(VocabularyF.apply)(VocabularyF.unapply)
+  )
 }
 
 

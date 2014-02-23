@@ -1,10 +1,11 @@
 package models
 
 import models.base._
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.Json
 import defines.EntityType
 import models.json.{ClientConvertable, RestConvertable}
 import eu.ehri.project.definitions.Ontology
+import models.forms._
 
 case class IsadGIdentity(
   name: String,
@@ -57,7 +58,7 @@ case class IsadGControl(
 object DocumentaryUnitDescriptionF {
 
   implicit object Converter extends RestConvertable[DocumentaryUnitDescriptionF] with ClientConvertable[DocumentaryUnitDescriptionF] {
-    val restFormat = models.json.IsadGFormat.restFormat
+    val restFormat = models.json.DocumentaryUnitDescriptionFormat.restFormat
 
     private implicit val entityFormat = json.entityFormat
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
@@ -122,5 +123,62 @@ case class DocumentaryUnitDescriptionF(
     ARCHIVIST_NOTE -> control.archivistNote,
     RULES_CONVENTIONS -> control.rulesAndConventions,
     DATES_DESCRIPTIONS -> control.datesOfDescriptions
+  )
+}
+
+object DocumentaryUnitDescription {
+  import IsadG._
+  import play.api.data.Form
+  import play.api.data.Forms._
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.DocumentaryUnitDescription),
+      Entity.ID -> optional(nonEmptyText),
+      LANG_CODE -> nonEmptyText,
+      IDENTITY_AREA -> mapping(
+        TITLE -> nonEmptyText,
+        PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
+        Entity.IDENTIFIER -> optional(nonEmptyText),
+        REF -> optional(text),
+        ABSTRACT -> optional(nonEmptyText),
+        DATES -> list(DatePeriod.form.mapping),
+        LEVEL_OF_DESCRIPTION -> optional(text),
+        EXTENT_MEDIUM -> optional(nonEmptyText)
+      )(IsadGIdentity.apply)(IsadGIdentity.unapply),
+      CONTEXT_AREA -> mapping(
+        ADMIN_BIOG -> optional(text),
+        ARCH_HIST -> optional(text),
+        ACQUISITION -> optional(text)
+      )(IsadGContext.apply)(IsadGContext.unapply),
+      CONTENT_AREA -> mapping(
+        SCOPE_CONTENT -> optional(text),
+        APPRAISAL -> optional(text),
+        ACCRUALS -> optional(text),
+        SYS_ARR -> optional(text)
+      )(IsadGContent.apply)(IsadGContent.unapply),
+      CONDITIONS_AREA -> mapping(
+        ACCESS_COND -> optional(text),
+        REPROD_COND -> optional(text),
+        LANG_MATERIALS -> optional(list(nonEmptyText)),
+        SCRIPT_MATERIALS -> optional(list(nonEmptyText)),
+        PHYSICAL_CHARS -> optional(text),
+        FINDING_AIDS -> optional(text)
+      )(IsadGConditions.apply)(IsadGConditions.unapply),
+      MATERIALS_AREA -> mapping(
+        LOCATION_ORIGINALS -> optional(text),
+        LOCATION_COPIES -> optional(text),
+        RELATED_UNITS -> optional(text),
+        PUBLICATION_NOTE -> optional(text)
+      )(IsadGMaterials.apply)(IsadGMaterials.unapply),
+      NOTES -> optional(list(nonEmptyText)),
+      CONTROL_AREA -> mapping(
+        ARCHIVIST_NOTE -> optional(text),
+        RULES_CONVENTIONS -> optional(text),
+        DATES_DESCRIPTIONS -> optional(text)
+      )(IsadGControl.apply)(IsadGControl.unapply),
+      ACCESS_POINTS -> list(AccessPoint.form.mapping),
+      UNKNOWN_DATA -> list(entity)
+    )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
   )
 }

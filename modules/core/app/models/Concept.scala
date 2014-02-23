@@ -7,6 +7,9 @@ import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.JsObject
 
 
 object ConceptF {
@@ -59,6 +62,15 @@ object Concept {
   implicit object Resource extends RestResource[Concept] {
     val entityType = EntityType.Concept
   }
+
+  val form = Form(
+    mapping(
+      Entity.ISA -> ignored(EntityType.Concept),
+      Entity.ID -> optional(nonEmptyText),
+      Entity.IDENTIFIER -> nonEmptyText,
+      "descriptions" -> list(ConceptDescription.form.mapping)
+    )(ConceptF.apply)(ConceptF.unapply)
+  )
 }
 
 

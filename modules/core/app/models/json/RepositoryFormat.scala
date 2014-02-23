@@ -12,7 +12,7 @@ import defines.EnumUtils._
 
 
 object RepositoryFormat {
-  import models.json.IsdiahFormat._
+  import models.json.RepositoryDescriptionFormat._
   import models.Entity._
   import models.RepositoryF._
   import Ontology._

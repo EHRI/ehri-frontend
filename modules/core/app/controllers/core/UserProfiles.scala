@@ -35,7 +35,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   // Search params
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
-  val form = models.forms.UserProfileForm.form
+  val form = models.UserProfile.form
 
   private val userRoutes = controllers.core.routes.UserProfiles
   

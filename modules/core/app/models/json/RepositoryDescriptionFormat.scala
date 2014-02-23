@@ -5,7 +5,7 @@ import models._
 import play.api.libs.functional.syntax._
 import defines.EntityType
 
-object IsdiahFormat {
+object RepositoryDescriptionFormat {
 
   import AddressFormat._
   import Entity._

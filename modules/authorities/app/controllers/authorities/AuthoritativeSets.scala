@@ -10,10 +10,10 @@ import utils.search.{Resolver, Dispatcher, SearchOrder, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{IdGenerator, Backend}
-import scala.Some
 
 @Singleton
-case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
+case class
+AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
             searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
@@ -25,8 +25,8 @@ case class AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfi
   val contentType = ContentTypes.AuthoritativeSet
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
-  private val form = models.forms.AuthoritativeSetForm.form
-  private val childForm = models.forms.HistoricalAgentForm.form
+  private val form = models.AuthoritativeSet.form
+  private val childForm = models.HistoricalAgent.form
   private val setRoutes = controllers.authorities.routes.AuthoritativeSets
 
   // Search params

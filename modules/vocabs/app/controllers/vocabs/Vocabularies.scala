@@ -9,7 +9,7 @@ import utils.search.{Resolver, Dispatcher, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
-import scala.Some
+
 
 @Singleton
 case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[VocabularyF,Vocabulary]
@@ -24,8 +24,8 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   val contentType = ContentTypes.Vocabulary
   val targetContentTypes = Seq(ContentTypes.Concept)
 
-  val form = models.forms.VocabularyForm.form
-  val childForm = models.forms.ConceptForm.form
+  val form = models.Vocabulary.form
+  val childForm = models.Concept.form
 
   private val vocabRoutes = controllers.vocabs.routes.Vocabularies
 

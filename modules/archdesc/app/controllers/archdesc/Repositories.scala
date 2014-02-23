@@ -72,11 +72,12 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   val contentType = ContentTypes.Repository
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
-  private val form = models.forms.RepositoryForm.form
+  private val form = models
+    .Repository.form
 
   val childFormDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
 
-  private val childForm = models.forms.DocumentaryUnitForm.form
+  private val childForm = models.DocumentaryUnit.form
 
   private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 

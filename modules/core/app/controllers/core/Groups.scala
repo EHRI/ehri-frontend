@@ -21,7 +21,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   val contentType = ContentTypes.Group
   implicit val resource = Group.Resource
 
-  private val form = models.forms.GroupForm.form
+  private val form = models.Group.form
   private val groupRoutes = controllers.core.routes.Groups
 
   def get(id: String) = getWithChildrenAction[Accessor](id) {
