@@ -4,8 +4,9 @@ import models.base.Model
 import org.joda.time.DateTime
 
 import defines.EntityType
-import models.json.{ClientConvertable, RestConvertable}
-import play.api.libs.json.Json
+import models.json._
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
 
@@ -23,8 +24,34 @@ object DatePeriodF {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
+  import Entity.{TYPE => ETYPE,_}
+
+  implicit val datePeriodReads: Reads[DatePeriodF] = (
+    (__ \ ETYPE).read[EntityType.Value](equalsReads(EntityType.DatePeriod)) and
+      (__ \ ID).readNullable[String] and
+      (__ \ DATA \ TYPE).readNullable[DatePeriodType.Value] and
+      (__ \ DATA \ START_DATE).readNullable[String] and
+      (__ \ DATA \ END_DATE).readNullable[String]
+    )(DatePeriodF.apply _)
+
+  implicit val datePeriodWrites = new Writes[DatePeriodF] {
+    def writes(d: DatePeriodF): JsValue = {
+      Json.obj(
+        ID -> d.id,
+        ETYPE -> d.isA,
+        DATA -> Json.obj(
+          TYPE -> d.`type` ,
+          START_DATE -> d.startDate,
+          END_DATE -> d.endDate
+        )
+      )
+    }
+  }
+
+  implicit val datePeriodFormat: Format[DatePeriodF] = Format(datePeriodReads,datePeriodWrites)
+
   implicit object Converter extends RestConvertable[DatePeriodF] with ClientConvertable[DatePeriodF] {
-    lazy val restFormat = models.json.DatePeriodFormat.restFormat
+    lazy val restFormat = datePeriodFormat
     lazy val clientFormat = Json.format[DatePeriodF]
   }
 }
@@ -53,6 +80,7 @@ case class DatePeriodF(
 
 object DatePeriod {
   import DatePeriodF._
+  import Entity.{TYPE => _, _}
 
   private val dateValidator: (String) => Boolean = { dateString =>
     try {
@@ -64,8 +92,8 @@ object DatePeriod {
   }
 
   val form = Form(mapping(
-    Entity.ISA -> ignored(EntityType.DatePeriod),
-    Entity.ID -> optional(nonEmptyText),
+    ISA -> ignored(EntityType.DatePeriod),
+    ID -> optional(nonEmptyText),
     TYPE -> optional(models.forms.enum(DatePeriodType)),
     START_DATE -> optional(text verifying("error.date", dateValidator)),
     END_DATE -> optional(text verifying("error.date", dateValidator))

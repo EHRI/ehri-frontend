@@ -66,7 +66,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def linkPostAction(id: String, toType: EntityType.Value, to: String)(
       f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
 
-    implicit val linkWrites: Writes[LinkF] = models.json.LinkFormat.linkWrites
+    implicit val linkWrites: Writes[LinkF] = models.LinkF.linkWrites
 
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
@@ -93,7 +93,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def linkPostMultiAction(id: String)(
       f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      implicit val linkWrites: Writes[LinkF] = models.json.LinkFormat.linkWrites
       val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => immediate(f(Left((item,errorForm)))(userOpt)(request)),

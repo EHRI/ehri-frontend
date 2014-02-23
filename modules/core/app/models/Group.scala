@@ -9,14 +9,41 @@ import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import eu.ehri.project.definitions.Ontology
 
 object GroupF {
 
   val NAME = "name"
   val DESCRIPTION = "description"
 
+  import models.Entity._
+
+  implicit val groupWrites: Writes[GroupF] = new Writes[GroupF] {
+    def writes(d: GroupF): JsValue = {
+      Json.obj(
+        ID -> d.id,
+        TYPE -> d.isA,
+        DATA -> Json.obj(
+          IDENTIFIER -> d.identifier,
+          NAME -> d.name,
+          DESCRIPTION -> d.description
+        )
+      )
+    }
+  }
+
+  implicit val groupReads: Reads[GroupF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Group)) and
+      (__ \ ID).readNullable[String] and
+      (__ \ DATA \ IDENTIFIER).read[String] and
+      (__ \ DATA \ NAME).read[String] and
+      (__ \ DATA \ DESCRIPTION).readNullable[String]
+    )(GroupF.apply _)
+
+  implicit val groupFormat: Format[GroupF] = Format(groupReads,groupWrites)
+
   implicit object Converter extends RestConvertable[GroupF] with ClientConvertable[GroupF] {
-    lazy val restFormat = models.json.GroupFormat.restFormat
+    lazy val restFormat = groupFormat
     lazy val clientFormat = Json.format[GroupF]
   }
 }
@@ -29,17 +56,26 @@ case class GroupF(
   description: Option[String] = None
 ) extends Model with Persistable
 
-
-/*
-case class Group(val e: Entity) extends NamedEntity with AccessibleEntity with Accessor with Formable[GroupF] {
-  lazy val formable: GroupF = Json.toJson(e).as[GroupF]
-  lazy val formableOpt: Option[GroupF] = Json.toJson(e).asOpt[GroupF]
-}
-*/
-
 object Group {
+  import GroupF._
+  import Entity._
+  import Ontology._
+
+  private lazy implicit val systemEventReads = SystemEvent.Converter.restReads
+
+  implicit val metaReads: Reads[Group] = (
+    __.read[GroupF] and
+      (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadNullable[List[Group]](
+        Reads.list[Group]).map(_.getOrElse(List.empty[Group])) and
+      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
+      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    )(Group.apply _)
+
   implicit object Converter extends ClientConvertable[Group] with RestReadable[Group] {
-    val restReads = models.json.GroupFormat.metaReads
+    val restReads = metaReads
 
     val clientFormat: Format[Group] = (
       __.format[GroupF](GroupF.Converter.clientFormat) and
@@ -54,13 +90,11 @@ object Group {
     val entityType = EntityType.Group
   }
 
-  import GroupF._
-
   val form = Form(
     mapping(
-      Entity.ISA -> ignored(EntityType.Group),
-      Entity.ID -> optional(text),
-      Entity.IDENTIFIER -> nonEmptyText,
+      ISA -> ignored(EntityType.Group),
+      ID -> optional(text),
+      IDENTIFIER -> nonEmptyText,
       NAME -> nonEmptyText,
       DESCRIPTION -> optional(nonEmptyText)
     )(GroupF.apply)(GroupF.unapply)

@@ -4,7 +4,7 @@ import models.base._
 import org.joda.time.DateTime
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import defines.{EntityType, EventType}
-import models.json.{RestResource, RestReadable, ClientConvertable}
+import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
@@ -17,8 +17,37 @@ object SystemEventF {
   final val EVENT_TYPE = "eventType"
   final val FORMAT = "yyyy-MM-dd'T'HH:mm:ssSSSZ"
 
+  import SystemEventF.{EVENT_TYPE => EVENT_PROP, _}
+  import Entity._
+
+  // We won't need to use this, since events are created automatically
+  // but doing it anyway just for completeness
+  implicit val systemEventWrites = new Writes[SystemEventF] {
+    def writes(d: SystemEventF): JsValue = {
+      Json.obj(
+        ID -> d.id,
+        TYPE -> d.isA,
+        DATA -> Json.obj(
+          TIMESTAMP -> d.timestamp,
+          LOG_MESSAGE -> d.logMessage,
+          EVENT_PROP -> d.eventType
+        )
+      )
+    }
+  }
+
+  implicit val systemEventReads: Reads[SystemEventF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.SystemEvent)) and
+      (__ \ ID).readNullable[String] and
+      (__ \ DATA \ TIMESTAMP).read[String].map(new DateTime(_)) and
+      (__ \ DATA \ LOG_MESSAGE).readNullable[String] and
+      (__ \ DATA \ EVENT_PROP).readNullable[EventType.Value]
+    )(SystemEventF.apply _)
+
+  implicit val systemEventFormat: Format[SystemEventF] = Format(systemEventReads,systemEventWrites)
+
   implicit object Converter extends RestReadable[SystemEventF] with ClientConvertable[SystemEventF] {
-    val restReads = models.json.SystemEventFormat.restFormat
+    val restReads = systemEventFormat
     val clientFormat = Json.format[SystemEventF]
   }
 }
@@ -34,11 +63,26 @@ case class SystemEventF(
 }
 
 object SystemEvent {
+  import play.api.libs.functional.syntax._
+  import SystemEventF.{EVENT_TYPE => EVENT_PROP, _}
+  import Entity._
+  import eu.ehri.project.definitions.Ontology._
+
+  implicit val metaReads: Reads[SystemEvent] = (
+    __.read[SystemEventF] and
+      (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
+        Reads.list(AnyModel.Converter.restReads)).map(_.flatMap(_.headOption)) and
+      (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyReadNullable[List[AnyModel]](
+        Reads.list(AnyModel.Converter.restReads)).map(_.flatMap(_.headOption)) and
+      (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadNullable[List[Accessor]](
+        Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
+      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    )(SystemEvent.apply _)
 
   implicit object Converter extends ClientConvertable[SystemEvent] with RestReadable[SystemEvent] {
     private implicit val systemEventFormat = Json.format[SystemEventF]
 
-    val restReads = models.json.SystemEventFormat.metaReads
+    val restReads = metaReads
     implicit val clientFormat: Format[SystemEvent] = (
       __.format[SystemEventF](SystemEventF.Converter.clientFormat) and
       (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and

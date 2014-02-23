@@ -5,7 +5,6 @@ import base._
 import defines.EntityType
 import models.json._
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
@@ -28,8 +27,38 @@ object ConceptF {
     type Type = Value
   }
 
+  import eu.ehri.project.definitions.Ontology._
+  import play.api.libs.functional.syntax._
+  import models.Entity._
+
+  implicit val conceptWrites: Writes[ConceptF] = new Writes[ConceptF] {
+    def writes(d: ConceptF): JsValue = {
+      Json.obj(
+        ID -> d.id,
+        TYPE -> d.isA,
+        DATA -> Json.obj(
+          IDENTIFIER -> d.identifier
+        ),
+        RELATIONSHIPS -> Json.obj(
+          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
+        )
+      )
+    }
+  }
+
+  implicit val conceptReads: Reads[ConceptF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Concept)) and
+      (__ \ ID).readNullable[String] and
+      (__ \ DATA \ IDENTIFIER).read[String] and
+      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[ConceptDescriptionF]](
+        Reads.list[ConceptDescriptionF]).map(_.getOrElse(List.empty[ConceptDescriptionF]))
+    )(ConceptF.apply _)
+
+  implicit val conceptFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
+
+
   implicit object Converter extends RestConvertable[ConceptF] with ClientConvertable[ConceptF] {
-    val restFormat = models.json.ConceptFormat.restFormat
+    val restFormat = conceptFormat
 
     private implicit val conceptDscFmt = ConceptDescriptionF.Converter.clientFormat
     val clientFormat = Json.format[ConceptF]
@@ -40,13 +69,35 @@ case class ConceptF(
   isA: EntityType.Value = EntityType.Concept,
   id: Option[String],
   identifier: String,
-  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY) val descriptions: List[ConceptDescriptionF] = Nil
+  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: List[ConceptDescriptionF] = Nil
 ) extends Model with Persistable with Described[ConceptDescriptionF]
 
 
 object Concept {
+  import eu.ehri.project.definitions.Ontology._
+  import play.api.libs.functional.syntax._
+  import models.Entity._
+
+  private implicit val systemEventReads = SystemEvent.Converter.restReads
+  private implicit val vocabularyReads = Vocabulary.Converter.restReads
+
+  implicit val metaReads: Reads[Concept] = (
+    __.read[ConceptF] and
+      (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).lazyReadNullable[List[Vocabulary]](
+        Reads.list[Vocabulary]).map(_.flatMap(_.headOption)) and
+      (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadNullable[List[Concept]](
+        Reads.list[Concept]).map(_.flatMap(_.headOption)) and
+      (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadNullable[List[Concept]](
+        Reads.list[Concept]).map(_.getOrElse(List.empty[Concept])) and
+      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
+      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    )(Concept.apply _)
+
   implicit object Converter extends ClientConvertable[Concept] with RestReadable[Concept] {
-    val restReads = models.json.ConceptFormat.metaReads
+    val restReads = metaReads
 
     val clientFormat: Format[Concept] = (
       __.format[ConceptF](ConceptF.Converter.clientFormat) and
