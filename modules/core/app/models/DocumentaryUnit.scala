@@ -129,7 +129,7 @@ case class DocumentaryUnitF(
 object DocumentaryUnit {
   import models.Entity._
   import models.DocumentaryUnitF._
-  import eu.ehri.project.definitions.Ontology._
+  import eu.ehri.project.definitions.Ontology.{OTHER_IDENTIFIERS => _, _}
 
   implicit val metaReads: Reads[DocumentaryUnit] = (
     __.read[DocumentaryUnitF](documentaryUnitReads) and
