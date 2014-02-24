@@ -32,7 +32,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
         $data = $(".content-load-data", $container);
     $link.addClass("loading");
     $data.load(this.href, function() {
-      $link.removeClass("loading");
+      $link.removeClass("loading").addClass("loaded");
       $data.find("select").each(function(i) {
         $(this).select2(select2Opts);
         $link.hide();
@@ -41,7 +41,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
   });
 
   function checkLoadVisibility() {
-    $(".load-in-view").not(".loading").each(function(i) {
+    $(".load-in-view").not(".loading, .loaded").each(function(i) {
       var $item = $(this);
       if(!$item.hasClass("loading")) {
         if (($(window).scrollTop() + $(window).height()) > $item.offset().top) {
