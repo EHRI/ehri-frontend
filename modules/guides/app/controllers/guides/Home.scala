@@ -28,7 +28,7 @@ import java.util.UUID
 /**
  * Controller for handling user admin actions.
  */
-case class Home @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend)
+case class Home @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
   extends Controller
   with AuthController
   with ControllerHelpers {
