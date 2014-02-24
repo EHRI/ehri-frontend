@@ -38,6 +38,11 @@
             </li>
             }
         </ul>
+        @views.html.common.childCount(item) { count =>
+            @if(count > 0) {
+                <a href="@controllers.portal.routes.Portal.browseDocument(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+            }
+        }
     </small>
 
     @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>

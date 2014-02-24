@@ -1,15 +1,35 @@
-@ehri-purple : #6C003B;
+@primary-highlight: #6C003B;
 
-/*
-*
-*	APPLYING
-*
-*/
+@ehri-purple : @primary-highlight;
 
+@pale-gray: #F5F5F5;
+@muted-gray: #999999;
+@medium-gray: #dddddd;
+@dark-gray: #cccccc;
+@almost-black: #333;
+@glow-color: #FFF9C0;
+
+@doc-color: @primary-highlight;
+@repo-color: #034153;
+@country-color: #864300;
+@agent-color: #517C00;
+@promoted-color: #F6F6FF;
+
+// Spacings
+@search-item-spacing: 1.5em;
+@menu-height: 50px;
+
+// Margins
+@small-margin: 5px;
+@medium-margin: 10px;
+@large-margin: 20px;
+
+// Padding
 @small-padding: 5px;
 @medium-padding: 10px;
 @large-padding: 20px;
 
+// Icons
 @icon-font-path:          "../bootstrap/police/";
 @icon-font-name:          "glyphicons-halflings-regular";
 @icon-font-svg-id:	"glyphicons_halflingsregular";
@@ -39,3 +59,12 @@
 
 /* Zocial */
 @icon-zocial-name : "zocial";
+
+
+.downward-shadow (@height: @shadow-depth, @blur: @shadow-blur) {
+  box-shadow: 0px @height @height @blur @shadow-color;
+}
+
+.highlight-glow {
+  text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+}

@@ -1,3 +1,13 @@
+
+// Global var for select 2 options...
+window.select2Opts = {
+  placeholder: "Select an option...",
+  allowClear: true,
+  dropdownAutoWidth: true,
+  dropdownCssClass: "facet-select-dropdown",
+  minimumInputLength: 0
+};
+
 jQuery(function($) {
 
   var FB_REDIRECT_HASH = "#_=_";
@@ -69,15 +79,6 @@ jQuery(function($) {
   collapseDescriptions();
 
 
-  // Facet handling
-  var select2Opts = {
-    placeholder: "Select an option...",
-    allowClear: true,
-    dropdownAutoWidth: true,
-    dropdownCssClass: "facet-select-dropdown",
-    minimumInputLength: 0
-  };
-
   // Re-check select2s whenever there's an Ajax event that could
   // load a widget (e.g. the profile form)
   $(document).ajaxComplete(function () {
@@ -90,7 +91,7 @@ jQuery(function($) {
     }
   });
 
-  $(".facet-toggle").change(function (e) {
+  $(document).on("change", ".facet-toggle", function (e) {
     $(e.target).closest("form").submit();
   });
 });

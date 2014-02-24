@@ -34,10 +34,8 @@
                     </li>
                 }
             </ul>
-            @item.childCount.map { count =>
-                <div class="child-count">
-                    <a href="@controllers.archdesc.routes.Repositories.get(item.id)#search-items">@Messages("repository.childCount", count)</a>
-                </div>
+            @views.html.common.childCount(item) { count =>
+                <a href="@controllers.archdesc.routes.Repositories.get(item.id)#search-items">@Messages("repository.childCount", count)</a>
             }
         </small>
 

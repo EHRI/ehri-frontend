@@ -1,0 +1,7 @@
+@(item: Holder[_])(link: Int => Html)
+
+@item.childCount.map { count =>
+    <div class="child-count">
+        @link(count)
+    </div>
+}

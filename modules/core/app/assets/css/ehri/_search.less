@@ -1,3 +1,14 @@
+
+.facet-list li a {
+  color: #666;
+  font-weight: bold;
+}
+
+.facet-list li.selected-filter {
+  font-weight: bolder;
+  .highlight-glow();
+}
+
 .selected-facet {
   .label;
   .label-default;
@@ -5,4 +16,13 @@
   a {
     color: #000000;
   }
+}
+
+/** child items */
+/* Highlight the current search sort */
+.child-count a {
+  margin-top: @small-margin;
+  color: @almost-black;
+  font-weight: lighter;
+  .highlight-glow();
 }
