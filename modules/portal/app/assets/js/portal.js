@@ -228,15 +228,6 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
 /**
  * Handle cookie pref loading/saving
  */
-
-  // Default pref path
-  var cookieName = "userPrefs";
-
-  // Default structure: this should match `SessionPrefs.scala`
-  var defaultPrefs = {
-    showUserContent: true
-  };
-
   window.Preferences = {
     update: function(prefsObj) {
       var prefs = prefsObj || {};
@@ -258,6 +249,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
  */
 
   $(document).on("click", ".toggle-boolean-preference", function(e) {
+    e.preventDefault();
     var $item = $(this),
         name = $item.data("preference-name"),
         value = $item.data("preference-value");
