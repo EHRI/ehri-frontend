@@ -67,14 +67,6 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     Ok(views.html.index(Messages("pages.home.title")))
   }
 
-  def profile = userProfileAction.async { implicit userOpt => implicit request =>
-    userOpt.map { user =>
-      immediate(Ok(views.html.profile(user)))
-    } getOrElse {
-      authenticationFailed(request)
-    }
-  }
-
   /**
    * Full text search action that returns a complete page of item data.
    * @return

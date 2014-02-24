@@ -40,45 +40,45 @@ package globalConfig {
 
     implicit lazy val menuConfig: MenuConfig = new MenuConfig {
       val mainSection: Iterable[(String, String)] = Seq(
-        ("pages.search",                  controllers.admin.routes.AdminSearch.search.url),
-        ("contentTypes.documentaryUnit",  controllers.archdesc.routes.DocumentaryUnits.search.url),
-        ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search.url),
-        ("contentTypes.repository",       controllers.archdesc.routes.Repositories.search.url),
-        ("contentTypes.cvocConcept",      controllers.vocabs.routes.Concepts.search.url)
+        ("pages.search",                  controllers.admin.routes.AdminSearch.search().url),
+        ("contentTypes.documentaryUnit",  controllers.archdesc.routes.DocumentaryUnits.search().url),
+        ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
+        ("contentTypes.repository",       controllers.archdesc.routes.Repositories.search().url),
+        ("contentTypes.cvocConcept",      controllers.vocabs.routes.Concepts.search().url)
       )
       val adminSection: Iterable[(String, String)] = Seq(
-        ("contentTypes.userProfile",      controllers.core.routes.UserProfiles.search.url),
-        ("contentTypes.group",            controllers.core.routes.Groups.list.url),
-        ("contentTypes.country",          controllers.archdesc.routes.Countries.search.url),
-        ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list.url),
-        ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list.url),
+        ("contentTypes.userProfile",      controllers.core.routes.UserProfiles.search().url),
+        ("contentTypes.group",            controllers.core.routes.Groups.list().url),
+        ("contentTypes.country",          controllers.archdesc.routes.Countries.search().url),
+        ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list().url),
+        ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list().url),
         ("s1", "-"),
-        ("contentTypes.systemEvent",      controllers.core.routes.SystemEvents.list.url),
+        ("contentTypes.systemEvent",      controllers.core.routes.SystemEvents.list().url),
         ("s2", "-"),
-        ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex.url)
+        ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex().url)
       )
       val authSection: Iterable[(String,String)] = Seq(
-        ("actions.viewProfile", controllers.admin.routes.Profile.profile.url),
-        ("login.changePassword", controllers.core.routes.Admin.changePassword.url)
+        ("portal.home", controllers.portal.routes.Portal.index().url),
+        ("portal.profile", controllers.portal.routes.Portal.profile().url)
       )
     }
 
     val routeRegistry = new RouteRegistry(Map(
-      EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get _,
-      EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get _,
-      EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get _,
-      EntityType.Repository -> controllers.archdesc.routes.Repositories.get _,
-      EntityType.Group -> controllers.core.routes.Groups.get _,
-      EntityType.UserProfile -> controllers.core.routes.UserProfiles.get _,
-      EntityType.Annotation -> controllers.annotation.routes.Annotations.get _,
-      EntityType.Link -> controllers.linking.routes.Links.get _,
-      EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get _,
-      EntityType.AuthoritativeSet -> controllers.authorities.routes.AuthoritativeSets.get _,
-      EntityType.Concept -> controllers.vocabs.routes.Concepts.get _,
-      EntityType.Country -> controllers.archdesc.routes.Countries.get _
-    ), default = controllers.admin.routes.Home.index,
-      login = controllers.core.routes.Admin.login,
-      logout = controllers.core.routes.Admin.logout)
+      EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get,
+      EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get,
+      EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get,
+      EntityType.Repository -> controllers.archdesc.routes.Repositories.get,
+      EntityType.Group -> controllers.core.routes.Groups.get,
+      EntityType.UserProfile -> controllers.core.routes.UserProfiles.get,
+      EntityType.Annotation -> controllers.annotation.routes.Annotations.get,
+      EntityType.Link -> controllers.linking.routes.Links.get,
+      EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get,
+      EntityType.AuthoritativeSet -> controllers.authorities.routes.AuthoritativeSets.get,
+      EntityType.Concept -> controllers.vocabs.routes.Concepts.get,
+      EntityType.Country -> controllers.archdesc.routes.Countries.get
+    ), default = controllers.admin.routes.Home.index(),
+      login = controllers.core.routes.Admin.login(),
+      logout = controllers.core.routes.Admin.logout())
   }
 }
 
