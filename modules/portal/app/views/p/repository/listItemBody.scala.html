@@ -19,7 +19,7 @@
         @conciseAddress(item, desc, includeCountry = showCountry)
     </small>
     @desc.details.generalContext.map { gc =>
-        <p>@gc</p>
+        <p>@Html(views.Helpers.renderMarkdown(gc))</p>
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>

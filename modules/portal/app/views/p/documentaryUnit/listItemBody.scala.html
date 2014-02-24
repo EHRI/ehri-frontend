@@ -41,7 +41,7 @@
     </small>
 
     @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
-    <p>@sc</p>
+        <p>@Html(views.Helpers.renderMarkdown(sc))</p>
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>
