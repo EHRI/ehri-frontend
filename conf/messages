@@ -436,11 +436,12 @@ accessPoints.newAccessPoint=New Access Point
 accessPoints.browse=Search
 accessPoints.name=Name of link target...
 accessPoints.description=Optional description...
-accessPoints.type.creatorAccess=Creator
+accessPoints.type.creatorAccess=Creator(s)
 accessPoints.type.personAccess=People
 accessPoints.type.familyAccess=Families
 accessPoints.type.corporateBodyAccess=Corporate Bodies
 accessPoints.type.placeAccess=Places
+accessPoints.type.subjectAccess=Subjects
 accessPoints.type.otherAccess=Miscellaneous
 
 
