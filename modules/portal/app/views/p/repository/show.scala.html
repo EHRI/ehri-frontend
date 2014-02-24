@@ -4,7 +4,7 @@
     @infobar(item, watched)
 
     @p.layout.mainContent {
-        @itemDetails(item, annotations, links)
+        @itemDetails(item, annotations, links, watched)
 
         @p.common.childItemLink(item, controllers.portal.routes.Portal.searchRepository(item.id))
     }

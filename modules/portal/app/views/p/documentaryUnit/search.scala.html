@@ -4,13 +4,7 @@
     @infobar(item, watched)
 
     @p.layout.mainContent {
-        <div class="content-load">
-            <div class="content-load-data" style="display: none"></div>
-            <a class="toggle" data-inverse-text="@Messages("portal.hideDetails")" href="@controllers.portal.routes.Portal.browseDocument(item.id)">
-                <span class="text">@Messages("portal.showDetails")</span>
-                <span class="glyphicon glyphicon-align-justify pull-right"></span>
-            </a>
-        </div>
+        @p.common.itemDetailsLink(Messages("portal.showDetails"), controllers.portal.routes.Portal.browseDocument(item.id))
     }
 
     @childItemSearch(item, result, params, facets, action, watched)

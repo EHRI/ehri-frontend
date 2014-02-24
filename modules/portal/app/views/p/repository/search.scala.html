@@ -3,5 +3,9 @@
 @p.layout.portalLayout(item.toStringLang, item.isA.toString) {
     @infobar(item, watched)
 
+    @p.layout.mainContent {
+        @p.common.itemDetailsLink(Messages("portal.showDetails"), controllers.portal.routes.Portal.browseRepository(item.id))
+    }
+
     @childItemSearch(item, result, params, facets, action, watched)
 }

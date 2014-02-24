@@ -6,14 +6,11 @@ import play.api.test.Helpers._
 
 import helpers.TestConfiguration
 import play.api.i18n.Messages
-import play.filters.csrf.CSRF
 import mocks.MockBufferedMailer
 import models.sql.MockAccountDAO
 
 /**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
+ * Basic app helpers which don't require a running DB.
  */
 class ApplicationSpec extends Specification with TestConfiguration {
   sequential
@@ -24,21 +21,14 @@ class ApplicationSpec extends Specification with TestConfiguration {
   "Application" should {
     "send 404 on a bad request" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
-        route(FakeRequest(GET, "/boum")) must beNone
-      }
-    }
-
-    "render something at root url" in {
-      running(FakeApplication(withGlobal = Some(getGlobal))) {
-        val home = route(FakeRequest(GET, "/")).get
-        status(home) must equalTo(OK)
+        route(FakeRequest(GET, "/NOTHINGHERE")) must beNone
       }
     }
 
     "redirect 301 for trailing-slash URLs" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.admin.routes.Home.index.url + "/")).get
+          controllers.admin.routes.Home.index().url + "/")).get
         status(home) must equalTo(MOVED_PERMANENTLY)
       }
     }
@@ -46,7 +36,7 @@ class ApplicationSpec extends Specification with TestConfiguration {
     "deny non-staff users access to admin areas" in {
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.admin.routes.Home.index.url)).get
+          controllers.admin.routes.Home.index().url)).get
         status(home) must equalTo(UNAUTHORIZED)
       }
     }
@@ -54,10 +44,10 @@ class ApplicationSpec extends Specification with TestConfiguration {
     "redirect to default URL when accessing login page when logged in" in {
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val login = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.core.routes.Admin.login.url)).get
+          controllers.core.routes.Admin.login().url)).get
         status(login) must equalTo(SEE_OTHER)
         val openid = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.core.routes.Admin.openIDLogin.url)).get
+          controllers.core.routes.Admin.openIDLogin().url)).get
         status(openid) must equalTo(SEE_OTHER)
       }
     }
@@ -66,7 +56,7 @@ class ApplicationSpec extends Specification with TestConfiguration {
       running(FakeApplication(withGlobal = Some(getGlobal),
         additionalConfiguration = Map("ehri.secured" -> false))) {
         val home = route(FakeRequest(GET,
-          controllers.admin.routes.Home.index.url)).get
+          controllers.admin.routes.Home.index().url)).get
         status(home) must equalTo(OK)
       }
     }
@@ -74,7 +64,7 @@ class ApplicationSpec extends Specification with TestConfiguration {
     "allow access to the openid callback url, and return a bad request" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(FakeRequest(GET,
-          controllers.core.routes.Admin.openIDCallback.url)
+          controllers.core.routes.Admin.openIDCallback().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
         status(home) must equalTo(BAD_REQUEST)
       }
