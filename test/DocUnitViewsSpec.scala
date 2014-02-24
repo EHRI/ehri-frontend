@@ -160,6 +160,20 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // NB: This error string comes from the server, so might
       // not match if changed there - single quotes surround the value
       contentAsString(cr2) must contain("exists and must be unique")
+
+      // Submit a third time with extra @Relation data, as a test for issue #124
+      val testData2 = testData ++ Map(
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].identityArea.name" -> Seq("Hello Kitty"),
+        "descriptions[0].identityArea.dates[0].startDate" -> Seq("1939-01-01"),
+        "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-01-01")
+      )
+      val cr3 = route(call, testData2).get
+      status(cr3) must equalTo(BAD_REQUEST)
+      // NB: This error string comes from the server, so might
+      // not match if changed there - single quotes surround the value
+      contentAsString(cr3) must contain("exists and must be unique")
+
     }
 
     "give a form error when saving an item with with a bad date" in new FakeApp {

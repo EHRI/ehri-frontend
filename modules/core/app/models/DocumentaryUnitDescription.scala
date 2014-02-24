@@ -21,7 +21,7 @@ case class IsadGIdentity(
   dates: List[DatePeriodF] = Nil,
   levelOfDescription: Option[String] = None,
   extentAndMedium: Option[String] = None
-)
+) extends AttributeSet
 
 case class IsadGContext(
   biographicalHistory: Option[String] = None,
