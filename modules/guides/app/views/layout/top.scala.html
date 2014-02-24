@@ -1,0 +1,37 @@
+@(location : String)(implicit request: RequestHeader, lang: Lang)
+<div class="row">
+	<div class="col-md-3  col-md-push-9 text-center">
+		<img src="./assets/images/text-logo.png" class="img-responsive" alt="EHRI" />
+		<form class="form" role="search">
+			<ul class="nav nav-pills nav-ehri nav-ehri-grey  nav-justified">
+				<li><input type="text" class="nav-ehri nav-ehri-grey nav-ehri-input" placeholder="Search"></li>
+				<li>
+					<div class="dropdown">
+						<button class="nav-ehri nav-ehri-grey nav-ehri-input text-center dropdown-toggle"  data-toggle="dropdown"><span class="glyphicon glyphicon-plus"></span></button>
+						<ul class="dropdown-menu">
+							<li><a>Advanced Search</a></li>
+							<li><a>Search Tips</a></li>
+						</ul>
+					</div>
+				</li>
+			</ul>
+		</form>
+	</div>
+	
+	<div class="col-md-9 col-md-pull-3">
+		<ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
+			<li @if(location == "places") { class="active" }><a href="./">Places</a></li>
+			<li @if(location == "keywords") { class="active" }><a href="./keywords">Keyword</a></li>
+			<li @if(location == "creationTime") { class="active" }><a href="./timeline">Creation Time</a></li>
+			<li @if(location == "people") { class="active" }><a href="./people">People</a></li>
+			<li @if(location == "organisation") { class="active" }><a href="./organisation">Organisations</a></li>
+			<li @if(location == "search") { class="active" }><a href="./results">Faceted Search</a></li>
+			<li @if(location == "item") { class="active" }><a href="./item">Item</a></li>
+		</ul>
+	</div>
+</div>
+
+
+
+
+
