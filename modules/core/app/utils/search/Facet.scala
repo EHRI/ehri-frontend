@@ -2,7 +2,6 @@ package utils.search
 
 import play.api.libs.json._
 import play.api.libs.json.JsBoolean
-import scala.Some
 import play.api.libs.json.JsNumber
 
 /**
@@ -67,7 +66,7 @@ trait FacetClass[+T <: Facet] {
   /**
    * Facets that do not trigger filtering on item counts in the same class.
    */
-  def tagExclude: Boolean = display == FacetDisplay.Choice
+  def tagExclude: Boolean = display == FacetDisplay.Choice || display == FacetDisplay.DropDown
 }
 
 object FacetClass {

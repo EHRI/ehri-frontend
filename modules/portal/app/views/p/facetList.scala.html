@@ -54,7 +54,7 @@
 }
 
 @facetList(fc: FacetClass[Facet]) = {
-    @defining(fc.sorted) { sortedActive =>
+    @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
         <div class="facet-class">
             <h4>@Messages(fc.name)</h4>
             <ul class="list-unstyled facet-list">

@@ -93,6 +93,11 @@ portal.historicalAgent.entityType.person=Person
 portal.historicalAgent.entityType.family=Family
 portal.historicalAgent.entityType.corporateBody=Corporate Body
 
+portal.facet.lod=Level of Detail
+portal.facet.lod.low=Low
+portal.facet.lod.medium=Medium
+portal.facet.lod.high=High
+portal.facet.placeholder.lod=Select Level of Detail
 portal.facet.location=Location
 portal.facet.placeholder.holder=Filter by Repository
 portal.facet.placeholder.country=Filter Country

@@ -1,6 +1,5 @@
 package controllers.portal
 
-import solr.facet.{SolrQueryFacet, QueryFacetClass, FieldFacetClass}
 import models.{Isaar, IsadG}
 import play.api.i18n.Messages
 import views.Helpers
@@ -9,6 +8,9 @@ import solr.SolrConstants
 import controllers.generic.Search
 import play.api.mvc.{RequestHeader, Controller}
 import utils.DateFacetUtils
+import solr.facet.SolrQueryFacet
+import solr.facet.FieldFacetClass
+import solr.facet.QueryFacetClass
 
 
 /**
@@ -131,6 +133,19 @@ trait FacetConfig extends Search {
         ),
         display = FacetDisplay.Boolean
       ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("portal.facet.lod"),
+        param="lod",
+        render=s => Messages("portal.facet.lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
+            SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
+            SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
+      ),
       FieldFacetClass(
         key="countryCode",
         name=Messages("isdiah.countryCode"),
@@ -162,6 +177,19 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         ),
         display = FacetDisplay.Boolean
+      ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("portal.facet.lod"),
+        param="lod",
+        render=s => Messages("portal.facet.lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
+          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
+          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key="countryCode",

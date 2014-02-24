@@ -12,7 +12,6 @@ import backend.rest.Constants
 import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
-import scala.Some
 import play.api.libs.json.JsObject
 
 

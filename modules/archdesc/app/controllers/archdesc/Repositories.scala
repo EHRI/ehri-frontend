@@ -6,14 +6,14 @@ import models._
 import play.api.i18n.Messages
 import defines.{EntityType,ContentTypes}
 import views.Helpers
-import utils.search.{Resolver, Indexer, Dispatcher, SearchParams, FacetSort}
+import utils.search._
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Play.current
 import play.api.Configuration
-import scala.Some
+
 
 @Singleton
 case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[Repository]
@@ -41,6 +41,19 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
           SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         )
+      ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("lod"),
+        param="lod",
+        render=s => Messages("lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
+          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
+          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key="countryCode",

@@ -9,7 +9,6 @@ import utils.{SessionPrefs, PageParams, SystemEventParams, ListParams}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
 import play.api.Play._
-import scala.Some
 
 
 /**

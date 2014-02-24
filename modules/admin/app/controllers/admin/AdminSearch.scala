@@ -16,7 +16,6 @@ import controllers.generic.{Indexable, Search}
 import backend.Backend
 import scala.util.Failure
 import solr.facet.FieldFacetClass
-import scala.Some
 import scala.util.Success
 
 

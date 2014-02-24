@@ -9,7 +9,6 @@ import models.json.{RestResource, ClientConvertable, RestReadable}
 import controllers.base.{ControllerHelpers, AuthController}
 import backend.Page
 import models.base.AnyModel
-import scala.Some
 import play.api.mvc.SimpleResult
 import backend.ApiUser
 import scala.concurrent.Future

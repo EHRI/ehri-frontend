@@ -12,7 +12,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.{IdGenerator, Backend}
 import play.api.Configuration
 import play.api.Play.current
-import scala.Some
+
 
 @Singleton
 case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO) extends CRUD[CountryF,Country]

@@ -26,6 +26,12 @@ dates.between=Between {0,number,#} and {1,number,#}
 dates.after=After {0,number,#}
 dates.all=All
 
+# Levels of detail...
+lod=Level of Detail
+lod.low=Low
+lod.medium=Medium
+lod.high=High
+
 # Form errors.
 error.globalErrors=There were problems with that form:
 error.date=Date is incorrect or badly formatted

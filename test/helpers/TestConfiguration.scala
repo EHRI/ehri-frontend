@@ -17,7 +17,6 @@ import scala.concurrent.Future
 import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
 import backend.rest.{CypherIdGenerator, RestBackend}
 import mocks.MockSearchResolver
-import scala.Some
 import mocks.MockSearchIndexer
 import play.api.test.FakeApplication
 import mocks.MockSearchDispatcher

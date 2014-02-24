@@ -105,30 +105,6 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
   });
 
 
-  var select2Opts = {
-    placeholder: "Select an option...",
-    allowClear: true,
-    dropdownAutoWidth: true,
-    dropdownCssClass: "facet-select-dropdown",
-    minimumInputLength: 0
-  };
-
-  // Re-check select2s whenever there's an Ajax event that could
-  // load a widget (e.g. the profile form)
-  $(document).ajaxComplete(function () {
-    //$(".select2").select2(select2Opts);
-  });
-
-  $(".select2").select2(select2Opts).change(function (e) {
-    if ($(e.target).hasClass("autosubmit")) {
-      $(e.target).closest("form").submit();
-    }
-  });
-
-  $(".facet-toggle").change(function (e) {
-    $(e.target).closest("form").submit();
-  });
-
 /**
  * Activity-related functions
  */

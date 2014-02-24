@@ -7,14 +7,14 @@ import play.api.mvc._
 import play.api.i18n.Messages
 import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
-import utils.search.{Resolver, Dispatcher, SearchParams, FacetSort}
+import utils.search._
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Play.current
 import play.api.Configuration
-import scala.Some
+
 
 @Singleton
 case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[DocumentaryUnit]
@@ -45,17 +45,32 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         )
       ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("lod"),
+        param="lod",
+        render=s => Messages("lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
+          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
+          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
+      ),
       FieldFacetClass(
         key=IsadG.LANG_CODE,
         name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
         param="lang",
-        render=Helpers.languageCodeToName
+        render=Helpers.languageCodeToName,
+        display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="holderName",
         name=Messages("documentaryUnit.heldBy"),
         param="holder",
-        sort = FacetSort.Name
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
       ),
       FieldFacetClass(
         key="copyrightStatus",
