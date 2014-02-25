@@ -1,4 +1,4 @@
-package test
+package integration
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import helpers.Neo4jRunnerSpec
@@ -70,11 +70,6 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       // Check user has been anonymised...
       val cnameAfter = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
       cname must not equalTo cnameAfter
-
-      // FIXME: Since we actually delete the account here we have to
-      // rebuild the fixtures - test isolation fail...
-      // Ugh - fix the DB
-      mocks.userFixtures += privilegedUser.id -> privilegedUser
     }
 
     "disallow deleting profile without correct confirmation" in new FakeApp {
@@ -82,7 +77,6 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         portalRoutes.deleteProfilePost().url), data).get
       status(delete) must equalTo(BAD_REQUEST)
-
     }
 
     "allow following and unfollowing users" in new FakeApp {
@@ -104,8 +98,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       val following2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         portalRoutes.followingForUser(privilegedUser.id).url)).get
       // Check the following page contains no links to the user we just unfollowed
-      contentAsString(following2) must not contain(
-        portalRoutes.browseUser(unprivilegedUser.id).url)
+      contentAsString(following2) must not contain portalRoutes.browseUser(unprivilegedUser.id).url
     }
 
     "allow watching and unwatching items" in new FakeApp {
@@ -128,8 +121,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       val watching2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         portalRoutes.watching().url)).get
       // Check the profile contains no links to the item we just unwatched
-      contentAsString(watching2) must not contain(
-        portalRoutes.browseDocument("c1").url)
+      contentAsString(watching2) must not contain portalRoutes.browseDocument("c1").url
 
     }
 
@@ -153,7 +145,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
-      contentAsString(doc) must not contain(testBody)
+      contentAsString(doc) must not contain testBody
 
     }
 
@@ -174,7 +166,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
-      contentAsString(doc) must not contain(testBody)
+      contentAsString(doc) must not contain testBody
     }
 
     "allow updating annotations" in new FakeApp {
@@ -198,7 +190,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
-      contentAsString(doc) must not contain(testBody)
+      contentAsString(doc) must not contain testBody
 
       // Mmmn, need to get the id - this is faffy... assume there is
       // only one annotation on the item and fetch it via the api...
@@ -240,7 +232,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
-      contentAsString(doc) must not contain(testBody)
+      contentAsString(doc) must not contain testBody
 
       // Get a id via faff method and promote the item...
       implicit val apiUser = ApiUser(Some(privilegedUser.id))
@@ -274,7 +266,7 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       val fbCount = mockFeedback.buffer.size
       val fb = Map("text" -> Seq("it doesn't work"))
       val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          portalRoutes.feedbackPost.url), fb).get
+          portalRoutes.feedbackPost().url), fb).get
       status(post) must equalTo(SEE_OTHER)
       val newCount = mockFeedback.buffer.size
       newCount must equalTo(fbCount + 1)

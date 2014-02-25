@@ -1,4 +1,4 @@
-package test
+package backend
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import models._
@@ -6,7 +6,6 @@ import defines.{EntityType, ContentTypes, PermissionType}
 import utils.{ListParams, PageParams}
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
-import backend.ApiUser
 import play.api.libs.json.Json
 
 /**

@@ -1,4 +1,4 @@
-package test
+package integration
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import helpers._

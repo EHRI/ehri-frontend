@@ -1,10 +1,8 @@
-package mocks
+package backend
 
-import backend.FeedbackDAO
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import models.Feedback
-import scala.util.Random
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

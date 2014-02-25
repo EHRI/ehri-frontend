@@ -24,7 +24,7 @@ package object helpers {
   /**
    * Load database fixtures.
    */
-  def loadFixtures(implicit app: play.api.Application) = {
+  def loadSqlFixtures(implicit app: play.api.Application) = {
     val userDAO: AccountDAO = SqlAccount
     mocks.users.map { case (profile, account) =>
       val acc = userDAO.create(account.id, account.email, verified = true, staff = true)
@@ -44,11 +44,11 @@ package object helpers {
    * So here I've basically copy-pasted WithApplication and added
    * extra work before it returns.
    */
-  abstract class WithFixures(val app: FakeApplication = FakeApplication()) extends Around with Scope {
+  abstract class WithSqlFixures(val app: FakeApplication = FakeApplication()) extends Around with Scope {
     implicit def implicitApp = app
     override def around[T: AsResult](t: => T): Result = {
       running(app) {
-        loadFixtures
+        loadSqlFixtures
         AsResult.effectively(t)
       }
     }

@@ -96,7 +96,7 @@ object SqlAccount extends AccountDAO {
     SQL("select * from users").as(SqlAccount.simple *)
   }
 
-  def findByEmail(email: String, verified: Boolean = true): Option[Account] = DB.withConnection { implicit connection =>
+  def findVerifiedByEmail(email: String, verified: Boolean = true): Option[Account] = DB.withConnection { implicit connection =>
     SQL(
       """
         select * from users where email = {email} and verified = {verified}
@@ -104,9 +104,20 @@ object SqlAccount extends AccountDAO {
     ).on('email -> email, 'verified -> verified).as(SqlAccount.simple.singleOpt)
   }
 
-  def findByProfileId(id: String, verified: Boolean = true): Option[Account] = DB.withConnection { implicit connection =>
+  def findByEmail(email: String): Option[Account] = DB.withConnection { implicit connection =>
+    SQL(
+      """select * from users where email = {email}"""
+    ).on('email -> email).as(SqlAccount.simple.singleOpt)
+  }
+
+  def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account] = DB.withConnection { implicit connection =>
     SQL("select * from users where id = {id} and verified = {verified}")
       .on('id -> id, 'verified -> verified).as(SqlAccount.simple.singleOpt)
+  }
+
+  def findByProfileId(id: String): Option[Account] = DB.withConnection { implicit connection =>
+    SQL("select * from users where id = {id}").on('id -> id)
+      .as(SqlAccount.simple.singleOpt)
   }
 
   def create(id: String, email: String, verified: Boolean, staff: Boolean): SqlAccount = DB.withConnection { implicit connection =>

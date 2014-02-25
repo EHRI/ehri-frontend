@@ -1,6 +1,5 @@
-package models.sql
+package models
 
-import models.{Account,AccountDAO,HashedPassword}
 import java.util.UUID
 
 case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false) extends Account {
@@ -31,11 +30,17 @@ object MockAccountDAO extends AccountDAO {
   override def authenticate(email: String, pw: String, verified: Boolean = true)
       = mocks.userFixtures.find(u => u._2.email == email && u._2.verified == verified).map(_._2)
 
-  def findByProfileId(id: String, verified: Boolean = true): Option[Account]
-        = mocks.userFixtures.get(id).filter(p => p.verified == verified)
+  def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account]
+      = mocks.userFixtures.get(id).filter(p => p.verified == verified)
 
-  def findByEmail(email: String, verified: Boolean = true): Option[Account]
-  = mocks.userFixtures.values.find(u => u.email == email && u.verified == verified)
+  def findByProfileId(id: String): Option[Account]
+      = mocks.userFixtures.get(id)
+
+  def findVerifiedByEmail(email: String, verified: Boolean = true): Option[Account]
+      = mocks.userFixtures.values.find(u => u.email == email && u.verified == verified)
+
+  def findByEmail(email: String): Option[Account]
+      = mocks.userFixtures.values.find(u => u.email == email)
 
   def create(id: String, email: String, verified: Boolean = false, staff: Boolean = false): Account = {
     val user = MockAccount(id, email, staff)

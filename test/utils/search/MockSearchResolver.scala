@@ -1,4 +1,4 @@
-package mocks
+package utils.search
 
 import scala.concurrent.Future
 import utils.search._

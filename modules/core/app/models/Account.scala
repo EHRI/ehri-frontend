@@ -49,8 +49,10 @@ trait AccountDAO extends Plugin {
       acc <- findByEmail(email)
       hashed <- acc.password if Account.checkPassword(pw, hashed) && acc.verified
   } yield acc
-	def findByProfileId(id: String, verified: Boolean = true): Option[Account]
-  def findByEmail(email: String, verified: Boolean = true): Option[Account]
+  def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account]
+	def findByProfileId(id: String): Option[Account]
+  def findVerifiedByEmail(email: String, verified: Boolean = true): Option[Account]
+  def findByEmail(email: String): Option[Account]
   def create(id: String, email: String, verified: Boolean, staff: Boolean): Account
   def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, hashed: HashedPassword): Account
   def findByResetToken(token: String, isSignUp: Boolean = false): Option[Account]

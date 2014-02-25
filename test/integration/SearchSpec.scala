@@ -1,4 +1,4 @@
-package test
+package integration
 
 import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}

@@ -1,4 +1,4 @@
-import models.sql.MockAccount
+import models.MockAccount
 
 package object mocks {
 

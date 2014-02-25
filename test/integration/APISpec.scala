@@ -1,4 +1,4 @@
-package test
+package integration
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{AnnotationF, AccessPointF}

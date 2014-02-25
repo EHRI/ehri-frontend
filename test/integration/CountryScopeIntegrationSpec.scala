@@ -1,11 +1,11 @@
-package test
+package integration
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import helpers._
 import models.UserProfile
 import defines._
-import models.sql.MockAccount
+import models.MockAccount
 import backend.ApiUser
 
 /**

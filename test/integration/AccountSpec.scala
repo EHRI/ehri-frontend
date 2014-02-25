@@ -1,9 +1,9 @@
-package test
+package integration
 
 import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
-import helpers.WithFixures
+import helpers.WithSqlFixures
 import models.{Account, AccountDAO}
 import models.sql.{SqlAccount, OAuth2Association, OpenIDAssociation}
 import play.api.test.PlaySpecification
@@ -17,20 +17,20 @@ class AccountSpec extends PlaySpecification {
   def userDAO: AccountDAO = SqlAccount
 
   "account db" should {
-    "load fixtures with the right number of accounts" in new WithFixures {
+    "load fixtures with the right number of accounts" in new WithSqlFixures {
       DB.withConnection { implicit connection =>
         SQL("select count(*) from users").as(scalar[Long].single) must equalTo(4L)
       }
     }
 
-    "find accounts by id and email" in new WithFixures {
+    "find accounts by id and email" in new WithSqlFixures {
       DB.withConnection { implicit connection =>
         userDAO.findByProfileId(mocks.privilegedUser.id) must beSome
         userDAO.findByEmail(mocks.privilegedUser.email) must beSome
       }
     }
 
-    "allow setting and updating user's passwords" in new WithFixures {
+    "allow setting and updating user's passwords" in new WithSqlFixures {
       val userOpt: Option[Account] = userDAO.findByEmail(mocks.privilegedUser.email)
       userOpt must beSome.which { user =>
         val hashedPw = Account.hashPassword("foobar")
@@ -46,7 +46,7 @@ class AccountSpec extends PlaySpecification {
 
 
   "openid assoc" should {
-    "find accounts by openid_url and allow adding another" in new WithFixures {
+    "find accounts by openid_url and allow adding another" in new WithSqlFixures {
       val assoc = OpenIDAssociation.findByUrl(mocks.privilegedUser.id + "-openid-test-url")
       assoc must beSome
       assoc.get.user must beSome
@@ -63,7 +63,7 @@ class AccountSpec extends PlaySpecification {
   }
 
   "oauth2 assoc" should {
-    "find accounts by oauth2 provider info and allow adding another" in new WithFixures {
+    "find accounts by oauth2 provider info and allow adding another" in new WithSqlFixures {
       val assoc = OAuth2Association.findByProviderInfo("1234", "google")
       assoc must beSome
       assoc.get.user must beSome

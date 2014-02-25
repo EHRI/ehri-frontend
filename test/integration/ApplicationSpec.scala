@@ -1,18 +1,18 @@
-package test
+package integration
 
 import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
 
-import helpers.TestConfiguration
+import helpers.{UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
 import mocks.MockBufferedMailer
-import models.sql.MockAccountDAO
+import models.MockAccountDAO
 
 /**
  * Basic app helpers which don't require a running DB.
  */
-class ApplicationSpec extends Specification with TestConfiguration {
+class ApplicationSpec extends Specification with TestConfiguration with UserFixtures {
   sequential
 
   // Settings specific to this spec...
@@ -95,6 +95,7 @@ class ApplicationSpec extends Specification with TestConfiguration {
         val forgot = route(FakeRequest(POST,
           controllers.core.routes.Admin.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+        println(redirectLocation(forgot))
         status(forgot) must equalTo(BAD_REQUEST)
         contentAsString(forgot) must contain(Messages("error.emailNotFound"))
       }

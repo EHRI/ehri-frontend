@@ -1,4 +1,4 @@
-package mocks
+package utils.search
 
 import defines.EntityType
 import models.UserProfile

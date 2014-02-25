@@ -24,7 +24,7 @@ trait BeforeAllAfterAll extends Specification {
  * Neo4j server with the EHRI endpoint and cleans/sets-up the
  * test data before and after every test.
  */
-abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with BeforeExample with BeforeAllAfterAll with TestConfiguration {
+abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with UserFixtures with BeforeAllAfterAll with TestConfiguration {
   sequential
 
   val testPort = 7575
@@ -49,7 +49,8 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with Bef
   /**
    * Tear down and setup fixtures before every test
    */
-  def before = {
+  override def before = {
+    super.before
     runner.tearDown()
     runner.setUp()
   }

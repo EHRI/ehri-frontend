@@ -1,9 +1,9 @@
-package test
+package integration
 
 import play.api.test._
 import play.api.i18n.Messages
 
-class IntegrationSpec extends PlaySpecification {
+class BrowserSpec extends PlaySpecification {
 
   "Application" should {
 
@@ -15,8 +15,8 @@ class IntegrationSpec extends PlaySpecification {
 
     // Cannot get this working property, still says url is on about:blank...
     "handle 404s properly for missing pages" in new WithBrowser {
-      browser.goTo(controllers.admin.routes.Home.index.url + "/idontexist")
-      browser.$("#error-title").getTexts().get(0) must equalTo(Messages("errors.pageNotFound"))
+      browser.goTo(controllers.admin.routes.Home.index().url + "/idontexist")
+      browser.$("#error-title").getTexts.get(0) must equalTo(Messages("errors.pageNotFound"))
     }
 
     // FIXME: This is disabled because it requires running a DB in the background
@@ -29,7 +29,7 @@ class IntegrationSpec extends PlaySpecification {
     //}
 
     "deny access to admin routes" in new WithBrowser {
-      browser.goTo(controllers.core.routes.UserProfiles.search.url)
+      browser.goTo(controllers.core.routes.UserProfiles.search().url)
       browser.$("title").getTexts.get(0) must equalTo(Messages("login.login"))
     }
   }

@@ -1,4 +1,4 @@
-package test
+package integration
 
 import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._

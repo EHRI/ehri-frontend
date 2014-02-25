@@ -1,25 +1,30 @@
 package helpers
 
 import play.api.http.{MimeTypes, HeaderNames}
-import play.api.test.FakeRequest
+import play.api.test.{FakeApplication, FakeRequest}
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
-import models.sql.MockAccountDAO
+import models.MockAccountDAO
 import mocks._
 import global.GlobalConfig
-import utils.search.{Resolver, Indexer, Dispatcher}
+import utils.search._
 import com.tzavellas.sse.guice.ScalaModule
 import models.{AccountDAO, Account}
 import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
-import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
+import backend._
 import backend.rest.{CypherIdGenerator, RestBackend}
-import mocks.MockSearchResolver
-import mocks.MockSearchIndexer
+import utils.search._
+import backend.rest.RestBackend
+import utils.search.MockSearchResolver
+import backend.rest.RestBackend
+import scala.Some
+import backend.rest.CypherIdGenerator
+import utils.search.MockSearchIndexer
 import play.api.test.FakeApplication
-import mocks.MockSearchDispatcher
+import utils.search.MockSearchDispatcher
 
 /**
  * Mixin trait that provides some handy methods to test actions that
