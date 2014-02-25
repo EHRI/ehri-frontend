@@ -7,6 +7,7 @@ import helpers.WithSqlFixures
 import models.{Account, AccountDAO}
 import models.sql.{SqlAccount, OAuth2Association, OpenIDAssociation}
 import play.api.test.PlaySpecification
+import org.h2.jdbc.JdbcSQLException
 
 
 /**
@@ -20,6 +21,15 @@ class AccountSpec extends PlaySpecification {
     "load fixtures with the right number of accounts" in new WithSqlFixures {
       DB.withConnection { implicit connection =>
         SQL("select count(*) from users").as(scalar[Long].single) must equalTo(4L)
+      }
+    }
+
+    "enforce email uniqueness" in new WithSqlFixures {
+      DB.withConnection { implicit connection =>
+        SQL(
+          """insert into users (id,email,verified,staff) values ('blah',{email},1,1)""")
+          .on('email -> mocks.privilegedUser.email)
+          .executeInsert() must throwA[JdbcSQLException]
       }
     }
 

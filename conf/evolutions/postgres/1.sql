@@ -8,6 +8,7 @@ CREATE TABLE users (
     created     TIMESTAMP NOT NULL
 );
 
+CREATE UNIQUE INDEX users_email ON users (email);
 
 CREATE TABLE openid_association (
     id           VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
