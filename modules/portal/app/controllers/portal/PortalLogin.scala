@@ -35,8 +35,8 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     tuple(
       "name" -> nonEmptyText,
       "email" -> email,
-      "password" -> nonEmptyText,
-      "confirm" -> nonEmptyText
+      "password" -> nonEmptyText(minLength = 6),
+      "confirm" -> nonEmptyText(minLength = 6)
     ) verifying("login.passwordsDoNotMatch", f => f match {
       case (_, _, pw, pwc) => pw == pwc
     })
