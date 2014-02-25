@@ -23,7 +23,9 @@ trait AuthConfigImpl extends AuthConfig with Results {
   def defaultLoginUrl: Call = globalConfig.routeRegistry.default
   def defaultLogoutUrl: Call = globalConfig.routeRegistry.default
   def defaultAuthFailedUrl: Call = globalConfig.routeRegistry.login
-  
+
+  protected val ACCESS_URI: String = "access_uri"
+
 
   /**
    * Dummy permission (which is not actually used.)
@@ -80,8 +82,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
   def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
     val uri = request.session.get("access_uri").getOrElse(defaultLoginUrl.url)
     Logger.logger.debug("Redirecting logged-in user to: {}", uri)
-    immediate(Redirect(uri)
-      .withSession(request.session - "access_uri"))
+    immediate(Redirect(uri).withSession(request.session - "access_uri"))
   }
 
   /**
@@ -98,7 +99,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
       Logger.logger.warn("Auth failed for: {}", request.toString())
       immediate(Unauthorized("authentication failed"))
     } else {
-      immediate(Redirect(defaultAuthFailedUrl).withSession("access_uri" -> request.uri))
+      immediate(Redirect(defaultAuthFailedUrl).withSession(ACCESS_URI -> request.uri))
     }
   }
 

@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 import helpers.{UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
 import mocks.MockBufferedMailer
-import models.MockAccountDAO
+import models.{MockAccount, MockAccountDAO}
 
 /**
  * Basic app helpers which don't require a running DB.
@@ -36,6 +36,17 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     "deny non-staff users access to admin areas" in {
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
+          controllers.admin.routes.Home.index().url)).get
+        status(home) must equalTo(UNAUTHORIZED)
+      }
+    }
+
+    "deny non-verified users access to admin areas" in {
+      var user = MockAccount("pete", "unverified@example.com", verified = false, staff = true)
+      mocks.userFixtures += user.id -> user
+
+      running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
+        val home = route(fakeLoggedInHtmlRequest(user, GET,
           controllers.admin.routes.Home.index().url)).get
         status(home) must equalTo(UNAUTHORIZED)
       }
@@ -71,7 +82,9 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     }
     
     "give a capture error submitting a forgot password form" in {
-      running(FakeApplication(withGlobal = Some(getGlobal))) {
+      running(FakeApplication(withGlobal = Some(getGlobal),
+        additionalConfiguration = Map("recaptcha.skip" -> false),
+        additionalPlugins = getPlugins)) {
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq("test@example.com"),
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -95,7 +108,6 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
         val forgot = route(FakeRequest(POST,
           controllers.core.routes.Admin.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
-        println(redirectLocation(forgot))
         status(forgot) must equalTo(BAD_REQUEST)
         contentAsString(forgot) must contain(Messages("error.emailNotFound"))
       }

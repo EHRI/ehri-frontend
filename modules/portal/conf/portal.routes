@@ -23,6 +23,7 @@ GET         /confirmEmail/:token            @controllers.portal.Portal.confirmEm
 POST        /changePassword                 @controllers.portal.Portal.changePasswordPost
 GET         /forgot                         @controllers.portal.Portal.forgotPassword
 POST        /forgot                         @controllers.portal.Portal.forgotPasswordPost
+POST        /resendVerification             @controllers.portal.Portal.resendVerificationPost
 GET         /prs                            @controllers.portal.Portal.passwordReminderSent
 GET         /rstp/:token                    @controllers.portal.Portal.resetPassword(token: String)
 POST        /rstp/:token                    @controllers.portal.Portal.resetPasswordPost(token: String)

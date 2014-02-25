@@ -25,6 +25,7 @@ trait Account {
   val staff: Boolean
   def password: Option[HashedPassword] = None
   def setPassword(hashed: HashedPassword): Account
+  def setVerified(): Account
   def verify(token: String): Account
   def delete(): Boolean
   def createResetToken(uuid: UUID): Unit

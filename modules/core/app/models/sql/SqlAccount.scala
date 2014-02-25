@@ -55,6 +55,15 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
     }
   }
 
+  def setVerified(): Account = DB.withTransaction { implicit connection =>
+    if (!verified) {
+      SQL("UPDATE users SET verified = 1 WHERE id = {id}")
+        .on('id -> id, 'verified -> true).executeUpdate()
+      SQL("""DELETE FROM token WHERE id = {id}""").on('id -> id).execute()
+    }
+    this.copy(verified = true)
+  }
+
   def verify(token: String): Account = DB.withTransaction { implicit connection =>
     SQL("UPDATE users SET verified = {verified} WHERE id = {id}")
       .on('id -> id, 'verified -> true).executeUpdate()

@@ -25,9 +25,7 @@ trait PortalAuthConfigImpl extends AuthConfigImpl {
   override def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
     val uri = request.session.get("access_uri").getOrElse(defaultLoginUrl.url)
     Logger.logger.debug("Redirecting logged-in user to: {}", uri)
-    immediate(Redirect(uri)
-      .withSession(request.session - "access_uri")
-     )
+    immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
 
 
   }

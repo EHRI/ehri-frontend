@@ -62,11 +62,13 @@ trait Oauth2LoginHandler {
     )
     OAuth2Association.findByProviderInfo(userData.providerId, provider.name).flatMap(_.user).map { account =>
       Logger.info(s"Found existing association for $userData/${provider.name}")
+      account.setVerified()
       updateUserInfo(account, profileData).map(_ => account)
     } getOrElse{
       // User has an account already, so try and find them by email. If so, add an association...
       userDAO.findByEmail(userData.email).map { account =>
         Logger.info(s"Creating new association for $userData/${provider.name}")
+        account.setVerified()
         OAuth2Association.addAssociation(account, userData.providerId, provider.name)
         updateUserInfo(account, profileData).map(_ => account)
       } getOrElse {

@@ -299,5 +299,28 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
         user.verified must beFalse
       }
     }
+
+    "allow unverified user to log in" in new FakeApp {
+      val testEmail: String = "test@example.com"
+      val testName: String = "Test Name"
+      val data: Map[String,Seq[String]] = Map(
+        "name" -> Seq(testName),
+        "email" -> Seq(testEmail),
+        "password" -> Seq("testpass"),
+        "confirm" -> Seq("testpass"),
+        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+      )
+      val signup = route(FakeRequest(POST, portalRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      status(signup) must equalTo(SEE_OTHER)
+      println(mocks.userFixtures)
+      mocks.userFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
+        // Ensure we can log in and view our profile
+        val index = route(fakeLoggedInHtmlRequest(u, GET,
+          portalRoutes.profile().url)).get
+        status(index) must equalTo(OK)
+        contentAsString(index) must contain(testName)
+      }
+    }
   }
 }

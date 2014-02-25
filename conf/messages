@@ -67,6 +67,7 @@ search.batchSize=Batch size for reindexing
 footer.footerText=This is a development version of the EHRI data entry interface.
 
 login.login=Sign In
+login.logout=Sign Out
 login.openid=With OpenID
 login.existingAccount=With an existing account
 login.withPassword=Using a password
@@ -83,6 +84,7 @@ login.existingPassword=Current Password
 login.confirmPassword=Confirm New Password
 login.passwordsDoNotMatch=Password and confirmation do not match!
 login.passwordChanged=Password Changed!
+login.notVerified=Email not verified
 login.expiredOrInvalidResetToken=URL given for password reset was invalid or expired. \
   Note: password reset links can only be used once.
 login.passwordReset=Password Reset
@@ -145,6 +147,8 @@ create.heading=Create New Item
 #
 errors.staffOnly=Restricted
 errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
+errors.verifiedOnly=Restricted
+errors.verifiedOnlyMessage=This page is currently restricted to verified users only.
 errors.itemNotFound=Item Not Found
 errors.itemNotFoundExplanation=That item couldn''t be found in the database.
 errors.pageNotFound=Page Not Found

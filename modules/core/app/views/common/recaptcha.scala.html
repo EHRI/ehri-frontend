@@ -1,5 +1,6 @@
-@(recaptchaKey: String)(implicit req: RequestHeader, lang: Lang)
+@(recaptchaKey: String)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
+@if(!globalConfig.skipRecaptcha) {
 <script type="text/javascript"
         src="http://www.google.com/recaptcha/api/challenge?k=@recaptchaKey">
 </script>
@@ -11,3 +12,4 @@
     <input type="hidden" name="recaptcha_response_field"
            value="manual_challenge">
 </noscript>
+}

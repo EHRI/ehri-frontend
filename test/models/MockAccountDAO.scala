@@ -5,6 +5,7 @@ import java.util.UUID
 case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false) extends Account {
   def updatePassword(hashed: HashedPassword): Account = this
   def setPassword(data: HashedPassword): Account = this
+  def setVerified(): Account = this.copy(verified = true)
   def verify(token: String): Account = this.copy(verified = true)
   def delete(): Boolean = {
     mocks.userFixtures -= id

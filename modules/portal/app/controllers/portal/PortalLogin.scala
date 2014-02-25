@@ -18,6 +18,7 @@ import java.util.UUID
 import play.api.i18n.Messages
 import backend.ApiUser
 import utils.SessionPrefs
+import com.google.common.net.HttpHeaders
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -85,8 +86,8 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
                 account.createValidationToken(uuid)
                 sendValidationEmail(email, uuid)
 
-                immediate(Redirect(defaultLogoutUrl)
-                  .flashing("success" -> "portal.signup.needToConfirmEmail"))
+                gotoLoginSucceeded(userProfile.id).map(r =>
+                  r.flashing("success" -> "portal.signup.needToConfirmEmail"))
               }
             }
           }
@@ -138,38 +139,32 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
         implicit val accountOpt: Option[Account] = None
         immediate(BadRequest(views.html.p.account.login(
             openidForm, errorForm, oauthProviders)))
-      case Right(account) =>
-        gotoLoginSucceeded(account.id)
-          .map(_.withSession("access_uri" -> portalRoutes.index().url))
+      case Right(account) => gotoLoginSucceeded(account.id)
     }
   }
-  
 
   def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
     Logger.logger.info("Portal User '{}' logged out", maybeUser.map(_.id).getOrElse("?"))
     gotoLogoutSucceeded
   }
 
-  def googleLogin = oauth2LoginPostAction.async(GoogleOAuth2Provider, portalRoutes.googleLogin) { account => implicit request =>
+  def googleLogin = oauth2LoginPostAction.async(GoogleOAuth2Provider, portalRoutes.googleLogin()) { account => implicit request =>
     gotoLoginSucceeded(account.id)
-      .map(_.withSession("access_uri" -> portalRoutes.index.url))
   }
 
-  def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, portalRoutes.facebookLogin) { account => implicit request =>
+  def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, portalRoutes.facebookLogin()) { account => implicit request =>
     gotoLoginSucceeded(account.id)
-      .map(_.withSession("access_uri" -> portalRoutes.index.url))
   }
 
-  def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, portalRoutes.linkedInLogin) { account => implicit request =>
+  def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, portalRoutes.linkedInLogin()) { account => implicit request =>
     gotoLoginSucceeded(account.id)
-      .map(_.withSession("access_uri" -> portalRoutes.index.url))
   }
 
   def forgotPassword = Action { implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     Ok(views.html.p.account.forgotPassword(forgotPasswordForm,
-      recaptchaKey, portalRoutes.forgotPasswordPost))
+      recaptchaKey, portalRoutes.forgotPasswordPost()))
   }
 
   def forgotPasswordPost = forgotPasswordPostAction { uuidOrErr => implicit request =>
@@ -178,11 +173,11 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     uuidOrErr match {
       case Right((account,uuid)) =>
         sendResetEmail(account.email, uuid)
-        Redirect(portalRoutes.index)
+        Redirect(portalRoutes.index())
           .flashing("warning" -> "login.sentPasswordResetLink")
       case Left(errForm) =>
         BadRequest(views.html.p.account.forgotPassword(errForm,
-          recaptchaKey, portalRoutes.forgotPasswordPost))
+          recaptchaKey, portalRoutes.forgotPasswordPost()))
     }
   }
 
@@ -195,9 +190,21 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
       Ok(views.html.p.account.resetPassword(resetPasswordForm,
         portalRoutes.resetPasswordPost(token)))
     }.getOrElse {
-      Redirect(portalRoutes.forgotPassword)
+      Redirect(portalRoutes.forgotPassword())
         .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
     }
+  }
+
+  def resendVerificationPost() = withUserAction { implicit user => implicit request =>
+    user.account.map { account =>
+      val uuid = UUID.randomUUID()
+      account.createValidationToken(uuid)
+      sendValidationEmail(account.email, uuid)
+      val redirect = request.headers.get(HttpHeaders.REFERER)
+        .getOrElse(portalRoutes.index().url)
+      Redirect(redirect)
+        .flashing("success" -> Messages("portal.mail.emailConfirmationResent"))
+    }.getOrElse(Unauthorized)
   }
 
   def resetPasswordPost(token: String) = resetPasswordPostAction(token) { boolOrForm => implicit request =>
@@ -206,10 +213,10 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
         BadRequest(views.html.p.account.resetPassword(errForm,
           portalRoutes.resetPasswordPost(token)))
       case Right(true) =>
-        Redirect(portalRoutes.login)
+        Redirect(portalRoutes.login())
           .flashing("warning" -> "login.passwordResetNowLogin")
       case Right(false) =>
-        Redirect(portalRoutes.forgotPassword)
+        Redirect(portalRoutes.forgotPassword())
           .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
     }
   }

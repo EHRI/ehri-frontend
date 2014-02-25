@@ -24,13 +24,6 @@
         @helper.form(action = action, 'class -> "login-form signup-form form form-horizontal") {
             <h1 class="text-center">@Messages("portal.signup")</h1>
             @formHelpers.csrfToken()
-            <div class="field">
-                <div class="input">
-                    <p>
-                        A nice little text which could be changed at anytime.
-                    </p>
-                </div>
-            </div>
 
             @formHelpers.globalErrors(signupForm)
 

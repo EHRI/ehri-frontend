@@ -26,6 +26,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
 
   // Override this to allow non-staff to view a page
   val staffOnly = true
+  // Override this to allow non-verified users to view a page
+  val verifiedOnly = true
 
   // Turning secured off will override staffOnly
   lazy val secured = play.api.Play.current.configuration.getBoolean("ehri.secured").getOrElse(true)
@@ -77,6 +79,9 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           if (staffOnly && secured && !account.staff) {
             immediate(Unauthorized(utils.renderError("errors.staffOnly",
               views.html.errors.staffOnly())))
+          } else if (verifiedOnly && secured && !account.verified) {
+              immediate(Unauthorized(utils.renderError("errors.verifiedOnly",
+                views.html.errors.verifiedOnly())))
           } else {
             // For the permissions to be properly initialized they must
             // recieve a completely-constructed instance of the UserProfile
@@ -95,7 +100,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             } yield r
           }
         } getOrElse {
-          if (staffOnly && secured) {
+          if ((staffOnly || verifiedOnly) && secured) {
             authenticationFailed(request)
           } else {
             f(None)(request)

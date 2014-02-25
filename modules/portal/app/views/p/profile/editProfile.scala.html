@@ -8,6 +8,15 @@
     }
 
     @p.layout.mainContent {
+        @userOpt.flatMap(_.account).map { account =>
+            @if(!account.verified) {
+                <fieldset>
+                    <legend>@Messages("portal.mail.unverifiedEmailWarning")</legend>
+                    @unverified()
+                </fieldset>
+            }
+        }
+
         <fieldset>
             <legend>@Messages("portal.profile.updateProfile")</legend>
             @editProfileForm(profileForm, controllers.portal.routes.Portal.updateProfilePost)
