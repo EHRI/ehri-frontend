@@ -154,7 +154,7 @@ object Annotation {
     ISA -> ignored(EntityType.Annotation),
     ID -> optional(nonEmptyText),
     ANNOTATION_TYPE_PROP -> optional(models.forms.enum(AnnotationType)),
-    BODY -> nonEmptyText(minLength = 15, maxLength = 600),
+    BODY -> nonEmptyText(maxLength = 600),
     FIELD -> optional(nonEmptyText),
     COMMENT -> optional(nonEmptyText),
     Ontology.IS_PROMOTABLE -> default(boolean, false)
