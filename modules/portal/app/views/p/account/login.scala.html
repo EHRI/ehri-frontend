@@ -24,7 +24,7 @@
 
 <section class="login">
     <div class="wrap">
-        @helper.form(action = controllers.portal.routes.Portal.openIDLoginPost, 'class -> "openid form") {
+        @helper.form(action = controllers.portal.routes.Portal.openIDLoginPost, 'class -> "openid form", 'role -> "form") {
             <p>
                 @Messages("portal.loginByProvider")
             </p>
@@ -77,9 +77,9 @@
             </div>
             @formHelpers.globalErrors(openIdForm)
 
-            <input type="submit" class="login-button openid" value="@Messages("submitButton.loginWithOpenid")" />
+            <input type="submit" class="button post login-button openid" value="@Messages("submitButton.loginWithOpenid")" />
         }
-        @helper.form(action = controllers.portal.routes.Portal.passwordLoginPost, 'class -> "login-form form") {
+        @helper.form(action = controllers.portal.routes.Portal.passwordLoginPost, 'class -> "login-form form", 'role -> "form") {
             <p>@Messages("portal.loginByPassword")</p>
 
             @formHelpers.globalErrors(pwForm)
@@ -91,12 +91,12 @@
                 <input type="password" class="form-control" name="password" id="pw-pw" placeholder="@Messages("login.password")" />
             </div>
 
-            <input type="submit" class="login-button" value="@Messages("submitButton.loginWithPassword")" />
+            <input type="submit" class="login-button button post" value="@Messages("submitButton.loginWithPassword")" />
             <p class="text-center">
                 <em><strong>or</strong></em>
             </p>
             <p class="text-center">
-                <a class="btn btn-primary" href="@controllers.portal.routes.Portal.signup">@Messages("portal.signup")</a>
+                <a class="button post" href="@controllers.portal.routes.Portal.signup">@Messages("portal.signup")</a>
             </p>
 
         }

@@ -13,18 +13,22 @@
 	.btn;
 
 	&.post {
-  		.button-variant(@btn-post-color; @btn-post-bg; @btn-post-border);
+  		.button-variant(@btn-post-color, @btn-post-bg, @btn-post-border);
 	}
 	&.cancel {
-  		.button-variant(@btn-cancel-color; @btn-cancel-bg; @btn-cancel-border);
+  		.button-variant(@btn-cancel-color, @btn-cancel-bg, @btn-cancel-border);
 	}
 	&.get {
-		.button-variant(@btn-get-color; @btn-get-bg; @btn-get-border);
+		.button-variant(@btn-get-color, @btn-get-bg, @btn-get-border);
 	}
 
 	&.xs {
 		.btn-xs;
 	}
+
+    &.danger {
+      .button-variant(@btn-danger-color, @btn-danger-bg, @btn-danger-border);
+    }
 }
 
 form[method="GET"], form:not([method="POST"]) {
@@ -37,13 +41,6 @@ form[method="GET"], form:not([method="POST"]) {
 .btn-link, .btn-default, .btn, .btn-primary {
   .button.get
 ;
-}
-
-form[method="POST"] {
-  .btn-default, .btn-primary, button[type="submit"], input[type="submit"], .button.submit {
-    .button.post
-  ;
-  }
 }
 
 .remove-inline-element {

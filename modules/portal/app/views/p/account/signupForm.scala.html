@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateSignUp.f) }
 
-@helper.form(action = action, 'class -> "login-form signup-form form form-horizontal") {
+@helper.form(action = action, 'class -> "login-form signup-form", 'role -> "form") {
     <h1 class="text-center">@Messages("portal.signup")</h1>
     @formHelpers.csrfToken()
 
@@ -13,15 +13,11 @@
     @helper.inputPassword(form("password"))
     @helper.inputPassword(form("confirm"))
 
-    <div class="field">
-        <div class="text-center input">
-            @common.recaptcha(recaptchaKey)
-        </div>
-    </div>
+    @common.recaptcha(recaptchaKey)
 
-    <div class="field">
+    <div class="form-group field">
         <div class="input">
-            <input type="submit" class="btn btn-primary" value="@Messages("submitButton.signup")" />
+            <button type="submit" class="button post">@Messages("submitButton.signup")</button>
         </div>
     </div>
 }

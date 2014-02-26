@@ -17,25 +17,18 @@
             }
         }
 
-        <fieldset>
-            <legend>@Messages("portal.profile.updateProfile")</legend>
-            @editProfileForm(profileForm, controllers.portal.routes.Portal.updateProfilePost)
-        </fieldset>
+        <h3>@Messages("portal.profile.updateProfile")</h3>
+        @editProfileForm(profileForm, controllers.portal.routes.Portal.updateProfilePost)
 
         @if(userOpt.flatMap(_.account).flatMap(_.password).isDefined) {
-            <fieldset>
-                <legend>@Messages("portal.profile.changePassword")</legend>
-                @p.account.changePasswordForm(pwForm, controllers.portal.routes.Portal.changePasswordPost)
-            </fieldset>
+            <h3>@Messages("portal.profile.changePassword")</h3>
+            @p.account.changePasswordForm(pwForm, controllers.portal.routes.Portal.changePasswordPost)
         }
 
-        <fieldset>
-            <legend>@Messages("portal.profile.deleteProfile")</legend>
-            <div class="form-group">
-                <div class="col-sm-offset-4 col-sm-8">
-                    <a href="@controllers.portal.routes.Portal.deleteProfile" class="btn btn-danger">@Messages("portal.profile.deleteProfileLink")</a>
-                </div>
-            </div>
-        </fieldset>
+        <h3>@Messages("portal.profile.deleteProfile")</h3>
+        <p>
+        <div class="col-sm-offset-4 col-sm-8">
+            <a href="@controllers.portal.routes.Portal.deleteProfile" class="button danger">@Messages("portal.profile.deleteProfileLink")</a>
+        </div>
     }
 }
