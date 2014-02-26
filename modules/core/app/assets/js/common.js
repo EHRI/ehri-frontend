@@ -30,7 +30,7 @@ jQuery(function($) {
 
   $(".description-switch").click(function(e) {
     switchDescription(this.href);
-  })
+  });
 
   function switchDescription(descId) {
     $(".description-viewport").each(function(i, elem) {

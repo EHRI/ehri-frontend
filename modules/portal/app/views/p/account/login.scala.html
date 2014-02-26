@@ -3,7 +3,6 @@
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplate.f) }
 
 @openIdJquery = {
-    <script src="@controllers.core.routes.Assets.at("js/jquery-1.7.1.min.js")" type="text/javascript"></script>
     <script src="@controllers.core.routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
     <script type="application/javascript">
         jQuery(function($) {
@@ -24,7 +23,7 @@
 
 <section class="login">
     <div class="wrap">
-        @helper.form(action = controllers.portal.routes.Portal.openIDLoginPost, 'class -> "openid form", 'role -> "form") {
+        @helper.form(action = controllers.portal.routes.Portal.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
             <p>
                 @Messages("portal.loginByProvider")
             </p>
@@ -79,7 +78,7 @@
 
             <input type="submit" class="button post login-button openid" value="@Messages("submitButton.loginWithOpenid")" />
         }
-        @helper.form(action = controllers.portal.routes.Portal.passwordLoginPost, 'class -> "login-form form", 'role -> "form") {
+        @helper.form(action = controllers.portal.routes.Portal.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
             <p>@Messages("portal.loginByPassword")</p>
 
             @formHelpers.globalErrors(pwForm)

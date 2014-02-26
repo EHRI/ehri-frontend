@@ -409,9 +409,11 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     }
   });
 
+  // Handling of custom visibility selector.
   $(document).on("change", "input[type=radio].visibility", function(e) {
-    $(".custom-visibility").toggle(e.target.value === "custom")
-    $(".custom-visibility").find("select.custom-accessors").select2({
+    $(".custom-visibility")
+        .toggle(e.target.value === "custom")
+        .find("select.custom-accessors").select2({
       placeholder: "Select a set of groups or users",
       width: "copy"
     });
