@@ -12,9 +12,18 @@
             <input type="hidden" name="@OFFSET_PARAM" value="@params.offset" />
             <input type="hidden" name="@LIMIT_PARAM" value="@params.limit" />
             @defining("systemEvents") { implicit fieldPrefix =>
-                @formHelpers.multiselectInput(filterForm(EVENT_TYPE), EVENT_TYPE, EventType.values.map(e => e.toString -> Messages(fieldPrefix + "." + e.toString)).toSeq.sorted)
-                @formHelpers.multiselectInput(filterForm(USERS), USERS, users)
-                <button class="btn get" type="submit">@Messages(fieldPrefix + ".filter")</button>
+                @formHelpers.multiselectInput(
+                    filterForm(EVENT_TYPE),
+                    EVENT_TYPE,
+                    EventType.values.map(e => e.toString -> Messages(fieldPrefix + "." + e.toString)).toSeq.sorted,
+                    autosubmit = true
+                )
+                @formHelpers.multiselectInput(
+                    filterForm(USERS),
+                    USERS,
+                    users,
+                    autosubmit = true
+                )
             }
         }
     </div>

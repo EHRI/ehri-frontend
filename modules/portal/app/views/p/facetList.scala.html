@@ -27,7 +27,7 @@
                 @fc.sorted.map { f =>
                     <div class="checkbox">
                         <label class="@{if(!active) "disabled"}">
-                            <input class="facet-toggle" type="checkbox" name="@fc.param" value="@f.value" id="id-@{fc.param}-@{f.value}" @{if(f.applied) "checked"}  @{if(!active) "disabled"} />
+                            <input class="facet-toggle autosubmit" type="checkbox" name="@fc.param" value="@f.value" id="id-@{fc.param}-@{f.value}" @{if(f.applied) "checked"}  @{if(!active) "disabled"} />
                             @fc.pretty(f) (@f.count)
                         </label>
                     </div>
@@ -44,7 +44,7 @@
             @fc.sorted.map { f =>
                 <div class="checkbox">
                     <label class="@{if(!active) "disabled"}">
-                        <input class="facet-toggle" type="checkbox" name="@fc.param" value="@f.value" id="id-@{fc.param}-@{f.value}" @{if(f.applied) "checked"}  @{if(!active) "disabled"} />
+                        <input class="facet-toggle autosubmit" type="checkbox" name="@fc.param" value="@f.value" id="id-@{fc.param}-@{f.value}" @{if(f.applied) "checked"}  @{if(!active) "disabled"} />
                         @fc.pretty(f) (@f.count)
                     </label>
                 </div>
