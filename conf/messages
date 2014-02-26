@@ -176,6 +176,7 @@ describedEntity.editDescription=Edit Description
 describedEntity.deleteDescription=Delete Description
 describedEntity.noDescriptions=This item has not been provided with a description
 describedEntity.noData=No information given
+describedEntity.notGiven=Not Given
 describedEntity.additionalData=Additional Harvested Data (Click to display)
 describedEntity.additionalData.key=Key
 describedEntity.additionalData.value=Value
