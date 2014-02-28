@@ -26,6 +26,14 @@ dates.between=Between {0,number,#} and {1,number,#}
 dates.after=After {0,number,#}
 dates.all=All
 
+datePeriod.type.creation=Creation
+
+datePeriod.precision.year=Year
+datePeriod.precision.quarter=Quarter
+datePeriod.precision.month=Month
+datePeriod.precision.week=Week
+datePeriod.precision.day=Day
+
 # Levels of detail...
 lod=Level of Detail
 lod.low=Low

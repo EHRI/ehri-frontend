@@ -16,10 +16,22 @@ object DatePeriodF {
   val TYPE = "type"
   val START_DATE = "startDate"
   val END_DATE = "endDate"
+  val PRECISION = "precision"
 
   object DatePeriodType extends Enumeration {
     type Type = Value
     val Creation = Value("creation")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
+  }
+
+  object DatePeriodPrecision extends Enumeration {
+    type Type = Value
+    val Year = Value("year")
+    val Quarter = Value("quarter")
+    val Month = Value("month")
+    val Week = Value("week")
+    val Day = Value("day")
 
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
@@ -31,7 +43,8 @@ object DatePeriodF {
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ TYPE).readNullable[DatePeriodType.Value] and
       (__ \ DATA \ START_DATE).readNullable[String] and
-      (__ \ DATA \ END_DATE).readNullable[String]
+      (__ \ DATA \ END_DATE).readNullable[String] and
+      (__ \ DATA \ PRECISION).readNullable[DatePeriodPrecision.Value]
     )(DatePeriodF.apply _)
 
   implicit val datePeriodWrites = new Writes[DatePeriodF] {
@@ -42,7 +55,8 @@ object DatePeriodF {
         DATA -> Json.obj(
           TYPE -> d.`type` ,
           START_DATE -> d.startDate,
-          END_DATE -> d.endDate
+          END_DATE -> d.endDate,
+          PRECISION -> d.precision
         )
       )
     }
@@ -61,7 +75,8 @@ case class DatePeriodF(
   id: Option[String],
   `type`: Option[DatePeriodF.DatePeriodType.Type],
   startDate: Option[String] = None,
-  endDate: Option[String] = None
+  endDate: Option[String] = None,
+  precision: Option[DatePeriodF.DatePeriodPrecision.Type] = None
 ) extends Model {
   /**
    * Get a string representing the year-range of this period,
@@ -96,6 +111,7 @@ object DatePeriod {
     ID -> optional(nonEmptyText),
     TYPE -> optional(models.forms.enum(DatePeriodType)),
     START_DATE -> optional(text verifying("error.date", dateValidator)),
-    END_DATE -> optional(text verifying("error.date", dateValidator))
+    END_DATE -> optional(text verifying("error.date", dateValidator)),
+    PRECISION -> optional(models.forms.enum(DatePeriodPrecision))
   )(DatePeriodF.apply)(DatePeriodF.unapply))
 }
