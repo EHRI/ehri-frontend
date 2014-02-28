@@ -139,8 +139,11 @@ isadg.levelOfDescription=Level of Description
 isadg.levelOfDescription.description=To identify the level of arrangement of the unit of description. (3.1.4)
 
 isadg.collection=Collection
+isadg.subcollection=Sub Collection
 isadg.fonds=Fonds
 isadg.subfonds=Subfonds
+isadg.recordGroup=Record Group
+isadg.subrecordGroup=Sub Record Group
 isadg.series=Series
 isadg.subseries=Subseries
 isadg.file=File
