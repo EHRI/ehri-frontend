@@ -304,16 +304,26 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       contentAsString(doc3Read) must contain("Another new document")
       contentAsString(doc3Read) must contain(controllers.archdesc.routes.DocumentaryUnits.createDoc(doc3Id).url)
 
+      // Test for #131 - UI shows item can be edited 'cos it can't. This is a backend
+      // bug but test we're not seeing it here.
+      // The regular archivist should not see a link suggesting he can edit the item
+      // NB: This was accompanied by a bug in the tests below, which were
+      // throwing a PermissionError instead of returning a 401 Unauthorized!
+      val doc3Read2 = route(fakeLoggedInHtmlRequest(aAccount, GET,
+        controllers.archdesc.routes.DocumentaryUnits.get(doc3Id).url)).get
+      contentAsString(doc3Read2) must not contain controllers.archdesc.routes.DocumentaryUnits.update(doc3Id).url
+
       // Now ensure the ordinary archivist cannot update it!
       val doc3UpdateRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
           controllers.archdesc.routes.DocumentaryUnits.update(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*),
           doc3Data.updated("descriptions[0].identityArea.name", Seq("Foobar"))).get
-      status(doc3UpdateRead) must throwA[PermissionDenied]
+      println("STATUS: " + status(doc3UpdateRead))
+      status(doc3UpdateRead) must equalTo(UNAUTHORIZED)
 
       // Now ensure the ordinary archivist cannot delete it!
       val doc3DeleteRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
           controllers.archdesc.routes.DocumentaryUnits.delete(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
-      status(doc3DeleteRead) must throwA[PermissionDenied]
+      status(doc3UpdateRead) must equalTo(UNAUTHORIZED)
 
       // Test the ordinary archivist can Create a documentary units within repoId
       // and the head archivist CAN delete it...
