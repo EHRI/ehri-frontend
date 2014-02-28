@@ -135,16 +135,15 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
     "be able to set a user's permissions within a scope" in new FakeApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
-      val data = Map(ContentTypes.DocumentaryUnit.toString -> List("create", "update", "delete"))
-      val perms = await(testBackend.getGlobalPermissions(user))
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
+      val data = Map(ContentTypes.DocumentaryUnit.toString -> List("update", "delete"))
+      val perms = await(testBackend.getScopePermissions(user, "r1"))
       perms.get(ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
+      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Delete) must beNone
       perms.get(ContentTypes.Repository, PermissionType.Create) must beNone
       perms.get(ContentTypes.Repository, PermissionType.Update) must beNone
       await(testBackend.setScopePermissions(user, "r1", data))
       // Since c1 is held by r1, we should now have permissions to update and delete c1.
       val newItemPerms = await(testBackend.getItemPermissions(user, ContentTypes.DocumentaryUnit, "c1"))
-      newItemPerms.get(PermissionType.Create) must beSome
       newItemPerms.get(PermissionType.Update) must beSome
       newItemPerms.get(PermissionType.Delete) must beSome
     }
