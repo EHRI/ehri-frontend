@@ -19,6 +19,7 @@ import play.api.i18n.Messages
 import backend.ApiUser
 import utils.SessionPrefs
 import com.google.common.net.HttpHeaders
+import scala.collection.{JavaConverters, JavaConversions}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -61,6 +62,12 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   def signupPost = Action.async { implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
+
+    val defaultPortalGroups: List[String] = play.api.Play.current.configuration
+      .getStringList("ehri.portal.defaultUserGroups")
+      .map(JavaConversions.collectionAsScalaIterable(_).toList)
+      .getOrElse(List.empty)
+
     checkRecapture.flatMap { ok =>
       if (!ok) {
         val form = signupForm.bindFromRequest
@@ -79,7 +86,9 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
                 portalRoutes.signupPost(), recaptchaKey)))
             } getOrElse {
               implicit val apiUser = ApiUser()
-              backend.createNewUserProfile(Map(UserProfileF.NAME -> name)).flatMap { userProfile =>
+              backend.createNewUserProfile(
+                  data = Map(UserProfileF.NAME -> name), groups = defaultPortalGroups)
+                  .flatMap { userProfile =>
                 val account = userDAO.createWithPassword(userProfile.id, email.toLowerCase,
                     verified = false, staff = false, Account.hashPassword(pw))
                 val uuid = UUID.randomUUID()
