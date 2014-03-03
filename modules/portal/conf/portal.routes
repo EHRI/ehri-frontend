@@ -55,6 +55,7 @@ GET         /activity/:id                   @controllers.portal.Portal.itemHisto
 GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 
 # Annotations...
+GET         /annotation/:id                 @controllers.portal.Portal.annotation(id: String)
 GET         /annotate/:aid/delete           @controllers.portal.Portal.deleteAnnotation(aid: String)
 POST        /annotate/:aid/delete           @controllers.portal.Portal.deleteAnnotationPost(aid: String)
 GET         /annotate/:aid/edit             @controllers.portal.Portal.editAnnotation(aid: String)

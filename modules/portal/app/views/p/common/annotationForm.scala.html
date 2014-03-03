@@ -7,10 +7,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
 
 <div class="form-group">
-    <textarea
-        autofocus required minlength="15" maxlength="600"
-        class="form-control"
-        name="@BODY"
+    <textarea autofocus required class="form-control" name="@BODY"
         placeholder="@Messages("portal.social.annotation.placeholder")">@f(BODY).value</textarea>
 </div>
 <div class="form-group" style="display:none;">

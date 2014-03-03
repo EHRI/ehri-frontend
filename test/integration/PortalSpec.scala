@@ -8,6 +8,9 @@ import utils.ContributionVisibility
 import controllers.portal.ReversePortal
 import backend.ApiUser
 import mocks.MockBufferedMailer
+import com.google.common.net.HttpHeaders
+import defines.EntityType
+import backend.rest.PermissionDenied
 
 
 class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
@@ -169,8 +172,54 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       contentAsString(doc) must not contain testBody
     }
 
-    "allow updating annotations" in new FakeApp {
+    "disallow creating annotations without permission" in new FakeApp {
+      val testBody = "Test Annotation!!!"
+      val testData = Map(
+        AnnotationF.BODY -> Seq(testBody),
+        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
+      )
 
+      val post = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+        portalRoutes.annotateFieldPost(
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
+      status(post) must throwA[PermissionDenied]
+    }
+
+    "allow updating and deleting annotations created by a given user" in new FakeApp {
+
+      // First we need to grant permission by adding the user to the portal group
+      val addGroup = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+          controllers.core.routes.Groups
+            .addMemberPost("portal", EntityType.UserProfile, unprivilegedUser.id).url), "").get
+      status(addGroup) must equalTo(SEE_OTHER)
+
+      val testBody = "Test Annotation!!!"
+      val testData = Map(
+        AnnotationF.BODY -> Seq(testBody),
+        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
+      )
+
+      val post = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+        portalRoutes.annotateFieldPost(
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
+      status(post) must equalTo(CREATED)
+      contentAsString(post) must contain(testBody)
+
+      header(HttpHeaders.LOCATION, post) must beSome.which { loc =>
+        val aid = loc.substring(loc.lastIndexOf("/") + 1)
+      println(s"ID: $aid ($loc)")
+        val updateBody = "UPDATED TEST ANNOTATION!!!"
+        val updateData = testData.updated(AnnotationF.BODY, Seq(updateBody))
+        val udpost = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+          portalRoutes.editAnnotationPost(aid).url),
+          updateData).get
+        status(udpost) must equalTo(OK)
+        contentAsString(udpost) must contain(updateBody)
+
+        val delpost = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+          portalRoutes.deleteAnnotationPost(aid).url)).get
+        status(delpost) must equalTo(OK)
+      }
     }
 
     "allow changing annotation visibility" in new FakeApp {

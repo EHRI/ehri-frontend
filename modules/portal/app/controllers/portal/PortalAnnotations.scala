@@ -14,6 +14,7 @@ import eu.ehri.project.definitions.Ontology
 import scala.concurrent.Future
 import play.api.mvc.SimpleResult
 import forms.VisibilityForm
+import com.google.common.net.HttpHeaders
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -22,6 +23,12 @@ trait PortalAnnotations {
   self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
 
   private val portalRoutes = controllers.portal.routes.Portal
+
+  def annotation(id: String) = userProfileAction.async { implicit userProfile => implicit request =>
+    backend.get[Annotation](id).map { ann =>
+      Ok(Json.toJson(ann)(Annotation.Converter.clientFormat))
+    }
+  }
 
   // Ajax
   def annotate(id: String, did: String) = withUserAction.async {  implicit user => implicit request =>
@@ -46,6 +53,8 @@ trait PortalAnnotations {
         val accessors: List[String] = getAccessors(user)
         backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
           Created(p.common.annotationInline(ann, editable = true))
+            .withHeaders(
+                HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
         }
       }
     )
@@ -123,6 +132,8 @@ trait PortalAnnotations {
         val accessors: List[String] = getAccessors(user)
         backend.createAnnotationForDependent(id, did, fieldAnn, accessors).map { ann =>
           Created(p.common.annotationInline(ann, editable = true))
+            .withHeaders(
+              HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
         }
       }
     )
