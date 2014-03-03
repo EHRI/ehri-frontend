@@ -27,6 +27,11 @@ object Constants {
   val ACCESSOR_PARAM = "accessibleTo"
 
   /**
+   * Parameter for default group membership.
+   */
+  val GROUP_PARAM = "group"
+
+  /**
    * Properties serialization params.
    */
   val INCLUDE_PROPERTIES_PARAM = "_ip"
