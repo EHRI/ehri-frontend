@@ -1,7 +1,7 @@
 package models.base
 
 import play.api.libs.json._
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import play.api.i18n.Lang
 import models.json.{RestResource, Utils, ClientConvertable, RestReadable}
 import models._
@@ -9,11 +9,18 @@ import play.api.Logger
 import play.api.data.validation.ValidationError
 import play.api.libs.json.KeyPathNode
 import scala.collection.SortedMap
+import java.util.NoSuchElementException
 
 
 trait AnyModel {
   def id: String
   def isA: EntityType.Value
+
+  def contentType: Option[ContentTypes.Value] = try {
+    Some(ContentTypes.withName(isA.toString))
+  } catch {
+    case e: NoSuchElementException => None
+  }
 
   def toStringLang(implicit lang: Lang): String = this match {
     case e: MetaModel[_] => e.toStringLang(Lang.defaultLang)
