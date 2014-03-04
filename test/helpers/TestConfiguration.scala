@@ -39,12 +39,6 @@ trait TestConfiguration {
   val testPassword = "testpass"
 
   val mockIndexer: MockSearchIndexer = new MockSearchIndexer()
-  val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher()
-  val mockResolver: MockSearchResolver = new MockSearchResolver
-  val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
-  val idGenerator: IdGenerator = new CypherIdGenerator("%06d")
-  val mockUserDAO: AccountDAO = MockAccountDAO
-
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
   // Note: this is defined as an implicit object here so it
@@ -57,6 +51,13 @@ trait TestConfiguration {
 
   // Might want to mock this at some point!
   val testBackend: Backend = new RestBackend(testEventHandler)
+
+  val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher(testBackend)
+  val mockResolver: MockSearchResolver = new MockSearchResolver
+  val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
+  val idGenerator: IdGenerator = new CypherIdGenerator("%06d")
+  val mockUserDAO: AccountDAO = MockAccountDAO
+
 
   object TestConfig extends globalConfig.BaseConfiguration
 

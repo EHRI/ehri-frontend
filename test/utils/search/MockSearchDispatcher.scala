@@ -1,60 +1,67 @@
 package utils.search
 
+import scala.concurrent.ExecutionContext.Implicits._
 import defines.EntityType
-import models.UserProfile
+import models.{DocumentaryUnit,HistoricalAgent, Repository, UserProfile}
 import scala.concurrent.Future
-import utils.search._
+import backend.{ApiUser, Backend}
+import models.base.{DescribedMeta, Described, Description, AnyModel}
+import play.api.i18n.Lang
 
 /**
+ * This class mocks a search displatcher by simply returning
+ * whatever's in the backend, wrapped as a search hit...
+ *
  * User: michaelb
- *
- * TODO: Integrate better with fixtures.
- *
  */
-case class MockSearchDispatcher() extends Dispatcher {
-
-  /** Class to aid in debugging the last submitted request - gross...
-    */
-  case class ParamLog(params: SearchParams, facets: List[AppliedFacet],
-    allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)
+case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
 
   val paramBuffer = collection.mutable.ArrayBuffer.empty[ParamLog]
 
+  /*
+   * Class to aid in debugging the last submitted request - gross...
+   */
+  case class ParamLog(params: SearchParams, facets: List[AppliedFacet],
+    allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)
+
+  
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[(String,String, EntityType.Value)]] = {
-    val docs = List(("c1", "Collection 1", EntityType.DocumentaryUnit), ("c2", "Collection 2", EntityType.DocumentaryUnit))
-    val repo = List(("r1", "Repository 1", EntityType.Repository), ("r2", "Repository 2", EntityType.Repository))
-    val items = params.entities match {
-      case List(EntityType.DocumentaryUnit) => docs
-      case List(EntityType.Repository) => repo
-      case List(et) => Seq()
-      case Nil => docs ++ repo
-    }
-    Future.successful {
-      ItemPage(items, offset = 0, limit = params.limit.getOrElse(100), total = items.size, facets = Nil)
-    }
+
+    def modelToHit(m: AnyModel): (String,String,EntityType.Value)
+        = (m.id, m.toStringLang(Lang.defaultLang), m.isA)
+
+    for {
+      docs <- backend.list[DocumentaryUnit]()
+      repos <- backend.list[Repository]()
+      agents <- backend.list[HistoricalAgent]()
+      all = docs.map(modelToHit) ++ repos.map(modelToHit) ++ agents.map(modelToHit)
+      oftype = all.filter(h => params.entities.contains(h._3))
+    } yield ItemPage(
+        oftype, offset = 0, limit = params.limit.getOrElse(100), total = oftype.size, facets = Nil)
   }
 
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
              filters: Map[String,Any] = Map.empty, mode: SearchMode.Value = SearchMode.DefaultAll)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
     paramBuffer += ParamLog(params, facets, allFacets, filters)
-    val items = params.entities.foldLeft(List[SearchHit]()) { case (listOfItems, et) =>
-      et match {
-        case EntityType.DocumentaryUnit => listOfItems ++ List(
-          SearchHit(itemId = "c1", id = "cd1", name = "Collection 1", `type` = EntityType.DocumentaryUnit, gid = 1L),
-          SearchHit(itemId = "c2", id = "cd2", name = "Collection 2", `type` = EntityType.DocumentaryUnit, gid = 2L),
-          SearchHit(itemId = "c3", id = "cd3", name = "Collection 3", `type` = EntityType.DocumentaryUnit, gid = 3L),
-          SearchHit(itemId = "c4", id = "cd4", name = "Collection 4", `type` = EntityType.DocumentaryUnit, gid = 4L))
-        case EntityType.Repository => listOfItems ++ List(
-          SearchHit(itemId = "r1", id = "rd1", name = "Repository 1", `type` = EntityType.Repository, gid = 5L),
-          SearchHit(itemId = "r2", id = "rd2", name = "Repository 2", `type` = EntityType.Repository, gid = 6L))
-        case _ => listOfItems // TODO: Implement other types
-      }
-    }
-    Future.successful{
-      ItemPage(items, 0, 20, items.size, Nil)
-    }
+
+    def descModelToHit[T <: DescribedMeta[Description,Described[Description]]](m: T): SearchHit = SearchHit(
+        itemId = m.id,
+        id = m.descriptions.headOption.flatMap(_.id).getOrElse("???"),
+        name = m.toStringLang(Lang.defaultLang),
+        `type` = m.isA,
+        gid = m.meta.value.get("gid").flatMap(_.asOpt[Long]).getOrElse(-1L)
+    )
+
+    for {
+      docs <- backend.list[DocumentaryUnit]()
+      repos <- backend.list[Repository]()
+      agents <- backend.list[HistoricalAgent]()
+      all = docs.map(descModelToHit) ++ repos.map(descModelToHit) ++ agents.map(descModelToHit)
+      oftype = all.filter(h => params.entities.contains(h.`type`))
+    } yield ItemPage(
+      oftype, offset = 0, limit = params.limit.getOrElse(100), total = oftype.size, facets = Nil)
   }
 
   def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
@@ -62,5 +69,9 @@ case class MockSearchDispatcher() extends Dispatcher {
 
     // UNIMPLEMENTED
     Future.failed(new NotImplementedError())
+  }
+
+  private implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = {
+    new ApiUser(userOpt.map(_.id))
   }
 }
