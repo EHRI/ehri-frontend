@@ -1,6 +1,5 @@
 package integration
 
-import play.api.libs.concurrent.Execution.Implicits._
 import models.{AnnotationF, AccessPointF}
 import helpers._
 import play.api.libs.json.{JsValue, Json}

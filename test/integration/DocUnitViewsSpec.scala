@@ -24,7 +24,8 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
   "DocumentaryUnit views" should {
 
     "list should get some (world-readable) items" in new FakeApp {
-      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.list.url)).get
+      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+        controllers.archdesc.routes.DocumentaryUnits.list().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(oneItemHeader)
       contentAsString(list) must not contain "c1"
@@ -33,7 +34,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
 
     "list when logged in should get more items" in new FakeApp {
       val list = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          controllers.archdesc.routes.DocumentaryUnits.list.url)).get
+          controllers.archdesc.routes.DocumentaryUnits.list().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("c1")
@@ -44,7 +45,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
 
     "search should find some items" in new FakeApp {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          controllers.archdesc.routes.DocumentaryUnits.search.url)).get
+          controllers.archdesc.routes.DocumentaryUnits.search().url)).get
       status(search) must equalTo(OK)
       contentAsString(search) must contain(multipleItemsHeader)
       contentAsString(search) must contain("c1")
@@ -112,7 +113,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.DocumentaryUnits.update("c1").url)).get
       status(form) must equalTo(OK)
-      contentAsString(form) must not contain("SOME RANDOM VALUE")
+      contentAsString(form) must not contain "SOME RANDOM VALUE"
     }
 
     "allow creating new items when logged in as privileged user" in new FakeApp {

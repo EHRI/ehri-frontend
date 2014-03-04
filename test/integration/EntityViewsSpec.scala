@@ -174,7 +174,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(rem) must equalTo(SEE_OTHER)
 
       val userFetch = await(testBackend.get[UserProfile](id))
-      userFetch.groups.map(_.id) must not contain("kcl")
+      userFetch.groups.map(_.id) must not contain "kcl"
     }
   }
 
@@ -212,7 +212,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(rem) must equalTo(SEE_OTHER)
 
       val groupFetch = await(testBackend.get[Group]("niod"))
-      groupFetch.groups.map(_.id) must not contain("admin")
+      groupFetch.groups.map(_.id) must not contain "admin"
     }
   }
 }

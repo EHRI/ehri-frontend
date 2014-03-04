@@ -3,10 +3,6 @@ package integration
 import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}
 import defines.EntityType
-import play.api.test._
-import play.api.test.Helpers._
-import play.api.mvc.{AsyncResult, ChunkedResult}
-import scala.concurrent.Future
 import solr.SolrConstants
 
 /**
@@ -26,7 +22,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
 
     "search for hierarchical items with no query should apply a top-level filter" in new FakeApp {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.DocumentaryUnits.search.url)).get
+        controllers.archdesc.routes.DocumentaryUnits.search().url)).get
       status(search) must equalTo(OK)
       mockDispatcher.paramBuffer
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(Some(true))
@@ -34,7 +30,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
 
     "search for hierarchical item with a query should not apply a top-level filter" in new FakeApp {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.DocumentaryUnits.search.url + "?q=foo")).get
+        controllers.archdesc.routes.DocumentaryUnits.search().url + "?q=foo")).get
       status(search) must equalTo(OK)
       mockDispatcher.paramBuffer
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
@@ -51,7 +47,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       )
 
       val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.admin.routes.AdminSearch.updateIndexPost.url), data).get
+          controllers.admin.routes.AdminSearch.updateIndexPost().url), data).get
       status(idx) must equalTo(OK)
       // TODO: Check index buffer - problematic due to chunked response?
     }
@@ -68,7 +64,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
   "Search metrics" should {
     "response to JSON" in new FakeApp {
       val repoMetrics = route(fakeLoggedInJsonRequest(privilegedUser, GET,
-        controllers.admin.routes.Metrics.repositoryCountries.url)).get
+        controllers.admin.routes.Metrics.repositoryCountries().url)).get
       status(repoMetrics) must equalTo(OK)
     }
   }

@@ -22,9 +22,11 @@ import backend.ApiUser
  *  - check that the user cannot write outside the country
  */
 class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIntegrationSpec]) {
-  import mocks.{privilegedUser,unprivilegedUser}
+  import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
+
+  private val repoRoutes = controllers.archdesc.routes.Repositories
 
   /**
    * Get the id from an URL where the ID is the last component...
@@ -130,18 +132,19 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // Test we can read the new repository
       val repoId = idFromUrl(redirectLocation(repoCreatePost).get)
       val repoRead = route(fakeLoggedInHtmlRequest(fakeAccount, GET,
-          controllers.archdesc.routes.Repositories.get(repoId).url)).get
+          repoRoutes.get(repoId).url)).get
       status(repoRead) must equalTo(OK)
       contentAsString(repoRead) must contain("A Test Repository")
 
       // Test we can create docs in this repository
-      contentAsString(repoRead) must contain(controllers.archdesc.routes.Repositories.createDoc(repoId).url)
+      contentAsString(repoRead) must contain(repoRoutes.createDoc(repoId).url)
 
       // Test we can NOT create docs in repository r1, which is in country NL
       val otherRepoRead = route(fakeLoggedInHtmlRequest(fakeAccount, GET,
-          controllers.archdesc.routes.Repositories.get(otherRepoId).url)).get
+          repoRoutes.get(otherRepoId).url)).get
       status(otherRepoRead) must equalTo(OK)
-      contentAsString(otherRepoRead) must not contain(controllers.archdesc.routes.Repositories.createDoc(otherRepoId).url)
+      contentAsString(otherRepoRead) must not contain
+          repoRoutes.createDoc(otherRepoId).url
 
       // Now create a documentary unit...
       val docData = Map(
@@ -152,7 +155,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       )
 
       val createDocPost = route(fakeLoggedInHtmlRequest(fakeAccount, POST,
-        controllers.archdesc.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), docData).get
+        repoRoutes.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), docData).get
       status(createDocPost) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
@@ -168,7 +171,8 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       val otherDocRead = route(fakeLoggedInHtmlRequest(fakeAccount, GET,
           controllers.archdesc.routes.DocumentaryUnits.get(otherDocId).url)).get
       status(otherDocRead) must equalTo(OK)
-      contentAsString(otherDocRead) must not contain(controllers.archdesc.routes.DocumentaryUnits.createDoc(otherDocId).url)
+      contentAsString(otherDocRead) must not contain
+          controllers.archdesc.routes.DocumentaryUnits.createDoc(otherDocId).url
 
     }
   }

@@ -2,9 +2,7 @@ package integration
 
 import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._
-import play.api.test.Helpers._
 import defines._
-import controllers.routes
 
 
 class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsSpec]) {

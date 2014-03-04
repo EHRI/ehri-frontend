@@ -2,10 +2,6 @@ package integration
 
 import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}
-import controllers.routes
-import play.api.test._
-import play.api.test.Helpers._
-import defines._
 
 /**
  * Created by mike on 05/06/13.
@@ -57,7 +53,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.Repositories.update("r1").url)).get
       status(form) must equalTo(OK)
-      contentAsString(form) must not contain("SOME RANDOM VALUE")
+      contentAsString(form) must not contain "SOME RANDOM VALUE"
     }
 
 
@@ -158,7 +154,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
       // We can view the item when not logged in...
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.Repositories.get("r1").url)).get
       status(show) must equalTo(OK)
-      contentAsString(show) must not contain ("New Content for r1")
+      contentAsString(show) must not contain "New Content for r1"
     }
   }
 }

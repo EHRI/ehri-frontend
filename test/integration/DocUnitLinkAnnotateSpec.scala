@@ -2,9 +2,7 @@ package integration
 
 import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._
-import play.api.test.Helpers._
 import defines._
-import controllers.routes
 
 
 class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotateSpec]) {
@@ -101,7 +99,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("This is an updated description")
-      contentAsString(getR) must not contain ("Some description text for c1")
+      contentAsString(getR) must not contain "Some description text for c1"
       mockIndexer.eventBuffer.last must equalTo("c1")
     }
 
@@ -116,7 +114,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       status(cr) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
-      contentAsString(getR) must not contain ("Some alternate description text for c1")
+      contentAsString(getR) must not contain "Some alternate description text for c1"
       mockIndexer.eventBuffer.last must equalTo("cd1-2")
     }
   }

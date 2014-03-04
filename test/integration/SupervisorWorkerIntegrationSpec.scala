@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import helpers._
 import models.UserProfile
 import defines._
-import backend.rest.{PermissionDenied, ItemNotFound}
+import backend.rest.ItemNotFound
 import models.MockAccount
 import backend.ApiUser
 
@@ -20,7 +20,7 @@ import backend.ApiUser
  *  - check that these perms are respected
  */
 class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[SupervisorWorkerIntegrationSpec]) {
-  import mocks.{privilegedUser,unprivilegedUser}
+  import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
