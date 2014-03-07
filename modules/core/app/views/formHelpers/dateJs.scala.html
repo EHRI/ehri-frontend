@@ -4,7 +4,20 @@
 <script>
     $(document).ready(function() {
         $(document).on('click', 'input.datepicker', function () {
-            $(this).datepicker({startView: 'decade', format:'yyyy-mm-dd'}).datepicker('show');
+            $(this).datepicker({
+            	startView: 'decade', 
+            	format:'yyyy-mm-dd',
+            	minViewMode: function() {
+            		re = /(\w+)\.dates\[([0-9]+)\]/; 
+            		name = $(this).attr("name");
+            		var m;
+
+            		console.log("HEY");
+            		m = re.exec(name);
+            		console.log(m)
+            		return "year"
+            	}
+            }).datepicker('show');
         });
     });
 </script>
