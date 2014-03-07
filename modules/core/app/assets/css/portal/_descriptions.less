@@ -13,15 +13,21 @@
 			position:relative;
 			.make-row();
 			margin-bottom:5px;
+
 			.item-text-field-header {
 				font-size:16px;
-				.make-md-column(3);
+				.make-lg-column(3);
 				margin-top:0;
 				margin-bottom:0;
 				text-algign:left;
+
+				@media (min-width: @screen-xs-min)  and (max-width: @screen-md-max) {
+					font-weight:bold;
+				}
+
 			}
 			.item-text-field-value {
-				.make-md-column(9);
+				.make-lg-column(9);
 
 				@media (min-width: @screen-xs-min)  and (max-width: @screen-sm-max) {
 					text-indent:1em;
@@ -31,8 +37,8 @@
 				}
 			}
 			.item-text-field-annotation-container {
-				.make-md-column-offset(3);
-				.make-md-column(9);
+				.make-lg-column-offset(3);
+				.make-lg-column(9);
 
 				.item-text-field-annotations {
 					.make-row();
