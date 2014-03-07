@@ -1,11 +1,10 @@
 package helpers
 
 import org.specs2.mutable._
-import org.specs2.specification.{BeforeExample, Fragments, Step}
-import eu.ehri.extension.test.utils.ServerRunner
-import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
+import org.specs2.specification.{Fragments, Step}
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import play.api.test.{PlaySpecification, WithApplication}
+import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
 
 /**
  * Specs2 magic to provide equivalent of JUnit's beforeClass/afterClass.
@@ -30,7 +29,10 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with Use
   val testPort = 7575
   def config = Map("neo4j.server.port" -> testPort) ++ getConfig
 
-  val runner: ServerRunner = ServerRunner.getInstance(cls.getName, testPort)
+  // FIXME: This really sucks but there's a problem with loading the ServerBuilder from Scala
+  // The CompatServerRunner class is temporary
+  val runner: CompatServerRunner = CompatServerRunner
+      .getInstance(cls.getName, testPort)
   runner.getConfigurator
     .getThirdpartyJaxRsPackages
     .add(new ThirdPartyJaxRsPackage(
@@ -51,8 +53,8 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with Use
    */
   override def before = {
     super.before
-    runner.tearDown()
-    runner.setUp()
+    runner.tearDownData()
+    runner.setUpData()
   }
 
   /**
