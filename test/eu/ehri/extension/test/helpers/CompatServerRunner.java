@@ -1,4 +1,4 @@
-package helpers;
+package eu.ehri.extension.test.helpers;
 
 import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;

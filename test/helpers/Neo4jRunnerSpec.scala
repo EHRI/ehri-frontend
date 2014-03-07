@@ -5,6 +5,7 @@ import org.specs2.specification.{Fragments, Step}
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import play.api.test.{PlaySpecification, WithApplication}
 import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
+import eu.ehri.extension.test.helpers.CompatServerRunner
 
 /**
  * Specs2 magic to provide equivalent of JUnit's beforeClass/afterClass.
