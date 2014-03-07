@@ -1,6 +1,6 @@
 @(token: java.util.UUID)(implicit req: RequestHeader, lang: Lang)
 
-@mailTemplate(Messages("portal.mail.confirmEmailHeading")) {
+@p.layout.mailLayout(Messages("portal.mail.confirmEmailHeading")) {
 
     <p>
         @Messages("portal.mail.confirmEmailMessage")
