@@ -1,8 +1,7 @@
 @(descriptions: List[models.base.Description])(html: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 <div class="descriptions">
-    <div class="row">
-        <div class="col-md-3 col-md-push-9">
+        <div class="description-sidebar">
             @if(descriptions.size > 1) {
             <div class="alert alert-block alert-info multiple-descriptions-note">
                 @Messages("portal.multipleDescriptions")
@@ -20,8 +19,7 @@
 
             @sidebar
         </div>
-        <div class="col-md-9 col-md-pull-3 description-viewport">
+        <div class="description-viewport">
             @html
         </div>
-    </div>
 </div>
