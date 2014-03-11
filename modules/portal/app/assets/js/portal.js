@@ -1,5 +1,17 @@
 jQuery(function ($) {
 
+/*
+  Tooltip
+*/
+$('.watch , .unwatch').tooltip({
+  delay : {
+    show: 600,
+    hide: 100
+  }
+});
+/* 
+  Loadings
+*/
 $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("<span></span>").addClass("loader"));
 
   $(".content-load a.toggle").click(function(e){
