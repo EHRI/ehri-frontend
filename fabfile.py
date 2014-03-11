@@ -20,6 +20,7 @@ env.prod = False
 env.use_ssh_config = True
 env.path = '/opt/webapps/' + env.project_name
 env.user = os.getenv("USER")
+env.java_version = 6
 
 TIMESTAMP_FORMAT = "%Y%m%d%H%M%S"
 
@@ -50,6 +51,7 @@ def deploy():
 
 def clean_deploy():
     """Build a clean version and deploy."""
+    check_java_version()
     local('play clean stage')
     deploy()
 
@@ -129,3 +131,9 @@ def current_version_log():
     "Output git log between HEAD and the current deployed version."
     _, revision = current_version()
     local("git log %s..HEAD" % revision)
+
+def check_java_version():
+    "Ensure we're building with the right java version"
+    version_string = local("java -version 2>&1", capture=True)
+    if version_string.find("java version \"1.%d" % env.java_version) == -1:
+        abort("Incorrect java version: should be 1.%d" % env.java_version)
