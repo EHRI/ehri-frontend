@@ -39,12 +39,11 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
 
     // Need to tag and exclude all 'choice' facet classes because we want
     // the counts even if they're excluded...
-    val tags = flist.filter(_.tagExclude).map(_.key)
     request.setFacet(new FacetParams(
       enabled=true,
       params=flist.flatMap {
-        case qf: QueryFacetClass => List(qf.asParams(tags))
-        case ff: FieldFacetClass => List(ff.asParams(tags))
+        case qf: QueryFacetClass => List(qf.asParams)
+        case ff: FieldFacetClass => List(ff.asParams)
         case e => {
           Logger.logger.warn("Unknown facet class type: {}", e)
           Nil
@@ -76,7 +75,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
                 // excluded from count-limiting filters
                 // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
                 val query = "(" + paramVals.map(v => fc.key + ":\"" + v + "\"").mkString(" OR ") + ")"
-                if (fc.tagExclude) List("{!tag=" + fc.key + "}" + query)
+                if (fc.multiSelect) List("{!tag=" + fc.key + "}" + query)
                 else List(query)
               }
             }

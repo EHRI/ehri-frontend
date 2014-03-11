@@ -110,15 +110,10 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
     }
   }
 
-  private def tagFunc(tags: List[String]): String = tags match {
-    case Nil => ""
-    case _ => "{!ex=" + tags.mkString(",") + "}"
-  }
-
   private def appliedFacetValues(fc: FacetClass[_], appliedFacets: Seq[AppliedFacet]): Seq[String]
     = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(Seq.empty)
 
-  private def extractFieldFacet(fc: FieldFacetClass, applied: Seq[String], tags: List[String] = Nil): FacetClass[Facet] = {
+  private def extractFieldFacet(fc: FieldFacetClass, applied: Seq[String]): FacetClass[Facet] = {
     rawFieldFacets.get(fc.key).map(_.validate(fieldFacetValueReader)).collect {
       case JsSuccess(fields, path) =>
         val facets = fields.map { case (text, count) =>
@@ -130,9 +125,9 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
     }.getOrElse(fc)
   }
 
-  private def extractQueryFacet(fc: QueryFacetClass, applied: Seq[String], tags: List[String] = Nil): FacetClass[Facet] = {
+  private def extractQueryFacet(fc: QueryFacetClass, applied: Seq[String]): FacetClass[Facet] = {
     val facetsWithCount: List[SolrQueryFacet] = fc.facets.flatMap { qf =>
-      val nameValue = s"${tagFunc(tags)}${fc.key}:${qf.solrValue}"
+      val nameValue = s"${fc.key}:${qf.solrValue}"
       rawQueryFacets.get(nameValue).map { v =>
         qf.copy(count = v.as[Int], applied = applied.contains(qf.value))
       }
@@ -141,10 +136,9 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
   }
 
   def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: utils.search.FacetClassList): utils.search.FacetClassList = {
-    val tags = allFacets.filter(_.tagExclude).map(_.key)
     allFacets.flatMap {
-      case ffc: FieldFacetClass => Some(extractFieldFacet(ffc, appliedFacetValues(ffc, appliedFacets), tags))
-      case qfc: QueryFacetClass => Some(extractQueryFacet(qfc, appliedFacetValues(qfc, appliedFacets), tags))
+      case ffc: FieldFacetClass => Some(extractFieldFacet(ffc, appliedFacetValues(ffc, appliedFacets)))
+      case qfc: QueryFacetClass => Some(extractQueryFacet(qfc, appliedFacetValues(qfc, appliedFacets)))
       case e => {
         Logger.logger.warn("Unknown facet class type: {}", e)
         None

@@ -44,12 +44,9 @@ case class SolrQueryFacet(
 
 
 trait SolrFacetClass[+T <: SolrFacet] extends FacetClass[T] {
-  def asParams(tags: List[String] = Nil): List[FacetParam]
+  def asParams: List[FacetParam]
 
-  protected def tagFunc(tags: List[String]): String = tags match {
-    case Nil => ""
-    case _ => "{!ex=" + tags.mkString(",") + "}"
-  }
+  override def fullKey = if (multiSelect) s"{!ex=$key}$key" else key
 }
 
 
@@ -75,10 +72,10 @@ case class FieldFacetClass(
 ) extends SolrFacetClass[SolrFieldFacet] {
   val fieldType: String = "facet.field"
 
-  def asParams(tags: List[String] = Nil): List[FacetParam] = {
+  def asParams: List[FacetParam] = {
     List(new FacetParam(
       Param(fieldType),
-      Value(tagFunc(tags) + key)
+      Value(fullKey)
     ))
   }
 }
@@ -94,11 +91,11 @@ case class QueryFacetClass(
 ) extends SolrFacetClass[SolrQueryFacet] {
   val fieldType: String = "facet.query"
 
-  def asParams(tags: List[String] = Nil): List[FacetParam] = {
+  def asParams: List[FacetParam] = {
     facets.map(p =>
       new FacetParam(
         Param(fieldType),
-        Value("%s%s:%s".format(tagFunc(tags), key, p.solrValue))
+        Value(s"$fullKey:${p.solrValue}")
       )
     )
   }
