@@ -12,6 +12,7 @@ import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import fly.play.s3.{BucketFileUploadTicket, BucketFile, S3}
 import play.api.libs.iteratee.{Enumeratee, Iteratee}
+import play.api.libs.Files.TemporaryFile
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -146,8 +147,8 @@ trait PortalProfile extends PortalLogin {
       rechunkAdapter &>> writeToStore
     }
 
-    def s3PartHandler(bucket: S3, ticket: BucketFileUploadTicket): BodyParsers.parse.Multipart.PartHandler[MultipartFormData.Part] = {
-      parse.Multipart.handleDataPart {
+    def s3PartHandler(bucket: S3, ticket: BucketFileUploadTicket): BodyParsers.parse.Multipart.PartHandler[MultipartFormData.FilePart[BucketFileUploadTicket]] = {
+      parse.Multipart.handleFilePart {
         case parse.Multipart.FileInfo(partName, filename, ct) => upload(bucket, ticket)
       }
     }
