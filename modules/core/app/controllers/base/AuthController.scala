@@ -73,15 +73,15 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * the profile of the user requesting the page, and her permissions.
    */
   object userProfileAction {
-    def async(f: Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
-      optionalUserAction.async[AnyContent](BodyParsers.parse.anyContent) { implicit maybeAccount => implicit request =>
+    def async[A](bodyParser: BodyParser[A])(f: Option[UserProfile] => Request[A] => Future[SimpleResult]): Action[A] = {
+      optionalUserAction.async[A](bodyParser) { implicit maybeAccount => implicit request =>
         maybeAccount.map { account =>
           if (staffOnly && secured && !account.staff) {
             immediate(Unauthorized(utils.renderError("errors.staffOnly",
               views.html.errors.staffOnly())))
           } else if (verifiedOnly && secured && !account.verified) {
-              immediate(Unauthorized(utils.renderError("errors.verifiedOnly",
-                views.html.errors.verifiedOnly())))
+            immediate(Unauthorized(utils.renderError("errors.verifiedOnly",
+              views.html.errors.verifiedOnly())))
           } else {
             // For the permissions to be properly initialized they must
             // recieve a completely-constructed instance of the UserProfile
@@ -109,9 +109,14 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       }
     }
 
-    def apply(f: Option[UserProfile] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
-      async(f.andThen(_.andThen(t => Future.successful(t))))
-    }
+    def async(f: Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent]
+      = async(BodyParsers.parse.anyContent)(f)
+
+    def apply[A](bodyParser: BodyParser[A])(f: Option[UserProfile] => Request[A] => SimpleResult): Action[A]
+      = async(bodyParser)(f.andThen(_.andThen(t => Future.successful(t))))
+
+    def apply(f: Option[UserProfile] => Request[AnyContent] => SimpleResult): Action[AnyContent]
+      = async(f.andThen(_.andThen(t => Future.successful(t))))
   }
 
   /**
@@ -175,8 +180,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * access is denied
    */
   object withUserAction {
-    def async(f: UserProfile => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
-      userProfileAction.async { implicit  maybeUser => implicit request =>
+    def async[A](bodyParser: BodyParser[A])(f: UserProfile => Request[A] => Future[SimpleResult]): Action[A] = {
+      userProfileAction.async(bodyParser) { implicit  maybeUser => implicit request =>
         maybeUser.map { user =>
           f(user)(request)
         } getOrElse {
@@ -185,9 +190,14 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       }
     }
 
-    def apply(f: UserProfile => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
-      async(f.andThen(_.andThen(t => immediate(t))))
-    }
+    def async(f: UserProfile => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent]
+      = async(BodyParsers.parse.anyContent)(f)
+
+    def apply[A](bodyParser: BodyParser[A])(f: UserProfile => Request[A] => SimpleResult): Action[A]
+      = async(bodyParser)(f.andThen(_.andThen(t => immediate(t))))
+
+    def apply(f: UserProfile => Request[AnyContent] => SimpleResult): Action[AnyContent]
+      = apply(BodyParsers.parse.anyContent)(f)
   }
 
   /**
