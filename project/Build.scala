@@ -53,6 +53,9 @@ object ApplicationBuild extends Build {
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",
 
+    // S3 Upload plugin
+    "nl.rhinofly" %% "play-s3" % "3.3.3",
+
     // Mailer...
     "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
 
@@ -81,6 +84,7 @@ object ApplicationBuild extends Build {
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    resolvers += "Rhinofly Internal Repository" at "http://maven-repository.rhinofly.net:8081/artifactory/libs-release-local",
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
     resourceDirectory in Test <<= baseDirectory apply {(baseDir: File) => baseDir / "test/resources"}

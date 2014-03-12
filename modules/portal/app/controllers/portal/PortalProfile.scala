@@ -10,6 +10,8 @@ import play.api.libs.json.{JsObject, Json}
 import utils.{SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
+import fly.play.s3.{BucketFileUploadTicket, BucketFile, S3}
+import play.api.libs.iteratee.{Enumeratee, Iteratee}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -126,5 +128,43 @@ trait PortalProfile extends PortalLogin {
         }
       }
     )
+  }
+
+  object UploadHandler {
+    def upload(bucket: S3, ticket: BucketFileUploadTicket) = {
+      val consumeAMB = play.api.libs.iteratee.Traversable.takeUpTo[Array[Byte]](1028*1028) &>> Iteratee.consume()
+
+      val rechunkAdapter:Enumeratee[Array[Byte],Array[Byte]] = Enumeratee.grouped(consumeAMB)
+
+      val writeToStore: Iteratee[Array[Byte],BucketFileUploadTicket] =
+        Iteratee.foldM[Array[Byte],BucketFileUploadTicket](ticket) { (c,bytes) =>
+
+          // write bytes and return next handle, probable in a Future
+          ???
+        }
+
+      rechunkAdapter &>> writeToStore
+    }
+
+    def s3PartHandler(bucket: S3, ticket: BucketFileUploadTicket): BodyParsers.parse.Multipart.PartHandler[MultipartFormData.Part] = {
+      parse.Multipart.handleDataPart {
+        case parse.Multipart.FileInfo(partName, filename, ct) => upload(bucket, ticket)
+      }
+    }
+  }
+
+
+  def uploadProfileImage = withUserAction.async(parse.multipartFormData) { implicit user => implicit request =>
+    request.body.file("image").map { picture =>
+      val s3 = S3("ehri-users")
+      val bucketFile = new BucketFile(user.id + "_" + picture.filename,
+        picture.contentType.getOrElse(play.api.http.ContentTypes.BINARY))
+
+      for {
+        ticket <- s3.initiateMultipartUpload(bucketFile)
+
+
+      } yield ???
+    }.getOrElse(immediate(BadRequest("no image found")))
   }
 }
