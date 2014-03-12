@@ -1,6 +1,5 @@
 @(stats: utils.Stats)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@import utils.search.SearchParams
 @import defines.EntityType
 
 @extrastyles = {
@@ -38,26 +37,7 @@
 
 
     @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
-        <div class="row">
-            <div class="col-md-12">
-                <div class="search-bar">
-                    <div class="col-md-8 col-md-offset-2">
-                        <div class="form-group form-inline search-box">
-                            <div class="input-group">
-                                <input type="search"
-                                       placeholder="@Messages("search.queryPlaceholder")" class="form-control" name="@SearchParams.QUERY" value="" autofocus />
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default">
-                                        <span class="glyphicon glyphicon-search"></span>
-                                        @Messages("forms.search")
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @p.common.searchBar()
 
         <div class="row">
             <div class="col-md-12">

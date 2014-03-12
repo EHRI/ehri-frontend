@@ -9,6 +9,19 @@ $('.watch , .unwatch').tooltip({
     hide: 100
   }
 });
+
+/*
+  Search helpers
+*/
+$(".helper-toggle").on("click", function () {
+  $("#search-helper").toggle();
+});
+
+$("#search-helper .close").on("click", function(e) {
+  e.preventDefault();
+  $("#search-helper").toggle();
+});
+
 /* 
   Loadings
 */
