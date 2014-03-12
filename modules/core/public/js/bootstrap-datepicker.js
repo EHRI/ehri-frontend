@@ -95,6 +95,10 @@
 		}
 
 		this.minViewMode = options.minViewMode||this.element.data('date-min-view-mode')||0;
+		//Adding a callback method
+		if (typeof options.minViewMode === 'function') {
+			this.minViewMode = options.minViewMode() || 0;
+		}
 		if (typeof this.minViewMode === 'string') {
 			switch (this.minViewMode) {
 				case 'months':

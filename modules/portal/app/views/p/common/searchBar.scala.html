@@ -1,0 +1,46 @@
+@(params: utils.search.SearchParams = utils.search.SearchParams.empty, autofocus: Boolean = true)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@import utils.search.SearchParams
+<div class="row">
+    <div class="col-md-12">
+        <div class="search-bar">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="form-group form-inline search-box">
+                    <div class="input-group">
+                        <input type="search"
+                               placeholder="@Messages("search.queryPlaceholder")" class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
+                        <span class="input-group-btn">
+                            <button class="btn btn-default">
+                                <span class="glyphicon glyphicon-search"></span>
+                                @Messages("forms.search")
+                            </button>
+                            <a class="btn btn-default helper-toggle" data-toggle="helper" data-target="#search-helper" title="@Messages("portal.search.helper.linkTitle")">
+                                <span class="glyphicon glyphicon-question-sign"></span>
+                                <span class="hidden">@Messages("portal.search.helper.linkTitle")</span>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="search-helper">
+    <div>
+        <h1>@Messages("portal.search.helper")</h1>
+        <dl class="dl-horizontal">
+            <dt>"@Messages("portal.search.helper.example")"</dt>
+            <dd>@Messages("portal.search.helper.quotes")</dd>
+            <dd class="example">E.G. : @Messages("portal.search.helper.quotes.example")</small></dd>
+            <dt>+@Messages("portal.search.helper.example")</dt>
+            <dd>@Messages("portal.search.helper.plus")</dd>
+            <dd class="example">E.G. : @Messages("portal.search.helper.plus.example")</small></dd>
+            <dt>-@Messages("portal.search.helper.example")</dt>
+            <dd>@Messages("portal.search.helper.minus")</dd>
+            <dd class="example">E.G. : @Messages("portal.search.helper.minus.example")</dd>
+        </dl>
+    </div>
+    <div>
+        <a href="#" class="close" aria-hidden="true">&times;</a>
+    </div>
+</div>
