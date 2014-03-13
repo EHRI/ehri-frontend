@@ -30,3 +30,4 @@ fonts
 
 conf/securesocial.conf
 conf/parse-keys.conf
+conf/aws.conf
