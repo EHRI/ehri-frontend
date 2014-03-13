@@ -10,17 +10,22 @@ import play.api.libs.json.{JsObject, Json}
 import utils.{SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
-import fly.play.s3.{PUBLIC_READ, BucketFileUploadTicket, BucketFile, S3}
+import fly.play.s3._
 import play.api.libs.iteratee.{Enumeratee, Iteratee}
 import play.api.libs.Files.TemporaryFile
 import play.api.templates.Html
 import play.api.Play._
 import scala.Some
+import play.api.libs.json.JsObject
+import java.io.{BufferedInputStream, FileInputStream, File}
+import net.coobird.thumbnailator.Thumbnails
+import org.apache.commons.io.FileUtils
+import scala.Some
 import fly.play.s3.BucketFileUploadTicket
 import fly.play.s3.BucketFile
 import play.api.libs.json.JsObject
-import java.io.File
-import net.coobird.thumbnailator.Thumbnails
+import play.Logger
+import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -139,6 +144,47 @@ trait PortalProfile extends PortalLogin {
     )
   }
 
+  def uploadProfileImage = withUserAction { implicit user => implicit request =>
+    Ok(views.html.p.profile.imageUpload())
+  }
+
+  def uploadProfileImagePost = withUserAction.async(parse.multipartFormData) { implicit user => implicit request =>
+    request.body.file("image").map { file =>
+      val bucketName: String = current.configuration.getString("aws.bucket")
+        .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
+      val bucket = S3(bucketName)
+      val ctype = file.contentType.getOrElse("application/octet-stream")
+
+      val extension = file.filename.substring(file.filename.lastIndexOf("."))
+      val awsName = s"images/${user.id}$extension"
+      val temp = File.createTempFile(user.id, extension)
+      Thumbnails.of(file.ref.file).size(200,200).toFile(temp)
+      val bis = FileUtils.readFileToByteArray(temp)
+
+      val bucketFile: BucketFile = new BucketFile(awsName, ctype, bis)
+      val upload: Future[Unit] = bucket.add(bucketFile)
+
+      // Try and ensure we clean up afterwards...
+      upload.onComplete { unit =>
+        temp.delete()
+        file.ref.file.delete()
+      }
+
+      upload.flatMap { info =>
+        backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> bucket.url(awsName))).map { r =>
+          temp.delete()
+          Redirect(portalRoutes.profile())
+        }
+      }.recover {
+        case S3Exception(status, code, message, originalXml) =>
+          Logger.error("Error: " + message)
+          BadRequest(message)
+      }
+    }.getOrElse(immediate(BadRequest("no file found")))
+  }
+
+  // Experimental S3 upload stuff!
+
   object UploadHandler {
     def upload(bucket: S3, ticket: BucketFileUploadTicket) = {
       val consumeAMB = play.api.libs.iteratee.Traversable.takeUpTo[Array[Byte]](1028*1028) &>> Iteratee.consume()
@@ -206,7 +252,7 @@ trait PortalProfile extends PortalLogin {
     val bucket = S3(bucketName)
     val policy = bucket.uploadPolicy(expiration = new Date(timeout))
         .withConditions(
-        key.startsWith(s"images/${user.id}"),
+        key.startsWith(s"images/"),
         acl.eq(PUBLIC_READ),
         successActionRedirect.eq(portalRoutes.s3redirect().absoluteURL(https)),
         header(CONTENT_TYPE).startsWith("image/"),
@@ -222,18 +268,5 @@ trait PortalProfile extends PortalLogin {
         """<input type="file" name="file" accept="image/png,image/jpg" />"""
     println("Form:" + allFormFields)
     Ok(views.html.p.profile.s3uploadForm(bucketName, Html(allFormFields)))
-  }
-
-
-  def uploadProfileImage = withUserAction(parse.multipartFormData) { implicit user => implicit request =>
-    request.body.file("image").map { file =>
-      val temp = File.createTempFile(user.id, file.filename.substring(file.filename.lastIndexOf(".")))
-      val thumb = Thumbnails.of(file.ref.file).size(80,80).toFile(temp)
-      ???
-    }.getOrElse(BadRequest("no file found"))
-  }
-
-  def thumbnailImage(f: File): File = {
-    ???
   }
 }

@@ -1,0 +1,9 @@
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+
+@helper.form(action = controllers.portal.routes.Portal.uploadProfileImagePost, 'role -> "form", 'enctype -> "multipart/form-data", 'class -> "form-inline") {
+    @formHelpers.csrfToken()
+    <input class="form-control" type="file" name="image" />
+
+    <input type="submit" class="btn btn-primary" value="Submit" />
+}

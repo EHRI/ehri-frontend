@@ -34,6 +34,8 @@ POST        /prefs                          @controllers.portal.Portal.updatePre
 # S3 Upload redirect
 GET         /s3redirect                     @controllers.portal.Portal.s3redirect
 GET         /uploadProfileForm              @controllers.portal.Portal.uploadProfileForm
+GET         /profile/uploadProfileImage     @controllers.portal.Portal.uploadProfileImage
+POST        /profile/uploadProfileImage     @controllers.portal.Portal.uploadProfileImagePost
 
 GET         /search                         @controllers.portal.Portal.search
 GET         /countries/institutions         @controllers.portal.Portal.browseRepositoriesByCountry
