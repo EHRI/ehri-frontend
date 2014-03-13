@@ -3,7 +3,84 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.updateRepository"), breadcrumbs = common.breadcrumbs(List(item))) {
+@scripts = {
+	<script type="text/javascript" src="@controllers.core.routes.Assets.at("js/typeahead.min.js")"></script>
+	<script type="text/javascript" src="@controllers.core.routes.Assets.at("js/handlebar.min.js")"></script>
+	<script>
+		$(document).ready(function(){
+			var geoNamesUsername = 'EhriAdmin';
+
+
+			remotes = {
+				city : {
+						template : Handlebars.compile('<b>{{name}}</b><span class="text-muted"> - {{countryCode}} <small>({{adminName}})</small></span>'),
+						selected : function(el, data) {
+							form = el.parents(".address-form");
+							form.find("[name$='countryCode']").select2("val", data.countryCode);
+							form.find("[name$='firstdem']").val(data.adminName);
+						},
+						BH : new Bloodhound({
+								datumTokenizer: function (d) {
+		      						return Bloodhound.tokenizers.whitespace(d); 
+								},
+								queryTokenizer: Bloodhound.tokenizers.whitespace,
+								remote: {
+									url : 'http://api.geonames.org/searchJSON?name_startsWith=%QUERY&maxRows=10&username=' + geoNamesUsername + '&lang=en&featureClass=P&style=long',
+									filter : function(parsedResponse) {
+										var result = [];
+										for (var i=0; i<parsedResponse.geonames.length; i++) {
+											var geonameId = parsedResponse.geonames[i].geonameId;
+											result.push({
+												name: parsedResponse.geonames[i].name,
+												value: parsedResponse.geonames[i].name,
+												geonameId: geonameId,
+												countryCode: parsedResponse.geonames[i].countryCode,
+												lat: parsedResponse.geonames[i].lat,
+												lng: parsedResponse.geonames[i].lng,
+												bbox: parsedResponse.geonames[i].bbox,
+												adminName : parsedResponse.geonames[i].adminName1
+											});
+										}
+										return result;
+									}
+								}
+							})
+					}
+			}
+			console.log(remotes);
+			remotes["city"].BH.initialize();
+
+			/**
+			 * Initialize typeahead.js
+			 */
+			$('.typeahead').each(function() {
+				remoteName = $(this).attr('data-remote');
+				if(typeof remotes[remoteName] !== "undefined") {
+					$(this).typeahead(
+						null,
+						{
+							name: remoteName,
+							source: remotes[remoteName].BH.ttAdapter(),
+							templates: {
+								suggestion : remotes[remoteName].template
+							}
+						}
+					);
+				}
+			});
+
+
+			/**
+			 * Fix tt hint
+			 */
+			$('.typeahead').on('typeahead:selected', function(e, data) {
+				remotes[$(this).attr("data-remote")].selected($(this), data);
+			});
+
+		});
+	</script>
+}
+@layout.rightSidebar(Messages("actions.updateRepository"), scripts = scripts, breadcrumbs = common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @repository.renderForm(Some(item), f)
