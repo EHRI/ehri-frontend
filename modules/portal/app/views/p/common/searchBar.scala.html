@@ -12,28 +12,30 @@
                                 <span class="glyphicon glyphicon-search"></span>
                                 @Messages("forms.search")
                             </button>
-                            <a class="btn helper-toggle" data-toggle="helper" data-target="#search-helper"
-                               title="@Messages(" portal.search.helper.linkTitle")">
-                                <span class="glyphicon glyphicon-question-sign"></span>
-                                <span class="hidden">@Messages("portal.search.helper.linkTitle")</span>
-                            </a>
                         </span>
             </div>
         </div>
+    </div>
+    <div class="col-md-2">
+        <a class="search-helper-toggle" data-toggle="helper" data-target="#search-helper" title="@Messages(" portal.search.helper.linkTitle")">
+            @Messages("portal.search.helper.linkTitle")
+        </a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
         <div id="search-helper">
-            <div>
-                <a href="#" class="close" aria-hidden="true">&times;</a>
+            <a href="#" class="close" aria-hidden="true">&times;</a>
 
-                <h1>@Messages("portal.search.helper")</h1>
-                <dl class="dl-horizontal">
-                    <dt>"@Messages("portal.search.helper.example")"</dt>
-                    <dd>@Messages("portal.search.helper.quotes")</dd>
-                    <dt>+@Messages("portal.search.helper.example")</dt>
-                    <dd>@Messages("portal.search.helper.plus")</dd>
-                    <dt>-@Messages("portal.search.helper.example")</dt>
-                    <dd>@Messages("portal.search.helper.minus")</dd>
-                </dl>
-            </div>
+            <h1>@Messages("portal.search.helper")</h1>
+            <dl class="dl-horizontal">
+                <dt>"@Messages("portal.search.helper.example")"</dt>
+                <dd>@Messages("portal.search.helper.quotes")</dd>
+                <dt>+@Messages("portal.search.helper.example")</dt>
+                <dd>@Messages("portal.search.helper.plus")</dd>
+                <dt>-@Messages("portal.search.helper.example")</dt>
+                <dd>@Messages("portal.search.helper.minus")</dd>
+            </dl>
         </div>
     </div>
 </div>

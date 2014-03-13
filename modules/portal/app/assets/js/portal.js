@@ -13,7 +13,7 @@ $('.watch , .unwatch').tooltip({
 /*
   Search helpers
 */
-$(".helper-toggle").on("click", function () {
+$(".search-helper-toggle").on("click", function () {
   $("#search-helper").toggle();
 });
 
