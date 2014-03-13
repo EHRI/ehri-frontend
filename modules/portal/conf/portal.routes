@@ -31,12 +31,6 @@ POST        /rstp/:token                    @controllers.portal.Portal.resetPass
 GET         /prefs                          @controllers.portal.Portal.prefs
 POST        /prefs                          @controllers.portal.Portal.updatePrefs
 
-# S3 Upload redirect
-GET         /s3redirect                     @controllers.portal.Portal.s3redirect
-GET         /uploadProfileForm              @controllers.portal.Portal.uploadProfileForm
-GET         /profile/uploadProfileImage     @controllers.portal.Portal.uploadProfileImage
-POST        /profile/uploadProfileImage     @controllers.portal.Portal.uploadProfileImagePost
-
 GET         /search                         @controllers.portal.Portal.search
 GET         /countries/institutions         @controllers.portal.Portal.browseRepositoriesByCountry
 GET         /countries                      @controllers.portal.Portal.browseCountries
@@ -93,6 +87,9 @@ GET         /profile/edit                   @controllers.portal.Portal.updatePro
 POST        /profile/edit                   @controllers.portal.Portal.updateProfilePost
 GET         /profile/delete                 @controllers.portal.Portal.deleteProfile
 POST        /profile/delete                 @controllers.portal.Portal.deleteProfilePost
+GET         /profile/uploadProfileImage     @controllers.portal.Portal.uploadProfileImage
+POST        /profile/uploadProfileImage     @controllers.portal.Portal.uploadProfileImagePost
+
 GET         /filter                         @controllers.portal.Portal.filter
 
 # Various JS data helpers

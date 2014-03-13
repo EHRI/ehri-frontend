@@ -6,26 +6,22 @@ import models.{ProfileData, UserProfile, UserProfileF}
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import utils.{SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import fly.play.s3._
-import play.api.libs.iteratee.{Enumeratee, Iteratee}
 import play.api.libs.Files.TemporaryFile
-import play.api.templates.Html
 import play.api.Play._
-import scala.Some
-import play.api.libs.json.JsObject
-import java.io.{BufferedInputStream, FileInputStream, File}
+import java.io.File
 import net.coobird.thumbnailator.Thumbnails
 import org.apache.commons.io.FileUtils
-import scala.Some
-import fly.play.s3.BucketFileUploadTicket
 import fly.play.s3.BucketFile
 import play.api.libs.json.JsObject
 import play.Logger
 import scala.concurrent.Future
+import play.api.mvc.MultipartFormData.FilePart
+import views.html.p
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -63,13 +59,13 @@ trait PortalProfile extends PortalLogin {
       watchList <- backend.pageWatching(user.id, watchParams)
       links <- backend.userLinks(user.id, linkParams)
       anns <- backend.userAnnotations(user.id, annParams)
-    } yield Ok(views.html.p.profile.profile(watchList, anns, links))
+    } yield Ok(p.profile.profile(watchList, anns, links))
   }
 
   def watching = withUserAction.async { implicit user => implicit request =>
     val watchParams = PageParams.fromRequest(request)
     backend.pageWatching(user.id, watchParams).map { watchList =>
-      Ok(views.html.p.profile.watchedItems(watchList))
+      Ok(p.profile.watchedItems(watchList))
     }
   }
 
@@ -86,7 +82,6 @@ trait PortalProfile extends PortalLogin {
 
   /**
    * Store a changed password.
-   * @return
    */
   def changePasswordPost = changePasswordPostAction { boolOrErr => implicit userOpt => implicit request =>
     boolOrErr match {
@@ -94,24 +89,24 @@ trait PortalProfile extends PortalLogin {
         Redirect(defaultLoginUrl)
           .flashing("success" -> Messages("login.passwordChanged"))
       case Right(false) =>
-        BadRequest(views.html.p.profile.editProfile(
+        BadRequest(p.profile.editProfile(
           ProfileData.form, changePasswordForm
             .withGlobalError("login.badUsernameOrPassword")))
       case Left(errForm) =>
-        BadRequest(views.html.p.profile.editProfile(
+        BadRequest(p.profile.editProfile(
           ProfileData.form, errForm))
     }
   }
 
   def updateProfile() = withUserAction { implicit user => implicit request =>
     val form = ProfileData.form.fill(ProfileData.fromUser(user))
-      Ok(views.html.p.profile.editProfile(
+      Ok(p.profile.editProfile(
         form, changePasswordForm))
   }
 
   def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
     ProfileData.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(views.html.p.profile.editProfile(
+      errForm => immediate(BadRequest(p.profile.editProfile(
         errForm, changePasswordForm))),
       profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
         Redirect(controllers.portal.routes.Portal.profile())
@@ -122,13 +117,13 @@ trait PortalProfile extends PortalLogin {
 
 
   def deleteProfile() = withUserAction { implicit user => implicit request =>
-    Ok(views.html.p.profile.deleteProfile(deleteForm(user),
+    Ok(p.profile.deleteProfile(deleteForm(user),
       controllers.portal.routes.Portal.deleteProfilePost()))
   }
 
   def deleteProfilePost() = withUserAction.async { implicit user => implicit request =>
     deleteForm(user).bindFromRequest.fold(
-      errForm => immediate(BadRequest(views.html.p.profile.deleteProfile(
+      errForm => immediate(BadRequest(p.profile.deleteProfile(
         errForm.withGlobalError("portal.profile.deleteProfile.badConfirmation"),
         controllers.portal.routes.Portal.deleteProfilePost()))),
 
@@ -145,128 +140,59 @@ trait PortalProfile extends PortalLogin {
   }
 
   def uploadProfileImage = withUserAction { implicit user => implicit request =>
-    Ok(views.html.p.profile.imageUpload())
+    Ok(p.profile.imageUpload())
   }
 
-  def uploadProfileImagePost = withUserAction.async(parse.multipartFormData) { implicit user => implicit request =>
-    request.body.file("image").map { file =>
-      val bucketName: String = current.configuration.getString("aws.bucket")
-        .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
-      val bucket = S3(bucketName)
-      val ctype = file.contentType.getOrElse("application/octet-stream")
+  // Body parser that'll refuse anything larger than 5MB
+  private def uploadParser = parse.maxLength(5 * 1024 * 1024, parse.multipartFormData)
 
-      val extension = file.filename.substring(file.filename.lastIndexOf("."))
-      val awsName = s"images/${user.id}$extension"
-      val temp = File.createTempFile(user.id, extension)
-      Thumbnails.of(file.ref.file).size(200,200).toFile(temp)
-      val bis = FileUtils.readFileToByteArray(temp)
-
-      val bucketFile: BucketFile = new BucketFile(awsName, ctype, bis)
-      val upload: Future[Unit] = bucket.add(bucketFile)
-
-      // Try and ensure we clean up afterwards...
-      upload.onComplete { unit =>
-        temp.delete()
-        file.ref.file.delete()
-      }
-
-      upload.flatMap { info =>
-        backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> bucket.url(awsName))).map { r =>
-          temp.delete()
-          Redirect(portalRoutes.profile())
+  def uploadProfileImagePost = withUserAction.async(uploadParser) { implicit user => implicit request =>
+    request.body match {
+      case Left(MaxSizeExceeded(length)) =>
+        immediate(BadRequest(p.profile.imageUpload(Some("portal.error.imageTooLarge"))))
+      case Right(multipartForm) => multipartForm.file("image").map { file =>
+        if (isValidContentType(file)) {
+          convertAndUploadFile(file, user).flatMap { url =>
+            backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> url)).map { _ =>
+              Redirect(portalRoutes.profile())
+            }
+          }.recover {
+            case S3Exception(status, code, message, originalXml) =>
+              Logger.error(s"$originalXml")
+              Logger.error("Error: " + message)
+              BadRequest(message)
+          }
+        } else {
+          immediate(BadRequest(p.profile.imageUpload(Some("portal.error.badFileType"))))
         }
-      }.recover {
-        case S3Exception(status, code, message, originalXml) =>
-          Logger.error("Error: " + message)
-          BadRequest(message)
-      }
-    }.getOrElse(immediate(BadRequest("no file found")))
-  }
-
-  // Experimental S3 upload stuff!
-
-  object UploadHandler {
-    def upload(bucket: S3, ticket: BucketFileUploadTicket) = {
-      val consumeAMB = play.api.libs.iteratee.Traversable.takeUpTo[Array[Byte]](1028*1028) &>> Iteratee.consume()
-
-      val rechunkAdapter:Enumeratee[Array[Byte],Array[Byte]] = Enumeratee.grouped(consumeAMB)
-
-      val writeToStore: Iteratee[Array[Byte],BucketFileUploadTicket] =
-        Iteratee.foldM[Array[Byte],BucketFileUploadTicket](ticket) { (c,bytes) =>
-
-          // write bytes and return next handle, probable in a Future
-          ???
-        }
-
-      rechunkAdapter &>> writeToStore
-    }
-
-    def s3PartHandler(bucket: S3, ticket: BucketFileUploadTicket): BodyParsers.parse.Multipart.PartHandler[MultipartFormData.FilePart[BucketFileUploadTicket]] = {
-      parse.Multipart.handleFilePart {
-        case parse.Multipart.FileInfo(partName, filename, ct) => upload(bucket, ticket)
+      }.getOrElse{
+        immediate(BadRequest(p.profile.imageUpload(Some("portal.error.noFileGiven"))))
       }
     }
   }
 
-  def s3redirect = Action.async { implicit request =>
-    println(request.queryString)
-    import play.api.data.Form
-      import play.api.data.Forms._
+  private def isValidContentType(file: FilePart[TemporaryFile]): Boolean
+    = file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
-    val s3resultForm = Form(
-      tuple(
-        "bucket" -> nonEmptyText,
-        "key" -> nonEmptyText,
-        "etag" -> nonEmptyText
-      )
-    )
-
-    s3resultForm.bindFromRequest.fold(
-      errForm => immediate(BadRequest(errForm.errorsAsJson)),
-      data => {
-        val (bucketName, key, _) = data
-        val bucket = S3(bucketName)
-        println("URL: " + bucket.url(key))
-        bucket.get(key).map {
-          case file@BucketFile(name, ctype, content, acl, headers) =>
-            Ok(file.toString)
-        }
-      }
-    )
-
-  }
-
-  def uploadProfileForm = withUserAction { implicit user => implicit request =>
-    import fly.play.s3.upload.Condition._
-    import fly.play.s3.upload.Form
-    import java.util.Date
-    import fly.play.s3.upload.FormElement
-    import play.api.Play.current
-
-    val https = current.configuration.getBoolean("ehri.https")
-      .getOrElse(sys.error("Invalid configuration: no ehri.https key found"))
-
-    val timeout = System.currentTimeMillis + (10 * 60 * 1000)
+  private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile): Future[String] = {
     val bucketName: String = current.configuration.getString("aws.bucket")
       .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
     val bucket = S3(bucketName)
-    val policy = bucket.uploadPolicy(expiration = new Date(timeout))
-        .withConditions(
-        key.startsWith(s"images/"),
-        acl.eq(PUBLIC_READ),
-        successActionRedirect.eq(portalRoutes.s3redirect().absoluteURL(https)),
-        header(CONTENT_TYPE).startsWith("image/"),
-        contentLengthRange.from(0L).to(1024 * 1024), // 1MB
-        meta("tag").eq("profileImages"))
+    val ctype = file.contentType.getOrElse("application/octet-stream")
+    val extension = file.filename.substring(file.filename.lastIndexOf("."))
+    val awsName = s"images/${user.id}$extension"
+    val temp = File.createTempFile(user.id, extension)
+    Thumbnails.of(file.ref.file).size(200, 200).toFile(temp)
+    val bis = FileUtils.readFileToByteArray(temp)
 
-    val formFieldsFromPolicy = Form(policy).fields.map {
-      case FormElement(name, value, _) =>
-        s"""<input type="hidden" name="$name" value="$value" />"""
+    val bucketFile: BucketFile = new BucketFile(awsName, ctype, bis)
+    val upload: Future[Unit] = bucket.add(bucketFile)
+
+    // Try and ensure we clean up afterwards...
+    upload.onComplete { unit =>
+      temp.delete()
+      file.ref.file.delete()
     }
-    val allFormFields =
-      formFieldsFromPolicy.mkString("\n") +
-        """<input type="file" name="file" accept="image/png,image/jpg" />"""
-    println("Form:" + allFormFields)
-    Ok(views.html.p.profile.s3uploadForm(bucketName, Html(allFormFields)))
+    upload.map(_ => bucket.url(awsName))
   }
 }

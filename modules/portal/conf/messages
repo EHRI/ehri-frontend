@@ -163,3 +163,8 @@ portal.contributionVisibility.groups=My Groups
 portal.contributionVisibility.custom=Custom
 portal.contributionVisibility.allowPublic=Allow Promotion
 portal.social.annotation.placeholder=
+
+# Image upload
+portal.error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
+portal.error.badFileType=The uploaded file was not a supported image type.
+portal.error.noFileGiven=No image file was selected.
