@@ -4,7 +4,7 @@
 
 @p.layout.mainContent {
     @if(params.isFiltered || !result.items.isEmpty) {
-        @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal") {
+        @helper.form(action = action, 'role -> "form") {
 
         @p.common.searchBar(params)
         <div class="row">
