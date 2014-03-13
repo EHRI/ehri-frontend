@@ -5,31 +5,8 @@
 @p.layout.mainContent {
     @if(params.isFiltered || !result.items.isEmpty) {
         @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal") {
-        <div class="row">
-            <div class="col-md-12">
-                <div class="search-bar">
-                    <div class="row">
-                        <div class="col-md-3 search-heading">
-                            <h4>@Messages(key)</h4>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group form-inline search-box">
-                                <div class="input-group">
-                                    <input type="search" class="form-control"
-                                           placeholder="@Messages("search.queryPlaceholder")" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default">
-                                        <span class="glyphicon glyphicon-search"></span>
-                                        @Messages("forms.search")
-                                    </button>
-                                </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+        @p.common.searchBar(params)
         <div class="row">
             <div class="col-md-9">
                 <h4>

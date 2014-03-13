@@ -20,7 +20,7 @@
         </td>
         <td>
             @defining(desc(PRECISION).value.toSet) { values =>
-            <select class="form-control" name="@desc(PRECISION).name">
+            <select class="form-control precision" name="@desc(PRECISION).name">
                 <option></option>
                 @DatePeriodPrecision.values.toList.sortBy(_.id).map { v =>
                     <option @if(values.contains(v.toString)){selected} value="@v.toString">@Messages("datePeriod.precision." + v)</option>
