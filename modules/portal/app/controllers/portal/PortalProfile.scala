@@ -10,9 +10,17 @@ import play.api.libs.json.{JsObject, Json}
 import utils.{SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
-import fly.play.s3.{BucketFileUploadTicket, BucketFile, S3}
+import fly.play.s3.{PUBLIC_READ, BucketFileUploadTicket, BucketFile, S3}
 import play.api.libs.iteratee.{Enumeratee, Iteratee}
 import play.api.libs.Files.TemporaryFile
+import play.api.templates.Html
+import play.api.Play._
+import scala.Some
+import fly.play.s3.BucketFileUploadTicket
+import fly.play.s3.BucketFile
+import play.api.libs.json.JsObject
+import java.io.File
+import net.coobird.thumbnailator.Thumbnails
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -154,18 +162,78 @@ trait PortalProfile extends PortalLogin {
     }
   }
 
+  def s3redirect = Action.async { implicit request =>
+    println(request.queryString)
+    import play.api.data.Form
+      import play.api.data.Forms._
 
-  def uploadProfileImage = withUserAction.async(parse.multipartFormData) { implicit user => implicit request =>
-    request.body.file("image").map { picture =>
-      val s3 = S3("ehri-users")
-      val bucketFile = new BucketFile(user.id + "_" + picture.filename,
-        picture.contentType.getOrElse(play.api.http.ContentTypes.BINARY))
+    val s3resultForm = Form(
+      tuple(
+        "bucket" -> nonEmptyText,
+        "key" -> nonEmptyText,
+        "etag" -> nonEmptyText
+      )
+    )
 
-      for {
-        ticket <- s3.initiateMultipartUpload(bucketFile)
+    s3resultForm.bindFromRequest.fold(
+      errForm => immediate(BadRequest(errForm.errorsAsJson)),
+      data => {
+        val (bucketName, key, _) = data
+        val bucket = S3(bucketName)
+        println("URL: " + bucket.url(key))
+        bucket.get(key).map {
+          case file@BucketFile(name, ctype, content, acl, headers) =>
+            Ok(file.toString)
+        }
+      }
+    )
+
+  }
+
+  def uploadProfileForm = withUserAction { implicit user => implicit request =>
+    import fly.play.s3.upload.Condition._
+    import fly.play.s3.upload.Form
+    import java.util.Date
+    import fly.play.s3.upload.FormElement
+    import play.api.Play.current
+
+    val https = current.configuration.getBoolean("ehri.https")
+      .getOrElse(sys.error("Invalid configuration: no ehri.https key found"))
+
+    val timeout = System.currentTimeMillis + (10 * 60 * 1000)
+    val bucketName: String = current.configuration.getString("aws.bucket")
+      .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
+    val bucket = S3(bucketName)
+    val policy = bucket.uploadPolicy(expiration = new Date(timeout))
+        .withConditions(
+        key.startsWith(s"images/${user.id}"),
+        acl.eq(PUBLIC_READ),
+        successActionRedirect.eq(portalRoutes.s3redirect().absoluteURL(https)),
+        header(CONTENT_TYPE).startsWith("image/"),
+        contentLengthRange.from(0L).to(1024 * 1024), // 1MB
+        meta("tag").eq("profileImages"))
+
+    val formFieldsFromPolicy = Form(policy).fields.map {
+      case FormElement(name, value, _) =>
+        s"""<input type="hidden" name="$name" value="$value" />"""
+    }
+    val allFormFields =
+      formFieldsFromPolicy.mkString("\n") +
+        """<input type="file" name="file" accept="image/png,image/jpg" />"""
+    println("Form:" + allFormFields)
+    Ok(views.html.p.profile.s3uploadForm(bucketName, Html(allFormFields)))
+  }
 
 
-      } yield ???
-    }.getOrElse(immediate(BadRequest("no image found")))
+  def uploadProfileImage = withUserAction(parse.multipartFormData) { implicit user => implicit request =>
+    request.body.file("image").map { file =>
+      val temp = File.createTempFile(user.id, file.filename.substring(file.filename.lastIndexOf(".")))
+      val thumb = Thumbnails.of(file.ref.file).size(80,80).toFile(temp)
+      ???
+    }.getOrElse(BadRequest("no file found"))
+  }
+
+  def thumbnailImage(f: File): File = {
+    ???
   }
 }

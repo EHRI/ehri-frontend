@@ -31,6 +31,10 @@ POST        /rstp/:token                    @controllers.portal.Portal.resetPass
 GET         /prefs                          @controllers.portal.Portal.prefs
 POST        /prefs                          @controllers.portal.Portal.updatePrefs
 
+# S3 Upload redirect
+GET         /s3redirect                     @controllers.portal.Portal.s3redirect
+GET         /uploadProfileForm              @controllers.portal.Portal.uploadProfileForm
+
 GET         /search                         @controllers.portal.Portal.search
 GET         /countries/institutions         @controllers.portal.Portal.browseRepositoriesByCountry
 GET         /countries                      @controllers.portal.Portal.browseCountries

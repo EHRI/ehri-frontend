@@ -55,6 +55,7 @@ object ApplicationBuild extends Build {
 
     // S3 Upload plugin
     "nl.rhinofly" %% "play-s3" % "3.3.3",
+    "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
 
     // Mailer...
     "com.typesafe" %% "play-plugins-mailer" % "2.2.0",

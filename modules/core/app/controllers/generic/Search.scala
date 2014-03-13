@@ -103,6 +103,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
         .value.getOrElse(SearchParams())
         .setDefault(params)
 
+    println(sp)
       searchDispatcher.filter(sp, filters).map { res =>
         f(res)(userOpt)(request)
       }
