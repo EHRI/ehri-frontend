@@ -49,7 +49,7 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
       ), List(), List())
 
       val result = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        profileRoutes.uploadProfileImagePost().url), data.asFormUrlEncoded).get
+        profileRoutes.updateProfileImagePost().url), data.asFormUrlEncoded).get
       status(result) must equalTo(BAD_REQUEST)
       // TODO: Verifty types of BAD_REQUEST
       //contentAsString(result) must contain(Messages("portal.errors.badFileType"))

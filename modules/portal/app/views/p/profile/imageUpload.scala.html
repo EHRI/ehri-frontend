@@ -1,4 +1,4 @@
-@(error: Option[String] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(f: Form[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @p.layout.portalLayout(Messages("portal.profile")) {
     @p.layout.infobar {
@@ -8,7 +8,7 @@
     }
 
     @p.layout.mainContent {
-        <h3>@Messages("portal.profile.updateProfile")</h3>
-        @imageUploadForm(error)
+        <h3>@Messages("portal.profile.updateProfileImage")</h3>
+        @imageUploadForm(f, controllers.portal.routes.Profile.updateProfileImagePost)
     }
 }

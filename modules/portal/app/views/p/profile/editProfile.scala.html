@@ -1,4 +1,4 @@
-@(profileForm: play.api.data.Form[ProfileData], pwForm: Form[(String,String,String)])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(profileForm: play.api.data.Form[ProfileData], imageForm: Form[String], pwForm: Form[(String,String,String)])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @p.layout.portalLayout(Messages("portal.profile")) {
     @p.layout.infobar {
@@ -19,6 +19,9 @@
 
         <h3>@Messages("portal.profile.updateProfile")</h3>
         @editProfileForm(profileForm, controllers.portal.routes.Profile.updateProfilePost)
+
+        <h3>@Messages("portal.profile.updateProfileImage")</h3>
+        @imageUploadForm(imageForm, controllers.portal.routes.Profile.updateProfileImagePost)
 
         @if(userOpt.flatMap(_.account).flatMap(_.password).isDefined) {
             <h3>@Messages("portal.profile.changePassword")</h3>

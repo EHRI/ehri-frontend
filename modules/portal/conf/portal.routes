@@ -87,8 +87,8 @@ GET         /profile/edit                   @controllers.portal.Profile.updatePr
 POST        /profile/edit                   @controllers.portal.Profile.updateProfilePost
 GET         /profile/delete                 @controllers.portal.Profile.deleteProfile
 POST        /profile/delete                 @controllers.portal.Profile.deleteProfilePost
-GET         /profile/uploadProfileImage     @controllers.portal.Profile.uploadProfileImage
-POST        /profile/uploadProfileImage     @controllers.portal.Profile.uploadProfileImagePost
+GET         /profile/editImage              @controllers.portal.Profile.updateProfileImage
+POST        /profile/editImage              @controllers.portal.Profile.updateProfileImagePost
 
 GET         /filter                         @controllers.portal.Portal.filter
 

@@ -23,6 +23,7 @@ import utils.search.{Resolver, Dispatcher}
 import backend.Backend
 
 import com.google.inject._
+import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -65,7 +66,6 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def profile = withUserAction.async { implicit user => implicit request =>
-    println(request.host)
     val watchParams = PageParams.fromRequest(request, namespace = "watch")
     val linkParams = PageParams.fromRequest(request, namespace = "link")
     val annParams = PageParams.fromRequest(request, namespace = "ann")
@@ -88,6 +88,10 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   )
 
+  private val imageForm = Form(
+    single("image" -> text)
+  )
+
   /**
    * Store a changed password.
    */
@@ -98,24 +102,24 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
           .flashing("success" -> Messages("login.passwordChanged"))
       case Right(false) =>
         BadRequest(p.profile.editProfile(
-          ProfileData.form, changePasswordForm
+          ProfileData.form, imageForm, changePasswordForm
             .withGlobalError("login.badUsernameOrPassword")))
       case Left(errForm) =>
         BadRequest(p.profile.editProfile(
-          ProfileData.form, errForm))
+          ProfileData.form, imageForm, errForm))
     }
   }
 
   def updateProfile() = withUserAction { implicit user => implicit request =>
     val form = ProfileData.form.fill(ProfileData.fromUser(user))
       Ok(p.profile.editProfile(
-        form, changePasswordForm))
+        form, imageForm, changePasswordForm))
   }
 
   def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
     ProfileData.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(p.profile.editProfile(
-        errForm, changePasswordForm))),
+        errForm, imageForm, changePasswordForm))),
       profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("confirmations.profileUpdated"))
@@ -147,36 +151,43 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def uploadProfileImage = withUserAction { implicit user => implicit request =>
-    Ok(p.profile.imageUpload())
-  }
+  // Defer to the standard profile update page...
+  def updateProfileImage() = updateProfile()
 
   // Body parser that'll refuse anything larger than 5MB
   private def uploadParser = parse.maxLength(5 * 1024 * 1024, parse.multipartFormData)
 
-  def uploadProfileImagePost = withUserAction.async(uploadParser) { implicit user => implicit request =>
+  def updateProfileImagePost = withUserAction.async(uploadParser) { implicit user => implicit request =>
     import fly.play.s3._
 
+    def onError(err: String) =
+      BadRequest(p.profile.editProfile(ProfileData.form,
+        imageForm.withGlobalError(s"portal.error.$err"), changePasswordForm))
+
     request.body match {
-      case Left(MaxSizeExceeded(length)) =>
-        immediate(BadRequest(p.profile.imageUpload(Some("portal.error.imageTooLarge"))))
+      case Left(MaxSizeExceeded(length)) => immediate(onError("imageTooLarge"))
       case Right(multipartForm) => multipartForm.file("image").map { file =>
         if (isValidContentType(file)) {
-          convertAndUploadFile(file, user, request).flatMap { url =>
-            backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> url)).map { _ =>
-              Redirect(profileRoutes.profile())
+          try {
+            convertAndUploadFile(file, user, request).flatMap { url =>
+              backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> url)).map { _ =>
+                Redirect(profileRoutes.profile())
+                  .flashing("success" -> "confirmations.profileUpdated")
+              }
+            }.recover {
+              case S3Exception(status, code, message, originalXml) =>
+                Logger.error(s"$originalXml")
+                Logger.error("Error: " + message)
+                BadRequest(message)
             }
-          }.recover {
-            case S3Exception(status, code, message, originalXml) =>
-              Logger.error(s"$originalXml")
-              Logger.error("Error: " + message)
-              BadRequest(message)
+          } catch {
+            case e: UnsupportedFormatException => immediate(onError("badFileType"))
           }
         } else {
-          immediate(BadRequest(p.profile.imageUpload(Some("portal.error.badFileType"))))
+          immediate(onError("badFileType"))
         }
-      }.getOrElse{
-        immediate(BadRequest(p.profile.imageUpload(Some("portal.error.noFileGiven"))))
+      }.getOrElse {
+        immediate(onError("noFileGiven"))
       }
     }
   }

@@ -36,6 +36,7 @@ portal.hideDetails=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
 portal.profile=Profile
 portal.profile.updateProfile=Edit Profile
+portal.profile.updateProfileImage=Set Profile Image
 portal.profile.deleteProfile=Delete Account
 portal.profile.deleteProfileLink=Click here to delete your profile
 portal.warning=Warning
