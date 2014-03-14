@@ -8,7 +8,6 @@ import backend.ApiUser
 import mocks.MockBufferedMailer
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.MultipartFormData
-import play.api.i18n.Messages
 
 
 class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
@@ -75,6 +74,16 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
       val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         profileRoutes.deleteProfilePost().url), data).get
       status(delete) must equalTo(BAD_REQUEST)
+    }
+
+    "redirect to index page on log out" in new FakeApp {
+      val logout = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        profileRoutes.logout().url)).get
+      status(logout) must equalTo(SEE_OTHER)
+      flash(logout).get("success") must beSome.which { fl =>
+        // NB: No i18n here...
+        fl must contain("portal.logoutSucceeded")
+      }
     }
   }
 

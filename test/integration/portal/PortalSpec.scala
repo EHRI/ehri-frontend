@@ -9,6 +9,7 @@ import backend.ApiUser
 import com.google.common.net.HttpHeaders
 import defines.EntityType
 import backend.rest.PermissionDenied
+import play.api.test.FakeRequest
 
 
 class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
@@ -19,6 +20,11 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
   override def getConfig = Map("recaptcha.skip" -> true)
 
   "Portal views" should {
+    "show index page" in new FakeApp {
+      val doc = route(FakeRequest(GET, portalRoutes.index().url)).get
+      status(doc) must equalTo(OK)
+    }
+
     "view docs" in new FakeApp {
       val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         portalRoutes.browseDocument("c1").url)).get
