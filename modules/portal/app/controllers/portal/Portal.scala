@@ -7,8 +7,6 @@ import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import views.html.p
-
-import com.google.inject._
 import utils.search._
 import play.api.libs.json.Json
 import play.api.cache.Cached
@@ -16,12 +14,13 @@ import defines.EntityType
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
-import backend.{FeedbackDAO, Backend}
+import backend.Backend
 import controllers.base.{SessionPreferences, ControllerHelpers}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.Logger
 import utils.{SessionPrefs, Stats, PageParams}
 
+import com.google.inject._
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -29,7 +28,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   extends Controller
   with LoginLogout
   with ControllerHelpers
-  with PortalAuthConfigImpl
   with Search
   with FacetConfig
   with PortalActions
@@ -77,10 +75,9 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def index = userProfileAction.async { implicit userOpt => implicit request =>
-    searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
+    searchAction[AnyModel](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
       entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent, EntityType.Country))),
-      entityFacets = entityMetrics) {
-      page => params => facets => implicit userOpt => _ =>
+      entityFacets = entityMetrics) { page => params => facets => implicit userOpt => _ =>
         Ok(p.portal(Stats(page.facets)))
     }.apply(request)
   }
@@ -89,7 +86,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[Country](defaultParams = Some(SearchParams(entities = List(EntityType.Country))),
       entityFacets = countryFacets) {
         page => params => facets => _ => _ =>
-      Ok(p.country.list(page, params, facets, portalRoutes.browseCountries, userDetails.watchedItems))
+      Ok(p.country.list(page, params, facets, portalRoutes.browseCountries(), userDetails.watchedItems))
     }.apply(request)
   }
 
@@ -97,7 +94,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country), entities = List(EntityType.Repository))),
       entityFacets = repositorySearchFacets) {
       page => params => facets => _ => _ =>
-        Ok(p.repository.listByCountry(page, params, facets, portalRoutes.browseRepositoriesByCountry,
+        Ok(p.repository.listByCountry(page, params, facets, portalRoutes.browseRepositoriesByCountry(),
           userDetails.watchedItems))
     }.apply(request)
   }
@@ -125,7 +122,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       searchAction[Repository](defaultParams = Some(SearchParams(entities = List(EntityType.Repository))),
         entityFacets = repositorySearchFacets) {
           page => params => facets => implicit userOpt => implicit request =>
-        Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories))
+        Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories()))
       }.apply(request)
     }
   }
@@ -154,7 +151,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def browseDocuments = userBrowseAction.async { implicit userDetails => implicit request =>
     searchAction[DocumentaryUnit](defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
       entityFacets = docSearchFacets) { page => params => facets => _ => _ =>
-      Ok(p.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments,
+      Ok(p.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments(),
         userDetails.watchedItems))
     }.apply(request)
   }
@@ -163,7 +160,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[DocumentaryUnit](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Holder), entities = List(EntityType.DocumentaryUnit))),
       entityFacets = docSearchRepositoryFacets) {
       page => params => facets => _ => _ =>
-        Ok(p.documentaryUnit.listByRepository(page, params, facets, portalRoutes.browseDocumentsByRepository,
+        Ok(p.documentaryUnit.listByRepository(page, params, facets, portalRoutes.browseDocumentsByRepository(),
           userDetails.watchedItems))
     }.apply(request)
   }
@@ -192,7 +189,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[HistoricalAgent](defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent))),
       entityFacets = historicalAgentFacets) {
         page => params => facets => _ => _ =>
-      Ok(p.historicalAgent.list(page, params, facets, portalRoutes.browseHistoricalAgents))
+      Ok(p.historicalAgent.list(page, params, facets, portalRoutes.browseHistoricalAgents()))
     }.apply(request)
   }
 
@@ -226,7 +223,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[Concept](defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
       entityFacets = conceptFacets) {
         page => params => facets => _ => _ =>
-      Ok(p.concept.list(page, params, facets, portalRoutes.browseConcepts,
+      Ok(p.concept.list(page, params, facets, portalRoutes.browseConcepts(),
         userDetails.watchedItems))
     }.apply(request)
   }
@@ -262,7 +259,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def newsFeed = Cached("pages.newsFeed", 3600) {
     Action.async { request =>
-      WS.url("http://www.ehri-project.eu/rss.xml").get.map { r =>
+      WS.url("http://www.ehri-project.eu/rss.xml").get().map { r =>
         Ok(p.newsFeed(NewsItem.fromRss(r.body)))
       }
     }
