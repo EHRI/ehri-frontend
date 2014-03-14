@@ -59,7 +59,7 @@ package globalConfig {
       )
       val authSection: Iterable[(String,String)] = Seq(
         ("portal.home", controllers.portal.routes.Portal.index().url),
-        ("portal.profile", controllers.portal.routes.Portal.profile().url)
+        ("portal.profile", controllers.portal.routes.Profile.profile().url)
       )
     }
 

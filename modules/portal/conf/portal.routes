@@ -5,31 +5,31 @@
 
 GET         /                               @controllers.portal.Portal.index
 
-GET         /feedback                       @controllers.portal.Portal.feedback
-POST        /feedback                       @controllers.portal.Portal.feedbackPost
+GET         /feedback                       @controllers.portal.Feedback.feedback
+POST        /feedback                       @controllers.portal.Feedback.feedbackPost
 
-GET         /login                          @controllers.portal.Portal.login
-POST        /login                          @controllers.portal.Portal.passwordLoginPost
-POST        /openid                         @controllers.portal.Portal.openIDLoginPost
-GET         /authenticate/openid            @controllers.portal.Portal.openIDCallback
-GET         /authenticate/google            @controllers.portal.Portal.googleLogin
-GET         /authenticate/facebook          @controllers.portal.Portal.facebookLogin
-GET         /authenticate/linkedin          @controllers.portal.Portal.linkedInLogin
-GET         /logout                         @controllers.portal.Portal.logout
+GET         /login                          @controllers.portal.Profile.login
+POST        /login                          @controllers.portal.Profile.passwordLoginPost
+POST        /openid                         @controllers.portal.Profile.openIDLoginPost
+GET         /authenticate/openid            @controllers.portal.Profile.openIDCallback
+GET         /authenticate/google            @controllers.portal.Profile.googleLogin
+GET         /authenticate/facebook          @controllers.portal.Profile.facebookLogin
+GET         /authenticate/linkedin          @controllers.portal.Profile.linkedInLogin
+GET         /logout                         @controllers.portal.Profile.logout
 
-GET         /signup                         @controllers.portal.Portal.signup
-POST        /signup                         @controllers.portal.Portal.signupPost
-GET         /confirmEmail/:token            @controllers.portal.Portal.confirmEmail(token: String)
-POST        /changePassword                 @controllers.portal.Portal.changePasswordPost
-GET         /forgot                         @controllers.portal.Portal.forgotPassword
-POST        /forgot                         @controllers.portal.Portal.forgotPasswordPost
-POST        /resendVerification             @controllers.portal.Portal.resendVerificationPost
-GET         /prs                            @controllers.portal.Portal.passwordReminderSent
-GET         /rstp/:token                    @controllers.portal.Portal.resetPassword(token: String)
-POST        /rstp/:token                    @controllers.portal.Portal.resetPasswordPost(token: String)
+GET         /signup                         @controllers.portal.Profile.signup
+POST        /signup                         @controllers.portal.Profile.signupPost
+GET         /confirmEmail/:token            @controllers.portal.Profile.confirmEmail(token: String)
+POST        /changePassword                 @controllers.portal.Profile.changePasswordPost
+GET         /forgot                         @controllers.portal.Profile.forgotPassword
+POST        /forgot                         @controllers.portal.Profile.forgotPasswordPost
+POST        /resendVerification             @controllers.portal.Profile.resendVerificationPost
+GET         /prs                            @controllers.portal.Profile.passwordReminderSent
+GET         /rstp/:token                    @controllers.portal.Profile.resetPassword(token: String)
+POST        /rstp/:token                    @controllers.portal.Profile.resetPasswordPost(token: String)
 
-GET         /prefs                          @controllers.portal.Portal.prefs
-POST        /prefs                          @controllers.portal.Portal.updatePrefs
+GET         /prefs                          @controllers.portal.Profile.prefs
+POST        /prefs                          @controllers.portal.Profile.updatePrefs
 
 GET         /search                         @controllers.portal.Portal.search
 GET         /countries/institutions         @controllers.portal.Portal.browseRepositoriesByCountry
@@ -73,22 +73,22 @@ GET         /follow/:userId                 @controllers.portal.Portal.followUse
 POST        /follow/:userId                 @controllers.portal.Portal.followUserPost(userId: String)
 GET         /unfollow/:userId               @controllers.portal.Portal.unfollowUser(userId: String)
 POST        /unfollow/:userId               @controllers.portal.Portal.unfollowUserPost(userId: String)
+GET         /people/:userId/following       @controllers.portal.Portal.followingForUser(userId: String)
+GET         /people/:userId/followers       @controllers.portal.Portal.followersForUser(userId: String)
 GET         /watch/:id                      @controllers.portal.Portal.watchItem(id: String)
 POST        /watch/:id                      @controllers.portal.Portal.watchItemPost(id: String)
 GET         /unwatch/:id                    @controllers.portal.Portal.unwatchItem(id: String)
 POST        /unwatch/:id                    @controllers.portal.Portal.unwatchItemPost(id: String)
 GET         /watching                       @controllers.portal.Portal.watching
-GET         /people/:userId/following       @controllers.portal.Portal.followingForUser(userId: String)
-GET         /people/:userId/followers       @controllers.portal.Portal.followersForUser(userId: String)
 
-GET         /account                        @controllers.portal.Portal.account
-GET         /profile                        @controllers.portal.Portal.profile
-GET         /profile/edit                   @controllers.portal.Portal.updateProfile
-POST        /profile/edit                   @controllers.portal.Portal.updateProfilePost
-GET         /profile/delete                 @controllers.portal.Portal.deleteProfile
-POST        /profile/delete                 @controllers.portal.Portal.deleteProfilePost
-GET         /profile/uploadProfileImage     @controllers.portal.Portal.uploadProfileImage
-POST        /profile/uploadProfileImage     @controllers.portal.Portal.uploadProfileImagePost
+GET         /account                        @controllers.portal.Profile.account
+GET         /profile                        @controllers.portal.Profile.profile
+GET         /profile/edit                   @controllers.portal.Profile.updateProfile
+POST        /profile/edit                   @controllers.portal.Profile.updateProfilePost
+GET         /profile/delete                 @controllers.portal.Profile.deleteProfile
+POST        /profile/delete                 @controllers.portal.Profile.deleteProfilePost
+GET         /profile/uploadProfileImage     @controllers.portal.Profile.uploadProfileImage
+POST        /profile/uploadProfileImage     @controllers.portal.Profile.uploadProfileImagePost
 
 GET         /filter                         @controllers.portal.Portal.filter
 

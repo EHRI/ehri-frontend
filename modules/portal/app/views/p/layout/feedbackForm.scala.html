@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
 
-@helper.form(action = controllers.portal.routes.Portal.feedbackPost, 'role -> "form", 'id -> "suggestion-form") {
+@helper.form(action = controllers.portal.routes.Feedback.feedbackPost, 'role -> "form", 'id -> "suggestion-form") {
     <fieldset>
         <div class="modal-body">
             @formHelpers.csrfToken()

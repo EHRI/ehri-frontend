@@ -14,11 +14,11 @@ object PortalData extends Controller {
   def jsRoutes = Action { implicit request =>
     Ok(
       Routes.javascriptRouter("jsRoutes")(
-        controllers.portal.routes.javascript.Portal.updatePrefs,
+        controllers.portal.routes.javascript.Profile.updatePrefs,
+        controllers.portal.routes.javascript.Profile.profile,
+        controllers.portal.routes.javascript.Profile.updateProfile,
+        controllers.portal.routes.javascript.Profile.updateProfilePost,
         controllers.portal.routes.javascript.Portal.personalisedActivityMore,
-        controllers.portal.routes.javascript.Portal.profile,
-        controllers.portal.routes.javascript.Portal.updateProfile,
-        controllers.portal.routes.javascript.Portal.updateProfilePost,
         controllers.portal.routes.javascript.Portal.followUserPost,
         controllers.portal.routes.javascript.Portal.unfollowUserPost,
         controllers.portal.routes.javascript.Portal.watchItemPost,

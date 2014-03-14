@@ -180,6 +180,13 @@ trait PortalSocial {
     }
   }
 
+  def watching = withUserAction.async { implicit user => implicit request =>
+    val watchParams = PageParams.fromRequest(request)
+    backend.pageWatching(user.id, watchParams).map { watchList =>
+      Ok(p.profile.watchedItems(watchList))
+    }
+  }
+
 
   import play.api.data.Form
   import play.api.data.Forms._

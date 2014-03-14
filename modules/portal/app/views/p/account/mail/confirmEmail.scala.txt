@@ -2,6 +2,6 @@
 
 @Messages("portal.mail.confirmEmailMessage")
 
-    @controllers.portal.routes.Portal.confirmEmail(token.toString).absoluteURL(false)
+@controllers.portal.routes.Profile.confirmEmail(token.toString).absoluteURL(false)
 
 @Messages("portal.mail.confirmEmailFooter")

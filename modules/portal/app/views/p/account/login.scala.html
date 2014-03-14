@@ -23,7 +23,7 @@
 
 <section class="login">
     <div class="wrap">
-        @helper.form(action = controllers.portal.routes.Portal.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
+        @helper.form(action = controllers.portal.routes.Profile.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
             <p>
                 @Messages("portal.loginByProvider")
             </p>
@@ -78,7 +78,7 @@
 
             <input type="submit" class="button post login-button openid" value="@Messages("submitButton.loginWithOpenid")" />
         }
-        @helper.form(action = controllers.portal.routes.Portal.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
+        @helper.form(action = controllers.portal.routes.Profile.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
             <p>@Messages("portal.loginByPassword")</p>
 
             @formHelpers.globalErrors(pwForm)
@@ -95,7 +95,7 @@
                 <em><strong>or</strong></em>
             </p>
             <p class="text-center">
-                <a class="button post" href="@controllers.portal.routes.Portal.signup">@Messages("portal.signup")</a>
+                <a class="button post" href="@controllers.portal.routes.Profile.signup">@Messages("portal.signup")</a>
             </p>
 
         }
@@ -107,7 +107,7 @@
         <p>
             @Messages("portal.recoverAccount")
         </p>
-        <a href="@controllers.portal.routes.Portal.forgotPassword">@Messages("portal.forgotPasswordLink")</a>
+        <a href="@controllers.portal.routes.Profile.forgotPassword">@Messages("portal.forgotPasswordLink")</a>
     }
 
 }(None, request, globalConfig, flash, lang)

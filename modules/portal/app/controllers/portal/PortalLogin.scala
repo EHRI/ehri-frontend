@@ -31,6 +31,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   val userDAO: AccountDAO
 
   private val portalRoutes = controllers.portal.routes.Portal
+  private val profileRoutes = controllers.portal.routes.Profile
 
   val signupForm = Form(
     tuple(
@@ -46,7 +47,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   def signup = Action { implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-    Ok(views.html.p.account.signup(signupForm, portalRoutes.signupPost(), recaptchaKey))
+    Ok(views.html.p.account.signup(signupForm, profileRoutes.signupPost(), recaptchaKey))
   }
 
   def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
@@ -73,17 +74,17 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
         val form = signupForm.bindFromRequest
             .discardingErrors.withGlobalError("error.badRecaptcha")
         immediate(BadRequest(views.html.p.account.signup(form,
-          portalRoutes.signupPost(), recaptchaKey)))
+          profileRoutes.signupPost(), recaptchaKey)))
       } else {
         signupForm.bindFromRequest.fold(
           errForm => immediate(BadRequest(views.html.p.account.signup(errForm,
-            portalRoutes.signupPost(), recaptchaKey))),
+            profileRoutes.signupPost(), recaptchaKey))),
           data => {
             val (name, email, pw, _) = data
             userDAO.findByEmail(email).map { _ =>
               val form = signupForm.withGlobalError("error.emailExists")
               immediate(BadRequest(views.html.p.account.signup(form,
-                portalRoutes.signupPost(), recaptchaKey)))
+                profileRoutes.signupPost(), recaptchaKey)))
             } getOrElse {
               implicit val apiUser = ApiUser()
               backend.createNewUserProfile(
@@ -123,23 +124,23 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
         .map(_.withSession("access_uri" -> portalRoutes.index().url))
       case Left(formError) =>
         immediate(BadRequest(views.html.openIDLogin(formError,
-          action = portalRoutes.openIDLoginPost())))
+          action = profileRoutes.openIDLoginPost())))
     }
   }
 
   val oauthProviders = Map(
-    "facebook" -> portalRoutes.facebookLogin,
-    "google" -> portalRoutes.googleLogin,
-    "linkedin" -> portalRoutes.linkedInLogin
+    "facebook" -> profileRoutes.facebookLogin,
+    "google" -> profileRoutes.googleLogin,
+    "linkedin" -> profileRoutes.linkedInLogin
   )
 
   def login = optionalUserAction { implicit maybeUser => implicit request =>
     Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
   }
 
-  def openIDLoginPost = openIDLoginPostAction(portalRoutes.openIDCallback()) { formError => implicit request =>
+  def openIDLoginPost = openIDLoginPostAction(profileRoutes.openIDCallback()) { formError => implicit request =>
     implicit val accountOpt: Option[Account] = None
-    BadRequest(views.html.openIDLogin(formError, action = portalRoutes.openIDLoginPost()))
+    BadRequest(views.html.openIDLogin(formError, action = profileRoutes.openIDLoginPost()))
   }
 
   def passwordLoginPost = loginPostAction.async { accountOrErr => implicit request =>
@@ -157,15 +158,15 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     gotoLogoutSucceeded
   }
 
-  def googleLogin = oauth2LoginPostAction.async(GoogleOAuth2Provider, portalRoutes.googleLogin()) { account => implicit request =>
+  def googleLogin = oauth2LoginPostAction.async(GoogleOAuth2Provider, profileRoutes.googleLogin()) { account => implicit request =>
     gotoLoginSucceeded(account.id)
   }
 
-  def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, portalRoutes.facebookLogin()) { account => implicit request =>
+  def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, profileRoutes.facebookLogin()) { account => implicit request =>
     gotoLoginSucceeded(account.id)
   }
 
-  def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, portalRoutes.linkedInLogin()) { account => implicit request =>
+  def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, profileRoutes.linkedInLogin()) { account => implicit request =>
     gotoLoginSucceeded(account.id)
   }
 
@@ -173,7 +174,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     Ok(views.html.p.account.forgotPassword(forgotPasswordForm,
-      recaptchaKey, portalRoutes.forgotPasswordPost()))
+      recaptchaKey, profileRoutes.forgotPasswordPost()))
   }
 
   def forgotPasswordPost = forgotPasswordPostAction { uuidOrErr => implicit request =>
@@ -186,7 +187,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
           .flashing("warning" -> "login.sentPasswordResetLink")
       case Left(errForm) =>
         BadRequest(views.html.p.account.forgotPassword(errForm,
-          recaptchaKey, portalRoutes.forgotPasswordPost()))
+          recaptchaKey, profileRoutes.forgotPasswordPost()))
     }
   }
 
@@ -197,9 +198,9 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   def resetPassword(token: String) = Action { implicit request =>
     userDAO.findByResetToken(token).map { account =>
       Ok(views.html.p.account.resetPassword(resetPasswordForm,
-        portalRoutes.resetPasswordPost(token)))
+        profileRoutes.resetPasswordPost(token)))
     }.getOrElse {
-      Redirect(portalRoutes.forgotPassword())
+      Redirect(profileRoutes.forgotPassword())
         .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
     }
   }
@@ -220,12 +221,12 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     boolOrForm match {
       case Left(errForm) =>
         BadRequest(views.html.p.account.resetPassword(errForm,
-          portalRoutes.resetPasswordPost(token)))
+          profileRoutes.resetPasswordPost(token)))
       case Right(true) =>
-        Redirect(portalRoutes.login())
+        Redirect(profileRoutes.login())
           .flashing("warning" -> "login.passwordResetNowLogin")
       case Right(false) =>
-        Redirect(portalRoutes.forgotPassword())
+        Redirect(profileRoutes.forgotPassword())
           .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
     }
   }

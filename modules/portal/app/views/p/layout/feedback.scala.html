@@ -2,12 +2,12 @@
 
 <!-- tab slideOut -->
 <noscript>
-    <a id="feedback-tab" href="@controllers.portal.routes.Portal.feedback">
+    <a id="feedback-tab" href="@controllers.portal.routes.Feedback.feedback">
         <img alt="feedback" src="@controllers.portal.routes.Assets.at("img/feedback_tab.png")" />
     </a>
 </noscript>
 <div style="@{if(initiallyHidden) "display:none"}" class="slide-out-div">
-    <a class="handle" href="@controllers.portal.routes.Portal.feedback">Feedback</a>
+    <a class="handle" href="@controllers.portal.routes.Feedback.feedback">Feedback</a>
     <div id="suggestions">
         <div id="suggestion-thanks" style="position:absolute;z-index:10;display:none" class="alert alert-success">
             <h4>Thanks!</h4>

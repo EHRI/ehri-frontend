@@ -3,24 +3,27 @@ package controllers.portal
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.Controller
 import controllers.base.{AuthController, ControllerHelpers}
-import models.{FeedbackContext, Feedback}
 import scala.concurrent.Future.{successful => immediate}
-import backend.FeedbackDAO
+import backend.{Backend, FeedbackDAO}
+import models.AccountDAO
+import play.api.Play.current
+import com.google.inject._
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalFeedback {
-  self: Controller with ControllerHelpers with AuthController =>
+case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO, backend: Backend, userDAO: AccountDAO) extends Controller with ControllerHelpers with AuthController {
 
-  val feedbackDAO: FeedbackDAO
+  // This is a publically-accessible site, but not just yet.
+  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   def feedback = userProfileAction { implicit userOpt => implicit request =>
-    Ok(views.html.p.feedback(Feedback.form))
+    Ok(views.html.p.feedback(models.Feedback.form))
   }
 
   def feedbackPost = userProfileAction.async { implicit userOpt => implicit request =>
-    Feedback.form.bindFromRequest.fold(
+    models.Feedback.form.bindFromRequest.fold(
       errorForm => {
         if (isAjax) immediate(BadRequest(errorForm.errorsAsJson))
         else immediate(BadRequest(views.html.p.feedback(errorForm)))
@@ -32,7 +35,7 @@ trait PortalFeedback {
             .copy(email = feedback.email.orElse(Some(account.email)))
         }.getOrElse(feedback)
           .copy(
-            context = Some(FeedbackContext.fromRequest),
+            context = Some(models.FeedbackContext.fromRequest),
             mode = Some(play.api.Play.current.mode))
 
         feedbackDAO.create(moreFeedback).map { id =>

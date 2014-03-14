@@ -25,28 +25,25 @@ import utils.{SessionPrefs, Stats, PageParams}
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    feedbackDAO: FeedbackDAO, userDAO: AccountDAO)
+    userDAO: AccountDAO)
   extends Controller
   with LoginLogout
   with ControllerHelpers
   with PortalAuthConfigImpl
-  with PortalLogin
-  with PortalFeedback
   with Search
   with FacetConfig
   with PortalActions
-  with PortalProfile
   with PortalSocial
   with PortalAnnotations
   with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs
 
+  private val portalRoutes = controllers.portal.routes.Portal
+
   // This is a publically-accessible site, but not just yet.
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-
-  private val portalRoutes = controllers.portal.routes.Portal
 
   /**
    * Full text search action that returns a complete page of item data.
@@ -77,10 +74,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         Json.arr(id, name, t.toString)
       }
     ))
-  }
-
-  def account = userProfileAction { implicit userOpt => implicit request =>
-    Ok(Json.toJson(userOpt.flatMap(_.account)))
   }
 
   def index = userProfileAction.async { implicit userOpt => implicit request =>

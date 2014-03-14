@@ -4,7 +4,7 @@
     <div class="alert alert-danger"> @Messages(err)</div>
 }
 
-@helper.form(action = controllers.portal.routes.Portal.uploadProfileImagePost, 'role -> "form", 'enctype -> "multipart/form-data", 'class -> "form-inline") {
+@helper.form(action = controllers.portal.routes.Profile.uploadProfileImagePost, 'role -> "form", 'enctype -> "multipart/form-data", 'class -> "form-inline") {
     @formHelpers.csrfToken()
     <input class="form-control" type="file" name="image" />
 

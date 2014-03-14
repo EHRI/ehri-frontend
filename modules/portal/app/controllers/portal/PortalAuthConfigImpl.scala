@@ -13,11 +13,9 @@ import play.api.mvc.SimpleResult
  */
 trait PortalAuthConfigImpl extends AuthConfigImpl {
 
-  private val portalRoutes = controllers.portal.routes.Portal
-
-  override def defaultLoginUrl = portalRoutes.profile()
-  override def defaultLogoutUrl: Call = portalRoutes.index()
-  override def defaultAuthFailedUrl: Call = portalRoutes.login()
+  override def defaultLogoutUrl: Call = controllers.portal.routes.Portal.index()
+  override def defaultLoginUrl = controllers.portal.routes.Profile.profile()
+  override def defaultAuthFailedUrl: Call = controllers.portal.routes.Profile.login()
 
   /**
    * A redirect target after a successful user login.

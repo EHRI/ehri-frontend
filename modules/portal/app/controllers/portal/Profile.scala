@@ -2,7 +2,7 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
-import models.{ProfileData, UserProfile, UserProfileF}
+import models.{AccountDAO, ProfileData, UserProfile, UserProfileF}
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
@@ -10,30 +10,44 @@ import play.api.libs.json.Json
 import utils.{SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
-import fly.play.s3._
 import play.api.libs.Files.TemporaryFile
-import play.api.Play._
+import play.api.Play.current
 import java.io.File
-import net.coobird.thumbnailator.Thumbnails
 import org.apache.commons.io.FileUtils
-import fly.play.s3.BucketFile
 import play.api.libs.json.JsObject
 import play.Logger
 import scala.concurrent.Future
 import play.api.mvc.MultipartFormData.FilePart
 import views.html.p
+import utils.search.{Resolver, Dispatcher}
+import backend.{FeedbackDAO, Backend}
+
+import com.google.inject._
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalProfile extends PortalLogin {
-  self: Controller with ControllerHelpers with LoginLogout with AuthController with SessionPreferences[SessionPrefs] =>
+case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
+                            userDAO: AccountDAO)
+    extends LoginLogout with AuthController with ControllerHelpers
+    with PortalLogin
+    with SessionPreferences[SessionPrefs] {
+
+  val defaultPreferences = new SessionPrefs
+
+  // This is a publically-accessible site, but not just yet.
+  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile
   val contentType = ContentTypes.UserProfile
 
-  private val portalRoutes = controllers.portal.routes.Portal
+  private val profileRoutes = controllers.portal.routes.Profile
+
+  def account = userProfileAction { implicit userOpt => implicit request =>
+    Ok(Json.toJson(userOpt.flatMap(_.account)))
+  }
 
   def prefs = Action { implicit request =>
     Ok(Json.toJson(preferences))
@@ -44,8 +58,7 @@ trait PortalProfile extends PortalLogin {
       errors => BadRequest(errors.errorsAsJson),
       updated => {
         (if (isAjax) Ok(Json.toJson(updated))
-        else Redirect(controllers.portal.routes.Portal.prefs()))
-          .withPreferences(updated)
+        else Redirect(profileRoutes.prefs())).withPreferences(updated)
       }
     )
   }
@@ -60,13 +73,6 @@ trait PortalProfile extends PortalLogin {
       links <- backend.userLinks(user.id, linkParams)
       anns <- backend.userAnnotations(user.id, annParams)
     } yield Ok(p.profile.profile(watchList, anns, links))
-  }
-
-  def watching = withUserAction.async { implicit user => implicit request =>
-    val watchParams = PageParams.fromRequest(request)
-    backend.pageWatching(user.id, watchParams).map { watchList =>
-      Ok(p.profile.watchedItems(watchList))
-    }
   }
 
   import play.api.data.Form
@@ -109,7 +115,7 @@ trait PortalProfile extends PortalLogin {
       errForm => immediate(BadRequest(p.profile.editProfile(
         errForm, changePasswordForm))),
       profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
-        Redirect(controllers.portal.routes.Portal.profile())
+        Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("confirmations.profileUpdated"))
       }
     )
@@ -118,14 +124,14 @@ trait PortalProfile extends PortalLogin {
 
   def deleteProfile() = withUserAction { implicit user => implicit request =>
     Ok(p.profile.deleteProfile(deleteForm(user),
-      controllers.portal.routes.Portal.deleteProfilePost()))
+      profileRoutes.deleteProfilePost()))
   }
 
   def deleteProfilePost() = withUserAction.async { implicit user => implicit request =>
     deleteForm(user).bindFromRequest.fold(
       errForm => immediate(BadRequest(p.profile.deleteProfile(
         errForm.withGlobalError("portal.profile.deleteProfile.badConfirmation"),
-        controllers.portal.routes.Portal.deleteProfilePost()))),
+        profileRoutes.deleteProfilePost()))),
 
       _ => {
         val anonymous = UserProfileF(id = Some(user.id),
@@ -147,6 +153,8 @@ trait PortalProfile extends PortalLogin {
   private def uploadParser = parse.maxLength(5 * 1024 * 1024, parse.multipartFormData)
 
   def uploadProfileImagePost = withUserAction.async(uploadParser) { implicit user => implicit request =>
+    import fly.play.s3._
+
     request.body match {
       case Left(MaxSizeExceeded(length)) =>
         immediate(BadRequest(p.profile.imageUpload(Some("portal.error.imageTooLarge"))))
@@ -154,7 +162,7 @@ trait PortalProfile extends PortalLogin {
         if (isValidContentType(file)) {
           convertAndUploadFile(file, user).flatMap { url =>
             backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> url)).map { _ =>
-              Redirect(portalRoutes.profile())
+              Redirect(profileRoutes.profile())
             }
           }.recover {
             case S3Exception(status, code, message, originalXml) =>
@@ -175,6 +183,10 @@ trait PortalProfile extends PortalLogin {
     = file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile): Future[String] = {
+    import fly.play.s3._
+    import fly.play.s3.BucketFile
+    import net.coobird.thumbnailator.Thumbnails
+
     val bucketName: String = current.configuration.getString("aws.bucket")
       .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
     val bucket = S3(bucketName)

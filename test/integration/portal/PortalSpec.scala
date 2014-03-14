@@ -1,18 +1,14 @@
-package integration
+package integration.portal
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import helpers.Neo4jRunnerSpec
 import models._
-import play.api.test.{FakeHeaders, FakeRequest}
 import utils.ContributionVisibility
 import controllers.portal.ReversePortal
 import backend.ApiUser
-import mocks.MockBufferedMailer
 import com.google.common.net.HttpHeaders
 import defines.EntityType
 import backend.rest.PermissionDenied
-import play.api.mvc.MultipartFormData.FilePart
-import play.api.mvc.MultipartFormData
 
 
 class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
@@ -39,62 +35,6 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
       val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         portalRoutes.browseHistoricalAgent("a1").url)).get
       status(doc) must equalTo(OK)
-    }
-
-    "allow viewing profile" in new FakeApp {
-      val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.profile().url)).get
-      status(prof) must equalTo(OK)
-    }
-
-    "allow editing profile" in new FakeApp {
-      val testName = "Inigo Montoya"
-      val data = Map(
-        "identifier" -> Seq("???"), // Overridden...
-        UserProfileF.NAME -> Seq(testName)
-      )
-      val update = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        portalRoutes.updateProfilePost().url), data).get
-      status(update) must equalTo(SEE_OTHER)
-
-      val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.profile().url)).get
-      status(prof) must equalTo(OK)
-      contentAsString(prof) must contain(testName)
-    }
-
-
-    "not allow uploading non-image files as profile image" in new FakeApp {
-      val data = new MultipartFormData(Map(), List(
-        FilePart("image", "message", Some("Content-Type: multipart/form-data"),
-          play.api.libs.Files.TemporaryFile(java.io.File.createTempFile("notAnImage", ".txt")))
-      ), List(), List())
-
-      val result = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        portalRoutes.uploadProfileImagePost().url), data.asFormUrlEncoded).get
-      status(result) must equalTo(BAD_REQUEST)
-      // TODO: Verifty types of BAD_REQUEST
-    }
-
-    "allow deleting profile with correct confirmation" in new FakeApp {
-      // Fetch the current name
-      implicit val apiUser = ApiUser(Some(privilegedUser.id))
-      val cname = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
-      val data = Map("confirm" -> Seq(cname))
-      val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        portalRoutes.deleteProfilePost().url), data).get
-      status(delete) must equalTo(SEE_OTHER)
-
-      // Check user has been anonymised...
-      val cnameAfter = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
-      cname must not equalTo cnameAfter
-    }
-
-    "disallow deleting profile without correct confirmation" in new FakeApp {
-      val data = Map("confirm" -> Seq("THE WRONG CONFIRMATION"))
-      val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        portalRoutes.deleteProfilePost().url), data).get
-      status(delete) must equalTo(BAD_REQUEST)
     }
 
     "allow following and unfollowing users" in new FakeApp {
@@ -222,7 +162,6 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
 
       header(HttpHeaders.LOCATION, post) must beSome.which { loc =>
         val aid = loc.substring(loc.lastIndexOf("/") + 1)
-      println(s"ID: $aid ($loc)")
         val updateBody = "UPDATED TEST ANNOTATION!!!"
         val updateData = testData.updated(AnnotationF.BODY, Seq(updateBody))
         val udpost = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
@@ -324,67 +263,6 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
 
     "allow changing link visibility" in new FakeApp {
 
-    }
-
-    "allow anon feedback" in new FakeApp {
-      val fbCount = mockFeedback.buffer.size
-      val fb = Map("text" -> Seq("it doesn't work"))
-      val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          portalRoutes.feedbackPost().url), fb).get
-      status(post) must equalTo(SEE_OTHER)
-      val newCount = mockFeedback.buffer.size
-      newCount must equalTo(fbCount + 1)
-      mockFeedback.buffer.get(newCount) must beSome.which { f =>
-        f.text must equalTo("it doesn't work")
-      }
-    }
-  }
-
-  "Signup process" should {
-    "create a validation token and send a mail on signup" in new FakeApp {
-      val testEmail: String = "test@example.com"
-      val numSentMails = MockBufferedMailer.mailBuffer.size
-      val numAccounts = mocks.userFixtures.size
-      val data: Map[String,Seq[String]] = Map(
-        "name" -> Seq("Test Name"),
-        "email" -> Seq(testEmail),
-        "password" -> Seq("testpass"),
-        "confirm" -> Seq("testpass"),
-        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
-      )
-      val signup = route(FakeRequest(POST, portalRoutes.signupPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
-      status(signup) must equalTo(SEE_OTHER)
-      MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
-      MockBufferedMailer.mailBuffer.last.to must contain(testEmail)
-      mocks.userFixtures.size must equalTo(numAccounts + 1)
-      val userOpt = mocks.userFixtures.values.find(u => u.email == testEmail)
-      userOpt must beSome.which { user =>
-        user.verified must beFalse
-      }
-    }
-
-    "allow unverified user to log in" in new FakeApp {
-      val testEmail: String = "test@example.com"
-      val testName: String = "Test Name"
-      val data: Map[String,Seq[String]] = Map(
-        "name" -> Seq(testName),
-        "email" -> Seq(testEmail),
-        "password" -> Seq("testpass"),
-        "confirm" -> Seq("testpass"),
-        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
-      )
-      val signup = route(FakeRequest(POST, portalRoutes.signupPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
-      status(signup) must equalTo(SEE_OTHER)
-      println(mocks.userFixtures)
-      mocks.userFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
-        // Ensure we can log in and view our profile
-        val index = route(fakeLoggedInHtmlRequest(u, GET,
-          portalRoutes.profile().url)).get
-        status(index) must equalTo(OK)
-        contentAsString(index) must contain(testName)
-      }
     }
   }
 }
