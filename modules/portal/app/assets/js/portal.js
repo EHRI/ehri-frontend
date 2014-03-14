@@ -1,5 +1,30 @@
 jQuery(function ($) {
 
+/*
+  Tooltip
+*/
+$('.watch , .unwatch').tooltip({
+  delay : {
+    show: 600,
+    hide: 100
+  }
+});
+
+/*
+  Search helpers
+*/
+$(".search-helper-toggle").on("click", function () {
+  $("#search-helper").toggle();
+});
+
+$("#search-helper .close").on("click", function(e) {
+  e.preventDefault();
+  $("#search-helper").toggle();
+});
+
+/* 
+  Loadings
+*/
 $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("<span></span>").addClass("loader"));
 
   $(".content-load a.toggle").click(function(e){

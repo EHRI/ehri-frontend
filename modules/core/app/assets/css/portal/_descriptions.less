@@ -1,3 +1,16 @@
+.descriptions {
+	.make-row();
+	.description-viewport {
+		.make-sm-column(9);
+		.make-sm-column-pull(3);
+	}
+	.description-sidebar {
+		.make-sm-column(3);
+		.make-sm-column-push(9);
+	}
+}
+
+
 .description-holder {
 	.description-annotations {
 		position:relative;
@@ -13,12 +26,18 @@
 			position:relative;
 			.make-row();
 			margin-bottom:5px;
+
 			.item-text-field-header {
 				font-size:16px;
 				.make-md-column(3);
 				margin-top:0;
 				margin-bottom:0;
 				text-algign:left;
+
+				@media (min-width: @screen-xs-min)  and (max-width: @screen-md-max) {
+					font-weight:bold;
+				}
+
 			}
 			.item-text-field-value {
 				.make-md-column(9);
@@ -28,50 +47,6 @@
 				}
 				> ul {
 					padding-left:15px;
-				}
-			}
-			.item-text-field-annotation-container {
-				.make-md-column-offset(3);
-				.make-md-column(9);
-
-				.item-text-field-annotations {
-					.make-row();
-
-					.annotate-item-header {
-						.make-md-column(3);	
-						opacity:0;		
-						margin-top:0;
-						margin-bottom:0;
-						overflow:hidden;
-						height:1px;
-					}
-
-					.annotation-list {
-					}
-					.annotate-item-controls {
-						float: none;
-
-						display: block;
-						position: absolute;
-						right: 0;
-						top: -30px;
-
-						opacity: 0.8;
-
-						line-height: 20px;
-
-						a.annotate-field  {
-							float:none;
-						    display:block;
-							height: 20px;
-							background-color: #FFFFFF;
-							margin-right:0;
-							width: 20px;
-							text-align: center;
-							color:@ehri-purple;
-						}
-
-					}
 				}
 			}
 		}
@@ -111,6 +86,12 @@
 			dt {	width:20%;	}
 			dd {	width:80%;	}
 		}
+		@media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+			dt, dd {
+				width:100%;	
+				display:block;
+			}
+		}
 		@media (min-width: @screen-md-min) {
 			dt {	width:40%;	}
 			dd {	width:60%;	}
@@ -132,4 +113,15 @@
 			}
 		}
 	}
+}
+
+.panel-history {
+	.panel;
+	.panel-default;
+	.hidden-one-col;
+}
+
+.panel-details {
+	.panel;
+	.panel-default;
 }
