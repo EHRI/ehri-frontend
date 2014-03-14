@@ -44,6 +44,10 @@
         <!-- portal-specific js -->
         <script src="@controllers.portal.routes.Assets.at("js/portal.min.js")"></script>
 
+        @if(userOpt.isDefined) {
+            <script src="@controllers.portal.routes.Assets.at("js/portal-connected.min.js")"></script>
+        }
+
         @scripts
     </body>
 </html>
