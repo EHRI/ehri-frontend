@@ -3,7 +3,7 @@ package integration
 import scala.concurrent.ExecutionContext.Implicits.global
 import helpers.Neo4jRunnerSpec
 import models._
-import play.api.test.FakeRequest
+import play.api.test.{FakeHeaders, FakeRequest}
 import utils.ContributionVisibility
 import controllers.portal.ReversePortal
 import backend.ApiUser
@@ -11,6 +11,8 @@ import mocks.MockBufferedMailer
 import com.google.common.net.HttpHeaders
 import defines.EntityType
 import backend.rest.PermissionDenied
+import play.api.mvc.MultipartFormData.FilePart
+import play.api.mvc.MultipartFormData
 
 
 class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
@@ -59,6 +61,19 @@ class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
         portalRoutes.profile().url)).get
       status(prof) must equalTo(OK)
       contentAsString(prof) must contain(testName)
+    }
+
+
+    "not allow uploading non-image files as profile image" in new FakeApp {
+      val data = new MultipartFormData(Map(), List(
+        FilePart("image", "message", Some("Content-Type: multipart/form-data"),
+          play.api.libs.Files.TemporaryFile(java.io.File.createTempFile("notAnImage", ".txt")))
+      ), List(), List())
+
+      val result = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        portalRoutes.uploadProfileImagePost().url), data.asFormUrlEncoded).get
+      status(result) must equalTo(BAD_REQUEST)
+      // TODO: Verifty types of BAD_REQUEST
     }
 
     "allow deleting profile with correct confirmation" in new FakeApp {
