@@ -65,6 +65,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def profile = withUserAction.async { implicit user => implicit request =>
+    println(request.host)
     val watchParams = PageParams.fromRequest(request, namespace = "watch")
     val linkParams = PageParams.fromRequest(request, namespace = "link")
     val annParams = PageParams.fromRequest(request, namespace = "ann")
@@ -161,7 +162,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
         immediate(BadRequest(p.profile.imageUpload(Some("portal.error.imageTooLarge"))))
       case Right(multipartForm) => multipartForm.file("image").map { file =>
         if (isValidContentType(file)) {
-          convertAndUploadFile(file, user).flatMap { url =>
+          convertAndUploadFile(file, user, request).flatMap { url =>
             backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> url)).map { _ =>
               Redirect(profileRoutes.profile())
             }
@@ -183,17 +184,20 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   private def isValidContentType(file: FilePart[TemporaryFile]): Boolean
     = file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
-  private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile): Future[String] = {
+  private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
     import fly.play.s3._
     import fly.play.s3.BucketFile
     import net.coobird.thumbnailator.Thumbnails
 
     val bucketName: String = current.configuration.getString("aws.bucket")
       .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
+    val instanceName: String = current.configuration.getString("aws.instance")
+      .getOrElse(request.host)
+
     val bucket = S3(bucketName)
     val ctype = file.contentType.getOrElse("application/octet-stream")
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
-    val awsName = s"images/${user.id}$extension"
+    val awsName = s"images/$instanceName/${user.id}$extension"
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.file).size(200, 200).toFile(temp)
     val bis = FileUtils.readFileToByteArray(temp)
