@@ -20,7 +20,7 @@ import scala.concurrent.Future
 import play.api.mvc.MultipartFormData.FilePart
 import views.html.p
 import utils.search.{Resolver, Dispatcher}
-import backend.{FeedbackDAO, Backend}
+import backend.Backend
 
 import com.google.inject._
 
@@ -31,6 +31,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
                             userDAO: AccountDAO)
     extends LoginLogout with AuthController with ControllerHelpers
     with PortalLogin
+    with PortalAuthConfigImpl
     with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs
