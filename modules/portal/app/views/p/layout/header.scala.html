@@ -13,7 +13,7 @@
 <header id="header" class="navigation">
     <div id="loader-bar">
         <span style="width:100%">
-            <span/>
+            <span></span>
         </span>
     </div>
     <div class="nav-primary clearfix">
@@ -42,6 +42,9 @@
             </li>
             <li>
                 @p.common.viewOptions(true)
+            </li>
+            <li>
+                @p.layout.feedback(models.Feedback.form)
             </li>
         </ul>
         <ul class="list-unstyled list-inline">
