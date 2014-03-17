@@ -6,7 +6,7 @@ import models.base.AnyModel
 import controllers.generic.Search
 import play.api._
 import play.api.mvc._
-import defines.EntityType
+import defines.{EventType, EntityType}
 import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.Json
@@ -17,6 +17,8 @@ import com.google.inject._
 import play.api.http.MimeTypes
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
+import utils.{SystemEventParams, ListParams}
+
 
 @Singleton
 case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Search {
@@ -63,8 +65,40 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
   }
 
 
-  def index = userProfileAction { implicit userOpt => implicit request =>
-    Ok(views.html.index(Messages("pages.home.title")))
+  def index = userProfileAction.async { implicit userOpt => implicit request =>
+    val activityEventTypes = List(
+      EventType.deletion,
+      EventType.creation,
+      EventType.modification,
+      EventType.modifyDependent,
+      EventType.createDependent,
+      EventType.deleteDependent,
+      EventType.link,
+      EventType.annotation
+    )
+
+    val activityItemTypes = List(
+      EntityType.DocumentaryUnit,
+      EntityType.Repository,
+      EntityType.Country,
+      EntityType.HistoricalAgent
+    )
+
+    userOpt.map { user =>
+      val listParams = ListParams.fromRequest(request)
+      val eventFilter = SystemEventParams.fromRequest(request)
+        .copy(eventTypes = activityEventTypes)
+        .copy(itemTypes = activityItemTypes)
+      backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
+        Ok(views.html.index(Some(events)))
+      }
+    } getOrElse {
+      immediate(Ok(views.html.index(None)))
+    }
+  }
+
+  def metrics = userProfileAction { implicit userOpt => implicit request =>
+    Ok(views.html.metrics())
   }
 
   /**
