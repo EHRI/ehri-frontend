@@ -4,11 +4,11 @@ jQuery(function ($) {
 /*
   Search helpers
 */
-$(".search-helper-toggle").on("click", function () {
+$(".page-content").on("click", ".search-helper-toggle", function () {
   $("#search-helper").toggle();
 });
 
-$("#search-helper .close").on("click", function(e) {
+$(".page-content").on("click", "#search-helper .close", function(e) {
   e.preventDefault();
   $("#search-helper").toggle();
 });
