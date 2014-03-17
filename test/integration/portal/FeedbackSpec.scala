@@ -14,7 +14,7 @@ class FeedbackSpec extends Neo4jRunnerSpec(classOf[FeedbackSpec]) {
       val newCount = mockFeedback.buffer.size
       newCount must equalTo(fbCount + 1)
       mockFeedback.buffer.get(newCount) must beSome.which { f =>
-        f.text must equalTo("it doesn't work")
+        f.text must equalTo(Some("it doesn't work"))
       }
     }
   }
