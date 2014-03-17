@@ -170,6 +170,8 @@ object DocumentaryUnit {
      */
     override def defaultParams = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> RepositoryF.URL_PATTERN,
+      Constants.INCLUDE_PROPERTIES_PARAM -> Isdiah.OTHER_FORMS_OF_NAME,
+      Constants.INCLUDE_PROPERTIES_PARAM -> Isdiah.PARALLEL_FORMS_OF_NAME,
       Constants.INCLUDE_PROPERTIES_PARAM -> RepositoryF.LOGO_URL
     )
   }
