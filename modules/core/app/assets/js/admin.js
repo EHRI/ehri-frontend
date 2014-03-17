@@ -1,5 +1,16 @@
 jQuery(function($) {
-  
+  /**
+   * Markdown helper
+   */
+
+   $(".markdown-helper").popover({
+      html: true,
+      placement: "left",
+      content : function () {
+        return $(".markdown-cheatsheet").html();
+      }
+    });
+   
   /**
    * jQuery plugin that makes an element 'stick' to the bottom
    * of the viewport if it is outside. Used for form action

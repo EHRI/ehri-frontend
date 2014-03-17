@@ -9,6 +9,47 @@ jQuery(function ($) {
 	  }
 	});
 
+
+  /**
+   * Markdown helper
+   */
+
+   $(document).on("click", ".markdown textarea", function() {
+      $(this).parent().addClass("active").delay(2000).queue(function(next){
+        if($(".popover .description-markdown-cheatsheet").length == 0) {
+          $(this).removeClass("active");
+        }
+        next();
+      });
+   });
+
+   $(document).on("change", ".markdown textarea", function() {
+      $(this).parent().removeClass("active");
+   });
+   $(document).on("keyup", ".markdown textarea", function() {
+      $(this).parent().removeClass("active");
+   });
+
+   $(document).on("click", ".markdown .markdown-helper", function() {
+      that = $(this);
+
+      if(typeof that.attr("data-popovered") === "undefined" || that.attr("data-popovered") !== "true") {
+        that.popover({
+          html: true,
+          placement: "bottom",
+          content : function () {
+            return $(".markdown-cheatsheet").html();
+          }
+        });
+        that.attr("data-popovered", "true");
+        that.popover("show");
+
+        that.on('hidden.bs.popover', function () {
+          that.parents(".markdown").removeClass("active");
+        });
+      }
+   });
+
 	/**
 	 * Activity-related functions
 	 */
