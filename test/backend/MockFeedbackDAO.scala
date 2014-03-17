@@ -16,7 +16,7 @@ class MockFeedbackDAO extends FeedbackDAO {
     buffer += key -> feedback.copy(objectId = Some(key.toString))
     immediate(key.toString)
   }
-  def list()(implicit executionContext: ExecutionContext) = immediate(buffer.values.toSeq)
+  def list(params: (String,String)*)(implicit executionContext: ExecutionContext) = immediate(buffer.values.toSeq)
   def delete(id: String)(implicit executionContext: ExecutionContext) = {
     buffer -= id.toInt
     immediate(true)
