@@ -130,7 +130,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     update: function(prefsObj) {
       var prefs = prefsObj || {};
       // Fire and forget!
-      jsRoutes.controllers.portal.Portal.updatePrefs().ajax({ data: prefsObj })
+      jsRoutes.controllers.portal.Profile.updatePrefs().ajax({ data: prefsObj })
     },
 
     updateValue: function(key, value) {
