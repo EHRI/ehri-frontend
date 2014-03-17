@@ -1,0 +1,53 @@
+#header {
+	.slide-out-div {
+		position:relative;
+		.handle {
+			&:visited, &:hover, &:focus {
+				color:white;
+			}
+		}
+		#suggestions {
+			display:none;
+			position:absolute;
+			top:100%;
+			right:0;
+			z-index:2000;
+			padding-top:12px;
+			> div, > form {
+				width:250px;
+				background-color:white;
+				border:1px solid @medium-gray;
+				border-top:0;
+			}
+			> .feedback-close {
+				position: absolute;
+				right: 0;
+				bottom: 90%;
+
+				color: black;
+				opacity:0.8;
+				cursor:pointer;
+				display: block;
+				float: right;
+				z-index: 2001;
+			}
+		}
+	}
+}
+
+.slide-out-div.open #suggestions >* {
+  -webkit-box-shadow: 2px 2px 15px rgba(50, 50, 50, 0.3);
+  -moz-box-shadow:    2px 2px 15px rgba(50, 50, 50, 0.3);
+  box-shadow:         2px 2px 15px rgba(50, 50, 50, 0.3);
+}
+
+#suggestion-thanks {
+  display:none;
+  padding: 10px;
+  box-shadow:         2px 2px 15px rgba(50, 50, 50, 0.3);
+}
+
+#suggestions #cancel {
+  font-weight: bold;
+  margin-right: @small-margin;
+}
