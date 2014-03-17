@@ -8,6 +8,7 @@ import backend.{Backend, FeedbackDAO}
 import models.AccountDAO
 import play.api.Play.current
 import com.google.inject._
+import utils.SessionPrefs
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -17,6 +18,8 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
   // This is a publically-accessible site, but not just yet.
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+
+  implicit def prefs = new SessionPrefs
 
   def feedback = userProfileAction { implicit userOpt => implicit request =>
     Ok(views.html.p.feedback(models.Feedback.form))
@@ -45,5 +48,11 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
         }
       }
     )
+  }
+
+  def list = adminAction.async { implicit userOpt => implicit request =>
+    feedbackDAO.list("order" -> "-createdAt").map { flist =>
+      Ok(views.html.p.feedbackList(flist.filter(_.text.isDefined)))
+    }
   }
 }

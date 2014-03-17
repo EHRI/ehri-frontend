@@ -1,6 +1,6 @@
 package models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Reads, Format, Json}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.Mode.Mode
@@ -13,7 +13,7 @@ case class Feedback(
   objectId: Option[String] = None,
   name: Option[String],
   email: Option[String],
-  text: String,
+  text: Option[String],
   context: Option[FeedbackContext],
   createdAt: Option[DateTime] = None,
   updatedAt: Option[DateTime] = None,
@@ -22,6 +22,7 @@ case class Feedback(
 
 object Feedback {
   implicit val modeFormat = defines.EnumUtils.enumFormat(play.api.Mode)
+  implicit val isoJodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   implicit val format: Format[Feedback] = Json.format[Feedback]
 
   implicit val form = Form(
@@ -29,7 +30,7 @@ object Feedback {
       "objectId" -> ignored(Option.empty[String]),
       "name" -> optional(text),
       "email" -> optional(email),
-      "text" -> nonEmptyText,
+      "text" -> optional(nonEmptyText),
       "context" -> ignored(Option.empty[FeedbackContext]),
       "createdAt" -> ignored(Option.empty[DateTime]),
       "updatedAt" -> ignored(Option.empty[DateTime]),

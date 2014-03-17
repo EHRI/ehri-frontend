@@ -39,11 +39,12 @@ class ParseDAO[T: Format](val objectName: String) extends RestDAO {
     "Content-type" -> "application/json"
   )
 
+
   private def parseUrl(oid: Option[String])
       = oid.map(id => enc(url, objectName, id)).getOrElse(enc(url, objectName))
 
-  private def parseCall(oid: Option[String] = None)
-      = WS.url(parseUrl(oid)).withHeaders(parseHeaders: _*)
+  private def parseCall(oid: Option[String] = None, params: Seq[(String,String)] = Seq.empty)
+      = WS.url(parseUrl(oid)).withHeaders(parseHeaders: _*).withQueryString(params: _*)
 
   def create(feedback: T)(implicit executionContext: ExecutionContext): Future[String] = {
     parseCall().post(Json.toJson(feedback)).map { r =>
@@ -52,8 +53,8 @@ class ParseDAO[T: Format](val objectName: String) extends RestDAO {
     }
   }
 
-  def list()(implicit executionContext: ExecutionContext): Future[Seq[T]] = {
-    parseCall().get().map { r =>
+  def list(params: (String,String)*)(implicit executionContext: ExecutionContext): Future[Seq[T]] = {
+    parseCall(params = params).get().map { r =>
       r.json.as[Results].results
     }
   }
