@@ -485,3 +485,17 @@ browser.p1=Your browser is out of date, and may not be compatible with our websi
 browser.p2=Just click on the icons to get to the download page
 browser.close=Close this window
 browser.closing=By closing this window you acknowledge that your experience on this website may be degraded
+
+#Markdown Cheatsheet
+mdCheatsheet.title=Formating tips
+mdCheatsheet.asterisks=asterisks
+mdCheatsheet.underscores=underscores
+mdCheatsheet.bold=Bold
+mdCheatsheet.italic=Italic
+mdCheatsheet.ordered=Ordered list
+mdCheatsheet.ordered.item1=First ordered list item
+mdCheatsheet.ordered.item2=Another item
+mdCheatsheet.unordered=Ordered list
+mdCheatsheet.unordered.item1=Item
+mdCheatsheet.unordered.item2=Another item
+mdCheatsheet.more=Source

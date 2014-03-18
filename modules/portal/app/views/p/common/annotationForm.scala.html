@@ -6,9 +6,12 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
 
-<div class="form-group">
+<div class="form-group markdown">
     <textarea autofocus required class="form-control" name="@BODY"
         placeholder="@Messages("portal.social.annotation.placeholder")">@f(BODY).value</textarea>
+
+    <div class="markdown-helper" title="@Messages("mdCheatsheet.title")">@Messages("mdCheatsheet.title")</div>
+    @common.markdownCheatsheet()
 </div>
 <div class="form-group" style="display:none;">
     <label class="col-sm-5 control-label">@Messages("portal.contributionVisibility")</label>
