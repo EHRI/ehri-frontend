@@ -142,6 +142,16 @@ jQuery(function ($) {
 		      var cnt = parseInt(fc.html(), 10);
 		      fc.html(watch ? (cnt + 1) : (cnt - 1));
 		    }
+
+        //If it is on profile page, remove the row
+        if(watch === false) {
+          if($("#user-watch-list").length ==1) {
+            var par = $("#" + id);
+            par.hide(300, function() {
+              par.remove();
+            });
+          }
+        }
 		  }
 		});
 	});
