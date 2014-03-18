@@ -182,3 +182,9 @@ portal.search.helper=There are several ways to be more specific in your search q
 portal.search.helper.minus=Exclude given word from search, e.g. -Gestapo
 portal.search.helper.plus=Given word has to be in the result, e.g. +Gestapo
 portal.search.helper.quotes=Search an exact match of your query, e.g. "Member lists"
+
+#Feedback module
+portal.feedback=Feedback
+portal.feedback.message=Let us know what you think...
+portal.feedback.thanks=Thanks !
+portal.feedback.thanks.message=Your feedback is greatly appreciated.

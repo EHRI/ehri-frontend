@@ -334,6 +334,7 @@ actions.addNewConceptDescription=Add Concept Description
 actions.deleteConceptDescription=Delete Description
 actions.deleteLink=Delete Link
 actions.save=Save
+actions.send=Send
 
 # Submit buttons
 submitButton.signup=Submit
@@ -425,6 +426,7 @@ name=Name
 email=Email
 password=Password
 confirm=Confirm Password
+optional=Optional
 administrationArea=Administration Area
 publicationStatus=Publication Status
 
