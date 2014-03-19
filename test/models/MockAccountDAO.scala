@@ -2,11 +2,13 @@ package models
 
 import java.util.UUID
 
-case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false) extends Account {
+case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true) extends Account {
   def updatePassword(hashed: HashedPassword): Account = this
   def setPassword(data: HashedPassword): Account = this
-  def setVerified(): Account = this.copy(verified = true)
-  def verify(token: String): Account = this.copy(verified = true)
+  def setVerified(): Account = updateWith(this.copy(verified = true))
+  def setActive(active: Boolean) = updateWith(this.copy(active = active))
+  def setStaff(staff: Boolean) = updateWith(this.copy(staff = staff))
+  def verify(token: String): Account = updateWith(this.copy(verified = true))
   def delete(): Boolean = {
     mocks.userFixtures -= id
     true
@@ -19,6 +21,13 @@ case class MockAccount(id: String, email: String, verified: Boolean = false, sta
     } yield i
     for (i <- (MockAccountDAO.tokens.size -1) to 0 by -1) if (indicesToDelete contains i) MockAccountDAO.tokens remove i
   }
+
+  private def updateWith(acc: MockAccount): MockAccount = {
+    mocks.userFixtures += acc.id -> acc
+    acc
+  }
+
+  def update(): Unit = mocks.userFixtures += id -> this
 }
 
 /**

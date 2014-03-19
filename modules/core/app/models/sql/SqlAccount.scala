@@ -12,7 +12,7 @@ import play.api.Logger
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SqlAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false) extends Account {
+case class SqlAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true) extends Account {
 
   def delete(): Boolean = DB.withConnection { implicit connection =>
     val res: Int = SQL(
@@ -71,6 +71,18 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
     this.copy(verified = true)
   }
 
+  def setActive(active: Boolean): Account = DB.withTransaction { implicit connection =>
+    SQL("UPDATE users SET active = {active} WHERE id = {id}")
+      .on('id -> id, 'active -> active).executeUpdate()
+    this.copy(active = active)
+  }
+
+  def setStaff(staff: Boolean): Account = DB.withTransaction { implicit connection =>
+    SQL("UPDATE users SET staff = {staff} WHERE id = {id}")
+      .on('id -> id, 'staff -> staff).executeUpdate()
+    this.copy(staff = staff)
+  }
+
   def expireTokens(): Unit = DB.withConnection { implicit connection =>
     SQL("""DELETE FROM token WHERE id = {id}""").on('id -> id).executeUpdate
   }
@@ -88,6 +100,17 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
          VAlUES ({id}, {token}, DATE_ADD(NOW(), INTERVAL 1 DAY), 1)""")
       .on('id -> id, 'token -> token.toString).executeInsert()
   }
+
+  def update(): Unit = DB.withConnection { implicit connection =>
+    SQL(
+      """
+        UPDATE users
+        SET active = {active}, staff = {staff}, verified = {verifed}, email = {email}
+        WHERE id = {id}
+      """.stripMargin).on(
+      'id -> id, 'active -> active, 'verified -> verified, 'email -> email, 'staff -> staff
+    ).executeUpdate()
+  }
 }
 
 object SqlAccount extends AccountDAO {
@@ -96,8 +119,9 @@ object SqlAccount extends AccountDAO {
     get[String]("users.id") ~
       get[String]("users.email") ~
       get[Boolean]("users.verified") ~
-      get[Boolean]("users.staff") map {
-      case id ~ email ~ verified ~ staff => SqlAccount(id, email, verified, staff)
+      get[Boolean]("users.staff") ~
+      get[Boolean]("users.active") map {
+      case id ~ email ~ verified ~ staff ~ active => SqlAccount(id, email, verified, staff, active)
     }
   }
 

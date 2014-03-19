@@ -23,14 +23,18 @@ trait Account {
 	def id: String
   val verified: Boolean
   val staff: Boolean
+  val active: Boolean
   def password: Option[HashedPassword] = None
   def setPassword(hashed: HashedPassword): Account
   def setVerified(): Account
+  def setActive(active: Boolean): Account
+  def setStaff(staff: Boolean): Account
   def verify(token: String): Account
   def delete(): Boolean
   def createResetToken(uuid: UUID): Unit
   def createValidationToken(uuid: UUID): Unit
   def expireTokens(): Unit
+  def update(): Unit
 }
 
 object Account {
