@@ -1,26 +1,30 @@
 <div class="modal-header">
 	<button type="button" class="close" ng-click="close()" aria-hidden="true">&times;</button>
 	<ul class="nav nav-pills nav-justified">
-        <li  ng-class="(type == '') && 'active'">
-            <a ng-click="setType('')">
+        <li  ng-class="(type == []) && 'active'" ng-show="availableTypes.length != 1">
+            <a ng-click="setType()">
                 All
             </a>
         </li>
-		<li  ng-class="(type == 'documentaryUnit') && 'active'">
+		<li  ng-class="(type == ['documentaryUnit']) && 'active'" ng-show="availableTypes.length == 0">
 			<a ng-click="setType('documentaryUnit')">
 				Documentary Units
 			</a>
         </li>
-		<li  ng-class="(type == 'historicalAgent') && 'active'">
+		<li  ng-class="(type == ['historicalAgent']) && 'active'" ng-show="availableTypes.length == 0">
 			<a ng-click="setType('historicalAgent')">
 				Authorities
 			</a>
         </li>
-		<li  ng-class="(type == 'cvocConcept') && 'active'">
+		<li  ng-class="(type == ['cvocConcept']) && 'active'" ng-show="availableTypes.length == 0">
 			<a ng-click="setType('cvocConcept')">
 				Concepts
 			</a>
 		</li>
+		<li  ng-class="(type == [aType]) && 'active'" ng-repeat="aType in availableTypes" ng-show="availableTypes.length > 1">
+			<a ng-click="setType(aType)" ng-bind="aType"></a>
+		</li>
+		<li style="opacity:0;" ng-show="availableTypes.length == 1"><a></a></li>
 	</ul>
 </div>
 <div class="modal-body" style="padding-bottom:0;">
