@@ -36,7 +36,7 @@
         <ul class="list-unstyled list-inline pull-right">
             <li>
                 @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "global-search inactive right-inner-addon", 'role -> "search") {
-                <input type="text" name="q" />
+                <input type="text" name="q" id="quicksearch" />
                 <span class="glyphicon glyphicon-search search-icon"></span>
                 }
             </li>
