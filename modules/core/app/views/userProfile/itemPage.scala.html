@@ -2,7 +2,21 @@
 
 @import UserProfileF._
 
-@layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
+@activeBadge(user: UserProfile) = {
+    @if(user.model.active) {
+    <div class="label label-info">
+        @Messages("userProfile.active.true")
+    </div>
+    } else {
+    <div class="label label-warning">
+        @Messages("userProfile.active.false")
+    </div>
+    }
+}
+
+
+
+@layout.rightSidebar(Html(item.toStringLang + activeBadge(item)), breadcrumbs = common.breadcrumbs(List(item))) {
 
     @html
 } {
@@ -10,7 +24,7 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Update)) {
-            <a href="@controllers.core.routes.UserProfiles.update(item.id)">@Messages("Modify Profile")</a>
+            <a href="@controllers.core.routes.UserProfiles.update(item.id)">@Messages("userProfile.manageUser")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
             <a href="@controllers.core.routes.UserProfiles.permissions(item.id)">@Messages("actions.manageGlobalPermissions")</a>
@@ -21,7 +35,7 @@
         @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
             <a href="@controllers.core.routes.Groups.membership(item.isA, item.id)">@Messages("actions.modifyGroups")</a>
         }
-        @common.sidebarAction(user.isAdmin) {
+        @common.sidebarAction(user.isAdmin, danger = true) {
             <a href="@controllers.core.routes.UserProfiles.delete(item.id)">@Messages("actions.deleteItem")</a>
         }
         @common.sidebarAction() {

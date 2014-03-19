@@ -1,5 +1,5 @@
-@(show: Boolean = true)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(show: Boolean = true, warning: Boolean = false, danger: Boolean = false)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @if(show) {
-    <li class="list-group-item">@html</li>
+    <li class="list-group-item @{if(warning) "list-group-item-warning"} @{if(danger) "list-group-item-danger"}">@html</li>
 }

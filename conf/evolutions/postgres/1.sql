@@ -5,6 +5,7 @@ CREATE TABLE users (
     email       VARCHAR(255) NOT NULL,
     verified    BOOLEAN NOT NULL DEFAULT FALSE,
     staff       BOOLEAN NOT NULL DEFAULT FALSE,
+    active      BOOLEAN NOT NULL DEFAULT TRUE,
     created     TIMESTAMP NOT NULL
 );
 
