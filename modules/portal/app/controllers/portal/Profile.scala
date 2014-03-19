@@ -141,7 +141,8 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
       _ => {
         val anonymous = UserProfileF(id = Some(user.id),
-          identifier = user.model.identifier, name = user.model.identifier)
+          identifier = user.model.identifier, name = user.model.identifier,
+          active = false)
         backend.update(user.id, anonymous).flatMap { bool =>
           user.account.get.delete()
           gotoLogoutSucceeded
@@ -157,7 +158,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   // Body parser that'll refuse anything larger than 5MB
   private def uploadParser = parse.maxLength(5 * 1024 * 1024, parse.multipartFormData)
 
-  def updateProfileImagePost = withUserAction.async(uploadParser) { implicit user => implicit request =>
+  def updateProfileImagePost() = withUserAction.async(uploadParser) { implicit user => implicit request =>
     import fly.play.s3._
 
     def onError(err: String) =

@@ -1,9 +1,13 @@
 @(f: UserProfile => Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @userOpt.map { user =>
-    @common.sidebarSection(Some(Messages("actions"))) {
-        @common.listGroup {
-            @f(user)
+    @defining(f(user)) { html =>
+        @if(!html.body.trim.isEmpty) {
+            @common.sidebarSection(Some(Messages("actions"))) {
+                @common.listGroup {
+                    @html
+                }
+            }
         }
     }
 }

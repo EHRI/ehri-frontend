@@ -2,6 +2,14 @@
 
 @common.searchItemOutline(item.id) {
     <a href="@controllers.core.routes.UserProfiles.get(item.id)">@item.toStringLang</a>
+    @item.account.map { acc =>
+        @if(acc.staff) {
+            <div class="label label-success">@Messages("userProfile.staff")</div>
+        }
+        <div class="label @{if(acc.active) "label-primary" else "label-warning"}">@Messages("userProfile.active." + acc.active.toString)</div>
+    }.getOrElse {
+        <div class="label label-default">@Messages("userProfile.missingAccount")</div>
+    }
 } {
 
     <small>

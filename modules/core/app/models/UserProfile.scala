@@ -28,6 +28,8 @@ object UserProfileF {
   val ABOUT = "about"
   val LANGUAGES = "languages"
   val IMAGE_URL = "imageUrl"
+  val ACTIVE = "active"
+  val STAFF = "staff"
 
   import Entity._
 
@@ -42,7 +44,8 @@ object UserProfileF {
           LOCATION -> d.location,
           ABOUT -> d.about,
           LANGUAGES -> d.languages,
-          IMAGE_URL -> d.imageUrl
+          IMAGE_URL -> d.imageUrl,
+          ACTIVE -> d.active
         )
       )
     }
@@ -56,7 +59,8 @@ object UserProfileF {
       (__ \ DATA \ LOCATION).readNullable[String] and
       (__ \ DATA \ ABOUT).readNullable[String] and
       (__ \ DATA \ LANGUAGES).readNullable[List[String]].map(_.toList.flatten) and
-      (__ \ DATA \ IMAGE_URL).readNullable[String]
+      (__ \ DATA \ IMAGE_URL).readNullable[String] and
+      (__ \ DATA \ ACTIVE).readNullable[Boolean].map(_.getOrElse(true))
     )(UserProfileF.apply _)
 
   implicit val userProfileFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
@@ -75,7 +79,8 @@ case class UserProfileF(
   location: Option[String] = None,
   about: Option[String] = None,
   languages: List[String] = Nil,
-  imageUrl: Option[String] = None
+  imageUrl: Option[String] = None,
+  active: Boolean = true
 ) extends Model with Persistable
 
 
@@ -133,8 +138,9 @@ object UserProfile {
       LOCATION -> optional(text),
       ABOUT -> optional(text),
       LANGUAGES -> list(nonEmptyText),
-      IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))))
-      (UserProfileF.apply)(UserProfileF.unapply)
+      IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
+      ACTIVE -> boolean
+    )(UserProfileF.apply)(UserProfileF.unapply)
   )
 }
 

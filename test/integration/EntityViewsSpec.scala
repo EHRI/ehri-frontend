@@ -166,6 +166,36 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       userFetch.groups.map(_.id) must contain("niod")
     }
 
+    "allow updating account values" in new FakeApp {
+      mockUserDAO.findByProfileId(unprivilegedUser.id) must beSome.which { before =>
+        before.staff must beTrue
+        before.active must beTrue
+      }
+      val data = Map("staff" -> Seq(false.toString), "active" -> Seq(false.toString))
+      val update = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.core.routes.UserProfiles.updatePost(unprivilegedUser.id).url), data).get
+      status(update) must equalTo(SEE_OTHER)
+      mockUserDAO.findByProfileId(unprivilegedUser.id) must beSome.which { after =>
+        after.staff must beFalse
+        after.active must beFalse
+      }
+    }
+
+    "not allow deletion unless confirmation is given" in new FakeApp {
+      val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.core.routes.UserProfiles.deletePost("reto").url)
+        .withFormUrlEncodedBody()).get
+      status(del) must equalTo(BAD_REQUEST)
+    }
+
+    "allow deletion when confirmation is given" in new FakeApp {
+      // Confirmation is the user's full name
+      val data = Map("deleteCheck" -> Seq("Reto"))
+      val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.core.routes.UserProfiles.deletePost("reto").url), data).get
+      status(del) must equalTo(SEE_OTHER)
+    }
+
     "allow removing users from groups" in new FakeApp {
       // Going to add remove Reto from group KCL
       val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,

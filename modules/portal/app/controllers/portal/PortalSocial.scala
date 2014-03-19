@@ -9,6 +9,7 @@ import utils.{SessionPrefs, PageParams, SystemEventParams, ListParams}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
 import play.api.Play._
+import solr.SolrConstants
 
 
 /**
@@ -68,6 +69,7 @@ trait PortalSocial {
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
+    val filters = Map(SolrConstants.ACTIVE -> true.toString)
     val defaultParams = SearchParams(entities = List(EntityType.UserProfile), excludes = Some(List(user.id)),
           sort = Some(SearchOrder.Name), limit = Some(40))
     val searchParams = SearchParams.form.bindFromRequest.value
@@ -75,7 +77,7 @@ trait PortalSocial {
 
     for {
       followers <- backend.listFollowing(user.id, ListParams())
-      srch <- searchDispatcher.search(searchParams, Nil, Nil)
+      srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
       users <- searchResolver.resolve[UserProfile](srch.items)
     } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, followers))
   }

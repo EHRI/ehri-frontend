@@ -40,6 +40,18 @@ class AccountSpec extends PlaySpecification {
       }
     }
 
+    "allow deactivating accounts" in new WithSqlFixures {
+      DB.withConnection { implicit connection =>
+        userDAO.findByProfileId(mocks.privilegedUser.id) must beSome.which { user =>
+          user.active must beTrue
+          user.setActive(active = false)
+          userDAO.findByProfileId(mocks.privilegedUser.id) must beSome.which { inactive =>
+            inactive.active must beFalse
+          }
+        }
+      }
+    }
+
     "allow setting and updating user's passwords" in new WithSqlFixures {
       val userOpt: Option[Account] = userDAO.findByEmail(mocks.privilegedUser.email)
       userOpt must beSome.which { user =>

@@ -1,17 +1,24 @@
 package controllers.core
 
+import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
-import models.{AccountDAO, IsadG, UserProfile, UserProfileF}
+import models.{AdminUserData, AccountDAO, UserProfile, UserProfileF}
 import play.api.i18n.Messages
-import defines.ContentTypes
-import utils.search.{FacetSort, Resolver, SearchParams, Dispatcher}
+import defines.{PermissionType, ContentTypes}
+import utils.search._
 import com.google.inject._
 import backend.Backend
-import solr.facet.{FieldFacetClass, SolrQueryFacet, QueryFacetClass}
-import views.Helpers
+import play.api.data.{Forms, Form}
+import scala.concurrent.Future.{successful => immediate}
+import play.api.libs.json.Json
+import solr.facet.FieldFacetClass
+import solr.facet.SolrQueryFacet
+import play.api.libs.json.JsObject
+import solr.facet.QueryFacetClass
+
 
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[UserProfile]
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: Indexer, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[UserProfile]
   with Read[UserProfile]
   with Update[UserProfileF,UserProfile]
   with Delete[UserProfile]
@@ -19,6 +26,17 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
+      QueryFacetClass(
+        key="active",
+        name=Messages("userProfile.active"),
+        param="staff",
+        render=s => Messages("userProfile.active." + s),
+        facets=List(
+          SolrQueryFacet(value = "true", solrValue = "1"),
+          SolrQueryFacet(value = "false", solrValue = "0")
+        ),
+        display = FacetDisplay.Boolean
+      ),
       FieldFacetClass(
         key="groupName",
         name=Messages("contentTypes.group"),
@@ -48,7 +66,13 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def search = {
     searchAction[UserProfile](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
         page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.userProfile.search(page, params, facets, userRoutes.search))
+      // Crap alert! Lookup accounts for users. This is undesirable 'cos it's
+      // one DB SELECT per user, but since it's just a management page it shouldn't
+      // matter too much.
+      val pageWithAccounts = page.copy(items = page.items.map { case(up, hit) =>
+        (up.copy(account = userDAO.findByProfileId(up.id)), hit)
+      })
+      Ok(views.html.userProfile.search(pageWithAccounts, params, facets, userRoutes.search()))
     }
   }
 
@@ -60,33 +84,59 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.userProfile.list(page, params))
   }
 
-  def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.userProfile.edit(
-        item, form.fill(item.model), userRoutes.updatePost(id)))
+  def update(id: String) = withItemPermission[UserProfile](id, PermissionType.Update, contentType) {
+      item => implicit userOpt => implicit request =>
+    val userWithAccount = item.copy(account = userDAO.findByProfileId(id))
+    Ok(views.html.userProfile.edit(item, AdminUserData.form.fill(
+      AdminUserData.fromUserProfile(userWithAccount)),
+      userRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) {
-      item => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
-      case Left(errorForm) =>
-        BadRequest(views.html.userProfile.edit(
-          item, errorForm, userRoutes.updatePost(id)))
-      case Right(item) => Redirect(userRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
-    }
+  def updatePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Update, contentType) {
+      item => implicit userOpt => implicit request =>
+    val userWithAccount = item.copy(account = userDAO.findByProfileId(id))
+    AdminUserData.form.bindFromRequest.fold(
+      errForm => immediate(BadRequest(views.html.userProfile.edit(userWithAccount, errForm,
+        userRoutes.updatePost(id)))),
+      data => backend.patch[UserProfile](id, Json.toJson(data).as[JsObject]).map { updated =>
+        userDAO.findByProfileId(id).map { acc =>
+          acc.setActive(data.active).setStaff(data.staff)
+        }
+        Redirect(userRoutes.search())
+          .flashing("success" -> Messages("confirmations.userWasDeactivated", item.toStringLang))
+      }
+    )
   }
+
+  private def deleteForm(user: UserProfile): Form[String] = Form(
+    Forms.single("deleteCheck" -> Forms.nonEmptyText.verifying("error.invalidName", f => f match {
+      case name => {
+        println(s"Names: $name vs ${user.model.name}")
+        name == user.model.name
+      }
+    }))
+  )
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(item, userRoutes.deletePost(id),
+    Ok(views.html.userProfile.delete(item, deleteForm(item), userRoutes.deletePost(id),
           userRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
-    // For the users we need to clean up by deleting their profile id, if any...
-    userDAO.findByProfileId(id).map(_.delete())
-    Redirect(userRoutes.search())
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+  def deletePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Delete, contentType) {
+      item => implicit userOpt => implicit request =>
+    deleteForm(item).bindFromRequest.fold(
+      errForm => {
+        immediate(BadRequest(views.html.userProfile.delete(item, deleteForm(item), userRoutes.deletePost(id),
+          userRoutes.get(id))))
+      },
+      ok => backend.delete[UserProfile](id, logMsg = getLogMessage).map { ok =>
+        // For the users we need to clean up by deleting their profile id, if any...
+        userDAO.findByProfileId(id).map(_.delete())
+        Redirect(userRoutes.search())
+          .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+      }
+    )
   }
 
   def grantList(id: String) = grantListAction(id) {
