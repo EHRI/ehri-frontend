@@ -37,9 +37,9 @@ If all goes well this will result in a single Jar file called `ehri-indexer-1 .0
 
 ### Installing Play 2.2.1:
 
-Download and install Play 2.2.1:
+Download and install Play 2.2.x:
 
-    export PLAY_VERSION=2.2.1
+    export PLAY_VERSION=2.2.2
     wget http://downloads.typesafe.com/play/${PLAY_VERSION}/play-${PLAY_VERSION}.zip
     unzip -d ~/apps play-${PLAY_VERSION}
 
