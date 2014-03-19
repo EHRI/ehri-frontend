@@ -18,9 +18,13 @@ import backend.Backend
 import controllers.base.{SessionPreferences, ControllerHelpers}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.Logger
-import utils.{SessionPrefs, Stats, PageParams}
+import utils._
 
 import com.google.inject._
+import play.api.mvc.Results._
+import scala.Some
+import scala.Some
+import views.html.errors.pageNotFound
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -80,6 +84,18 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       entityFacets = entityMetrics) { page => params => facets => implicit userOpt => _ =>
         Ok(p.portal(Stats(page.facets)))
     }.apply(request)
+  }
+
+  def browseItem(entityType: EntityType.Value, id: String) = Action { implicit request =>
+    entityType match {
+      case EntityType.DocumentaryUnit => Redirect(portalRoutes.browseDocument(id))
+      case EntityType.Repository => Redirect(portalRoutes.browseRepository(id))
+      case EntityType.HistoricalAgent => Redirect(portalRoutes.browseHistoricalAgent(id))
+      case EntityType.Concept => Redirect(portalRoutes.browseConcept(id))
+      case EntityType.Link => Redirect(portalRoutes.browseLink(id))
+      case EntityType.Annotation => Redirect(portalRoutes.browseAnnotation(id))
+      case _ => NotFound(renderError("errors.pageNotFound", pageNotFound()))
+    }
   }
 
   def browseCountries = userBrowseAction.async { implicit userDetails => implicit request =>
