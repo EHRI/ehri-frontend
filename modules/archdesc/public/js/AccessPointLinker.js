@@ -86,10 +86,29 @@
         }
         return $http.get($service.filter().url + params);
       }
-
+      var limitTypes = function(type) {
+        if(Array.isArray(type)) {
+          return type;
+        }
+        if (type.match(/(?:creator|person)Access/)) {
+          return ["historicalAgent"];
+        }
+        if (type.match(/(?:place)Access/)) {
+          return ["cvocConcept", "country"];
+        }
+        if (type === "subjectAccess") {
+          return ["cvocConcept"];
+        }
+        return [];
+      }
       return {
-        search: search,
+        search: function(type, searchTerm, page) {
+          var type = this.limitTypes(type);
+          return search(type, searchTerm, page);
+        },
+        limitTypes : limitTypes,
         filter: function(type, searchTerm, page) {
+          var type = this.limitTypes(type);
           return search(type, (searchTerm || "PLACEHOLDER_NO_RESULTS"), page);
         },
 
@@ -168,7 +187,13 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
   // FIXME: Retrieving the passed-in query should be easier!
   $scope.q = q;
   $scope.item = null; // Preview item
-  $scope.type = ''; // Type of query
+  $scope.type = $rootScope.tempAccessPoint.type; // Type of query
+  $scope.availableTypes = [];
+  var temptypes = $search.limitTypes($rootScope.tempAccessPoint.type);
+  if(temptypes.length > 0) {
+    $scope.availableTypes = temptypes;
+  }
+
   $scope.results = []; // Results from query
 
   $scope.pageInfos = {
@@ -225,7 +250,12 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
    * @param type
    */
   $scope.setType = function(type) {
-    $scope.type = type;
+    if(typeof type === "undefined") {
+      type = $rootScope.tempAccessPoint.type;
+    } else {
+      type = [type];
+    }
+    $scope.type = $search.limitTypes(type);
     $scope.doSearch($scope.q);
   }
 
@@ -265,7 +295,6 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
 
 
 function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $window, $modal) {
-
   /**
    * Headers for ajax calls.
    */
@@ -279,7 +308,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
   /**
    * Modal dialog configuration
    */
-  $scope.modalLink = {	//Options for modals
+  $scope.modalLink = {  //Options for modals
     backdrop: true,
     keyboard: true,
     backdropClick: true,
@@ -371,7 +400,6 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
             success: function(data) {
               if (data === true) {
 
-                console.log("Deleted link, now proceeding to delete access point ", accessPointId);
 
                 $service.deleteAccessPoint($scope.itemId, $scope.descriptionId, accessPointId).ajax({
                   headers: {"Accept": "application/json; charset=utf-8"},
@@ -392,6 +420,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
    * Open a dialog to browse for specific items.
    */
   $scope.openBrowseDialog = function() {
+    $rootScope.tempAccessPoint = $scope.tempAccessPoint;
     var d = $modal.open($scope.modalLink);
     d.result.then(function(result) {
       if (result) {
@@ -477,22 +506,6 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
   }
 
   /**
-   * Unsustainable hack limiting certain types of access point
-   * to certain target entities!  FIXME!!!
-   * @param type
-   * @returns {Array}
-   */
-  $scope.limitTypes = function(type) {
-    if (type.match(/(?:creator|person)Access/)) {
-      return ["historicalAgent"];
-    }
-    if (type.match(/(?:place)Access/)) {
-      return ["cvocConcept", "country"];
-    }
-    return [];
-  }
-
-  /**
    * Populate the matches member with those that
    * match the (partial) name string entered by
    * the user.
@@ -503,7 +516,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
 
     }
 
-    $search.filter($scope.limitTypes($scope.tempAccessPoint.type), $scope.tempAccessPoint.name).then(function(result) {
+    $search.filter($scope.tempAccessPoint.type, $scope.tempAccessPoint.name).then(function(result) {
       $scope.matches = result.data.items;
     });
   }
