@@ -28,16 +28,17 @@ jQuery(function($) {
         var sticky = top > vpend + innerHeight - height;
 
         if (sticky) {
-          if (!that.isSticky === sticky) {
+          if (!that.isSticky === sticky || ($(window).outerHeight() != that.attr("data-windows"))) {
             that.css({
               position: "fixed",
               left: 0,
               width: $(window).width(),
-              top: $(window).height() - height - 15 // Unfortunate fudge factor!
-            }).addClass("sticky");
+              top: $(window).height() - height// - 15 // Unfortunate fudge factor!
+            }).addClass("sticky").attr("data-windows", $(window).outerHeight());
             that.isSticky = sticky;
           }
-        } else {
+        }
+        else {
           if (!that.isSticky === sticky) {
             that.removeAttr("style")
                 .removeClass("sticky");
@@ -47,6 +48,8 @@ jQuery(function($) {
       }
 
       $(window).scroll(shouldStick);
+      $(window).on('resize', shouldStick);
+
       shouldStick();
     }
   }
