@@ -141,7 +141,7 @@ mysql> select * from users;
 Now add one corresponding to your user + email:
 
 ```SQL
-mysql> INSERT INTO users (id, email, verified, staff) VALUES ('example', 'example@example.com', 1, 1);
+mysql> INSERT INTO users (id, email, verified, staff, active) VALUES ('example', 'example@example.com', 1, 1, 1);
 Query OK, 1 row affected (0.00 sec)
 ```
 
