@@ -56,6 +56,7 @@ portal.browse.repositories=Archival Institutions
 portal.browse.documents=Archival Descriptions
 portal.browse.historicalAgents=Authorities
 portal.browse.documentsByRepository=Archival Descriptions By Repository
+portal.browse.concepts=Keywords
 portal.landingBlurb.repositories=Browse {0} in {1}.
 portal.landingBlurb.repositoryLink={0} collection holding institutions
 portal.landingBlurb.inCountryLink={0} countries
