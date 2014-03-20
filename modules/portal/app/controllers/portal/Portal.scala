@@ -92,6 +92,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case EntityType.Repository => Redirect(portalRoutes.browseRepository(id))
       case EntityType.HistoricalAgent => Redirect(portalRoutes.browseHistoricalAgent(id))
       case EntityType.Concept => Redirect(portalRoutes.browseConcept(id))
+      case EntityType.Country => Redirect(portalRoutes.browseCountry(id))
       case EntityType.Link => Redirect(portalRoutes.browseLink(id))
       case EntityType.Annotation => Redirect(portalRoutes.browseAnnotation(id))
       case _ => NotFound(renderError("errors.pageNotFound", pageNotFound()))
