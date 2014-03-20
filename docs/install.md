@@ -71,7 +71,7 @@ Now we need to create an empty user and database for our application. The user a
 
 Now, **at the MySQL shell**, type the following commands (replacing the password with your password):
 
-    CREATE USER 'docview'@'localhost' IDENTIFIED BY PASSWORD '<PASSWORD>';
+    CREATE USER 'docview'@'localhost' IDENTIFIED BY '<PASSWORD>';
     CREATE DATABASE docview;
     GRANT ALL PRIVILEGES ON docview.* TO 'docview'@'localhost';
 
