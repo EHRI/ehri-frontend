@@ -1,5 +1,58 @@
 jQuery(function ($) {
 
+/*
+* Quick search
+*/
+
+
+  var $quicksearch = $("#quicksearch");
+  var $quicksearchBH = new Bloodhound({
+                          datumTokenizer: function (d) {
+                                return Bloodhound.tokenizers.whitespace(d); 
+                          },
+                          queryTokenizer: Bloodhound.tokenizers.whitespace,
+                          remote: {
+                            url : jsRoutes.controllers.core.SearchFilter.filter().url + "?limit=5&st[]=documentaryUnit&st[]=repository&st[]=historicalAgent&st[]=country&q=%QUERY",
+                            filter : function(parsedResponse) {
+                              var result = [];
+                              var alreadyResult = [];
+
+                              for (var i=0; i<parsedResponse.items.length; i++) {
+                                //Need to check if item not already in the db
+                                if($.inArray( parsedResponse.items[i][1] , alreadyResult) === -1) {
+                                  result.push({
+                                    name: parsedResponse.items[i][1],
+                                    value: parsedResponse.items[i][1],
+                                    href : jsRoutes.controllers.portal.Portal.browseItem(parsedResponse.items[i][2], parsedResponse.items[i][0]).url
+                                  });
+                                  alreadyResult.push(parsedResponse.items[i][1]);
+                                }
+                              }
+                              return result;
+                            }
+                          }
+                        });
+  $quicksearchBH.initialize();
+  var $quicksearchTemplate = Handlebars.compile('<a href="{{href}}">{{name}}</a>');
+
+  /**
+   * Initialize typeahead.js
+   */
+  $('#quicksearch').typeahead(
+    null,
+    {
+      name: "quicksearch",
+      source: $quicksearchBH.ttAdapter(),
+      templates: {
+        suggestion : $quicksearchTemplate
+      }
+    }
+  ).keypress(function(e) {
+    if(e.which == 13) {
+        $(this).parents("form").submit();
+    }
+});
+  //Need to reenable enter for getSearch
 
 /*
   Search helpers

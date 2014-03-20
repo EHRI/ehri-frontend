@@ -1,0 +1,34 @@
+/*<--  Twitter typeahead */
+
+.twitter-typeahead {
+  display: block !important;
+}
+.tt-suggestions, .tt-dropdown-menu {
+    width:100%;
+}
+.tt-suggestions {
+    background-color: #FFFFFF;
+    color:black;
+	-webkit-box-shadow: 2px 2px 15px rgba(50, 50, 50, 0.5);
+	-moz-box-shadow:    2px 2px 15px rgba(50, 50, 50, 0.5);
+	box-shadow:         2px 2px 15px rgba(50, 50, 50, 0.5);
+    box-sizing:border-box;
+    border:1px solid @well-border;
+}
+.tt-suggestion {
+    padding:5px;
+    a, a:hover {
+    	text-decoration:none;
+		color:black!important;
+		display:block;
+    }
+}
+.tt-suggestion:hover, .tt-suggestion:focus, .tt-cursor {
+    cursor:pointer;
+    background-color: @well-bg;
+}
+.tt-dropdown-menu {
+	padding-top:10px;
+    box-sizing:border-box;
+}
+/*-->  End Twitter typeahead */
