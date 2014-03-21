@@ -1,6 +1,6 @@
 @()(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
 
-<ul class="list-unstyled list-inline  pull-right account-admin">
+<ul class="account-admin">
     @userOpt.map { user =>
     <li>
         <a href="@controllers.portal.routes.Profile.profile" class="gravitar">
