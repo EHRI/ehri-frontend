@@ -16,9 +16,9 @@
             <span></span>
         </span>
     </div>
-    <div class="nav-primary clearfix">
+    <div class="nav-primary">
         @p.layout.headerAccountAdmin()
-        <ul class="list-unstyled list-inline">
+        <ul>
             <li id="navbar-logo" >
                 <a href="@controllers.portal.routes.Portal.index">
                     <img src="@controllers.portal.routes.Assets.at("img/logo-rect-bw.png")" rel="logo" />
@@ -32,8 +32,8 @@
             </li>
         </ul>
     </div>
-    <div class="nav-secondary clearfix @itemClass">
-        <ul class="list-unstyled list-inline pull-right">
+    <div class="nav-secondary @itemClass">
+        <ul class="toolbar">
             <li>
                 @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "global-search inactive right-inner-addon", 'role -> "search") {
                 <input type="text" name="q" id="quicksearch" />
@@ -47,7 +47,7 @@
                 @p.layout.feedback(models.Feedback.form)
             </li>
         </ul>
-        <ul class="list-unstyled list-inline">
+        <ul>
             <li class="@maybeActivePath(controllers.portal.routes.Portal.browseCountries.url)">
                 <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a>
             </li>

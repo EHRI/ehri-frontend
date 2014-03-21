@@ -1,4 +1,4 @@
-#header {
+header#header {
   position: relative;
   color: white;
   font-weight: 700;
@@ -63,10 +63,14 @@
   .nav-primary {
     background-color: @almost-black;
     padding: @small-padding;
-
-    ul {
+    min-height:40px;
+    & > ul {
       margin-bottom: 0;
-      padding: 0
+      padding: 0;
+      li {
+        min-height:40px;
+        line-height:40px;
+      }
     }
     a {
       color: #d6d6d6;
@@ -159,4 +163,16 @@
     .img-responsive;
     display: inline;
   }
+
+  .nav-primary , .nav-secondary {
+    .clearfix;
+    & > ul  {
+      .list-unstyled;
+      .list-inline;
+    }
+  }
+  .account-admin , .toolbar {
+    .pull-right;
+  }
+
 }
