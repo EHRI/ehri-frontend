@@ -64,7 +64,21 @@ jQuery(function($) {
 
       /* <-- UI for Thanks */
 
-      c
+      $form.hide(100, function() {
+        $thanks.slideDown(500, function() {
+          setTimeout(function() {
+            $text.val("");
+      
+            $thanks.slideUp(500, function() {
+              $(".slide-out-div > .handle").trigger("click").queue(function(next) {
+                $formContainer.find("form").show();
+                next();
+              });
+
+            });
+          }, 1000);
+        });
+      });
 
       /* --> UI for Thanks */
     
