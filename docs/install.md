@@ -8,17 +8,20 @@ For development, you need a version of the EHRI Neo4j REST server installed both
 
 Download Solr and extract it to the location of your choice (using ~/apps for this example):
 
-	curl -0 http://mirrors.ukfast.co.uk/sites/ftp.apache.org/lucene/solr/4.2.1/solr-4.2.1.tgz | tar -zx -C ~/apps
+    export SOLR_VERSION=4.2.1
+    curl -0 http://mirrors.ukfast.co.uk/sites/ftp.apache.org/lucene/solr/$SOLR_VERSION/solr-$SOLR_VERSION.tgz | tar -zx -C ~/apps
+    export SOLR_HOME=~/apps/solr-$SOLR_VERSION
+	
 
 For now, re-use the example Solr core (named "collection1", inside the example/solr direction).  As a shortcut, you can just grab the `schema.xml` and `solrconfig.xml` from Github:
 
-	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/schema.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/schema.xml
-	curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/solrconfig.xml > ~/apps/solr-4.2.1/example/solr/collection1/conf/solrconfig.xml
+    curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/schema.xml > $SOLR_HOME/example/solr/collection1/conf/schema.xml
+    curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/solrconfig.xml > $SOLR_HOME/example/solr/collection1/conf/solrconfig.xml
 
 You should now able able to start the Solr server in another shell:
 
-	cd ~/apps/solr-4.2.1/example
-	java -jar start.jar
+    cd $SOLR_HOME/example
+    java -jar start.jar
 
 If that starts without spewing out any dodgy-looking stack traces all should be well. You can verify this by going to http://localhost:8983/solr which should display the Solr admin page.
 
@@ -75,7 +78,7 @@ Now, **at the MySQL shell**, type the following commands (replacing the password
     CREATE DATABASE docview;
     GRANT ALL PRIVILEGES ON docview.* TO 'docview'@'localhost';
 
-There are some settings on the conf/application.conf file you can adjust if you change any of the defaults.
+**Note: the database settings you should here should be configured in the `application.conf` file.**
 
 ===============================================================================
 
@@ -114,6 +117,11 @@ Also, we need to put the indexer utility where the interface can find it, in the
 Start Neo4j server, if you haven't already:
 
     $NEO4J_HOME/bin/neo4j start
+    
+Also start Solr, if you didn't already:
+
+    cd $SOLR_HOME/example
+    java -jar start.jar
 
 We can now see if the app actually works:
 
