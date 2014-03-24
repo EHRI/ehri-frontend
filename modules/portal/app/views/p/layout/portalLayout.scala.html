@@ -5,12 +5,13 @@
 <html lang="@lang.code">
     <head>
         <title>@title</title>
-
+        
+        <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="@controllers.core.routes.Assets.at("css/portal.min.css")">
 
         @styles
     </head>
-    <body>
+    <body class="@itemClass">
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src="@controllers.portal.routes.Assets.at("js/feedback.min.js")"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.autosize.min.js")"></script>
@@ -21,7 +22,7 @@
         <script src="@controllers.core.routes.Assets.at("select2/select2.min.js")"></script>
         <script src="@controllers.core.routes.Assets.at("js/common.min.js")" type="text/javascript"></script>
         <div id="wrap">
-            @p.layout.header(itemClass)
+            @p.layout.header()
             @views.html.common.flash(flash)
             <div class="page-content">
                 @content

@@ -1,6 +1,21 @@
 jQuery(function ($) {
 
 /*
+*   History
+*/
+$(".panel-history").each(function() {
+  $(this).addClass("inactive");
+  $(this).find(".panel-heading h3").append(
+      $("<span />", {
+        "class" : "pull-right glyphicon glyphicon-plus"
+      }).on("click", function(e) {
+          $(this).parents(".panel-history").toggleClass("inactive");
+          $(this).toggleClass("glyphicon-plus").toggleClass("glyphicon-minus");
+      })
+    )
+});
+
+/*
 * Quick search
 */
 

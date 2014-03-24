@@ -1,0 +1,81 @@
+
+.panel-color(@header-bg: @ehri-purple, @header-color: white, @opacity-ft : 0.8) {
+	.panel-heading {
+		background-color:@header-bg;
+		color:@header-color;
+	}
+	.panel-footer {
+		opacity:@opacity-ft;
+		color:@header-color;
+	}
+} 
+.panel-rework(@header-bg: @ehri-purple, @header-color: white) {
+	.panel;
+	.panel-default;
+	
+	border:0;
+	border-radius:0;
+
+	.panel-heading {
+		border-radius:0;
+		border:0;
+		box-shadow:0;
+		font-family: 'Lato', sans-serif;
+
+		h3 {
+			.panel-title;
+		}
+	}
+	.panel-body {
+		border-radius:0;
+		border:0;
+	}
+	.panel-footer {
+		border:0;
+	}
+	.panel-color(@header-bg, @header-color);
+}
+
+
+.panel-history {
+	.panel-rework();
+	.panel-color(@medium-gray, #000000);
+	.hidden-one-col;
+
+	.glyphicon {
+		font-size:12px;
+		cursor:pointer;
+	}
+
+	.panel-body {
+		padding:5px 15px;
+	}
+	.panel-footer {
+		padding:0px 15px;
+	}
+	&.inactive {
+		.panel-body, .panel-footer {
+			display:none;
+		}
+	}
+}
+
+.panel-details {
+	.panel-rework();
+}
+
+body.documentaryUnit .panel-details {
+  .panel-color(@doc-color);
+}
+
+body.country .panel-details {
+  .panel-color(@country-color);
+}
+
+body.repository .panel-details, body .panel-details.repository {
+  .panel-color(@repo-color);
+}
+
+body.historicalAgent .panel-details {
+  .panel-color(@agent-color);
+}
