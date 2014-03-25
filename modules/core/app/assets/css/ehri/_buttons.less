@@ -21,6 +21,21 @@
 	&.get {
 		.button-variant(@btn-get-color, @btn-get-bg, @btn-get-border);
 	}
+  &.facebook, &.google, &.linkedin {
+    .btn-block;
+    width:80%;
+    margin:10px auto;
+  }
+  &.facebook {
+    .button-variant(#ffffff, #354E84, #354E84);
+  }
+  &.google {
+    .button-variant(#ffffff, #DD4B39, #DD4B39);
+  }
+  &.linkedin {
+    .button-variant(#ffffff,#0083A8,#0083A8);
+  }
+
 
 	&.xs {
 		.btn-xs;
@@ -50,7 +65,6 @@ form[method="GET"], form:not([method="POST"]) {
 .remove-inline-element {
   text-shadow: rgba(215, 0, 0, 1) 0 0 10px;
 }
-
 .make-btn-group(@btn-color : @btn-primary-color, @btn-bg : @btn-primary-color, @btn-border: @btn-primary-border, @btn-size : 0) {
 
   position: relative;
