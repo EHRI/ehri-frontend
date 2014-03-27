@@ -10,12 +10,23 @@
 }
 
 .selected-facet {
-  .label;
-  .label-default;
-
-  a {
-    color: #000000;
+  & {
+    .make-btn-group(@btn-size: xs);
   }
+
+  > a.remove-filter {
+    color:white!important;
+    .remove {
+      .glyphicon;
+      .glyphicon-remove;
+      font-size:11px;
+    }
+    &:hover {
+      text-decoration:none;
+      color:@pale-gray;
+    }
+  }
+
 }
 
 /** child items */
