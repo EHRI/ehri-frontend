@@ -63,13 +63,23 @@ header#header {
   .nav-primary {
     background-color: @almost-black;
     padding: @small-padding;
-    min-height:40px;
+    height:50px;
+    
+    img[rel="logo"] {
+      height:40px;
+      width:auto;
+    }
+
+
     & > ul {
       margin-bottom: 0;
       padding: 0;
       li {
-        min-height:40px;
+        height:40px;
         line-height:40px;
+      }
+      li#navbar-logo a {
+        padding:0;
       }
     }
     a {
@@ -125,21 +135,7 @@ header#header {
     background-color: @primary-highlight;
   }
 
-  .nav-secondary.documentaryUnit {
-    background-color: @doc-color;
-  }
 
-  .nav-secondary.country {
-    background-color: @country-color;
-  }
-
-  .nav-secondary.repository {
-    background-color: @repo-color;
-  }
-
-  .nav-secondary.historicalAgent {
-    background-color: @agent-color;
-  }
 
   .float-nav {
     position: fixed;
@@ -175,4 +171,22 @@ header#header {
     .pull-right;
   }
 
+}
+
+//Color change ~ type of document
+
+body.documentaryUnit header#header .nav-secondary {
+  background-color: @doc-color;
+}
+
+body.country header#header .nav-secondary {
+  background-color: @country-color;
+}
+
+body.repository header#header .nav-secondary {
+  background-color: @repo-color;
+}
+
+body.historicalAgent header#header .nav-secondary {
+  background-color: @agent-color;
 }
