@@ -31,6 +31,8 @@
 	// Picker object
 
 	var Datepicker = function(element, options) {
+
+		//Callback on format
 		var that = this;
 
 		this.element = $(element);
@@ -992,6 +994,9 @@
 		validParts: /dd?|DD?|mm?|MM?|yy(?:yy)?/g,
 		nonpunctuation: /[^ -\/:-@\[\u3400-\u9fff-`{-~\t\n\r]+/g,
 		parseFormat: function(format){
+			if(typeof format === "function") {
+				format = format();
+			}
 			// IE treats \0 as a string end in inputs (truncating the value),
 			// so it's a bad format delimiter, anyway
 			var separators = format.replace(this.validParts, '\0').split('\0'),
