@@ -5,16 +5,17 @@
 <script>
     $(document).ready(function() {
         //Shared variables
-        re = /(\w+)\.dates\[([0-9]+)\]/;
-        re2 = /descriptions\[([0-9]+)\]\.(\w+)\.dates\[([0-9]+)\]/;
+        var re = /(\w+)\.dates\[([0-9]+)\]/;
+        var re2 = /descriptions\[([0-9]+)\]\.(\w+)\.dates\[([0-9]+)\]/;
         var defaultStartView = "decade";
-        var defaultFormat = 'yyyy-mm-dd';
+        //var defaultFormat = 'yyyy-mm-dd';
 
         //Callback functions
-        function dateField(name, src) {
+        var dateField = function (name, src) {
 
-            regResults = re.exec(src);
-            regResults2 = re2.exec(src);
+            var regResults = re.exec(src),
+                regResults2 = re2.exec(src),
+                precision = "";
 
             if(regResults2.length == 4) {
                 precision = "descriptions[" + regResults2[1] + "]." + regResults2[2] + ".dates[" + regResults2[3] + "]." + name
@@ -23,18 +24,66 @@
                 precision = regResults[1] + ".dates[" + regResults[2] + "]." + name
                 precision = "*[name='" + precision + "']";
             }
-            console.log(precision);
             return precision;
         }
 
-        function defaultMinViewMode(that, datepick) {
-            if(typeof datepick === false) {
-                precision = that.val();
-            } else {
-                name = that.attr("name");
-                precision = $(dateField("precision", name)).val();
+        //Create datepicker
+        var createDatepicker = function(target, forced) {
+            var process = false,
+                override = true,
+                hasDP = hasDatepicker(target),
+                show = false;
+
+            if(hasDP === true) { 
+                process = true;
+                target.datepicker("remove"); 
+            } else if(typeof forced !== "undefined" && forced === true) {
+                process = true;
+                override = false;
+                show = true;
             }
 
+            if(process === true) {
+                target.datepicker({
+                    startView: defaultStartView, 
+                    format: function() {
+                        console.log(defaultFormat(target));
+                        return defaultFormat(target);
+                    },
+                    minViewMode : function() {
+                        return defaultMinViewMode(target);
+                    }
+                });
+                target.addClass("datepicker-activated");
+                if(show === true) {
+                    target.datepicker("show");
+                }
+            }
+        }
+
+        var defaultFormat =function(that) {
+            name = that.attr("name");
+            precision = $(dateField("precision", name)).val();
+
+            switch (precision) {
+                case 'month':
+                case 'quarter':
+                    precision = "yyyy-mm";
+                    break;
+                case 'year':
+                case 'decade':
+                    precision = "yyyy";
+                    break;
+                default:
+                    precision = "yyyy-mm-dd";
+                    break;
+            }
+            return precision || "yyyy-mm-dd";
+        }
+
+        var defaultMinViewMode = function(that) {
+            name = that.attr("name");
+            precision = $(dateField("precision", name)).val();
 
             switch (precision) {
                 case 'month':
@@ -53,8 +102,8 @@
             return precision || false;
         }
 
-        function hasDatepicker(obj) {
-            if(typeof obj.datepicker === "undefined") {
+        var hasDatepicker = function(obj) {
+            if(obj.hasClass("datepicker-activated") === false) {
                 return false;
             } else {
                 return true;
@@ -63,38 +112,59 @@
 
         //jQuery Handler
         $(document).on("change", ".precision", function() {
-            that = $(this);
+            var that = $(this),
+                start = $(dateField("startDate", that.attr("name"))),
+                end = $(dateField("endDate", that.attr("name")));
 
-            start = $(dateField("startDate", that.attr("name")));
-            end = $(dateField("endDate", that.attr("name")));
+                createDatepicker(start);
+                createDatepicker(end);
+        });
 
-            if(hasDatepicker(start)) { start.datepicker("remove"); }
-            start.datepicker({
-                startView: defaultStartView, 
-                format: defaultFormat,
-                minViewMode : function() {
-                    return defaultMinViewMode(that, true);
+        $(document).on("keyup", "input.datepicker", function() {
+            var that = $(this),
+                val = that.val(),
+                name = that.attr("name"),
+                precision = "day",
+                table = [],
+                select = dateField("precision", name),
+
+                start = $(dateField("startDate", that.attr("name"))),
+                end = $(dateField("endDate", that.attr("name")));
+
+            //If the input has some val and it's bigger than 4 (year is minimum scope), we can start
+            if(typeof val.length !== "undefined" && val.length >= 4) {
+                table = val.split("-");
+                if(typeof table[1] !== "undefined") {
+                    if(table[1] === "" || table[1] === "-") {
+                        table = [table[0]];
+                    }
                 }
-            });
-            if(hasDatepicker(end)) { end.datepicker("remove"); }
-            end.datepicker({
-                startView: defaultStartView, 
-                format: defaultFormat,
-                minViewMode : function() {
-                    return defaultMinViewMode(that, true);
+                if(table.length > 0) { //Checking for bug
+                    switch (table.length) {
+                        case 2:
+                            precision = "month";
+                            break;
+                        case 1:
+                            precision = "year";
+                            break;
+                        default:
+                            precision = "day";
+                            break;
+                    }
+
+                    //Set the precision field
+                    $(select + " > option[value='" + precision + "']").prop('selected', true);
+                    //Restart the datepicker
+                    createDatepicker(start);
+                    createDatepicker(end);
                 }
-            });
+            }
         });
         
-        $(document).on('click', 'input.datepicker', function () {
-            that = $(this);
-            that.datepicker({
-                startView: defaultStartView, 
-                format: defaultFormat,
-                minViewMode : function() {
-                    return defaultMinViewMode(that, false);
-                }
-            }).datepicker('show');
+        $(document).on('click', '.datepicker-activation', function() {
+            var name = $(this).attr("data-target");
+            target = $(name);
+            createDatepicker(target, true);
         });
     });
 </script>

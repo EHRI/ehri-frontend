@@ -19,7 +19,7 @@
     }
 }
 
-@layout.rightSidebar(Messages("actions.createDocumentaryUnit"), breadcrumbs = breadcrumbs, scripts = formJs()) {
+@layout.rightSidebar(Messages("actions.createDocumentaryUnit"), breadcrumbs = breadcrumbs, scripts = formHelpers.dateJs()) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
