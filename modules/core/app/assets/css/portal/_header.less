@@ -135,21 +135,7 @@ header#header {
     background-color: @primary-highlight;
   }
 
-  .nav-secondary.documentaryUnit {
-    background-color: @doc-color;
-  }
 
-  .nav-secondary.country {
-    background-color: @country-color;
-  }
-
-  .nav-secondary.repository {
-    background-color: @repo-color;
-  }
-
-  .nav-secondary.historicalAgent {
-    background-color: @agent-color;
-  }
 
   .float-nav {
     position: fixed;
@@ -185,4 +171,22 @@ header#header {
     .pull-right;
   }
 
+}
+
+//Color change ~ type of document
+
+body.documentaryUnit header#header .nav-secondary {
+  background-color: @doc-color;
+}
+
+body.country header#header .nav-secondary {
+  background-color: @country-color;
+}
+
+body.repository header#header .nav-secondary {
+  background-color: @repo-color;
+}
+
+body.historicalAgent header#header .nav-secondary {
+  background-color: @agent-color;
 }

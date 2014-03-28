@@ -1,4 +1,4 @@
-@(itemClass: String = "")(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
 
 
 @maybeActive(url: String) = @{
@@ -32,7 +32,7 @@
             </li>
         </ul>
     </div>
-    <div class="nav-secondary @itemClass">
+    <div class="nav-secondary">
         <ul class="toolbar">
             <li>
                 @helper.form(action = controllers.portal.routes.Portal.search, 'class -> "global-search inactive right-inner-addon", 'role -> "search") {
