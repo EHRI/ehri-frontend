@@ -8,7 +8,7 @@
         re = /(\w+)\.dates\[([0-9]+)\]/;
         re2 = /descriptions\[([0-9]+)\]\.(\w+)\.dates\[([0-9]+)\]/;
         var defaultStartView = "decade";
-        var defaultFormat = 'yyyy-mm-dd';
+        //var defaultFormat = 'yyyy-mm-dd';
 
         //Callback functions
         function dateField(name, src) {
@@ -23,12 +23,35 @@
                 precision = regResults[1] + ".dates[" + regResults[2] + "]." + name
                 precision = "*[name='" + precision + "']";
             }
-            console.log(precision);
             return precision;
         }
 
+        function defaultFormat(that, datepick) {
+            if(datepick === false) {
+                precision = that.val();
+            } else {
+                name = that.attr("name");
+                precision = $(dateField("precision", name)).val();
+            }
+
+            switch (precision) {
+                case 'month':
+                case 'quarter':
+                    precision = "yyyy-mm";
+                    break;
+                case 'year':
+                case 'decade':
+                    precision = "yyyy";
+                    break;
+                default:
+                    precision = "yyyy-mm-dd";
+                    break;
+            }
+            return precision || "yyyy-mm-dd";
+        }
+
         function defaultMinViewMode(that, datepick) {
-            if(typeof datepick === false) {
+            if(datepick === false) {
                 precision = that.val();
             } else {
                 name = that.attr("name");
@@ -71,7 +94,9 @@
             if(hasDatepicker(start)) { start.datepicker("remove"); }
             start.datepicker({
                 startView: defaultStartView, 
-                format: defaultFormat,
+                format: function() {
+                    return defaultFormat(that, true);
+                },
                 minViewMode : function() {
                     return defaultMinViewMode(that, true);
                 }
@@ -79,7 +104,9 @@
             if(hasDatepicker(end)) { end.datepicker("remove"); }
             end.datepicker({
                 startView: defaultStartView, 
-                format: defaultFormat,
+                format: function() {
+                    return defaultFormat(that, true);
+                },
                 minViewMode : function() {
                     return defaultMinViewMode(that, true);
                 }
@@ -90,7 +117,9 @@
             that = $(this);
             that.datepicker({
                 startView: defaultStartView, 
-                format: defaultFormat,
+                format: function() {
+                    return defaultFormat(that, true);
+                },
                 minViewMode : function() {
                     return defaultMinViewMode(that, false);
                 }
