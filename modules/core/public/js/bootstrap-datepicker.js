@@ -272,12 +272,13 @@
 					this.isInput && this.element.val() ||
 					this.hasInput && this.element.find('input').val()
 				)
-			)
+			) {
 				this.setValue();
-			this.element.trigger({
-				type: 'hide',
-				date: this.date
-			});
+				this.element.trigger({
+					type: 'hide',
+					date: this.date
+				});
+			}
 		},
 
 		remove: function() {
