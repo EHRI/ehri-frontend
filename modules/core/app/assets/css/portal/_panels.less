@@ -23,14 +23,17 @@
 
 .panel-details {
 	.panel-rework();
+	.panel-color();
 }
 
 .facet-class {
-	.panel-rework(@ehri-purple, white, facet-label, facet-options);
 	> ul {
 		.list-unstyled;
 	}
-	.panel-color(@medium-gray, #000000, facet-label, facet-options)!important;
+	
+	.panel-rework(facet-label, facet-options);
+	.panel-color(@medium-gray, #000000, facet-label, facet-options);
+
 	.facet-label {
 		margin-bottom:5px;
 	}

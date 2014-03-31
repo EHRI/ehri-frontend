@@ -8,9 +8,8 @@
 		color:@header-color;
 	}
 } 
-.panel-rework(@header-bg: @ehri-purple, @header-color: white, @headerSelector : panel-heading, @bodySelector : panel-body, @footerSelector : panel-footer) {
+.panel-rework(@headerSelector : panel-heading, @bodySelector : panel-body, @footerSelector : panel-footer) {
 	.panel;
-	//.panel-default;
 	
 	border:0;
 	border-radius:0;
@@ -30,9 +29,8 @@
 	.@{footerSelector} {
 		border:0;
 	}
-	.panel-color(@header-bg, @header-color, @headerSelector, @footerSelector)!important;
 }
-.panel-rework(@header-bg: @ehri-purple, @header-color: white, @headerSelector : panel-heading, @bodySelector : panel-body, @footerSelector : panel-footer) when (@headerSelector = panel-heading) {
+.panel-rework(@headerSelector : panel-heading, @bodySelector : panel-body, @footerSelector : panel-footer) when (@headerSelector = panel-heading) {
 
 	.@{headerSelector} {
 		h3 {
@@ -49,7 +47,7 @@
 		}
 	}
 }
-.panel-rework(@header-bg: @ehri-purple, @header-color: white, @headerSelector : panel-heading, @bodySelector : panel-body, @footerSelector : panel-footer) when not(@headerSelector = panel-heading) {
+.panel-rework(@headerSelector : panel-heading, @bodySelector : panel-body, @footerSelector : panel-footer) when not(@headerSelector = panel-heading) {
 
 	.@{headerSelector} {
 		.panel-title;
