@@ -6,13 +6,15 @@
     @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
         @defining(fc.sorted.size <= 1) { disabled =>
             <div class="facet-class">
-                <h4>@Messages(fc.name)</h4>
-                <select multiple style="width: 100%" name="@fc.param" data-placeholder="@Messages("portal.facet.placeholder." + fc.param)" class="form-control select2 autosubmit">
-                    <option></option>
-                    @fc.sorted.filter(_.count > 0).map { f =>
-                        <option value="@f.value" @{if(f.applied) "selected"}>@fc.pretty(f) (@f.count)</option>
-                    }
-                </select>
+                <h4 class="facet-label">@Messages(fc.name)</h4>
+                <div class="facet-options">
+                    <select multiple style="width: 100%" name="@fc.param" data-placeholder="@Messages("portal.facet.placeholder." + fc.param)" class="form-control select2 autosubmit">
+                        <option></option>
+                        @fc.sorted.filter(_.count > 0).map { f =>
+                            <option value="@f.value" @{if(f.applied) "selected"}>@fc.pretty(f) (@f.count)</option>
+                        }
+                    </select>
+                </div>
             </div>
         }
     }
@@ -23,7 +25,8 @@
         @* Don't bother showing choices with only one choice! *@
         @if(fc.sorted.size > 1) {
             <div class="facet-class">
-                <h4>@Messages(fc.name)</h4>
+                <h4 class="facet-label">@Messages(fc.name)</h4>
+                <div class="facet-options">
                 @fc.sorted.map { f =>
                     <div class="checkbox">
                         <label class="@{if(!active) "disabled"}">
@@ -32,6 +35,7 @@
                         </label>
                     </div>
                 }
+                </div>
             </div>
         }
     }
@@ -40,7 +44,8 @@
 @facetBoolean(fc: FacetClass[Facet]) = {
     @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
         <div class="facet-class">
-            <h4>@Messages(fc.name)</h4>
+            <h4 class="facet-label">@Messages(fc.name)</h4>
+            <div class="facet-options">
             @fc.sorted.map { f =>
                 <div class="checkbox">
                     <label class="@{if(!active) "disabled"}">
@@ -49,6 +54,7 @@
                     </label>
                 </div>
             }
+            </div>
         </div>
     }
 }
@@ -56,8 +62,8 @@
 @facetList(fc: FacetClass[Facet]) = {
     @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
         <div class="facet-class">
-            <h4>@Messages(fc.name)</h4>
-            <ul class="list-unstyled facet-list">
+            <h4 class="facet-label">@Messages(fc.name)</h4>
+            <ul class="facet-options">
                 @sortedActive.map { f =>
                     @if(f.applied) {
                     <input type="hidden" name="@fc.param" value="@f.value" />
