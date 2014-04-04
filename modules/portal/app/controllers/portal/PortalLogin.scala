@@ -130,8 +130,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
 
   val oauthProviders = Map(
     "facebook" -> profileRoutes.facebookLogin,
-    "google" -> profileRoutes.googleLogin,
-    "linkedin" -> profileRoutes.linkedInLogin
+    "google" -> profileRoutes.googleLogin
   )
 
   def login = optionalUserAction { implicit maybeUser => implicit request =>
