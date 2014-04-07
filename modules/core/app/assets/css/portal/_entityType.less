@@ -19,7 +19,7 @@
 	 	color: @doc-color;
 	}
 	&.type-highlight > a , &.type-highlight {
-	 	color: @doc-color!important;
+	 	color: @doc-color;
 	}
 }
 a.documentaryUnit {
@@ -44,7 +44,7 @@ a.documentaryUnit {
 	 	color: @repo-color;
 	}
 	&.type-highlight > a , &.type-highlight {
-	 	color: @repo-color!important;
+	 	color: @repo-color;
 	}
 }
 a.repository {
@@ -69,7 +69,7 @@ a.repository {
 	 	color: @country-color;
 	}
 	&.type-highlight > a , &.type-highlight {
-	 	color: @country-color!important;
+	 	color: @country-color;
 	}
 }
 a.country {
@@ -94,7 +94,7 @@ a.country {
 	 	color: @agent-color;
 	}
 	&.type-highlight > a , &.type-highlight {
-	 	color: @agent-color!important;
+	 	color: @agent-color;
 	}
 }
 a.historicalAgent {
@@ -119,9 +119,13 @@ a.historicalAgent {
 	 	color: @user-color;
 	}
 	&.type-highlight > a , &.type-highlight {
-	 	color: @user-color!important;
+	 	color: @user-color;
 	}
 }
 a.user {
  	color: @user-color;
+}
+
+a.text-muted, .text-muted a {
+	.text-muted!important;
 }
