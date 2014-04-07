@@ -243,14 +243,19 @@ jQuery(function ($) {
   $(document).on("submit", ".annotate-item-form", function(e) {
     e.preventDefault();
     var $form = $(this);
+    var $inline = true;
     var action = $form.attr("action");
+    if($form.parents(".description-annotations")) {
+      action += "?block";
+      inline = false;
+    }
     $.ajax({
       url: action,
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
         $form.prev().find(".annotate-field, .annotate-item").show()
-        $form.parents(".annotation-set").find("ul").append(data);
+        $form.parents(".annotation-set").find(".annotation-list").append(data);
         $form.remove();
       }
     });
@@ -301,6 +306,11 @@ jQuery(function ($) {
     e.preventDefault();
     var $form = $(this);
     var action = $form.closest("form").attr("action");
+    var $inline = true;
+    if($form.parents(".description-annotations")) {
+      action += "?block";
+      inline = false;
+    }
     $.ajax({
       url: action,
       data: $form.serialize(),

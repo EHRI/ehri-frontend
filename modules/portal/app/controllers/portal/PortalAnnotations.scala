@@ -51,10 +51,19 @@ trait PortalAnnotations {
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         val accessors: List[String] = getAccessors(user)
-        backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
-          Created(p.common.annotationInline(ann, editable = true))
-            .withHeaders(
-                HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
+        val view = request.getQueryString("block").filterNot(_.trim.isEmpty).isEmpty
+        if(view) {
+          backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
+            Created(p.common.annotationBlock(ann, editable = true))
+              .withHeaders(
+                  HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
+          }
+        } else {
+          backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
+            Created(p.common.annotationInline(ann, editable = true))
+              .withHeaders(
+                  HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
+          }
         }
       }
     )
@@ -80,8 +89,15 @@ trait PortalAnnotations {
     Annotation.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
       edited => {
-        backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
-          Ok(p.common.annotationInline(done, editable = true))
+        val view = request.getQueryString("block").filterNot(_.trim.isEmpty).isEmpty
+        if(view) {
+          backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
+            Ok(p.common.annotationInline(done, editable = true))
+          }
+        } else {
+          backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
+            Ok(p.common.annotationBlock(done, editable = true))
+          }
         }
       }
     )
