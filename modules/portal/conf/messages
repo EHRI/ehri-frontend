@@ -146,11 +146,11 @@ portal.social.watch=Watch Item
 portal.social.unwatch=Unwatch Item
 portal.social.watchItem=Add item to your watch list
 portal.social.unwatchItem=Remove item from your watch list
-portal.social.watchedItems=Items You''re Watching
+portal.social.watchedItems=Watched Items
 portal.social.watch.tooltip=Click to see updates to this item in your activity list.
 portal.social.unwatch.tooltip=Click to stop getting updates to this item posted in your activity list.
-portal.social.annotations=Your Notes
-portal.social.links=Your Links
+portal.social.annotations=Notes
+portal.social.links=Links
 portal.social.noAnnotationsYet=You haven''t made any notes yet.
 portal.social.noLinksYet=You haven''t made any links yet.
 portal.social.createAnnotation=New Note
@@ -159,6 +159,31 @@ portal.social.createFieldAnnotation=New Note
 portal.social.createLink=Create Link
 portal.social.annotationCreatedBy=Created by {0} at {1}
 portal.social.showPublicAnnotations={0,choice,1#Show 1 public note|1<Show {0} public notes}
+
+portal.social.timeline.eventType.ingest={0} imported {1}
+portal.social.timeline.eventType.creation={0} created {1}
+portal.social.timeline.eventType.annotation={0} annotated {1}
+portal.social.timeline.eventType.modification={0} updated {1}
+portal.social.timeline.eventType.link={0} linked {1}
+portal.social.timeline.eventType.createDependent={0} updated {1}
+portal.social.timeline.eventType.modifyDependent={0} updated {1}
+portal.social.timeline.eventType.deleteDependent={0} updated {1}
+
+
+portal.social.timeline.target.group=a group
+portal.social.timeline.target.userProfile=an user
+portal.social.timeline.target.repository=an archival institution
+portal.social.timeline.target.historicalAgent=an authority
+portal.social.timeline.target.documentaryUnit=an archival description
+portal.social.timeline.target.action=an user event
+portal.social.timeline.target.cvocVocabulary=a vocabulariy
+portal.social.timeline.target.authoritativeSet=an authority sets
+portal.social.timeline.target.cvocConcept=a term
+portal.social.timeline.target.annotation=an annotation
+portal.social.timeline.target.country=a country
+portal.social.timeline.target.link=a link
+portal.social.timeline.target.systemEvent=an history
+
 
 portal.contributionVisibility=Choose who can see this
 portal.contributionVisibility.me=Only Me

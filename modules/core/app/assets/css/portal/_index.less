@@ -3,24 +3,18 @@
   border-bottom: 1px solid @pale-gray;
 }
 */
+
+//Override of bootstrap defaults :
+blockquote {
+  font-size:@font-size-base;
+  padding:0;
+  border-left:none;
+}
+.link-target-list {
+  .list-unstyled;
+}
 .facet-select-dropdown {
   max-width: 400px;
-}
-
-.documentaryUnit a, a.documentaryUnit {
-  color: @doc-color;
-}
-
-.country a, a.country {
-  color: @country-color;
-}
-
-.repository a, a.repository {
-  color: @repo-color;
-}
-
-.historicalAgent a, a.historicalAgent {
-  color: @agent-color;
 }
 
 img.repository-logo {
@@ -54,19 +48,6 @@ img.repository-logo {
   a {
     color: white !important;
   }
-}
-
-.landing-header.documentaryUnit {
-  background-color: @doc-color;
-}
-.landing-header.repository {
-  background-color: @repo-color;
-}
-.landing-header.country {
-  background-color: @country-color;
-}
-.landing-header.historicalAgent {
-  background-color: @agent-color;
 }
 
 /** Heading which divides a set of search results */
@@ -231,20 +212,6 @@ label.disabled {
 
   margin-bottom: @large-margin;
   border-bottom: 1px solid @pale-gray;
-}
-
-.user-profile-info li {
-  padding-top: @small-padding;
-}
-
-.profile-social {
-  color: @dark-gray;
-  font-size: 1.2em;
-
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
 }
 
 .header-controls {
