@@ -1,6 +1,9 @@
 @(item: AnyModel, desc: Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
 
 <div class="description-annotations annotation-set clearfix">
+    <h3 class="block-header">
+        @Messages("portal.social.annotation")
+    </h3>
     @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
         @p.common.inlineAnnotationList(annotations)
     }
@@ -11,7 +14,7 @@
                     @desc.id.map { did =>
                         <a data-item="@item.id" data-did="@did" class="annotate-item"
                            href="@controllers.portal.routes.Portal.annotate(item.id, did)">
-                            @Messages("portal.social.createAnnotation")
+                            <span class="glyphicon glyphicon-edit"></span> @Messages("portal.social.createAnnotation")
                         </a>
                     }
                 </div>

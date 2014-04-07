@@ -142,6 +142,7 @@ portal.social.noItemsWatchedYet=You''re not watching any items yet.
 portal.social.userFollowing=Users Following {0}
 portal.social.usersFollowedBy=Users Followed by {0}
 
+portal.social.annotation=Notes
 portal.social.watch=Watch Item
 portal.social.unwatch=Unwatch Item
 portal.social.watchItem=Add item to your watch list
