@@ -181,6 +181,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     History.replaceState({tabState: t}, t, "?tab=" + t);
   });
 
+
   // Validate any forms with 'validate-form' class...
   $(".validate-form").validate();
   $(document).ajaxComplete(function () {
