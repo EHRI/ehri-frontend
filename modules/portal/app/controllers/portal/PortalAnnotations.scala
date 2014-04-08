@@ -54,13 +54,13 @@ trait PortalAnnotations {
         val view = request.getQueryString("block").filterNot(_.trim.isEmpty).isEmpty
         if(view) {
           backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
-            Created(p.common.annotationBlock(ann, editable = true))
+            Created(p.common.annotationInline(ann, editable = true))
               .withHeaders(
                   HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
           }
         } else {
           backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
-            Created(p.common.annotationInline(ann, editable = true))
+            Created(p.common.annotationBlock(ann, editable = true))
               .withHeaders(
                   HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
           }

@@ -246,7 +246,7 @@ jQuery(function ($) {
     var $inline = true;
     var action = $form.attr("action");
     if($form.parents(".description-annotations")) {
-      action += "?block";
+      action += "?block=1";
       inline = false;
     }
     $.ajax({
@@ -307,8 +307,8 @@ jQuery(function ($) {
     var $form = $(this);
     var action = $form.closest("form").attr("action");
     var $inline = true;
-    if($form.parents(".description-annotations")) {
-      action += "?block";
+    if($form.parents(".description-annotations") !== "undefined" && $form.parents(".description-annotations").length >= 1) {
+      action += "?block=1";
       inline = false;
     }
     $.ajax({
