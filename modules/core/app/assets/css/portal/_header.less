@@ -23,11 +23,17 @@ header#header {
     }
   }
   .global-search {
+    background-color:white;
     input {
       border: 0px;
       color: @almost-black;
     }
+    .search-icon {
+      color: @almost-black;
+    }
+
     &.inactive {
+      background-color: inherit;
       .search-icon {
         color: white;
       }
@@ -38,6 +44,7 @@ header#header {
         cursor: default;
       }
     }
+
   }
 
   #loader-bar {
@@ -63,7 +70,7 @@ header#header {
   .nav-primary {
     background-color: @almost-black;
     padding: @small-padding;
-    height:50px;
+    min-height:50px;
     
     img[rel="logo"] {
       height:40px;
@@ -161,18 +168,92 @@ header#header {
   }
 
   .nav-primary , .nav-secondary {
-    .clearfix;
-    & > ul  {
-      .list-unstyled;
-      .list-inline;
+    nav {
+      & > ul  {
+        .list-inline;
+        & > li {
+          padding:0 2px;
+        }
+      }
+      &:after {
+        .clearfix;
+      }
     }
   }
-  .account-admin , .toolbar {
-    .pull-right;
+  .nav-primary {
+    & > nav[role="navigation"] {
+      .make-sm-column(8);
+    }
+    & > nav[role="tool"] {
+      .make-sm-column(4);
+    }
+  }
+  .nav-secondary {
+    & > nav[role="navigation"] {
+      display:inline-block;
+
+      @media (max-width: @screen-sm-max) {
+        & > ul {
+          margin-bottom:0;
+          &> li.active {
+            &:after {
+              display:none;
+            }
+            &:before {
+              display:inline-block;
+              //margin-right:2px;
+              //content:"~ ";
+            }
+          }
+        }
+      }
+    }
+    & > nav[role="tool"] {
+      display:inline-block;
+      float:right;
+      .clearfix;
+
+      @media (max-width: @screen-sm-max) {
+        display:block;
+        float:none;
+      }
+    }
+    &.float-nav {
+      @media (max-width: @screen-xs-max) {
+        & > nav[role="tool"] {
+          display:none;
+        }
+        & > nav[role="navigation"]  > ul {
+          margin-bottom:5px;
+        }
+      }
+    }
   }
 
-}
+  .account-admin, .toolbar {
+    text-align:right;
+    > li {
+      text-align:left;
+    }
+  }
 
+
+
+}
+//Responsive
+@media (max-width: @screen-sm-min) {
+   header#header { 
+    .nav-secondary {
+      & > nav[role="navigation"] > ul  {
+        .list-unstyled!important;
+        & > li {
+          display:block;
+          padding:0;
+        }
+      }
+    }
+  }
+}
 //Color change ~ type of document
 
 body.documentaryUnit header#header .nav-secondary {
@@ -194,3 +275,4 @@ body.historicalAgent header#header .nav-secondary {
 body.user header#header .nav-secondary {
   background-color: @user-color;
 }
+

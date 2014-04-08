@@ -144,10 +144,10 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
   // Make global search box show up when focused...
   // This could be done with plain CSS if we didn't also
   // want to toggle the color of the search icon...
-  $(".global-search input").focusin(function() {
-    $(this).parent().removeClass("inactive");
+  $(".global-search #quicksearch").focusin(function() {
+    $(this).parents(".global-search").removeClass("inactive");
   }).focusout(function() {
-    $(this).parent().addClass("inactive");
+    $(this).parents(".global-search").addClass("inactive");
   });
 
   // Make top menu adhere to top of screen...
@@ -162,6 +162,13 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
       })
     } else {
       $smenu.removeClass("float-nav").css("width", $pmenu.outerWidth());
+    }
+  });
+  $(window).resize(function(e) {
+    if($smenu.hasClass("float-nav")) {
+      $smenu.css({
+        width: $(window).width()
+      })
     }
   });
 
