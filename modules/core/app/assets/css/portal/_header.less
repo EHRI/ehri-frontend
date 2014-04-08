@@ -191,7 +191,10 @@ header#header {
   .nav-secondary {
     & > nav[role="navigation"] {
       display:inline-block;
-
+      li.more {
+        cursor:pointer;
+        display:none;
+      }
       @media (max-width: @screen-sm-max) {
         & > ul {
           margin-bottom:0;
@@ -207,6 +210,7 @@ header#header {
           }
         }
       }
+     
     }
     & > nav[role="tool"] {
       display:inline-block;
@@ -223,8 +227,32 @@ header#header {
         & > nav[role="tool"] {
           display:none;
         }
-        & > nav[role="navigation"]  > ul {
-          margin-bottom:5px;
+        & > nav[role="navigation"] {
+          display:block;
+          & > ul {
+            display:block;
+            margin-bottom:5px;
+            .clearfix();
+            & > li {
+              display:none;
+              position:relative;
+              z-index:1001;
+              .transition(all .2s linear);
+              &.active , &.more {
+                display:block;
+              }
+              &.more {
+                text-align:right!important;
+                display:block;
+                float:right;
+                z-index:1002;
+              }
+              &.available {
+                display:block;
+                .transition(all .2s linear);
+              }
+            }
+          }
         }
       }
     }

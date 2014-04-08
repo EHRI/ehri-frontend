@@ -171,6 +171,10 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
       })
     }
   });
+  $("header#header").on("click", ".float-nav .more", function() {
+    $(this).parent().children("li").toggleClass("available");
+    $(this).find(".glyphicon").toggleClass("glyphicon-plus").toggleClass("glyphicon-minus");
+  });
 
   // jQuery history plugin... initialise
   // Bind to StateChange Event
