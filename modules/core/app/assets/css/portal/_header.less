@@ -181,11 +181,40 @@ header#header {
     }
   }
   .nav-primary {
+
+    @media (max-width: @screen-sm-max) {
+      & > nav > ul > li {
+        & > a {
+          padding:10px 2px;
+        }
+      }
+    }
     & > nav[role="navigation"] {
-      .make-sm-column(8);
+        display:inline-block;
     }
     & > nav[role="tool"] {
-      .make-sm-column(4);
+        display:block;
+        float:right;
+        margin-top:10px;
+        min-height:40px;
+      > ul {
+        text-align:right;
+        display:inline-block;
+        min-height:40px;
+
+      }
+      @media (min-width: @screen-sm-min) {
+        .visible-responsive {
+          display:none;
+        }
+      }
+      @media (max-width: @screen-sm-min) {
+        margin-right:5px;
+        .hidden-responsive {
+          display:none;
+        }
+      }
+
     }
   }
   .nav-secondary {

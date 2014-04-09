@@ -1,131 +1,40 @@
-
+.make-entity-color(@color, @secondary-color:white) {
+	&.landing-header,
+	&.block-header {
+		background-color: @color;
+		color:@secondary-color;
+		> a,
+		> a:hover,
+		> a:visited {
+			text-decoration:none;
+			color:white!important;
+		}
+	}
+	a:not([class]),
+	a& ,
+	& > a {
+	 	color: @color;
+	}
+	&.type-highlight > a , &.type-highlight {
+	 	color: @color;
+	}
+}
 
 .documentaryUnit {
-	&.landing-header,
-	&.block-header {
-		background-color: @doc-color;
-		color:white;
-		> a,
-		> a:hover,
-		> a:visited {
-			text-decoration:none;
-			color:white!important;
-		}
-	}
-	a {
-	 	color: @doc-color;
-	}
-	> a {
-	 	color: @doc-color;
-	}
-	&.type-highlight > a , &.type-highlight {
-	 	color: @doc-color;
-	}
-}
-a.documentaryUnit {
- 	color: @doc-color;
+	.make-entity-color(@doc-color);
 }
 .repository {
-	&.landing-header,
-	&.block-header {
-		background-color: @repo-color;
-		color:white;
-		> a,
-		> a:hover,
-		> a:visited {
-			text-decoration:none;
-			color:white!important;
-		}
-	}
-	a {
-	 	color: @repo-color;
-	}
-	> a {
-	 	color: @repo-color;
-	}
-	&.type-highlight > a , &.type-highlight {
-	 	color: @repo-color;
-	}
-}
-a.repository {
- 	color: @repo-color;
+	.make-entity-color(@repo-color);
 }
 .country {
-	&.landing-header,
-	&.block-header {
-		background-color: @country-color;
-		color:white;
-		> a,
-		> a:hover,
-		> a:visited {
-			text-decoration:none;
-			color:white!important;
-		}
-	}
-	a {
-	 	color: @country-color;
-	}
-	> a {
-	 	color: @country-color;
-	}
-	&.type-highlight > a , &.type-highlight {
-	 	color: @country-color;
-	}
-}
-a.country {
- 	color: @country-color;
+	.make-entity-color(@country-color);
 }
 .historicalAgent {
-	&.landing-header,
-	&.block-header {
-		background-color: @agent-color;
-		color:white;
-		> a,
-		> a:hover,
-		> a:visited {
-			text-decoration:none;
-			color:white!important;
-		}
-	}
-	a {
-	 	color: @agent-color;
-	}
-	> a {
-	 	color: @agent-color;
-	}
-	&.type-highlight > a , &.type-highlight {
-	 	color: @agent-color;
-	}
+	.make-entity-color(@agent-color);
 }
-a.historicalAgent {
- 	color: @agent-color;
+.user , .userProfile {
+	.make-entity-color(@user-color);
 }
-.user {
-	&.landing-header,
-	&.block-header {
-		background-color: @user-color;
-		color:white;
-		> a,
-		> a:hover,
-		> a:visited {
-			text-decoration:none;
-			color:white!important;
-		}
-	}
-	a:not([class]) {
-	 	color: @user-color;
-	}
-	> a {
-	 	color: @user-color;
-	}
-	&.type-highlight > a , &.type-highlight {
-	 	color: @user-color;
-	}
-}
-a.user {
- 	color: @user-color;
-}
-
 a.text-muted, .text-muted a {
 	.text-muted!important;
 }
