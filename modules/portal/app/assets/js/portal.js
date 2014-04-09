@@ -153,27 +153,39 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
   // Make top menu adhere to top of screen...
   var $pmenu = $(".nav-primary");
   var $smenu = $(".nav-secondary");
-  var menuHeight = $smenu.height();
+  var $marginTrick = $pmenu;
+  var menuHeight = $smenu.outerHeight();
+  var originalmarginTrick = $marginTrick.css("margin-bottom");
   $(window).scroll(function(e) {
+    var menuHeight = $smenu.outerHeight();
+    $("header#header").trigger("expander-remove");
 
-    if ($(window).scrollTop() > ($pmenu.offset().top + $pmenu.height() + menuHeight)) {
+    if ($(window).scrollTop() > ($pmenu.offset().top + $pmenu.outerHeight() + menuHeight)) {
       $smenu.addClass("float-nav").css({
         width: $(window).width()
-      })
+      });
+      $marginTrick.css("margin-bottom", menuHeight);
     } else {
       $smenu.removeClass("float-nav").css("width", $pmenu.outerWidth());
+      $marginTrick.css("margin-bottom", originalmarginTrick);
     }
   });
   $(window).resize(function(e) {
+    $("header#header").trigger("expander-remove");
     if($smenu.hasClass("float-nav")) {
       $smenu.css({
         width: $(window).width()
-      })
+      });
     }
   });
+  $("header#header").on("expander", function() {
+    $("header#header .float-nav .more").parent().children("li").toggleClass("available");
+  });
+  $("header#header").on("expander-remove", function() {
+    $("header#header .float-nav .more").parent().children("li").removeClass("available");
+  });
   $("header#header").on("click", ".float-nav .more", function() {
-    $(this).parent().children("li").toggleClass("available");
-    $(this).find(".glyphicon").toggleClass("glyphicon-plus").toggleClass("glyphicon-minus");
+    $("header#header").trigger("expander");
   });
 
   // jQuery history plugin... initialise
