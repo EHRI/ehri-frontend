@@ -175,10 +175,12 @@ header#header {
           padding:0 2px;
         }
       }
-      &:after {
-        .clearfix;
+      &[role="tool"]:after {
+        content: " ";
+        display: table;
       }
     }
+    .clearfix();
   }
   .nav-primary {
 
@@ -242,9 +244,8 @@ header#header {
      
     }
     & > nav[role="tool"] {
-      display:inline-block;
+      display:block;
       float:right;
-      .clearfix;
 
       @media (max-width: @screen-sm-max) {
         display:block;
