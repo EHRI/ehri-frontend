@@ -7,7 +7,7 @@
     }
 } {
     @item.model.primaryDescription(descriptionId).map { desc =>
-        @defining(desc.identity.parallelFormsOfName) { ofn =>
+        @desc.identity.parallelFormsOfName.map { ofn =>
             @if(!ofn.isEmpty) {
                 <small>
                     <strong>
