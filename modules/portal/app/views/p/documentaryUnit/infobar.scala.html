@@ -7,7 +7,7 @@
     @item.holder.map { repo =>
         <li>@p.helpers.linkTo(repo, views.Helpers.ellipsize(repo.toStringLang, 100))</li>
     }
-    @item.ancestors.map { ann =>
+    @item.ancestors.reverse.map { ann =>
         <li>@p.helpers.linkTo(ann, views.Helpers.ellipsize(ann.toStringLang, 100))</li>
     }
 } {
