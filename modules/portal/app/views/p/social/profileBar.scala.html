@@ -1,0 +1,26 @@
+@(user : UserProfile, additionalTitle : String = "")(controls: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+
+<div class="user-profile-bar">
+    @if(!controls.body.isEmpty) {
+        <div class="header-controls pull-right">
+            @controls
+        </div>
+    }
+   
+    <a href="#" class="gravitar">
+        @defining(user.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
+            <img src="@src" alt="@user.model.name"/>
+        }
+    </a>
+    <h1><a 
+        @for(us <- userOpt if user.id != us.id) { href="@controllers.portal.routes.Portal.browseUser(user.id)" } 
+        @for(us <- userOpt if user.id == us.id) { href="@controllers.portal.routes.Profile.profile" }>
+        @if(!additionalTitle.isEmpty) {
+            @additionalTitle
+        } else {
+            @user.model.name
+        }
+    </a></h1>
+</div>
+

@@ -6,13 +6,11 @@
             @controls
         </div>
     }
-    <ol class="breadcrumb">
-        @if(breadcrumbs.body.trim.isEmpty) {
-            <li></li>
-        } else {
+    @if(!breadcrumbs.body.trim.isEmpty) {
+        <ol class="breadcrumb">
             @breadcrumbs
-        }
-    </ol>
+        </ol>
+    }
     @content
 </div>
 

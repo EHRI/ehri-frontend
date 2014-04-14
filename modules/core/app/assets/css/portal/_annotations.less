@@ -33,8 +33,8 @@ select.custom-accessors {
 
 
 .item-text-field-annotation-container {
-	.make-lg-column-offset(3);
-	.make-lg-column(9);
+	.make-md-column-offset(3);
+	.make-md-column(9);
 
 	.item-text-field-annotations {
 		.make-row();
@@ -182,5 +182,18 @@ select.custom-accessors {
 		input[type="checkbox"] {
 			margin-left:-5px;
 		}
+	}
+}
+
+.annotation.item-text-field {
+	> .item-text-field-header {
+		font-size:@font-size-base!important; 
+		line-height:@line-height-base!important;
+	}
+}
+.description-annotations {
+	.annotate-item {
+		.btn;
+		.btn-default;
 	}
 }

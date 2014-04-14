@@ -23,11 +23,17 @@ header#header {
     }
   }
   .global-search {
+    background-color:white;
     input {
       border: 0px;
       color: @almost-black;
     }
+    .search-icon {
+      color: @almost-black;
+    }
+
     &.inactive {
+      background-color: inherit;
       .search-icon {
         color: white;
       }
@@ -38,6 +44,7 @@ header#header {
         cursor: default;
       }
     }
+
   }
 
   #loader-bar {
@@ -63,7 +70,7 @@ header#header {
   .nav-primary {
     background-color: @almost-black;
     padding: @small-padding;
-    height:50px;
+    min-height:50px;
     
     img[rel="logo"] {
       height:40px;
@@ -161,18 +168,150 @@ header#header {
   }
 
   .nav-primary , .nav-secondary {
-    .clearfix;
-    & > ul  {
-      .list-unstyled;
-      .list-inline;
+    nav {
+      & > ul  {
+        .list-inline;
+        & > li {
+          padding:0 2px;
+        }
+      }
+      &[role="tool"]:after {
+        content: " ";
+        display: table;
+      }
+    }
+    .clearfix();
+  }
+  .nav-primary {
+
+    @media (max-width: @screen-sm-max) {
+      & > nav > ul > li {
+        & > a {
+          padding:10px 2px;
+        }
+      }
+    }
+    & > nav[role="navigation"] {
+        display:inline-block;
+    }
+    & > nav[role="tool"] {
+        display:block;
+        float:right;
+        margin-top:10px;
+        min-height:40px;
+      > ul {
+        text-align:right;
+        display:inline-block;
+        min-height:40px;
+
+      }
+      @media (min-width: @screen-sm-min) {
+        .visible-responsive {
+          display:none;
+        }
+      }
+      @media (max-width: @screen-sm-min) {
+        margin-right:5px;
+        .hidden-responsive {
+          display:none;
+        }
+      }
+
     }
   }
-  .account-admin , .toolbar {
-    .pull-right;
+  .nav-secondary {
+    & > nav[role="navigation"] {
+      display:inline-block;
+      li.more {
+        cursor:pointer;
+        display:none;
+      }
+      @media (max-width: @screen-sm-max) {
+        & > ul {
+          margin-bottom:0;
+          &> li.active {
+            &:after {
+              display:none;
+            }
+            &:before {
+              display:inline-block;
+              //margin-right:2px;
+              //content:"~ ";
+            }
+          }
+        }
+      }
+     
+    }
+    & > nav[role="tool"] {
+      display:block;
+      float:right;
+
+      @media (max-width: @screen-sm-max) {
+        display:block;
+        float:none;
+      }
+    }
+    &.float-nav {
+      @media (max-width: @screen-xs-max) {
+        & > nav[role="tool"] {
+          display:none;
+        }
+        & > nav[role="navigation"] {
+          display:block;
+          & > ul {
+            display:block;
+            margin-bottom:5px;
+            .clearfix();
+            & > li {
+              display:none;
+              position:relative;
+              z-index:1001;
+              .transition(all .2s linear);
+              &.active , &.more {
+                display:block;
+              }
+              &.more {
+                text-align:right!important;
+                display:block;
+                float:right;
+                z-index:1002;
+              }
+              &.available {
+                display:block;
+                .transition(all .2s linear);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
-}
+  .account-admin, .toolbar {
+    text-align:right;
+    > li {
+      text-align:left;
+    }
+  }
 
+
+
+}
+//Responsive
+@media (max-width: @screen-sm-min) {
+   header#header { 
+    .nav-secondary {
+      & > nav[role="navigation"] > ul  {
+        .list-unstyled!important;
+        & > li {
+          display:block;
+          padding:0;
+        }
+      }
+    }
+  }
+}
 //Color change ~ type of document
 
 body.documentaryUnit header#header .nav-secondary {
@@ -190,3 +329,8 @@ body.repository header#header .nav-secondary {
 body.historicalAgent header#header .nav-secondary {
   background-color: @agent-color;
 }
+
+body.user header#header .nav-secondary {
+  background-color: @user-color;
+}
+

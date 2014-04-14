@@ -9,9 +9,12 @@
   }
 }
 
-.button {
+.button, .btn {
 	.btn;
-
+  color:white;
+  a& {
+    color:white;
+  }
 	&.post {
   		.button-variant(@btn-post-color, @btn-post-bg, @btn-post-border);
 	}
@@ -36,6 +39,9 @@
     .button-variant(#ffffff,#0083A8,#0083A8);
   }
 
+  &.danger {
+    .button-variant(@btn-danger-color, @btn-danger-bg, @btn-danger-border);
+  }
 
 	&.xs {
 		.btn-xs;
@@ -45,9 +51,6 @@
       .btn-sm;
     }
 
-    &.danger {
-      .button-variant(@btn-danger-color, @btn-danger-bg, @btn-danger-border);
-    }
 }
 
 form[method="GET"], form:not([method="POST"]) {
