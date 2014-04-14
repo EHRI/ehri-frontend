@@ -4,7 +4,7 @@ import defines.EntityType
 import scala.annotation.tailrec
 import scala._
 import solr.SolrConstants._
-import play.api.templates.Html
+import play.api.templates.{HtmlFormat, Html}
 
 /**
  * User: michaelb
@@ -53,16 +53,23 @@ case class SearchHit(
    * @return  The text and a boolean indicating if highlighting was successful
    */
   def highlight(text: Html): (Html, Boolean) = {
-    def canHighlightWith(raw: String, text: Html): Option[Html] = {
-      val stripped = stripTags(raw)
-      if (text.body.contains(stripped)) Some(Html(text.body.replace(stripped, raw))) else None
+    def canHighlightWith(raw: String, html: Html): Either[Html,Html] = {
+      // NB: We have to escape the input string using HtmlFormat because it's
+      // specialised to avoid XSS. This assumes that the highlight material coming
+      // back from Solr doesn't itself contain XSS attacks... what are the chances
+      // this will come back to bite me?
+      val stripped = HtmlFormat.escape(stripTags(raw)).body
+      if (html.body.contains(stripped)) Right(Html(html.body.replace(stripped, raw)))
+      else Left(html)
     }
-    @tailrec def tryHighlight(texts: Seq[String], input: Html, ok: Boolean): (Html, Boolean) = texts match {
-      case t :: rest => canHighlightWith(t, text) match {
-        case rep@Some(replace) => tryHighlight(rest, replace, ok = true)
-        case None => tryHighlight(rest, input, ok)
+    @tailrec def tryHighlight(texts: Seq[String], input: Html, ok: Boolean): (Html, Boolean) = {
+      texts match {
+        case t :: rest => canHighlightWith(t.trim, input) match {
+          case Right(replace) => tryHighlight(rest, replace, ok = true)
+          case Left(last) => tryHighlight(rest, last, ok)
+        }
+        case Nil => (input,ok)
       }
-      case Nil => (input,ok)
     }
     tryHighlight(highlightFields, text, ok = false)
   }
