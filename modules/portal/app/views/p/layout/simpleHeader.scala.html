@@ -6,14 +6,18 @@
             <span/>
         </span>
     </div>
-    <div class="nav-primary clearfix">
-        @p.layout.headerAccountAdmin()
-        <ul class="list-unstyled list-inline">
-            <li id="navbar-logo" >
-                <a href="@controllers.portal.routes.Portal.index">
-                    <img src="@controllers.portal.routes.Assets.at("img/logo-rect-bw.png")" rel="logo" />
-                </a>
-            </li>
-        </ul>
+    <div class="nav-primary">
+        <nav role="navigation">
+            <ul>
+                <li id="navbar-logo" >
+                    <a href="@controllers.portal.routes.Portal.index">
+                        <img src="@controllers.portal.routes.Assets.at("img/logo-rect-bw.png")" rel="logo" />
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <nav role="tool">
+            @p.layout.headerAccountAdmin()
+        </nav>
     </div>
 </header>

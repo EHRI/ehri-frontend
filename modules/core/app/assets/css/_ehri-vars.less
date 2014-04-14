@@ -1,7 +1,15 @@
 @primary-highlight: #6C003B;
 
-@ehri-purple : @primary-highlight;
+@font-family-headers : 'Lato';
+@font-family-h123: @font-family-headers , sans-serif;
 
+//Border radius stuff
+@border-radius:0;
+@border-radius-base:@border-radius;
+@border-radius-large:@border-radius;
+@border-radius-small:@border-radius;
+
+@ehri-purple : @primary-highlight;
 @pale-gray: #F5F5F5;
 @muted-gray: #999999;
 @medium-gray: #dddddd;
@@ -14,6 +22,7 @@
 @country-color: #864300;
 @agent-color: #517C00;
 @promoted-color: #F6F6FF;
+@user-color: #6C0F00;
 
 // Spacings
 @search-item-spacing: 1.5em;
@@ -34,16 +43,10 @@
 @icon-font-name:          "glyphicons-halflings-regular";
 @icon-font-svg-id:	"glyphicons_halflingsregular";
 
-
+@input-color:@almost-black;
 
 @link-color:            @ehri-purple;
 @link-hover-color:      darken(@link-color, 15%);
-
-/*
-	@btn-default-color:              #fff;
-	@btn-default-bg:                 @ehri-purple;
-	@btn-default-border:             darken(@link-color, 15%);
-*/
 
 @btn-post-color:		#fff;
 @btn-post-bg:			@ehri-purple;
