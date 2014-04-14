@@ -94,7 +94,7 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
       (__ \ ITEM_ID).read[String] and
       (__ \ NAME_EXACT).read[String] and
       (__ \ TYPE).read[EntityType.Value] and
-      (__ \ "gid").read[Long]
+      (__ \ DB_ID).read[Long]
     )(hitBuilder _)
 
 
