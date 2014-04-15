@@ -165,11 +165,11 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     "set visibility correctly" in new FakeApp {
       // First, fetch an object and assert its accessibility
       val c1a = await(testBackend.get[DocumentaryUnit]("c1"))
-      c1a.accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike"))
+      c1a.accessors.map(_.id) must containAllOf(List("admin", "mike"))
 
       val set = await(testBackend.setVisibility[DocumentaryUnit](c1a.id, List("mike", "reto", "admin")))
       val c1b = await(testBackend.get[DocumentaryUnit]("c1"))
-      c1b.accessors.map(_.id) must haveTheSameElementsAs(List("admin", "mike", "reto"))
+      c1b.accessors.map(_.id) must containAllOf(List("admin", "mike", "reto"))
     }
 
     "promote and demote items" in new FakeApp {

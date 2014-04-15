@@ -3,9 +3,9 @@ package backend.rest
 import play.api.{Logger, Play}
 import play.api.http.HeaderNames
 import play.api.http.ContentTypes
-import play.api.libs.ws.{WS, Response}
+import play.api.libs.ws.{WS, WSResponse}
 import play.api.libs.json._
-import play.api.libs.ws.WS.WSRequestHolder
+import play.api.libs.ws.WSRequestHolder
 import backend.{ErrorSet, ApiUser}
 import com.fasterxml.jackson.core.JsonParseException
 import models.{UserProfileF, UserProfile}
@@ -15,6 +15,7 @@ trait RestDAO {
 
   import Constants._
   import play.api.http.Status._
+  import play.api.Play.current
 
   /**
    * Header to add for log messages.
@@ -78,7 +79,7 @@ trait RestDAO {
   lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get
   lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
 
-  protected def checkError(response: Response): Response = {
+  protected def checkError(response: WSResponse): WSResponse = {
     Logger.logger.trace("Response body ! : {}", response.body)
     response.status match {
       case OK | CREATED => response
@@ -118,7 +119,7 @@ trait RestDAO {
           }
         }
         case NOT_FOUND => {
-          Logger.logger.error("404: {} -> {}", Array(response.ahcResponse.getUri, response.body))
+          //Logger.logger.error("404: {} -> {}", Array(response.underlying[AHCRe].getUri, response.body))
           response.json.validate[ItemNotFound].fold(
             e => throw new ItemNotFound(),
             err => throw err
@@ -132,7 +133,7 @@ trait RestDAO {
     }
   }
 
-  private[rest] def checkErrorAndParse[T](response: Response)(implicit reader: Reads[T]): T = {
+  private[rest] def checkErrorAndParse[T](response: WSResponse)(implicit reader: Reads[T]): T = {
     jsonReadToRestError(checkError(response).json, reader)
   }
 

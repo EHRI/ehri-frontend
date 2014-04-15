@@ -32,6 +32,8 @@ object CypherDAO {
 
 case class CypherDAO() extends RestDAO {
 
+  import play.api.Play.current
+
   def requestUrl = "http://%s:%d/db/data/cypher".format(host, port)
 
   import CypherErrorReader._

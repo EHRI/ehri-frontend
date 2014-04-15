@@ -4,7 +4,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.{AccountDAO, Isaar, IsadG}
 import models.base.AnyModel
 import controllers.generic.Search
-import play.api._
 import play.api.mvc._
 import defines.{EventType, EntityType}
 import play.api.i18n.Messages
@@ -125,11 +124,11 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
   def jsRoutes = Action { implicit request =>
     Ok(
       play.api.Routes.javascriptRouter("jsRoutes")(
-        controllers.admin.routes.javascript.Metrics.languageOfMaterial,
-        controllers.admin.routes.javascript.Metrics.holdingRepository,
-        controllers.admin.routes.javascript.Metrics.repositoryCountries,
-        controllers.admin.routes.javascript.Metrics.agentTypes,
-        controllers.admin.routes.javascript.Metrics.restricted
+        routes.javascript.Metrics.languageOfMaterial,
+        routes.javascript.Metrics.holdingRepository,
+        routes.javascript.Metrics.repositoryCountries,
+        routes.javascript.Metrics.agentTypes,
+        routes.javascript.Metrics.restricted
       )
     ).as(MimeTypes.JAVASCRIPT)
   }

@@ -19,6 +19,8 @@ import backend.rest.Constants
  */
 case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponseParser) extends backend.rest.RestDAO with Dispatcher {
 
+  import play.api.Play.current
+
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
 

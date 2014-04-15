@@ -20,6 +20,8 @@ trait PersonaLoginHandler {
 
   self: Controller =>
 
+  import play.api.Play.current
+
   def globalConfig: global.GlobalConfig
   def backend: Backend
   def userDAO: AccountDAO

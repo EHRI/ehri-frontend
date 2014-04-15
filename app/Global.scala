@@ -12,7 +12,7 @@ import defines.EntityType
 import java.util.concurrent.TimeUnit
 import models.AccountDAO
 import models.sql.SqlAccount
-import play.api._
+import play.api.{controllers => _, _}
 import play.api.libs.json.{Json, JsPath, JsError}
 import play.api.mvc._
 
