@@ -243,14 +243,9 @@ jQuery(function ($) {
   $(document).on("submit", ".annotate-item-form", function(e) {
     e.preventDefault();
     var $form = $(this);
-    var $inline = true;
     var action = $form.attr("action");
-    if($form.parents(".description-annotations")) {
-      action += "?block=1";
-      inline = false;
-    }
     $.ajax({
-      url: action,
+      url: $form.attr("action"),
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
@@ -306,10 +301,8 @@ jQuery(function ($) {
     e.preventDefault();
     var $form = $(this);
     var action = $form.closest("form").attr("action");
-    var $inline = true;
     if($form.parents(".description-annotations") !== "undefined" && $form.parents(".description-annotations").length >= 1) {
-      action += "?block=1";
-      inline = false;
+      action += "?isField=false";
     }
     $.ajax({
       url: action,

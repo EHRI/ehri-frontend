@@ -61,7 +61,7 @@ trait PortalSocial {
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
     backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
-      Ok(p.common.eventItems(events))
+      Ok(p.social.eventItems(events))
     }
   }
 

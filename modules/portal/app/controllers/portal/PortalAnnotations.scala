@@ -51,53 +51,38 @@ trait PortalAnnotations {
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         val accessors: List[String] = getAccessors(user)
-        val view = request.getQueryString("block").filterNot(_.trim.isEmpty).isEmpty
-        if(view) {
-          backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
-            Created(p.common.annotationInline(ann, editable = true))
-              .withHeaders(
-                  HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
-          }
-        } else {
-          backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
-            Created(p.common.annotationBlock(ann, editable = true))
-              .withHeaders(
-                  HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
-          }
+        backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
+          Created(p.common.annotationBlock(ann, editable = true))
+            .withHeaders(
+                HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
         }
       }
     )
   }
 
   // Ajax
-  def editAnnotation(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
+  def editAnnotation(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
       item => implicit userOpt => implicit request =>
     val vis = getContributionVisibility(item, userOpt.get)
     getCanShareWith(userOpt.get) { users => groups =>
       Ok(p.common.editAnnotation(Annotation.form.fill(item.model),
         ContributionVisibility.form.fill(vis),
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        portalRoutes.editAnnotationPost(aid),
+        portalRoutes.editAnnotationPost(aid, isField),
         users, groups))
     }
   }
 
-  def editAnnotationPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
+  def editAnnotationPost(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
       item => implicit userOpt => implicit request =>
     // save an override field, becuase it's not possible to change it.
     val field = item.model.field
     Annotation.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
       edited => {
-        val view = request.getQueryString("block").filterNot(_.trim.isEmpty).isEmpty
-        if(view) {
-          backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
-            Ok(p.common.annotationInline(done, editable = true))
-          }
-        } else {
-          backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
-            Ok(p.common.annotationBlock(done, editable = true))
-          }
+        backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
+          if (isField) Ok(p.common.annotationInline(done, editable = true))
+          else Ok(p.common.annotationBlock(done, editable = true))
         }
       }
     )
