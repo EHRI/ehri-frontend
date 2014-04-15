@@ -21,7 +21,7 @@
 	&.cancel {
   		.button-variant(@btn-cancel-color, @btn-cancel-bg, @btn-cancel-border);
 	}
-	&.get {
+	&.get, &.btn-link, &.btn-default, &.btn-primary {
 		.button-variant(@btn-get-color, @btn-get-bg, @btn-get-border);
 	}
   &.facebook, &.google, &.linkedin {
@@ -39,7 +39,7 @@
     .button-variant(#ffffff,#0083A8,#0083A8);
   }
 
-  &.danger {
+  &.danger, &.btn-danger {
     .button-variant(@btn-danger-color, @btn-danger-bg, @btn-danger-border);
   }
 
@@ -60,10 +60,6 @@ form[method="GET"], form:not([method="POST"]) {
   }
 }
 
-.btn-link, .btn-default, .btn, .btn-primary {
-  .button.get
-;
-}
 
 .remove-inline-element {
   text-shadow: rgba(215, 0, 0, 1) 0 0 10px;
