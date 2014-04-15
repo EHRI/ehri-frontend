@@ -3,7 +3,7 @@ package backend.rest
 import scala.concurrent.{ExecutionContext, Future}
 import models._
 import play.api.mvc.Headers
-import play.api.libs.ws.Response
+import play.api.libs.ws.WSResponse
 import backend.{EventHandler, ApiUser, Backend}
 
 /**
@@ -24,7 +24,7 @@ case class RestBackend(eventHandler: EventHandler)
   private val admin = new AdminDAO(eventHandler)
 
   // Direct API query
-  def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Response]
+  def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[WSResponse]
       = api.get(urlpart, headers, params)
 
   // Helpers
