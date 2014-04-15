@@ -11,7 +11,7 @@ import models.json.RestReadable
  */
 trait Visibility[MT] extends Generic[MT] {
 
-  def visibilityAction(id: String)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def visibilityAction(id: String)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
         f(item)(users)(groups)(userOpt)(request)
@@ -19,7 +19,7 @@ trait Visibility[MT] extends Generic[MT] {
     }
   }
 
-  def visibilityPostAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def visibilityPostAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
       backend.setVisibility[MT](id, data).map { item =>
@@ -28,13 +28,13 @@ trait Visibility[MT] extends Generic[MT] {
     }
   }
 
-  def promoteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def promoteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Promote, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }
 
-  def promotePostAction(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def promotePostAction(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Promote, contentType) { item => implicit userOpt => implicit request =>
       backend.promote(id).map { bool =>
         f(item)(bool)(userOpt)(request)
@@ -42,13 +42,13 @@ trait Visibility[MT] extends Generic[MT] {
     }
   }
 
-  def demoteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def demoteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Promote, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }
 
-  def demotePostAction(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def demotePostAction(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Promote, contentType) { item => implicit userOpt => implicit request =>
       backend.demote(id).map { bool =>
         f(item)(bool)(userOpt)(request)

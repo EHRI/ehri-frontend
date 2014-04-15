@@ -17,14 +17,14 @@ import backend.rest.ValidationError
  */
 trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT] {
 
-  type CreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => SimpleResult
-  type AsyncCreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]
+  type CreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Result
+  type AsyncCreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Future[Result]
 
   /**
    * Create an item. Because the item must have an initial visibility we need
    * to collect the users and group lists at the point of creation
    */
-  def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
+  def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
     withContentPermission.async(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
         f(users)(groups)(userOpt)(request)

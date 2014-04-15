@@ -28,7 +28,7 @@ Scala allows you to "extend" existing classes using implicit wrapper classes. We
 
  - The `RequestHeader` class is extended with a `preferences` method that extracts a preferences object of type `T` from the current session. The extension method is defined in `SessionPreferences.scala` and will be added to `RequestHeader` in any class that extends the `SessionPreferences` trait with preferences type `T`.
 
- - The `SimpleResult` class is extended with a `withPreferences(prefs: T)` method that allows serializing a preferences object of type `T` to the current session. The extension method is defined in `SessionPreferences.scala` and will be added to `SimpleResult` in any class that extends the `SessionPreferences` trait with preferences type `T`.
+ - The `Result` class is extended with a `withPreferences(prefs: T)` method that allows serializing a preferences object of type `T` to the current session. The extension method is defined in `SessionPreferences.scala` and will be added to `Result` in any class that extends the `SessionPreferences` trait with preferences type `T`.
 
 An example of this mechanism is available in the `SessionPreferencesSpec.scala` test class.
 

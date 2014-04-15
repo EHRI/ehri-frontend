@@ -25,13 +25,13 @@ trait Annotate[MT] extends Read[MT] {
 
   import Annotate._
 
-  def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+  def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       f(item)(Annotation.form.bindFromRequest)(userOpt)(request)
     }
   }
 
-  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       Annotation.form.bindFromRequest.fold(
         errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
@@ -46,7 +46,7 @@ trait Annotate[MT] extends Read[MT] {
    * Fetch annotations for a given item.
    */
   def getAnnotationsAction(id: String)(
-      f: Seq[Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
+      f: Seq[Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
       backend.getAnnotationsForItem(id).map { anns =>
         f(anns)(userOpt)(request)

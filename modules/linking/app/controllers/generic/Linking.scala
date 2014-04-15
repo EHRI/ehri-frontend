@@ -42,7 +42,7 @@ object AccessPointLink {
 trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   def linkSelectAction(id: String, toType: String)(
-      f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       val linkSrcEntityType = EntityType.withName(toType)
@@ -53,7 +53,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     }
   }
 
-  def linkAction(id: String, toType: EntityType.Value, to: String)(f: MT => AnyModel => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def linkAction(id: String, toType: EntityType.Value, to: String)(f: MT => AnyModel => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
 
@@ -64,7 +64,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   }
 
   def linkPostAction(id: String, toType: EntityType.Value, to: String)(
-      f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
 
     implicit val linkWrites: Writes[LinkF] = models.LinkF.linkWrites
 
@@ -83,7 +83,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     }
   }
 
-  def linkMultiAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def linkMultiAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
@@ -91,7 +91,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   }
 
   def linkPostMultiAction(id: String)(
-      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
       multiForm.bindFromRequest.fold(
@@ -177,7 +177,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   /**
    * Fetch links for a given item.
    */
-  def getLinksAction(id: String)(f: List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
+  def getLinksAction(id: String)(f: List[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
       backend.getLinksForItem(id).map { links =>
         f(links)(userOpt)(request)

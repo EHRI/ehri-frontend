@@ -6,7 +6,7 @@ import defines.{PermissionType, EntityType}
 import models.{UserProfile, LinkF, AccessPointF}
 import play.api.libs.json.Json
 import models.json.RestReadable
-import play.api.mvc.{SimpleResult, Request, AnyContent}
+import play.api.mvc.{Result, Request, AnyContent}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -18,7 +18,7 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
   case class Target(id: String, `type`: EntityType.Value)
   case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF], target: Option[Target])
 
-  def manageAccessPointsAction(id: String, descriptionId: String)(f: MT => D => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def manageAccessPointsAction(id: String, descriptionId: String)(f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
       item.model.description(descriptionId).map { desc =>
         f(item)(desc)(userOpt)(request)

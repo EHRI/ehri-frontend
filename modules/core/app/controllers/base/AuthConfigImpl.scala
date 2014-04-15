@@ -79,7 +79,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
   /**
    * A redirect target after a successful user login.
    */
-  def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
+  def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
     val uri = request.session.get("access_uri").getOrElse(defaultLoginUrl.url)
     Logger.logger.debug("Redirecting logged-in user to: {}", uri)
     immediate(Redirect(uri).withSession(request.session - "access_uri"))
@@ -88,13 +88,13 @@ trait AuthConfigImpl extends AuthConfig with Results {
   /**
    * A redirect target after a successful user logout.
    */
-  def logoutSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult]
+  def logoutSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
         = immediate(Redirect(defaultLogoutUrl))
 
   /**
    * A redirect target after a failed authentication.
    */
-  def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
+  def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
     if (utils.isAjax(request)) {
       Logger.logger.warn("Auth failed for: {}", request.toString())
       immediate(Unauthorized("authentication failed"))
@@ -106,7 +106,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
   /**
    * A redirect target after a failed authorization.
    */
-  def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult]
+  def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
       = immediate(Forbidden("no permission"))
 
   /**

@@ -22,34 +22,34 @@ trait Read[MT] extends Generic[MT] {
   val defaultChildPage: PageParams = new PageParams()
 
   object getEntity {
-    def async(id: String, user: Option[UserProfile])(f: MT => Future[SimpleResult])(
-        implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+    def async(id: String, user: Option[UserProfile])(f: MT => Future[Result])(
+        implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       backend.get(id).flatMap { item =>
         f(item)
       }
     }
 
-    def apply(id: String, user: Option[UserProfile])(f: MT => SimpleResult)(
-        implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+    def apply(id: String, user: Option[UserProfile])(f: MT => Result)(
+        implicit rd: RestReadable[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       async(id, user)(f.andThen(t => Future.successful(t)))
     }
   }
 
   object getEntityT {
-    def async[T](resource: RestResource[T], id: String)(f: T => Future[SimpleResult])(
-        implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]): Future[SimpleResult] = {
+    def async[T](resource: RestResource[T], id: String)(f: T => Future[Result])(
+        implicit userOpt: Option[UserProfile], request: RequestHeader, rd: RestReadable[T]): Future[Result] = {
       backend.get[T](resource, id).flatMap { item =>
         f(item)
       }
     }
-    def apply[T](resource: RestResource[T], id: String)(f: T => SimpleResult)(
-      implicit rd: RestReadable[T], userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+    def apply[T](resource: RestResource[T], id: String)(f: T => Result)(
+      implicit rd: RestReadable[T], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       async(resource, id)(f.andThen(t => Future.successful(t)))
     }
   }
 
   object getAction {
-    def async(id: String)(f: MT => Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+    def async(id: String)(f: MT => Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
         implicit rd: RestReadable[MT], crd: ClientConvertable[MT]) = {
       itemPermissionAction.async[MT](contentType, id) { item => implicit maybeUser => implicit request =>
           // NB: Effectively disable paging here by using a high limit
@@ -63,14 +63,14 @@ trait Read[MT] extends Generic[MT] {
       }
     }
 
-    def apply(id: String)(f: MT => Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+    def apply(id: String)(f: MT => Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT], crd: ClientConvertable[MT]) = {
       async(id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))
     }
   }
 
   def getWithChildrenAction[CT](id: String)(
-      f: MT => Page[CT] => PageParams =>  Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Page[CT] => PageParams =>  Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
           implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
     itemPermissionAction.async[MT](contentType, id) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
@@ -82,7 +82,7 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
-  def pageAction(f: Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def pageAction(f: Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
@@ -92,7 +92,7 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
-  def listAction(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def listAction(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
     implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = ListParams.fromRequest(request)
@@ -103,7 +103,7 @@ trait Read[MT] extends Generic[MT] {
   }
 
   def historyAction(id: String)(
-      f: MT => Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: MT => Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       for {

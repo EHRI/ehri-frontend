@@ -11,7 +11,7 @@ import play.api.data.{Forms, Form}
 import play.api.data.Forms._
 import play.api.Play._
 import utils.forms._
-import play.api.mvc.SimpleResult
+import play.api.mvc.Result
 import java.util.UUID
 import controllers.base.AuthController
 
@@ -55,7 +55,7 @@ trait UserPasswordLoginHandler {
 
   object loginPostAction {
 
-    def async(f: Either[Form[(String,String)], Account] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(f: Either[Form[(String,String)], Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       Action.async { implicit request =>
         passwordLoginForm.bindFromRequest.fold(
           errorForm => f(Left(errorForm))(request),
@@ -72,13 +72,13 @@ trait UserPasswordLoginHandler {
       }
     }
 
-    def apply(f: Either[Form[(String,String)], Account] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(f: Either[Form[(String,String)], Account] => Request[AnyContent] => Result): Action[AnyContent] = {
       async(f.andThen(_.andThen(t => immediate(t))))
     }
   }
 
   object forgotPasswordPostAction {
-    def async(f: Either[Form[String],(Account,UUID)] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(f: Either[Form[String],(Account,UUID)] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       Action.async { implicit request =>
         checkRecapture.flatMap { ok =>
           if (!ok) {
@@ -102,7 +102,7 @@ trait UserPasswordLoginHandler {
       }
     }
 
-    def apply(f: Either[Form[String],(Account,UUID)] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(f: Either[Form[String],(Account,UUID)] => Request[AnyContent] => Result): Action[AnyContent] = {
       async(f.andThen(_.andThen(t => immediate(t))))
     }
   }
@@ -112,7 +112,7 @@ trait UserPasswordLoginHandler {
    * @return
    */
   object changePasswordPostAction {
-    def async(f: Either[Form[(String,String,String)],Boolean] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(f: Either[Form[(String,String,String)],Boolean] => Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       userProfileAction.async { implicit userOpt => implicit request =>
         changePasswordForm.bindFromRequest.fold(
           errorForm => f(Left(errorForm))(userOpt)(request),
@@ -134,13 +134,13 @@ trait UserPasswordLoginHandler {
       }
     }
 
-    def apply(f: Either[Form[(String,String,String)],Boolean] => Option[UserProfile] =>Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(f: Either[Form[(String,String,String)],Boolean] => Option[UserProfile] =>Request[AnyContent] => Result): Action[AnyContent] = {
       async(f.andThen(_.andThen(_.andThen(t => immediate(t)))))
     }
   }
 
   object resetPasswordPostAction {
-    def async(token: String)(f: Either[Form[(String,String)],Boolean] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(token: String)(f: Either[Form[(String,String)],Boolean] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       Action.async { implicit request =>
         resetPasswordForm.bindFromRequest.fold({ errForm =>
           f(Left(errForm))(request)
@@ -156,7 +156,7 @@ trait UserPasswordLoginHandler {
       }
     }
 
-    def apply(token: String)(f: Either[Form[(String,String)],Boolean] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(token: String)(f: Either[Form[(String,String)],Boolean] => Request[AnyContent] => Result): Action[AnyContent] = {
       async(token)(f.andThen(_.andThen(t => immediate(t))))
     }
   }

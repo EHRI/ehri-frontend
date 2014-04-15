@@ -31,7 +31,7 @@ trait PersonaLoginHandler {
 
 
   object personaLoginPost {
-    def async(f: Either[String,Account] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(f: Either[String,Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       Action.async { implicit request =>
         val assertion: String = request.body.asFormUrlEncoded.map(
           _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("")
@@ -60,7 +60,7 @@ trait PersonaLoginHandler {
       }
     }
 
-    def apply(f: Either[String,Account] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(f: Either[String,Account] => Request[AnyContent] => Result): Action[AnyContent] = {
       async(f.andThen(_.andThen(t => immediate(t))))
     }
   }

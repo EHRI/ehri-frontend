@@ -16,7 +16,7 @@ import backend.Page
  */
 trait PermissionHolder[MT <: Accessor] extends Read[MT] {
 
-  type GlobalPermissionCallback = MT => GlobalPermissionSet[MT] => Option[UserProfile] => Request[AnyContent] => SimpleResult
+  type GlobalPermissionCallback = MT => GlobalPermissionSet[MT] => Option[UserProfile] => Request[AnyContent] => Result
 
   implicit object PermissionGrantResource extends RestResource[PermissionGrant] {
     val entityType = EntityType.PermissionGrant
@@ -26,7 +26,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
    * Display a list of permissions that have been granted to the given accessor.
    */
   def grantListAction(id: String)(
-      f: MT => Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
@@ -58,7 +58,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
   }
 
   def revokePermissionAction(id: String, permId: String)(
-      f: MT => PermissionGrant => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => PermissionGrant => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       backend.get[PermissionGrant](permId).map { perm =>
@@ -68,7 +68,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
   }
 
   def revokePermissionActionPost(id: String, permId: String)(
-      f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       backend.delete(permId).map { ok =>

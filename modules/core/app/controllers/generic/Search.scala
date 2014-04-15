@@ -61,7 +61,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
    */
   def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None,
                         entityFacets: FacetBuilder = emptyFacets, mode: SearchMode.Value = SearchMode.DefaultAll)(
-      f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+      f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
 
@@ -94,7 +94,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   }
 
   def filterAction(filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
-        f: ItemPage[(String,String,EntityType.Value)] => Option[UserProfile] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+        f: ItemPage[(String,String,EntityType.Value)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
 
       val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))

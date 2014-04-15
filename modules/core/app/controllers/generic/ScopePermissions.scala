@@ -17,7 +17,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
   val targetContentTypes: Seq[ContentTypes.Value]
 
   def manageScopedPermissionsAction(id: String)(
-      f: MT => Page[PermissionGrant] => Page[PermissionGrant]=> Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: MT => Page[PermissionGrant] => Page[PermissionGrant]=> Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val itemParams = PageParams.fromRequest(request)
       val scopeParams = PageParams.fromRequest(request, namespace = "s")
@@ -29,7 +29,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
   }
 
   def setScopedPermissionsAction(id: String, userType: EntityType.Value, userId: String)(
-      f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
         accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
@@ -39,7 +39,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
   }
 
   def setScopedPermissionsPostAction(id: String, userType: EntityType.Value, userId: String)(
-      f: acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = targetContentTypes.map { ct =>

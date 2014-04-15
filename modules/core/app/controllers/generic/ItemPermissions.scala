@@ -15,7 +15,7 @@ import backend.Page
 trait ItemPermissions[MT] extends Read[MT] {
 
   def manageItemPermissionsAction(id: String)(
-      f: MT => Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
@@ -26,7 +26,7 @@ trait ItemPermissions[MT] extends Read[MT] {
   }
 
   def addItemPermissionsAction(id: String)(
-      f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
@@ -37,7 +37,7 @@ trait ItemPermissions[MT] extends Read[MT] {
 
 
   def setItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(
-      f: MT => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Accessor => acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
@@ -48,7 +48,7 @@ trait ItemPermissions[MT] extends Read[MT] {
   }
 
   def setItemPermissionsPostAction(id: String, userType: EntityType.Value, userId: String)(
-      f: acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: acl.ItemPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map.empty)

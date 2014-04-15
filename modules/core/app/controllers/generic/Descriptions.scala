@@ -21,7 +21,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
    * Create an additional description for the given item.
    */
   def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[D])(
-      f: MT => Either[Form[D], MT] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Either[Form[D], MT] => Option[UserProfile] => Request[AnyContent] => Result)(
         implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
@@ -43,7 +43,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
    * Update an item's description.
    */
   def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[D])(
-    f: MT => Either[Form[D],MT] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+    f: MT => Either[Form[D],MT] => Option[UserProfile] => Request[AnyContent] => Result)(
            implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
@@ -62,7 +62,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
   }
 
   def deleteDescriptionAction(id: String, did: String)(
-      f: MT => D => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       item.model.description(did).map { desc =>
@@ -77,7 +77,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
    * Delete an item's description with the given id.
    */
   def deleteDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String)(
-      f: Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+      f: Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) {
         item => implicit userOpt => implicit request =>
       backend.deleteDescription(id, did, logMsg = getLogMessage).map { ok =>
