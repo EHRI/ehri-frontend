@@ -37,7 +37,7 @@ object ApplicationBuild extends Build {
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
 
-    "jp.t2v" %% "play2-auth" % "0.11.0",
+    "jp.t2v" %% "play2-auth" % "0.12.0",
 
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "mysql" % "mysql-connector-java" % "5.1.25",
@@ -64,7 +64,7 @@ object ApplicationBuild extends Build {
   )
 
   val testDependencies = Seq(
-    "jp.t2v" %% "play2-auth-test" % "0.11.0" % "test",
+    "jp.t2v" %% "play2-auth-test" % "0.12.0" % "test",
 
     // Forced logback to older version due to conflict with Neo4j
     "ch.qos.logback" % "logback-core" % "1.0.3" force(),
