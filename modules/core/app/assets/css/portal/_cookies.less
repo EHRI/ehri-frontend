@@ -54,15 +54,16 @@ div.cc-cookies {
 	text-decoration: none;
 
 	&.cc-cookie-decline {
-		.btn-danger;
+		
+		&:extend(.btn-danger);
 	}
 
 	&.cc-cookie-reset {
-		.btn-warning;
+		&:extend(.btn-warning);
 	}
 
 	&.cc-cookie-accept {
-		.btn-success;
+		&:extend(.btn-success);
 	}
 }
 

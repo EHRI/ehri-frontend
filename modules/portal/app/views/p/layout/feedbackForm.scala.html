@@ -18,7 +18,7 @@
             <textarea rows="4" class="form-control" name="text" placeholder="@Messages("portal.feedback.message") " required=""></textarea>
         </div>
         <div class="form-actions modal-footer">
-            <a tabindex="-1" href="@controllers.portal.routes.Portal.index" id="cancel">@Messages("actions.cancel")</a>
+            <a tabindex="-1" class="btn btn-danger" href="@controllers.portal.routes.Portal.index" id="cancel">@Messages("actions.cancel")</a>
             <button type="submit" class="submit btn btn-default">@Messages("actions.send")</button>
         </div>
     </fieldset>
