@@ -1,6 +1,5 @@
 .make-entity-color(@color, @secondary-color:white) {
-	&.landing-header,
-	&.block-header {
+	&.landing-header {
 		background-color: @color;
 		color:@secondary-color;
 		> a,
@@ -10,6 +9,15 @@
 			color:white!important;
 		}
 	}
+    &.block-header {
+      color: @color;
+      > a,
+      > a:hover,
+      > a:visited {
+        text-decoration:none;
+        color: @color;
+      }
+    }
 	a:not([class]),
 	a& ,
 	& > a {

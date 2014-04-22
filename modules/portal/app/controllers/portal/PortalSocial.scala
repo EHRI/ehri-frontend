@@ -45,23 +45,21 @@ trait PortalSocial {
     EntityType.Annotation
   )
 
-  def personalisedActivity = withUserAction.async { implicit user => implicit request =>
-    val listParams = ListParams.fromRequest(request)
-    val eventFilter = SystemEventParams.fromRequest(request)
-      .copy(eventTypes = activityEventTypes)
-      .copy(itemTypes = activityItemTypes)
-    backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
-      Ok(p.activity.activity(events, listParams))
-    }
-  }
-
-  def personalisedActivityMore(offset: Int) = withUserAction.async { implicit user => implicit request =>
+  def personalisedActivity(offset: Int = 0) = withUserAction.async { implicit user => implicit request =>
+    // NB: Increasing the limit by 1 over the default so we can
+    // detect if there are additional items to display
     val listParams = ListParams.fromRequest(request).copy(offset = offset)
+    val incParams = listParams.copy(limit = listParams.limit + 1)
     val eventFilter = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
-      Ok(p.social.eventItems(events))
+    backend.listEventsForUser(user.id, incParams, eventFilter).map { events =>
+      val more = events.size > listParams.limit
+      println("More: " + more)
+      val displayEvents = events.take(listParams.limit)
+      if (isAjax) Ok(p.activity.eventItems(displayEvents))
+        .withHeaders("activity-more" -> more.toString)
+      else Ok(p.activity.activity(displayEvents, listParams, more))
     }
   }
 

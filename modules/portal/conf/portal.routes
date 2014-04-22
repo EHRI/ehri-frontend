@@ -50,8 +50,7 @@ GET         /keyword                        @controllers.portal.Portal.browseCon
 GET         /keyword/:id                    @controllers.portal.Portal.browseConcept(id: String)
 GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
 GET         /annotation/:id                 @controllers.portal.Portal.browseAnnotation(id: String)
-GET         /activity                       @controllers.portal.Portal.personalisedActivity
-GET         /activityMore/:offset           @controllers.portal.Portal.personalisedActivityMore(offset: Int)
+GET         /activity                       @controllers.portal.Portal.personalisedActivity(offset: Int ?= 0)
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
 GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)

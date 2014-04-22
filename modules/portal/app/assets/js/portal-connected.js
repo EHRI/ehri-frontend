@@ -67,13 +67,19 @@ jQuery(function ($) {
 
   // Fetch more activity...
 	$("#activity-stream-fetchmore").click(function (event) {
+    var $elem = $(event.target);
 		var offset = $(event.target).data("offset");
 		var limit = $(event.target).data("limit")
-		jsRoutes.controllers.portal.Portal.personalisedActivityMore(offset).ajax({
-		  success: function (data) {
-		    console.log("Data", data);
+		jsRoutes.controllers.portal.Portal.personalisedActivity(offset).ajax({
+		  success: function (data, _, response) {
+        console.log("Header: " + response.getResponseHeader("activity-more"))
+		    var done = response.getResponseHeader("activity-more") != 'true';
 		    $("#activity-stream").append(data);
-		    $(event.target).data("offset", offset + limit);
+        if (done) {
+          $elem.hide();
+        } else {
+          $elem.data("offset", offset + limit);
+        }
 		  }
 		});
 	});
