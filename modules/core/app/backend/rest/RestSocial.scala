@@ -2,7 +2,7 @@ package backend.rest
 
 import backend.{Page, EventHandler, Social, ApiUser}
 import scala.concurrent.{ExecutionContext, Future}
-import utils.{PageParams, ListParams}
+import utils.{FutureCache, PageParams, ListParams}
 import models.{Link, Annotation, UserProfile}
 import defines.EntityType
 import models.json.RestReadable
@@ -45,15 +45,10 @@ trait RestSocial extends Social with RestDAO {
     }
   }
   def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
-    val url = isWatchingUrl(userId, otherId)
-    val cached = Cache.getAs[Boolean](url)
-    if (cached.isDefined) {
-      Future.successful(cached.get)
-    } else {
-      userCall(isFollowingUrl(userId, otherId)).get().map { r =>
-        val bool = checkErrorAndParse[Boolean](r)
-        Cache.set(isFollowingUrl(userId, otherId), bool, cacheTime)
-        bool
+    val url = isFollowingUrl(userId, otherId)
+    FutureCache.getOrElse[Boolean](url) {
+      userCall(url).get().map { r =>
+        checkErrorAndParse[Boolean](r)
       }
     }
   }
@@ -118,14 +113,9 @@ trait RestSocial extends Social with RestDAO {
 
   def isWatching(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = isWatchingUrl(userId, otherId)
-    val cached = Cache.getAs[Boolean](url)
-    if (cached.isDefined) {
-      Future.successful(cached.get)
-    } else {
+    FutureCache.getOrElse[Boolean](url) {
       userCall(url).get().map { r =>
-        val bool = checkErrorAndParse[Boolean](r)
-        Cache.set(url, bool, cacheTime)
-        bool
+        checkErrorAndParse[Boolean](r)
       }
     }
   }
