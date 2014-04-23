@@ -22,8 +22,14 @@ GET     /vu/update/:id                                @controllers.guides.Virtua
 POST    /vu/update/:id                                @controllers.guides.VirtualUnits.updatePost(id: String)
 GET     /vu/create                                    @controllers.guides.VirtualUnits.create
 POST    /vu/create                                    @controllers.guides.VirtualUnits.createPost
-GET     /vu/create/:id                                @controllers.guides.VirtualUnits.createDoc(id: String)
-POST    /vu/create/:id                                @controllers.guides.VirtualUnits.createDocPost(id: String)
+GET     /vu/create/:id                                @controllers.guides.VirtualUnits.createChild(id: String)
+POST    /vu/create/:id                                @controllers.guides.VirtualUnits.createChildPost(id: String)
+GET     /vu/createDescription/:id                     @controllers.guides.VirtualUnits.createDescription(id: String)
+POST    /vu/createDescription/:id                     @controllers.guides.VirtualUnits.createDescriptionPost(id: String)
+GET     /vu/updateDescription/:id/:did                @controllers.guides.VirtualUnits.updateDescription(id: String, did: String)
+POST    /vu/updateDescription/:id/:did                @controllers.guides.VirtualUnits.updateDescriptionPost(id: String, did: String)
+GET     /vu/deleteDescription/:id/:did                @controllers.guides.VirtualUnits.deleteDescription(id: String, did: String)
+POST    /vu/deleteDescription/:id/:did                @controllers.guides.VirtualUnits.deleteDescriptionPost(id: String, did: String)
 GET     /vu/visibility/:id                            @controllers.guides.VirtualUnits.visibility(id: String)
 POST    /vu/visibility/:id                            @controllers.guides.VirtualUnits.visibilityPost(id: String)
 GET     /vu/permissions/:id/manage                    @controllers.guides.VirtualUnits.managePermissions(id: String)

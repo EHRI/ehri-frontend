@@ -26,6 +26,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   with ScopePermissions[VirtualUnit]
   with Annotate[VirtualUnit]
   with Linking[VirtualUnit]
+  with Descriptions[DocumentaryUnitDescriptionF, VirtualUnitF, VirtualUnit]
   with Api[VirtualUnit] {
 
   implicit val resource = VirtualUnit.Resource
@@ -38,6 +39,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   val form = models.VirtualUnit.form
   val childForm = models.VirtualUnit.form
+  val descriptionForm = models.DocumentaryUnitDescription.form
 
   private val vuRoutes = controllers.guides.routes.VirtualUnits
 
@@ -91,19 +93,19 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
+  def createChild(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.virtualUnit.create(
       Some(item), childForm, VisibilityForm.form, users, groups,
-      vuRoutes.createDocPost(id)))
+      vuRoutes.createChildPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
+  def createChildPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.virtualUnit.create(Some(item),
           errorForm, accForm, users, groups,
-          vuRoutes.createDocPost(id)))
+          vuRoutes.createChildPost(id)))
       }
       case Right(doc) => immediate(Redirect(vuRoutes.get(doc.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", doc.id)))
@@ -120,6 +122,57 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(vuRoutes.list())
+        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+  }
+
+  def createDescription(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
+    item => implicit userOpt => implicit request =>
+      Ok(views.html.virtualUnit.createDescription(item,
+        descriptionForm, descDefaults, vuRoutes.createDescriptionPost(id)))
+  }
+
+  def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
+    item => formOrItem => implicit userOpt => implicit request =>
+      formOrItem match {
+        case Left(errorForm) => {
+          Ok(views.html.virtualUnit.createDescription(item,
+            errorForm, descDefaults, vuRoutes.createDescriptionPost(id)))
+        }
+        case Right(updated) => Redirect(vuRoutes.get(item.id))
+          .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+      }
+  }
+
+  def updateDescription(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
+    item => implicit userOpt => implicit request =>
+      val desc = item.model.description(did).getOrElse(sys.error("Description not found: " + did))
+      Ok(views.html.virtualUnit.editDescription(item,
+        descriptionForm.fill(desc),
+        vuRoutes.updateDescriptionPost(id, did)))
+  }
+
+  def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did, descriptionForm) {
+    item => formOrItem => implicit userOpt => implicit request =>
+      formOrItem match {
+        case Left(errorForm) => {
+          Ok(views.html.virtualUnit.editDescription(item,
+            errorForm, vuRoutes.updateDescriptionPost(id, did)))
+        }
+        case Right(updated) => Redirect(vuRoutes.get(item.id))
+          .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+      }
+  }
+
+  def deleteDescription(id: String, did: String) = deleteDescriptionAction(id, did) {
+    item => description => implicit userOpt => implicit request =>
+      Ok(views.html.deleteDescription(item, description,
+        vuRoutes.deleteDescriptionPost(id, did),
+        vuRoutes.get(id)))
+  }
+
+  def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
+    ok => implicit userOpt => implicit request =>
+      Redirect(vuRoutes.get(id))
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 

@@ -1,0 +1,20 @@
+@(item: VirtualUnit, f: Form[models.DocumentaryUnitDescriptionF], defaults: Option[play.api.Configuration], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+ 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@layout.rightSidebar(Messages("actions.createDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
+
+    @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+        @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+            @formHelpers.csrfToken()
+            @defining(defaults) { implicit defs =>
+                @documentaryUnit.renderDescriptionForm(f(""))
+            }
+
+            @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createDescription"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        }
+    }
+} {
+   @documentaryUnit.formNav()
+}

@@ -11,7 +11,7 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
-            <a href="@controllers.guides.routes.VirtualUnits.createDoc(item.id)">@Messages("actions.createChildDocUnit")</a>
+            <a href="@controllers.guides.routes.VirtualUnits.createChild(item.id)">@Messages("actions.createChildVirtualUnit")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Annotate)) {
             <a href="@controllers.guides.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">@Messages("actions.linkTo")</a>

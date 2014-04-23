@@ -1,5 +1,23 @@
 @(item: VirtualUnit, children: backend.Page[VirtualUnit], params: utils.PageParams, annotations: Seq[Annotation], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
+@actions(title: String, id: String, did: String) = {
+    @userOpt.map { user =>
+        @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
+        <div class="btn-group pull-right">
+            <a class="button get dropdown-toggle" data-toggle="dropdown" href="#">
+                @title
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="@controllers.guides.routes.VirtualUnits.updateDescription(id, did)">@Messages("describedEntity.editDescription")</a></li>
+                <li><a class="alert alert-danger" href="@controllers.guides.routes.VirtualUnits.deleteDescription(id, did)">@Messages("describedEntity.deleteDescription")</a></li>
+            </ul>
+        </div>
+        }
+    }
+}
+
+
 @extrascripts = {
 
 }
@@ -10,15 +28,43 @@
         <div class="sidebar-section">
             <header><h3>@Messages("describedEntity.availableDescriptions")</h3></header>
             <ul class="list-group description-switcher">
-                @item.descriptions.map { d =>
-                <li class="list-group-item">
-                    <a class="description-switch" href="#desc-@d.id">
-                        @views.Helpers.languageCodeToName(d.languageCode) - @d.name
-                    </a>
-                </li>
+                @defining(item.descriptions ++ item.descriptionRefs) { allDescriptions =>
+                    @allDescriptions.map { d =>
+                    <li class="list-group-item">
+                        <a class="description-switch" href="#desc-@d.id">
+                            @views.Helpers.languageCodeToName(d.languageCode) - @d.name
+                        </a>
+                    </li>
+                    }
                 }
             </ul>
+            <div class="sidebar-section-footer">
+                <i class="glyphicon glyphicon-plus-sign"></i>
+                <a href="@controllers.guides.routes.VirtualUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
+            </div>
         </div>
+    }
+}
+
+@descriptionSet(descriptions: Seq[DocumentaryUnitDescriptionF], editable: Boolean)(implicit fieldPrefix: String) = {
+    @if(!descriptions.isEmpty) {
+        <div class="description-viewport">
+            @descriptions.zipWithIndex.map { case (desc,i) =>
+            <div class="description-holder" id="desc-@desc.id">
+                @if(editable) {
+                    @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
+                }
+                @documentaryUnit.renderDescription(item, desc, links)
+            </div>
+            }
+        </div>
+    } else {
+        <p class="text-muted">@Messages("virtualUnit.noDescriptions")</p>
+        @if(editable) {
+            <a href="@controllers.guides.routes.VirtualUnits.createDescription(item.id)" class="button get">
+                @Messages("actions.createDescription")
+            </a>
+        }
     }
 }
 
@@ -31,18 +77,13 @@
             }
         </div>
 
+        @* NB: We should NOT have *both* virtual and referenced descriptions! *@
         @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
-            @if(!item.descriptions.isEmpty) {
-                <div class="description-viewport">
-                    @item.descriptions.zipWithIndex.map { case (desc,i) =>
-                        <div class="description-holder" id="desc-@desc.id">
-                            @documentaryUnit.renderDescription(item, desc, links)
-                        </div>
-                    }
-                </div>
-            } else {
-                <p class="text-muted">@Messages("virtualUnit.noDescriptions")</p>
-            }
+            @descriptionSet(item.descriptions, editable = true)
+        }
+
+        @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+            @descriptionSet(item.descriptionRefs, editable = false)
         }
 
         @link.annotationLinks(item, links)

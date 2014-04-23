@@ -77,8 +77,6 @@ object DocumentaryUnitF {
 
   implicit object Converter extends RestConvertable[DocumentaryUnitF] with ClientConvertable[DocumentaryUnitF] {
     val restFormat = documentaryUnitFormat
-
-    private implicit val docDescFmt = DocumentaryUnitDescriptionF.Converter.clientFormat
     val clientFormat = Json.format[DocumentaryUnitF]
   }
 }
@@ -97,32 +95,9 @@ case class DocumentaryUnitF(
 ) extends Model
   with Persistable
   with Described[DocumentaryUnitDescriptionF] {
-  def withDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = copy(descriptions = descriptions ++ List(d))
 
-  /**
-   * Get a description with a given id.
-   * @param did
-   * @return
-   */
-  override def description(did: String): Option[DocumentaryUnitDescriptionF] = descriptions.find(d => d.id.isDefined && d.id.get == did)
-
-  /**
-   * Replace an existing description with the same id as this one, or add
-   * this one to the end of the list of descriptions.
-   * @param d
-   * @return
-   */
-  def replaceDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = d.id.map {
-    did =>
-    // If the description has an id, replace the existing one with that id
-      val newDescriptions = descriptions.map {
-        dm =>
-          if (dm.id.isDefined && dm.id.get == did) d else dm
-      }
-      copy(descriptions = newDescriptions)
-  } getOrElse {
-    withDescription(d)
-  }
+  override def description(did: String): Option[DocumentaryUnitDescriptionF]
+    = descriptions.find(d => d.id.isDefined && d.id.get == did)
 }
 
 object DocumentaryUnit {

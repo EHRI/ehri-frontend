@@ -8,4 +8,8 @@
 @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
 
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+
+    @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+        @documentaryUnit.renderDescriptionForm(desc)
+    }
 }

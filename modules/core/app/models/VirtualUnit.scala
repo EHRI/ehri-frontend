@@ -26,6 +26,9 @@ object VirtualUnitF {
         TYPE -> d.isA,
         DATA -> Json.obj(
           IDENTIFIER -> d.identifier
+        ),
+        RELATIONSHIPS -> Json.obj(
+          Ontology.DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -34,14 +37,15 @@ object VirtualUnitF {
   implicit val virtualUnitReads: Reads[VirtualUnitF] = (
     (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.VirtualUnit)) and
       (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String]
+      (__ \ DATA \ IDENTIFIER).read[String] and
+      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
+        Reads.list[DocumentaryUnitDescriptionF]).map(_.getOrElse(List.empty[DocumentaryUnitDescriptionF]))
     )(VirtualUnitF.apply _)
 
   implicit val VirtualUnitFormat: Format[VirtualUnitF] = Format(virtualUnitReads,virtualUnitWrites)
 
   implicit object Converter extends RestConvertable[VirtualUnitF] with ClientConvertable[VirtualUnitF] {
     val restFormat = VirtualUnitFormat
-
     val clientFormat = Json.format[VirtualUnitF]
   }
 }
@@ -49,10 +53,15 @@ object VirtualUnitF {
 case class VirtualUnitF(
   isA: EntityType.Value = EntityType.VirtualUnit,
   id: Option[String] = None,
-  identifier: String
+  identifier: String,
+  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY)
+  descriptions: List[DocumentaryUnitDescriptionF] = Nil
 ) extends Model
-  with Persistable {
+  with Persistable
+  with Described[DocumentaryUnitDescriptionF] {
 
+  override def description(did: String): Option[DocumentaryUnitDescriptionF]
+      = descriptions.find(d => d.id.isDefined && d.id.get == did)
 }
 
 object VirtualUnit {
@@ -111,14 +120,15 @@ object VirtualUnit {
     mapping(
       ISA -> ignored(EntityType.VirtualUnit),
       ID -> optional(nonEmptyText),
-      IDENTIFIER -> nonEmptyText
+      IDENTIFIER -> nonEmptyText,
+      "descriptions" -> list(DocumentaryUnitDescription.form.mapping)
     )(VirtualUnitF.apply)(VirtualUnitF.unapply)
   )
 }
 
 case class VirtualUnit(
   model: VirtualUnitF,
-  descriptions: List[DocumentaryUnitDescriptionF] = List.empty,
+  descriptionRefs: List[DocumentaryUnitDescriptionF] = List.empty,
   author: Option[Accessor] = None,
   parent: Option[VirtualUnit] = None,
   accessors: List[Accessor] = Nil,
@@ -128,6 +138,6 @@ case class VirtualUnit(
   with MetaModel[VirtualUnitF]
   with Hierarchical[VirtualUnit]
   with Holder[VirtualUnit]
-  with WithDescriptions[DocumentaryUnitDescriptionF]
+  with DescribedMeta[DocumentaryUnitDescriptionF, VirtualUnitF]
   with Accessible {
 }
