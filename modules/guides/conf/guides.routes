@@ -11,5 +11,40 @@ GET     /results		@controllers.guides.Home.resultsBrowse
 GET     /item			@controllers.guides.Home.itemShow
 GET     /organisation	@controllers.guides.Home.organizationsShow
 
+# Virtual Documentary Units
+GET     /vu                                           @controllers.guides.VirtualUnits.list
+GET     /vu/meta/:id                                  @controllers.guides.VirtualUnits.getClientJson(id)
+GET     /vu/show/:id                                  @controllers.guides.VirtualUnits.get(id: String)
+GET     /vu/history/:id                               @controllers.guides.VirtualUnits.history(id: String)
+GET     /vu/delete/:id                                @controllers.guides.VirtualUnits.delete(id: String)
+POST    /vu/delete/:id                                @controllers.guides.VirtualUnits.deletePost(id: String)
+GET     /vu/update/:id                                @controllers.guides.VirtualUnits.update(id: String)
+POST    /vu/update/:id                                @controllers.guides.VirtualUnits.updatePost(id: String)
+GET     /vu/create                                    @controllers.guides.VirtualUnits.create
+POST    /vu/create                                    @controllers.guides.VirtualUnits.createPost
+GET     /vu/create/:id                                @controllers.guides.VirtualUnits.createDoc(id: String)
+POST    /vu/create/:id                                @controllers.guides.VirtualUnits.createDocPost(id: String)
+GET     /vu/visibility/:id                            @controllers.guides.VirtualUnits.visibility(id: String)
+POST    /vu/visibility/:id                            @controllers.guides.VirtualUnits.visibilityPost(id: String)
+GET     /vu/permissions/:id/manage                    @controllers.guides.VirtualUnits.managePermissions(id: String)
+GET     /vu/permissions/:id/add                       @controllers.guides.VirtualUnits.addItemPermissions(id: String)
+GET     /vu/permissions/:id/:userType/:userId         @controllers.guides.VirtualUnits.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /vu/permissions/:id/:userType/:userId         @controllers.guides.VirtualUnits.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /vu/scope/:id/add                             @controllers.guides.VirtualUnits.addScopedPermissions(id: String)
+GET     /vu/scope/:id/:userType/:userId               @controllers.guides.VirtualUnits.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /vu/scope/:id/:userType/:userId               @controllers.guides.VirtualUnits.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /vu/link/:id                                  @controllers.guides.VirtualUnits.linkTo(id: String)
+GET     /vu/link/:id/:toType                          @controllers.guides.VirtualUnits.linkAnnotateSelect(id: String, toType: EntityType.Value)
+GET     /vu/link/:id/:toType/:to                      @controllers.guides.VirtualUnits.linkAnnotate(id: String, toType: EntityType.Value, to: String)
+POST    /vu/link/:id/:toType/:to                      @controllers.guides.VirtualUnits.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
+GET     /vu/linkm/:id                                 @controllers.guides.VirtualUnits.linkMultiAnnotate(id: String)
+POST    /vu/linkm/:id                                 @controllers.guides.VirtualUnits.linkMultiAnnotatePost(id)
+POST    /vu/linkjs/:id/:accessPoint                   @controllers.guides.VirtualUnits.createLink(id: String, accessPoint: String)
+GET     /vu/linkjs/:id/:accessPoint                   @controllers.guides.VirtualUnits.getLink(id: String, accessPoint: String)
+POST    /vu/linkjs/:id                                @controllers.guides.VirtualUnits.createMultipleLinks(id: String)
+POST    /vu/deleteLink/:id/:link                      @controllers.guides.VirtualUnits.deleteLink(id: String, link: String)
+
+
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file	controllers.guides.Assets.at(path="/public", file)

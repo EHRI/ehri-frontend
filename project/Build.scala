@@ -127,8 +127,8 @@ object ApplicationBuild extends Build {
 
   lazy val guides = play.Project(
     appName + "-guides", appVersion, appDependencies, path = file("modules/guides")
-  ).settings(otherSettings:_*).dependsOn(core)
-    .aggregate(core)
+  ).settings(otherSettings:_*).dependsOn(archdesc)
+    .aggregate(archdesc)
 
   lazy val main = play.Project(appName, appVersion, appDependencies ++ testDependencies
   ).settings(otherSettings:_*).dependsOn(admin, portal, guides)

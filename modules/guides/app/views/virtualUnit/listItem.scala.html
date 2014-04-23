@@ -1,0 +1,10 @@
+@(item: VirtualUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+
+@common.searchItemOutline(item.id) {
+    @* include an anchor to the selected description *@
+    @defining(descriptionId.map(did => "#desc-" + did).getOrElse("")) { anchor =>
+        <a href="@{controllers.guides.routes.VirtualUnits.get(item.id) + anchor}">@item.toStringLang</a>
+    }
+} {
+    <h3>TODO: Description info</h3>
+}
