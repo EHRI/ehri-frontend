@@ -3,8 +3,12 @@
 @common.searchItemOutline(item.id) {
     @* include an anchor to the selected description *@
     @defining(descriptionId.map(did => "#desc-" + did).getOrElse("")) { anchor =>
-        <a href="@{controllers.guides.routes.VirtualUnits.get(item.id) + anchor}">@item.toStringLang</a>
+        <a href="@{controllers.archdesc.routes.VirtualUnits.get(item.id) + anchor}">@item.toStringLang</a>
     }
 } {
-    <h3>TODO: Description info</h3>
+    @item.model.primaryDescription(descriptionId).map { desc =>
+        @documentaryUnit.searchItemBody(item.asDocumentaryUnit, desc)
+    }.getOrElse {
+        <small>@Messages("describedEntity.noDescriptions")</small>
+    }
 }

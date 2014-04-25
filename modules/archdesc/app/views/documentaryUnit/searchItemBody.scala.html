@@ -2,6 +2,22 @@
 
 @import org.apache.commons.lang3.StringUtils
 
+@desc.identity.parallelFormsOfName.map { ofn =>
+    @if(!ofn.isEmpty) {
+        <small>
+            <strong>
+                <ul class="list-unstyled inline inline-separator">
+                    @ofn.map { on =>
+                    <li>@on</li>
+                    }
+                </ul>
+            </strong>
+        </small>
+    }
+}
+
+
+
 @if(!item.ancestors.isEmpty) {
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">

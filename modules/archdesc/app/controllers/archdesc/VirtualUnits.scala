@@ -1,4 +1,4 @@
-package controllers.guides
+package controllers.archdesc
 
 import _root_.forms.VisibilityForm
 import models._
@@ -14,6 +14,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Play.current
 import play.api.Configuration
+import solr.facet.{FieldFacetClass, SolrQueryFacet, QueryFacetClass}
 
 
 @Singleton
@@ -27,7 +28,43 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Annotate[VirtualUnit]
   with Linking[VirtualUnit]
   with Descriptions[DocumentaryUnitDescriptionF, VirtualUnitF, VirtualUnit]
+  with Search
   with Api[VirtualUnit] {
+
+  private val entityFacets: FacetBuilder = { implicit request =>
+    List(
+      QueryFacetClass(
+        key="childCount",
+        name=Messages("virtualUnit.searchInside"),
+        param="items",
+        render=s => Messages("documentaryUnit." + s),
+        facets=List(
+          SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
+          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
+        )
+      ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("lod"),
+        param="lod",
+        render=s => Messages("lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
+          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
+          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
+      ),
+      FieldFacetClass(
+        key=IsadG.LANG_CODE,
+        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        param="lang",
+        render=Helpers.languageCodeToName,
+        display = FacetDisplay.Choice
+      )
+    )
+  }
 
   implicit val resource = VirtualUnit.Resource
 
@@ -41,19 +78,42 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   val childForm = models.VirtualUnit.form
   val descriptionForm = models.DocumentaryUnitDescription.form
 
-  private val vuRoutes = controllers.guides.routes.VirtualUnits
+  val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(resource.entityType))
 
+  private val vuRoutes = controllers.archdesc.routes.VirtualUnits
 
-  /*def get(id: String) = getWithChildrenAction(id) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
+  def search = Action.async { request =>
+  // What filters we gonna use? How about, only list stuff here that
+  // has no parent items - UNLESS there's a query, in which case we're
+  // going to peer INSIDE items... dodgy logic, maybe...
 
-    Ok(views.html.virtualUnit.show(
-      item, page.copy(items = page.items.map(VirtualUnit.apply)), params, annotations, links))
-  }*/
+    val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
+      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
-  def get(id: String) = getWithChildrenAction[VirtualUnit](id) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.virtualUnit.show(item, page, params, annotations, links))
+    searchAction[VirtualUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
+      entityFacets = entityFacets) {
+      page => params => facets => implicit userOpt => implicit request =>
+        Ok(views.html.virtualUnit.search(page, params, facets, vuRoutes.search()))
+    }.apply(request)
+  }
+
+  def searchChildren(id: String) = itemPermissionAction.async[VirtualUnit](contentType, id) {
+    item => implicit userOpt => implicit request =>
+
+      searchAction[VirtualUnit](Map("parentId" -> item.id), entityFacets = entityFacets) {
+        page => params => facets => implicit userOpt => implicit request =>
+          Ok(views.html.virtualUnit.search(page, params, facets, vuRoutes.search()))
+      }.apply(request)
+  }
+
+  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
+    searchAction[VirtualUnit](Map("parentId" -> item.id),
+      defaultParams = Some(SearchParams(entities = List(EntityType.VirtualUnit))),
+      entityFacets = entityFacets) {
+      page => params => facets => _ => _ =>
+        Ok(views.html.virtualUnit.show(item, page, params, facets,
+          vuRoutes.get(id), annotations, links))
+    }.apply(request)
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
@@ -121,7 +181,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(vuRoutes.list())
+    Redirect(vuRoutes.search())
         .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
   }
 

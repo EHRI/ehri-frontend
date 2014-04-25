@@ -7,7 +7,7 @@
 } {
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
-            <a href="@controllers.guides.routes.VirtualUnits.create">@Messages("actions.createVirtualUnit")</a>
+            <a href="@controllers.archdesc.routes.VirtualUnits.create">@Messages("actions.createVirtualUnit")</a>
         }
     }
 }

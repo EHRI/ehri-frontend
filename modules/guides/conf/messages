@@ -1,7 +1,0 @@
-actions.createVirtualUnit=Create Virtual Item
-actions.updateVirtualUnit=Update Virtual Item
-submitButton.createVirtualUnit=Create Virtual Item
-actions.linkToVirtualUnit=Link to Virtual Item
-virtualUnit.parentItem=Parent Virtual Item
-virtualUnit.noDescriptions=No linked descriptions
-actions.createChildVirtualUnit=Create Child Virtual Item

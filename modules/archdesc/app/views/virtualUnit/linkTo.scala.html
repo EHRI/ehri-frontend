@@ -1,0 +1,13 @@
+@(item: VirtualUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@virtualUnit.itemPage(item) {
+
+    <h3>@Messages("actions.linkTo")</h3>
+
+    <ul>
+        <li><a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.HistoricalAgent)">@Messages("actions.linkToHistoricalAgent")</a></li>
+        <li><a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.Concept)">@Messages("actions.linkToConcept")</a></li>
+        <li><a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.VirtualUnit)">@Messages("actions.linkToVirtualUnit")</a></li>
+    </ul>
+
+}

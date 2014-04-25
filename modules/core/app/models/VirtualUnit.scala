@@ -77,6 +77,8 @@ object VirtualUnit {
         Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
       (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyReadNullable[List[VirtualUnit]](
         Reads.list(metaReads)).map(_.flatMap(_.headOption)) and
+      (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyReadNullable[List[Repository]](
+        Reads.list(Repository.Converter.restReads)).map(_.flatMap(_.headOption)) and
       (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
         Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
       (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
@@ -93,6 +95,7 @@ object VirtualUnit {
       nullableListFormat(__ \ "descriptions")(DocumentaryUnitDescriptionF.Converter.clientFormat) and
       (__ \ "author").formatNullable[Accessor](Accessor.Converter.clientFormat) and
       (__ \ "parent").lazyFormatNullable[VirtualUnit](clientFormat) and
+      (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
       nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
@@ -131,6 +134,7 @@ case class VirtualUnit(
   descriptionRefs: List[DocumentaryUnitDescriptionF] = List.empty,
   author: Option[Accessor] = None,
   parent: Option[VirtualUnit] = None,
+  holder: Option[Repository] = None,
   accessors: List[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
@@ -140,4 +144,14 @@ case class VirtualUnit(
   with Holder[VirtualUnit]
   with DescribedMeta[DocumentaryUnitDescriptionF, VirtualUnitF]
   with Accessible {
+
+  def asDocumentaryUnit: DocumentaryUnit = new DocumentaryUnit(
+    new DocumentaryUnitF(
+      id = model.id,
+      identifier = model.identifier,
+      descriptions = descriptionRefs ++ model.descriptions
+    ),
+    holder = holder,
+    accessors = accessors
+  )
 }
