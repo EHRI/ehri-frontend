@@ -38,6 +38,10 @@ lod.low=Low
 lod.medium=Medium
 lod.high=High
 
+# Language code
+languageCode.mul=Multiple
+languageCode.lad=Ladino
+
 # Form errors.
 error.globalErrors=There were problems with that form:
 error.date=Date is incorrect or badly formatted
