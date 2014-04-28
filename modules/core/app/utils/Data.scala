@@ -3,10 +3,12 @@ package utils
 object Data {
 
   /**
-   * Additional languages not supported by Java Locale
+   * Additional languages not supported by Java Locale. These should
+   * have a translation in the messages with the prefix "languageCode".
    */
-  val additionalLangs = List(
-    "lad" -> "Ladino"
+  val additionalLanguages = List(
+    "lad",
+    "mul"
   )
 
   /**
