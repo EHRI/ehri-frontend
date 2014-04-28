@@ -4,7 +4,7 @@
     @userOpt.map { user =>
         @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
             <div class="btn-group pull-right">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <a class="button get dropdown-toggle" data-toggle="dropdown" href="#">
                     @title
                     <span class="caret"></span>
                 </a>
@@ -73,10 +73,12 @@
             @if(!item.model.descriptions.isEmpty) {
                 <div class="description-viewport">
                     @item.descriptions.zipWithIndex.map { case (desc,i) =>
-                        <div class="description-holder" id="desc-@desc.id">
-                            @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
-                            @documentaryUnit.renderDescription(item, desc, links)
-                        </div>
+                        @defining(desc.id.getOrElse("INVALID_DESC_ID")) { descId =>
+                            <div class="description-holder" id="desc-@descId">
+                                @actions("Actions", item.id, descId)
+                                @documentaryUnit.renderDescription(item, desc, links)
+                            </div>
+                        }
                     }
                 </div>
             } else {

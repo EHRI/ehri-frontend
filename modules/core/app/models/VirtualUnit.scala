@@ -145,6 +145,9 @@ case class VirtualUnit(
   with DescribedMeta[DocumentaryUnitDescriptionF, VirtualUnitF]
   with Accessible {
 
+  def allDescriptions: List[DocumentaryUnitDescriptionF]
+    = descriptionRefs ++ model.descriptions
+
   def asDocumentaryUnit: DocumentaryUnit = new DocumentaryUnit(
     new DocumentaryUnitF(
       id = model.id,

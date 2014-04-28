@@ -50,21 +50,16 @@
     @if(!descriptions.isEmpty) {
         <div class="description-viewport">
             @descriptions.zipWithIndex.map { case (desc,i) =>
-            <div class="description-holder" id="desc-@desc.id">
-                @if(editable) {
-                    @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
+                @defining(desc.id.getOrElse("INVALID_DESC_ID")) { descId =>
+                    <div class="description-holder" id="desc-@descId">
+                        @if(editable) {
+                            @actions("Actions", item.id, descId)
+                        }
+                        @documentaryUnit.renderDescription(item, desc, links)
+                    </div>
                 }
-                @documentaryUnit.renderDescription(item, desc, links)
-            </div>
             }
         </div>
-    } else {
-        <p class="text-muted">@Messages("virtualUnit.noDescriptions")</p>
-        @if(editable) {
-            <a href="@controllers.archdesc.routes.VirtualUnits.createDescription(item.id)" class="button get">
-                @Messages("actions.createDescription")
-            </a>
-        }
     }
 }
 
