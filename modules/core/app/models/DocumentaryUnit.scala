@@ -101,7 +101,7 @@ case class DocumentaryUnitF(
 
   /**
    * Get a description with a given id.
-   * @param did
+   * @param did The description ID
    * @return
    */
   override def description(did: String): Option[DocumentaryUnitDescriptionF] = descriptions.find(d => d.id.isDefined && d.id.get == did)
@@ -112,8 +112,7 @@ case class DocumentaryUnitF(
    * @param d
    * @return
    */
-  def replaceDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = d.id.map {
-    did =>
+  def replaceDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = d.id.map { did =>
     // If the description has an id, replace the existing one with that id
       val newDescriptions = descriptions.map {
         dm =>
