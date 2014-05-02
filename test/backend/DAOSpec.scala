@@ -211,6 +211,18 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.unwatch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
     }
+
+    "allow blocking and unblocking" in new FakeApp {
+      await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
+      await(testBackend.block(userProfile.id, "reto"))
+      await(testBackend.isBlocking(userProfile.id, "reto")) must beTrue
+      val blocking = await(testBackend.listBlocked(userProfile.id))
+      blocking.exists(_.id == "reto") must beTrue
+      val blockingPage = await(testBackend.pageBlocked(userProfile.id))
+      blockingPage.total must equalTo(1)
+      await(testBackend.unblock(userProfile.id, "reto"))
+      await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
+    }
   }
 
   "CypherDAO" should {
