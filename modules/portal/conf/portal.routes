@@ -56,16 +56,16 @@ GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 
 # Annotations...
-GET         /annotation/:id                 @controllers.portal.Portal.annotation(id: String)
-GET         /annotate/:aid/delete           @controllers.portal.Portal.deleteAnnotation(aid: String)
-POST        /annotate/:aid/delete           @controllers.portal.Portal.deleteAnnotationPost(aid: String)
-GET         /annotate/:aid/edit             @controllers.portal.Portal.editAnnotation(aid: String, isField: Boolean ?= true)
-POST        /annotate/:aid/edit             @controllers.portal.Portal.editAnnotationPost(aid: String, isField: Boolean ?= true)
-POST        /annotate/:aid/visibility       @controllers.portal.Portal.setAnnotationVisibilityPost(aid: String)
-GET         /annotate/:id/:did              @controllers.portal.Portal.annotate(id: String, did: String)
-POST        /annotate/:id/:did              @controllers.portal.Portal.annotatePost(id: String, did: String)
-GET         /annotate/:id/:did/:field       @controllers.portal.Portal.annotateField(id: String, did: String, field: String)
-POST        /annotate/:id/:did/:field       @controllers.portal.Portal.annotateFieldPost(id: String, did: String, field: String)
+GET         /annotation/:id                 @controllers.portal.Annotations.annotation(id: String)
+GET         /annotate/:aid/delete           @controllers.portal.Annotations.deleteAnnotation(aid: String)
+POST        /annotate/:aid/delete           @controllers.portal.Annotations.deleteAnnotationPost(aid: String)
+GET         /annotate/:aid/edit             @controllers.portal.Annotations.editAnnotation(aid: String, isField: Boolean ?= true)
+POST        /annotate/:aid/edit             @controllers.portal.Annotations.editAnnotationPost(aid: String, isField: Boolean ?= true)
+POST        /annotate/:aid/visibility       @controllers.portal.Annotations.setAnnotationVisibilityPost(aid: String)
+GET         /annotate/:id/:did              @controllers.portal.Annotations.annotate(id: String, did: String)
+POST        /annotate/:id/:did              @controllers.portal.Annotations.annotatePost(id: String, did: String)
+GET         /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateField(id: String, did: String, field: String)
+POST        /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateFieldPost(id: String, did: String, field: String)
 
 # Social networking stuff...
 GET         /people                         @controllers.portal.Social.browseUsers

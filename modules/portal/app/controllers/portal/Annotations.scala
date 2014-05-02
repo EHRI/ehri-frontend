@@ -15,14 +15,24 @@ import scala.concurrent.Future
 import play.api.mvc.SimpleResult
 import forms.VisibilityForm
 import com.google.common.net.HttpHeaders
+import backend.Backend
+import utils.search.{Resolver, Dispatcher}
+
+
+import com.google.inject._
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalAnnotations {
-  self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: models.AccountDAO)
+  extends AuthController
+  with ControllerHelpers
+  with PortalAuthConfigImpl
+  with SessionPreferences[SessionPrefs] {
 
-  private val portalRoutes = controllers.portal.routes.Portal
+  val defaultPreferences = new SessionPrefs
+
+  private val annotationRoutes = controllers.portal.routes.Annotations
 
   def annotation(id: String) = userProfileAction.async { implicit userProfile => implicit request =>
     backend.get[Annotation](id).map { ann =>
@@ -38,7 +48,7 @@ trait PortalAnnotations {
           Annotation.form.bindFromRequest,
           ContributionVisibility.form.bindFromRequest,
           VisibilityForm.form.bindFromRequest,
-          portalRoutes.annotatePost(id, did),
+          annotationRoutes.annotatePost(id, did),
           users, groups
         )
       )
@@ -54,7 +64,7 @@ trait PortalAnnotations {
         backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
           Created(p.common.annotationBlock(ann, editable = true))
             .withHeaders(
-                HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
+                HttpHeaders.LOCATION -> annotationRoutes.annotation(ann.id).url)
         }
       }
     )
@@ -68,7 +78,7 @@ trait PortalAnnotations {
       Ok(p.common.editAnnotation(Annotation.form.fill(item.model),
         ContributionVisibility.form.fill(vis),
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        portalRoutes.editAnnotationPost(aid, isField),
+        annotationRoutes.editAnnotationPost(aid, isField),
         users, groups))
     }
   }
@@ -116,7 +126,7 @@ trait PortalAnnotations {
         Annotation.form.bindFromRequest,
         ContributionVisibility.form.bindFromRequest,
         VisibilityForm.form.bindFromRequest,
-        portalRoutes.annotateFieldPost(id, did, field),
+        annotationRoutes.annotateFieldPost(id, did, field),
         users, groups
       )
       )
@@ -134,7 +144,7 @@ trait PortalAnnotations {
         backend.createAnnotationForDependent(id, did, fieldAnn, accessors).map { ann =>
           Created(p.common.annotationInline(ann, editable = true))
             .withHeaders(
-              HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
+              HttpHeaders.LOCATION -> annotationRoutes.annotation(ann.id).url)
         }
       }
     )
