@@ -8,7 +8,7 @@
         @Messages("portal.social.unwatch")
     </a>
     <a data-item="@item.id"
-       class="button small watch"
+       class="btn get small watch"
        style="@(if(watching) "display: none")" title="@Messages("portal.social.watch.tooltip")" href="@controllers.portal.routes.Portal.watchItem(item.id)">
         <span class="glyphicon glyphicon-star"></span>
         @Messages("portal.social.watch")
