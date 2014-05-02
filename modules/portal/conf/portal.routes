@@ -81,6 +81,12 @@ POST        /watch/:id                      @controllers.portal.Social.watchItem
 GET         /unwatch/:id                    @controllers.portal.Social.unwatchItem(id: String)
 POST        /unwatch/:id                    @controllers.portal.Social.unwatchItemPost(id: String)
 GET         /watching                       @controllers.portal.Social.watching
+GET         /block/:userId                  @controllers.portal.Social.blockUser(userId: String)
+POST        /block/:userId                  @controllers.portal.Social.blockUserPost(userId: String)
+GET         /unblock/:userId                @controllers.portal.Social.unblockUser(userId: String)
+POST        /unblock/:userId                @controllers.portal.Social.unblockUserPost(userId: String)
+GET         /message/:userId                @controllers.portal.Social.sendMessage(userId: String)
+POST        /message/:userId                @controllers.portal.Social.sendMessagePost(userId: String)
 
 GET         /account                        @controllers.portal.Profile.account
 GET         /profile                        @controllers.portal.Profile.profile

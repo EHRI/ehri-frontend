@@ -1,0 +1,10 @@
+@(form: Form[(String,String)], action: Call, recaptchaKey: String)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
+
+@helper.form(action = action) {
+    @formHelpers.csrfToken()
+    @helper.inputText(form("subject"), 'required -> "true")
+    @helper.textarea(form("message"), 'required -> "true")
+
+    <button type="submit" class="button post">@Messages("portal.social.sendMessage")</button>
+}
+

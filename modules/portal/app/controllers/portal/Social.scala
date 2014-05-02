@@ -10,10 +10,10 @@ import defines.{EventType, EntityType}
 import play.api.Play.current
 import solr.SolrConstants
 import models.AccountDAO
-
 import backend.Backend
 
 import com.google.inject._
+import play.api.mvc.RequestHeader
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -28,7 +28,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with PortalAuthConfigImpl
   with SessionPreferences[SessionPrefs] {
 
-  val defaultPreferences = new SessionPrefs
+  implicit val defaultPreferences = new SessionPrefs
 
   val activityEventTypes = List(
     EventType.deletion,
@@ -81,10 +81,11 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse(defaultParams).setDefault(Some(defaultParams))
 
     for {
-      followers <- backend.listFollowing(user.id, ListParams())
+      following <- backend.listFollowing(user.id, ListParams())
+      blocked <- backend.listBlocked(user.id, ListParams())
       srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
       users <- searchResolver.resolve[UserProfile](srch.items)
-    } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, followers))
+    } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, following))
   }
 
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -97,6 +98,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       them <- backend.get[UserProfile](userId)
       theirActivity <- backend.listEvents(params, eventParams)
       followed <- backend.isFollowing(user.id, userId)
+      blocked <- backend.isBlocking(user.id, userId)
     } yield Ok(p.social.browseUser(them, theirActivity, followed))
   }
 
@@ -120,6 +122,34 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def unfollowUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
     backend.unfollow(user.id, userId).map { _ =>
+      if (isAjax) {
+        Ok("ok")
+      } else {
+        Redirect(socialRoutes.browseUsers())
+      }
+    }
+  }
+
+  def blockUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    ???
+  }
+
+  def blockUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
+    backend.block(user.id, userId).map { _ =>
+      if (isAjax) {
+        Ok("ok")
+      } else {
+        Redirect(controllers.portal.routes.Social.browseUsers())
+      }
+    }
+  }
+
+  def unblockUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    ???
+  }
+
+  def unblockUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
+    backend.unblock(user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -205,21 +235,60 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     )
   )
 
-  def sendMessage(userId: String) = withUserAction { implicit user => implicit request =>
+  def sendMessage(userId: String) = withUserAction.async { implicit user => implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-    ???
+    for {
+      userTo <- backend.get[UserProfile](userId)
+    } yield {
+      if (isAjax) Ok(p.social.messageForm(messageForm, socialRoutes.sendMessagePost(userId),
+        recaptchaKey))
+      else Ok(p.social.messageUser(userTo, messageForm,
+        socialRoutes.sendMessagePost(userId), recaptchaKey))
+    }
+  }
+
+  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String)(implicit request: RequestHeader) {
+    for {
+      accFrom <- userDAO.findByProfileId(from.id)
+      accTo <- userDAO.findByProfileId(to.id)
+    } yield {
+      import com.typesafe.plugin._
+      use[MailerPlugin].email
+        .setSubject(s"EHRI: Message from ${from.toStringLang}: $subject")
+        .setRecipient(accTo.email)
+        .setReplyTo(accFrom.email)
+        .setFrom("EHRI Email Validation <noreply@ehri-project.eu>")
+        .send(views.txt.p.social.mail.messageEmail(from, subject, message).body,
+        views.html.p.social.mail.messageEmail(from, subject, message).body)
+    }
   }
 
   def sendMessagePost(userId: String) = withUserAction.async { implicit user => implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-    checkRecapture.map { ok =>
+    val boundForm = messageForm.bindFromRequest
+    checkRecapture.flatMap { ok =>
       if (!ok) {
-        val form = messageForm.withGlobalError("error.badRecaptcha")
+        val form = boundForm.withGlobalError("error.badRecaptcha")
         ???
       } else {
-        ???
+        boundForm.fold(
+          errForm => ???,
+          data => {
+            val (subject, message) = data
+            for {
+              userTo <- backend.get[UserProfile](userId)
+              blocked <- backend.isBlocking(userId, user.id)
+            } yield {
+              if (blocked) ???
+              else {
+                sendMessageEmail(user, userTo, subject, message)
+                Ok("ok")
+              }
+            }
+          }
+        )
       }
     }
   }
