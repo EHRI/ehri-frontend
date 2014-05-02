@@ -1,16 +1,19 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.Controller
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.UserProfile
 import views.html.p
 import utils.{SessionPrefs, PageParams, SystemEventParams, ListParams}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
-import play.api.Play._
+import play.api.Play.current
 import solr.SolrConstants
+import models.AccountDAO
 
+import backend.Backend
+
+import com.google.inject._
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -19,11 +22,13 @@ import solr.SolrConstants
  * be greatly optimised by implementing caching for
  * just lists of IDs.
  */
-trait PortalSocial {
-  self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
+case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AuthController
+  with ControllerHelpers
+  with PortalAuthConfigImpl
+  with SessionPreferences[SessionPrefs] {
 
-  val searchDispatcher: Dispatcher
-  val searchResolver: Resolver
+  val defaultPreferences = new SessionPrefs
 
   val activityEventTypes = List(
     EventType.deletion,
@@ -44,6 +49,8 @@ trait PortalSocial {
     EntityType.Link,
     EntityType.Annotation
   )
+
+  private val socialRoutes = controllers.portal.routes.Social
 
   def personalisedActivity(offset: Int = 0) = withUserAction.async { implicit user => implicit request =>
     // NB: Increasing the limit by 1 over the default so we can
@@ -102,7 +109,7 @@ trait PortalSocial {
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Portal.browseUsers())
+        Redirect(controllers.portal.routes.Social.browseUsers())
       }
     }
   }
@@ -116,7 +123,7 @@ trait PortalSocial {
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Portal.browseUsers())
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }
@@ -161,7 +168,7 @@ trait PortalSocial {
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Portal.browseUsers())
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }
@@ -175,7 +182,7 @@ trait PortalSocial {
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Portal.browseUsers())
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }

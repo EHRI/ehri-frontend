@@ -50,7 +50,7 @@ GET         /keyword                        @controllers.portal.Portal.browseCon
 GET         /keyword/:id                    @controllers.portal.Portal.browseConcept(id: String)
 GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
 GET         /annotation/:id                 @controllers.portal.Portal.browseAnnotation(id: String)
-GET         /activity                       @controllers.portal.Portal.personalisedActivity(offset: Int ?= 0)
+GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0)
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
 GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
@@ -68,19 +68,19 @@ GET         /annotate/:id/:did/:field       @controllers.portal.Portal.annotateF
 POST        /annotate/:id/:did/:field       @controllers.portal.Portal.annotateFieldPost(id: String, did: String, field: String)
 
 # Social networking stuff...
-GET         /people                         @controllers.portal.Portal.browseUsers
-GET         /people/:userId                 @controllers.portal.Portal.browseUser(userId: String)
-GET         /follow/:userId                 @controllers.portal.Portal.followUser(userId: String)
-POST        /follow/:userId                 @controllers.portal.Portal.followUserPost(userId: String)
-GET         /unfollow/:userId               @controllers.portal.Portal.unfollowUser(userId: String)
-POST        /unfollow/:userId               @controllers.portal.Portal.unfollowUserPost(userId: String)
-GET         /people/:userId/following       @controllers.portal.Portal.followingForUser(userId: String)
-GET         /people/:userId/followers       @controllers.portal.Portal.followersForUser(userId: String)
-GET         /watch/:id                      @controllers.portal.Portal.watchItem(id: String)
-POST        /watch/:id                      @controllers.portal.Portal.watchItemPost(id: String)
-GET         /unwatch/:id                    @controllers.portal.Portal.unwatchItem(id: String)
-POST        /unwatch/:id                    @controllers.portal.Portal.unwatchItemPost(id: String)
-GET         /watching                       @controllers.portal.Portal.watching
+GET         /people                         @controllers.portal.Social.browseUsers
+GET         /people/:userId                 @controllers.portal.Social.browseUser(userId: String)
+GET         /follow/:userId                 @controllers.portal.Social.followUser(userId: String)
+POST        /follow/:userId                 @controllers.portal.Social.followUserPost(userId: String)
+GET         /unfollow/:userId               @controllers.portal.Social.unfollowUser(userId: String)
+POST        /unfollow/:userId               @controllers.portal.Social.unfollowUserPost(userId: String)
+GET         /people/:userId/following       @controllers.portal.Social.followingForUser(userId: String)
+GET         /people/:userId/followers       @controllers.portal.Social.followersForUser(userId: String)
+GET         /watch/:id                      @controllers.portal.Social.watchItem(id: String)
+POST        /watch/:id                      @controllers.portal.Social.watchItemPost(id: String)
+GET         /unwatch/:id                    @controllers.portal.Social.unwatchItem(id: String)
+POST        /unwatch/:id                    @controllers.portal.Social.unwatchItemPost(id: String)
+GET         /watching                       @controllers.portal.Social.watching
 
 GET         /account                        @controllers.portal.Profile.account
 GET         /profile                        @controllers.portal.Profile.profile

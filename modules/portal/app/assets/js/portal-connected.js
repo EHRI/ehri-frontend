@@ -90,9 +90,9 @@ jQuery(function ($) {
 	$(document).on("click", "a.follow, a.unfollow", function (e) {
 		e.preventDefault();
 
-		var followFunc = jsRoutes.controllers.portal.Portal.followUserPost,
-		    unfollowFunc = jsRoutes.controllers.portal.Portal.unfollowUserPost,
-		    followerListFunc = jsRoutes.controllers.portal.Portal.followersForUser,
+		var followFunc = jsRoutes.controllers.portal.Social.followUserPost,
+		    unfollowFunc = jsRoutes.controllers.portal.Social.unfollowUserPost,
+		    followerListFunc = jsRoutes.controllers.portal.Social.followersForUser,
 		    $elem = $(e.target),
 		    id = $elem.data("item"),
 		    follow = $elem.hasClass("follow");
@@ -131,8 +131,8 @@ jQuery(function ($) {
 	$(document).on("click", "a.watch, a.unwatch", function (e) {
 		e.preventDefault();
 
-		var watchFunc = jsRoutes.controllers.portal.Portal.watchItemPost,
-		    unwatchFunc = jsRoutes.controllers.portal.Portal.unwatchItemPost,
+		var watchFunc = jsRoutes.controllers.portal.Social.watchItemPost,
+		    unwatchFunc = jsRoutes.controllers.portal.Social.unwatchItemPost,
 		    $elem = $(e.target),
 		    id = $elem.data("item"),
 		    watch = $elem.hasClass("watch");
