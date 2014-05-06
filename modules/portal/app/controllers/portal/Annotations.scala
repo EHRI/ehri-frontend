@@ -4,6 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.{AnnotationF, Annotation, UserProfile}
+import play.api.Play.current
 import views.html.p
 import utils.{SessionPrefs, ContributionVisibility}
 import scala.concurrent.Future.{successful => immediate}
@@ -29,6 +30,10 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   with ControllerHelpers
   with PortalAuthConfigImpl
   with SessionPreferences[SessionPrefs] {
+
+  // This is a publically-accessible site, but not just yet.
+  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   val defaultPreferences = new SessionPrefs
 

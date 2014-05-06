@@ -31,7 +31,11 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with PortalAuthConfigImpl
   with SessionPreferences[SessionPrefs] {
 
-  implicit val defaultPreferences = new SessionPrefs
+  // This is a publically-accessible site, but not just yet.
+  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+
+  val defaultPreferences = new SessionPrefs
 
   val activityEventTypes = List(
     EventType.deletion,
