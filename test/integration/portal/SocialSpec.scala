@@ -2,6 +2,8 @@ package integration.portal
 
 import helpers.Neo4jRunnerSpec
 import controllers.portal.{ReverseSocial, ReversePortal}
+import mocks.MockBufferedMailer
+import backend.ApiUser
 
 class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
   import mocks.{privilegedUser, unprivilegedUser}
@@ -60,6 +62,46 @@ class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
 
     "show correct activity for watched items and followed users" in new FakeApp {
 
+    }
+
+    "allow messaging users" in new FakeApp {
+      val numSentMails = MockBufferedMailer.mailBuffer.size
+      val msgData = Map(
+        "subject" -> Seq("Hello"),
+        "message" -> Seq("World")
+      )
+
+      val postMsg = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        socialRoutes.sendMessagePost(unprivilegedUser.id).url), msgData).get
+      status(postMsg) must equalTo(SEE_OTHER)
+      MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
+      MockBufferedMailer.mailBuffer.last.text must contain("World")
+    }
+
+    "disallow messaging users with messaging disabled" in new FakeApp {
+      val user = unprivilegedUser
+      mocks.userFixtures += user.id -> user.copy(allowMessaging = false)
+
+      val msgData = Map("subject" -> Seq("Hello"), "message" -> Seq("World"))
+
+      val postMsg = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        socialRoutes.sendMessage(user.id).url)).get
+      status(postMsg) must equalTo(BAD_REQUEST)
+
+      mocks.userFixtures += user.id -> user.copy(allowMessaging = true)
+      val postMsg2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        socialRoutes.sendMessage(user.id).url)).get
+      status(postMsg2) must equalTo(OK)
+    }
+
+    "disallow messaging users when blocked" in new FakeApp {
+      val block = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+        socialRoutes.blockUser(privilegedUser.id).url)).get
+      status(block) must equalTo(SEE_OTHER)
+
+      val postMsg = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        socialRoutes.sendMessage(unprivilegedUser.id).url)).get
+      status(postMsg) must equalTo(BAD_REQUEST)
     }
   }
 }

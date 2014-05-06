@@ -10,12 +10,13 @@ import defines.{EventType, EntityType}
 import play.api.Play.current
 import solr.SolrConstants
 import models.AccountDAO
-import backend.Backend
+import backend.{ApiUser, Backend}
 
 import com.google.inject._
 import play.api.mvc.{SimpleResult, RequestHeader}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
+import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -64,7 +65,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .copy(itemTypes = activityItemTypes)
     backend.listEventsForUser(user.id, incParams, eventFilter).map { events =>
       val more = events.size > listParams.limit
-      println("More: " + more)
+
       val displayEvents = events.take(listParams.limit)
       if (isAjax) Ok(p.activity.eventItems(displayEvents))
         .withHeaders("activity-more" -> more.toString)
@@ -100,8 +101,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       them <- backend.get[UserProfile](userId)
       theirActivity <- backend.listEvents(params, eventParams)
       followed <- backend.isFollowing(user.id, userId)
-      blocked <- backend.isBlocking(user.id, userId)
-    } yield Ok(p.social.browseUser(them, theirActivity, followed, blocked))
+      canMessage <- canMessage(user.id, userId)
+    } yield Ok(p.social.browseUser(them, theirActivity, followed, canMessage))
   }
 
   def followUser(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -237,8 +238,28 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     )
   )
 
-  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String)(implicit request: RequestHeader) {
-    for {
+  /**
+   * Ascertain if a user can receive messages from other users.
+   *  - they've got an account
+   *  - they have messaging enabled
+   *  - they're not blocking the current user
+   */
+  private def canMessage(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+    // First, find their account. If we don't have
+    // an account we don't have an email, so we can't
+    // message them...
+    userDAO.findByProfileId(otherId).filter(_.allowMessaging).map { account =>
+      println("Checking if account can message: " + account)
+      if (!account.allowMessaging)
+        Future.successful(false)
+      else
+        backend.isBlocking(otherId, userId).map(blocking => !blocking)
+      backend.isBlocking(otherId, userId).map(blocking => !blocking)
+    }.getOrElse(Future.successful(false))
+  }
+
+  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String)(implicit request: RequestHeader): Boolean = {
+    (for {
       accFrom <- userDAO.findByProfileId(from.id)
       accTo <- userDAO.findByProfileId(to.id)
     } yield {
@@ -250,7 +271,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         .setFrom("EHRI Email Validation <noreply@ehri-project.eu>")
         .send(views.txt.p.social.mail.messageEmail(from, subject, message).body,
         views.html.p.social.mail.messageEmail(from, subject, message).body)
-    }
+      true
+    }).getOrElse(false)
   }
 
   def sendMessage(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -258,15 +280,15 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse("fakekey")
     for {
       userTo <- backend.get[UserProfile](userId)
-      blocked <- backend.isBlocking(userId, user.id)
+      allowed <- canMessage(user.id, userId)
     } yield {
-      if (!blocked) {
+      if (allowed) {
         if (isAjax) Ok(p.social.messageForm(userTo, messageForm, socialRoutes.sendMessagePost(userId),
           recaptchaKey))
         else Ok(p.social.messageUser(userTo, messageForm,
           socialRoutes.sendMessagePost(userId), recaptchaKey))
       } else {
-        BadRequest("This user cannot be messaged")
+        BadRequest(Messages("portal.social.sendMessage.userNotAcceptingMessages"))
       }
     }
   }
@@ -284,13 +306,14 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
     for {
       captcha <- checkRecapture
-      blocked <- backend.isBlocking(userId, user.id)
-      userTo <- backend.get[UserProfile](userId)
+      allowed <- canMessage(user.id, userId)
+      userTo <- backend.get[UserProfile](userId) if allowed
     } yield {
       if (!captcha) {
         onError(userTo, boundForm.withGlobalError("error.badRecaptcha"))
-      } else if (blocked) {
-        onError(userTo, boundForm.withGlobalError("error.userBlocked"))
+      } else if (!allowed) {
+        onError(userTo, boundForm
+          .withGlobalError("portal.social.sendMessage.userNotAcceptingMessages"))
       } else {
         boundForm.fold(
           errForm => onError(userTo, errForm),

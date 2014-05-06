@@ -27,7 +27,8 @@ package object helpers {
   def loadSqlFixtures(implicit app: play.api.Application) = {
     val userDAO: AccountDAO = SqlAccount
     mocks.users.map { case (profile, account) =>
-      val acc = userDAO.create(account.id, account.email, verified = account.verified, staff = account.staff)
+      val acc = userDAO.create(account.id, account.email, verified = account.verified, staff = account.staff,
+        allowMessaging = account.allowMessaging)
       OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")
       OAuth2Association.addAssociation(acc, "1234", "google")
     }

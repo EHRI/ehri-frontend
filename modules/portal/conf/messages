@@ -4,6 +4,12 @@ portal.footerText=This is a development version of the EHRI portal interface.
 
 portal.feedback.list=Submitted Feedback
 
+portal.profile.preferences.updated=Preferences Updated
+portal.profile.preferences=Preferences
+portal.profile.preferences.allowMessaging=Allow other users to send you messages.
+portal.profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
+portal.profile.preferences.updatePreferences=Update Preferences
+
 portal.login=Sign In
 portal.logout=Sign Out
 portal.logoutSucceeded=You have been logged out
@@ -37,6 +43,7 @@ portal.social.submitMessage=Send Message
 portal.social.messageSent=Your message has been sent
 portal.social.sendMessage.subject=Subject
 portal.social.sendMessage.message=Your message
+portal.social.sendMessage.userNotAcceptingMessages=This user has messaging disabled.
 
 portal.viewOptions.showUserContent=Show User-Generated Comments and Links
 

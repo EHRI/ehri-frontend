@@ -1,6 +1,6 @@
-@(user: UserProfile, blocked: Boolean)(implicit lang: Lang, request: RequestHeader)
+@(user: UserProfile, canMessage: Boolean)(implicit lang: Lang, request: RequestHeader)
 
-@if(!blocked) {
+@if(canMessage) {
     <a class="btn btn-sm btn-default message-user"
        data-toggle="modal"
        data-target="#message-modal"

@@ -28,6 +28,7 @@ POST        /resendVerification             @controllers.portal.Profile.resendVe
 GET         /prs                            @controllers.portal.Profile.passwordReminderSent
 GET         /rstp/:token                    @controllers.portal.Profile.resetPassword(token: String)
 POST        /rstp/:token                    @controllers.portal.Profile.resetPasswordPost(token: String)
+POST        /account/prefs                  @controllers.portal.Profile.updateAccountPrefsPost()
 
 GET         /prefs                          @controllers.portal.Profile.prefs
 POST        /prefs                          @controllers.portal.Profile.updatePrefs
