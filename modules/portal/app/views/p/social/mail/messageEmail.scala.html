@@ -12,7 +12,10 @@
     <hr />
     <p>
         <small>
-            @Messages("portal.mail.messageEmailFooter")
+            @Messages("portal.mail.messageEmailFooter"):
+            <a href="@controllers.portal.routes.Profile.updateProfile">
+                @Messages("portal.profile.preferences.updatePreferences")
+            </a>
         </small>
     </p>
 }

@@ -37,7 +37,7 @@ portal.forgotPasswordLink=Click here to recover your account
 portal.signupLink=Click here to sign up
 
 portal.mail.messageEmailHeading=New message from {0}
-portal.mail.messageEmailFooter=Opt-out from receiving user messages by clicking {0}.
+portal.mail.messageEmailFooter=You can opt-out from receiving user messages by updating your preferences
 portal.social.sendMessage=Message {0}
 portal.social.submitMessage=Send Message
 portal.social.messageSent=Your message has been sent

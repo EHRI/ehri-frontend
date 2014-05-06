@@ -249,11 +249,10 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // an account we don't have an email, so we can't
     // message them...
     userDAO.findByProfileId(otherId).filter(_.allowMessaging).map { account =>
-      println("Checking if account can message: " + account)
-      if (!account.allowMessaging)
-        Future.successful(false)
-      else
-        backend.isBlocking(otherId, userId).map(blocking => !blocking)
+      // If they've got messaging disabled we can't mail them...
+      if (!account.allowMessaging) Future.successful(false)
+        // And nor can we if they're blocking us specifically ;(
+      else backend.isBlocking(otherId, userId).map(blocking => !blocking)
       backend.isBlocking(otherId, userId).map(blocking => !blocking)
     }.getOrElse(Future.successful(false))
   }

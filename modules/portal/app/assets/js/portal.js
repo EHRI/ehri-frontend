@@ -5,7 +5,7 @@
 var EhriJs = EhriJs || {};
 
 EhriJs.alert = function(msg, type) {
-  var $flash = $(".flash." + type);
+  var $flash = $(".flash.alert-" + type);
   if ($flash.length == 0) {
     $flash = $("<div class=\"flash alert alert-" + type + "\">" +
         "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" +
