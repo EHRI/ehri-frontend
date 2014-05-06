@@ -1,0 +1,17 @@
+@(user: UserProfile, blocked: Boolean)(implicit lang: Lang, request: RequestHeader)
+
+@if(!blocked) {
+    <a class="btn btn-sm btn-default message-user"
+       data-toggle="modal"
+       data-target="#message-modal"
+       href="@controllers.portal.routes.Social.sendMessage(user.id)">
+        @Messages("portal.social.sendMessage", user.toStringLang)
+    </a>
+    <div class="modal fade" id="message-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+            </div>
+        </div>
+    </div>
+}

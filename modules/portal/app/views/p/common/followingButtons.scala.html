@@ -1,10 +1,8 @@
 @(user: UserProfile, following: Boolean)(implicit lang: Lang)
 
-<div class="follow-controls">
-    <a data-item="@user.id"
-       class="btn btn-sm btn-danger unfollow"
-       style="@(if(!following) "display: none")" href="@controllers.portal.routes.Social.unfollowUser(user.id)">@Messages("portal.social.unfollow")</a>
-    <a data-item="@user.id"
-       class="btn btn-sm btn-default follow"
-       style="@(if(following) "display: none")" href="@controllers.portal.routes.Social.followUser(user.id)">@Messages("portal.social.follow")</a>
-</div>
+<a data-item="@user.id"
+   class="btn btn-sm btn-danger unfollow"
+   style="@(if(!following) "display: none")" href="@controllers.portal.routes.Social.unfollowUser(user.id)">@Messages("portal.social.unfollow")</a>
+<a data-item="@user.id"
+   class="btn btn-sm btn-default follow"
+   style="@(if(following) "display: none")" href="@controllers.portal.routes.Social.followUser(user.id)">@Messages("portal.social.follow")</a>

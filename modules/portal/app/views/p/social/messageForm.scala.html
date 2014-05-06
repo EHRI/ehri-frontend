@@ -1,10 +1,22 @@
-@(form: Form[(String,String)], action: Call, recaptchaKey: String)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(user: UserProfile, form: Form[(String,String)], action: Call, recaptchaKey: String)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@helper.form(action = action) {
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplate.f) }
+
+@helper.form(action = action, 'class -> "message-form", 'role -> "form", 'class -> "form-horizontal") {
     @formHelpers.csrfToken()
-    @helper.inputText(form("subject"), 'required -> "true")
-    @helper.textarea(form("message"), 'required -> "true")
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4>@Messages("portal.social.sendMessage", user.toStringLang)</h4>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            @helper.inputText(form("subject"), 'required -> "true", '_label -> Messages("portal.social.sendMessage.subject"), 'inputDivClass -> "col-md-8 autofocus")
+            @helper.textarea(form("message"), 'required -> "true", 'rows -> "6", '_label -> Messages("portal.social.sendMessage.message"), 'inputDivClass -> "col-md-8")
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="button post">@Messages("portal.social.submitMessage")</button>
+    </div>
 
-    <button type="submit" class="button post">@Messages("portal.social.sendMessage")</button>
 }
 

@@ -368,5 +368,23 @@ jQuery(function ($) {
     });
   });
 
-  
+
+  /**
+   * Messaging
+   */
+  /*
+   *   History
+   */
+  $("body").on("submit", ".message-form", function(e) {
+    var $form = $(this);
+    e.preventDefault();
+    $.post($form.attr("action"), $form.serialize(), function(data) {
+      console.log("Data: ", data)
+    }).done(function(data) {
+      EhriJs.alertSuccess(data["ok"]);
+      $form.closest(".modal").modal("hide");
+    }).fail(function() {
+      // TODO: Figure out what to do here...
+    });
+  });
 });

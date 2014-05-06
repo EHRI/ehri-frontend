@@ -13,7 +13,9 @@ import models.AccountDAO
 import backend.Backend
 
 import com.google.inject._
-import play.api.mvc.RequestHeader
+import play.api.mvc.{SimpleResult, RequestHeader}
+import play.api.i18n.Messages
+import play.api.libs.json.Json
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -99,7 +101,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       theirActivity <- backend.listEvents(params, eventParams)
       followed <- backend.isFollowing(user.id, userId)
       blocked <- backend.isBlocking(user.id, userId)
-    } yield Ok(p.social.browseUser(them, theirActivity, followed))
+    } yield Ok(p.social.browseUser(them, theirActivity, followed, blocked))
   }
 
   def followUser(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -235,19 +237,6 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     )
   )
 
-  def sendMessage(userId: String) = withUserAction.async { implicit user => implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-      .getOrElse("fakekey")
-    for {
-      userTo <- backend.get[UserProfile](userId)
-    } yield {
-      if (isAjax) Ok(p.social.messageForm(messageForm, socialRoutes.sendMessagePost(userId),
-        recaptchaKey))
-      else Ok(p.social.messageUser(userTo, messageForm,
-        socialRoutes.sendMessagePost(userId), recaptchaKey))
-    }
-  }
-
   private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String)(implicit request: RequestHeader) {
     for {
       accFrom <- userDAO.findByProfileId(from.id)
@@ -264,29 +253,54 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
+  def sendMessage(userId: String) = withUserAction.async { implicit user => implicit request =>
+    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+      .getOrElse("fakekey")
+    for {
+      userTo <- backend.get[UserProfile](userId)
+      blocked <- backend.isBlocking(userId, user.id)
+    } yield {
+      if (!blocked) {
+        if (isAjax) Ok(p.social.messageForm(userTo, messageForm, socialRoutes.sendMessagePost(userId),
+          recaptchaKey))
+        else Ok(p.social.messageUser(userTo, messageForm,
+          socialRoutes.sendMessagePost(userId), recaptchaKey))
+      } else {
+        BadRequest("This user cannot be messaged")
+      }
+    }
+  }
+
   def sendMessagePost(userId: String) = withUserAction.async { implicit user => implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
-    checkRecapture.flatMap { ok =>
-      if (!ok) {
-        val form = boundForm.withGlobalError("error.badRecaptcha")
-        ???
+
+    def onError(userTo: UserProfile, form: Form[(String,String)]): SimpleResult = {
+      if (isAjax) BadRequest(form.errorsAsJson)
+      else BadRequest(p.social.messageUser(userTo, form,
+        socialRoutes.sendMessagePost(userId), recaptchaKey))
+    }
+
+    for {
+      captcha <- checkRecapture
+      blocked <- backend.isBlocking(userId, user.id)
+      userTo <- backend.get[UserProfile](userId)
+    } yield {
+      if (!captcha) {
+        onError(userTo, boundForm.withGlobalError("error.badRecaptcha"))
+      } else if (blocked) {
+        onError(userTo, boundForm.withGlobalError("error.userBlocked"))
       } else {
         boundForm.fold(
-          errForm => ???,
+          errForm => onError(userTo, errForm),
           data => {
             val (subject, message) = data
-            for {
-              userTo <- backend.get[UserProfile](userId)
-              blocked <- backend.isBlocking(userId, user.id)
-            } yield {
-              if (blocked) ???
-              else {
-                sendMessageEmail(user, userTo, subject, message)
-                Ok("ok")
-              }
-            }
+            sendMessageEmail(user, userTo, subject, message)
+            val msg = Messages("portal.social.messageSent")
+            if (isAjax) Ok(Json.obj("ok" -> msg))
+            else Redirect(socialRoutes.browseUser(userId))
+              .flashing("success" -> msg)
           }
         )
       }

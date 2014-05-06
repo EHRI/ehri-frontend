@@ -1,3 +1,35 @@
+/**
+ * Namespace for random helper functions
+ * @type {*|{}}
+ */
+var EhriJs = EhriJs || {};
+
+EhriJs.alert = function(msg, type) {
+  var $flash = $(".flash." + type);
+  if ($flash.length == 0) {
+    $flash = $("<div class=\"flash alert alert-" + type + "\">" +
+        "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" +
+        "<span class=\"flash-content\">" + msg + "</span>" +
+        "</div>");
+    $flash.insertAfter("#header");
+  } else {
+    $flash.find(".flash-content").html(msg);
+  }
+};
+
+EhriJs.alertSuccess = function(msg) {
+  EhriJs.alert(msg, "success");
+};
+
+EhriJs.alertDanger = function(msg) {
+  EhriJs.alert(msg, "danger");
+};
+
+EhriJs.alertInfo = function(msg) {
+  EhriJs.alert(msg, "info");
+};
+
+
 jQuery(function ($) {
 
 /*
@@ -257,5 +289,4 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
   $(window.Preferences).bind("showUserContent", function(event, doShow) {
     $(".user-content").toggle(doShow);
   });
-
 });

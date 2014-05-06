@@ -10,7 +10,9 @@
             @Html(elements.input.toString().replaceFirst("(<\\w+ )", "$1class=\"form-control\" "))
         }
 
+        @* MB: Zapping this because it's not styled
         <span class="help-block text-muted">@elements.infos.mkString(", ")</span>
+        *@
         @if(elements.hasErrors) {
             <span class="help-block">@elements.errors.mkString(", ")</span>
         }

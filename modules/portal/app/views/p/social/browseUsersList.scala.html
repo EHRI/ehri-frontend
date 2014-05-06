@@ -5,7 +5,9 @@
         @userOpt.map { current =>
             @if(other.id != current.id) {
                 @defining(following.exists(_.id == other.id)) { follows =>
+                    <div class="follow-controls">
                     @p.common.followingButtons(other, follows)
+                    </div>
                 }
             }
         }
