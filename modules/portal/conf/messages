@@ -37,12 +37,13 @@ portal.forgotPasswordLink=Click here to recover your account
 portal.signupLink=Click here to sign up
 
 portal.mail.messageEmailHeading=New message from {0}
-portal.mail.messageEmailFooter=You can opt-out from receiving user messages by updating your preferences
-portal.social.sendMessage=Message {0}
+portal.mail.messageEmailFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+portal.social.sendMessage=Contact {0}
 portal.social.submitMessage=Send Message
 portal.social.messageSent=Your message has been sent
 portal.social.sendMessage.subject=Subject
 portal.social.sendMessage.message=Your message
+portal.social.sendMessage.warning=Your message will be sent via email with your registered address in the reply-to field.
 portal.social.sendMessage.userNotAcceptingMessages=This user has messaging disabled.
 
 portal.viewOptions.showUserContent=Show User-Generated Comments and Links
