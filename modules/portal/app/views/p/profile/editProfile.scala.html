@@ -1,4 +1,4 @@
-@(profileForm: play.api.data.Form[ProfileData], imageForm: Form[String], pwForm: Form[(String,String,String)])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(profileForm: play.api.data.Form[ProfileData], imageForm: Form[String], pwForm: Form[(String,String,String)], accForm: Form[AccountPreferences])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @p.layout.portalLayout(Messages("portal.profile")) {
     @p.layout.infobar {
@@ -26,6 +26,11 @@
         @if(userOpt.flatMap(_.account).flatMap(_.password).isDefined) {
             <h3>@Messages("portal.profile.changePassword")</h3>
             @p.account.changePasswordForm(pwForm, controllers.portal.routes.Profile.changePasswordPost)
+        }
+
+        @userOpt.flatMap(_.account).map { acc =>
+            <h3>@Messages("portal.profile.preferences")</h3>
+            @p.account.accountPrefsForm(accForm, controllers.portal.routes.Profile.updateAccountPrefsPost)
         }
 
         <h3>@Messages("portal.profile.deleteProfile")</h3>

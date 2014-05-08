@@ -70,7 +70,7 @@ jQuery(function ($) {
     var $elem = $(event.target);
 		var offset = $(event.target).data("offset");
 		var limit = $(event.target).data("limit")
-		jsRoutes.controllers.portal.Portal.personalisedActivity(offset).ajax({
+		jsRoutes.controllers.portal.Social.personalisedActivity(offset).ajax({
 		  success: function (data, _, response) {
         console.log("Header: " + response.getResponseHeader("activity-more"))
 		    var done = response.getResponseHeader("activity-more") != 'true';
@@ -90,9 +90,9 @@ jQuery(function ($) {
 	$(document).on("click", "a.follow, a.unfollow", function (e) {
 		e.preventDefault();
 
-		var followFunc = jsRoutes.controllers.portal.Portal.followUserPost,
-		    unfollowFunc = jsRoutes.controllers.portal.Portal.unfollowUserPost,
-		    followerListFunc = jsRoutes.controllers.portal.Portal.followersForUser,
+		var followFunc = jsRoutes.controllers.portal.Social.followUserPost,
+		    unfollowFunc = jsRoutes.controllers.portal.Social.unfollowUserPost,
+		    followerListFunc = jsRoutes.controllers.portal.Social.followersForUser,
 		    $elem = $(e.target),
 		    id = $elem.data("item"),
 		    follow = $elem.hasClass("follow");
@@ -131,8 +131,8 @@ jQuery(function ($) {
 	$(document).on("click", "a.watch, a.unwatch", function (e) {
 		e.preventDefault();
 
-		var watchFunc = jsRoutes.controllers.portal.Portal.watchItemPost,
-		    unwatchFunc = jsRoutes.controllers.portal.Portal.unwatchItemPost,
+		var watchFunc = jsRoutes.controllers.portal.Social.watchItemPost,
+		    unwatchFunc = jsRoutes.controllers.portal.Social.unwatchItemPost,
 		    $elem = $(e.target),
 		    id = $elem.data("item"),
 		    watch = $elem.hasClass("watch");
@@ -220,7 +220,7 @@ jQuery(function ($) {
     var $elem = $(this),
         id = $elem.data("item"),
         did = $elem.data("did");
-    jsRoutes.controllers.portal.Portal.annotate(id, did).ajax({
+    jsRoutes.controllers.portal.Annotations.annotate(id, did).ajax({
       success: function (data) {
         insertAnnotationForm($elem, data)
       }
@@ -236,7 +236,7 @@ jQuery(function ($) {
         did = $elem.data("did"),
         field = $elem.data("field");
     loaderContainer = insertAnnotationLoader($elem);
-    jsRoutes.controllers.portal.Portal.annotateField(id, did, field).ajax({
+    jsRoutes.controllers.portal.Annotations.annotateField(id, did, field).ajax({
       success: function (data) {
         insertAnnotationForm($elem, data, loaderContainer)
       }
@@ -268,7 +268,7 @@ jQuery(function ($) {
     e.preventDefault();
     var $elem = $(this),
         id = $elem.data("item");
-    jsRoutes.controllers.portal.Portal.editAnnotation(id).ajax({
+    jsRoutes.controllers.portal.Annotations.editAnnotation(id).ajax({
       success: function(data) {
         //$elem.closest(".annotation").hide().after(data)
         $(data)
@@ -330,7 +330,7 @@ jQuery(function ($) {
     if (confirm("Delete annotation?")) { // FIXME: i18n?
       var $ann = $elem.closest(".annotation");
       $ann.hide();
-      jsRoutes.controllers.portal.Portal.deleteAnnotationPost(id).ajax({
+      jsRoutes.controllers.portal.Annotations.deleteAnnotationPost(id).ajax({
         success: function(data) {
           $ann.remove();
         },
@@ -360,7 +360,7 @@ jQuery(function ($) {
     var $form = $(this).closest("form"),
       id = $form.prev(".annotation").attr("id"),
       data = $form.serialize();
-    jsRoutes.controllers.portal.Portal.setAnnotationVisibilityPost(id).ajax({
+    jsRoutes.controllers.portal.Annotations.setAnnotationVisibilityPost(id).ajax({
       data: data,
       success: function(data) {
         console.log("Set visibility to ", data)
@@ -368,5 +368,23 @@ jQuery(function ($) {
     });
   });
 
-  
+
+  /**
+   * Messaging
+   */
+  /*
+   *   History
+   */
+  $("body").on("submit", ".message-form", function(e) {
+    var $form = $(this);
+    e.preventDefault();
+    $.post($form.attr("action"), $form.serialize(), function(data) {
+      console.log("Data: ", data)
+    }).done(function(data) {
+      EhriJs.alertSuccess(data["ok"]);
+      $form.closest(".modal").modal("hide");
+    }).fail(function() {
+      // TODO: Figure out what to do here...
+    });
+  });
 });

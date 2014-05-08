@@ -8,6 +8,7 @@ CREATE TABLE users (
     verified BOOLEAN NOT NULL DEFAULT FALSE,
     staff BOOLEAN NOT NULL,
     active BOOLEAN NOT NULL DEFAULT TRUE,
+    allow_messaging BOOLEAN NOT NULL DEFAULT TRUE,
     created TIMESTAMP NOT NULL
 );
 

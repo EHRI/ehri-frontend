@@ -12,7 +12,8 @@ import play.api.Logger
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SqlAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true) extends Account {
+case class SqlAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true,
+                       allowMessaging: Boolean = false) extends Account {
 
   def delete(): Boolean = DB.withConnection { implicit connection =>
     val res: Int = SQL(
@@ -83,6 +84,12 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
     this.copy(staff = staff)
   }
 
+  def setAllowMessaging(allowMessaging: Boolean): Account = DB.withTransaction { implicit connection =>
+    SQL("UPDATE users SET allow_messaging = {allowMessaging} WHERE id = {id}")
+      .on('id -> id, 'allowMessaging -> allowMessaging).executeUpdate()
+    this.copy(allowMessaging = allowMessaging)
+  }
+
   def expireTokens(): Unit = DB.withConnection { implicit connection =>
     SQL("""DELETE FROM token WHERE id = {id}""").on('id -> id).executeUpdate
   }
@@ -105,10 +112,12 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
     SQL(
       """
         UPDATE users
-        SET active = {active}, staff = {staff}, verified = {verifed}, email = {email}
+        SET active = {active}, staff = {staff}, verified = {verifed}, email = {email},
+            allow_messaging = {allowMessaging}
         WHERE id = {id}
       """.stripMargin).on(
-      'id -> id, 'active -> active, 'verified -> verified, 'email -> email, 'staff -> staff
+      'id -> id, 'active -> active, 'verified -> verified, 'email -> email, 'staff -> staff,
+        'allowMessaging -> allowMessaging
     ).executeUpdate()
   }
 }
@@ -120,8 +129,10 @@ object SqlAccount extends AccountDAO {
       get[String]("users.email") ~
       get[Boolean]("users.verified") ~
       get[Boolean]("users.staff") ~
-      get[Boolean]("users.active") map {
-      case id ~ email ~ verified ~ staff ~ active => SqlAccount(id, email, verified, staff, active)
+      get[Boolean]("users.active") ~
+      get[Boolean]("users.allow_messaging") map {
+      case id ~ email ~ verified ~ staff ~ active ~ allowMessaging =>
+        SqlAccount(id, email, verified, staff, active, allowMessaging)
     }
   }
 
@@ -153,18 +164,23 @@ object SqlAccount extends AccountDAO {
       .as(SqlAccount.simple.singleOpt)
   }
 
-  def create(id: String, email: String, verified: Boolean, staff: Boolean): SqlAccount = DB.withConnection { implicit connection =>
+  def create(id: String, email: String, verified: Boolean, staff: Boolean, allowMessaging: Boolean = true): SqlAccount =
+      DB.withConnection { implicit connection =>
     SQL(
-      """INSERT INTO users (id, email, verified, staff) VALUES ({id}, {email}, {verified}, {staff})"""
-    ).on('id -> id, 'email -> email, 'verified -> verified, 'staff -> staff).executeUpdate
+      """INSERT INTO users (id, email, verified, staff, allow_messaging)
+        VALUES ({id}, {email}, {verified}, {staff}, {allowMessaging})"""
+    ).on('id -> id, 'email -> email, 'verified -> verified, 'staff -> staff, 'allowMessaging -> allowMessaging)
+      .executeUpdate
     SqlAccount(id, email, verified, staff)
   }
 
-  def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, hashed: HashedPassword): SqlAccount
+  def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, allowMessaging: Boolean = true,
+                         hashed: HashedPassword): SqlAccount
       = DB.withTransaction { implicit connection =>
     SQL(
-      """INSERT INTO users (id, email, verified, staff) VALUES ({id}, {email}, {verified}, {staff})"""
-    ).on('id -> id, 'email -> email, 'verified -> verified, 'staff -> staff).executeUpdate
+      """INSERT INTO users (id, email, verified, staff, allow_messaging)
+        VALUES ({id}, {email}, {verified}, {staff}, {allowMessaging})"""
+    ).on('id -> id, 'email -> email, 'verified -> verified, 'staff -> staff, 'allowMessaging -> allowMessaging).executeUpdate
     SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data})")
       .on('id -> id, 'data -> hashed.toString).executeInsert()
     SqlAccount(id, email, verified, staff)

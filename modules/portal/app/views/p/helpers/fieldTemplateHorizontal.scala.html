@@ -9,20 +9,29 @@
 @inputType = @{ elements.args.toMap.get('type).map(_.toString).getOrElse("text") }
 
 <div class="form-group @if(elements.hasErrors) {error}">
-	@defining(Messages("constraint.required")) { required =>
-	    <label for="@elements.id" class="col-sm-4 control-label">
-	    	@elements.label
-	    	@if(elements.infos.exists(s => s == required)) {
-	    		<span class="required-input">@required</span>
-	    	}
-	    </label>
+    @if(inputType == "checkbox") {
+        <div class="col-sm-8 col-sm-offset-4">
+            <label for="@elements.id" class="checkbox-inline">
+                @elements.input
+                @elements.label
+            </label>
+        </div>
+    } else {
+        @defining(Messages("constraint.required")) { required =>
+        <label for="@elements.id" class="col-sm-4 control-label">
+            @elements.label
+            @if(elements.infos.exists(s => s == required)) {
+            <span class="required-input">@required</span>
+            }
+        </label>
         <div class="col-sm-8">
             <input class="form-control" type="@inputType" id="@elements.id" name="@elements.field.name" value="@elements.field.value" @toHtmlArgs(elements.args.filter(arg => !arg._1.name.startsWith("_") && arg._1 != 'id).toMap)>
             @if(elements.hasErrors) {
-                <span class="help-inline errors">@elements.errors</span>
+            <span class="help-inline errors">@elements.errors</span>
             } else {
-                <span class="help-inline">@elements.infos.filter(_ != required).map(i => Messages(i)).mkString(", ")</span>
+            <span class="help-inline">@elements.infos.filter(_ != required).map(i => Messages(i)).mkString(", ")</span>
             }
         </div>
-	}
+        }
+    }
 </div>

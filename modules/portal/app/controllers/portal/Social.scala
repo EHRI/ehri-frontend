@@ -1,16 +1,22 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.Controller
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.UserProfile
 import views.html.p
 import utils.{SessionPrefs, PageParams, SystemEventParams, ListParams}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
-import play.api.Play._
+import play.api.Play.current
 import solr.SolrConstants
+import models.AccountDAO
+import backend.{ApiUser, Backend}
 
+import com.google.inject._
+import play.api.mvc.{SimpleResult, RequestHeader}
+import play.api.i18n.Messages
+import play.api.libs.json.Json
+import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -19,11 +25,17 @@ import solr.SolrConstants
  * be greatly optimised by implementing caching for
  * just lists of IDs.
  */
-trait PortalSocial {
-  self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
+case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AuthController
+  with ControllerHelpers
+  with PortalAuthConfigImpl
+  with SessionPreferences[SessionPrefs] {
 
-  val searchDispatcher: Dispatcher
-  val searchResolver: Resolver
+  // This is a publically-accessible site, but not just yet.
+  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+
+  val defaultPreferences = new SessionPrefs
 
   val activityEventTypes = List(
     EventType.deletion,
@@ -45,6 +57,8 @@ trait PortalSocial {
     EntityType.Annotation
   )
 
+  private val socialRoutes = controllers.portal.routes.Social
+
   def personalisedActivity(offset: Int = 0) = withUserAction.async { implicit user => implicit request =>
     // NB: Increasing the limit by 1 over the default so we can
     // detect if there are additional items to display
@@ -55,7 +69,7 @@ trait PortalSocial {
       .copy(itemTypes = activityItemTypes)
     backend.listEventsForUser(user.id, incParams, eventFilter).map { events =>
       val more = events.size > listParams.limit
-      println("More: " + more)
+
       val displayEvents = events.take(listParams.limit)
       if (isAjax) Ok(p.activity.eventItems(displayEvents))
         .withHeaders("activity-more" -> more.toString)
@@ -74,10 +88,11 @@ trait PortalSocial {
       .getOrElse(defaultParams).setDefault(Some(defaultParams))
 
     for {
-      followers <- backend.listFollowing(user.id, ListParams())
+      following <- backend.listFollowing(user.id, ListParams())
+      blocked <- backend.listBlocked(user.id, ListParams())
       srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
       users <- searchResolver.resolve[UserProfile](srch.items)
-    } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, followers))
+    } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, following))
   }
 
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -90,7 +105,8 @@ trait PortalSocial {
       them <- backend.get[UserProfile](userId)
       theirActivity <- backend.listEvents(params, eventParams)
       followed <- backend.isFollowing(user.id, userId)
-    } yield Ok(p.social.browseUser(them, theirActivity, followed))
+      canMessage <- canMessage(user.id, userId)
+    } yield Ok(p.social.browseUser(them, theirActivity, followed, canMessage))
   }
 
   def followUser(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -102,7 +118,7 @@ trait PortalSocial {
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Portal.browseUsers())
+        Redirect(controllers.portal.routes.Social.browseUsers())
       }
     }
   }
@@ -116,7 +132,35 @@ trait PortalSocial {
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Portal.browseUsers())
+        Redirect(socialRoutes.browseUsers())
+      }
+    }
+  }
+
+  def blockUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    ???
+  }
+
+  def blockUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
+    backend.block(user.id, userId).map { _ =>
+      if (isAjax) {
+        Ok("ok")
+      } else {
+        Redirect(controllers.portal.routes.Social.browseUsers())
+      }
+    }
+  }
+
+  def unblockUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    ???
+  }
+
+  def unblockUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
+    backend.unblock(user.id, userId).map { _ =>
+      if (isAjax) {
+        Ok("ok")
+      } else {
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }
@@ -161,7 +205,7 @@ trait PortalSocial {
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Portal.browseUsers())
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }
@@ -175,7 +219,7 @@ trait PortalSocial {
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Portal.browseUsers())
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }
@@ -198,21 +242,93 @@ trait PortalSocial {
     )
   )
 
-  def sendMessage(userId: String) = withUserAction { implicit user => implicit request =>
+  /**
+   * Ascertain if a user can receive messages from other users.
+   *  - they've got an account
+   *  - they have messaging enabled
+   *  - they're not blocking the current user
+   */
+  private def canMessage(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+    // First, find their account. If we don't have
+    // an account we don't have an email, so we can't
+    // message them...
+    userDAO.findByProfileId(otherId).filter(_.allowMessaging).map { account =>
+      // If they've got messaging disabled we can't mail them...
+      if (!account.allowMessaging) Future.successful(false)
+        // And nor can we if they're blocking us specifically ;(
+      else backend.isBlocking(otherId, userId).map(blocking => !blocking)
+      backend.isBlocking(otherId, userId).map(blocking => !blocking)
+    }.getOrElse(Future.successful(false))
+  }
+
+  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String)(implicit request: RequestHeader): Boolean = {
+    (for {
+      accFrom <- userDAO.findByProfileId(from.id)
+      accTo <- userDAO.findByProfileId(to.id)
+    } yield {
+      import com.typesafe.plugin._
+      use[MailerPlugin].email
+        .setSubject(s"EHRI: Message from ${from.toStringLang}: $subject")
+        .setRecipient(accTo.email)
+        .setReplyTo(accFrom.email)
+        .setFrom("EHRI Email Validation <noreply@ehri-project.eu>")
+        .send(views.txt.p.social.mail.messageEmail(from, subject, message).body,
+        views.html.p.social.mail.messageEmail(from, subject, message).body)
+      true
+    }).getOrElse(false)
+  }
+
+  def sendMessage(userId: String) = withUserAction.async { implicit user => implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-    ???
+    for {
+      userTo <- backend.get[UserProfile](userId)
+      allowed <- canMessage(user.id, userId)
+    } yield {
+      if (allowed) {
+        if (isAjax) Ok(p.social.messageForm(userTo, messageForm, socialRoutes.sendMessagePost(userId),
+          recaptchaKey))
+        else Ok(p.social.messageUser(userTo, messageForm,
+          socialRoutes.sendMessagePost(userId), recaptchaKey))
+      } else {
+        BadRequest(Messages("portal.social.sendMessage.userNotAcceptingMessages"))
+      }
+    }
   }
 
   def sendMessagePost(userId: String) = withUserAction.async { implicit user => implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-    checkRecapture.map { ok =>
-      if (!ok) {
-        val form = messageForm.withGlobalError("error.badRecaptcha")
-        ???
+    val boundForm = messageForm.bindFromRequest
+
+    def onError(userTo: UserProfile, form: Form[(String,String)]): SimpleResult = {
+      if (isAjax) BadRequest(form.errorsAsJson)
+      else BadRequest(p.social.messageUser(userTo, form,
+        socialRoutes.sendMessagePost(userId), recaptchaKey))
+    }
+
+    for {
+      captcha <- checkRecapture
+      allowed <- canMessage(user.id, userId)
+      userTo <- backend.get[UserProfile](userId) if allowed
+    } yield {
+      if (!captcha) {
+        onError(userTo, boundForm.withGlobalError("error.badRecaptcha"))
+      } else if (!allowed) {
+        onError(userTo, boundForm
+          .withGlobalError("portal.social.sendMessage.userNotAcceptingMessages"))
       } else {
-        ???
+        boundForm.fold(
+          errForm => onError(userTo, errForm),
+          data => {
+            val (subject, message) = data
+            sendMessageEmail(user, userTo, subject, message)
+            val msg = Messages("portal.social.messageSent")
+            if (isAjax) Ok(Json.obj("ok" -> msg))
+            else Redirect(socialRoutes.browseUser(userId))
+              .flashing("success" -> msg)
+          }
+        )
       }
     }
   }

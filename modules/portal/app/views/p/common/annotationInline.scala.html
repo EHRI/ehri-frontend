@@ -8,8 +8,8 @@
             <a class="time-permalink" href="#@annotation.id">@views.Helpers.relativeDate(event.model.timestamp)</a>
 
             @if(editable) {
-                <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Portal.editAnnotation(annotation.id)">edit</a>
-                <a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Portal.deleteAnnotation(annotation.id)">delete</a>
+                <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">edit</a>
+                <a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">delete</a>
             }
             @userOpt.map { user =>
                 @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {

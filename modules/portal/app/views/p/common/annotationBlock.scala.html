@@ -10,16 +10,16 @@
 
 	            @if(editable) {
 	            	<ul class="list-inline">
-		                <li><a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Portal.editAnnotation(annotation.id)">Edit</a></li>
-		                <li><a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Portal.deleteAnnotation(annotation.id)">Delete</a></li>
+		                <li><a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">Edit</a></li>
+		                <li><a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">Delete</a></li>
 		            </ul>
 	            } else {
 		            @userOpt.map { user =>
 		                @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
 		                	<ul class="list-inline">
 		                		@if(editable) {
-					                <li><a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Portal.editAnnotation(annotation.id)">Edit</a></li>
-					                <li><a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Portal.deleteAnnotation(annotation.id)">Delete</a></li>
+					                <li><a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">Edit</a></li>
+					                <li><a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">Delete</a></li>
 		                	}
 		                   		<li><a data-item="@annotation.id" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">Promote</a></li>
 		               		</ul>

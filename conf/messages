@@ -482,7 +482,19 @@ metrics.restrictedMaterial=Restricted Material
 
 
 #CookieCuttr
-cuttr.message=We use cookies for storing logins and view preferences.
+dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
+ law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
+ bescherming Persoonsgegevens'').
+dataPolicy.notice2=Sensitive Personal Data is any data related to an identified or identifiable person related \
+ to a person's religion or belief, race, political opinion, health, sexual life, trade union \
+ membership and criminal record.
+dataPolicy.terms=I declare that I will use Sensitive Personal Data for research purposes only and in general \
+ will use Sensitive Personal Data in accordance with applicable Dutch and internal laws \
+ and regulations. I am aware of punitive results following a breach of these laws and/or \
+ regulations.
+dataPolicy.agree=I Agree
+
+cuttr.message=This site uses cookies for storing login details and user preferences.
 cuttr.what=What are cookies?
 cuttr.accept=Accept Cookies
 

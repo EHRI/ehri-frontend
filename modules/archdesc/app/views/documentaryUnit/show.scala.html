@@ -4,14 +4,26 @@
     @userOpt.map { user =>
         @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
             <div class="btn-group pull-right">
-                <a class="button get dropdown-toggle" data-toggle="dropdown" href="#">
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
                     @title
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="@controllers.archdesc.routes.DocumentaryUnits.manageAccessPoints(id, did)">@Messages("actions.manageAccessPoints")</a></li>
-                    <li><a href="@controllers.archdesc.routes.DocumentaryUnits.updateDescription(id, did)">@Messages("describedEntity.editDescription")</a></li>
-                    <li><a class="alert alert-danger" href="@controllers.archdesc.routes.DocumentaryUnits.deleteDescription(id, did)">@Messages("describedEntity.deleteDescription")</a></li>
+                    <li>
+                        <a href="@controllers.archdesc.routes.DocumentaryUnits.manageAccessPoints(id, did)">
+                            @Messages("actions.manageAccessPoints")
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@controllers.archdesc.routes.DocumentaryUnits.updateDescription(id, did)">
+                            @Messages("describedEntity.editDescription")
+                        </a>
+                    </li>
+                    <li>
+                        <a class="alert alert-danger" href="@controllers.archdesc.routes.DocumentaryUnits.deleteDescription(id, did)">
+                            @Messages("describedEntity.deleteDescription")
+                        </a>
+                    </li>
                 </ul>
             </div>
         }
@@ -29,18 +41,20 @@
     @if(!item.model.descriptions.isEmpty) {
         <div class="sidebar-section">
             <header><h3>@Messages("describedEntity.availableDescriptions")</h3></header>
-            <ul class="list-group description-switcher">
+            <div class="list-group description-switcher">
                 @item.descriptions.map { d =>
-                <li class="list-group-item">
-                    <a class="description-switch" href="#desc-@d.id">
-                        @views.Helpers.languageCodeToName(d.languageCode) - @d.name
-                    </a>
-                </li>
+                    @d.id.map { id =>
+                        <a class="list-group-item description-switch" href="#desc-@id" data-id="@id">
+                            @views.Helpers.languageCodeToName(d.languageCode) - @d.name
+                        </a>
+                    }
                 }
-            </ul>
+            </div>
             <div class="sidebar-section-footer">
                 <i class="glyphicon glyphicon-plus-sign"></i>
-                <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
+                <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)">
+                    @Messages("actions.createDescription")
+                </a>
             </div>
         </div>
     }

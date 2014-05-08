@@ -17,13 +17,9 @@ import solr.SolrConstants
 import backend.Backend
 import controllers.base.{SessionPreferences, ControllerHelpers}
 import jp.t2v.lab.play2.auth.LoginLogout
-import play.api.Logger
 import utils._
 
 import com.google.inject._
-import play.api.mvc.Results._
-import scala.Some
-import scala.Some
 import views.html.errors.pageNotFound
 
 @Singleton
@@ -35,8 +31,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with Search
   with FacetConfig
   with PortalActions
-  with PortalSocial
-  with PortalAnnotations
   with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs
