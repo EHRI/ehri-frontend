@@ -1,0 +1,14 @@
+@(from: UserProfile, subject: String, message: String)(implicit req: RequestHeader, lang: Lang)
+
+@Messages("portal.mail.messageEmailHeading")
+
+    @subject
+    @((0 to subject.size).map(_ => "-"))
+
+    @message
+
+@Messages("portal.mail.messageEmailFooter"):
+
+<a href="@controllers.portal.routes.Profile.updateProfile">
+    @Messages("portal.profile.preferences.updatePreferences")
+</a>

@@ -172,11 +172,11 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     userPasswordForm.bindFromRequest.fold(
       errorForm => {
           immediate(Ok(views.html.admin.createUser(errorForm, groupMembershipForm.bindFromRequest,
-              allGroups, controllers.core.routes.Admin.createUserPost)))
+              allGroups, controllers.core.routes.Admin.createUserPost())))
       },
       {
-        case (email, username, name, pw, _) =>
-          saveUser(email, username, name, pw, allGroups)
+        case (em, username, name, pw, _) =>
+          saveUser(em, username, name, pw, allGroups)
       }
     )
   }
@@ -187,7 +187,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    */
   def changePassword = userProfileAction { implicit user => implicit request =>
     Ok(views.html.admin.pwChangePassword(
-      changePasswordForm, controllers.core.routes.Admin.changePasswordPost))
+      changePasswordForm, controllers.core.routes.Admin.changePasswordPost()))
   }
 
   /**
@@ -200,11 +200,11 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
         Redirect(globalConfig.routeRegistry.default)
           .flashing("success" -> Messages("login.passwordChanged"))
       case Right(false) =>
-        Redirect(controllers.core.routes.Admin.changePassword)
+        Redirect(controllers.core.routes.Admin.changePassword())
           .flashing("error" -> Messages("login.badUsernameOrPassword"))
       case Left(errForm) =>
         BadRequest(views.html.admin.pwChangePassword(errForm,
-          controllers.core.routes.Admin.changePasswordPost))
+          controllers.core.routes.Admin.changePasswordPost()))
     }
   }
 
@@ -212,7 +212,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
           .getOrElse("fakekey")
     Ok(views.html.admin.forgotPassword(forgotPasswordForm,
-      recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
+      recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost()))
   }
 
   def forgotPasswordPost = forgotPasswordPostAction { uuidOrErr => implicit request =>
@@ -221,10 +221,10 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     uuidOrErr match {
       case Right((account,uuid)) =>
         sendResetEmail(account.email, uuid)
-        Redirect(controllers.core.routes.Admin.passwordReminderSent)
+        Redirect(controllers.core.routes.Admin.passwordReminderSent())
       case Left(errForm) =>
         BadRequest(views.html.admin.forgotPassword(errForm,
-          recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost))
+          recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost()))
     }
   }
 
@@ -237,7 +237,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       Ok(views.html.admin.resetPassword(resetPasswordForm,
           controllers.core.routes.Admin.resetPasswordPost(token)))
     }.getOrElse {
-      Redirect(controllers.core.routes.Admin.forgotPassword)
+      Redirect(controllers.core.routes.Admin.forgotPassword())
         .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
     }
   }
@@ -251,7 +251,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
         Redirect(globalConfig.routeRegistry.login)
           .flashing("warning" -> "login.passwordResetNowLogin")
       case Right(false) =>
-        Redirect(controllers.core.routes.Admin.forgotPassword)
+        Redirect(controllers.core.routes.Admin.forgotPassword())
           .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
     }
   }
@@ -278,7 +278,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       case ValidationError(errorSet) => {
         val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
         immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
-          allGroups, controllers.core.routes.Admin.createUserPost)))
+          allGroups, controllers.core.routes.Admin.createUserPost())))
       }
     }
   }
@@ -293,7 +293,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       val errForm = userPasswordForm.bindFromRequest
         .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.id)))
       immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
-        allGroups, controllers.core.routes.Admin.createUserPost)))
+        allGroups, controllers.core.routes.Admin.createUserPost())))
     } getOrElse {
       // It's not registered, so create the account...
       val user = UserProfileF(id = None, identifier = username, name = name,
@@ -302,9 +302,9 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
       createUserProfile(user, groups, allGroups) { profile =>
         userDAO.createWithPassword(profile.id, email.toLowerCase, verified = true,
-            staff = true, Account.hashPassword(pw))
+            staff = true, allowMessaging = true, Account.hashPassword(pw))
         grantOwnerPerms(profile) {
-          Redirect(controllers.core.routes.UserProfiles.search)
+          Redirect(controllers.core.routes.UserProfiles.search())
         }
       }
     }

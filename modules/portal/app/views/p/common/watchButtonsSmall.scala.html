@@ -3,8 +3,8 @@
 <div class="watch-controls @item.isA">
     <a data-item="@item.id"
        class="unwatch glyphicon glyphicon-star" title="@Messages("portal.social.unwatch.tooltip")"
-       style="@(if(!watching) "display: none")" href="@controllers.portal.routes.Portal.unwatchItem(item.id)"></a>
+       style="@(if(!watching) "display: none")" href="@controllers.portal.routes.Social.unwatchItem(item.id)"></a>
     <a data-item="@item.id"
        class="watch glyphicon glyphicon-star"  title="@Messages("portal.social.watch.tooltip")"
-       style="@(if(watching) "display: none")" href="@controllers.portal.routes.Portal.watchItem(item.id)"></a>
+       style="@(if(watching) "display: none")" href="@controllers.portal.routes.Social.watchItem(item.id)"></a>
 </div>

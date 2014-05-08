@@ -2,15 +2,21 @@
 
 @p.layout.portalLayout(Messages("portal.social.usersFollowedBy", them.toStringLang), "user") {
 
-    @profileBar(them, Messages("portal.social.usersFollowedBy", them.toStringLang)) {
+    @profileBar(them) {
         @for(user <- userOpt if user.id != them.id) {
             @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
         }
     }
 
-    @p.layout.mainContent {
-        <div class="browse-users-following">
-            @followingList(them, users, params, myFollowing)
+    
+
+    <div class="main-content">
+        @profileForUser(them)
+        <div class="user-profile-activity">
+            <h3 class="block-header user">@Messages("portal.social.usersFollowedBy", them.toStringLang)</h3>
+            <div class="browse-users-following">
+                @followingList(them, users, params, myFollowing)
+            </div>
         </div>
-    }
+    </div>
 }

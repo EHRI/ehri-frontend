@@ -2,7 +2,7 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
-import models.{AccountDAO, ProfileData, UserProfile, UserProfileF}
+import models._
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
@@ -24,6 +24,11 @@ import backend.Backend
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
+import play.api.data.Forms
+import play.api.mvc.MaxSizeExceeded
+import play.api.mvc.MultipartFormData.FilePart
+import scala.Some
+import play.api.libs.json.JsObject
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -92,6 +97,22 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     single("image" -> text)
   )
 
+  private def profileDataForm(implicit userOpt: Option[UserProfile]): Form[ProfileData] = {
+    userOpt.map { user =>
+      ProfileData.form.fill(ProfileData.fromUser(user))
+    } getOrElse {
+      ProfileData.form
+    }
+  }
+
+  private def accountPrefsForm(implicit userOpt: Option[UserProfile]): Form[AccountPreferences] = {
+    userOpt.flatMap(_.account).map { account =>
+      AccountPreferences.form.fill(AccountPreferences.fromAccount(account))
+    } getOrElse {
+      AccountPreferences.form
+    }
+  }
+
   /**
    * Store a changed password.
    */
@@ -102,24 +123,37 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
           .flashing("success" -> Messages("login.passwordChanged"))
       case Right(false) =>
         BadRequest(p.profile.editProfile(
-          ProfileData.form, imageForm, changePasswordForm
-            .withGlobalError("login.badUsernameOrPassword")))
+          profileDataForm, imageForm, changePasswordForm
+            .withGlobalError("login.badUsernameOrPassword"), AccountPreferences.form))
       case Left(errForm) =>
         BadRequest(p.profile.editProfile(
-          ProfileData.form, imageForm, errForm))
+          profileDataForm, imageForm, errForm, accountPrefsForm))
     }
   }
 
+  def updateAccountPrefsPost() = withUserAction { implicit user => implicit request =>
+    AccountPreferences.form.bindFromRequest.fold(
+      errForm => BadRequest(p.profile.editProfile(
+        ProfileData.form, imageForm, changePasswordForm, errForm)),
+      accountPrefs => {
+        userDAO.findByProfileId(user.id).map { acc =>
+          acc.setAllowMessaging(accountPrefs.allowMessaging)
+        }
+        Redirect(profileRoutes.updateProfile())
+          .flashing("success" -> "portal.profile.preferences.updated")
+      }
+    )
+  }
+
   def updateProfile() = withUserAction { implicit user => implicit request =>
-    val form = ProfileData.form.fill(ProfileData.fromUser(user))
-      Ok(p.profile.editProfile(
-        form, imageForm, changePasswordForm))
+    Ok(p.profile.editProfile(
+      profileDataForm, imageForm, changePasswordForm, accountPrefsForm))
   }
 
   def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
     ProfileData.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(p.profile.editProfile(
-        errForm, imageForm, changePasswordForm))),
+        errForm, imageForm, changePasswordForm, accountPrefsForm))),
       profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("confirmations.profileUpdated"))
@@ -162,8 +196,9 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     import fly.play.s3._
 
     def onError(err: String) =
-      BadRequest(p.profile.editProfile(ProfileData.form,
-        imageForm.withGlobalError(s"portal.error.$err"), changePasswordForm))
+      BadRequest(p.profile.editProfile(profileDataForm,
+        imageForm.withGlobalError(s"portal.error.$err"),
+        changePasswordForm, accountPrefsForm))
 
     request.body match {
       case Left(MaxSizeExceeded(length)) => immediate(onError("imageTooLarge"))

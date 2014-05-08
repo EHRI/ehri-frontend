@@ -1,25 +1,25 @@
 @(descriptions: List[models.base.Description])(html: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 <div class="descriptions">
-        <div class="description-sidebar">
-            @if(descriptions.size > 1) {
-            <div class="alert alert-block alert-info multiple-descriptions-note">
-                @Messages("portal.multipleDescriptions")
-                <ul class="list-unstyled multiple-descriptions-switcher">
-                    @descriptions.map { desc =>
-                    @desc.id.map { id =>
-                    <li lang="@desc.languageCode">
-                        <a class="description-switch" href="#desc-@id">@desc.name</a>
-                    </li>
-                    }
-                    }
-                </ul>
+    <div class="description-sidebar">
+        @if(descriptions.size > 1) {
+        <div class="sidebar-section">
+            <header>@Messages("portal.multipleDescriptions")</header>
+            <div class="list-group description-switcher">
+                @descriptions.map { desc =>
+                @desc.id.map { id =>
+                    <a class="list-group-item description-switch" href="#desc-@id" data-id="@id">
+                        @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
+                    </a>
+                }
+                }
             </div>
-            }
+        </div>
+        }
 
-            @sidebar
-        </div>
-        <div class="description-viewport">
-            @html
-        </div>
+        @sidebar
+    </div>
+    <div class="description-viewport">
+        @html
+    </div>
 </div>

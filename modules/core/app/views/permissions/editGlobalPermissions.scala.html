@@ -39,7 +39,9 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
                                         checked
                                     } />
                                     @permOpt.flatMap(_.inheritedFrom).map { user =>
-                                        <span title="@Messages("permissions.inheritiedFrom", user)">*</span>
+                                        @defining(Messages("permissions.inheritedFrom", user.toStringLang)) { inherit =>
+                                            <span alt="@inherit" title="@inherit">*</span>
+                                        }
                                     }
                                 }
                                 </td>

@@ -14,7 +14,7 @@
         }
     </a>
     <h1><a 
-        @for(us <- userOpt if user.id != us.id) { href="@controllers.portal.routes.Portal.browseUser(user.id)" } 
+        @for(us <- userOpt if user.id != us.id) { href="@controllers.portal.routes.Social.browseUser(user.id)" }
         @for(us <- userOpt if user.id == us.id) { href="@controllers.portal.routes.Profile.profile" }>
         @if(!additionalTitle.isEmpty) {
             @additionalTitle

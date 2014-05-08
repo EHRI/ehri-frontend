@@ -2,12 +2,14 @@ package models
 
 import java.util.UUID
 
-case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true) extends Account {
+case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true,
+                        allowMessaging: Boolean = true) extends Account {
   def updatePassword(hashed: HashedPassword): Account = this
   def setPassword(data: HashedPassword): Account = this
   def setVerified(): Account = updateWith(this.copy(verified = true))
   def setActive(active: Boolean) = updateWith(this.copy(active = active))
   def setStaff(staff: Boolean) = updateWith(this.copy(staff = staff))
+  def setAllowMessaging(allowMessaging: Boolean) = updateWith(this.copy(allowMessaging = allowMessaging))
   def verify(token: String): Account = updateWith(this.copy(verified = true))
   def delete(): Boolean = {
     mocks.userFixtures -= id
@@ -52,13 +54,15 @@ object MockAccountDAO extends AccountDAO {
   def findByEmail(email: String): Option[Account]
       = mocks.userFixtures.values.find(u => u.email == email)
 
-  def create(id: String, email: String, verified: Boolean = false, staff: Boolean = false): Account = {
+  def create(id: String, email: String, verified: Boolean = false, staff: Boolean = false,
+             allowMessaging: Boolean = true): Account = {
     val user = MockAccount(id, email, staff)
     mocks.userFixtures += id -> user
     user
   }
 
-  def createWithPassword(id: String, email: String, verified: Boolean = false, staff: Boolean = false, hashed: HashedPassword): Account = {
+  def createWithPassword(id: String, email: String, verified: Boolean = false, staff: Boolean = false,
+                         allowMessaging: Boolean = true, hashed: HashedPassword): Account = {
     create(id, email, verified, staff)
   }
 

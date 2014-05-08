@@ -1,9 +1,17 @@
+import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import sbt._
 import Keys._
 import play.Play.autoImport._
 import play.twirl.sbt.Import._
 import PlayKeys._
+import com.typesafe.sbt.rjs.Import.RjsKeys._
 import TwirlKeys.templateImports
+import com.typesafe.sbt.web._
+import com.typesafe.sbt.web.SbtWeb.autoImport._
+import com.typesafe.sbt.less.Import._
+import com.typesafe.sbt.rjs.Import._
+import com.typesafe.sbt.digest.Import._
+import com.typesafe.sbt.gzip.Import._
 
 object ApplicationBuild extends Build {
 
@@ -82,6 +90,14 @@ object ApplicationBuild extends Build {
     templateImports in Compile ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
     routesImport += "defines.EntityType",
 
+    JsEngineKeys.parallelism := 1,
+
+    // Less files with an underscore are excluded
+    includeFilter in (Assets, LessKeys.less) := "*.less",
+    excludeFilter in (Assets, LessKeys.less) := "_*.less",
+
+    pipelineStages := Seq(rjs, digest, gzip),
+
     resolvers += Resolver.file("Local Repository", file("/home/mike/dev/play/playframework/repository/local"))(Resolver.ivyStylePatterns),
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
@@ -94,7 +110,8 @@ object ApplicationBuild extends Build {
   )
 
   lazy val core = Project(appName + "-core", file("modules/core"))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.PlayScala)
+    .enablePlugins(SbtWeb).settings(
       version := appVersion,
       name := appName + "-core",
       libraryDependencies ++= appDependencies

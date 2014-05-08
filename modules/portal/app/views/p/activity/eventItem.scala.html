@@ -36,72 +36,14 @@
 }
 
 @eventFooter(item : models.base.AnyModel, link: Html) = {
-    @item match {
-        case m: Country => { 
-            <div class="block-header country">@link</div>
-        }
-        case m: Concept => { 
-            <div class="block-header concept">@link</div>
-        }
-        case m: DocumentaryUnit => { 
-            <div class="block-header documentaryUnit">@link</div>
-        }
-        case m: Repository => { 
-            <div class="block-header repository">@link</div>
-        }
-        case m: HistoricalAgent => { 
-            <div class="block-header historicalAgent">@link</div>
-        }
-        case m: UserProfile => { 
-            <div class="block-header user">@link</div>
-        }
-        case m: Link => { 
-            <div class="block-header">@link</div>
-        }
-        case m: Annotation => { 
-            <div class="block-header">@link</div>
-        }
-        case _ => {  
-            <div class="block-header">@link</div>
-            @* No text for this one... *@
-        }
-    }
+    <div class="event-footer @item.isA">@link</div>
 }
+
 @eventTitle(user: Html, eventType: String, item: models.base.AnyModel) = {
-    @item match {
-        case m: Country => { 
-            @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target.country"))) 
-        }
-        case m: Concept => { 
-            @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target.concept"))) 
-        }
-        case m: DocumentaryUnit => { 
-            @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target.documentaryUnit")))
-        }
-        case m: Repository => { 
-            @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target.repository"))) 
-        }
-        case m: HistoricalAgent => { 
-            @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target.historicalAgent"))) 
-        }
-        case m: UserProfile => { 
-            @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target.profile"))) 
-        }
-        case m: Link => { 
-            @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target.link"))) 
-        }
-        case m: Annotation => { 
-            @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target.annotation"))) 
-        }
-        case _ => {  
-            @item
-            @* No text for this one... *@
-        }
-    }
-    
+    @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target." + item.isA.toString)))
 }
+
 @eventBody(event: SystemEvent, user: models.base.Accessor, et: Any, subject: models.base.AnyModel)(content: Html) = {
-    
     <li>
       <div class="timeline-panel-container">
           <div class="timeline-panel">
@@ -139,7 +81,10 @@
                 }
 
                 </h4>
-                <small class="timeline-time"><i class="glyphicon glyphicon-time"></i> @views.Helpers.relativeDate(event.model.timestamp)</small>
+                <small class="timeline-time">
+                    <i class="glyphicon glyphicon-time"></i>
+                    @views.Helpers.relativeDate(event.model.timestamp)
+                </small>
             </div>
             <div class="timeline-body">
                 @content
@@ -154,6 +99,10 @@
     </li>
 }
 
+@annotationBody(ann: Annotation) = {
+    <blockquote>@Html(views.Helpers.renderMarkdown(ann.model.body))</blockquote>
+}
+
 @* NB: This will ignore events for which we don't have a type, user, subject, and subject count, which is
         probably how it should be anyway. *@
 @for(et <- event.model.eventType; user <- event.actioner; subject <- event.firstSubject; count <- event.childCount) {
@@ -163,13 +112,12 @@
                 @* No text for this one... *@
             }
             case EventType.modification => {
-
                 @subject match {
                     case m: Annotation => { 
-                        <blockquote>@m.model.body</blockquote>
+                        @annotationBody(m)
                         @eventModification(m)
                     }
-                    case _ => { 
+                    case _ => {
                        @eventFooter(subject, p.helpers.linkTo(subject))
                     }
                 }
@@ -187,8 +135,8 @@
             }
             case EventType.annotation => {
                 @subject match {
-                    case m: Annotation => { 
-                        <blockquote>@m.model.body</blockquote>
+                    case m: Annotation => {
+                        @annotationBody(m)
                     }
                     case _ => { 
                         @* Nothing to do there *@

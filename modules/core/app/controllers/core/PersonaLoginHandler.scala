@@ -32,6 +32,9 @@ trait PersonaLoginHandler {
 
   object personaLoginPost {
     def async(f: Either[String,Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
+      val canMessageUsers = play.api.Play.current.configuration
+        .getBoolean("ehri.users.messaging.default").getOrElse(false)
+
       Action.async { implicit request =>
         val assertion: String = request.body.asFormUrlEncoded.map(
           _.getOrElse("assertion", Seq()).headOption.getOrElse("")).getOrElse("")
@@ -48,7 +51,8 @@ trait PersonaLoginHandler {
                 case None => {
                   implicit val apiUser = ApiUser()
                   backend.createNewUserProfile().flatMap { up =>
-                    val account = userDAO.create(up.id, email, verified = true, staff = false)
+                    val account = userDAO.create(up.id, email, verified = true, staff = false,
+                      allowMessaging = canMessageUsers)
                     f(Right(account))(request)
                   }
                 }

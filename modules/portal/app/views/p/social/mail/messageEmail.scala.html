@@ -1,0 +1,22 @@
+@(from: UserProfile, subject: String, message: String)(implicit req: RequestHeader, lang: Lang)
+
+@p.layout.mailLayout(Messages("portal.mail.messageEmailHeading", from.toStringLang)) {
+
+    <blockquote>
+        <h4>@subject</h4>
+        <p>
+            @message
+        </p>
+    </blockquote>
+
+    <hr />
+    <p>
+        <small>
+            @Messages("portal.mail.messageEmailFooter"):
+            <a href="@controllers.portal.routes.Profile.updateProfile">
+                @Messages("portal.profile.preferences.updatePreferences")
+            </a>
+        </small>
+    </p>
+}
+

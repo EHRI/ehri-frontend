@@ -86,6 +86,8 @@ trait OpenIDLoginHandler {
 
   object openIDCallbackAction {
     def async(f: Either[Form[String],Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
+      val canMessageUsers = play.api.Play.current.configuration
+        .getBoolean("ehri.users.messaging.default").getOrElse(false)
       Action.async { implicit request =>
         OpenID.verifiedId.flatMap { info =>
 
@@ -107,7 +109,8 @@ trait OpenIDLoginHandler {
             } getOrElse {
               implicit val apiUser = ApiUser()
               backend.createNewUserProfile(data).flatMap { up =>
-                val account = userDAO.create(up.id, email.toLowerCase, verified = true, staff = false)
+                val account = userDAO.create(up.id, email.toLowerCase, verified = true,
+                  staff = false, allowMessaging = canMessageUsers)
                 OpenIDAssociation.addAssociation(account, info.id)
                 Logger.logger.info("User '{}' created OpenID account", account.id)
                 f(Right(account))(request)

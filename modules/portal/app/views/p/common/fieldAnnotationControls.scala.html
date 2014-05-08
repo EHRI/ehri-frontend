@@ -9,7 +9,7 @@
         <div class="annotate-item-controls">
             @item.contentType.map { ct =>
                 @if(user.hasPermission(ct, PermissionType.Annotate)) {
-                    <a title="@Messages("portal.social.createFieldAnnotation")" data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field inactive" href="@controllers.portal.routes.Portal.annotateField(item.id, nodeId, key)">
+                    <a title="@Messages("portal.social.createFieldAnnotation")" data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field inactive" href="@controllers.portal.routes.Annotations.annotateField(item.id, nodeId, key)">
                     <span class="glyphicon glyphicon-comment"></span>
                     </a>
                 }
