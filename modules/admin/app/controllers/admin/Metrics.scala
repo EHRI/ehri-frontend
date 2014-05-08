@@ -4,17 +4,13 @@ import models.{AccountDAO, Isaar, IsadG}
 import models.base.AnyModel
 import controllers.generic.Search
 import play.api.Play.current
-import play.api._
-import play.api.mvc._
 import defines.EntityType
 import play.api.i18n.Messages
 import views.Helpers
-import play.api.libs.json.Json
 import utils.search._
 import solr.facet.FieldFacetClass
 
 import com.google.inject._
-import play.api.http.MimeTypes
 import play.api.cache.{Cache, Cached}
 import backend.Backend
 
@@ -45,7 +41,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def languageOfMaterial = Cached("pages:langMetric", metricCacheTime) {
+  def languageOfMaterial = Cached.status(_ => "pages:langMetric", OK, metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
       entityFacets = langCountFacets) {
@@ -68,7 +64,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def holdingRepository = Cached("pages:repoMetric", metricCacheTime) {
+  def holdingRepository = Cached.status(_ => "pages:repoMetric", OK, metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
       entityFacets = holdingRepoFacets) {
@@ -92,7 +88,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def repositoryCountries = Cached("pages:repoCountryMetric", metricCacheTime) {
+  def repositoryCountries = Cached.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.Repository))),
       entityFacets = countryRepoFacets) {
@@ -115,7 +111,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def restricted = Cached("pages:restrictedMetric", metricCacheTime) {
+  def restricted = Cached.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(
         entities = List(EntityType.HistoricalAgent,
@@ -141,7 +137,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def agentTypes = Cached("pages:agentTypeMetric", metricCacheTime) {
+  def agentTypes = Cached.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
     searchAction[AnyModel](
       defaultParams = Some(defaultParams.copy(entities = List(EntityType.HistoricalAgent))),
       entityFacets = agentTypeFacets) {

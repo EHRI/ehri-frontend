@@ -22,7 +22,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   def get(id: String) = getAndRedirect(id, None)
 
   def getAndRedirect(id: String, redirect: Option[String] = None) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
-    Ok(views.html.link.show(item, links, redirect))
+    Ok(views.html.link.details(item, links, redirect))
   }
 
   def history(id: String) = historyAction(id) {

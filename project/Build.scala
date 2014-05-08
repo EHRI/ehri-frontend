@@ -152,7 +152,7 @@ object ApplicationBuild extends Build {
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
-    libraryDependencies ++= appDependencies
+    libraryDependencies ++= appDependencies ++ testDependencies
   ).settings(otherSettings: _*).dependsOn(admin, portal, guides)
     .aggregate(admin, portal, guides)
 

@@ -19,7 +19,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
   val contentType = ContentTypes.Annotation
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.annotation.show(item, annotations))
+    Ok(views.html.annotation.details(item, annotations))
   }
 
   def history(id: String) = historyAction(id) {

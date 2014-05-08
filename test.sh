@@ -3,7 +3,7 @@
 export _JAVA_OPTIONS="-Xms64m -Xmx1024m -Xss2m -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M -Dconfig.file=conf/test.conf"
 
 if [ -z "$1" ]; then
-    play test
+    $HOME/apps/activator-1.1.1/activator test
 else 
-    play "test-only $@"
+    $HOME/apps/activator-1.1.1/activator "test-only $@"
 fi
