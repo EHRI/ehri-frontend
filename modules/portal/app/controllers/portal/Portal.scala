@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 import play.api.cache.Cached
 import defines.EntityType
 import play.api.libs.ws.WS
-import play.api.templates.Html
+import play.twirl.api.Html
 import solr.SolrConstants
 import backend.Backend
 import controllers.base.{SessionPreferences, ControllerHelpers}
@@ -21,8 +21,6 @@ import utils._
 
 import com.google.inject._
 import views.html.errors.pageNotFound
-import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,

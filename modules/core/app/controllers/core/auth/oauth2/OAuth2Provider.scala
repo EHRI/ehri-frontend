@@ -1,6 +1,6 @@
 package controllers.core.auth.oauth2
 
-import play.api.libs.ws.Response
+import play.api.libs.ws.WSResponse
 import play.api.Logger
 import play.api.libs.json.Json
 
@@ -11,9 +11,9 @@ trait OAuth2Provider {
 
   val name: String
 
-  def getUserData(response: Response): UserData
+  def getUserData(response: WSResponse): UserData
 
-  def buildOAuth2Info(response: Response): OAuth2Info = {
+  def buildOAuth2Info(response: WSResponse): OAuth2Info = {
     val json = response.json
     if ( Logger.isDebugEnabled ) {
       Logger.debug("[securesocial] got json back [" + Json.prettyPrint(json) + "]")

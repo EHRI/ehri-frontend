@@ -26,6 +26,8 @@ object ApplicationBuild extends Build {
   val appName = "docview"
   val appVersion = "1.0-SNAPSHOT"
 
+  scalaVersion := "2.11.0"
+
   javaOptions in Test ++= Seq(
     "-Xmx8G",
     "-XX:+CMSClassUnloadingEnabled",
@@ -33,6 +35,7 @@ object ApplicationBuild extends Build {
     "-Dconfig.file=conf/test.conf"
   )
 
+  scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation")
 
   val appDependencies = Seq(
     jdbc,
