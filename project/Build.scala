@@ -26,7 +26,7 @@ object ApplicationBuild extends Build {
   val appName = "docview"
   val appVersion = "1.0-SNAPSHOT"
 
-  scalaVersion := "2.11.0"
+  scalaVersion := "2.10.4"
 
   javaOptions in Test ++= Seq(
     "-Xmx8G",
