@@ -47,9 +47,9 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     Redirect(referrer).withCookies(Cookie(LANG, lang))
   }
 
-  override implicit def lang(implicit request: RequestHeader) = {
+  override implicit def request2lang(implicit request: RequestHeader) = {
     request.cookies.get(LANG) match {
-      case None => super.lang(request)
+      case None => super.request2lang(request)
       case Some(cookie) => Lang(cookie.value)
     }
   }
