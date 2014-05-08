@@ -5,7 +5,7 @@ import org.specs2.specification.{Fragments, Step}
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import play.api.test.{PlaySpecification, WithApplication}
 import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
-import eu.ehri.extension.test.helpers.CompatServerRunner
+import eu.ehri.extension.test.helpers.{ServerRunner, CompatServerRunner}
 
 /**
  * Specs2 magic to provide equivalent of JUnit's beforeClass/afterClass.
@@ -38,6 +38,10 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with Use
     .getThirdpartyJaxRsPackages
     .add(new ThirdPartyJaxRsPackage(
     classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"))
+
+//  val runner = ServerRunner.getInstance(testPort,
+//    classOf[AbstractAccessibleEntityResource[_]].getPackage.getName,
+//    "/ehri")
 
   /**
    * Test running Fake Application. We have general all-test configuration,
