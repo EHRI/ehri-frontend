@@ -21,7 +21,7 @@ object PermissionGrantF {
   import play.api.libs.functional.syntax._
 
   implicit val permissionGrantReads: Reads[PermissionGrantF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.PermissionGrant)) and
+    (__ \ TYPE).readIfEquals(EntityType.PermissionGrant) and
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ TIMESTAMP).readNullable[String].map(_.map(new DateTime(_))) and
       (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
@@ -70,7 +70,7 @@ object PermissionGrant {
     implicit val clientFormat: Format[PermissionGrant] = (
       __.format[PermissionGrantF](PermissionGrantF.Converter.restReads) and
       (__ \ "accessor").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
-      json.nullableListFormat((__ \ "targets"))(AnyModel.Converter.clientFormat) and
+      (__ \ "targets").nullableListFormat(AnyModel.Converter.clientFormat) and
       (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       (__ \ "grantedBy").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]

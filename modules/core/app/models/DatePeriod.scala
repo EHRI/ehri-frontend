@@ -39,13 +39,13 @@ object DatePeriodF {
   import Entity.{TYPE => ETYPE,_}
 
   implicit val datePeriodReads: Reads[DatePeriodF] = (
-    (__ \ ETYPE).read[EntityType.Value](equalsReads(EntityType.DatePeriod)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ TYPE).readNullable[DatePeriodType.Value] and
-      (__ \ DATA \ START_DATE).readNullable[String] and
-      (__ \ DATA \ END_DATE).readNullable[String] and
-      (__ \ DATA \ PRECISION).readNullable[DatePeriodPrecision.Value]
-    )(DatePeriodF.apply _)
+    (__ \ ETYPE).readIfEquals(EntityType.DatePeriod) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ TYPE).readNullable[DatePeriodType.Value] and
+    (__ \ DATA \ START_DATE).readNullable[String] and
+    (__ \ DATA \ END_DATE).readNullable[String] and
+    (__ \ DATA \ PRECISION).readNullable[DatePeriodPrecision.Value]
+  )(DatePeriodF.apply _)
 
   implicit val datePeriodWrites = new Writes[DatePeriodF] {
     def writes(d: DatePeriodF): JsValue = {

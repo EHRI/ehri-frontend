@@ -47,19 +47,19 @@ object RepositoryF {
   }
 
   implicit val repositoryReads: Reads[RepositoryF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Repository)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      // FIXME: This throws an error if an item has no descriptions - we should somehow
-      // make it so that the path being missing is permissable but a validation error
-      // is not.
-      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[RepositoryDescriptionF]](
-        Reads.list[RepositoryDescriptionF]).map(_.getOrElse(List.empty[RepositoryDescriptionF])) and
-      (__ \ DATA \ PRIORITY).readNullable[Int] and
-      (__ \ DATA \ URL_PATTERN).readNullable[String] and
-      (__ \ DATA \ LOGO_URL).readNullable[String]
-    )(RepositoryF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Repository) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
+    // FIXME: This throws an error if an item has no descriptions - we should somehow
+    // make it so that the path being missing is permissable but a validation error
+    // is not.
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[RepositoryDescriptionF]](
+      Reads.list[RepositoryDescriptionF]).map(_.getOrElse(List.empty[RepositoryDescriptionF])) and
+    (__ \ DATA \ PRIORITY).readNullable[Int] and
+    (__ \ DATA \ URL_PATTERN).readNullable[String] and
+    (__ \ DATA \ LOGO_URL).readNullable[String]
+  )(RepositoryF.apply _)
 
   implicit val repositoryFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
 
@@ -131,7 +131,7 @@ object Repository {
     val clientFormat: Format[Repository] = (
       __.format[RepositoryF](RepositoryF.Converter.clientFormat) and
       (__ \ "country").formatNullable[Country](Country.Converter.clientFormat) and
-      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(Repository.apply _, unlift(Repository.unapply _))

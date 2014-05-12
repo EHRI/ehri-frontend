@@ -52,7 +52,7 @@ object UserProfileF {
   }
 
   implicit val userProfileReads: Reads[UserProfileF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.UserProfile)) and
+    (__ \ TYPE).readIfEquals(EntityType.UserProfile) and
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).read[String] and
@@ -108,8 +108,8 @@ object UserProfile {
     val restReads = metaReads
     val clientFormat: Format[UserProfile] = (
       __.format[UserProfileF](UserProfileF.Converter.clientFormat) and
-      nullableListFormat(__ \ "groups")(Group.Converter.clientFormat) and
-      lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "groups").nullableListFormat(Group.Converter.clientFormat) and
+      (__ \ "accessibleTo").lazyNullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply _))

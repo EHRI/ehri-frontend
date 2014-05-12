@@ -33,12 +33,12 @@ object GroupF {
   }
 
   implicit val groupReads: Reads[GroupF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Group)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ NAME).read[String] and
-      (__ \ DATA \ DESCRIPTION).readNullable[String]
-    )(GroupF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Group) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ NAME).read[String] and
+    (__ \ DATA \ DESCRIPTION).readNullable[String]
+  )(GroupF.apply _)
 
   implicit val groupFormat: Format[GroupF] = Format(groupReads,groupWrites)
 
@@ -79,8 +79,8 @@ object Group {
 
     val clientFormat: Format[Group] = (
       __.format[GroupF](GroupF.Converter.clientFormat) and
-      lazyNullableListFormat(__ \ "groups")(clientFormat) and
-      lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "groups").lazyNullableListFormat(clientFormat) and
+      (__ \ "accessibleTo").lazyNullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(Group.apply _, unlift(Group.unapply _))

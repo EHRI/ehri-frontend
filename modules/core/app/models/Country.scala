@@ -33,12 +33,12 @@ object CountryF {
   }
 
   lazy implicit val countryReads: Reads[CountryF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Country)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ ABSTRACT).readNullable[String] and
-      (__ \ DATA \ REPORT).readNullable[String]
-    )(CountryF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Country) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ ABSTRACT).readNullable[String] and
+    (__ \ DATA \ REPORT).readNullable[String]
+  )(CountryF.apply _)
 
   implicit val countryFormat: Format[CountryF] = Format(countryReads,countryWrites)
 
@@ -64,12 +64,12 @@ object Country {
 
   implicit val metaReads: Reads[Country] = (
     __.read[CountryF](countryReads) and
-      // Latest event
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list(SystemEvent.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    // Latest event
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+      Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+      Reads.list(SystemEvent.Converter.restReads)).map(_.flatMap(_.headOption)) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
   )(Country.apply _)
 
   implicit object Converter extends ClientConvertable[Country] with RestReadable[Country] {
@@ -77,7 +77,7 @@ object Country {
 
     val clientFormat: Format[Country] = (
       __.format[CountryF](CountryF.Converter.clientFormat) and
-      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(Country.apply _, unlift(Country.unapply _))

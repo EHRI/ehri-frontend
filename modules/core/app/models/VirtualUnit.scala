@@ -35,7 +35,7 @@ object VirtualUnitF {
   }
 
   implicit val virtualUnitReads: Reads[VirtualUnitF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.VirtualUnit)) and
+    (__ \ TYPE).readIfEquals(EntityType.VirtualUnit) and
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
@@ -71,8 +71,8 @@ object VirtualUnit {
 
   implicit val metaReads: Reads[VirtualUnit] = (
     __.read[VirtualUnitF](virtualUnitReads) and
-      nullableListReads[DocumentaryUnitDescriptionF](__ \ RELATIONSHIPS \ VC_DESCRIBED_BY) and
-      // Holder
+      (__ \ RELATIONSHIPS \ VC_DESCRIBED_BY).nullableListReads(
+        DocumentaryUnitDescriptionF.Converter.restFormat) and
       (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).lazyReadNullable[List[Accessor]](
         Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
       (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyReadNullable[List[VirtualUnit]](
@@ -92,11 +92,11 @@ object VirtualUnit {
 
     val clientFormat: Format[VirtualUnit] = (
       __.format[VirtualUnitF](VirtualUnitF.Converter.clientFormat) and
-      nullableListFormat(__ \ "descriptions")(DocumentaryUnitDescriptionF.Converter.clientFormat) and
+      (__ \ "descriptions").nullableListFormat(DocumentaryUnitDescriptionF.Converter.clientFormat) and
       (__ \ "author").formatNullable[Accessor](Accessor.Converter.clientFormat) and
       (__ \ "parent").lazyFormatNullable[VirtualUnit](clientFormat) and
       (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
-      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(VirtualUnit.apply _, unlift(VirtualUnit.unapply))

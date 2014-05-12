@@ -61,17 +61,17 @@ object DocumentaryUnitF {
   }
 
   implicit val documentaryUnitReads: Reads[DocumentaryUnitF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnit)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      ((__ \ DATA \ OTHER_IDENTIFIERS).readNullable[List[String]] orElse
-        (__ \ DATA \ OTHER_IDENTIFIERS).readNullable[String].map(os => os.map(List(_))) ) and
-      (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
-      (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
-        Reads.list[DocumentaryUnitDescriptionF]).map(_.getOrElse(List.empty[DocumentaryUnitDescriptionF]))
-    )(DocumentaryUnitF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.DocumentaryUnit) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    ((__ \ DATA \ OTHER_IDENTIFIERS).readNullable[List[String]] orElse
+      (__ \ DATA \ OTHER_IDENTIFIERS).readNullable[String].map(os => os.map(List(_))) ) and
+    (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
+    ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
+    (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
+      Reads.list[DocumentaryUnitDescriptionF]).map(_.getOrElse(List.empty[DocumentaryUnitDescriptionF]))
+  )(DocumentaryUnitF.apply _)
 
   implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
 
@@ -128,7 +128,7 @@ object DocumentaryUnit {
       __.format[DocumentaryUnitF](DocumentaryUnitF.Converter.clientFormat) and
         (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
         (__ \ "parent").lazyFormatNullable[DocumentaryUnit](clientFormat) and
-        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+        (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply _))

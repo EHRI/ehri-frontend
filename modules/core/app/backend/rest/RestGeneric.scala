@@ -67,12 +67,13 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def createInContext[MT,T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: List[String] = Nil,
+  def createInContext[MT,T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: List[String] = Nil, params: Map[String, Seq[String]] = Map(),
       logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, wrt: RestConvertable[T], rs: RestResource[MT], rd: RestReadable[TT], executionContext: ExecutionContext): Future[TT] = {
     val url = enc(requestUrl, rs.entityType, id, contentType)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
+        .withQueryString(unpack(params):_*)
         .withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(wrt.restFormat)).map { response =>
       val created = checkErrorAndParse(response)(rd.restReads)

@@ -38,12 +38,12 @@ object VocabularyF {
   }
 
   implicit val vocabularyReads: Reads[VocabularyF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Vocabulary)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ NAME).readNullable[String] and
-      (__ \ DATA \ DESCRIPTION).readNullable[String]
-    )(VocabularyF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Vocabulary) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ NAME).readNullable[String] and
+    (__ \ DATA \ DESCRIPTION).readNullable[String]
+  )(VocabularyF.apply _)
 
   implicit val vocabularyFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
 
@@ -83,10 +83,10 @@ object Vocabulary {
 
     val clientFormat: Format[Vocabulary] = (
       __.format[VocabularyF](VocabularyF.Converter.clientFormat) and
-        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Vocabulary.apply _, unlift(Vocabulary.unapply _))
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Vocabulary.apply _, unlift(Vocabulary.unapply))
   }
 
   implicit object Resource extends RestResource[Vocabulary] {

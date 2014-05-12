@@ -34,12 +34,12 @@ object AuthoritativeSetF {
   }
 
   implicit val authoritativeSetReads: Reads[AuthoritativeSetF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.AuthoritativeSet)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ NAME).readNullable[String] and
-      (__ \ DATA \ DESCRIPTION).readNullable[String]
-    )(AuthoritativeSetF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.AuthoritativeSet) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ NAME).readNullable[String] and
+    (__ \ DATA \ DESCRIPTION).readNullable[String]
+  )(AuthoritativeSetF.apply _)
 
   implicit val authoritativeSetFormat: Format[AuthoritativeSetF]
   = Format(authoritativeSetReads,authoritativeSetWrites)
@@ -81,7 +81,7 @@ object AuthoritativeSet {
 
     val clientFormat: Format[AuthoritativeSet] = (
       __.format[AuthoritativeSetF](AuthoritativeSetF.Converter.clientFormat) and
-      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply _))

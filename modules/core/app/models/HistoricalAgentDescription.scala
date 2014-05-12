@@ -83,47 +83,47 @@ object HistoricalAgentDescriptionF {
   }
 
   implicit val historicalAgentDescriptionReads: Reads[HistoricalAgentDescriptionF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgentDescription)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ LANG_CODE).read[String] and
-      ((__ \ DATA \ ENTITY_TYPE).read[HistoricalAgentType.Value]
-        orElse Reads.pure(HistoricalAgentType.CorporateBody)) and
-      ((__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String]
-        orElse Reads.pure(UNNAMED_PLACEHOLDER)) and
-      ((__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] orElse
-        (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
-      ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
-        (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).lazyReadNullable[List[DatePeriodF]](
-        Reads.list[DatePeriodF]).map(_.toList.flatten) and
-      (__ \ DATA).read[IsaarDetail]((
-        (__ \ DATES_OF_EXISTENCE).readNullable[String] and
-          (__ \ HISTORY).readNullable[String] and
-          (__ \ PLACES).readNullable[String] and
-          (__ \ LEGAL_STATUS).readNullable[String] and
-          (__ \ FUNCTIONS).readNullable[String] and
-          (__ \ MANDATES).readNullable[String] and
-          (__ \ INTERNAL_STRUCTURE).readNullable[String] and
-          (__ \ GENERAL_CONTEXT).readNullable[String]
-        )(IsaarDetail.apply _)) and
-      (__ \ DATA).read[IsaarControl]((
-        (__ \ DESCRIPTION_IDENTIFIER).readNullable[String] and
-          (__ \ INSTITUTION_IDENTIFIER).readNullable[String] and
-          (__ \ RULES_CONVENTIONS).readNullable[String] and
-          (__ \ STATUS).readNullable[String] and
-          (__ \ LEVEL_OF_DETAIL).readNullable[String] and
-          (__ \ DATES_CVD).readNullable[String] and
-          (__ \ LANGUAGES_USED).readNullable[List[String]] and
-          (__ \ SCRIPTS_USED).readNullable[List[String]] and
-          ((__ \ SOURCES).readNullable[List[String]] orElse
-            (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
-          (__ \ MAINTENANCE_NOTES).readNullable[String]
-        )(IsaarControl.apply _)) and
-      (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).lazyReadNullable(
-        Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-      (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY)
-        .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
-    )(HistoricalAgentDescriptionF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.HistoricalAgentDescription) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ LANG_CODE).read[String] and
+    ((__ \ DATA \ ENTITY_TYPE).read[HistoricalAgentType.Value]
+      orElse Reads.pure(HistoricalAgentType.CorporateBody)) and
+    ((__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String]
+      orElse Reads.pure(UNNAMED_PLACEHOLDER)) and
+    ((__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] orElse
+      (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
+    ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
+      (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).lazyReadNullable[List[DatePeriodF]](
+      Reads.list[DatePeriodF]).map(_.toList.flatten) and
+    (__ \ DATA).read[IsaarDetail]((
+      (__ \ DATES_OF_EXISTENCE).readNullable[String] and
+        (__ \ HISTORY).readNullable[String] and
+        (__ \ PLACES).readNullable[String] and
+        (__ \ LEGAL_STATUS).readNullable[String] and
+        (__ \ FUNCTIONS).readNullable[String] and
+        (__ \ MANDATES).readNullable[String] and
+        (__ \ INTERNAL_STRUCTURE).readNullable[String] and
+        (__ \ GENERAL_CONTEXT).readNullable[String]
+      )(IsaarDetail.apply _)) and
+    (__ \ DATA).read[IsaarControl]((
+      (__ \ DESCRIPTION_IDENTIFIER).readNullable[String] and
+        (__ \ INSTITUTION_IDENTIFIER).readNullable[String] and
+        (__ \ RULES_CONVENTIONS).readNullable[String] and
+        (__ \ STATUS).readNullable[String] and
+        (__ \ LEVEL_OF_DETAIL).readNullable[String] and
+        (__ \ DATES_CVD).readNullable[String] and
+        (__ \ LANGUAGES_USED).readNullable[List[String]] and
+        (__ \ SCRIPTS_USED).readNullable[List[String]] and
+        ((__ \ SOURCES).readNullable[List[String]] orElse
+          (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
+        (__ \ MAINTENANCE_NOTES).readNullable[String]
+      )(IsaarControl.apply _)) and
+    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).lazyReadNullable(
+      Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
+    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY)
+      .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
+  )(HistoricalAgentDescriptionF.apply _)
 
   implicit val historicalAgentDescriptionFormat: Format[HistoricalAgentDescriptionF]
       = Format(historicalAgentDescriptionReads,historicalAgentDescriptionWrites)
@@ -131,7 +131,6 @@ object HistoricalAgentDescriptionF {
   implicit object Converter extends RestConvertable[HistoricalAgentDescriptionF] with ClientConvertable[HistoricalAgentDescriptionF] {
     val restFormat = historicalAgentDescriptionFormat
 
-    private implicit val entityFormat = json.entityFormat
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
     private implicit val datePeriodFormat = DatePeriodF.Converter.clientFormat
     private implicit val isaarDetailsFormat = Json.format[IsaarDetail]

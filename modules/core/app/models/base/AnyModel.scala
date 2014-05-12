@@ -70,7 +70,7 @@ object AnyModel {
         Utils.clientFormatRegistry.get(a.isA).fold({
           // FIXME: Throw an error here???
           Logger.logger.warn("Unregistered AnyModel type {} (Writing to Client)", a.isA)
-          Json.toJson(Entity(id = a.id, `type` = a.isA, relationships = Map.empty))(models.json.entityFormat)
+          Json.toJson(Entity(id = a.id, `type` = a.isA, relationships = Map.empty))(Entity.entityFormat)
         })(format =>
           Json.toJson(a)(format))
       }
