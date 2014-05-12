@@ -83,5 +83,39 @@ class JsPathExtensionsSpec extends PlaySpecification {
         "field1" -> "foo"
       ))
     }
+
+    "allow reading the head of a nullable list" in {
+      case class TestData(field1: String, field2: Option[String])
+      // valid
+      val testJson1: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> Json.arr("foo")
+      )
+      // valid - list will be empty
+      val testJson2: JsValue = Json.obj(
+        "field1" -> "val"
+      )
+      // invalid, list exists but is wrong type
+      val testJson3: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> Json.arr(
+          Json.obj("foo" -> "bar")
+        )
+      )
+      val testJsonReads: Reads[TestData] = (
+        (__ \ "field1").read[String] and
+          (__ \ "field2").nullableHeadReads[String]
+        )(TestData.apply _)
+
+      testJson1.validate(testJsonReads).asOpt must beSome.which { data =>
+        data.field2 must beSome.which { value =>
+          value must equalTo("foo")
+        }
+      }
+      testJson2.validate(testJsonReads).asOpt must beSome.which { data =>
+        data.field2 must beNone
+      }
+      testJson3.validate(testJsonReads).asEither must beLeft
+    }
   }
 }

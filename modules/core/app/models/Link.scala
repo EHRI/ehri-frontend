@@ -82,20 +82,15 @@ object Link {
 
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
-      (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadNullable[List[AnyModel]](
-        Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
-      (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).lazyReadNullable[List[UserProfile]](
-        Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ LINK_HAS_BODY).lazyReadNullable[List[AccessPointF]](
-        Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ PROMOTED_BY).lazyReadNullable[List[UserProfile]](
-        Reads.list(UserProfile.Converter.restReads)).map(_.getOrElse(List.empty[UserProfile])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(Link.apply _)
+    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyNullableListReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).nullableHeadReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ LINK_HAS_BODY).nullableListReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
+      SystemEvent.Converter.restReads) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(Link.apply _)
 
   implicit object Converter extends RestReadable[Link] with ClientConvertable[Link] {
     val restReads = metaReads

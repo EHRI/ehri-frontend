@@ -65,10 +65,8 @@ object Country {
   implicit val metaReads: Reads[Country] = (
     __.read[CountryF](countryReads) and
     // Latest event
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-      Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-      Reads.list(SystemEvent.Converter.restReads)).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
   )(Country.apply _)
 

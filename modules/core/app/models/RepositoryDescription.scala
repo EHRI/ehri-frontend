@@ -142,12 +142,9 @@ object RepositoryDescriptionF {
           (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
         (__ \ MAINTENANCE_NOTES).readNullable[String]
       )(IsdiahControl.apply _)) and
-    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT)
-      .lazyReadNullable(Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT)
-      .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity])) and
-    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY)
-      .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
+    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableListReads[Entity] and
+    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
   )(RepositoryDescriptionF.apply _)
 
   implicit val repositoryDescriptionFormat: Format[RepositoryDescriptionF]

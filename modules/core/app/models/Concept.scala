@@ -86,16 +86,11 @@ object Concept {
 
   implicit val metaReads: Reads[Concept] = (
     __.read[ConceptF] and
-    (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).lazyReadNullable[List[Vocabulary]](
-      Reads.list[Vocabulary]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadNullable[List[Concept]](
-      Reads.list[Concept]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadNullable[List[Concept]](
-      Reads.list[Concept]).map(_.getOrElse(List.empty[Concept])) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-      Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-      Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).nullableHeadReads[Vocabulary] and
+    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableHeadReads[Concept](metaReads) and
+    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableListReads[Concept](metaReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor](Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
   )(Concept.apply _)
 

@@ -52,16 +52,12 @@ object PermissionGrant {
 
   implicit val metaReads: Reads[PermissionGrant] = (
     __.read[PermissionGrantF] and
-      (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyReadNullable[List[AnyModel]](
-        Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
-      (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
-        Reads.list[AnyModel]).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).lazyReadNullable[List[UserProfile]](
-        Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(PermissionGrant.apply _)
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyNullableHeadReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyNullableListReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyNullableHeadReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).nullableHeadReads[UserProfile] and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(PermissionGrant.apply _)
 
   implicit object Converter extends RestReadable[PermissionGrant] with ClientConvertable[PermissionGrant] {
     private implicit val permissionGrantFormat = Json.format[PermissionGrantF]
@@ -74,7 +70,7 @@ object PermissionGrant {
       (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       (__ \ "grantedBy").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(PermissionGrant.apply _, unlift(PermissionGrant.unapply _))
+    )(PermissionGrant.apply, unlift(PermissionGrant.unapply))
   }
 
   implicit object Resource extends RestResource[PermissionGrant] {

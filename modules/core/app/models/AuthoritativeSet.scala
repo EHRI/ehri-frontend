@@ -69,10 +69,8 @@ object AuthoritativeSet {
 
   implicit val metaReads: Reads[AuthoritativeSet] = (
     __.read[AuthoritativeSetF] and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
+      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor] and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
       (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
     )(AuthoritativeSet.apply _)
 
@@ -84,7 +82,7 @@ object AuthoritativeSet {
       (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply _))
+    )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply))
   }
 
   implicit object Resource extends RestResource[AuthoritativeSet] {

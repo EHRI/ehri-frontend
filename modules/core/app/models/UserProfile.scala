@@ -94,14 +94,12 @@ object UserProfile {
 
   implicit val metaReads: Reads[UserProfile] = (
     __.read[UserProfileF] and
-      (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadNullable[List[Group]](
-        Reads.list[Group]).map(_.getOrElse(List.empty[Group])) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(UserProfile.quickApply _)
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyNullableListReads(groupReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
+      SystemEvent.Converter.restReads) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(UserProfile.quickApply _)
 
   implicit object Converter extends ClientConvertable[UserProfile] with RestReadable[UserProfile] {
 

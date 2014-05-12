@@ -65,14 +65,12 @@ object Group {
 
   implicit val metaReads: Reads[Group] = (
     __.read[GroupF] and
-      (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadNullable[List[Group]](
-        Reads.list[Group]).map(_.getOrElse(List.empty[Group])) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(Group.apply _)
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyNullableListReads(metaReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
+      SystemEvent.Converter.restReads) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(Group.apply _)
 
   implicit object Converter extends ClientConvertable[Group] with RestReadable[Group] {
     val restReads = metaReads

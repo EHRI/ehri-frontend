@@ -71,20 +71,16 @@ object VirtualUnit {
 
   implicit val metaReads: Reads[VirtualUnit] = (
     __.read[VirtualUnitF](virtualUnitReads) and
-      (__ \ RELATIONSHIPS \ VC_DESCRIBED_BY).nullableListReads(
-        DocumentaryUnitDescriptionF.Converter.restFormat) and
-      (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyReadNullable[List[VirtualUnit]](
-        Reads.list(metaReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyReadNullable[List[Repository]](
-        Reads.list(Repository.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list(SystemEvent.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(VirtualUnit.apply _)
+    (__ \ RELATIONSHIPS \ VC_DESCRIBED_BY).nullableListReads(
+      DocumentaryUnitDescriptionF.Converter.restFormat) and
+    (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).nullableHeadReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyNullableHeadReads(metaReads) and
+    (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).nullableHeadReads[Repository] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
+      SystemEvent.Converter.restReads) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(VirtualUnit.apply _)
 
 
   implicit object Converter extends RestReadable[VirtualUnit] with ClientConvertable[VirtualUnit] {

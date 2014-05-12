@@ -90,24 +90,16 @@ object Annotation {
 
   implicit val metaReads: Reads[Annotation] = (
     __.read[AnnotationF] and
-      (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyReadNullable[List[Annotation]](
-        Reads.list(metaReads)).map(_.getOrElse(List.empty[Annotation])) and
-      (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).lazyReadNullable[List[UserProfile]](
-        Reads.list(userProfileMetaReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyReadNullable[List[AnyModel]](
-        Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ ANNOTATES).lazyReadNullable[List[AnyModel]](
-        Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ ANNOTATES_PART).lazyReadNullable[List[Entity]](
-        Reads.list(Entity.entityReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ PROMOTED_BY).lazyReadNullable[List[UserProfile]](
-        Reads.list(UserProfile.Converter.restReads)).map(_.getOrElse(List.empty[UserProfile])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(Annotation.apply _)
+    (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyNullableListReads[Annotation](metaReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).nullableHeadReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyNullableHeadReads[AnyModel](anyModelReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATES).lazyNullableHeadReads[AnyModel](anyModelReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATES_PART).nullableHeadReads[Entity] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor] and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(Annotation.apply _)
 
   implicit object Converter extends ClientConvertable[Annotation] with RestReadable[Annotation] {
     val restReads = metaReads

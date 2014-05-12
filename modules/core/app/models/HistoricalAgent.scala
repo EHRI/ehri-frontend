@@ -84,12 +84,10 @@ object HistoricalAgent {
 
   implicit val metaReads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
-    (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).lazyReadNullable[List[AuthoritativeSet]](
-      Reads.list[AuthoritativeSet]).map(_.flatMap(_.headOption)) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-      Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-      Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
+    (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).nullableHeadReads[AuthoritativeSet] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
+      SystemEvent.Converter.restReads) and
     (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
   )(HistoricalAgent.apply _)
 

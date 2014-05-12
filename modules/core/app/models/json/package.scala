@@ -21,22 +21,22 @@ package object json {
     def readIfEquals[T](t: T)(implicit r: Reads[T]): Reads[T] =
       path.read[T](Reads.filter[T](ValidationError("validate.error.incorrectType", t))(_ == t))
 
-    def formatIfEquals[T](t: T)(implicit f: Format[T]): OFormat[T] = path.format[T](readIfEquals(t))
+    def formatIfEquals[T](t: T)(implicit f: Format[T]): OFormat[T] = path.format[T](readIfEquals(t))        
 
-    def nullableListReads[T](implicit fmt: Reads[T]): Reads[List[T]] = new Reads[List[T]] {
+    def nullableListReads[T](implicit r: Reads[T]): Reads[List[T]] = new Reads[List[T]] {
       def reads(json: JsValue): JsResult[List[T]] = {
         path.asSingleJsResult(json).fold(
           invalid = { err =>
             JsSuccess[List[T]](List.empty[T], path)
           },
           valid = { v =>
-            v.validate[List[T]](Reads.list(fmt))
+            v.validate[List[T]](Reads.list(r))
           }
         )
       }
     }
 
-    def nullableListWrites[T](implicit fmt: Writes[T]): OWrites[List[T]] = {
+    def nullableListWrites[T](implicit w: Writes[T]): OWrites[List[T]] = {
       new OWrites[List[T]] {
         def writes(o: List[T]): JsObject
         = if (o.isEmpty) Json.obj()
@@ -47,13 +47,23 @@ package object json {
     def nullableListFormat[T](implicit fmt: Format[T]): OFormat[List[T]] =
       OFormat[List[T]](nullableListReads(fmt), nullableListWrites(fmt))
 
-    def lazyNullableListReads[T](fmt: => Reads[T]): Reads[List[T]] =
-      Reads(js => nullableListReads(fmt).reads(js))
+    def lazyNullableListReads[T](r: => Reads[T]): Reads[List[T]] =
+      Reads(js => nullableListReads(r).reads(js))
 
-    def lazyNullableListWrites[T](fmt: => Writes[T]): OWrites[List[T]] =
-      OWrites((t: List[T]) => nullableListWrites[T](fmt).writes(t).as[JsObject])
+    def lazyNullableListWrites[T](w: => Writes[T]): OWrites[List[T]] =
+      OWrites((t: List[T]) => nullableListWrites[T](w).writes(t).as[JsObject])
 
     def lazyNullableListFormat[T](fmt: => Format[T]): OFormat[List[T]] =
       OFormat[List[T]](lazyNullableListReads(fmt), lazyNullableListWrites(fmt))
+
+    /**
+     * Read the first item from a list that may be none, if
+     * the path is missing.
+     */
+    def nullableHeadReads[T](implicit r: Reads[T]): Reads[Option[T]] =
+      nullableListReads(r).map(_.headOption)
+    
+    def lazyNullableHeadReads[T](r: => Reads[T]): Reads[Option[T]] =
+      Reads(js => nullableHeadReads(r).reads(js))
   }
 }

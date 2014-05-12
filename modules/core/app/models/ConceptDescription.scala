@@ -48,8 +48,7 @@ object ConceptDescriptionF {
     (__ \ DATA \ SCOPENOTE).readNullable[List[String]] and
     (__ \ DATA \ LONGITUDE).readNullable[BigDecimal] and
     (__ \ DATA \ LATITUDE).readNullable[BigDecimal] and
-    (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).lazyReadNullable(
-      Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
+    (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY)
       .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
   )(ConceptDescriptionF.apply _)
