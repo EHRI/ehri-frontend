@@ -103,45 +103,41 @@ object RepositoryDescriptionF {
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ LANG_CODE).read[String] and
     (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String] and
-    ((__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[List[String]] orElse
-      (__ \ DATA \ OTHER_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
-    ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
-      (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_ADDRESS).lazyReadNullable[List[AddressF]](
-      Reads.list[AddressF]).map(_.getOrElse(List.empty[AddressF])) and
+    (__ \ DATA \ OTHER_FORMS_OF_NAME).readListOrSingleNullable[String] and
+    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readListOrSingleNullable[String] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_ADDRESS).nullableListReads[AddressF] and
     (__ \ DATA).read[IsdiahDetails]((
       (__ \ HISTORY).readNullable[String] and
-        (__ \ GEOCULTURAL_CONTEXT).readNullable[String] and
-        (__ \ MANDATES).readNullable[String] and
-        (__ \ ADMINISTRATIVE_STRUCTURE).readNullable[String] and
-        (__ \ RECORDS).readNullable[String] and
-        (__ \ BUILDINGS).readNullable[String] and
-        (__ \ HOLDINGS).readNullable[String] and
-        (__ \ FINDING_AIDS).readNullable[String]
-      )(IsdiahDetails.apply _)) and
+      (__ \ GEOCULTURAL_CONTEXT).readNullable[String] and
+      (__ \ MANDATES).readNullable[String] and
+      (__ \ ADMINISTRATIVE_STRUCTURE).readNullable[String] and
+      (__ \ RECORDS).readNullable[String] and
+      (__ \ BUILDINGS).readNullable[String] and
+      (__ \ HOLDINGS).readNullable[String] and
+      (__ \ FINDING_AIDS).readNullable[String]
+    )(IsdiahDetails.apply _)) and
     (__ \ DATA).read[IsdiahAccess]((
       (__ \ OPENING_TIMES).readNullable[String] and
-        (__ \ CONDITIONS).readNullable[String] and
-        (__ \ ACCESSIBILITY).readNullable[String]
-      )(IsdiahAccess.apply _)) and
+      (__ \ CONDITIONS).readNullable[String] and
+      (__ \ ACCESSIBILITY).readNullable[String]
+    )(IsdiahAccess.apply _)) and
     (__ \ DATA).read[IsdiahServices]((
       (__ \ RESEARCH_SERVICES).readNullable[String] and
-        (__ \ REPROD_SERVICES).readNullable[String] and
-        (__ \ PUBLIC_AREAS).readNullable[String]
-      )(IsdiahServices.apply _)) and
+      (__ \ REPROD_SERVICES).readNullable[String] and
+      (__ \ PUBLIC_AREAS).readNullable[String]
+    )(IsdiahServices.apply _)) and
     (__ \ DATA).read[IsdiahControl]((
       (__ \ DESCRIPTION_IDENTIFIER).readNullable[String] and
-        (__ \ INSTITUTION_IDENTIFIER).readNullable[String] and
-        (__ \ RULES_CONVENTIONS).readNullable[String] and
-        (__ \ STATUS).readNullable[String] and
-        (__ \ LEVEL_OF_DETAIL).readNullable[String] and
-        (__ \ DATES_CVD).readNullable[String] and
-        (__ \ LANGUAGES_USED).readNullable[List[String]] and
-        (__ \ SCRIPTS_USED).readNullable[List[String]] and
-        ((__ \ SOURCES).readNullable[List[String]] orElse
-          (__ \ SOURCES).readNullable[String].map(os => os.map(List(_))) ) and
-        (__ \ MAINTENANCE_NOTES).readNullable[String]
-      )(IsdiahControl.apply _)) and
+      (__ \ INSTITUTION_IDENTIFIER).readNullable[String] and
+      (__ \ RULES_CONVENTIONS).readNullable[String] and
+      (__ \ STATUS).readNullable[String] and
+      (__ \ LEVEL_OF_DETAIL).readNullable[String] and
+      (__ \ DATES_CVD).readNullable[String] and
+      (__ \ LANGUAGES_USED).readNullable[List[String]] and
+      (__ \ SCRIPTS_USED).readListOrSingleNullable[String] and
+      (__ \ SOURCES).readListOrSingleNullable[String] and
+      (__ \ MAINTENANCE_NOTES).readNullable[String]
+    )(IsdiahControl.apply _)) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableListReads[Entity] and
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]

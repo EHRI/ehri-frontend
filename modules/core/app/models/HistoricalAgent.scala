@@ -46,8 +46,7 @@ object HistoricalAgentF {
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ IDENTIFIER).read[String] and
     (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[HistoricalAgentDescriptionF]](
-      Reads.list[HistoricalAgentDescriptionF]).map(_.getOrElse(List.empty[HistoricalAgentDescriptionF]))
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[HistoricalAgentDescriptionF]
   )(HistoricalAgentF.apply _)
 
   implicit val historicalAgentFormat: Format[HistoricalAgentF] = Format(historicalAgentReads,historicalAgentWrites)

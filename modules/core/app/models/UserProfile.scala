@@ -58,7 +58,7 @@ object UserProfileF {
       (__ \ DATA \ NAME).read[String] and
       (__ \ DATA \ LOCATION).readNullable[String] and
       (__ \ DATA \ ABOUT).readNullable[String] and
-      (__ \ DATA \ LANGUAGES).readNullable[List[String]].map(_.toList.flatten) and
+      (__ \ DATA \ LANGUAGES).readListOrSingle[String] and
       (__ \ DATA \ IMAGE_URL).readNullable[String] and
       (__ \ DATA \ ACTIVE).readNullable[Boolean].map(_.getOrElse(true))
     )(UserProfileF.apply _)

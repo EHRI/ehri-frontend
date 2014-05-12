@@ -117,5 +117,79 @@ class JsPathExtensionsSpec extends PlaySpecification {
       }
       testJson3.validate(testJsonReads).asEither must beLeft
     }
+
+    "allow reading lists with single-item fallback" in {
+      case class TestData(field1: String, field2: List[String])
+      // valid
+      val testJson1: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> Json.arr("foo")
+      )
+      // valid - with single item
+      val testJson2: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> "foo"
+      )
+      // invalid, list exists but is wrong type
+      val testJson3: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> Json.arr(
+          Json.obj("foo" -> "bar")
+        )
+      )
+      val testJsonReads: Reads[TestData] = (
+        (__ \ "field1").read[String] and
+        (__ \ "field2").readListOrSingle[String]
+      )(TestData.apply _)
+
+      testJson1.validate(testJsonReads).asOpt must beSome.which { data =>
+        data.field2.headOption must beSome.which { value =>
+          value must equalTo("foo")
+        }
+      }
+      testJson2.validate(testJsonReads).asOpt must beSome.which { data =>
+        data.field2.headOption must beSome.which { value =>
+          value must equalTo("foo")
+        }
+      }
+      testJson3.validate(testJsonReads).asEither must beLeft
+    }
+
+    "allow reading nullable lists with single-item fallback" in {
+      case class TestData(field1: String, field2: Option[List[String]])
+      // valid
+      val testJson1: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> Json.arr("foo")
+      )
+      // valid - with single item
+      val testJson2: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> "foo"
+      )
+      // invalid, list exists but is wrong type
+      val testJson3: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> Json.arr(
+          Json.obj("foo" -> "bar")
+        )
+      )
+      val testJsonReads: Reads[TestData] = (
+        (__ \ "field1").read[String] and
+          (__ \ "field2").readListOrSingleNullable[String]
+        )(TestData.apply _)
+
+      testJson1.validate(testJsonReads).asOpt must beSome.which { data =>
+        data.field2 must beSome.which { value =>
+          value.headOption must equalTo(Some("foo"))
+        }
+      }
+      testJson2.validate(testJsonReads).asOpt must beSome.which { data =>
+        data.field2 must beSome.which { value =>
+          value.headOption must equalTo(Some("foo"))
+        }
+      }
+      testJson3.validate(testJsonReads).asEither must beLeft
+    }
   }
 }

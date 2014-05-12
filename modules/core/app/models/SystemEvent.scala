@@ -39,6 +39,8 @@ object SystemEventF {
   implicit val systemEventReads: Reads[SystemEventF] = (
     (__ \ TYPE).readIfEquals(EntityType.SystemEvent) and
     (__ \ ID).readNullable[String] and
+    // NB: Default Joda DateTime format is less flexible then
+    // using the constructor from a string
     (__ \ DATA \ TIMESTAMP).read[String].map(new DateTime(_)) and
     (__ \ DATA \ LOG_MESSAGE).readNullable[String] and
     (__ \ DATA \ EVENT_PROP).readNullable[EventType.Value]

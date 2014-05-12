@@ -21,7 +21,22 @@ package object json {
     def readIfEquals[T](t: T)(implicit r: Reads[T]): Reads[T] =
       path.read[T](Reads.filter[T](ValidationError("validate.error.incorrectType", t))(_ == t))
 
-    def formatIfEquals[T](t: T)(implicit f: Format[T]): OFormat[T] = path.format[T](readIfEquals(t))        
+    def formatIfEquals[T](t: T)(implicit f: Format[T]): OFormat[T] = path.format[T](readIfEquals(t))
+
+    /**
+     * Attempt to read a list of T, falling back to a single T.
+     */
+    def readListOrSingle[T](implicit r: Reads[T]): Reads[List[T]] =
+      path.read[List[T]].orElse(path.readNullable[T].map(_.toList))
+
+    def lazyReadListOrSingle[T](r: => Reads[T]): Reads[List[T]] =
+      Reads(js => readListOrSingle(r).reads(js))
+
+    def readListOrSingleNullable[T](implicit r: Reads[T]): Reads[Option[List[T]]] =
+      path.readNullable[List[T]].orElse(path.readNullable[T].map(s => s.map(List(_))))
+
+    def lazyReadListOrSingleNullable[T](r: => Reads[T]): Reads[Option[List[T]]] =
+      Reads(js => readListOrSingleNullable(r).reads(js))
 
     def nullableListReads[T](implicit r: Reads[T]): Reads[List[T]] = new Reads[List[T]] {
       def reads(json: JsValue): JsResult[List[T]] = {

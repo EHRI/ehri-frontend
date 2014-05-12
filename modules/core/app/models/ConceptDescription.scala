@@ -43,14 +43,13 @@ object ConceptDescriptionF {
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ LANGUAGE).read[String] and
     (__ \ DATA \ PREFLABEL).read[String] and
-    (__ \ DATA \ ALTLABEL).readNullable[List[String]] and
-    (__ \ DATA \ DEFINITION).readNullable[List[String]] and
-    (__ \ DATA \ SCOPENOTE).readNullable[List[String]] and
+    (__ \ DATA \ ALTLABEL).readListOrSingleNullable[String] and
+    (__ \ DATA \ DEFINITION).readListOrSingleNullable[String] and
+    (__ \ DATA \ SCOPENOTE).readListOrSingleNullable[String] and
     (__ \ DATA \ LONGITUDE).readNullable[BigDecimal] and
     (__ \ DATA \ LATITUDE).readNullable[BigDecimal] and
     (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY)
-      .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
+    (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
   )(ConceptDescriptionF.apply _)
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)

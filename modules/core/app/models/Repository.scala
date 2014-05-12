@@ -51,11 +51,7 @@ object RepositoryF {
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ IDENTIFIER).read[String] and
     (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-    // FIXME: This throws an error if an item has no descriptions - we should somehow
-    // make it so that the path being missing is permissable but a validation error
-    // is not.
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[RepositoryDescriptionF]](
-      Reads.list[RepositoryDescriptionF]).map(_.getOrElse(List.empty[RepositoryDescriptionF])) and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[RepositoryDescriptionF] and
     (__ \ DATA \ PRIORITY).readNullable[Int] and
     (__ \ DATA \ URL_PATTERN).readNullable[String] and
     (__ \ DATA \ LOGO_URL).readNullable[String]

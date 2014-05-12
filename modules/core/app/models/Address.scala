@@ -47,14 +47,10 @@ object AddressF {
     (__ \ DATA \ REGION).readNullable[String] and
     (__ \ DATA \ POSTAL_CODE).readNullable[String] and
     (__ \ DATA \ COUNTRY_CODE).readNullable[String] and
-    ((__ \ DATA \ EMAIL).read[List[String]] orElse
-      (__ \ DATA \ EMAIL).readNullable[String].map(_.toList)) and
-    ((__ \ DATA \ TELEPHONE).read[List[String]] orElse
-      (__ \ DATA \ TELEPHONE).readNullable[String].map(_.toList)) and
-    ((__ \ DATA \ FAX).read[List[String]] orElse
-      (__ \ DATA \ FAX).readNullable[String].map(_.toList)) and
-    ((__ \ DATA \ URL).read[List[String]] orElse
-      (__ \ DATA \ URL).readNullable[String].map(_.toList))
+    (__ \ DATA \ EMAIL).readListOrSingle[String] and
+    (__ \ DATA \ TELEPHONE).readListOrSingle[String] and
+    (__ \ DATA \ FAX).readListOrSingle[String] and
+    (__ \ DATA \ URL).readListOrSingle[String]
   )(AddressF.apply _)
 
   implicit val addressFormat: Format[AddressF] = Format(addressReads,addressWrites)

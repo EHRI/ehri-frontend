@@ -22,10 +22,10 @@ object PermissionGrantF {
 
   implicit val permissionGrantReads: Reads[PermissionGrantF] = (
     (__ \ TYPE).readIfEquals(EntityType.PermissionGrant) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ TIMESTAMP).readNullable[String].map(_.map(new DateTime(_))) and
-      (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
-    )(PermissionGrantF.apply _)
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ TIMESTAMP).readNullable[String].map(_.map(new DateTime(_))) and
+    (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
+  )(PermissionGrantF.apply _)
 
   implicit object Converter extends RestReadable[PermissionGrantF] with ClientConvertable[PermissionGrantF] {
     val restReads = permissionGrantReads

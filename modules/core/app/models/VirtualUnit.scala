@@ -36,11 +36,10 @@ object VirtualUnitF {
 
   implicit val virtualUnitReads: Reads[VirtualUnitF] = (
     (__ \ TYPE).readIfEquals(EntityType.VirtualUnit) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
-        Reads.list[DocumentaryUnitDescriptionF]).map(_.getOrElse(List.empty[DocumentaryUnitDescriptionF]))
-    )(VirtualUnitF.apply _)
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[DocumentaryUnitDescriptionF]
+  )(VirtualUnitF.apply _)
 
   implicit val VirtualUnitFormat: Format[VirtualUnitF] = Format(virtualUnitReads,virtualUnitWrites)
 

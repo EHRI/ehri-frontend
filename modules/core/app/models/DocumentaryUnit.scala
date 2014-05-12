@@ -64,13 +64,12 @@ object DocumentaryUnitF {
     (__ \ TYPE).readIfEquals(EntityType.DocumentaryUnit) and
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ IDENTIFIER).read[String] and
-    ((__ \ DATA \ OTHER_IDENTIFIERS).readNullable[List[String]] orElse
-      (__ \ DATA \ OTHER_IDENTIFIERS).readNullable[String].map(os => os.map(List(_))) ) and
+    (__ \ DATA \ OTHER_IDENTIFIERS).readListOrSingleNullable[String] and
     (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-    ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
+    ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]]
+      orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
     (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY)
-      .nullableListReads[DocumentaryUnitDescriptionF]
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[DocumentaryUnitDescriptionF]
   )(DocumentaryUnitF.apply _)
 
   implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
