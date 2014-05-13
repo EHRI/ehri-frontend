@@ -1,9 +1,39 @@
-@(item: DocumentaryUnit, hit: utils.search.SearchHit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: DocumentaryUnit, hit: utils.search.SearchHit, context: Option[AnyModel], watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+
+@wrapParent(doc: DocumentaryUnit, parent: Option[DocumentaryUnit])(html: Html) = {
+
+    @if(parent.map(_.id) != context.map(_.id)) {
+        @parent.map { p =>
+            @wrapParent(doc, p.parent) {
+                <h5><a class="search-item-parent-name" href="@controllers.portal.routes.Portal.browseDocument(p.id)">@p.toStringLang</a></h5>
+                <div class="search-item-parent" id="@p.id">
+                    @html
+                </div>
+            }
+        }.getOrElse {
+            @html
+        }
+    } else {
+        @html
+    }
+}
+
+@println("CONTEXT: " + context)
+
+
 
 @p.common.searchHits(hit) {
-    @p.layout.searchItemOutline(item, watched) {
-        <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">@item.toStringLang</a>
-    } {
-        @listItemBody(item, showRepository)
-    }
+    <div class="search-item" id="@item.id">
+        @wrapParent(item, item.parent) {
+            <div class="search-item-actions">
+                @p.common.watchButtonsSmall(item, watched)
+            </div>
+            <h3 class="search-item-heading type-highlight @item.isA.toString">
+                <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">@item.toStringLang</a>
+            </h3>
+            <div class="search-item-body">
+                @listItemBody(item, showRepository)
+            </div>
+        }
+    </div>
 }
