@@ -80,7 +80,7 @@ jQuery(function ($) {
     $("footer").css("marginBottom", $dataPolicyWidget.outerHeight());
   }
 
-  if (!getDataPolicy() && hasScreenSpaceForWidget()) {
+  if ($dataPolicyWidget.length > 0 && !getDataPolicy() && hasScreenSpaceForWidget()) {
     showDataPolicy();
   }
 

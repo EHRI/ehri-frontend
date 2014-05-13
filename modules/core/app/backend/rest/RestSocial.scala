@@ -3,7 +3,7 @@ package backend.rest
 import backend.{Page, EventHandler, Social, ApiUser}
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{FutureCache, PageParams, ListParams}
-import models.{Link, Annotation, UserProfile}
+import models.{VirtualUnit, Link, Annotation, UserProfile}
 import defines.EntityType
 import models.json.RestReadable
 import play.api.libs.json.{JsValue, Json, Reads}
@@ -169,6 +169,12 @@ trait RestSocial extends Social with RestDAO {
   def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]] = {
     userCall(enc(requestUrl, userId, EntityType.Link, "page")).get().map { r =>
       checkErrorAndParse(r)(Page.pageReads(Link.Converter.restReads))
+    }
+  }
+
+  def userBookmarks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[VirtualUnit]] = {
+    userCall(enc(requestUrl, EntityType.VirtualUnit, "forUser", userId)).get().map { r =>
+      checkErrorAndParse(r)(Page.pageReads(VirtualUnit.Converter.restReads))
     }
   }
 }

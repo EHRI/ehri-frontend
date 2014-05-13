@@ -30,6 +30,8 @@ Scala allows you to "extend" existing classes using implicit wrapper classes. We
 
  - The `Result` class is extended with a `withPreferences(prefs: T)` method that allows serializing a preferences object of type `T` to the current session. The extension method is defined in `SessionPreferences.scala` and will be added to `Result` in any class that extends the `SessionPreferences` trait with preferences type `T`.
 
+ - The `JsPath` class is extended (in `JsPathExtensions` with various methods for extracting data from JSON with specific semantics, e.g. producing and empty list if the entire path for the expected list is missing.
+
 An example of this mechanism is available in the `SessionPreferencesSpec.scala` test class.
 
 ### Implicit method parameters

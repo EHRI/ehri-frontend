@@ -42,13 +42,12 @@ object HistoricalAgentF {
   }
 
   implicit val historicalAgentReads: Reads[HistoricalAgentF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.HistoricalAgent)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[HistoricalAgentDescriptionF]](
-        Reads.list[HistoricalAgentDescriptionF]).map(_.getOrElse(List.empty[HistoricalAgentDescriptionF]))
-    )(HistoricalAgentF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.HistoricalAgent) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[HistoricalAgentDescriptionF]
+  )(HistoricalAgentF.apply _)
 
   implicit val historicalAgentFormat: Format[HistoricalAgentF] = Format(historicalAgentReads,historicalAgentWrites)
 
@@ -84,26 +83,23 @@ object HistoricalAgent {
 
   implicit val metaReads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
-      (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).lazyReadNullable[List[AuthoritativeSet]](
-        Reads.list[AuthoritativeSet]).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(HistoricalAgent.apply _)
+    (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).nullableHeadReads[AuthoritativeSet] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
+      SystemEvent.Converter.restReads) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(HistoricalAgent.apply _)
 
   implicit object Converter extends ClientConvertable[HistoricalAgent] with RestReadable[HistoricalAgent] {
     val restReads = metaReads
 
     implicit val clientFormat: Format[HistoricalAgent] = (
       __.format[HistoricalAgentF](HistoricalAgentF.Converter.clientFormat) and
-        (__ \ "set").formatNullable[AuthoritativeSet](AuthoritativeSet.Converter.clientFormat) and
-        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply _))
-
+      (__ \ "set").formatNullable[AuthoritativeSet](AuthoritativeSet.Converter.clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply _))
   }
 
   implicit object Resource extends RestResource[HistoricalAgent] {

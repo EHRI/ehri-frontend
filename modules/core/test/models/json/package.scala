@@ -1,4 +1,6 @@
-package object json {
+package models
+
+package object testjson {
   val documentaryUnitTestJson = """
     {
       "id" : "wiener-library-GB 1556 WL 760",
@@ -482,6 +484,167 @@ package object json {
         },
         "type" : "annotation",
         "relationships" : {}
+      }
+    """
+
+  val virtualUnitTestJson =
+    """{
+        "id" : "foobar",
+        "data" : {
+          "identifier" : "foobar"
+        },
+        "type" : "virtualUnit",
+        "relationships" : {
+          "isDescribedBy" : [ {
+            "id" : "cd1",
+            "data" : {
+              "languageCode" : "eng",
+              "name" : "Documentary Unit 1"
+            },
+            "type" : "documentDescription",
+            "relationships" : { }
+          } ],
+          "lifecycleEvent" : [ {
+            "id" : "5c45d68c-d790-11e3-bb6c-41cb20310239",
+            "data" : {
+              "timestamp" : "2014-05-09T16:41:17.459+01:00",
+              "eventType" : "setVisibility"
+            },
+            "type" : "systemEvent",
+            "relationships" : {
+              "hasActioner" : [ {
+                "id" : "mike",
+                "data" : {
+                  "name" : "Mike",
+                  "identifier" : "mike"
+                },
+                "type" : "userProfile",
+                "relationships" : {
+                  "belongsTo" : [ {
+                    "id" : "kcl",
+                    "data" : {
+                      "name" : "KCL",
+                      "identifier" : "kcl-group"
+                    },
+                    "type" : "group",
+                    "relationships" : { }
+                  }, {
+                    "id" : "admin",
+                    "data" : {
+                      "name" : "Administrators",
+                      "identifier" : "admin"
+                    },
+                    "type" : "group",
+                    "relationships" : { }
+                  } ]
+                }
+              } ]
+            },
+            "meta" : {
+              "childCount" : 1
+            }
+          } ],
+          "isPartOf" : [ {
+            "id" : "vc1",
+            "data" : {
+              "identifier" : "vc1"
+            },
+            "type" : "virtualUnit",
+            "relationships" : {
+              "describes" : [ {
+                "id" : "vcd1",
+                "data" : {
+                  "languageCode" : "eng",
+                  "name" : "Virtual Collection 1"
+                },
+                "type" : "documentDescription",
+                "relationships" : { }
+              } ]
+            },
+            "meta" : {
+              "childCount" : 2
+            }
+          } ]
+        },
+        "meta" : {
+          "gid" : 448
+        }
+      }
+    """
+
+  val virtualUnitTestJsonNoDesc =
+    """{
+        "id" : "foobar",
+        "data" : {
+          "identifier" : "foobar"
+        },
+        "type" : "virtualUnit",
+        "relationships" : {
+          "lifecycleEvent" : [ {
+            "id" : "5c45d68c-d790-11e3-bb6c-41cb20310239",
+            "data" : {
+              "timestamp" : "2014-05-09T16:41:17.459+01:00",
+              "eventType" : "setVisibility"
+            },
+            "type" : "systemEvent",
+            "relationships" : {
+              "hasActioner" : [ {
+                "id" : "mike",
+                "data" : {
+                  "name" : "Mike",
+                  "identifier" : "mike"
+                },
+                "type" : "userProfile",
+                "relationships" : {
+                  "belongsTo" : [ {
+                    "id" : "kcl",
+                    "data" : {
+                      "name" : "KCL",
+                      "identifier" : "kcl-group"
+                    },
+                    "type" : "group",
+                    "relationships" : { }
+                  }, {
+                    "id" : "admin",
+                    "data" : {
+                      "name" : "Administrators",
+                      "identifier" : "admin"
+                    },
+                    "type" : "group",
+                    "relationships" : { }
+                  } ]
+                }
+              } ]
+            },
+            "meta" : {
+              "childCount" : 1
+            }
+          } ],
+          "isPartOf" : [ {
+            "id" : "vc1",
+            "data" : {
+              "identifier" : "vc1"
+            },
+            "type" : "virtualUnit",
+            "relationships" : {
+              "describes" : [ {
+                "id" : "vcd1",
+                "data" : {
+                  "languageCode" : "eng",
+                  "name" : "Virtual Collection 1"
+                },
+                "type" : "documentDescription",
+                "relationships" : { }
+              } ]
+            },
+            "meta" : {
+              "childCount" : 2
+            }
+          } ]
+        },
+        "meta" : {
+          "gid" : 448
+        }
       }
     """
 }

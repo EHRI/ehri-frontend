@@ -70,7 +70,7 @@ object AnyModel {
         Utils.clientFormatRegistry.get(a.isA).fold({
           // FIXME: Throw an error here???
           Logger.logger.warn("Unregistered AnyModel type {} (Writing to Client)", a.isA)
-          Json.toJson(Entity(id = a.id, `type` = a.isA, relationships = Map.empty))(models.json.entityFormat)
+          Json.toJson(Entity(id = a.id, `type` = a.isA, relationships = Map.empty))(Entity.entityFormat)
         })(format =>
           Json.toJson(a)(format))
       }
@@ -120,8 +120,8 @@ trait MetaModel[+T <: Model] extends AnyModel {
   override def toStringAbbr(implicit lang: Lang): String = toStringLang(lang)
 }
 
-trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] {
-  def descriptions: List[TD] = model.descriptions
+trait WithDescriptions[+T <: Description] extends AnyModel {
+  def descriptions: List[T]
 
   private lazy val allAccessPoints = descriptions.flatMap(_.accessPoints)
 
@@ -145,6 +145,10 @@ trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T
    */
   def annotationLinks(links: Seq[Link]): Seq[Link]
   = links.filter(link => link.bodies.isEmpty)
+}
+
+trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] with WithDescriptions[TD] {
+  def descriptions: List[TD] = model.descriptions
 }
 
 trait Holder[+T] extends AnyModel {

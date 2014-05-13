@@ -3,6 +3,8 @@ package models
 import defines._
 import play.api.libs.json._
 import models.base.AnyModel
+import play.api.libs.functional.syntax._
+import play.api.libs.json.JsString
 
 
 object Entity {
@@ -19,6 +21,31 @@ object Entity {
   def fromString(s: String, t: EntityType.Value) = {
     new Entity(s, t, Map(IDENTIFIER -> JsString(s)), Map())
   }
+
+  /**
+   * Reads a generic entity.
+   */
+  implicit val entityReads: Reads[Entity] = (
+    (__ \ Entity.ID).read[String] and
+      (__ \ Entity.TYPE).read[EntityType.Type](defines.EnumUtils.enumReads(EntityType)) and
+      (__ \ Entity.DATA).lazyRead(Reads.map[JsValue]) and
+      (__ \ Entity.RELATIONSHIPS).lazyRead(Reads.map[List[Entity]](Reads.list(entityReads)))
+    )(Entity.apply _)
+
+  /**
+   * Writes a generic entity.
+   */
+  implicit val entityWrites: Writes[Entity] = (
+    (__ \ Entity.ID).write[String] and
+      (__ \ Entity.TYPE).write[EntityType.Type](defines.EnumUtils.enumWrites) and
+      (__ \ Entity.DATA).lazyWrite(Writes.map[JsValue]) and
+      (__ \ Entity.RELATIONSHIPS).lazyWrite(Writes.map[List[Entity]])
+    )(unlift(Entity.unapply))
+
+  /**
+   * Format for a generic entity.
+   */
+  val entityFormat: Format[Entity] = Format(entityReads, entityWrites)
 }
 
 case class Entity(

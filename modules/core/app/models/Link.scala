@@ -45,13 +45,13 @@ object LinkF {
   }
 
   implicit val linkReads: Reads[LinkF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Link)) and
-      (__ \ ID).readNullable[String] and
-      ((__ \ DATA \ LINK_TYPE).read[LinkType.Value]
-        orElse Reads.pure(LinkType.Associative)) and
-      (__ \ DATA \ DESCRIPTION).readNullable[String] and
-      (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
-    )(LinkF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Link) and
+    (__ \ ID).readNullable[String] and
+    ((__ \ DATA \ LINK_TYPE).read[LinkType.Value]
+      orElse Reads.pure(LinkType.Associative)) and
+    (__ \ DATA \ DESCRIPTION).readNullable[String] and
+    (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
+  )(LinkF.apply _)
 
   implicit val linkFormat: Format[LinkF] = Format(linkReads,linkWrites)
 
@@ -82,20 +82,15 @@ object Link {
 
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
-      (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadNullable[List[AnyModel]](
-        Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
-      (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).lazyReadNullable[List[UserProfile]](
-        Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ LINK_HAS_BODY).lazyReadNullable[List[AccessPointF]](
-        Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ PROMOTED_BY).lazyReadNullable[List[UserProfile]](
-        Reads.list(UserProfile.Converter.restReads)).map(_.getOrElse(List.empty[UserProfile])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(Link.apply _)
+    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyNullableListReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).nullableHeadReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ LINK_HAS_BODY).nullableListReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
+      SystemEvent.Converter.restReads) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(Link.apply _)
 
   implicit object Converter extends RestReadable[Link] with ClientConvertable[Link] {
     val restReads = metaReads
@@ -103,13 +98,13 @@ object Link {
     private implicit val linkFormat = Json.format[LinkF]
     val clientFormat: Format[Link] = (
       __.format[LinkF](LinkF.Converter.clientFormat) and
-        nullableListFormat(__ \ "targets")(AnyModel.Converter.clientFormat) and
-        (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
-        nullableListFormat(__ \ "accessPoints")(AccessPointF.Converter.clientFormat) and
-        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        nullableListFormat(__ \ "promotedBy")(UserProfile.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-        (__ \ "meta").format[JsObject]
+      (__ \ "targets").nullableListFormat(AnyModel.Converter.clientFormat) and
+      (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
+      (__ \ "accessPoints").nullableListFormat(AccessPointF.Converter.clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
+      (__ \ "promotedBy").nullableListFormat(UserProfile.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
     )(Link.apply _, unlift(Link.unapply _))
   }
 

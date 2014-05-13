@@ -69,16 +69,23 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
-  def getWithChildrenAction[CT](id: String)(
-      f: MT => Page[CT] => PageParams =>  Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
+  object getWithChildrenAction {
+    def async[CT](id: String)(f: MT => Page[CT] => PageParams =>  Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
           implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
-    itemPermissionAction.async[MT](contentType, id) { item => implicit userOpt => implicit request =>
-      val params = PageParams.fromRequest(request)
-      for {
-        anns <- backend.getAnnotationsForItem(id)
-        children <- backend.pageChildren[MT,CT](id, params)
-        links <- backend.getLinksForItem(id)
-      } yield f(item)(children)(params)(anns)(links)(userOpt)(request)
+      itemPermissionAction.async[MT](contentType, id) { item => implicit userOpt => implicit request =>
+        val params = PageParams.fromRequest(request)
+        for {
+          anns <- backend.getAnnotationsForItem(id)
+          children <- backend.pageChildren[MT,CT](id, params)
+          links <- backend.getLinksForItem(id)
+          r <- f(item)(children)(params)(anns)(links)(userOpt)(request)
+        } yield r
+      }
+    }
+
+    def apply[CT](id: String)(f: MT => Page[CT] => PageParams =>  Seq[Annotation] => List[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
+      implicit rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]) = {
+      async(id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))))
     }
   }
 

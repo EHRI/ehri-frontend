@@ -47,13 +47,15 @@ object ApplicationBuild extends Build {
     // Ontology
     "ehri-project" % "ehri-definitions" % "1.0",
 
+    // Solely to satisfy SBT: bit.ly/16bFa4O
+    "com.google.guava" % "guava" % "17.0",
+
     // Injection guff
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
 
     "jp.t2v" %% "play2-auth" % "0.12.0",
 
-    "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "mysql" % "mysql-connector-java" % "5.1.25",
 
     // Pegdown. Currently versions higher than 1.1 crash
@@ -62,7 +64,6 @@ object ApplicationBuild extends Build {
 
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
-    "org.codehaus.groovy" % "groovy-all" % "2.0.6",
 
     // S3 Upload plugin
     "nl.rhinofly" %% "play-s3" % "3.3.3",
@@ -73,6 +74,7 @@ object ApplicationBuild extends Build {
 
     // Solr stuff
     "com.github.seratch" %% "scalikesolr" % "[4.3,)",
+
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
   )
@@ -103,13 +105,15 @@ object ApplicationBuild extends Build {
 
     resolvers += Resolver.file("Local Repository", file("/home/mike/dev/play/playframework/repository/local"))(Resolver.ivyStylePatterns),
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
-    resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
+    resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     resolvers += "Rhinofly Internal Repository" at "http://maven-repository.rhinofly.net:8081/artifactory/libs-release-local",
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
-    resourceDirectory in Test <<= baseDirectory apply {(baseDir: File) => baseDir / "test/resources"}
+    resourceDirectory in Test <<= baseDirectory apply {
+      (baseDir: File) => baseDir / "test/resources"
+    }
   )
 
   lazy val core = Project(appName + "-core", file("modules/core"))

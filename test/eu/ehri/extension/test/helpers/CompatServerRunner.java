@@ -10,6 +10,8 @@ import eu.ehri.project.utils.fixtures.FixtureLoader;
 import eu.ehri.project.utils.fixtures.FixtureLoaderFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.GraphDatabaseAPI;
+import org.neo4j.kernel.logging.ConsoleLogger;
+import org.neo4j.kernel.logging.BufferingConsoleLogger;
 import org.neo4j.server.CommunityNeoServer;
 import org.neo4j.server.WrappingNeoServerBootstrapper;
 import org.neo4j.server.configuration.Configurator;
@@ -37,6 +39,7 @@ public class CompatServerRunner extends WrappingNeoServerBootstrapper {
 
     // Graph factory.
     final static FramedGraphFactory graphFactory = new FramedGraphFactory(new JavaHandlerModule());
+
 
     private static FramedGraph<Neo4jGraph> framedGraph;
     private static FixtureLoader fixtureLoader = null;
@@ -112,7 +115,7 @@ public class CompatServerRunner extends WrappingNeoServerBootstrapper {
      * starting it up.
      */
     public Configurator getConfigurator() {
-        return createConfigurator();
+        return createConfigurator(new BufferingConsoleLogger());
     }
 
     @Override
@@ -126,7 +129,7 @@ public class CompatServerRunner extends WrappingNeoServerBootstrapper {
                         }
                         deleteFolder(
                                 new File(
-                                        createConfigurator()
+                                        getConfigurator()
                                                 .configuration()
                                                 .getString("org.neo4j.dbpath")));
                     }

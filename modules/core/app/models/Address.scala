@@ -38,24 +38,20 @@ object AddressF {
   }
 
   implicit val addressReads: Reads[AddressF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Address)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ ADDRESS_NAME).readNullable[String] and
-      (__ \ DATA \ CONTACT_PERSON).readNullable[String] and
-      (__ \ DATA \ STREET_ADDRESS).readNullable[String] and
-      (__ \ DATA \ CITY).readNullable[String] and
-      (__ \ DATA \ REGION).readNullable[String] and
-      (__ \ DATA \ POSTAL_CODE).readNullable[String] and
-      (__ \ DATA \ COUNTRY_CODE).readNullable[String] and
-      ((__ \ DATA \ EMAIL).read[List[String]] orElse
-        (__ \ DATA \ EMAIL).readNullable[String].map(_.toList)) and
-      ((__ \ DATA \ TELEPHONE).read[List[String]] orElse
-        (__ \ DATA \ TELEPHONE).readNullable[String].map(_.toList)) and
-      ((__ \ DATA \ FAX).read[List[String]] orElse
-        (__ \ DATA \ FAX).readNullable[String].map(_.toList)) and
-      ((__ \ DATA \ URL).read[List[String]] orElse
-        (__ \ DATA \ URL).readNullable[String].map(_.toList))
-    )(AddressF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Address) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ ADDRESS_NAME).readNullable[String] and
+    (__ \ DATA \ CONTACT_PERSON).readNullable[String] and
+    (__ \ DATA \ STREET_ADDRESS).readNullable[String] and
+    (__ \ DATA \ CITY).readNullable[String] and
+    (__ \ DATA \ REGION).readNullable[String] and
+    (__ \ DATA \ POSTAL_CODE).readNullable[String] and
+    (__ \ DATA \ COUNTRY_CODE).readNullable[String] and
+    (__ \ DATA \ EMAIL).readListOrSingle[String] and
+    (__ \ DATA \ TELEPHONE).readListOrSingle[String] and
+    (__ \ DATA \ FAX).readListOrSingle[String] and
+    (__ \ DATA \ URL).readListOrSingle[String]
+  )(AddressF.apply _)
 
   implicit val addressFormat: Format[AddressF] = Format(addressReads,addressWrites)
 

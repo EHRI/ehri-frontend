@@ -1,0 +1,13 @@
+@(page: backend.Page[VirtualUnit], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@layout.rightSidebar(Messages("actions.listVirtualUnits")) {
+    @common.filterableList("pagination.displayingItems", page, params) {
+        @virtualUnit.itemList(page)
+    }
+} {
+    @common.sidebarActions { user =>
+        @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
+            <a href="@controllers.archdesc.routes.VirtualUnits.create">@Messages("actions.createVirtualUnit")</a>
+        }
+    }
+}

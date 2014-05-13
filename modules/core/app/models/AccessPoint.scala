@@ -34,15 +34,15 @@ object AccessPointF {
   import Entity.{TYPE => ETYPE,_}
 
   implicit val accessPointReads: Reads[AccessPointF] = (
-    (__ \ ETYPE).read[EntityType.Value](equalsReads(EntityType.AccessPoint)) and
-      (__ \ ID).readNullable[String] and
-      ((__ \ DATA \ TYPE).read[AccessPointType.Value] orElse Reads.pure(AccessPointType.Other)) and
-      // FIXME: Target should be consistent!!!
-      ((__ \ DATA \ TARGET).read[String]
-        orElse (__ \ DATA \ DESCRIPTION).read[String]
-        orElse Reads.pure("Unknown target!")) and
-      (__ \ DATA \ DESCRIPTION).readNullable[String]
-    )(AccessPointF.apply _)
+    (__ \ ETYPE).readIfEquals(EntityType.AccessPoint) and
+    (__ \ ID).readNullable[String] and
+    ((__ \ DATA \ TYPE).read[AccessPointType.Value] orElse Reads.pure(AccessPointType.Other)) and
+    // FIXME: Target should be consistent!!!
+    ((__ \ DATA \ TARGET).read[String]
+      orElse (__ \ DATA \ DESCRIPTION).read[String]
+      orElse Reads.pure("Unknown target!")) and
+    (__ \ DATA \ DESCRIPTION).readNullable[String]
+  )(AccessPointF.apply _)
 
   implicit val accessPointWrites = new Writes[AccessPointF] {
     def writes(d: AccessPointF): JsValue = {
@@ -77,25 +77,18 @@ case class AccessPointF(
   /**
    * Given a set of links, see if we can find one with this access point
    * as a body.
-   * @param links
-   * @return
    */
   def linkFor(links: Seq[Link]): Option[Link] = links.find(_.bodies.exists(body => body.id == id))
 
   /**
    * Given a set of links, see if we can find one with this access point
    * as a body.
-   * @param links
-   * @return
    */
   def linksFor(links: Seq[Link]): Seq[Link] = links.filter(_.bodies.exists(body => body.id == id))
 
   /**
    * Given an item and a set of links, see if we can resolve the
    * opposing target item.
-   * @param item
-   * @param links
-   * @return
    */
   def target(item: AnyModel, links: Seq[Link]): Option[(Link,AnyModel)] = linkFor(links).flatMap { link =>
     link.opposingTarget(item).map { target =>

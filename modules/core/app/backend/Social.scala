@@ -2,7 +2,7 @@ package backend
 
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{PageParams, ListParams}
-import models.{Link, Annotation, UserProfile}
+import models.{VirtualUnit, Link, Annotation, UserProfile}
 import models.json.RestReadable
 import models.base.AnyModel
 
@@ -32,4 +32,6 @@ trait Social {
 
   def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Annotation]]
   def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]]
+
+  def userBookmarks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[VirtualUnit]]
 }

@@ -47,19 +47,15 @@ object RepositoryF {
   }
 
   implicit val repositoryReads: Reads[RepositoryF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Repository)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      // FIXME: This throws an error if an item has no descriptions - we should somehow
-      // make it so that the path being missing is permissable but a validation error
-      // is not.
-      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[RepositoryDescriptionF]](
-        Reads.list[RepositoryDescriptionF]).map(_.getOrElse(List.empty[RepositoryDescriptionF])) and
-      (__ \ DATA \ PRIORITY).readNullable[Int] and
-      (__ \ DATA \ URL_PATTERN).readNullable[String] and
-      (__ \ DATA \ LOGO_URL).readNullable[String]
-    )(RepositoryF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Repository) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[RepositoryDescriptionF] and
+    (__ \ DATA \ PRIORITY).readNullable[Int] and
+    (__ \ DATA \ URL_PATTERN).readNullable[String] and
+    (__ \ DATA \ LOGO_URL).readNullable[String]
+  )(RepositoryF.apply _)
 
   implicit val repositoryFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
 
@@ -115,15 +111,12 @@ object Repository {
 
   implicit lazy val metaReads: Reads[Repository] = (
     __.read[RepositoryF](repositoryReads) and
-      // Country
-      (__ \ RELATIONSHIPS \ REPOSITORY_HAS_COUNTRY).lazyReadNullable[List[Country]](
-        Reads.list(Country.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.toList.flatten) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list(SystemEvent.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(Repository.apply _)
+    (__ \ RELATIONSHIPS \ REPOSITORY_HAS_COUNTRY).nullableHeadReads[Country] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
+      SystemEvent.Converter.restReads) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(Repository.apply _)
 
   implicit object Converter extends ClientConvertable[Repository] with RestReadable[Repository] {
     val restReads = metaReads
@@ -131,10 +124,10 @@ object Repository {
     val clientFormat: Format[Repository] = (
       __.format[RepositoryF](RepositoryF.Converter.clientFormat) and
       (__ \ "country").formatNullable[Country](Country.Converter.clientFormat) and
-      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(Repository.apply _, unlift(Repository.unapply _))
+    )(Repository.apply _, unlift(Repository.unapply))
   }
 
   implicit object Resource extends RestResource[Repository] {

@@ -52,13 +52,13 @@ object UserProfileF {
   }
 
   implicit val userProfileReads: Reads[UserProfileF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.UserProfile)) and
+    (__ \ TYPE).readIfEquals(EntityType.UserProfile) and
       (__ \ ID).readNullable[String] and
       (__ \ DATA \ IDENTIFIER).read[String] and
       (__ \ DATA \ NAME).read[String] and
       (__ \ DATA \ LOCATION).readNullable[String] and
       (__ \ DATA \ ABOUT).readNullable[String] and
-      (__ \ DATA \ LANGUAGES).readNullable[List[String]].map(_.toList.flatten) and
+      (__ \ DATA \ LANGUAGES).readListOrSingle[String] and
       (__ \ DATA \ IMAGE_URL).readNullable[String] and
       (__ \ DATA \ ACTIVE).readNullable[Boolean].map(_.getOrElse(true))
     )(UserProfileF.apply _)
@@ -94,22 +94,20 @@ object UserProfile {
 
   implicit val metaReads: Reads[UserProfile] = (
     __.read[UserProfileF] and
-      (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadNullable[List[Group]](
-        Reads.list[Group]).map(_.getOrElse(List.empty[Group])) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(UserProfile.quickApply _)
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyNullableListReads(groupReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
+      SystemEvent.Converter.restReads) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(UserProfile.quickApply _)
 
   implicit object Converter extends ClientConvertable[UserProfile] with RestReadable[UserProfile] {
 
     val restReads = metaReads
     val clientFormat: Format[UserProfile] = (
       __.format[UserProfileF](UserProfileF.Converter.clientFormat) and
-      nullableListFormat(__ \ "groups")(Group.Converter.clientFormat) and
-      lazyNullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "groups").nullableListFormat(Group.Converter.clientFormat) and
+      (__ \ "accessibleTo").lazyNullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply _))

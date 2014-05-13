@@ -87,10 +87,12 @@
             @if(!item.model.descriptions.isEmpty) {
                 <div class="description-viewport">
                     @item.descriptions.zipWithIndex.map { case (desc,i) =>
-                        <div class="description-holder" id="desc-@desc.id">
-                            @actions("Actions", item.id, desc.id.getOrElse("INVALID_DESC_ID"))
-                            @documentaryUnit.renderDescription(item, desc, links)
-                        </div>
+                        @defining(desc.id.getOrElse("INVALID_DESC_ID")) { descId =>
+                            <div class="description-holder" id="desc-@descId">
+                                @actions("Actions", item.id, descId)
+                                @documentaryUnit.renderDescription(item, desc, links)
+                            </div>
+                        }
                     }
                 </div>
             } else {
@@ -103,9 +105,9 @@
     }
 
     @item.childCount.map { count =>
-        @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
+        @views.html.search.searchSection(Messages("virtualUnit.searchInside", item.toStringAbbr(lang))) {
             @views.html.search.searchForm(result, params, action, autofocus = false) {
-                @documentaryUnit.searchItemList(result)
+                @searchItemList(result)
             }
         }
     }

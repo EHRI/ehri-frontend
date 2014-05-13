@@ -1,6 +1,6 @@
 package utils
 
-import play.api.i18n.Lang
+import play.api.i18n.{Lang, Messages}
 import java.util.Locale
 
 package object i18n {
@@ -37,14 +37,12 @@ package object i18n {
   /**
    * Get a language name for a given code.
    */
-  def languageCodeToName(code: String)(implicit lang: Lang): String = {
-    if (code.size == 2) {
-      languageCode2ToNameOpt(code).getOrElse(code)
-    } else {
-      lang3to2lookup.get(code)
-        .flatMap(c2 => languageCode2ToNameOpt(c2))
-        .getOrElse(utils.Data.additionalLangs.toMap.getOrElse(code, code))
-    }
+  def languageCodeToName(code: String)(implicit lang: Lang): String = code match {
+    case c if c == "mul" => Messages("languageCode.mul")
+    case c if c.length == 2 => languageCode2ToNameOpt(code).getOrElse(code)
+    case c =>lang3to2lookup.get(c)
+      .flatMap(c2 => languageCode2ToNameOpt(c2))
+      .getOrElse(Messages("languageCode." + c))
   }
 
   /**

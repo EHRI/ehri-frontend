@@ -21,11 +21,11 @@ object PermissionGrantF {
   import play.api.libs.functional.syntax._
 
   implicit val permissionGrantReads: Reads[PermissionGrantF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.PermissionGrant)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ TIMESTAMP).readNullable[String].map(_.map(new DateTime(_))) and
-      (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
-    )(PermissionGrantF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.PermissionGrant) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ TIMESTAMP).readNullable[String].map(_.map(new DateTime(_))) and
+    (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
+  )(PermissionGrantF.apply _)
 
   implicit object Converter extends RestReadable[PermissionGrantF] with ClientConvertable[PermissionGrantF] {
     val restReads = permissionGrantReads
@@ -52,16 +52,12 @@ object PermissionGrant {
 
   implicit val metaReads: Reads[PermissionGrant] = (
     __.read[PermissionGrantF] and
-      (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyReadNullable[List[AnyModel]](
-        Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
-      (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
-        Reads.list[AnyModel]).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).lazyReadNullable[List[UserProfile]](
-        Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(PermissionGrant.apply _)
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyNullableHeadReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyNullableListReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyNullableHeadReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).nullableHeadReads[UserProfile] and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(PermissionGrant.apply _)
 
   implicit object Converter extends RestReadable[PermissionGrant] with ClientConvertable[PermissionGrant] {
     private implicit val permissionGrantFormat = Json.format[PermissionGrantF]
@@ -70,11 +66,11 @@ object PermissionGrant {
     implicit val clientFormat: Format[PermissionGrant] = (
       __.format[PermissionGrantF](PermissionGrantF.Converter.restReads) and
       (__ \ "accessor").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
-      json.nullableListFormat((__ \ "targets"))(AnyModel.Converter.clientFormat) and
+      (__ \ "targets").nullableListFormat(AnyModel.Converter.clientFormat) and
       (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       (__ \ "grantedBy").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(PermissionGrant.apply _, unlift(PermissionGrant.unapply _))
+    )(PermissionGrant.apply, unlift(PermissionGrant.unapply))
   }
 
   implicit object Resource extends RestResource[PermissionGrant] {

@@ -113,60 +113,53 @@ object DocumentaryUnitDescriptionF {
   private implicit val levelOfDescriptionReads = enumReads(LevelOfDescription)
 
   implicit val documentaryUnitDescriptionReads: Reads[DocumentaryUnitDescriptionF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnitDescription)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ LANG_CODE).read[String] and
-      __.read[IsadGIdentity]((
-        (__ \ DATA \ TITLE).read[String] and
-          ((__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[List[String]] orElse
-            (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readNullable[String].map(os => os.map(List(_))) ) and
-          (__ \ DATA \ IDENTIFIER).readNullable[String] and
-          (__ \ DATA \ REF).readNullable[String] and
-          (__ \ DATA \ ABSTRACT).readNullable[String] and
-          (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).lazyReadNullable[List[DatePeriodF]](
-            Reads.list[DatePeriodF](DatePeriodF.Converter.restFormat)).map(_.toList.flatten) and
-          (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
-          (__ \ DATA \ EXTENT_MEDIUM).readNullable[String]
-        )(IsadGIdentity.apply _)) and
-      (__ \ DATA).read[IsadGContext]((
-        (__ \ ADMIN_BIOG).readNullable[String] and
-          (__ \ ARCH_HIST).readNullable[String] and
-          (__ \ ACQUISITION).readNullable[String]
-        )(IsadGContext.apply _)) and
-      (__ \ DATA).read[IsadGContent]((
-        (__ \ SCOPE_CONTENT).readNullable[String] and
-          (__ \ APPRAISAL).readNullable[String] and
-          (__ \ ACCRUALS).readNullable[String] and
-          (__ \ SYS_ARR).readNullable[String]
-        )(IsadGContent.apply _)) and
-      (__ \ DATA).read[IsadGConditions]((
-        (__ \ ACCESS_COND).readNullable[String] and
-          (__ \ REPROD_COND).readNullable[String] and
-          ((__ \ LANG_MATERIALS).readNullable[List[String]] orElse
-            (__ \ LANG_MATERIALS).readNullable[String].map(os => os.map(List(_)))) and
-          ((__ \ SCRIPT_MATERIALS).readNullable[List[String]] orElse
-            (__ \ SCRIPT_MATERIALS).readNullable[String].map(os => os.map(List(_)))) and
-          (__ \ PHYSICAL_CHARS).readNullable[String] and
-          (__ \ FINDING_AIDS).readNullable[String]
-        )(IsadGConditions.apply _)) and
-      (__ \ DATA).read[IsadGMaterials]((
-        (__ \ LOCATION_ORIGINALS).readNullable[String] and
-          (__ \ LOCATION_COPIES).readNullable[String] and
-          (__ \ RELATED_UNITS).readNullable[String] and
-          (__ \ PUBLICATION_NOTE).readNullable[String]
-        )(IsadGMaterials.apply _)) and
-      ((__ \ DATA \ NOTES).readNullable[List[String]] orElse
-        (__ \ DATA \ NOTES).readNullable[String].map(os => os.map(List(_)))) and
-      (__ \ DATA).read[IsadGControl]((
-        (__ \ ARCHIVIST_NOTE).readNullable[String] and
-          (__ \ RULES_CONVENTIONS).readNullable[String] and
-          (__ \ DATES_DESCRIPTIONS).readNullable[String]
-        )(IsadGControl.apply _)) and
-      (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).lazyReadNullable(
-        Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-      (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY)
-        .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
-    )(DocumentaryUnitDescriptionF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.DocumentaryUnitDescription) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ LANG_CODE).read[String] and
+    __.read[IsadGIdentity]((
+      (__ \ DATA \ TITLE).read[String] and
+      (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readListOrSingleNullable[String] and
+      (__ \ DATA \ IDENTIFIER).readNullable[String] and
+      (__ \ DATA \ REF).readNullable[String] and
+      (__ \ DATA \ ABSTRACT).readNullable[String] and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableListReads[DatePeriodF] and
+      (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
+      (__ \ DATA \ EXTENT_MEDIUM).readNullable[String]
+    )(IsadGIdentity.apply _)) and
+    (__ \ DATA).read[IsadGContext]((
+      (__ \ ADMIN_BIOG).readNullable[String] and
+      (__ \ ARCH_HIST).readNullable[String] and
+      (__ \ ACQUISITION).readNullable[String]
+    )(IsadGContext.apply _)) and
+    (__ \ DATA).read[IsadGContent]((
+      (__ \ SCOPE_CONTENT).readNullable[String] and
+      (__ \ APPRAISAL).readNullable[String] and
+      (__ \ ACCRUALS).readNullable[String] and
+      (__ \ SYS_ARR).readNullable[String]
+    )(IsadGContent.apply _)) and
+    (__ \ DATA).read[IsadGConditions]((
+      (__ \ ACCESS_COND).readNullable[String] and
+      (__ \ REPROD_COND).readNullable[String] and
+      (__ \ LANG_MATERIALS).readListOrSingleNullable[String] and
+      (__ \ SCRIPT_MATERIALS).readListOrSingleNullable[String] and
+      (__ \ PHYSICAL_CHARS).readNullable[String] and
+      (__ \ FINDING_AIDS).readNullable[String]
+    )(IsadGConditions.apply _)) and
+    (__ \ DATA).read[IsadGMaterials]((
+      (__ \ LOCATION_ORIGINALS).readNullable[String] and
+      (__ \ LOCATION_COPIES).readNullable[String] and
+      (__ \ RELATED_UNITS).readNullable[String] and
+      (__ \ PUBLICATION_NOTE).readNullable[String]
+    )(IsadGMaterials.apply _)) and
+    (__ \ DATA \ NOTES).readListOrSingleNullable[String] and
+    (__ \ DATA).read[IsadGControl]((
+      (__ \ ARCHIVIST_NOTE).readNullable[String] and
+      (__ \ RULES_CONVENTIONS).readNullable[String] and
+      (__ \ DATES_DESCRIPTIONS).readNullable[String]
+    )(IsadGControl.apply _)) and
+    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
+  )(DocumentaryUnitDescriptionF.apply _)
 
   implicit val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF]
   = Format(documentaryUnitDescriptionReads, documentaryUnitDescriptionWrites)
@@ -174,7 +167,6 @@ object DocumentaryUnitDescriptionF {
   implicit object Converter extends RestConvertable[DocumentaryUnitDescriptionF] with ClientConvertable[DocumentaryUnitDescriptionF] {
     val restFormat = documentaryUnitDescriptionFormat
 
-    private implicit val entityFormat = json.entityFormat
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
     private implicit val datePeriodFormat = DatePeriodF.Converter.clientFormat
     private implicit val isadGIdentityFormat = Json.format[IsadGIdentity]

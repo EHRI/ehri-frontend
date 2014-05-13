@@ -17,6 +17,7 @@ import backend.Backend
 import scala.util.Failure
 import solr.facet.FieldFacetClass
 import scala.util.Success
+import defines.EntityType
 
 
 @Singleton
@@ -52,6 +53,19 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
     )
   }
 
+  private val indexTypes = Seq(
+    EntityType.Country,
+    EntityType.DocumentaryUnit,
+    EntityType.HistoricalAgent,
+    EntityType.Repository,
+    EntityType.Concept,
+    EntityType.Vocabulary,
+    EntityType.AuthoritativeSet,
+    EntityType.UserProfile,
+    EntityType.Group,
+    EntityType.VirtualUnit
+  )
+
   /**
    * Full text search action that returns a complete page of item data.
    * @return
@@ -72,14 +86,13 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
         )
       }
       case _ => Ok(views.html.search.search(page, params, facets,
-        controllers.admin.routes.AdminSearch.search))
+        controllers.admin.routes.AdminSearch.search()))
     }
   }
 
   /**
    * Quick filter action that searches applies a 'q' string filter to
    * only the name_ngram field and returns an id/name pair.
-   * @return
    */
   def filter = filterAction() {
     page => implicit userOpt => implicit request =>
@@ -106,22 +119,16 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
     )
   )
 
-  /**
-   * Render the update form
-   * @return
-   */
-  def updateIndex = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.search.updateIndex(form = updateIndexForm,
-      action = controllers.admin.routes.AdminSearch.updateIndexPost))
+  def updateIndex() = adminAction { implicit userOpt => implicit request =>
+    Ok(views.html.search.updateIndex(form = updateIndexForm, types = indexTypes,
+      action = controllers.admin.routes.AdminSearch.updateIndexPost()))
   }
 
   /**
    * Perform the actual update, piping progress through a channel
    * and returning a chunked result.
-   *
-   * @return
    */
-  def updateIndexPost = adminAction { implicit userOpt => implicit request =>
+  def updateIndexPost() = adminAction { implicit userOpt => implicit request =>
 
     val (deleteAll, entities) = updateIndexForm.bindFromRequest.value.get
 

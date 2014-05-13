@@ -1,11 +1,9 @@
 package models
 
-import defines.EntityType
 import play.api.libs.json._
-import play.api.data.validation.ValidationError
 import play.api.libs.json.JsSuccess
-import play.api.libs.json.util._
-import play.api.libs.functional.syntax._
+import play.api.libs.json.JsObject
+import play.api.data.validation.ValidationError
 
 /**
  * User: michaelb
@@ -13,120 +11,74 @@ import play.api.libs.functional.syntax._
 package object json {
 
   /**
-   * Reader for the EntityType enum
+   * Extensions to JsPath
+   * @param path The extended path object
    */
-  implicit val entityTypeReads = defines.EnumUtils.enumReads(EntityType)
-  implicit val entityTypeFormat = defines.EnumUtils.enumFormat(EntityType)
+  implicit class JsPathExtensions(path: JsPath) {
+    /**
+     * Read a value only if it's equal to the given value.
+     */
+    def readIfEquals[T](t: T)(implicit r: Reads[T]): Reads[T] =
+      path.read[T](Reads.filter[T](ValidationError("validate.error.incorrectType", t))(_ == t))
 
-  /**
-   * Reads a generic entity.
-   */
-  implicit val entityReads: Reads[Entity] = (
-    (__ \ Entity.ID).read[String] and
-      (__ \ Entity.TYPE).read[EntityType.Type](defines.EnumUtils.enumReads(EntityType)) and
-      (__ \ Entity.DATA).lazyRead(Reads.map[JsValue]) and
-      (__ \ Entity.RELATIONSHIPS).lazyRead(Reads.map[List[Entity]](Reads.list(entityReads)))
-    )(Entity.apply _)
+    def formatIfEquals[T](t: T)(implicit f: Format[T]): OFormat[T] = path.format[T](readIfEquals(t))
 
-  /**
-   * Writes a generic entity.
-   */
-  implicit val entityWrites: Writes[Entity] = (
-    (__ \ Entity.ID).write[String] and
-      (__ \ Entity.TYPE).write[EntityType.Type](defines.EnumUtils.enumWrites) and
-      (__ \ Entity.DATA).lazyWrite(Writes.map[JsValue]) and
-      (__ \ Entity.RELATIONSHIPS).lazyWrite(Writes.map[List[Entity]])
-    )(unlift(Entity.unapply))
+    /**
+     * Attempt to read a list of T, falling back to a single T.
+     */
+    def readListOrSingle[T](implicit r: Reads[T]): Reads[List[T]] =
+      path.read[List[T]].orElse(path.readNullable[T].map(_.toList))
 
-  /**
-   * Format for a generic entity.
-   */
-  val entityFormat: Format[Entity] = Format(entityReads, entityWrites)
+    def lazyReadListOrSingle[T](r: => Reads[T]): Reads[List[T]] =
+      Reads(js => readListOrSingle(r).reads(js))
 
+    def readListOrSingleNullable[T](implicit r: Reads[T]): Reads[Option[List[T]]] =
+      path.readNullable[List[T]].orElse(path.readNullable[T].map(s => s.map(List(_))))
 
-  /**
-   * Reads combinator that checks if a value is equal to the expected value.
-   */
-  def equalsReads[T](t: T)(implicit r: Reads[T]): Reads[T] = Reads.filter(ValidationError("validate.error.incorrectType", t))(_ == t)
-  def equalsFormat[T](t: T)(implicit r: Format[T]): Format[T] = Format(equalsReads(t), r)
+    def lazyReadListOrSingleNullable[T](r: => Reads[T]): Reads[Option[List[T]]] =
+      Reads(js => readListOrSingleNullable(r).reads(js))
 
-  /**
-   * Reader that reads a possibly-non-existent field and supplies either the
-   * value found or an empty list.
-   * @param path
-   * @param fmt
-   * @tparam T
-   * @return
-   */
-  def nullableListReads[T](path: JsPath)(implicit fmt: Reads[T]): Reads[List[T]] = {
-    new Reads[List[T]] {
+    def nullableListReads[T](implicit r: Reads[T]): Reads[List[T]] = new Reads[List[T]] {
       def reads(json: JsValue): JsResult[List[T]] = {
-        json.validate[List[T]].fold(
+        path.asSingleJsResult(json).fold(
           invalid = { err =>
             JsSuccess[List[T]](List.empty[T], path)
           },
           valid = { v =>
-            JsSuccess[List[T]](v, path)
+            v.validate[List[T]](Reads.list(r))
           }
         )
       }
     }
-  }
 
-  /**
-   * Writer that writes a list field unless the list is empty, in which case
-   * it writes nothing.
-   * @param path
-   * @param fmt
-   * @tparam T
-   * @return
-   */
-  def nullableListWrites[T](path: JsPath)(implicit fmt: Writes[T]): OWrites[List[T]] = {
-    new OWrites[List[T]] {
-      def writes(o: List[T]): JsObject
-          = if (o.isEmpty) Json.obj()
-            else path.write[List[T]].writes(o)
+    def nullableListWrites[T](implicit w: Writes[T]): OWrites[List[T]] = {
+      new OWrites[List[T]] {
+        def writes(o: List[T]): JsObject
+        = if (o.isEmpty) Json.obj()
+        else path.write[List[T]].writes(o)
+      }
     }
+
+    def nullableListFormat[T](implicit fmt: Format[T]): OFormat[List[T]] =
+      OFormat[List[T]](nullableListReads(fmt), nullableListWrites(fmt))
+
+    def lazyNullableListReads[T](r: => Reads[T]): Reads[List[T]] =
+      Reads(js => nullableListReads(r).reads(js))
+
+    def lazyNullableListWrites[T](w: => Writes[T]): OWrites[List[T]] =
+      OWrites((t: List[T]) => nullableListWrites[T](w).writes(t).as[JsObject])
+
+    def lazyNullableListFormat[T](fmt: => Format[T]): OFormat[List[T]] =
+      OFormat[List[T]](lazyNullableListReads(fmt), lazyNullableListWrites(fmt))
+
+    /**
+     * Read the first item from a list that may be none, if
+     * the path is missing.
+     */
+    def nullableHeadReads[T](implicit r: Reads[T]): Reads[Option[T]] =
+      nullableListReads(r).map(_.headOption)
+    
+    def lazyNullableHeadReads[T](r: => Reads[T]): Reads[Option[T]] =
+      Reads(js => nullableHeadReads(r).reads(js))
   }
-
-  /**
-   * Writes a list value as null if the list is empty. Reads as an empty list
-   * if the path is null.
-   * @param path
-   * @param fmt
-   * @tparam T
-   * @return
-   */
-  def nullableListFormat[T](path: JsPath)(implicit fmt: Format[T]): OFormat[List[T]] =
-      OFormat[List[T]](nullableListReads(path)(fmt), nullableListWrites(path)(fmt))
-
-  /**
-   * Lazy alternative to nullableListReads.
-   * @param path
-   * @param fmt
-   * @tparam T
-   * @return
-   */
-  def lazyNullableListReads[T](path: JsPath)(fmt: => Reads[T]): Reads[List[T]]
-  = Reads(js => nullableListReads(path)(fmt).reads(js))
-
-  /**
-   * Lazy alternative to nullableListWrites.
-   * @param path
-   * @param fmt
-   * @tparam T
-   * @return
-   */
-  def lazyNullableListWrites[T](path: JsPath)(fmt: => Writes[T]): OWrites[List[T]]
-  = OWrites((t: List[T]) => nullableListWrites[T](path)(fmt).writes(t).as[JsObject])
-
-  /**
-   * Lazy alternative to nullableListFormat.
-   * @param path
-   * @param fmt
-   * @tparam T
-   * @return
-   */
-  def lazyNullableListFormat[T](path: JsPath)(fmt: => Format[T]): OFormat[List[T]]
-      = OFormat[List[T]](lazyNullableListReads(path)(fmt), lazyNullableListWrites(path)(fmt))
 }

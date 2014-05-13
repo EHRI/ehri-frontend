@@ -37,12 +37,14 @@ object SystemEventF {
   }
 
   implicit val systemEventReads: Reads[SystemEventF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.SystemEvent)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ TIMESTAMP).read[String].map(new DateTime(_)) and
-      (__ \ DATA \ LOG_MESSAGE).readNullable[String] and
-      (__ \ DATA \ EVENT_PROP).readNullable[EventType.Value]
-    )(SystemEventF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.SystemEvent) and
+    (__ \ ID).readNullable[String] and
+    // NB: Default Joda DateTime format is less flexible then
+    // using the constructor from a string
+    (__ \ DATA \ TIMESTAMP).read[String].map(new DateTime(_)) and
+    (__ \ DATA \ LOG_MESSAGE).readNullable[String] and
+    (__ \ DATA \ EVENT_PROP).readNullable[EventType.Value]
+  )(SystemEventF.apply _)
 
   implicit val systemEventFormat: Format[SystemEventF] = Format(systemEventReads,systemEventWrites)
 
@@ -70,14 +72,11 @@ object SystemEvent {
 
   implicit val metaReads: Reads[SystemEvent] = (
     __.read[SystemEventF] and
-      (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadNullable[List[AnyModel]](
-        Reads.list(AnyModel.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyReadNullable[List[AnyModel]](
-        Reads.list(AnyModel.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(SystemEvent.apply _)
+    (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyNullableHeadReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyNullableHeadReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyNullableHeadReads(Accessor.Converter.restReads) and
+    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(SystemEvent.apply _)
 
   implicit object Converter extends ClientConvertable[SystemEvent] with RestReadable[SystemEvent] {
     private implicit val systemEventFormat = Json.format[SystemEventF]
@@ -89,7 +88,7 @@ object SystemEvent {
       (__ \ "firstSubject").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       (__ \ "user").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(SystemEvent.apply _, unlift(SystemEvent.unapply _))
+    )(SystemEvent.apply _, unlift(SystemEvent.unapply))
   }
 
   implicit object Resource extends RestResource[SystemEvent] {

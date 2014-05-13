@@ -39,20 +39,18 @@ object ConceptDescriptionF {
   }
 
   implicit val conceptDescriptionReads: Reads[ConceptDescriptionF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.ConceptDescription)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ LANGUAGE).read[String] and
-      (__ \ DATA \ PREFLABEL).read[String] and
-      (__ \ DATA \ ALTLABEL).readNullable[List[String]] and
-      (__ \ DATA \ DEFINITION).readNullable[List[String]] and
-      (__ \ DATA \ SCOPENOTE).readNullable[List[String]] and
-      (__ \ DATA \ LONGITUDE).readNullable[BigDecimal] and
-      (__ \ DATA \ LATITUDE).readNullable[BigDecimal] and
-      (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).lazyReadNullable(
-        Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-      (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY)
-        .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
-    )(ConceptDescriptionF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.ConceptDescription) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ LANGUAGE).read[String] and
+    (__ \ DATA \ PREFLABEL).read[String] and
+    (__ \ DATA \ ALTLABEL).readListOrSingleNullable[String] and
+    (__ \ DATA \ DEFINITION).readListOrSingleNullable[String] and
+    (__ \ DATA \ SCOPENOTE).readListOrSingleNullable[String] and
+    (__ \ DATA \ LONGITUDE).readNullable[BigDecimal] and
+    (__ \ DATA \ LATITUDE).readNullable[BigDecimal] and
+    (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
+  )(ConceptDescriptionF.apply _)
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
 
@@ -60,7 +58,6 @@ object ConceptDescriptionF {
     lazy val restFormat = conceptDescriptionFormat
 
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
-    private implicit val entityFormat = json.entityFormat
     lazy val clientFormat = Json.format[ConceptDescriptionF]
   }
 }

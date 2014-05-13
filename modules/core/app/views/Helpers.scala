@@ -2,7 +2,7 @@ package views
 
 import java.util.Locale
 
-import play.api.i18n.Lang
+import play.api.i18n.{Messages, Lang}
 
 import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
@@ -97,7 +97,8 @@ package object Helpers {
       c3 -> WordUtils.capitalize(new java.util.Locale(c2).getDisplayLanguage(locale))
     }.toList
 
-    (localeLangs ::: utils.Data.additionalLangs).sortBy(_._2)
+    (localeLangs ::: utils.Data
+      .additionalLanguages.map(l => l -> Messages("languageCode." + l))).sortBy(_._2)
   }
 
   /**
