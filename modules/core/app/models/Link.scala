@@ -87,9 +87,8 @@ object Link {
     (__ \ RELATIONSHIPS \ LINK_HAS_BODY).nullableListReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
-      SystemEvent.Converter.restReads) and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
 
   implicit object Converter extends RestReadable[Link] with ClientConvertable[Link] {

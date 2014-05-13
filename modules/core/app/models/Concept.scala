@@ -90,7 +90,7 @@ object Concept {
     (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableListReads[Concept](metaReads) and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor](Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
 
   implicit object Converter extends ClientConvertable[Concept] with RestReadable[Concept] {

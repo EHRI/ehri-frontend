@@ -85,9 +85,8 @@ object HistoricalAgent {
     __.read[HistoricalAgentF] and
     (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).nullableHeadReads[AuthoritativeSet] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
-      SystemEvent.Converter.restReads) and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
 
   implicit object Converter extends ClientConvertable[HistoricalAgent] with RestReadable[HistoricalAgent] {

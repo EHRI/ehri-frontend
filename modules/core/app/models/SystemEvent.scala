@@ -75,7 +75,7 @@ object SystemEvent {
     (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyNullableHeadReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyNullableHeadReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyNullableHeadReads(Accessor.Converter.restReads) and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ META).readWithDefault(Json.obj())
   )(SystemEvent.apply _)
 
   implicit object Converter extends ClientConvertable[SystemEvent] with RestReadable[SystemEvent] {

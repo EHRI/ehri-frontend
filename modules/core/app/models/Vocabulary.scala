@@ -73,9 +73,8 @@ object Vocabulary {
   implicit val metaReads: Reads[Vocabulary] = (
     __.read[VocabularyF] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
-      SystemEvent.Converter.restReads) and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
   )(Vocabulary.apply _)
 
   implicit object Converter extends ClientConvertable[Vocabulary] with RestReadable[Vocabulary] {

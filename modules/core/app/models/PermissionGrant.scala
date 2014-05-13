@@ -5,7 +5,6 @@ import org.joda.time.DateTime
 import defines.{PermissionType,EntityType}
 import models.json._
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import play.api.libs.json.JsObject
 
 
@@ -56,7 +55,7 @@ object PermissionGrant {
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyNullableListReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyNullableHeadReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).nullableHeadReads[UserProfile] and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ META).readWithDefault(Json.obj())
   )(PermissionGrant.apply _)
 
   implicit object Converter extends RestReadable[PermissionGrant] with ClientConvertable[PermissionGrant] {
