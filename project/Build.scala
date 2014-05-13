@@ -33,16 +33,14 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-definitions" % "1.0",
 
     // Solely to satisfy SBT: bit.ly/16bFa4O
-    "com.google.guava" % "guava" % "14.0", 
-    
+    "com.google.guava" % "guava" % "17.0",
+
     // Injection guff
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
 
     "jp.t2v" %% "play2-auth" % "0.11.0",
-    "jp.t2v" %% "play2-auth-test" % "0.11.0" % "test",
 
-    "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "mysql" % "mysql-connector-java" % "5.1.25",
 
     // Pegdown. Currently versions higher than 1.1 crash
@@ -51,7 +49,6 @@ object ApplicationBuild extends Build {
 
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
-    "org.codehaus.groovy" % "groovy-all" % "2.0.6",
 
     // S3 Upload plugin
     "nl.rhinofly" %% "play-s3" % "3.3.3",
@@ -62,11 +59,13 @@ object ApplicationBuild extends Build {
 
     // Solr stuff
     "com.github.seratch" %% "scalikesolr" % "[4.3,)",
+
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
   )
 
   val testDependencies = Seq(
+    "jp.t2v" %% "play2-auth-test" % "0.11.0" % "test",
     // Forced logback to older version due to conflict with Neo4j
     "ch.qos.logback" % "logback-core" % "1.0.3" force(),
     "ch.qos.logback" % "logback-classic" % "1.0.3" force(),
@@ -82,56 +81,58 @@ object ApplicationBuild extends Build {
 
     resolvers += Resolver.file("Local Repository", file("/home/mike/dev/play/playframework/repository/local"))(Resolver.ivyStylePatterns),
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
-    resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
+    resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     resolvers += "Rhinofly Internal Repository" at "http://maven-repository.rhinofly.net:8081/artifactory/libs-release-local",
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
-    resourceDirectory in Test <<= baseDirectory apply {(baseDir: File) => baseDir / "test/resources"}
+    resourceDirectory in Test <<= baseDirectory apply {
+      (baseDir: File) => baseDir / "test/resources"
+    }
   )
 
   lazy val core = play.Project(
     appName + "-core", appVersion, appDependencies, path = file("modules/core")
-  ).settings(otherSettings:_*)
+  ).settings(otherSettings: _*)
 
   lazy val annotation = play.Project(
     appName + "-annotation", appVersion, appDependencies, path = file("modules/annotation")
-  ).settings(otherSettings:_*).dependsOn(core)
+  ).settings(otherSettings: _*).dependsOn(core)
 
   lazy val linking = play.Project(
     appName + "-linking", appVersion, appDependencies, path = file("modules/linking")
-  ).settings(otherSettings:_*).dependsOn(core, annotation)
+  ).settings(otherSettings: _*).dependsOn(core, annotation)
 
   lazy val archdesc = play.Project(
     appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc")
-  ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
+  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val authorities = play.Project(
     appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities")
-  ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
+  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val vocabs = play.Project(
     appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs")
-  ).settings(otherSettings:_*).dependsOn(core, annotation, linking)
+  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val portal = play.Project(
     appName + "-portal", appVersion, appDependencies, path = file("modules/portal"))
-    .settings(otherSettings:_*).dependsOn(core, annotation, linking)
+    .settings(otherSettings: _*).dependsOn(core, annotation, linking)
     .aggregate(core, annotation, linking)
 
   lazy val admin = play.Project(
     appName + "-admin", appVersion, appDependencies, path = file("modules/admin")
-  ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs, portal)
+  ).settings(otherSettings: _*).dependsOn(core, archdesc, authorities, vocabs, portal)
     .aggregate(core, archdesc, authorities, vocabs, portal)
 
   lazy val guides = play.Project(
     appName + "-guides", appVersion, appDependencies, path = file("modules/guides")
-  ).settings(otherSettings:_*).dependsOn(archdesc)
+  ).settings(otherSettings: _*).dependsOn(archdesc)
     .aggregate(archdesc)
 
   lazy val main = play.Project(appName, appVersion, appDependencies ++ testDependencies
-  ).settings(otherSettings:_*).dependsOn(admin, portal, guides)
+  ).settings(otherSettings: _*).dependsOn(admin, portal, guides)
     .aggregate(admin, portal, guides)
 
 
