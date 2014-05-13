@@ -94,6 +94,7 @@ portal.repository.phone=Phone
 portal.repository.email=Email
 portal.repository.fax=Fax
 portal.repository.url=Web
+portal.repository.searchItems=Search items held by {0}
 portal.item.details=Item Details
 portal.item.history=Online History
 portal.historicalAgent.set=Historical Agent
@@ -105,6 +106,7 @@ portal.documentaryUnit.dates=Dates
 portal.documentaryUnit.levelOfDescription=Level of Description
 portal.documentaryUnit.languageOfMaterials=Languages
 portal.documentaryUnit.scriptOfMaterials=Scripts
+portal.documentaryUnit.searchItems=Search child items...
 
 portal.historicalAgent.identifier=Identifier
 portal.historicalAgent.dates=Dates
