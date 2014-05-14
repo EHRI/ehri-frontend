@@ -22,6 +22,9 @@ object ConceptF {
   val DEFINITION = "definition"
   val SCOPENOTE = "scopeNote"
 
+  val LONGITUDE = "longitude"
+  val LATITUDE = "latitude"
+
   // NB: Type is currently unused...
   object ConceptType extends Enumeration {
     type Type = Value
@@ -47,12 +50,11 @@ object ConceptF {
   }
 
   implicit val conceptReads: Reads[ConceptF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Concept)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[ConceptDescriptionF]](
-        Reads.list[ConceptDescriptionF]).map(_.getOrElse(List.empty[ConceptDescriptionF]))
-    )(ConceptF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Concept) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[ConceptDescriptionF]
+  )(ConceptF.apply _)
 
   implicit val conceptFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
 
@@ -83,31 +85,26 @@ object Concept {
 
   implicit val metaReads: Reads[Concept] = (
     __.read[ConceptF] and
-      (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).lazyReadNullable[List[Vocabulary]](
-        Reads.list[Vocabulary]).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadNullable[List[Concept]](
-        Reads.list[Concept]).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadNullable[List[Concept]](
-        Reads.list[Concept]).map(_.getOrElse(List.empty[Concept])) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(Concept.apply _)
+    (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).nullableHeadReads[Vocabulary] and
+    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableHeadReads[Concept](metaReads) and
+    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableListReads[Concept](metaReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor](Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
+  )(Concept.apply _)
 
   implicit object Converter extends ClientConvertable[Concept] with RestReadable[Concept] {
     val restReads = metaReads
 
     val clientFormat: Format[Concept] = (
       __.format[ConceptF](ConceptF.Converter.clientFormat) and
-        (__ \ "vocabulary").formatNullable[Vocabulary](Vocabulary.Converter.clientFormat) and
-        (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
-        lazyNullableListFormat(__ \ "broaderTerms")(clientFormat) and
-        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Concept.apply _, unlift(Concept.unapply _))
+      (__ \ "vocabulary").formatNullable[Vocabulary](Vocabulary.Converter.clientFormat) and
+      (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
+      (__ \ "broaderTerms").lazyNullableListFormat(clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Concept.apply _, unlift(Concept.unapply _))
   }
 
   implicit object Resource extends RestResource[Concept] {

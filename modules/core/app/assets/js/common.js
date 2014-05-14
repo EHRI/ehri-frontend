@@ -29,7 +29,10 @@ jQuery(function($) {
   }, 0);
 
   $(".description-switch").click(function(e) {
-    switchDescription(this.href);
+    e.preventDefault();
+    var descId = "#desc-" + $(this).data("id");
+    location.hash = descId;
+    switchDescription(descId);
   });
 
   function switchDescription(descId) {
@@ -50,8 +53,8 @@ jQuery(function($) {
       $descs.not($theitem).hide();
 
       // Set the active class on the current description
-      $(".description-switch[href='" + descId + "']").parent().addClass("active")
-      $(".description-switch[href!='" + descId + "']").parent().removeClass("active")
+      $(".description-switch[href='" + descId + "']").addClass("active")
+      $(".description-switch[href!='" + descId + "']").removeClass("active")
     });
 
   }

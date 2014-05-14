@@ -5,17 +5,19 @@
         @userOpt.map { current =>
             @if(other.id != current.id) {
                 @defining(following.exists(_.id == other.id)) { follows =>
+                    <div class="follow-controls">
                     @p.common.followingButtons(other, follows)
+                    </div>
                 }
             }
         }
-        <a href="@controllers.portal.routes.Portal.browseUser(other.id)" class="gravitar">
+        <a href="@controllers.portal.routes.Social.browseUser(other.id)" class="gravitar">
             @defining(other.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
                 <img height="48" width="48" class="img-responsive img-thumbnail" src="@src" />
             }
         </a>
         <div class="user-list-info">
-            <a class="name" href="@controllers.portal.routes.Portal.browseUser(other.id)">@other.model.name</a>
+            <a class="name" href="@controllers.portal.routes.Social.browseUser(other.id)">@other.model.name</a>
             <small>
                 <ul class="list-unstyled comma-sep">
                     <li>@other.model.location</li>

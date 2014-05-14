@@ -21,28 +21,28 @@
             @userOpt.map { currentUser =>
                 @if(currentUser.id == user.id) {
                     @if(profilePage == true) {
-                        <li><a href="@controllers.portal.routes.Portal.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
+                        <li><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
                         <li class="@(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab"><span class="glyphicon glyphicon-star"></span> @Messages("portal.social.watchedItems")</a></li>
                         <li class="@(if(activeTab == "1") "active")"><a href="#user-annotations" data-tabidx="1" data-toggle="tab"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.social.annotations")</a></li>
                         <li class="@(if(activeTab == "2") "active")"><a href="#user-links" data-tabidx="2" data-toggle="tab"><span class="glyphicon glyphicon-link"></span> @Messages("portal.social.links")</a></li>
                     } else {
-                        <li class="active"><a href="@controllers.portal.routes.Portal.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
+                        <li class="active"><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
                         <li><a href="@controllers.portal.routes.Profile.profile?tab=0"><span class="glyphicon glyphicon-star"></span> @Messages("portal.social.watchedItems")</a></li>
                         <li><a href="@controllers.portal.routes.Profile.profile?tab=1"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.social.annotations")</a></li>
                         <li><a href="@controllers.portal.routes.Profile.profile?tab=2"><span class="glyphicon glyphicon-link"></span> @Messages("portal.social.links")</a></li>
                     }
                 } else {
-                    <li><a href="@controllers.portal.routes.Portal.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
+                    <li><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
                 }
             }
         </ul>
     }
     <hr />
     <div class="user-profile-social">
-        <a class="followers" href="@controllers.portal.routes.Portal.followersForUser(user.id)">
+        <a class="followers" href="@controllers.portal.routes.Social.followersForUser(user.id)">
             @Messages("portal.social.followers"): <span class="user-follower-count">@user.followerCount</span>
         </a>
-        <a class="following" href="@controllers.portal.routes.Portal.followingForUser(user.id)">
+        <a class="following" href="@controllers.portal.routes.Social.followingForUser(user.id)">
             @Messages("portal.social.following"): <span class="user-following-count">@user.followingCount</span>
         </a>
     </div>

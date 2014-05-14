@@ -1,4 +1,5 @@
 .panel-history {
+	&:extend(.panel);
 	.panel-rework();
 	.panel-color(@medium-gray, #000000);
 	.hidden-one-col;
@@ -22,11 +23,13 @@
 }
 
 .panel-details {
+	&:extend(.panel);
 	.panel-rework();
 	.panel-color();
 }
 
 .facet-class {
+	&:extend(.panel);
 	> ul {
 		.list-unstyled;
 	}

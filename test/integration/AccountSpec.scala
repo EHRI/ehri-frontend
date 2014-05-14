@@ -3,7 +3,7 @@ package integration
 import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
-import helpers.WithSqlFixures
+import helpers.WithSqlFixtures
 import models.{Account, AccountDAO}
 import models.sql.{SqlAccount, OAuth2Association, OpenIDAssociation}
 import play.api.test.PlaySpecification
@@ -18,13 +18,13 @@ class AccountSpec extends PlaySpecification {
   def userDAO: AccountDAO = SqlAccount
 
   "account db" should {
-    "load fixtures with the right number of accounts" in new WithSqlFixures {
+    "load fixtures with the right number of accounts" in new WithSqlFixtures {
       DB.withConnection { implicit connection =>
         SQL("select count(*) from users").as(scalar[Long].single) must equalTo(4L)
       }
     }
 
-    "enforce email uniqueness" in new WithSqlFixures {
+    "enforce email uniqueness" in new WithSqlFixtures {
       DB.withConnection { implicit connection =>
         SQL(
           """insert into users (id,email,verified,staff) values ('blah',{email},1,1)""")
@@ -33,14 +33,14 @@ class AccountSpec extends PlaySpecification {
       }
     }
 
-    "find accounts by id and email" in new WithSqlFixures {
+    "find accounts by id and email" in new WithSqlFixtures {
       DB.withConnection { implicit connection =>
         userDAO.findByProfileId(mocks.privilegedUser.id) must beSome
         userDAO.findByEmail(mocks.privilegedUser.email) must beSome
       }
     }
 
-    "allow deactivating accounts" in new WithSqlFixures {
+    "allow deactivating accounts" in new WithSqlFixtures {
       DB.withConnection { implicit connection =>
         userDAO.findByProfileId(mocks.privilegedUser.id) must beSome.which { user =>
           user.active must beTrue
@@ -52,7 +52,7 @@ class AccountSpec extends PlaySpecification {
       }
     }
 
-    "allow setting and updating user's passwords" in new WithSqlFixures {
+    "allow setting and updating user's passwords" in new WithSqlFixtures {
       val userOpt: Option[Account] = userDAO.findByEmail(mocks.privilegedUser.email)
       userOpt must beSome.which { user =>
         val hashedPw = Account.hashPassword("foobar")
@@ -68,7 +68,7 @@ class AccountSpec extends PlaySpecification {
 
 
   "openid assoc" should {
-    "find accounts by openid_url and allow adding another" in new WithSqlFixures {
+    "find accounts by openid_url and allow adding another" in new WithSqlFixtures {
       val assoc = OpenIDAssociation.findByUrl(mocks.privilegedUser.id + "-openid-test-url")
       assoc must beSome
       assoc.get.user must beSome
@@ -85,7 +85,7 @@ class AccountSpec extends PlaySpecification {
   }
 
   "oauth2 assoc" should {
-    "find accounts by oauth2 provider info and allow adding another" in new WithSqlFixures {
+    "find accounts by oauth2 provider info and allow adding another" in new WithSqlFixtures {
       val assoc = OAuth2Association.findByProviderInfo("1234", "google")
       assoc must beSome
       assoc.get.user must beSome

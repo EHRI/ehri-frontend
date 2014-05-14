@@ -38,12 +38,12 @@ object VocabularyF {
   }
 
   implicit val vocabularyReads: Reads[VocabularyF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Vocabulary)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ NAME).readNullable[String] and
-      (__ \ DATA \ DESCRIPTION).readNullable[String]
-    )(VocabularyF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Vocabulary) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ NAME).readNullable[String] and
+    (__ \ DATA \ DESCRIPTION).readNullable[String]
+  )(VocabularyF.apply _)
 
   implicit val vocabularyFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
 
@@ -66,27 +66,26 @@ case class VocabularyF(
 object Vocabulary {
   import VocabularyF._
   import Entity._
+  import Ontology._
 
   private implicit val systemEventReads = SystemEvent.Converter.restReads
 
   implicit val metaReads: Reads[Vocabulary] = (
     __.read[VocabularyF] and
-      (__ \ RELATIONSHIPS \ Ontology.IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ Ontology.ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(Vocabulary.apply _)
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
+  )(Vocabulary.apply _)
 
   implicit object Converter extends ClientConvertable[Vocabulary] with RestReadable[Vocabulary] {
     val restReads = metaReads
 
     val clientFormat: Format[Vocabulary] = (
       __.format[VocabularyF](VocabularyF.Converter.clientFormat) and
-        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Vocabulary.apply _, unlift(Vocabulary.unapply _))
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Vocabulary.apply _, unlift(Vocabulary.unapply))
   }
 
   implicit object Resource extends RestResource[Vocabulary] {

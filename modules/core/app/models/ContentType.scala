@@ -10,8 +10,8 @@ object ContentType {
   implicit object Converter extends ClientConvertable[ContentType] with RestReadable[ContentType] {
     val restReads: Format[ContentType] = (
       (__ \ Entity.ID).format[String] and
-      (__ \ Entity.TYPE).format[EntityType.Value](equalsReads(EntityType.ContentType))
-    )(ContentType.apply _, unlift(ContentType.unapply _))
+      (__ \ Entity.TYPE).formatIfEquals(EntityType.ContentType)
+    )(ContentType.apply, unlift(ContentType.unapply))
 
     val clientFormat = restReads
   }

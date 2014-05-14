@@ -6,6 +6,7 @@ import models.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.data.Form
+import play.api.data.format.Formats._
 import play.api.data.Forms._
 import models.forms._
 
@@ -25,7 +26,9 @@ object ConceptDescriptionF {
           PREFLABEL -> d.name,
           ALTLABEL -> d.altLabels,
           DEFINITION -> d.definition,
-          SCOPENOTE -> d.scopeNote
+          SCOPENOTE -> d.scopeNote,
+          LONGITUDE -> d.longitude,
+          LATITUDE -> d.latitude
         ),
         RELATIONSHIPS -> Json.obj(
           Ontology.HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
@@ -36,18 +39,18 @@ object ConceptDescriptionF {
   }
 
   implicit val conceptDescriptionReads: Reads[ConceptDescriptionF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.ConceptDescription)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ LANGUAGE).read[String] and
-      (__ \ DATA \ PREFLABEL).read[String] and
-      (__ \ DATA \ ALTLABEL).readNullable[List[String]] and
-      (__ \ DATA \ DEFINITION).readNullable[List[String]] and
-      (__ \ DATA \ SCOPENOTE).readNullable[List[String]] and
-      (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).lazyReadNullable(
-        Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
-      (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY)
-        .lazyReadNullable(Reads.list[Entity]).map(_.getOrElse(List.empty[Entity]))
-    )(ConceptDescriptionF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.ConceptDescription) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ LANGUAGE).read[String] and
+    (__ \ DATA \ PREFLABEL).read[String] and
+    (__ \ DATA \ ALTLABEL).readListOrSingleNullable[String] and
+    (__ \ DATA \ DEFINITION).readListOrSingleNullable[String] and
+    (__ \ DATA \ SCOPENOTE).readListOrSingleNullable[String] and
+    (__ \ DATA \ LONGITUDE).readNullable[BigDecimal] and
+    (__ \ DATA \ LATITUDE).readNullable[BigDecimal] and
+    (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
+  )(ConceptDescriptionF.apply _)
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
 
@@ -55,7 +58,6 @@ object ConceptDescriptionF {
     lazy val restFormat = conceptDescriptionFormat
 
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
-    private implicit val entityFormat = json.entityFormat
     lazy val clientFormat = Json.format[ConceptDescriptionF]
   }
 }
@@ -68,6 +70,8 @@ case class ConceptDescriptionF(
   altLabels: Option[List[String]] = None,
   definition: Option[List[String]] = None,
   scopeNote: Option[List[String]] = None,
+  longitude: Option[BigDecimal] = None,
+  latitude: Option[BigDecimal] = None,
   accessPoints: List[AccessPointF] = Nil,
   unknownProperties: List[Entity] = Nil
 ) extends Model with Persistable with Description {
@@ -78,6 +82,7 @@ case class ConceptDescriptionF(
 }
 
 object ConceptDescription {
+
   import ConceptF._
   import Entity._
 
@@ -89,6 +94,8 @@ object ConceptDescription {
     ALTLABEL -> optional(list(nonEmptyText)),
     DEFINITION -> optional(list(nonEmptyText)),
     SCOPENOTE -> optional(list(nonEmptyText)),
+    LONGITUDE -> optional(bigDecimal),
+    LATITUDE -> optional(bigDecimal),
     ACCESS_POINTS -> list(AccessPoint.form.mapping),
     UNKNOWN_DATA -> list(entity)
   )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))

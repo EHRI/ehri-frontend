@@ -48,12 +48,12 @@ class AnyModelSpec extends PlaySpecification {
         TestDescriptionF(
           id = Some("did1"),
           name = "name1",
-          languageCode = "en"
+          languageCode = "eng"
         ),
         TestDescriptionF(
           id = Some("did2"),
           name = "name2",
-          languageCode = "fr"
+          languageCode = "fra"
         )
       )
     )

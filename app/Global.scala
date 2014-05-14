@@ -75,7 +75,8 @@ package globalConfig {
       EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get,
       EntityType.AuthoritativeSet -> controllers.authorities.routes.AuthoritativeSets.get,
       EntityType.Concept -> controllers.vocabs.routes.Concepts.get,
-      EntityType.Country -> controllers.archdesc.routes.Countries.get
+      EntityType.Country -> controllers.archdesc.routes.Countries.get,
+      EntityType.VirtualUnit -> controllers.archdesc.routes.VirtualUnits.get
     ), default = controllers.admin.routes.Home.index(),
       login = controllers.core.routes.Admin.login(),
       logout = controllers.core.routes.Admin.logout())

@@ -6,7 +6,7 @@ import defines.{EntityType, ContentTypes, PermissionType}
 import utils.{ListParams, PageParams}
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -43,6 +43,16 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
           .createInContext[DocumentaryUnit,DocumentaryUnitF,DocumentaryUnit]("c1", ContentTypes.DocumentaryUnit, doc))
       r.parent must beSome
       r.parent.get.id must equalTo("c1")
+    }
+
+    "create an item with additional params" in new FakeApp {
+      val doc = VirtualUnitF(id = None, identifier = "foobar")
+      val r = await(testBackend
+        .createInContext[VirtualUnit,VirtualUnitF,VirtualUnit]("vc1", ContentTypes.VirtualUnit,
+            doc, params = Map("description" -> Seq("cd1"))))
+      r.descriptionRefs.headOption must beSome.which { desc =>
+        desc.id must equalTo(Some("cd1"))
+      }
     }
 
     "update an item by id" in new FakeApp {
@@ -210,6 +220,18 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       watchingPage.total must equalTo(1)
       await(testBackend.unwatch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
+    }
+
+    "allow blocking and unblocking" in new FakeApp {
+      await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
+      await(testBackend.block(userProfile.id, "reto"))
+      await(testBackend.isBlocking(userProfile.id, "reto")) must beTrue
+      val blocking = await(testBackend.listBlocked(userProfile.id))
+      blocking.exists(_.id == "reto") must beTrue
+      val blockingPage = await(testBackend.pageBlocked(userProfile.id))
+      blockingPage.total must equalTo(1)
+      await(testBackend.unblock(userProfile.id, "reto"))
+      await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
     }
   }
 

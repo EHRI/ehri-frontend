@@ -1,0 +1,167 @@
+{
+  "id" : "ua-003331",
+  "data" : {
+    "publicationStatus" : "Draft",
+    "priority" : 5,
+    "identifier" : "000001"
+  },
+  "type" : "repository",
+  "relationships" : {
+    "describes" : [ {
+      "id" : "ua-000001-eng-000001-desc",
+      "data" : {
+        "holdings" : "Some holding info",
+        "parallelFormsOfName" : [ "A Random Archive", "Случайное Архив" ],
+        "sources" : [ "YV/ClaimsCon'06/online search" ],
+        "geoculturalContext" : "Some geocultural info",
+        "history" : "Some history info",
+        "languageCode" : "eng",
+        "name" : "Випадкове Архів",
+        "buildings" : "Some buildings info",
+        "findingAids" : "Some finding aid info",
+        "maintenanceNotes" : "Some maintenance info",
+        "rulesAndConventions" : "ISDIAH"
+      },
+      "type" : "repositoryDescription",
+      "relationships" : {
+        "maintenance" : [ {
+          "id" : "adc4642a-1e90-4b0e-9d47-66bc1f112cee",
+          "data" : {
+            "maintenanceEvent/source" : "Exported from ICA-AtoM",
+            "eventType" : "update",
+            "maintenanceEvent/date" : "2013-09-09"
+          },
+          "type" : "maintenanceEvent",
+          "relationships" : {
+          },
+          "meta" : {
+            "gid" : 38112
+          }
+        }, {
+          "id" : "8be6f7e3-43eb-4a95-b66b-83da4cc58473",
+          "data" : {
+            "maintenanceEvent/source" : "Imported from EHRI spreadsheet",
+            "eventType" : "update",
+            "maintenanceEvent/date" : "2012-03-09"
+          },
+          "type" : "maintenanceEvent",
+          "relationships" : {
+          },
+          "meta" : {
+            "gid" : 38111
+          }
+        }, {
+          "id" : "87dd19ce-25b7-4e7b-ae56-03b3013535bd",
+          "data" : {
+            "maintenanceEvent/source" : "YV/ClaimsCon'06/online search",
+            "eventType" : "creation",
+            "maintenanceEvent/date" : "2012-03-09T12:22:07"
+          },
+          "type" : "maintenanceEvent",
+          "relationships" : {
+          },
+          "meta" : {
+            "gid" : 38110
+          }
+        } ],
+        "hasUnknownProperty" : [ {
+          "id" : "25a9df57-cc2c-4a65-855c-80e4dd0bd2a8",
+          "data" : {
+            "eag_archguide_desc_email_" : "Email",
+            "eag_archguide_desc_buildinginfo_searchroom_num_" : "volume",
+            "eag_archguide_identity_repositorid_" : "r001494UA",
+            "eag_archguide_desc_webpage_" : "Website",
+            "eag_archguide_desc_extent_num_" : "volume"
+          },
+          "type" : "property",
+          "relationships" : {
+          },
+          "meta" : {
+            "gid" : 38109
+          }
+        } ],
+        "hasAddress" : [ {
+          "id" : "dbde8e48-7c5b-45f9-a8f5-873fd868b2a1",
+          "data" : {
+            "firstdem" : "Somewhere",
+            "postalcode" : "11111",
+            "fax" : [ "12 34 56 78 90" ],
+            "email" : [ "arhiv@something.net" ],
+            "webpage" : [ "http://testing.com" ],
+            "street" : "Somewhere Lane",
+            "municipality" : "Somewhere",
+            "countryCode" : "AL",
+            "telephone" : [ "12 34 56 78 90" ]
+          },
+          "type" : "address",
+          "relationships" : {
+          },
+          "meta" : {
+            "gid" : 38108
+          }
+        } ]
+      },
+      "meta" : {
+        "gid" : 38107
+      }
+    } ],
+    "hasCountry" : [ {
+      "id" : "uk",
+      "data" : {
+        "identifier" : "uk"
+      },
+      "type" : "country",
+      "relationships" : {
+      },
+      "meta" : {
+        "childCount" : 49
+      }
+    } ],
+    "lifecycleEvent" : [ {
+      "id" : "3288a64c-d9de-11e3-8719-2d00b7768750",
+      "data" : {
+        "timestamp" : "2014-05-12T15:03:30.503+01:00",
+        "eventType" : "modification"
+      },
+      "type" : "systemEvent",
+      "relationships" : {
+        "hasActioner" : [ {
+          "id" : "bob",
+          "data" : {
+            "name" : "Bob",
+            "identifier" : "bob"
+          },
+          "type" : "userProfile",
+          "relationships" : {
+            "belongsTo" : [ {
+              "id" : "admin",
+              "data" : {
+                "name" : "Administrators",
+                "identifier" : "admin"
+              },
+              "type" : "group",
+              "relationships" : {
+              },
+              "meta" : {
+                "childCount" : 3
+              }
+            } ]
+          },
+          "meta" : {
+            "followers" : 1,
+            "following" : 11,
+            "watching" : 3
+          }
+        } ]
+      },
+      "meta" : {
+        "childCount" : 1
+      }
+    } ]
+  },
+  "meta" : {
+    "watchedBy" : 3,
+    "childCount" : 20,
+    "gid" : 38106
+  }
+}

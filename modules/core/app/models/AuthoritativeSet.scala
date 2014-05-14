@@ -34,12 +34,12 @@ object AuthoritativeSetF {
   }
 
   implicit val authoritativeSetReads: Reads[AuthoritativeSetF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.AuthoritativeSet)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ NAME).readNullable[String] and
-      (__ \ DATA \ DESCRIPTION).readNullable[String]
-    )(AuthoritativeSetF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.AuthoritativeSet) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ NAME).readNullable[String] and
+    (__ \ DATA \ DESCRIPTION).readNullable[String]
+  )(AuthoritativeSetF.apply _)
 
   implicit val authoritativeSetFormat: Format[AuthoritativeSetF]
   = Format(authoritativeSetReads,authoritativeSetWrites)
@@ -69,22 +69,20 @@ object AuthoritativeSet {
 
   implicit val metaReads: Reads[AuthoritativeSet] = (
     __.read[AuthoritativeSetF] and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(AuthoritativeSet.apply _)
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
+  )(AuthoritativeSet.apply _)
 
   implicit object Converter extends ClientConvertable[AuthoritativeSet] with RestReadable[AuthoritativeSet] {
     val restReads = metaReads
 
     val clientFormat: Format[AuthoritativeSet] = (
       __.format[AuthoritativeSetF](AuthoritativeSetF.Converter.clientFormat) and
-      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply _))
+    )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply))
   }
 
   implicit object Resource extends RestResource[AuthoritativeSet] {

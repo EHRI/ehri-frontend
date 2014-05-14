@@ -24,7 +24,8 @@ object Utils {
     EntityType.Annotation -> Annotation.Converter.restReads.asInstanceOf[Reads[AnyModel]],
     EntityType.PermissionGrant -> PermissionGrant.Converter.restReads.asInstanceOf[Reads[AnyModel]],
     EntityType.ContentType -> ContentType.Converter.restReads.asInstanceOf[Reads[AnyModel]],
-    EntityType.AccessPoint -> AccessPoint.Converter.restReads.asInstanceOf[Reads[AnyModel]]
+    EntityType.AccessPoint -> AccessPoint.Converter.restReads.asInstanceOf[Reads[AnyModel]],
+    EntityType.VirtualUnit -> VirtualUnit.Converter.restReads.asInstanceOf[Reads[AnyModel]]
   )
 
   val clientFormatRegistry: Map[EntityType.Value, Format[AnyModel]] = Map(
@@ -42,6 +43,7 @@ object Utils {
     EntityType.Annotation -> Annotation.Converter.clientFormat.asInstanceOf[Format[AnyModel]],
     EntityType.PermissionGrant -> PermissionGrant.Converter.clientFormat.asInstanceOf[Format[AnyModel]],
     EntityType.ContentType -> ContentType.Converter.clientFormat.asInstanceOf[Format[AnyModel]],
-    EntityType.AccessPoint -> ContentType.Converter.clientFormat.asInstanceOf[Format[AnyModel]]
+    EntityType.AccessPoint -> AccessPoint.Converter.clientFormat.asInstanceOf[Format[AnyModel]],
+    EntityType.VirtualUnit -> VirtualUnit.Converter.clientFormat.asInstanceOf[Format[AnyModel]]
   )
 }

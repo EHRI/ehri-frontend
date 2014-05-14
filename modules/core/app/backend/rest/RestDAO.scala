@@ -139,6 +139,7 @@ trait RestDAO {
   private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T]): T = {
     json.validate(reader).fold(
       invalid => {
+        println(Json.prettyPrint(json))
         Logger.error("Bad JSON: " + invalid)
         throw new BadJson(invalid)
       },

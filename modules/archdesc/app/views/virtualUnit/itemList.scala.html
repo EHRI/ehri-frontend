@@ -1,0 +1,9 @@
+@(page: backend.Page[VirtualUnit])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+<ul class="list-unstyled">
+@page.items.map { item =>
+    <li>
+        @listItem(item)
+    </li>
+}
+</ul>

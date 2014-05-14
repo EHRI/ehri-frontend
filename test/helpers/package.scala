@@ -27,7 +27,8 @@ package object helpers {
   def loadSqlFixtures(implicit app: play.api.Application) = {
     val userDAO: AccountDAO = SqlAccount
     mocks.users.map { case (profile, account) =>
-      val acc = userDAO.create(account.id, account.email, verified = account.verified, staff = account.staff)
+      val acc = userDAO.create(account.id, account.email, verified = account.verified, staff = account.staff,
+        allowMessaging = account.allowMessaging)
       OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")
       OAuth2Association.addAssociation(acc, "1234", "google")
     }
@@ -44,7 +45,7 @@ package object helpers {
    * So here I've basically copy-pasted WithApplication and added
    * extra work before it returns.
    */
-  abstract class WithSqlFixures(val app: FakeApplication = FakeApplication()) extends Around with Scope {
+  abstract class WithSqlFixtures(val app: FakeApplication = FakeApplication()) extends Around with Scope {
     implicit def implicitApp = app
     override def around[T: AsResult](t: => T): Result = {
       running(app) {

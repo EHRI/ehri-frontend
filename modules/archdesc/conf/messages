@@ -24,12 +24,27 @@ actions.listCountries=Countries
 actions.createNewDocUnit=Create New Collection
 actions.createChildDocUnit=Create Child Collection
 actions.createNewRepository=Create New Repository
+actions.listVirtualUnits=Virtual Item Collections
+actions.createVirtualUnit=Create Virtual Item
+actions.updateVirtualUnit=Update Virtual Item
+actions.linkToVirtualUnit=Link to Virtual Item
+actions.createChildVirtualUnit=Create Child Virtual Item
 submitButton.createDocumentaryUnit=Create Collection
 submitButton.createRepository=Create Repository
 submitButton.updateDocumentaryUnit=Update Collection
 submitButton.updateRepository=Update Repository
 submitButton.createCountry=Add Country
 submitButton.updateCountry=Update Country
+submitButton.createVirtualUnit=Create Virtual Item
+
+#
+# Virtual Units
+#
+virtualUnit.search=Virtual Collections
+virtualUnit.searchInside=Structure
+virtualUnit.parentItem=Parent Virtual Item
+virtualUnit.noDescriptions=No linked descriptions
+
 
 #
 # Documentary Units

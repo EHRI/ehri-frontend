@@ -1,9 +1,12 @@
-@(them: UserProfile, events: List[SystemEvent], followed: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(them: UserProfile, events: List[SystemEvent], followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(them.toStringLang, "user") {
     @profileBar(them){
         @for(user <- userOpt if user.id != them.id) {
+        <div class="btn-group">
+            @p.common.messageButtons(them, canMessage)
             @p.common.followingButtons(them, followed)
+        </div>
         }
     }
 
@@ -15,7 +18,7 @@
                 @if(!events.isEmpty) {
                 <div class="timeline-container">
                     <ul id="activity-stream" class="timeline">
-                        @eventItems(events)
+                        @p.activity.eventItems(events)
                     </ul>
                 </div>
                 } else {

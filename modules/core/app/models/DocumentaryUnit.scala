@@ -61,24 +61,20 @@ object DocumentaryUnitF {
   }
 
   implicit val documentaryUnitReads: Reads[DocumentaryUnitF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnit)) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      ((__ \ DATA \ OTHER_IDENTIFIERS).readNullable[List[String]] orElse
-        (__ \ DATA \ OTHER_IDENTIFIERS).readNullable[String].map(os => os.map(List(_))) ) and
-      (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-      ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
-      (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
-        Reads.list[DocumentaryUnitDescriptionF]).map(_.getOrElse(List.empty[DocumentaryUnitDescriptionF]))
-    )(DocumentaryUnitF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.DocumentaryUnit) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ IDENTIFIER).read[String] and
+    (__ \ DATA \ OTHER_IDENTIFIERS).readListOrSingleNullable[String] and
+    (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
+    (__ \ DATA \ COPYRIGHT).readWithDefault(Option(CopyrightStatus.Unknown)) and
+    (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[DocumentaryUnitDescriptionF]
+  )(DocumentaryUnitF.apply _)
 
   implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
 
   implicit object Converter extends RestConvertable[DocumentaryUnitF] with ClientConvertable[DocumentaryUnitF] {
     val restFormat = documentaryUnitFormat
-
-    private implicit val docDescFmt = DocumentaryUnitDescriptionF.Converter.clientFormat
     val clientFormat = Json.format[DocumentaryUnitF]
   }
 }
@@ -97,32 +93,9 @@ case class DocumentaryUnitF(
 ) extends Model
   with Persistable
   with Described[DocumentaryUnitDescriptionF] {
-  def withDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = copy(descriptions = descriptions ++ List(d))
 
-  /**
-   * Get a description with a given id.
-   * @param did
-   * @return
-   */
-  override def description(did: String): Option[DocumentaryUnitDescriptionF] = descriptions.find(d => d.id.isDefined && d.id.get == did)
-
-  /**
-   * Replace an existing description with the same id as this one, or add
-   * this one to the end of the list of descriptions.
-   * @param d
-   * @return
-   */
-  def replaceDescription(d: DocumentaryUnitDescriptionF): DocumentaryUnitF = d.id.map {
-    did =>
-    // If the description has an id, replace the existing one with that id
-      val newDescriptions = descriptions.map {
-        dm =>
-          if (dm.id.isDefined && dm.id.get == did) d else dm
-      }
-      copy(descriptions = newDescriptions)
-  } getOrElse {
-    withDescription(d)
-  }
+  override def description(did: String): Option[DocumentaryUnitDescriptionF]
+    = descriptions.find(d => d.id.isDefined && d.id.get == did)
 }
 
 object DocumentaryUnit {
@@ -132,31 +105,25 @@ object DocumentaryUnit {
 
   implicit val metaReads: Reads[DocumentaryUnit] = (
     __.read[DocumentaryUnitF](documentaryUnitReads) and
-      // Holder
-      (__ \ RELATIONSHIPS \ DOC_HELD_BY_REPOSITORY).lazyReadNullable[List[Repository]](
-        Reads.list(Repository.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      //
-      (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyReadNullable[List[DocumentaryUnit]](
-        Reads.list(metaReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list(SystemEvent.Converter.restReads)).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(DocumentaryUnit.apply _)
+    (__ \ RELATIONSHIPS \ DOC_HELD_BY_REPOSITORY).nullableHeadReads[Repository] and
+    (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyNullableHeadReads(metaReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
+  )(DocumentaryUnit.apply _)
 
 
   implicit object Converter extends RestReadable[DocumentaryUnit] with ClientConvertable[DocumentaryUnit] {
     implicit val restReads = metaReads
 
     val clientFormat: Format[DocumentaryUnit] = (
-      __.format[DocumentaryUnitF](DocumentaryUnitF.Converter.clientFormat) and
-        (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
-        (__ \ "parent").lazyFormatNullable[DocumentaryUnit](clientFormat) and
-        nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply _))
+      __.format(DocumentaryUnitF.Converter.clientFormat) and
+      (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
+      (__ \ "parent").lazyFormatNullable[DocumentaryUnit](clientFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply))
   }
 
   implicit object Resource extends RestResource[DocumentaryUnit] {

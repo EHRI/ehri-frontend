@@ -1,0 +1,17 @@
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+
+@if(userOpt.isEmpty) {
+    <div id="data-policy" style="display:none">
+        <p>@Messages("dataPolicy.notice1")</p>
+        <p>@Messages("dataPolicy.notice2")</p>
+
+        <form>
+            <label>
+                <input type="checkbox" name="agree-data-policy-terms" required />
+
+                @Messages("dataPolicy.terms")
+            </label>
+            <input id="agree-data-policy" type="submit" value="@Messages("dataPolicy.agree")" />
+        </form>
+    </div>
+}

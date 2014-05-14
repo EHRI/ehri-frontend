@@ -38,9 +38,10 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
       "name" -> nonEmptyText,
       "email" -> email,
       "password" -> nonEmptyText(minLength = 6),
-      "confirm" -> nonEmptyText(minLength = 6)
+      "confirm" -> nonEmptyText(minLength = 6),
+      "allowMessaging" -> ignored(true)
     ) verifying("login.passwordsDoNotMatch", f => f match {
-      case (_, _, pw, pwc) => pw == pwc
+      case (_, _, pw, pwc, _) => pw == pwc
     })
   )
 
@@ -80,7 +81,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
           errForm => immediate(BadRequest(views.html.p.account.signup(errForm,
             profileRoutes.signupPost(), recaptchaKey))),
           data => {
-            val (name, email, pw, _) = data
+            val (name, email, pw, _, allowMessaging) = data
             userDAO.findByEmail(email).map { _ =>
               val form = signupForm.withGlobalError("error.emailExists")
               immediate(BadRequest(views.html.p.account.signup(form,
@@ -91,7 +92,8 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
                   data = Map(UserProfileF.NAME -> name), groups = defaultPortalGroups)
                   .flatMap { userProfile =>
                 val account = userDAO.createWithPassword(userProfile.id, email.toLowerCase,
-                    verified = false, staff = false, Account.hashPassword(pw))
+                    verified = false, staff = false, allowMessaging = allowMessaging,
+                  Account.hashPassword(pw))
                 val uuid = UUID.randomUUID()
                 account.createValidationToken(uuid)
                 sendValidationEmail(email, uuid)

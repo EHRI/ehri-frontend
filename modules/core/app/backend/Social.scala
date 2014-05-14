@@ -2,7 +2,7 @@ package backend
 
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{PageParams, ListParams}
-import models.{Link, Annotation, UserProfile}
+import models.{VirtualUnit, Link, Annotation, UserProfile}
 import models.json.RestReadable
 import models.base.AnyModel
 
@@ -24,6 +24,14 @@ trait Social {
   def unwatch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit]
   def isWatching(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
 
+  def listBlocked(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[List[AnyModel]]
+  def pageBlocked(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]]
+  def block(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit]
+  def unblock(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit]
+  def isBlocking(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
+
   def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Annotation]]
   def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]]
+
+  def userBookmarks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[VirtualUnit]]
 }

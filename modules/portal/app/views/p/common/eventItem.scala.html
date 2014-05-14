@@ -18,7 +18,7 @@
     @eventBody(event) {
         @et match {
             case EventType.modification if user.id == subject.id => {
-                <a title="@user.toStringLang" href="@controllers.portal.routes.Portal.browseUser(user.id)">
+                <a title="@user.toStringLang" href="@controllers.portal.routes.Social.browseUser(user.id)">
                     @Messages("portal.activity.modifiedProfile")
                 </a>
             }

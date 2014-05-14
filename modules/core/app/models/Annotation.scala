@@ -50,15 +50,14 @@ object AnnotationF {
   }
 
   implicit val annotationReads: Reads[AnnotationF] = (
-    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Annotation)) and
-      (__ \ ID).readNullable[String] and
-      ((__ \ DATA \ ANNOTATION_TYPE_PROP).readNullable[AnnotationType.Value]
-        orElse Reads.pure(Some(AnnotationType.Comment))) and
-      (__ \ DATA \ BODY).read[String] and
-      (__ \ DATA \ FIELD).readNullable[String] and
-      (__ \ DATA \ COMMENT).readNullable[String] and
-      (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
-    )(AnnotationF.apply _)
+    (__ \ TYPE).readIfEquals(EntityType.Annotation) and
+    (__ \ ID).readNullable[String] and
+    (__ \ DATA \ ANNOTATION_TYPE_PROP).readWithDefault(Option(AnnotationType.Comment)) and
+    (__ \ DATA \ BODY).read[String] and
+    (__ \ DATA \ FIELD).readNullable[String] and
+    (__ \ DATA \ COMMENT).readNullable[String] and
+    (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
+  )(AnnotationF.apply _)
 
   implicit val annotationFormat: Format[AnnotationF] = Format(annotationReads,annotationWrites)
 
@@ -90,40 +89,32 @@ object Annotation {
 
   implicit val metaReads: Reads[Annotation] = (
     __.read[AnnotationF] and
-      (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyReadNullable[List[Annotation]](
-        Reads.list(metaReads)).map(_.getOrElse(List.empty[Annotation])) and
-      (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).lazyReadNullable[List[UserProfile]](
-        Reads.list(userProfileMetaReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyReadNullable[List[AnyModel]](
-        Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ ANNOTATES).lazyReadNullable[List[AnyModel]](
-        Reads.list(anyModelReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ ANNOTATES_PART).lazyReadNullable[List[Entity]](
-        Reads.list(models.json.entityReads)).map(_.flatMap(_.headOption)) and
-      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
-        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
-      (__ \ RELATIONSHIPS \ PROMOTED_BY).lazyReadNullable[List[UserProfile]](
-        Reads.list(UserProfile.Converter.restReads)).map(_.getOrElse(List.empty[UserProfile])) and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
-        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
-      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
-    )(Annotation.apply _)
+    (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyNullableListReads[Annotation](metaReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).nullableHeadReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyNullableHeadReads[AnyModel](anyModelReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATES).lazyNullableHeadReads[AnyModel](anyModelReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATES_PART).nullableHeadReads[Entity] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor] and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
+  )(Annotation.apply _)
 
   implicit object Converter extends ClientConvertable[Annotation] with RestReadable[Annotation] {
     val restReads = metaReads
 
     val clientFormat: Format[Annotation] = (
       __.format[AnnotationF](AnnotationF.Converter.clientFormat) and
-      lazyNullableListFormat(__ \ "annotations")(clientFormat) and
+      (__ \ "annotations").lazyNullableListFormat(clientFormat) and
       (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
       (__ \ "source").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-    (__ \ "target").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "targetPart").lazyFormatNullable[Entity](models.json.entityFormat) and
-      nullableListFormat(__ \ "accessibleTo")(Accessor.Converter.clientFormat) and
-      nullableListFormat(__ \ "promotedBy")(UserProfile.Converter.clientFormat) and
+      (__ \ "target").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
+      (__ \ "targetPart").lazyFormatNullable[Entity](Entity.entityFormat) and
+      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
+      (__ \ "promotedBy").nullableListFormat(UserProfile.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(Annotation.apply _, unlift(Annotation.unapply _))
+    )(Annotation.apply _, unlift(Annotation.unapply))
   }
 
   implicit object Resource extends RestResource[Annotation] {
@@ -185,7 +176,7 @@ case class Annotation(
     (for {
       u <- userOpt
       creator <-user
-    } yield (u.id == creator.id)).getOrElse(false)
+    } yield u.id == creator.id).getOrElse(false)
   }
 
   def formatted: String = {

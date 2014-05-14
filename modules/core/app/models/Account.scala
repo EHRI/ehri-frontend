@@ -29,8 +29,10 @@ trait Account {
   def setVerified(): Account
   def setActive(active: Boolean): Account
   def setStaff(staff: Boolean): Account
+  def setAllowMessaging(allowMessaging: Boolean): Account
   def verify(token: String): Account
   def delete(): Boolean
+  def allowMessaging: Boolean
   def createResetToken(uuid: UUID): Unit
   def createValidationToken(uuid: UUID): Unit
   def expireTokens(): Unit
@@ -58,7 +60,7 @@ trait AccountDAO extends Plugin {
 	def findByProfileId(id: String): Option[Account]
   def findVerifiedByEmail(email: String, verified: Boolean = true): Option[Account]
   def findByEmail(email: String): Option[Account]
-  def create(id: String, email: String, verified: Boolean, staff: Boolean): Account
-  def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, hashed: HashedPassword): Account
+  def create(id: String, email: String, verified: Boolean, staff: Boolean, allowMessaging: Boolean): Account
+  def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, allowMessaging: Boolean, hashed: HashedPassword): Account
   def findByResetToken(token: String, isSignUp: Boolean = false): Option[Account]
 }

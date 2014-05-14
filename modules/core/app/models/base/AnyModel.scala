@@ -14,6 +14,7 @@ import java.util.NoSuchElementException
 
 trait AnyModel {
   def id: String
+
   def isA: EntityType.Value
 
   def contentType: Option[ContentTypes.Value] = try {
@@ -32,6 +33,7 @@ trait AnyModel {
 
 trait Model {
   def id: Option[String]
+
   def isA: EntityType.Value
 }
 
@@ -65,14 +67,12 @@ object AnyModel {
       }
 
       def writes(a: AnyModel): JsValue = {
-        Utils.clientFormatRegistry.get(a.isA).map {
-          format =>
-            Json.toJson(a)(format)
-        }.getOrElse {
+        Utils.clientFormatRegistry.get(a.isA).fold({
           // FIXME: Throw an error here???
           Logger.logger.warn("Unregistered AnyModel type {} (Writing to Client)", a.isA)
-          Json.toJson(Entity(id = a.id, `type` = a.isA, relationships = Map.empty))(models.json.entityFormat)
-        }
+          Json.toJson(Entity(id = a.id, `type` = a.isA, relationships = Map.empty))(Entity.entityFormat)
+        })(format =>
+          Json.toJson(a)(format))
       }
     }
   }
@@ -98,6 +98,7 @@ trait Accessible extends AnyModel {
 
 trait Promotable extends Accessible {
   def promotors: Seq[UserProfile]
+
   def isPromoted: Boolean = !promotors.isEmpty
 }
 
@@ -107,19 +108,20 @@ trait MetaModel[+T <: Model] extends AnyModel {
 
   // Convenience helpers
   def id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
+
   def isA = model.isA
 
   override def toStringLang(implicit lang: Lang) = model match {
     case d: Described[Description] =>
-      d.descriptions.find(_.languageCode == lang.code).orElse(d.descriptions.headOption).map(_.name).getOrElse(id)
+      d.primaryDescription(lang).orElse(d.descriptions.headOption).fold(id)(_.name)
     case _ => id
   }
 
   override def toStringAbbr(implicit lang: Lang): String = toStringLang(lang)
 }
 
-trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] {
-  def descriptions: List[TD] = model.descriptions
+trait WithDescriptions[+T <: Description] extends AnyModel {
+  def descriptions: List[T]
 
   private lazy val allAccessPoints = descriptions.flatMap(_.accessPoints)
 
@@ -145,6 +147,10 @@ trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T
   = links.filter(link => link.bodies.isEmpty)
 }
 
+trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] with WithDescriptions[TD] {
+  def descriptions: List[TD] = model.descriptions
+}
+
 trait Holder[+T] extends AnyModel {
   self: MetaModel[_] =>
 
@@ -167,18 +173,24 @@ trait Hierarchical[+T] extends AnyModel {
   /**
    * List of ancestor items 'above' this one, including the parent.
    */
-  def ancestors: List[Hierarchical[T]]
-  = (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
+  def ancestors: List[Hierarchical[T]] =
+    (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
 }
 
 trait Description extends Model {
   def name: String
+
   def languageCode: String
+
   def accessPoints: List[AccessPointF]
-  def unknownProperties: List[Entity] // Unknown, unparsed data
-  def toSeq: Seq[(String,Option[String])]
-  def toMap: SortedMap[String,Option[String]]
-      = scala.collection.immutable.TreeMap(toSeq: _*)
+
+  def unknownProperties: List[Entity]
+
+  // Unknown, unparsed data
+  def toSeq: Seq[(String, Option[String])]
+
+  def toMap: SortedMap[String, Option[String]] =
+    scala.collection.immutable.TreeMap(toSeq: _*)
 }
 
 object Description {
@@ -217,20 +229,45 @@ object Description {
 trait Described[+T <: Description] extends Model {
   def descriptions: List[T]
 
-  def description(id: String) = descriptions.find(_.id == Some(id)): Option[T]
+  /**
+   * Get a description by ID
+   * @param id The description ID
+   * @return A description matching that ID, optionally empty
+   */
+  def description(id: String): Option[T] = descriptions.find(_.id == Some(id))
 
-  def primaryDescription(id: Option[String])(implicit lang: Lang): Option[T]
-  = id.map(s => primaryDescription(s)).getOrElse(primaryDescription)
+  /**
+   * Get a description with an optional ID, falling back on the first
+   * appropriate one for the given (implicit) language code.
+   * @param id The (optional) description ID
+   * @param lang The current language
+   * @return A description matching that ID, or the first found with that language.
+   */
+  def primaryDescription(id: Option[String])(implicit lang: Lang): Option[T] =
+    id.fold(primaryDescription(lang))(s => primaryDescription(s))
 
-  def primaryDescription(implicit lang: Lang) = descriptions.headOption
+  /**
+   * Get the first description for the current language
+   * @param lang The current language
+   * @return The first description found with a matching language code
+   */
+  def primaryDescription(implicit lang: Lang): Option[T] = descriptions.find { d =>
+    d.languageCode == utils.i18n.lang2to3lookup.getOrElse(lang.code, lang.code)
+  }.orElse(descriptions.headOption)
 
-  def primaryDescription(id: String)(implicit lang: Lang) = {
-    // TODO:!!!
-    description(id)
-  }
+  /**
+   * Get a description with the given ID, falling back on the first
+   * appropriate one for the given (implicit) language code.
+   *
+   * @param id The description ID
+   * @param lang The current language
+   * @return A description matching that ID, or the first found with that language.
+   */
+  def primaryDescription(id: String)(implicit lang: Lang): Option[T] =
+    description(id).orElse(primaryDescription(lang))
 
-  def accessPoints: List[AccessPointF]
-      = descriptions.flatMap(_.accessPoints)
+  def accessPoints: List[AccessPointF] =
+    descriptions.flatMap(_.accessPoints)
 }
 
 trait Temporal {
